@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="277" height="226" viewBox="0 0 277 226">
+  <defs>
+    <clipPath id="clip-solar">
+      <rect width="277" height="226"/>
+    </clipPath>
+  </defs>
+  <g id="solar" clip-path="url(#clip-solar)">
+    <g id="Gruppe_1522" data-name="Gruppe 1522" transform="translate(-474.119 -613.333)">
+      <path id="Pfad_399" data-name="Pfad 399" d="M13554.156-4395.047l64.879-33.822,84.055,89.006-38.84,62.953Z" transform="translate(-13041.157 5081)" fill="none" stroke="#201d1a" stroke-width="8"/>
+      <path id="Pfad_400" data-name="Pfad 400" d="M3.71,0,136.3.257l3.766,14.665L0,14.227Z" transform="translate(536.854 679.465) rotate(47)" fill="#00703a"/>
+      <path id="Pfad_401" data-name="Pfad 401" d="M3.483,0l124.48.24L131.5,13.908,0,13.261Z" transform="translate(550.872 671.723) rotate(47)" fill="#00703a"/>
+      <path id="Pfad_402" data-name="Pfad 402" d="M3.251,0l116.2.212,3.3,12.085L0,11.724Z" transform="translate(564.452 665.794) rotate(47)" fill="#00703a"/>
+      <path id="Pfad_403" data-name="Pfad 403" d="M3.053,0,112.185.169l3.1,9.652L0,9.364Z" transform="translate(575.993 660.455) rotate(47)" fill="#00703a"/>
+      <g id="Gruppe_1519" data-name="Gruppe 1519" transform="translate(653.908 713.181)">
+        <g id="Ellipse_26" data-name="Ellipse 26" transform="translate(0 0)" fill="#11841e" stroke="#11841e" stroke-width="5">
+          <ellipse cx="29.166" cy="29.517" rx="29.166" ry="29.517" stroke="none"/>
+          <ellipse cx="29.166" cy="29.517" rx="26.666" ry="27.017" fill="none"/>
+        </g>
+        <path id="_5416276_check_mark_ok_icon" data-name="5416276_check_mark_ok_icon" d="M47.243,23.016,45.977,21.75a4.316,4.316,0,0,0-6.1,0L25.761,35.838l-3.568-3.6a4.316,4.316,0,0,0-6.1,0l-1.266,1.28a4.316,4.316,0,0,0,0,6.1l7.9,7.9a4.316,4.316,0,0,0,6.1,0L47.243,29.12A4.316,4.316,0,0,0,47.243,23.016Z" transform="translate(-2.117 -4.974)" fill="#d1d1d1"/>
+      </g>
+    </g>
+  </g>
+</svg>

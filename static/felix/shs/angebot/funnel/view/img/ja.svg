@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="277" height="226" viewBox="0 0 277 226">
+  <defs>
+    <filter id="Rechteck_132" x="10" y="18" width="258" height="178" filterUnits="userSpaceOnUse">
+      <feOffset dy="2" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <clipPath id="clip-path">
+      <ellipse id="Ellipse_19" data-name="Ellipse 19" cx="72.5" cy="73" rx="72.5" ry="73" transform="translate(0.422 0.328)" fill="#fff" stroke="#707070" stroke-width="1"/>
+    </clipPath>
+    <clipPath id="clip-ja">
+      <rect width="277" height="226"/>
+    </clipPath>
+  </defs>
+  <g id="ja" clip-path="url(#clip-ja)">
+    <g id="Gruppe_1568" data-name="Gruppe 1568" transform="translate(-618 -710)">
+      <g transform="matrix(1, 0, 0, 1, 618, 710)" filter="url(#Rechteck_132)">
+        <rect id="Rechteck_132-2" data-name="Rechteck 132" width="246" height="166" rx="10" transform="translate(16 22)" fill="#fff"/>
+      </g>
+      <g id="Gruppe_maskieren_5" data-name="Gruppe maskieren 5" transform="translate(684.578 743.672)" clip-path="url(#clip-path)">
+        <g id="Page-1" transform="translate(6.218 28.135)">
+          <g id="Artboard-Copy">
+            <path id="check2" d="M3797.036,4615.284l-23.253-22.889a9.275,9.275,0,0,1,0-13.265l10.106-9.946a9.6,9.6,0,0,1,13.443,0l17.168,16.894,57.167-56.316a9.623,9.623,0,0,1,13.464,0l10.094,9.941a9.281,9.281,0,0,1,0,13.257l-74.035,72.917a9.623,9.623,0,0,1-13.464,0l-10.085-9.937-.605-.657Z" transform="translate(-3770.991 -4527.015)" fill="#006f39" fill-rule="evenodd"/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

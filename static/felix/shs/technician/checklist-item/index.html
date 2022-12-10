@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+     
+    <!-- <link rel="shortcut icon" type=image/png href="http://localhost:8888/img/favicon.ico" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <link rel="shortcut icon" type="image/png" href="http://localhost:8888/img/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="checkliste.css" />
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <link
+      href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="styleguide.css" />
+    <link rel="stylesheet" type="text/css" href="globals.css" />
+  </head>
+  <body style="margin: 0; background: #ffffff">
+    <input type="hidden" id="anPageName" name="page" value="checkliste" />
+    <div class="container-center-horizontal">
+      <div class="checkliste screen">
+        <div class="overlap-group">
+          <div class="rechteck-25"></div>
+          <div class="rechteck-26"></div>
+          <h1 class="text-1 animate-enter" show-on-scroll>23.11</h1>
+          <div class="dachmontage helvetica-bold-woodsmoke-16px animate-enter1" show-on-scroll>Dachmontage <br /></div>
+          <div class="name helvetica-bold-woodsmoke-16px animate-enter2" show-on-scroll>Mario Kaledle</div>
+          <img class="polygon-2" src="img/polygon-2@1x.png" alt="Polygon 2" />
+        </div>
+        <div class="overlap-group1">
+          <div class="rechteck-27"></div>
+          <div class="zckerli-strae-22 helvetica-regular-normal-woodsmoke-14px animate-enter3" show-on-scroll>
+            Zückerli Straße 22
+          </div>
+          <div class="phone helvetica-regular-normal-woodsmoke-14px animate-enter4" show-on-scroll>01654333433</div>
+          <div class="address helvetica-regular-normal-woodsmoke-14px animate-enter5" show-on-scroll>
+            74078 Heilbronn
+          </div>
+          <div class="marcoknigwebde helvetica-regular-normal-woodsmoke-14px animate-enter6" show-on-scroll>
+            marco.könig@web.de
+          </div>
+          <div class="adresse helvetica-bold-woodsmoke-14px animate-enter7" show-on-scroll>Adresse</div>
+          <div class="kontakt helvetica-bold-woodsmoke-14px animate-enter8" show-on-scroll>Kontakt</div>
+          <img class="icon-home" src="img/216242-home-icon@1x.png" alt="icon-home" />
+          <div class="x352510_local_phone_icon"><img class="icon-call" src="img/pfad-44@1x.png" alt="icon-call" /></div>
+        </div>
+        <div class="checkbox-unselected-disabled-custom">
+          <div class="mdc-checkbox" data-mdc-auto-init="MDCCheckbox" data-id="anima-widget">
+            <input type="checkbox" class="mdc-checkbox__native-control" />
+            <div class="mdc-checkbox__background">
+              <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
+                <path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59" />
+              </svg>
+              <div class="mdc-checkbox__mixedmark"></div>
+            </div>
+            <div class="mdc-checkbox__ripple"></div>
+          </div>
+          <script>
+            mdc.autoInit();
+          </script>
+        </div>
+      </div>
+    </div>
+    <script>
+      function ShowOnScroll() {
+        this.toShow = [];
+        this.nextEventY = undefined;
+      }
+
+      ShowOnScroll.prototype.show = function (e) {
+        e.style.display = "";
+      };
+
+      ShowOnScroll.prototype.hide = function (e) {
+        e.style.display = "none";
+      };
+
+      ShowOnScroll.prototype.getTop = function (e) {
+        if (e.Top != undefined && e.Top != 0) {
+          return e.Top;
+        }
+        var top = 0;
+        var iter = e;
+        do {
+          top += iter.offsetTop || 0;
+          iter = iter.offsetParent;
+        } while (iter);
+        e.Top = top;
+        return top;
+      };
+
+      ShowOnScroll.prototype.onScroll = function () {
+        var screenBottom = window.pageYOffset + window.innerHeight;
+        if (this.nextEventY == undefined || this.nextEventY > screenBottom) {
+          return;
+        }
+        this.nextEventY = undefined;
+        for (var i = 0; i < this.toShow.length; i++) {
+          var e = this.toShow[i];
+          var top = this.getTop(e);
+          if (top < screenBottom) {
+            this.show(e);
+            this.toShow.shift();
+            i--;
+          } else {
+            this.nextEventY = top;
+            break;
+          }
+        }
+      };
+
+      ShowOnScroll.prototype.resetScrolling = function () {
+        // Clear state
+        var screenBottom = window.pageYOffset + window.innerHeight;
+        for (var i = 0; i < this.toShow.length; i++) {
+          var e = this.toShow[i];
+          this.show(e);
+        }
+        this.toShow = [];
+        this.nextEventY == undefined;
+
+        // Collect items
+        var itemsToShowOnScroll = Array.prototype.slice.call(document.getElementsByTagName("*"));
+        itemsToShowOnScroll = itemsToShowOnScroll.filter(function (e) {
+          return e.getAttribute("show-on-scroll") != undefined;
+        });
+        var getTop = this.getTop;
+        itemsToShowOnScroll.sort(function (a, b) {
+          return getTop(a) - getTop(b);
+        });
+        for (var i = 0; i < itemsToShowOnScroll.length; i++) {
+          var e = itemsToShowOnScroll[i];
+          var top = this.getTop(e);
+          if (top < screenBottom) {
+            continue;
+          }
+          this.toShow.push(e);
+          this.hide(e);
+          this.nextEventY = this.nextEventY != undefined ? this.nextEventY : top;
+        }
+      };
+
+      ShowOnScroll.prototype.handleEvent = function (e) {
+        switch (e.type) {
+          case "scroll":
+            this.onScroll();
+            break;
+          case "resize":
+            this.resetScrolling();
+            break;
+        }
+      };
+
+      ShowOnScroll.prototype.init = function () {
+        this.resetScrolling();
+        window.addEventListener("scroll", this);
+        window.addEventListener("resize", this);
+      };
+
+      // After anima-src
+      setTimeout(function () {
+        var instShowOnScroll = new ShowOnScroll();
+        instShowOnScroll.init();
+      }, 250);
+    </script>
+  
+<script type="module" src="index.js"></script>
+
+  <script type="module" src="index.js"></script>
+
+  <script type="module" src="index.js"></script>
+
+  <script type="module" src="index.js"></script>
+
+  <script type="module" src="index.js"></script>
+
+  <script type="module" src="index.js"></script>
+
+  <script type="module" src="index.js"></script>
+
+  <script type="module" src="./index.js"></script>
+</body>
+
+
+
+
+
+
+
+
+</html>

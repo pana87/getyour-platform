@@ -1,0 +1,248 @@
+:root { 
+  --black: #00000066;
+  --bright-yellow: #f7aa20;
+  --cararra: #ebebeb;
+  --celeste: #cecece;
+  --cod-gray: #080808;
+  --forest-green: #11841e;
+  --hunter-green: #161616;
+  --milano-red: #b51010;
+  --mischka: #cfd4e2;
+  --sandrift: #b78d79;
+  --sea-mist: #bedcce;
+  --white: #ffffff;
+  --woodsmoke: #0d0d0c;
+ 
+  --font-size-l: 18px;
+  --font-size-m: 17px;
+  --font-size-s: 16px;
+  --font-size-xl: 20px;
+  --font-size-xs: 15px;
+  --font-size-xxl: 25px;
+  --font-size-xxs: 14px;
+ 
+  --font-family-applebraille-pinpoint8_dot: "AppleBraille-Pinpoint8 Dot", Helvetica;
+  --font-family-applebraille-regular: "AppleBraille-Regular", Helvetica;
+  --font-family-formadjr_micro-regular: "FormaDJR Micro-Regular", Helvetica;
+  --font-family-georgia-bold: "Georgia-Bold", Helvetica;
+  --font-family-helvetica-regular: "Helvetica-Regular", Helvetica;
+  --font-family-ligurino-regular: "Ligurino-Regular", Helvetica;
+}
+.formadjrmicro-regular-normal-hunter-green-25px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-xxl);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-17px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-m);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-18px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-l);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-20px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-xl);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-14px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-16px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-s);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-12px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-white-21px {
+  color: var(--white);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 21px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-8px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-15px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-xs);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-7px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.applebraille-regular-normal-woodsmoke-23px {
+  color: var(--woodsmoke);
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 23px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-30px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-22px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-21px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 21px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-13px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-white-45px {
+  color: var(--white);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 45px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.ligurino-regular-normal-cod-gray-30px {
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.helvetica-regular-normal-woodsmoke-14px {
+  color: var(--woodsmoke);
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-10px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.applebraille-pinpoint8dot-normal-hunter-green-40px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-applebraille-pinpoint8_dot);
+  font-size: 40px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.georgia-bold-sandrift-12px {
+  color: var(--sandrift);
+  font-family: var(--font-family-georgia-bold);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.formadjrmicro-regular-normal-cararra-22px {
+  color: var(--cararra);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-white-22px {
+  color: var(--white);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.helvetica-regular-normal-woodsmoke-16px {
+  color: var(--woodsmoke);
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-s);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-hunter-green-19px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 19px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.applebraille-pinpoint8dot-normal-hunter-green-23px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-applebraille-pinpoint8_dot);
+  font-size: 23px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+:root {
+}

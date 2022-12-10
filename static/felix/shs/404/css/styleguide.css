@@ -1,0 +1,47 @@
+:root { 
+  --black: #000000;
+  --cararra: #ebebeb;
+  --celeste: #cecece;
+  --puce: #ce8f98;
+  --sea-mist: #bedcce;
+  --white: #ffffff;
+  --woodsmoke: #0d0d0c;
+ 
+  --font-size-l: 77px;
+  --font-size-m: 55px;
+  --font-size-s: 28px;
+  --font-size-xs: 23px;
+  --font-size-xxs: 16px;
+  --font-size-xxxs: 15px;
+  --font-size-xxxxs: 12px;
+ 
+  --font-family-applebraille-regular: "AppleBraille-Regular", Helvetica;
+  --font-family-helvetica-regular: "Helvetica-Regular", Helvetica;
+  --font-family-ligurino-bold: "ligurino", Helvetica;
+}
+.applebraille-regular-normal-woodsmoke-23px {
+  color: var(--woodsmoke);
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xs);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.helvetica-regular-normal-woodsmoke-14px {
+  color: var(--woodsmoke);
+  font-family: var(--font-family-helvetica-regular);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.helvetica-regular-normal-woodsmoke-16px {
+  color: var(--woodsmoke);
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+}
+
+:root {
+}

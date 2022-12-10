@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src https://*; child-src 'none';" /> -->
+  </head>
+  <body style="margin: 0; background: #ffffff">
+
+
+    <script>
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+      };
+
+      function success(pos) {
+        const crd = pos.coords;
+
+        if (confirm("Deine Ortung wird nur für die Berechnung der Distanz zum nächsten Techniker benötigt. Es werden keine Daten gespeichert.\n\nMöchtest du fortfahre?")) {
+          console.log('Your current position is:');
+          console.log(`Latitude : ${crd.latitude}`);
+          console.log(`Longitude: ${crd.longitude}`);
+          console.log(`More or less ${crd.accuracy} meters.`);
+
+          // calculate distance
+          // 1. find all technicians and get a list of their lat lon
+          // 2. calc distance
+          // 3. get the 3 smallest distances
+
+        } else {
+          alert("Wir brauchen die Position, um den passenden Techniker für dich zu finden.")
+          window.location.reload()
+        }
+
+
+      }
+
+      function error(err) {
+        console.warn(`ERROR(${err.code}): ${err.message}`);
+        alert("Du musst die Ortungsdienst für den Browser in deinen Einstellungen erlauben.")
+      }
+
+      navigator.geolocation.getCurrentPosition(success, error, options);
+    </script>
+  </body>
+</html>

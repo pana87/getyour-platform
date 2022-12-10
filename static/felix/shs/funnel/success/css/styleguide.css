@@ -1,0 +1,59 @@
+:root { 
+  --bright-yellow: #f7aa20;
+  --cararra: #ebebeb;
+  --celeste: #cecece;
+  --cod-gray: #080808;
+  --forest-green: #11841e;
+  --fun-green: #006f39;
+  --hunter-green: #161616;
+  --sea-mist: #bedcce;
+  --white: #ffffff;
+  --woodsmoke: #0d0d0c;
+ 
+  --font-size-l: 23px;
+  --font-size-m: 20px;
+  --font-size-s: 16px;
+  --font-size-xl: 25px;
+  --font-size-xs: 15px;
+  --font-size-xxl: 27px;
+  --font-size-xxs: 12px;
+ 
+  --font-family-applebraille-pinpoint8_dot: "AppleBraille-Pinpoint8 Dot", Helvetica;
+  --font-family-applebraille-regular: "AppleBraille-Regular", Helvetica;
+  --font-family-helvetica-regular: "Helvetica-Regular", Helvetica;
+  --font-family-ligurino-regular: "Ligurino-Regular", Helvetica;
+}
+.applebraille-regular-normal-woodsmoke-23px {
+  color: var(--woodsmoke);
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-l);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.helvetica-regular-normal-woodsmoke-14px {
+  color: var(--woodsmoke);
+  font-family: var(--font-family-helvetica-regular);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.applebraille-pinpoint8dot-normal-hunter-green-20px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-applebraille-pinpoint8_dot);
+  font-size: var(--font-size-m);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.helvetica-regular-normal-woodsmoke-16px {
+  color: var(--woodsmoke);
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-s);
+  font-style: normal;
+  font-weight: 400;
+}
+
+:root {
+}

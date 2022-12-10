@@ -1,0 +1,82 @@
+:root { 
+  --black: #000000;
+  --bright-yellow: #f7aa20;
+  --cararra: #ebebeb;
+  --cod-gray: #080808;
+  --fun-green: #006f39;
+  --hunter-green: #161616;
+  --white: #ffffff;
+  --woodsmoke: #0d0d0c;
+ 
+  --font-size-l: 25px;
+  --font-size-m: 23px;
+  --font-size-s: 20px;
+  --font-size-xl: 45px;
+  --font-size-xs: 16px;
+  --font-size-xxs: 15px;
+  --font-size-xxxs: 14px;
+ 
+  --font-family-applebraille-regular: "AppleBraille-Regular", Helvetica;
+  --font-family-helvetica-regular: "Helvetica-Regular", Helvetica;
+  --font-family-ligurino: "Ligurino", Helvetica;
+  --font-family-ligurino-bold: "Ligurino-Bold", Helvetica;
+  --font-family-ligurino-regular: "Ligurino-Regular", Helvetica;
+}
+.applebraille-regular-normal-woodsmoke-23px {
+  color: var(--woodsmoke);
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-m);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.applebraille-regular-normal-hunter-green-25px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-l);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.helvetica-regular-normal-woodsmoke-14px {
+  color: var(--woodsmoke);
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxxs);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.ligurino-regular-normal-cod-gray-23px {
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: var(--font-size-m);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.ligurino-regular-normal-cod-gray-30px {
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.applebraille-regular-normal-hunter-green-23px {
+  color: var(--hunter-green);
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-m);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.helvetica-regular-normal-woodsmoke-16px {
+  color: var(--woodsmoke);
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xs);
+  font-style: normal;
+  font-weight: 400;
+}
+
+:root {
+}

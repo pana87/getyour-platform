@@ -1,0 +1,26 @@
+/* screen - gruppe-15373 */
+
+.gruppe-1537 {
+  height: 80px;
+  position: relative;
+  width: 76px;
+}
+
+.gruppe-1456 {
+  height: 44px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  width: 44px;
+}
+
+.neuen-funnel-erstellen {
+  left: 0;
+  letter-spacing: 0;
+  line-height: 14px;
+  position: absolute;
+  text-align: center;
+  top: 52px;
+  white-space: nowrap;
+}

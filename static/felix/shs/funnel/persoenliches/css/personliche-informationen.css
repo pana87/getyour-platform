@@ -1,0 +1,4343 @@
+/* screen - full-project */
+
+.full-project {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 1742px;
+  min-width: 375px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.full-project .gruppe-1620-KqxCzi {
+  background-color: transparent;
+  height: 24px;
+  left: calc(50.00% - 134px);
+  position: absolute;
+  top: 255px;
+  width: 269px;
+}
+
+.full-project .persnliche-informationen-fDxeVl {
+  -webkit-text-stroke: 0.4000000059604645px var(--hunter-green);
+  background-color: transparent;
+  bottom: 18.75%;
+  color: var(--hunter-green);
+  font-family: var(--font-family-applebraille-pinpoint8_dot);
+  font-size: var(--font-size-l);
+  font-style: normal;
+  font-weight: 400;
+  height: 26px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 37px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 271px;
+}
+
+.full-project .gruppe-1593-KqxCzi {
+  background-color: transparent;
+  height: 6.26%;
+  left: 26px;
+  position: absolute;
+  top: 18.31%;
+  width: calc(100.00% - 62px);
+}
+
+.full-project .rechteck-224-sYwitW {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .vorname-sYwitW {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 69px;
+}
+
+.full-project .persoenlichesvorname-sYwitW {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 51px;
+}
+
+.full-project .gruppe-1681-KqxCzi {
+  background-color: transparent;
+  height: 6.26%;
+  left: 26px;
+  position: absolute;
+  top: 33.95%;
+  width: calc(100.00% - 62px);
+}
+
+.full-project .rechteck-224-EIQeDW {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .strae-und-hausnummer-EIQeDW {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 189px;
+}
+
+.full-project .persoenlichesadresse-EIQeDW {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 222px;
+}
+
+.full-project .gruppe-1683-KqxCzi {
+  background-color: transparent;
+  height: 6.26%;
+  left: 26px;
+  position: absolute;
+  top: 49.59%;
+  width: calc(100.00% - 62px);
+}
+
+.full-project .rechteck-224-wLmygx {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .bundesland-wLmygx {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 91px;
+}
+
+.full-project .persoenlichesbundesland-wLmygx {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% - 88px);
+}
+
+.full-project .gruppe-1594-KqxCzi {
+  background-color: transparent;
+  height: 6.26%;
+  left: 26px;
+  position: absolute;
+  top: 26.13%;
+  width: calc(100.00% - 62px);
+}
+
+.full-project .rechteck-307-0ZNwm2 {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .nachname-0ZNwm2 {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 84px;
+}
+
+.full-project .persoenlichesnachname-0ZNwm2 {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 65px;
+}
+
+.full-project .gruppe-1680-KqxCzi {
+  background-color: transparent;
+  height: 6.26%;
+  left: 26px;
+  position: absolute;
+  top: 41.77%;
+  width: calc(100.00% - 62px);
+}
+
+.full-project .rechteck-307-XxbQWH {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .postleitzahl-und-stadt-XxbQWH {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 163px;
+}
+
+.full-project .persoenlichesstadt-XxbQWH {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 180px;
+}
+
+.full-project .gruppe-1682-KqxCzi {
+  background-color: transparent;
+  height: 6.26%;
+  left: 26px;
+  position: absolute;
+  top: 57.42%;
+  width: calc(100.00% - 62px);
+}
+
+.full-project .rechteck-307-AIK7do {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .land-AIK7do {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 38px;
+}
+
+.full-project .persoenlichesland-AIK7do {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 146px;
+}
+
+.full-project .gruppe-1667-KqxCzi {
+  background-color: transparent;
+  height: 7.17%;
+  left: 26px;
+  position: absolute;
+  top: 66.44%;
+  width: calc(100.00% - 62px);
+}
+
+.full-project .rechteck-310-ZX24x7 {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .e-mail-adresse-an-we-ZX24x7 {
+  background-color: transparent;
+  height: 42px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(28.85% - 12px);
+  white-space: nowrap;
+  width: calc(100.00% - 85px);
+}
+
+.full-project .persoenlichesemailadresse-ZX24x7 {
+  background-color: transparent;
+  bottom: calc(17.20% - 5px);
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+  height: 29px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 22px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 222px;
+}
+
+.full-project .gruppe-1642-KqxCzi {
+  background-color: transparent;
+  bottom: 131px;
+  height: 223px;
+  left: 35px;
+  position: absolute;
+  width: calc(100.00% - 62px);
+}
+
+.full-project .angeboterhaltenbutton-cxRsYw {
+  background-color: transparent;
+  bottom: 128px;
+  height: 95px;
+  position: absolute;
+  right: 0px;
+  width: 313px;
+}
+
+.full-project .gruppe-1545-MoCUgK {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .rechteck-240-tmeZF0 {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .angebot-erhalten-tmeZF0 {
+  background-color: transparent;
+  bottom: calc(44.07% - 16px);
+  height: 36px;
+  left: 37px;
+  letter-spacing: 0.00px;
+  line-height: 29px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% - 79px);
+}
+
+.full-project .zurueck-cxRsYw {
+  background-color: transparent;
+  height: 39px;
+  left: 0px;
+  position: absolute;
+  top: calc(100.00% - 39px);
+  width: 123px;
+}
+
+.full-project .pfad-568-0gD4A5 {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.full-project .zurck-0gD4A5 {
+  background-color: transparent;
+  bottom: calc(42.39% - 6px);
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  height: 13px;
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  position: absolute;
+  right: calc(48.90% - 16px);
+  text-align: left;
+  white-space: nowrap;
+  width: 32px;
+}
+
+.full-project .gruppe-1468-KqxCzi {
+  background-color: transparent;
+  bottom: -2px;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  width: 100%;
+}
+
+.full-project .rechteck-21-IXsiB5 {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: calc(50.00% - 54px);
+  width: 100%;
+}
+
+.full-project .rechteck-21-IXsiB5.bp1-animate-enter {
+  animation: bp1-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .gruppe-1454-IXsiB5 {
+  background-color: transparent;
+  bottom: calc(5.91% - 1px);
+  height: 16px;
+  position: absolute;
+  right: calc(4.66% - 10px);
+  width: 225px;
+}
+
+.full-project .impressum-76ayC5 {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  text-align: left;
+  top: -1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 87px;
+}
+
+.full-project .impressum-76ayC5.bp1-animate-enter1 {
+  animation: bp1-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .impressum-76ayC5:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .datenschutz-76ayC5 {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  top: -1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 105px;
+}
+
+.full-project .datenschutz-76ayC5.bp1-animate-enter2 {
+  animation: bp1-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .datenschutz-76ayC5:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .x-76ayC5 {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xs);
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  left: calc(46.70% - 5px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.full-project .x-76ayC5.bp1-animate-enter3 {
+  animation: bp1-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .gruppe-1462-IXsiB5 {
+  background-color: transparent;
+  height: 35px;
+  left: calc(50.00% - 168px);
+  position: absolute;
+  top: calc(34.46% - 12px);
+  width: 336px;
+}
+
+.full-project .shs-montage-express-gmb-h-7Vlwez {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 14px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  right: calc(45.74% - 79px);
+  text-align: left;
+  top: -1px;
+  white-space: nowrap;
+  width: 172px;
+}
+
+.full-project .shs-montage-express-gmb-h-7Vlwez.bp1-animate-enter4 {
+  animation: bp1-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .dachmontage-elektrik-7Vlwez {
+  background-color: transparent;
+  bottom: 0px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 14px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% + 2px);
+}
+
+.full-project .dachmontage-elektrik-7Vlwez.bp1-animate-enter5 {
+  animation: bp1-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .c-7Vlwez {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 400;
+  height: 10px;
+  left: calc(24.00% - 1px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -3px;
+  white-space: nowrap;
+  width: 6px;
+}
+
+.full-project .c-7Vlwez.bp1-animate-enter6 {
+  animation: bp1-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .ellipse-12-7Vlwez {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 4.86px/5px;
+  display: block;
+  height: 10px;
+  left: calc(23.46% - 2px);
+  opacity: 0;
+  position: absolute;
+  top: 0px;
+  width: 10px;
+}
+
+.full-project .ellipse-12-7Vlwez.bp1-animate-enter7 {
+  animation: bp1-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .gruppe-1726-KqxCzi {
+  background-color: transparent;
+  height: 34px;
+  position: fixed;
+  right: calc(29.05% - 14px);
+  top: 110px;
+  width: 50px;
+}
+
+.full-project .gruppe-1622-2sUMka {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .rechteck-332-FYTKQt {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: #006f3a;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .icon-check_mark-2sUMka {
+  background-color: transparent;
+  height: calc(100.00% - 16px);
+  object-fit: cover;
+  position: absolute;
+  right: calc(43.27% - 10px);
+  top: 8px;
+  width: 22px;
+}
+
+.full-project .gruppe-1624-KqxCzi {
+  background-color: transparent;
+  height: 172px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .gruppe-5-BiRlCb {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .rechteck-8-O6VzfG {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .logo-O6VzfG {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 135px);
+  left: 24px;
+  object-fit: cover;
+  position: absolute;
+  top: 12px;
+  width: 61px;
+}
+
+.full-project .gruppe-1537-BiRlCb {
+  background-color: transparent;
+  height: 30.21%;
+  left: 7.02%;
+  position: absolute;
+  top: 53.23%;
+  width: 85.96%;
+}
+
+.full-project .haushalt-4beox8 {
+  background-color: transparent;
+  height: 14px;
+  left: 5px;
+  letter-spacing: 0.00px;
+  line-height: 10px;
+  position: absolute;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 42px;
+}
+
+.full-project .heizung-4beox8 {
+  background-color: transparent;
+  height: 14px;
+  left: calc(26.38% - 10px);
+  letter-spacing: 0.00px;
+  line-height: 10px;
+  position: absolute;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 38px;
+}
+
+.full-project .strom-4beox8 {
+  background-color: transparent;
+  height: 14px;
+  letter-spacing: 0.00px;
+  line-height: 10px;
+  position: absolute;
+  right: calc(49.66% - 14px);
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 29px;
+}
+
+.full-project .technisches-4beox8 {
+  background-color: transparent;
+  height: 14px;
+  letter-spacing: 0.00px;
+  line-height: 10px;
+  position: absolute;
+  right: calc(24.04% - 13px);
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 56px;
+}
+
+.full-project .kontakt-4beox8 {
+  background-color: transparent;
+  height: 14px;
+  letter-spacing: 0.00px;
+  line-height: 10px;
+  position: absolute;
+  right: 6px;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 35px;
+}
+
+.full-project .gruppe-1532-4beox8 {
+  background-color: transparent;
+  bottom: 1px;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  width: 50px;
+}
+
+.full-project .rechteck-226-B5kqRS {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: #10841e;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .icon-check_mark-B5kqRS {
+  background-color: transparent;
+  height: calc(100.00% - 16px);
+  left: calc(50.00% - 11px);
+  object-fit: cover;
+  position: absolute;
+  top: 8px;
+  width: 22px;
+}
+
+.full-project .gruppe-1533-4beox8 {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  left: calc(25.00% - 12px);
+  position: absolute;
+  width: 50px;
+}
+
+.full-project .rechteck-332-YK9kkS {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .icon-check_mark-YK9kkS {
+  background-color: transparent;
+  height: calc(100.00% - 16px);
+  object-fit: cover;
+  position: absolute;
+  right: calc(46.90% - 10px);
+  top: 8px;
+  width: 22px;
+}
+
+.full-project .gruppe-1714-4beox8 {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  position: absolute;
+  right: calc(50.00% - 25px);
+  width: 50px;
+}
+
+.full-project .icon-check_mark-nXXxqr {
+  background-color: transparent;
+  height: calc(100.00% - 16px);
+  left: calc(50.00% - 11px);
+  object-fit: cover;
+  position: absolute;
+  top: 8px;
+  width: 22px;
+}
+
+.full-project .rechteck-332-nXXxqr {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .gruppe-1739-4beox8 {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  position: absolute;
+  right: calc(25.00% - 12px);
+  width: 50px;
+}
+
+.full-project .icon-check_mark-d7UkzM {
+  background-color: transparent;
+  height: calc(100.00% - 16px);
+  left: calc(50.00% - 11px);
+  object-fit: cover;
+  position: absolute;
+  top: 8px;
+  width: 22px;
+}
+
+.full-project .rechteck-332-d7UkzM {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .gruppe-1623-4beox8 {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  position: absolute;
+  right: 0px;
+  width: 50px;
+}
+
+.full-project .rechteck-226-Fu6k2G {
+  background-color: #cfd4e2;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .rechteck-332-Fu6k2G {
+  background-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x5-Fu6k2G {
+  background-color: transparent;
+  color: var(--white);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 21px;
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.20% - 7px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.full-project .unverbindliches-und-KqxCzi {
+  background-color: transparent;
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: 32px;
+  text-align: left;
+  top: 1491px;
+  white-space: nowrap;
+  width: 319px;
+}
+/* screen - personliche-informationen */
+
+.personliche-informationen {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 1631px;
+  min-width: 1920px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.personliche-informationen .rechteck-21-9m8r4q {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  bottom: -3px;
+  display: block;
+  height: 118px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.personliche-informationen .rechteck-21-9m8r4q.bp4-animate-enter {
+  animation: bp4-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen .shs-montage-express-9m8r4q {
+  background-color: transparent;
+  bottom: 50px;
+  display: block;
+  height: 26px;
+  left: 243px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 988px;
+}
+
+.personliche-informationen .shs-montage-express-9m8r4q.bp4-animate-enter1 {
+  animation: bp4-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen .impressum-9m8r4q {
+  background-color: transparent;
+  bottom: 52px;
+  cursor: pointer;
+  display: block;
+  height: 25px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(25.91% - 37px);
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 141px;
+}
+
+.personliche-informationen .impressum-9m8r4q.bp4-animate-enter2 {
+  animation: bp4-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen .impressum-9m8r4q:hover {
+  filter: grayscale(100%);
+}
+
+.personliche-informationen .datenschutz-9m8r4q {
+  background-color: transparent;
+  bottom: 50px;
+  cursor: pointer;
+  display: block;
+  height: 25px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: 213px;
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 172px;
+}
+
+.personliche-informationen .datenschutz-9m8r4q.bp4-animate-enter3 {
+  animation: bp4-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen .datenschutz-9m8r4q:hover {
+  filter: grayscale(100%);
+}
+
+.personliche-informationen .x-9m8r4q {
+  background-color: transparent;
+  bottom: 50px;
+  display: block;
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  right: calc(33.19% - 5px);
+  text-align: left;
+  white-space: nowrap;
+  width: 16px;
+}
+
+.personliche-informationen .x-9m8r4q.bp4-animate-enter4 {
+  animation: bp4-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen .x-8p0MzB {
+  background-color: transparent;
+  bottom: 50px;
+  display: block;
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  right: calc(21.80% - 3px);
+  text-align: left;
+  white-space: nowrap;
+  width: 16px;
+}
+
+.personliche-informationen .x-8p0MzB.bp4-animate-enter5 {
+  animation: bp4-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen .c-9m8r4q {
+  background-color: transparent;
+  bottom: 62px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  left: 219px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.personliche-informationen .c-9m8r4q.bp4-animate-enter6 {
+  animation: bp4-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen .ellipse-12-9m8r4q {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 8px;
+  bottom: 55px;
+  display: block;
+  height: 16px;
+  left: 215px;
+  opacity: 0;
+  position: absolute;
+  width: 16px;
+}
+
+.personliche-informationen .ellipse-12-9m8r4q.bp4-animate-enter7 {
+  animation: bp4-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen .persnliche-informationen-9m8r4q {
+  -webkit-text-stroke: 1px var(--hunter-green);
+  background-color: transparent;
+  height: 44px;
+  letter-spacing: 0.00px;
+  line-height: 37px;
+  opacity: 0.86;
+  position: absolute;
+  right: calc(37.30% - 321px);
+  text-align: left;
+  top: 217px;
+  white-space: nowrap;
+  width: 862px;
+}
+
+.personliche-informationen .rechteck-227-9m8r4q {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  left: calc(44.79% - 197px);
+  position: absolute;
+  top: calc(21.62% - 24px);
+  width: 439px;
+}
+
+.personliche-informationen .rechteck-229-9m8r4q {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  left: calc(44.79% - 197px);
+  position: absolute;
+  top: calc(35.09% - 38px);
+  width: 439px;
+}
+
+.personliche-informationen .rechteck-246-9m8r4q {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  position: absolute;
+  right: 286px;
+  top: calc(35.09% - 38px);
+  width: 439px;
+}
+
+.personliche-informationen .rechteck-247-9m8r4q {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  position: absolute;
+  right: 286px;
+  top: calc(46.22% - 50px);
+  width: 439px;
+}
+
+.personliche-informationen .rechteck-243-9m8r4q {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  left: calc(44.79% - 197px);
+  position: absolute;
+  top: calc(46.22% - 50px);
+  width: 439px;
+}
+
+.personliche-informationen .rechteck-225-9m8r4q {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  position: absolute;
+  right: 286px;
+  top: calc(21.62% - 24px);
+  width: 439px;
+}
+
+.personliche-informationen .ihr-vorname-9m8r4q {
+  background-color: transparent;
+  height: 22px;
+  left: calc(37.44% - 34px);
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.60% - 5px);
+  white-space: nowrap;
+  width: 92px;
+}
+
+.personliche-informationen .strae-und-hausnummer-9m8r4q {
+  background-color: transparent;
+  height: 21px;
+  left: calc(39.29% - 70px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(34.38% - 7px);
+  white-space: nowrap;
+  width: 178px;
+}
+
+.personliche-informationen .postleitzahl-und-stadt-9m8r4q {
+  background-color: transparent;
+  height: 21px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  right: calc(31.12% - 48px);
+  text-align: left;
+  top: calc(34.38% - 7px);
+  white-space: nowrap;
+  width: 154px;
+}
+
+.personliche-informationen .land-9m8r4q {
+  background-color: transparent;
+  height: 21px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  right: calc(35.43% - 13px);
+  text-align: left;
+  top: calc(44.91% - 9px);
+  white-space: nowrap;
+  width: 36px;
+}
+
+.personliche-informationen .bundesland-9m8r4q {
+  background-color: transparent;
+  height: 21px;
+  left: calc(37.32% - 32px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(44.91% - 9px);
+  white-space: nowrap;
+  width: 86px;
+}
+
+.personliche-informationen .ihr-nachname-9m8r4q {
+  background-color: transparent;
+  height: 32px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  right: calc(25.05% - 74px);
+  text-align: left;
+  top: calc(21.64% - 7px);
+  width: 297px;
+}
+
+.personliche-informationen .persoenlichesvorname-9m8r4q {
+  background-color: transparent;
+  height: 33px;
+  left: calc(36.62% - 19px);
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: calc(24.22% - 8px);
+  white-space: nowrap;
+  width: 51px;
+}
+
+.personliche-informationen .persoenlichesadresse-9m8r4q {
+  background-color: transparent;
+  height: 33px;
+  left: calc(41.23% - 107px);
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: calc(37.05% - 12px);
+  white-space: nowrap;
+  width: 260px;
+}
+
+.personliche-informationen .persoenlichesstadt-9m8r4q {
+  background-color: transparent;
+  height: 33px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  right: calc(30.09% - 54px);
+  text-align: left;
+  top: calc(37.05% - 12px);
+  white-space: nowrap;
+  width: 180px;
+}
+
+.personliche-informationen .persoenlichesland-9m8r4q {
+  background-color: transparent;
+  height: 33px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  right: calc(31.59% - 45px);
+  text-align: left;
+  top: calc(47.65% - 16px);
+  white-space: nowrap;
+  width: 142px;
+}
+
+.personliche-informationen .persoenlichesbundesland-9m8r4q {
+  background-color: transparent;
+  height: 33px;
+  left: calc(40.64% - 96px);
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: calc(47.65% - 16px);
+  white-space: nowrap;
+  width: 236px;
+}
+
+.personliche-informationen .persoenlichesnachname-9m8r4q {
+  background-color: transparent;
+  height: 33px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  right: calc(34.43% - 22px);
+  text-align: left;
+  top: calc(24.22% - 8px);
+  white-space: nowrap;
+  width: 65px;
+}
+
+.personliche-informationen .angeboterhaltenbutton-9m8r4q {
+  background-color: transparent;
+  bottom: calc(21.04% - 24px);
+  height: 115px;
+  position: absolute;
+  right: 125px;
+  width: 472px;
+}
+
+.personliche-informationen .rechteck-240-6W6xq5 {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen .angebot-erhalten-6W6xq5 {
+  background-color: transparent;
+  bottom: calc(44.94% - 16px);
+  height: 36px;
+  letter-spacing: 0.00px;
+  line-height: 29px;
+  position: absolute;
+  right: calc(49.58% - 116px);
+  text-align: left;
+  white-space: nowrap;
+  width: 234px;
+}
+
+.personliche-informationen .zurueck-9m8r4q {
+  background-color: transparent;
+  bottom: calc(20.40% - 14px);
+  height: 67px;
+  left: calc(38.75% - 81px);
+  position: absolute;
+  width: 209px;
+}
+
+.personliche-informationen .pfad-569-nAZTDa {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen .zurck-nAZTDa {
+  background-color: transparent;
+  bottom: calc(34.95% - 8px);
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: 19px;
+  font-style: normal;
+  font-weight: 400;
+  height: 24px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: calc(49.33% - 29px);
+  text-align: left;
+  white-space: nowrap;
+  width: 59px;
+}
+
+.personliche-informationen .unverbindliches-und-9m8r4q {
+  background-color: transparent;
+  bottom: 280px;
+  height: 18px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: 225px;
+  text-align: left;
+  white-space: nowrap;
+  width: 372px;
+}
+
+.personliche-informationen .rechteck-234-9m8r4q {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  bottom: calc(40.31% - 44px);
+  height: 109px;
+  left: calc(47.80% - 254px);
+  position: absolute;
+  width: 532px;
+}
+
+.personliche-informationen .e-mail-adresse-an-we-9m8r4q {
+  background-color: transparent;
+  bottom: calc(42.42% - 9px);
+  height: 21px;
+  left: calc(45.72% - 193px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 423px;
+}
+
+.personliche-informationen .persoenlichesemailadresse-9m8r4q {
+  background-color: transparent;
+  bottom: calc(38.83% - 13px);
+  height: 33px;
+  left: calc(42.59% - 133px);
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 313px;
+}
+
+.personliche-informationen .gruppe-1741-9m8r4q {
+  background-color: transparent;
+  height: 558px;
+  left: 87px;
+  position: fixed;
+  top: 211px;
+  width: 439px;
+}
+
+.personliche-informationen .gruppe-1716-uj7Etq {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen .gruppe-1537-NMq7Iy {
+  background-color: transparent;
+  height: calc(100.00% - 14px);
+  left: 0px;
+  position: absolute;
+  top: 14px;
+  width: 100%;
+}
+
+.personliche-informationen .angaben-zum-haus-DoisOK {
+  background-color: transparent;
+  height: 38px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  right: calc(47.80% - 123px);
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 257px;
+}
+
+.personliche-informationen .heizungsanlage-DoisOK {
+  background-color: transparent;
+  height: 38px;
+  left: calc(42.22% - 90px);
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  text-align: left;
+  top: calc(25.07% - 10px);
+  white-space: nowrap;
+  width: 214px;
+}
+
+.personliche-informationen .stromversorger-DoisOK {
+  background-color: transparent;
+  height: 38px;
+  left: calc(41.48% - 87px);
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  text-align: left;
+  top: calc(49.56% - 19px);
+  white-space: nowrap;
+  width: 210px;
+}
+
+.personliche-informationen .technische-ausstattung-DoisOK {
+  background-color: transparent;
+  bottom: calc(25.96% - 10px);
+  height: 38px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  right: 28px;
+  text-align: left;
+  white-space: nowrap;
+  width: 316px;
+}
+
+.personliche-informationen .persnliche-informationen-DoisOK {
+  background-color: transparent;
+  bottom: 8px;
+  height: 38px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  white-space: nowrap;
+  width: 346px;
+}
+
+.personliche-informationen .gruppe-1536-DoisOK {
+  background-color: transparent;
+  bottom: 0px;
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  width: 65px;
+}
+
+.personliche-informationen .rechteck-226-qICvgC {
+  background-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen .x5-qICvgC {
+  background-color: transparent;
+  bottom: -7px;
+  color: var(--white);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 45px;
+  font-style: normal;
+  font-weight: 400;
+  height: 57px;
+  letter-spacing: 0.00px;
+  line-height: 45px;
+  position: absolute;
+  right: calc(44.74% - 12px);
+  text-align: left;
+  white-space: nowrap;
+  width: 27px;
+}
+
+.personliche-informationen .linie-59-DoisOK {
+  background-color: transparent;
+  height: 59px;
+  left: 31px;
+  object-fit: cover;
+  position: absolute;
+  top: 50px;
+  width: 3px;
+}
+
+.personliche-informationen .linie-60-DoisOK {
+  background-color: transparent;
+  height: 59px;
+  left: 31px;
+  object-fit: cover;
+  position: absolute;
+  top: calc(35.84% - 21px);
+  width: 3px;
+}
+
+.personliche-informationen .linie-61-DoisOK {
+  background-color: transparent;
+  bottom: calc(38.72% - 23px);
+  height: 59px;
+  left: 31px;
+  object-fit: cover;
+  position: absolute;
+  width: 3px;
+}
+
+.personliche-informationen .linie-62-DoisOK {
+  background-color: transparent;
+  bottom: 64px;
+  height: 59px;
+  left: 31px;
+  object-fit: cover;
+  position: absolute;
+  width: 3px;
+}
+
+.personliche-informationen .gruppe-1720-NMq7Iy {
+  background-color: transparent;
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 65px;
+}
+
+.personliche-informationen .gruppe-1532-MUJ1s4 {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen .rechteck-226-L3us5G {
+  background-color: transparent;
+  border: 3px solid;
+  border-color: var(--forest-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen .x1-L3us5G {
+  background-color: transparent;
+  color: var(--cararra);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 45px;
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% - 8px);
+  letter-spacing: 0.00px;
+  line-height: 45px;
+  position: absolute;
+  right: calc(47.83% - 9px);
+  text-align: left;
+  top: 13px;
+  white-space: nowrap;
+  width: 19px;
+}
+
+.personliche-informationen .icon-check_mark-MUJ1s4 {
+  background-color: transparent;
+  bottom: calc(46.27% - 13px);
+  height: 27px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  width: calc(100.00% - 31px);
+}
+
+.personliche-informationen .gruppe-1719-NMq7Iy {
+  background-color: transparent;
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  top: calc(24.92% - 16px);
+  width: 65px;
+}
+
+.personliche-informationen .gruppe-1533-vTnsf1 {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen .rechteck-226-WGsYUt {
+  background-color: transparent;
+  border: 3px solid;
+  border-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen .icon-check_mark-vTnsf1 {
+  background-color: transparent;
+  bottom: calc(46.27% - 13px);
+  height: 27px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  width: calc(100.00% - 31px);
+}
+
+.personliche-informationen .gruppe-1718-NMq7Iy {
+  background-color: transparent;
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  top: calc(49.95% - 32px);
+  width: 65px;
+}
+
+.personliche-informationen .gruppe-1534-m1Cx3m {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen .rechteck-226-OU7gas {
+  background-color: transparent;
+  border: 3px solid;
+  border-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen .icon-check_mark-m1Cx3m {
+  background-color: transparent;
+  bottom: calc(47.60% - 13px);
+  height: 27px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  width: calc(100.00% - 31px);
+}
+
+.personliche-informationen .gruppe-1717-NMq7Iy {
+  background-color: transparent;
+  bottom: calc(25.03% - 16px);
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  width: 65px;
+}
+
+.personliche-informationen .gruppe-1535-KYub1z {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen .rechteck-226-jUxgbD {
+  background-color: transparent;
+  border: 2px solid;
+  border-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen .icon-check_mark-KYub1z {
+  background-color: transparent;
+  bottom: calc(48.93% - 13px);
+  height: 27px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  width: calc(100.00% - 31px);
+}
+
+.personliche-informationen .gruppe-5-9m8r4q {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen .rechteck-8-efH71c {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen .logo-efH71c {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 23px);
+  left: 86px;
+  object-fit: cover;
+  position: absolute;
+  top: 11px;
+  width: 101px;
+}
+/* screen - personliche-informationen-1 */
+
+.personliche-informationen-1 {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 1422px;
+  min-width: 1200px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.personliche-informationen-1 .gruppe-1620-Y8YbB5 {
+  background-color: transparent;
+  height: 41px;
+  left: calc(37.65% - 176px);
+  position: absolute;
+  top: 176px;
+  width: 467px;
+}
+
+.personliche-informationen-1 .persnliche-informationen-AMZXyB {
+  -webkit-text-stroke: 1px var(--hunter-green);
+  background-color: transparent;
+  height: 43px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 37px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 4.88%;
+  white-space: nowrap;
+  width: 469px;
+}
+
+.personliche-informationen-1 .gruppe-1594-Y8YbB5 {
+  background-color: transparent;
+  height: 396px;
+  position: absolute;
+  right: calc(19.09% - 66px);
+  top: calc(28.15% - 111px);
+  width: 348px;
+}
+
+.personliche-informationen-1 .rechteck-307-ELjetM {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .rechteck-345-ELjetM {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  bottom: 0px;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  width: 100%;
+}
+
+.personliche-informationen-1 .rechteck-344-ELjetM {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  bottom: calc(49.91% - 54px);
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  width: 100%;
+}
+
+.personliche-informationen-1 .ihr-nachname-ELjetM {
+  background-color: transparent;
+  height: 21px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: 20px;
+  white-space: nowrap;
+  width: 100px;
+}
+
+.personliche-informationen-1 .land-ELjetM {
+  background-color: transparent;
+  bottom: calc(18.29% - 4px);
+  height: 21px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 36px;
+}
+
+.personliche-informationen-1 .postleitzahl-und-stadt-ELjetM {
+  background-color: transparent;
+  height: 21px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(43.39% - 9px);
+  white-space: nowrap;
+  width: 154px;
+}
+
+.personliche-informationen-1 .persoenlichesnachname-ELjetM {
+  background-color: transparent;
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 58px;
+  white-space: nowrap;
+  width: 65px;
+}
+
+.personliche-informationen-1 .persoenlichesland-ELjetM {
+  background-color: transparent;
+  bottom: 18px;
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 146px;
+}
+
+.personliche-informationen-1 .persoenlichesstadt-ELjetM {
+  background-color: transparent;
+  bottom: calc(44.55% - 15px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 180px;
+}
+
+.personliche-informationen-1 .gruppe-1619-Y8YbB5 {
+  background-color: transparent;
+  height: 396px;
+  left: calc(32.38% - 113px);
+  position: absolute;
+  top: calc(28.15% - 111px);
+  width: 348px;
+}
+
+.personliche-informationen-1 .gruppe-1593-DLosjF {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 174px);
+  position: absolute;
+  top: 0px;
+  width: 348px;
+}
+
+.personliche-informationen-1 .rechteck-224-uD6uvx {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .ihr-vorname-uD6uvx {
+  background-color: transparent;
+  height: 21px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(22.16% - 5px);
+  white-space: nowrap;
+  width: 86px;
+}
+
+.personliche-informationen-1 .persoenlichesvorname-uD6uvx {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 51px;
+}
+
+.personliche-informationen-1 .gruppe-1595-DLosjF {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 174px);
+  position: absolute;
+  top: 146px;
+  width: 348px;
+}
+
+.personliche-informationen-1 .rechteck-308-zx51ax {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .strae-und-hausnummer-zx51ax {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 189px;
+}
+
+.personliche-informationen-1 .persoenlichesadresse-zx51ax {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 222px;
+}
+
+.personliche-informationen-1 .gruppe-1597-DLosjF {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 174px);
+  position: absolute;
+  top: 286px;
+  width: 348px;
+}
+
+.personliche-informationen-1 .rechteck-310-8k9LM8 {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .bundesland-8k9LM8 {
+  background-color: transparent;
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 400;
+  height: 21px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(22.73% - 5px);
+  white-space: nowrap;
+  width: 80px;
+}
+
+.personliche-informationen-1 .persoenlichesbundesland-8k9LM8 {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 236px;
+}
+
+.personliche-informationen-1 .gruppe-1599-Y8YbB5 {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: calc(37.09% - 282px);
+  top: 757px;
+  width: 761px;
+}
+
+.personliche-informationen-1 .rechteck-312-mnq9xX {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .e-mail-adresse-an-we-mnq9xX {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 449px;
+}
+
+.personliche-informationen-1 .persoenlichesemailadresse-mnq9xX {
+  background-color: transparent;
+  bottom: calc(24.38% - 7px);
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+  height: 29px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 22px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 222px;
+}
+
+.personliche-informationen-1 .angeboterhaltenbutton-Y8YbB5 {
+  background-color: transparent;
+  bottom: 274px;
+  height: 120px;
+  position: absolute;
+  right: 90px;
+  width: 426px;
+}
+
+.personliche-informationen-1 .gruppe-1545-F6V1mo {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .rechteck-240-8SN9mz {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .angebot-erhalten-8SN9mz {
+  background-color: transparent;
+  bottom: calc(45.83% - 16px);
+  height: 36px;
+  letter-spacing: 0.00px;
+  line-height: 29px;
+  position: absolute;
+  right: calc(49.48% - 116px);
+  text-align: left;
+  white-space: nowrap;
+  width: 234px;
+}
+
+.personliche-informationen-1 .rechteck-21-Y8YbB5 {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: calc(100.08% - 109px);
+  width: 100%;
+}
+
+.personliche-informationen-1 .rechteck-21-Y8YbB5.bp3-animate-enter {
+  animation: bp3-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-1 .gruppe-1454-Y8YbB5 {
+  background-color: transparent;
+  bottom: 2.07%;
+  height: 18px;
+  left: calc(50.00% - 480px);
+  position: absolute;
+  width: 960px;
+}
+
+.personliche-informationen-1 .shs-montage-express-XZuGq6 {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  left: 18px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -1px;
+  white-space: nowrap;
+  width: 635px;
+}
+
+.personliche-informationen-1 .shs-montage-express-XZuGq6.bp3-animate-enter1 {
+  animation: bp3-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-1 .impressum-XZuGq6 {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(18.23% - 18px);
+  text-align: left;
+  top: 0px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 99px;
+}
+
+.personliche-informationen-1 .impressum-XZuGq6.bp3-animate-enter2 {
+  animation: bp3-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-1 .impressum-XZuGq6:hover {
+  filter: grayscale(100%);
+}
+
+.personliche-informationen-1 .datenschutz-XZuGq6 {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  top: 1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.personliche-informationen-1 .datenschutz-XZuGq6.bp3-animate-enter3 {
+  animation: bp3-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-1 .datenschutz-XZuGq6:hover {
+  filter: grayscale(100%);
+}
+
+.personliche-informationen-1 .x-XZuGq6 {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-s);
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  right: calc(28.95% - 3px);
+  text-align: left;
+  top: 0px;
+  white-space: nowrap;
+  width: 12px;
+}
+
+.personliche-informationen-1 .x-XZuGq6.bp3-animate-enter4 {
+  animation: bp3-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-1 .x-CtjN0L {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-s);
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  right: 137px;
+  text-align: left;
+  top: 0px;
+  white-space: nowrap;
+  width: 12px;
+}
+
+.personliche-informationen-1 .x-CtjN0L.bp3-animate-enter5 {
+  animation: bp3-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-1 .c-XZuGq6 {
+  background-color: transparent;
+  bottom: calc(121.43% - 13px);
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 400;
+  height: 11px;
+  left: 3px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 7px;
+}
+
+.personliche-informationen-1 .c-XZuGq6.bp3-animate-enter6 {
+  animation: bp3-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-1 .ellipse-12-XZuGq6 {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 5.5px/5px;
+  display: block;
+  height: 10px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: calc(37.49% - 4px);
+  width: 11px;
+}
+
+.personliche-informationen-1 .ellipse-12-XZuGq6.bp3-animate-enter7 {
+  animation: bp3-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-1 .unverbindliches-und-Y8YbB5 {
+  background-color: transparent;
+  bottom: 233px;
+  height: 18px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: 144px;
+  text-align: left;
+  white-space: nowrap;
+  width: 372px;
+}
+
+.personliche-informationen-1 .gruppe-1740-Y8YbB5 {
+  background-color: transparent;
+  height: 292px;
+  left: 39px;
+  position: fixed;
+  top: 176px;
+  width: 189px;
+}
+
+.personliche-informationen-1 .gruppe-1537-xsx0z4 {
+  background-color: transparent;
+  height: 289px;
+  left: 0px;
+  position: absolute;
+  top: 2px;
+  width: 189px;
+}
+
+.personliche-informationen-1 .haushalt-hwB0PV {
+  background-color: transparent;
+  height: 26px;
+  left: calc(46.11% - 37px);
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 81px;
+}
+
+.personliche-informationen-1 .heizung-hwB0PV {
+  background-color: transparent;
+  height: 26px;
+  left: calc(43.29% - 32px);
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  text-align: left;
+  top: calc(25.35% - 7px);
+  white-space: nowrap;
+  width: 74px;
+}
+
+.personliche-informationen-1 .stromversorger-hwB0PV {
+  background-color: transparent;
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  top: calc(49.94% - 13px);
+  white-space: nowrap;
+  width: 141px;
+}
+
+.personliche-informationen-1 .technisches-hwB0PV {
+  background-color: transparent;
+  bottom: calc(25.48% - 7px);
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  right: calc(37.68% - 42px);
+  text-align: left;
+  white-space: nowrap;
+  width: 111px;
+}
+
+.personliche-informationen-1 .kontakt-hwB0PV {
+  background-color: transparent;
+  bottom: 2px;
+  height: 26px;
+  left: calc(40.47% - 28px);
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 68px;
+}
+
+.personliche-informationen-1 .gruppe-1536-hwB0PV {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  width: 34px;
+}
+
+.personliche-informationen-1 .rechteck-226-vqBicx {
+  background-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .x5-vqBicx {
+  background-color: transparent;
+  bottom: -3px;
+  color: var(--white);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+  height: 29px;
+  letter-spacing: 0.00px;
+  line-height: 22px;
+  position: absolute;
+  right: calc(45.03% - 6px);
+  text-align: left;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.personliche-informationen-1 .pfad-718-hwB0PV {
+  background-color: transparent;
+  height: 31px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  top: 31px;
+  width: 3px;
+}
+
+.personliche-informationen-1 .linie-60-hwB0PV {
+  background-color: transparent;
+  height: 31px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  top: calc(37.08% - 11px);
+  width: 3px;
+}
+
+.personliche-informationen-1 .linie-61-hwB0PV {
+  background-color: transparent;
+  bottom: calc(37.97% - 12px);
+  height: 31px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  width: 3px;
+}
+
+.personliche-informationen-1 .linie-62-hwB0PV {
+  background-color: transparent;
+  bottom: 34px;
+  height: 31px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  width: 3px;
+}
+
+.personliche-informationen-1 .gruppe-1723-xsx0z4 {
+  background-color: transparent;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 34px;
+}
+
+.personliche-informationen-1 .gruppe-1532-ZZDauU {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .rechteck-226-CIDEWl {
+  background-color: transparent;
+  border: 2px solid;
+  border-color: var(--forest-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .x1-CIDEWl {
+  background-color: transparent;
+  color: var(--cararra);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% - 5px);
+  letter-spacing: 0.00px;
+  line-height: 22px;
+  position: absolute;
+  right: calc(47.66% - 5px);
+  text-align: left;
+  top: 7px;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.personliche-informationen-1 .icon-check_mark-ZZDauU {
+  background-color: transparent;
+  height: calc(100.00% - 16px);
+  left: 5px;
+  object-fit: cover;
+  position: absolute;
+  top: 8px;
+  width: 22px;
+}
+
+.personliche-informationen-1 .gruppe-1722-xsx0z4 {
+  background-color: transparent;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  top: calc(24.92% - 8px);
+  width: 34px;
+}
+
+.personliche-informationen-1 .gruppe-1533-8n2gvS {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .rechteck-226-hmklqz {
+  background-color: transparent;
+  border: 2px solid;
+  border-color: #006f3a;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .icon-check_mark-8n2gvS {
+  background-color: transparent;
+  bottom: calc(44.23% - 8px);
+  height: 18px;
+  left: 5px;
+  object-fit: cover;
+  position: absolute;
+  width: 22px;
+}
+
+.personliche-informationen-1 .gruppe-1721-xsx0z4 {
+  background-color: transparent;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  top: calc(49.95% - 17px);
+  width: 34px;
+}
+
+.personliche-informationen-1 .gruppe-1534-kyBk66 {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .rechteck-226-3giuGj {
+  background-color: transparent;
+  border: 2px solid;
+  border-color: #006f38;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .icon-check_mark-kyBk66 {
+  background-color: transparent;
+  height: calc(100.00% - 16px);
+  left: 5px;
+  object-fit: cover;
+  position: absolute;
+  top: 8px;
+  width: 22px;
+}
+
+.personliche-informationen-1 .gruppe-1724-xsx0z4 {
+  background-color: transparent;
+  bottom: calc(25.03% - 8px);
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  width: 34px;
+}
+
+.personliche-informationen-1 .gruppe-1535-wGL9qt {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .rechteck-226-xOr5IW {
+  background-color: transparent;
+  border: 2px solid;
+  border-color: #006f38;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .icon-check_mark-wGL9qt {
+  background-color: transparent;
+  bottom: calc(39.89% - 7px);
+  height: 18px;
+  left: 5px;
+  object-fit: cover;
+  position: absolute;
+  width: 22px;
+}
+
+.personliche-informationen-1 .zuruecj-Y8YbB5 {
+  background-color: transparent;
+  bottom: calc(19.93% - 9px);
+  height: 47px;
+  left: calc(26.21% - 39px);
+  position: absolute;
+  width: 147px;
+}
+
+.personliche-informationen-1 .pfad-568-wrSE56 {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .zurck-wrSE56 {
+  background-color: transparent;
+  bottom: calc(33.26% - 6px);
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 400;
+  height: 19px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: calc(49.00% - 23px);
+  text-align: left;
+  white-space: nowrap;
+  width: 47px;
+}
+
+.personliche-informationen-1 .gruppe-5-Y8YbB5 {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .rechteck-8-X58Qir {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-1 .logo-X58Qir {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 23px);
+  left: 86px;
+  object-fit: cover;
+  position: absolute;
+  top: 11px;
+  width: 101px;
+}
+/* screen - personliche-informationen-2 */
+
+.personliche-informationen-2 {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 1422px;
+  min-width: 767px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.personliche-informationen-2 .gruppe-1620-HYcvVg {
+  background-color: transparent;
+  height: 518px;
+  position: absolute;
+  right: calc(48.69% - 334px);
+  top: 249px;
+  width: 685px;
+}
+
+.personliche-informationen-2 .persnliche-informationen-YXyVQA {
+  -webkit-text-stroke: 1px var(--hunter-green);
+  background-color: transparent;
+  height: 43px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 37px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 0.42%;
+  white-space: nowrap;
+  width: 469px;
+}
+
+.personliche-informationen-2 .gruppe-1619-YXyVQA {
+  background-color: transparent;
+  bottom: 0px;
+  height: 405px;
+  left: calc(50.00% - 343px);
+  position: absolute;
+  width: 685px;
+}
+
+.personliche-informationen-2 .gruppe-1593-0TOV5z {
+  background-color: transparent;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 313px;
+}
+
+.personliche-informationen-2 .rechteck-224-MiEQ52 {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .wlan-verbindung-am-speicher-MiEQ52 {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 80px);
+}
+
+.personliche-informationen-2 .ja-MiEQ52 {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 29px;
+}
+
+.personliche-informationen-2 .gruppe-1674-0TOV5z {
+  background-color: transparent;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 313px;
+}
+
+.personliche-informationen-2 .rechteck-224-uqahtV {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .wlan-verbindung-am-speicher-uqahtV {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 80px);
+}
+
+.personliche-informationen-2 .ja-uqahtV {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 29px;
+}
+
+.personliche-informationen-2 .gruppe-1675-0TOV5z {
+  background-color: transparent;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 313px;
+}
+
+.personliche-informationen-2 .rechteck-224-mIfZYO {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .vorname-mIfZYO {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 69px;
+}
+
+.personliche-informationen-2 .persoenlichesvorname-mIfZYO {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 51px;
+}
+
+.personliche-informationen-2 .gruppe-1676-0TOV5z {
+  background-color: transparent;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  top: 148px;
+  width: 313px;
+}
+
+.personliche-informationen-2 .rechteck-224-Ou68Iw {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .strae-und-hausnummer-Ou68Iw {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 189px;
+}
+
+.personliche-informationen-2 .persoenlichesadresse-Ou68Iw {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 222px;
+}
+
+.personliche-informationen-2 .gruppe-1677-0TOV5z {
+  background-color: transparent;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  top: 296px;
+  width: 313px;
+}
+
+.personliche-informationen-2 .rechteck-224-lfYy6j {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .bundesland-lfYy6j {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 91px;
+}
+
+.personliche-informationen-2 .persoenlichesbundesland-lfYy6j {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% - 88px);
+}
+
+.personliche-informationen-2 .gruppe-1673-0TOV5z {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 313px;
+}
+
+.personliche-informationen-2 .rechteck-224-vJlDdw {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .nachname-vJlDdw {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 84px;
+}
+
+.personliche-informationen-2 .persoenlichesnachname-vJlDdw {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 65px;
+}
+
+.personliche-informationen-2 .gruppe-1678-0TOV5z {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: 0px;
+  top: 148px;
+  width: 313px;
+}
+
+.personliche-informationen-2 .rechteck-224-vgkMFR {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .postleitzahl-und-stadt-vgkMFR {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 163px;
+}
+
+.personliche-informationen-2 .persoenlichesstadt-vgkMFR {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 180px;
+}
+
+.personliche-informationen-2 .gruppe-1679-0TOV5z {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: 0px;
+  top: 296px;
+  width: 313px;
+}
+
+.personliche-informationen-2 .rechteck-224-2bbLxL {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .land-2bbLxL {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 38px;
+}
+
+.personliche-informationen-2 .persoenlichesland-2bbLxL {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 142px;
+}
+
+.personliche-informationen-2 .gruppe-1599-HYcvVg {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: calc(48.69% - 334px);
+  top: 807px;
+  width: 685px;
+}
+
+.personliche-informationen-2 .rechteck-312-wyeAz0 {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .e-mail-adresse-an-we-wyeAz0 {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 449px;
+}
+
+.personliche-informationen-2 .persoenlichesemailadresse-wyeAz0 {
+  background-color: transparent;
+  bottom: calc(28.57% - 7px);
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 19px;
+  font-style: normal;
+  font-weight: 400;
+  height: 25px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 19px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 192px;
+}
+
+.personliche-informationen-2 .gruppe-1666-HYcvVg {
+  background-color: transparent;
+  bottom: 0px;
+  height: 405px;
+  left: 0px;
+  position: absolute;
+  width: 100%;
+}
+
+.personliche-informationen-2 .angeboterhaltenbutton-QDxeX6 {
+  background-color: transparent;
+  bottom: 310px;
+  height: 95px;
+  position: absolute;
+  right: 23px;
+  width: 313px;
+}
+
+.personliche-informationen-2 .gruppe-1545-OU92xb {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .rechteck-240-hA35lU {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .angebot-erhalten-hA35lU {
+  background-color: transparent;
+  bottom: calc(44.07% - 16px);
+  height: 36px;
+  left: 40px;
+  letter-spacing: 0.00px;
+  line-height: 29px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% - 79px);
+}
+
+.personliche-informationen-2 .zurueck-QDxeX6 {
+  background-color: transparent;
+  height: 39px;
+  left: calc(31.61% - 39px);
+  position: absolute;
+  top: calc(15.23% - 6px);
+  width: 123px;
+}
+
+.personliche-informationen-2 .pfad-568-hCCFMB {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .zurck-hCCFMB {
+  background-color: transparent;
+  bottom: calc(42.39% - 6px);
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  height: 13px;
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  position: absolute;
+  right: calc(48.90% - 16px);
+  text-align: left;
+  white-space: nowrap;
+  width: 32px;
+}
+
+.personliche-informationen-2 .rechteck-21-QDxeX6 {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  bottom: 0px;
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.personliche-informationen-2 .rechteck-21-QDxeX6.bp2-animate-enter {
+  animation: bp2-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-2 .gruppe-1454-QDxeX6 {
+  background-color: transparent;
+  bottom: calc(3.91% - 2px);
+  height: 60px;
+  position: absolute;
+  right: calc(35.19% - 256px);
+  width: 728px;
+}
+
+.personliche-informationen-2 .shs-montage-express-anuiIm {
+  background-color: transparent;
+  display: block;
+  height: 18px;
+  left: 21px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: calc(100.00% - 51px);
+}
+
+.personliche-informationen-2 .shs-montage-express-anuiIm.bp2-animate-enter1 {
+  animation: bp2-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-2 .impressum-anuiIm {
+  background-color: transparent;
+  bottom: 0px;
+  cursor: pointer;
+  display: block;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(21.52% - 19px);
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 87px;
+}
+
+.personliche-informationen-2 .impressum-anuiIm.bp2-animate-enter2 {
+  animation: bp2-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-2 .impressum-anuiIm:hover {
+  filter: grayscale(100%);
+}
+
+.personliche-informationen-2 .datenschutz-anuiIm {
+  background-color: transparent;
+  bottom: -1px;
+  cursor: pointer;
+  display: block;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 105px;
+}
+
+.personliche-informationen-2 .datenschutz-anuiIm.bp2-animate-enter3 {
+  animation: bp2-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-2 .datenschutz-anuiIm:hover {
+  filter: grayscale(100%);
+}
+
+.personliche-informationen-2 .x-anuiIm {
+  background-color: transparent;
+  bottom: 0px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xs);
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  right: 121px;
+  text-align: left;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.personliche-informationen-2 .x-anuiIm.bp2-animate-enter4 {
+  animation: bp2-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-2 .c-anuiIm {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 400;
+  height: 10px;
+  left: 3px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -2px;
+  white-space: nowrap;
+  width: 6px;
+}
+
+.personliche-informationen-2 .c-anuiIm.bp2-animate-enter5 {
+  animation: bp2-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-2 .ellipse-12-anuiIm {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 4.86px/5px;
+  display: block;
+  height: 10px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: 1px;
+  width: 10px;
+}
+
+.personliche-informationen-2 .ellipse-12-anuiIm.bp2-animate-enter6 {
+  animation: bp2-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.personliche-informationen-2 .gruppe-1624-HYcvVg {
+  background-color: transparent;
+  height: 172px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .gruppe-5-evQcsv {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .rechteck-8-IUZDrc {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .logo-IUZDrc {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 125px);
+  left: 32px;
+  object-fit: cover;
+  position: absolute;
+  top: 13px;
+  width: 77px;
+}
+
+.personliche-informationen-2 .gruppe-1537-evQcsv {
+  background-color: transparent;
+  height: 31.37%;
+  left: 19.91%;
+  position: absolute;
+  top: 48.58%;
+  width: 60.17%;
+}
+
+.personliche-informationen-2 .haushalt-6PxZJT {
+  background-color: transparent;
+  height: 17px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 49px;
+}
+
+.personliche-informationen-2 .heizung-6PxZJT {
+  background-color: transparent;
+  height: 17px;
+  left: calc(25.52% - 11px);
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 45px;
+}
+
+.personliche-informationen-2 .strom-6PxZJT {
+  background-color: transparent;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: calc(49.77% - 17px);
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 34px;
+}
+
+.personliche-informationen-2 .technisches-6PxZJT {
+  background-color: transparent;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: calc(23.65% - 16px);
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 67px;
+}
+
+.personliche-informationen-2 .kontakt-6PxZJT {
+  background-color: transparent;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: 3px;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 42px;
+}
+
+.personliche-informationen-2 .gruppe-1532-6PxZJT {
+  background-color: transparent;
+  bottom: 1px;
+  height: 34px;
+  left: 1px;
+  position: absolute;
+  width: 50px;
+}
+
+.personliche-informationen-2 .rechteck-226-9ux8Is {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: var(--forest-green);
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .gruppe-1533-6PxZJT {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  left: calc(25.00% - 12px);
+  position: absolute;
+  width: 50px;
+}
+
+.personliche-informationen-2 .rechteck-332-mUzj8s {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .gruppe-1621-6PxZJT {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  left: calc(50.00% - 25px);
+  position: absolute;
+  width: 50px;
+}
+
+.personliche-informationen-2 .rechteck-332-XrxGTq {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .gruppe-1623-6PxZJT {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  position: absolute;
+  right: 1px;
+  width: 50px;
+}
+
+.personliche-informationen-2 .rechteck-226-HJrTVC {
+  background-color: #cfd4e2;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .rechteck-332-HJrTVC {
+  background-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .x5-HJrTVC {
+  background-color: transparent;
+  color: var(--white);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 21px;
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.20% - 7px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.personliche-informationen-2 .icon-check_mark-evQcsv {
+  background-color: transparent;
+  bottom: calc(27.33% - 5px);
+  height: 18px;
+  left: calc(22.31% - 5px);
+  object-fit: cover;
+  position: absolute;
+  width: 22px;
+}
+
+.personliche-informationen-2 .icon-check_mark-8bEgEn {
+  background-color: transparent;
+  bottom: calc(27.33% - 5px);
+  height: 18px;
+  left: calc(36.28% - 8px);
+  object-fit: cover;
+  position: absolute;
+  width: 22px;
+}
+
+.personliche-informationen-2 .icon-check_mark-T6G4Os {
+  background-color: transparent;
+  bottom: calc(27.33% - 5px);
+  height: 18px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(50.00% - 11px);
+  width: 22px;
+}
+
+.personliche-informationen-2 .gruppe-1725-evQcsv {
+  background-color: transparent;
+  bottom: calc(24.98% - 8px);
+  height: 34px;
+  position: absolute;
+  right: calc(35.65% - 18px);
+  width: 50px;
+}
+
+.personliche-informationen-2 .gruppe-1622-pnlBEf {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .rechteck-332-D8xuim {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.personliche-informationen-2 .icon-check_mark-pnlBEf {
+  background-color: transparent;
+  height: calc(100.00% - 16px);
+  object-fit: cover;
+  position: absolute;
+  right: calc(46.17% - 10px);
+  top: 8px;
+  width: 22px;
+}
+
+.personliche-informationen-2 .unverbindliches-und-HYcvVg {
+  background-color: transparent;
+  bottom: calc(19.16% - 3px);
+  height: 18px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: 25px;
+  text-align: left;
+  white-space: nowrap;
+  width: 372px;
+}
+@media screen and (max-width: 766px) {
+  .screen.personliche-informationen { 
+    display: none;
+   }
+  .screen.personliche-informationen-1 { 
+    display: none;
+   }
+  .screen.personliche-informationen-2 { 
+    display: none;
+   }
+}
+@media screen and (min-width: 767px) and (max-width: 1199px) {
+  .screen.personliche-informationen { 
+    display: none;
+   }
+  .screen.personliche-informationen-1 { 
+    display: none;
+   }
+  .screen.full-project { 
+    display: none;
+   }
+}
+@media screen and (min-width: 1200px) and (max-width: 1919px) {
+  .screen.personliche-informationen { 
+    display: none;
+   }
+  .screen.personliche-informationen-2 { 
+    display: none;
+   }
+  .screen.full-project { 
+    display: none;
+   }
+}
+@media screen and (min-width: 1920px) {
+  .screen.personliche-informationen-1 { 
+    display: none;
+   }
+  .screen.personliche-informationen-2 { 
+    display: none;
+   }
+  .screen.full-project { 
+    display: none;
+   }
+}

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="277" height="226" viewBox="0 0 277 226">
+  <defs>
+    <clipPath id="clip-waermepumpe">
+      <rect width="277" height="226"/>
+    </clipPath>
+  </defs>
+  <g id="waermepumpe" clip-path="url(#clip-waermepumpe)">
+    <g id="Gruppe_1514" data-name="Gruppe 1514" transform="translate(63.09 27.724)">
+      <g id="Gruppe_1520" data-name="Gruppe 1520" transform="translate(-4.09 -7.702)">
+        <rect id="Rechteck_200" data-name="Rechteck 200" width="6" height="108" transform="translate(0 35.978)" fill="#2b6026"/>
+        <rect id="Rechteck_184" data-name="Rechteck 184" width="124" height="26" transform="translate(0 149.978)" fill="#2b6026"/>
+        <rect id="Rechteck_201" data-name="Rechteck 201" width="6" height="108" transform="translate(22 35.978)" fill="#2b6026"/>
+        <rect id="Rechteck_202" data-name="Rechteck 202" width="6" height="108" transform="translate(59 35.978)" fill="#2b6026"/>
+        <rect id="Rechteck_203" data-name="Rechteck 203" width="6" height="108" transform="translate(96 35.978)" fill="#2b6026"/>
+        <rect id="Rechteck_204" data-name="Rechteck 204" width="6" height="108" transform="translate(119 35.978)" fill="#2b6026"/>
+        <rect id="Rechteck_198" data-name="Rechteck 198" width="80" height="16" transform="translate(22 69.978)" fill="#2b6026"/>
+        <rect id="Rechteck_199" data-name="Rechteck 199" width="51" height="12" transform="translate(37 85.978)" fill="#2b6026"/>
+        <rect id="Rechteck_188" data-name="Rechteck 188" width="125" height="6" transform="translate(0 137.978)" fill="#2b6026"/>
+        <rect id="Rechteck_189" data-name="Rechteck 189" width="125" height="6" transform="translate(0 126.978)" fill="#2b6026"/>
+        <rect id="Rechteck_190" data-name="Rechteck 190" width="125" height="6" transform="translate(0 114.978)" fill="#2b6026"/>
+        <rect id="Rechteck_191" data-name="Rechteck 191" width="125" height="6" transform="translate(0 103.978)" fill="#2b6026"/>
+        <rect id="Rechteck_192" data-name="Rechteck 192" width="125" height="6" transform="translate(0 91.978)" fill="#2b6026"/>
+        <rect id="Rechteck_193" data-name="Rechteck 193" width="125" height="5" transform="translate(0 80.978)" fill="#2b6026"/>
+        <rect id="Rechteck_194" data-name="Rechteck 194" width="125" height="6" transform="translate(0 68.978)" fill="#2b6026"/>
+        <rect id="Rechteck_195" data-name="Rechteck 195" width="125" height="5" transform="translate(0 57.978)" fill="#2b6026"/>
+        <rect id="Rechteck_196" data-name="Rechteck 196" width="125" height="6" transform="translate(0 45.978)" fill="#2b6026"/>
+        <rect id="Rechteck_197" data-name="Rechteck 197" width="125" height="5" transform="translate(0 34.978)" fill="#2b6026"/>
+        <path id="Rechteck_183" data-name="Rechteck 183" d="M9,0H115a9,9,0,0,1,9,9V9a0,0,0,0,1,0,0H0A0,0,0,0,1,0,9V9A9,9,0,0,1,9,0Z" transform="translate(0 20.978)" fill="#2b6026"/>
+        <ellipse id="Ellipse_28" data-name="Ellipse 28" cx="45.705" cy="45.293" rx="45.705" ry="45.293" transform="matrix(1, 0.017, -0.017, 1, 17.254, 0)" fill="#d1d1d1"/>
+        <ellipse id="Ellipse_29" data-name="Ellipse 29" cx="40" cy="41" rx="40" ry="41" transform="translate(22 2.978)" fill="#f7aa20"/>
+        <rect id="Rechteck_205" data-name="Rechteck 205" width="29" height="6" transform="translate(48 163.978)" fill="#d1d1d1"/>
+        <rect id="Rechteck_206" data-name="Rechteck 206" width="6" height="6" transform="translate(102 163.978)" fill="#d1d1d1"/>
+        <rect id="Rechteck_207" data-name="Rechteck 207" width="5" height="6" transform="translate(114 163.978)" fill="#d1d1d1"/>
+        <path id="Pfad_409" data-name="Pfad 409" d="M809.025,399.106a3.584,3.584,0,0,1-.053,2.233,3.113,3.113,0,0,1-.638.984l1.17,1.117a4.879,4.879,0,0,0,1.25-2.473,5.56,5.56,0,0,0-.558-3.4,3.387,3.387,0,0,1-.266-2.579h0l-.744-.292h0l-.744-.292a5.108,5.108,0,0,0,.319,3.882C808.786,398.441,808.918,398.734,809.025,399.106Z" transform="translate(-763.607 -374.86)" fill="#2b6026"/>
+        <path id="Pfad_410" data-name="Pfad 410" d="M832.534,402.323l1.17,1.117a4.879,4.879,0,0,0,1.25-2.473,5.56,5.56,0,0,0-.558-3.4,3.386,3.386,0,0,1-.266-2.579h0l-.744-.292h0l-.744-.292a5.109,5.109,0,0,0,.319,3.882,4.864,4.864,0,0,1,.319.824,3.584,3.584,0,0,1-.053,2.233A3.9,3.9,0,0,1,832.534,402.323Z" transform="translate(-781.373 -374.86)" fill="#2b6026"/>
+        <path id="Pfad_411" data-name="Pfad 411" d="M855.834,402.323l1.17,1.117a4.879,4.879,0,0,0,1.25-2.473,5.56,5.56,0,0,0-.558-3.4,3.387,3.387,0,0,1-.266-2.579h0l-.744-.292h0l-.744-.292a5.109,5.109,0,0,0,.319,3.882,4.853,4.853,0,0,1,.319.824,3.583,3.583,0,0,1-.053,2.233A4.728,4.728,0,0,1,855.834,402.323Z" transform="translate(-798.478 -374.86)" fill="#2b6026"/>
+        <path id="Pfad_412" data-name="Pfad 412" d="M879.734,402.323l1.17,1.117a4.878,4.878,0,0,0,1.25-2.473,5.56,5.56,0,0,0-.558-3.4,3.387,3.387,0,0,1-.266-2.579h0l-.744-.292h0l-.744-.292a5.108,5.108,0,0,0,.319,3.882,4.861,4.861,0,0,1,.319.824,3.584,3.584,0,0,1-.053,2.233A3.907,3.907,0,0,1,879.734,402.323Z" transform="translate(-816.024 -374.86)" fill="#2b6026"/>
+        <path id="Pfad_413" data-name="Pfad 413" d="M904.134,402.323l1.17,1.117a4.879,4.879,0,0,0,1.25-2.473,5.56,5.56,0,0,0-.558-3.4,3.386,3.386,0,0,1-.266-2.579h0l-.745-.292h0l-.744-.292a5.109,5.109,0,0,0,.319,3.882,4.869,4.869,0,0,1,.319.824,3.585,3.585,0,0,1-.053,2.233A4.733,4.733,0,0,1,904.134,402.323Z" transform="translate(-833.937 -374.86)" fill="#2b6026"/>
+        <path id="Pfad_414" data-name="Pfad 414" d="M835.22,451.343a.638.638,0,1,0-1.276,0v3h-1.834v-3a.638.638,0,1,0-1.276,0v3h-.665v2.1a2.658,2.658,0,0,0,1.941,2.5v4.679a5.288,5.288,0,0,1-5.291,5.291,5.19,5.19,0,0,1-.9-.08,1.671,1.671,0,0,0,.824-1.515v-3.616a1.456,1.456,0,0,0-1.276-1.6h-.4V448.152h.213a1.43,1.43,0,0,0,1.436-1.436v-3.961a1.43,1.43,0,0,0-1.436-1.436h-.213V439.8a3,3,0,0,0-3-3h-2.738v1.967h-2.446v-1.834h-3.244v1.834H812.09v-1.834h-3.244v1.834H807.3v-1.834h-3.27v1.834h-1.542v-1.834h-3.27v1.834H797.68v-1.834h-3.27v1.834h-1.967V436.8H789.7a3,3,0,0,0-3,3v31.452a3,3,0,0,0,3,3h2.738v-2.473h1.967v2.738h3.27v-2.738h1.542v2.738h3.27v-2.738h1.542v2.738h3.27v-2.738h1.542v2.738h3.27v-2.738h1.542v2.738h3.27v-2.738h2.446v2.473h2.738a3,3,0,0,0,3-3v-.638a7.5,7.5,0,0,0,1.728.213,7.211,7.211,0,0,0,7.2-7.2V458.92a2.7,2.7,0,0,0,1.888-2.5v-2.1h-.665v-2.978ZM792.5,467.906V442.676h1.967v25.231Zm5.211,0V442.676h1.542v25.231Zm4.786,0V442.676h1.542v25.231Zm4.812,0V442.676h1.542v25.231Zm4.812,0V442.676h1.542v25.231Zm4.785,0V442.676h2.446v25.231Z" transform="translate(-747.822 -405.987)" fill="#2b6026"/>
+      </g>
+      <g id="Ellipse_22" data-name="Ellipse 22" transform="translate(109.91 99.276)" fill="#11841e" stroke="#11841e" stroke-width="5">
+        <circle cx="34.5" cy="34.5" r="34.5" stroke="none"/>
+        <circle cx="34.5" cy="34.5" r="32" fill="none"/>
+      </g>
+      <path id="_5416276_check_mark_ok_icon" data-name="5416276_check_mark_ok_icon" d="M53.029,23.45l-1.483-1.483a5.057,5.057,0,0,0-7.147,0L27.856,38.475l-4.181-4.214a5.057,5.057,0,0,0-7.147,0l-1.483,1.5a5.057,5.057,0,0,0,0,7.153l9.26,9.26a5.057,5.057,0,0,0,7.147,0L53.029,30.6A5.057,5.057,0,0,0,53.029,23.45Z" transform="translate(110.228 97.027)" fill="#d1d1d1"/>
+    </g>
+  </g>
+</svg>

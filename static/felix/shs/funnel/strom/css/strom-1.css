@@ -1,0 +1,6477 @@
+/* screen - full-project */
+
+.full-project {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 2755px;
+  min-width: 767px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.full-project .gruppe-1700-KqxCzi {
+  background-color: transparent;
+  height: 790px;
+  left: 42px;
+  position: absolute;
+  top: 249px;
+  width: calc(100.00% - 82px);
+}
+
+.full-project .gruppe-1620-9FZ5z1 {
+  background-color: transparent;
+  height: 790px;
+  left: calc(50.00% - 343px);
+  position: relative;
+  top: 0px;
+  width: 685px;
+}
+
+.full-project .xx-j4z82n {
+  -webkit-text-stroke: 1px var(--hunter-green);
+  background-color: transparent;
+  height: 43px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 37px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 0.27%;
+  white-space: nowrap;
+  width: 521px;
+}
+
+.full-project .gruppe-1619-j4z82n {
+  background-color: transparent;
+  bottom: 0px;
+  height: 676px;
+  left: calc(50.00% - 343px);
+  position: absolute;
+  width: 685px;
+}
+
+.full-project .gruppe-1595-mRPpr1 {
+  background-color: transparent;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  top: 146px;
+  width: 313px;
+}
+
+.full-project .rechteck-308-tFnwrX {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .zhlernummer-hauptzhler-tFnwrX {
+  background-color: transparent;
+  height: 21px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(22.73% - 5px);
+  white-space: nowrap;
+  width: 182px;
+}
+
+.full-project .stromhauptzaehlernummer-tFnwrX {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 106px;
+}
+
+.full-project .gruppe-1652-mRPpr1 {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: 0px;
+  top: 146px;
+  width: 313px;
+}
+
+.full-project .rechteck-308-2kklJX {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .zhlernummer-nebenzhler-2kklJX {
+  background-color: transparent;
+  height: 59px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(48.00% - 28px);
+  white-space: nowrap;
+  width: 185px;
+}
+
+.full-project .stromnebenzaehlernummer-2kklJX {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 153px;
+}
+
+.full-project .gruppe-1661-mRPpr1 {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: 0px;
+  top: 286px;
+  width: 313px;
+}
+
+.full-project .rechteck-308-1kx4Zd {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x2-stromzhler-zweck-u-1kx4Zd {
+  background-color: transparent;
+  height: 36px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(27.40% - 10px);
+  white-space: nowrap;
+  width: 222px;
+}
+
+.full-project .stromnebenzaehlerfunktion-1kx4Zd {
+  background-color: transparent;
+  bottom: 11px;
+  height: 26px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 168px;
+}
+
+.full-project .gruppe-1662-mRPpr1 {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: 0px;
+  top: 427px;
+  width: 313px;
+}
+
+.full-project .rechteck-308-hoqh23 {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .grundpreis-brutto-jahr-hoqh23 {
+  background-color: transparent;
+  height: 21px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(22.73% - 5px);
+  white-space: nowrap;
+  width: 152px;
+}
+
+.full-project .stromgrundpreis-hoqh23 {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 39px;
+}
+
+.full-project .gruppe-1664-mRPpr1 {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: 0px;
+  top: 568px;
+  width: 313px;
+}
+
+.full-project .rechteck-308-D5FTmp {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .wrmestrom-grundpreis-brutto-jahr-D5FTmp {
+  background-color: transparent;
+  height: 21px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(22.73% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 73px);
+}
+
+.full-project .stromagrundpreiswaerme-D5FTmp {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 41px;
+}
+
+.full-project .gruppe-1597-mRPpr1 {
+  background-color: transparent;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  top: 286px;
+  width: 313px;
+}
+
+.full-project .rechteck-310-RTyJvA {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .jahresstromverbrauch-hauptzhler-in-k-wh-RTyJvA {
+  background-color: transparent;
+  height: 19px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 14px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(22.78% - 4px);
+  white-space: nowrap;
+  width: calc(100.00% - 50px);
+}
+
+.full-project .stromjahresverbrauch-RTyJvA {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 59px;
+}
+
+.full-project .gruppe-1663-mRPpr1 {
+  background-color: transparent;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  top: 427px;
+  width: 313px;
+}
+
+.full-project .rechteck-310-nrv09J {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .arbeitspreis-brutto-centk-wh-nrv09J {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 219px;
+}
+
+.full-project .stromarbeitspreis-nrv09J {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 29px;
+}
+
+.full-project .gruppe-1665-mRPpr1 {
+  background-color: transparent;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  top: 568px;
+  width: 313px;
+}
+
+.full-project .rechteck-310-iuAWdG {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .wrmestrom-arbeitspreis-in-cent-iuAWdG {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 64px);
+}
+
+.full-project .stromarbeitspreiswaerme-iuAWdG {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 27px;
+}
+
+.full-project .gruppe-1697-mRPpr1 {
+  background-color: transparent;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 313px;
+}
+
+.full-project .gruppe-1593-zM4R4m {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 156px);
+  position: absolute;
+  top: 0px;
+  width: 313px;
+}
+
+.full-project .rechteck-224-RxGxb6 {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x-RxGxb6 {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 189px;
+}
+
+.full-project .stromversorger-zM4R4m {
+  background-color: transparent;
+  bottom: calc(29.49% - 9px);
+  height: 31px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 86px);
+}
+
+.full-project .netze-bw-oSGm0E {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.full-project .pfad-716-oSGm0E {
+  background-color: transparent;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 4px;
+  width: 26px;
+}
+
+.full-project .gruppe-1696-mRPpr1 {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: calc(0.57% - 2px);
+  top: 0px;
+  width: 313px;
+}
+
+.full-project .gruppe-1594-xaVJdV {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 156px);
+  position: absolute;
+  top: calc(50.00% - 54px);
+  width: 313px;
+}
+
+.full-project .rechteck-307-bL15bT {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .anzahl-der-stromzhler-bL15bT {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 175px;
+}
+
+.full-project .stromhauptzaehleranzahl-xaVJdV {
+  background-color: transparent;
+  bottom: calc(29.49% - 9px);
+  height: 31px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 83px);
+}
+
+.full-project .x2-FPwuM4 {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 15px;
+}
+
+.full-project .pfad-717-FPwuM4 {
+  background-color: transparent;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 4px;
+  width: 26px;
+}
+
+.full-project .gruppe-1599-KqxCzi {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: calc(48.69% - 334px);
+  top: 1075px;
+  width: 685px;
+}
+
+.full-project .rechteck-312-w8lX7o {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .was-verbraucht-bei-ihnen-strom-w8lX7o {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 247px;
+}
+
+.full-project .stromzusatzverbrauch-w8lX7o {
+  background-color: transparent;
+  bottom: calc(32.56% - 7px);
+  height: 23px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 83px);
+}
+
+.full-project .haushaltsstrom-sauna-pool-wrmepumpe-0lAFEc {
+  background-color: transparent;
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 19px;
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 19px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 363px;
+}
+
+.full-project .polygon-47-0lAFEc {
+  background-color: transparent;
+  height: calc(100.00% - 3px);
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 2px;
+  width: 26px;
+}
+
+.full-project .gruppe-1653-KqxCzi {
+  background-color: transparent;
+  bottom: calc(30.38% - 287px);
+  height: 944px;
+  left: 23px;
+  position: absolute;
+  width: calc(100.00% - 46px);
+}
+
+.full-project .gruppe-1610-GR0t9d {
+  background-color: transparent;
+  height: 481px;
+  left: calc(50.00% - 361px);
+  position: absolute;
+  top: 0px;
+  width: 721px;
+}
+
+.full-project .rechteck-249-T2LyVn {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: calc(100.00% - 85px);
+  left: 0px;
+  position: absolute;
+  top: 85px;
+  width: 100%;
+}
+
+.full-project .zhlerschrank-T2LyVn {
+  background-color: transparent;
+  height: 24px;
+  left: 57px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  overflow: hidden;
+  position: absolute;
+  text-align: left;
+  top: calc(23.26% - 6px);
+  white-space: nowrap;
+  width: calc(100.00% - 129px);
+}
+
+.full-project .gesamter-zhlerschran-T2LyVn {
+  background-color: transparent;
+  height: 117px;
+  left: 57px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  text-align: left;
+  top: calc(45.40% - 53px);
+  width: calc(100.00% - 129px);
+}
+
+.full-project .bilderupload-T2LyVn {
+  background-color: transparent;
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 21px;
+  font-style: normal;
+  font-weight: 400;
+  height: 27px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  text-align: left;
+  top: 0.44%;
+  white-space: nowrap;
+  width: 119px;
+}
+
+.full-project .dateihochladenzaehlerschrank-T2LyVn {
+  background-color: transparent;
+  bottom: 56px;
+  height: 108px;
+  left: 55px;
+  position: absolute;
+  width: calc(100.00% - 94px);
+}
+
+.full-project .rechteck-250-SfDHx9 {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x352278_cloud_upload_icon-SfDHx9 {
+  background-color: transparent;
+  height: 28px;
+  left: calc(29.90% - 8px);
+  position: absolute;
+  top: calc(50.00% - 14px);
+  width: 26px;
+}
+
+.full-project .pfad-645-x3GQFa {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.full-project .pfad-646-x3GQFa {
+  background-color: transparent;
+  height: calc(100.00% - 9px);
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.full-project .datei-hier-hochladen-SfDHx9 {
+  background-color: transparent;
+  bottom: calc(45.98% - 9px);
+  height: 19px;
+  left: calc(42.89% - 55px);
+  letter-spacing: 0.00px;
+  line-height: 14px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 128px;
+}
+
+.full-project .rechteck-251-SfDHx9 {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 19px);
+  height: 41px;
+  position: absolute;
+  right: calc(25.27% - 27px);
+  width: 106px;
+}
+
+.full-project .hochladen-SfDHx9 {
+  background-color: transparent;
+  bottom: calc(45.49% - 9px);
+  height: 19px;
+  letter-spacing: 0.00px;
+  line-height: 14px;
+  position: absolute;
+  right: calc(26.81% - 18px);
+  text-align: left;
+  white-space: nowrap;
+  width: 66px;
+}
+
+.full-project .gruppe-1654-GR0t9d {
+  background-color: transparent;
+  height: 396px;
+  left: calc(50.00% - 361px);
+  position: absolute;
+  top: calc(100.00% - 396px);
+  width: 721px;
+}
+
+.full-project .rechteck-249-QCW021 {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .alle-zhler-QCW021 {
+  background-color: transparent;
+  height: 24px;
+  left: 57px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  overflow: hidden;
+  position: absolute;
+  text-align: left;
+  top: 21px;
+  white-space: nowrap;
+  width: calc(100.00% - 129px);
+}
+
+.full-project .die-zhlernummer-soll-QCW021 {
+  background-color: transparent;
+  height: 117px;
+  left: 57px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  text-align: left;
+  top: calc(28.66% - 33px);
+  width: calc(100.00% - 129px);
+}
+
+.full-project .dateihochladenzaeehler-QCW021 {
+  background-color: transparent;
+  bottom: 56px;
+  height: 108px;
+  left: 55px;
+  position: absolute;
+  width: calc(100.00% - 94px);
+}
+
+.full-project .rechteck-250-Ng9jfM {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x352278_cloud_upload_icon-Ng9jfM {
+  background-color: transparent;
+  height: 28px;
+  left: calc(29.56% - 8px);
+  position: absolute;
+  top: calc(50.00% - 14px);
+  width: 26px;
+}
+
+.full-project .pfad-645-ef52jz {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.full-project .pfad-646-ef52jz {
+  background-color: transparent;
+  height: calc(100.00% - 9px);
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.full-project .datei-hier-hochladen-Ng9jfM {
+  background-color: transparent;
+  bottom: calc(45.98% - 9px);
+  height: 19px;
+  left: calc(42.49% - 54px);
+  letter-spacing: 0.00px;
+  line-height: 14px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 128px;
+}
+
+.full-project .rechteck-251-Ng9jfM {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 19px);
+  height: 41px;
+  position: absolute;
+  right: calc(25.27% - 27px);
+  width: 106px;
+}
+
+.full-project .hochladen-Ng9jfM {
+  background-color: transparent;
+  bottom: calc(45.49% - 9px);
+  height: 19px;
+  letter-spacing: 0.00px;
+  line-height: 14px;
+  position: absolute;
+  right: calc(26.81% - 18px);
+  text-align: left;
+  white-space: nowrap;
+  width: 66px;
+}
+
+.full-project .gruppe-1666-KqxCzi {
+  background-color: transparent;
+  bottom: 0px;
+  height: 405px;
+  left: 0px;
+  position: absolute;
+  width: 100%;
+}
+
+.full-project .speichern-VeBzxO {
+  background-color: transparent;
+  bottom: 310px;
+  height: 95px;
+  position: absolute;
+  right: 23px;
+  width: 313px;
+}
+
+.full-project .gruppe-1545-ByMRsm {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .rechteck-240-9uVTAj {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .speichern-und-weiter-9uVTAj {
+  background-color: transparent;
+  bottom: calc(44.07% - 16px);
+  height: 36px;
+  left: 17px;
+  letter-spacing: 0.00px;
+  line-height: 29px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% - 32px);
+}
+
+.full-project .rechteck-21-VeBzxO {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  bottom: 0px;
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.full-project .rechteck-21-VeBzxO.bp2-animate-enter {
+  animation: bp2-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .gruppe-1454-VeBzxO {
+  background-color: transparent;
+  bottom: calc(3.91% - 2px);
+  height: 60px;
+  position: absolute;
+  right: calc(35.19% - 256px);
+  width: 728px;
+}
+
+.full-project .shs-montage-express-lpqifG {
+  background-color: transparent;
+  display: block;
+  height: 18px;
+  left: 21px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: calc(100.00% - 51px);
+}
+
+.full-project .shs-montage-express-lpqifG.bp2-animate-enter1 {
+  animation: bp2-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .impressum-lpqifG {
+  background-color: transparent;
+  bottom: 0px;
+  cursor: pointer;
+  display: block;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(21.52% - 19px);
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 87px;
+}
+
+.full-project .impressum-lpqifG.bp2-animate-enter2 {
+  animation: bp2-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .impressum-lpqifG:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .datenschutz-lpqifG {
+  background-color: transparent;
+  bottom: -1px;
+  cursor: pointer;
+  display: block;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 105px;
+}
+
+.full-project .datenschutz-lpqifG.bp2-animate-enter3 {
+  animation: bp2-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .datenschutz-lpqifG:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .x-lpqifG {
+  background-color: transparent;
+  bottom: 0px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  right: 121px;
+  text-align: left;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.full-project .x-lpqifG.bp2-animate-enter4 {
+  animation: bp2-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .c-lpqifG {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 400;
+  height: 10px;
+  left: 3px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -2px;
+  white-space: nowrap;
+  width: 6px;
+}
+
+.full-project .c-lpqifG.bp2-animate-enter5 {
+  animation: bp2-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .ellipse-12-lpqifG {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 4.86px/5px;
+  display: block;
+  height: 10px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: 1px;
+  width: 10px;
+}
+
+.full-project .ellipse-12-lpqifG.bp2-animate-enter6 {
+  animation: bp2-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .ueberspringen-VeBzxO {
+  background-color: transparent;
+  height: 39px;
+  left: calc(31.61% - 39px);
+  position: absolute;
+  top: calc(20.15% - 8px);
+  width: 123px;
+}
+
+.full-project .pfad-568-lSG2Z2 {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.full-project .berspringen-lSG2Z2 {
+  background-color: transparent;
+  bottom: calc(29.95% - 6px);
+  height: 19px;
+  left: 17px;
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% - 33px);
+}
+
+.full-project .zurueck-VeBzxO {
+  background-color: transparent;
+  height: 39px;
+  left: calc(3.55% - 4px);
+  position: absolute;
+  top: calc(20.15% - 8px);
+  width: 123px;
+}
+
+.full-project .pfad-568-RTc88O {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.full-project .zurck-RTc88O {
+  background-color: transparent;
+  bottom: calc(29.95% - 6px);
+  height: 19px;
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  position: absolute;
+  right: calc(48.68% - 23px);
+  text-align: left;
+  white-space: nowrap;
+  width: 47px;
+}
+
+.full-project .gruppe-1624-KqxCzi {
+  background-color: transparent;
+  height: 172px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .gruppe-5-BiRlCb {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .rechteck-8-O6VzfG {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .logo-O6VzfG {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 125px);
+  left: 32px;
+  object-fit: cover;
+  position: absolute;
+  top: 13px;
+  width: 77px;
+}
+
+.full-project .gruppe-1537-BiRlCb {
+  background-color: transparent;
+  height: 31.37%;
+  left: 19.91%;
+  position: absolute;
+  top: 48.58%;
+  width: 60.17%;
+}
+
+.full-project .haushalt-4beox8 {
+  background-color: transparent;
+  height: 17px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 49px;
+}
+
+.full-project .heizung-4beox8 {
+  background-color: transparent;
+  height: 17px;
+  left: calc(25.52% - 11px);
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 45px;
+}
+
+.full-project .strom-4beox8 {
+  background-color: transparent;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: calc(49.77% - 17px);
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 34px;
+}
+
+.full-project .technisches-4beox8 {
+  background-color: transparent;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: calc(23.65% - 16px);
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 67px;
+}
+
+.full-project .kontakt-4beox8 {
+  background-color: transparent;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: 3px;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 42px;
+}
+
+.full-project .gruppe-1532-4beox8 {
+  background-color: transparent;
+  bottom: 1px;
+  height: 34px;
+  left: 1px;
+  position: absolute;
+  width: 50px;
+}
+
+.full-project .rechteck-226-B5kqRS {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: var(--forest-green);
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .gruppe-1533-4beox8 {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  left: calc(25.00% - 12px);
+  position: absolute;
+  width: 50px;
+}
+
+.full-project .rechteck-332-YK9kkS {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .gruppe-1621-4beox8 {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  left: calc(50.00% - 25px);
+  position: absolute;
+  width: 50px;
+}
+
+.full-project .rechteck-226-i9XMC9 {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .rechteck-332-i9XMC9 {
+  background-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x3-i9XMC9 {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.20% - 7px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.full-project .gruppe-1622-4beox8 {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  position: absolute;
+  right: calc(25.00% - 12px);
+  width: 50px;
+}
+
+.full-project .rechteck-226-Vxt4Wx {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .rechteck-332-Vxt4Wx {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x4-Vxt4Wx {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.20% - 7px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.full-project .gruppe-1623-4beox8 {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  position: absolute;
+  right: 1px;
+  width: 50px;
+}
+
+.full-project .rechteck-226-Fu6k2G {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .rechteck-332-Fu6k2G {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x5-Fu6k2G {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.20% - 7px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.full-project .icon-check_mark-BiRlCb {
+  background-color: transparent;
+  bottom: calc(27.33% - 5px);
+  height: 18px;
+  left: calc(22.31% - 5px);
+  object-fit: cover;
+  position: absolute;
+  width: 22px;
+}
+
+.full-project .icon-check_mark-wYhRe7 {
+  background-color: transparent;
+  bottom: calc(27.33% - 5px);
+  height: 18px;
+  left: calc(36.28% - 8px);
+  object-fit: cover;
+  position: absolute;
+  width: 22px;
+}
+/* screen - strom */
+
+.strom {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 3073px;
+  min-width: 1920px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.strom .rechteck-21-f3HDUc {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  bottom: -1px;
+  display: block;
+  height: 118px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.strom .rechteck-21-f3HDUc.bp4-animate-enter {
+  animation: bp4-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom .shs-montage-express-f3HDUc {
+  background-color: transparent;
+  bottom: 52px;
+  display: block;
+  height: 26px;
+  left: 243px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 988px;
+}
+
+.strom .shs-montage-express-f3HDUc.bp4-animate-enter1 {
+  animation: bp4-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom .impressum-f3HDUc {
+  background-color: transparent;
+  bottom: 54px;
+  cursor: pointer;
+  display: block;
+  height: 25px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(25.91% - 37px);
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 141px;
+}
+
+.strom .impressum-f3HDUc.bp4-animate-enter2 {
+  animation: bp4-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom .impressum-f3HDUc:hover {
+  filter: grayscale(100%);
+}
+
+.strom .datenschutz-f3HDUc {
+  background-color: transparent;
+  bottom: 52px;
+  cursor: pointer;
+  display: block;
+  height: 25px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: 213px;
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 172px;
+}
+
+.strom .datenschutz-f3HDUc.bp4-animate-enter3 {
+  animation: bp4-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom .datenschutz-f3HDUc:hover {
+  filter: grayscale(100%);
+}
+
+.strom .x-f3HDUc {
+  background-color: transparent;
+  bottom: 52px;
+  display: block;
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  right: calc(33.19% - 5px);
+  text-align: left;
+  white-space: nowrap;
+  width: 16px;
+}
+
+.strom .x-f3HDUc.bp4-animate-enter4 {
+  animation: bp4-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom .x-xPUjyy {
+  background-color: transparent;
+  bottom: 52px;
+  display: block;
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  right: calc(21.80% - 3px);
+  text-align: left;
+  white-space: nowrap;
+  width: 16px;
+}
+
+.strom .x-xPUjyy.bp4-animate-enter5 {
+  animation: bp4-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom .c-f3HDUc {
+  background-color: transparent;
+  bottom: 64px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xs);
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  left: 219px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.strom .c-f3HDUc.bp4-animate-enter6 {
+  animation: bp4-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom .ellipse-12-f3HDUc {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 8px;
+  bottom: 57px;
+  display: block;
+  height: 16px;
+  left: 215px;
+  opacity: 0;
+  position: absolute;
+  width: 16px;
+}
+
+.strom .ellipse-12-f3HDUc.bp4-animate-enter7 {
+  animation: bp4-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom .xx-f3HDUc {
+  -webkit-text-stroke: 1px var(--hunter-green);
+  background-color: transparent;
+  height: 44px;
+  letter-spacing: 0.00px;
+  line-height: 37px;
+  opacity: 0.86;
+  position: absolute;
+  right: calc(37.30% - 321px);
+  text-align: left;
+  top: 217px;
+  white-space: nowrap;
+  width: 862px;
+}
+
+.strom .rechteck-227-f3HDUc {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  left: calc(44.79% - 197px);
+  position: absolute;
+  top: 329px;
+  width: 439px;
+}
+
+.strom .rechteck-229-f3HDUc {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  left: calc(44.79% - 197px);
+  position: absolute;
+  top: 503px;
+  width: 439px;
+}
+
+.strom .rechteck-279-f3HDUc {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  left: calc(44.79% - 197px);
+  position: absolute;
+  top: calc(23.01% - 25px);
+  width: 439px;
+}
+
+.strom .rechteck-230-f3HDUc {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  left: calc(44.79% - 197px);
+  position: absolute;
+  top: calc(29.05% - 32px);
+  width: 439px;
+}
+
+.strom .rechteck-281-f3HDUc {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  left: calc(44.79% - 197px);
+  position: absolute;
+  top: calc(35.09% - 38px);
+  width: 439px;
+}
+
+.strom .rechteck-241-f3HDUc {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  position: absolute;
+  right: 286px;
+  top: calc(29.05% - 32px);
+  width: 439px;
+}
+
+.strom .rechteck-282-f3HDUc {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  position: absolute;
+  right: 286px;
+  top: calc(35.09% - 38px);
+  width: 439px;
+}
+
+.strom .rechteck-225-f3HDUc {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  position: absolute;
+  right: 286px;
+  top: 329px;
+  width: 439px;
+}
+
+.strom .rechteck-228-f3HDUc {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  position: absolute;
+  right: 286px;
+  top: 503px;
+  width: 439px;
+}
+
+.strom .rechteck-280-f3HDUc {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  position: absolute;
+  right: 286px;
+  top: calc(23.01% - 25px);
+  width: 439px;
+}
+
+.strom .x-vVPEnu {
+  background-color: transparent;
+  height: 22px;
+  left: calc(39.54% - 75px);
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: 348px;
+  white-space: nowrap;
+  width: 189px;
+}
+
+.strom .zhlernummer-hauptzhler-f3HDUc {
+  background-color: transparent;
+  height: 21px;
+  left: calc(39.65% - 77px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: 522px;
+  white-space: nowrap;
+  width: 194px;
+}
+
+.strom .jahresstromverbrauch-hauptzhler-in-k-wh-f3HDUc {
+  background-color: transparent;
+  height: 21px;
+  left: calc(42.25% - 127px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(22.98% - 5px);
+  white-space: nowrap;
+  width: 300px;
+}
+
+.strom .arbeitspreis-brutto-centk-wh-f3HDUc {
+  background-color: transparent;
+  height: 21px;
+  left: calc(39.93% - 82px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(28.85% - 6px);
+  white-space: nowrap;
+  width: 206px;
+}
+
+.strom .wrmestrom-arbeitspreis-brutto-centk-wh-f3HDUc {
+  background-color: transparent;
+  height: 21px;
+  left: calc(42.27% - 127px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(34.71% - 7px);
+  white-space: nowrap;
+  width: 301px;
+}
+
+.strom .grundpreis-brutto-jahr-f3HDUc {
+  background-color: transparent;
+  height: 21px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  right: calc(30.81% - 50px);
+  text-align: left;
+  top: calc(28.85% - 6px);
+  white-space: nowrap;
+  width: 162px;
+}
+
+.strom .wrmestrom-grundpreis-brutto-jahr-f3HDUc {
+  background-color: transparent;
+  color: var(--white);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-s);
+  font-style: normal;
+  font-weight: 400;
+  height: 21px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  right: calc(26.90% - 69px);
+  text-align: left;
+  top: calc(34.71% - 7px);
+  white-space: nowrap;
+  width: 256px;
+}
+
+.strom .anzahl-der-stromzhler-f3HDUc {
+  background-color: transparent;
+  height: 32px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  right: calc(25.05% - 74px);
+  text-align: left;
+  top: 346px;
+  width: 297px;
+}
+
+.strom .zhlernummer-nebenzhler-f3HDUc {
+  background-color: transparent;
+  height: 21px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  right: calc(29.36% - 58px);
+  text-align: left;
+  top: 522px;
+  white-space: nowrap;
+  width: 198px;
+}
+
+.strom .x2-stromzhler-zweck-u-f3HDUc {
+  background-color: transparent;
+  height: 21px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  right: calc(20.29% - 80px);
+  text-align: left;
+  top: calc(22.98% - 5px);
+  white-space: nowrap;
+  width: 394px;
+}
+
+.strom .stromhauptzaehlernummer-f3HDUc {
+  background-color: transparent;
+  height: 33px;
+  left: calc(38.43% - 53px);
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 561px;
+  white-space: nowrap;
+  width: 139px;
+}
+
+.strom .stromjahresverbrauch-f3HDUc {
+  background-color: transparent;
+  height: 33px;
+  left: calc(36.78% - 22px);
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: calc(24.34% - 8px);
+  white-space: nowrap;
+  width: 59px;
+}
+
+.strom .stromarbeitspreis-f3HDUc {
+  background-color: transparent;
+  height: 33px;
+  left: calc(36.19% - 10px);
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: calc(30.23% - 10px);
+  white-space: nowrap;
+  width: 29px;
+}
+
+.strom .stromarbeitspreiswaerme-f3HDUc {
+  background-color: transparent;
+  height: 33px;
+  left: calc(36.15% - 10px);
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: calc(36.12% - 12px);
+  white-space: nowrap;
+  width: 27px;
+}
+
+.strom .stromgrundpreis-f3HDUc {
+  background-color: transparent;
+  height: 33px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  right: calc(35.33% - 14px);
+  text-align: left;
+  top: calc(30.23% - 10px);
+  white-space: nowrap;
+  width: 39px;
+}
+
+.strom .stromagrundpreiswaerme-f3HDUc {
+  background-color: transparent;
+  height: 33px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  right: calc(35.26% - 14px);
+  text-align: left;
+  top: calc(36.12% - 12px);
+  white-space: nowrap;
+  width: 41px;
+}
+
+.strom .stromnebenzaehlernummer-f3HDUc {
+  background-color: transparent;
+  height: 33px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  right: calc(32.23% - 40px);
+  text-align: left;
+  top: 561px;
+  white-space: nowrap;
+  width: 125px;
+}
+
+.strom .stromnebenzaehlerfunktion-f3HDUc {
+  background-color: transparent;
+  height: 33px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  right: calc(28.87% - 61px);
+  text-align: left;
+  top: calc(24.34% - 8px);
+  white-space: nowrap;
+  width: 210px;
+}
+
+.strom .gruppe-1537-f3HDUc {
+  background-color: transparent;
+  height: 558px;
+  left: 87px;
+  position: fixed;
+  top: 211px;
+  width: 439px;
+}
+
+.strom .angaben-zum-haus-ohhxMP {
+  background-color: transparent;
+  height: 38px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  right: calc(47.80% - 123px);
+  text-align: left;
+  top: 17px;
+  white-space: nowrap;
+  width: 257px;
+}
+
+.strom .heizungsanlage-ohhxMP {
+  background-color: transparent;
+  height: 38px;
+  left: calc(42.22% - 90px);
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  text-align: left;
+  top: calc(27.09% - 10px);
+  white-space: nowrap;
+  width: 214px;
+}
+
+.strom .xxxx-ohhxMP {
+  background-color: transparent;
+  bottom: calc(49.09% - 19px);
+  height: 38px;
+  left: calc(41.48% - 87px);
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 210px;
+}
+
+.strom .technische-ausstattung-ohhxMP {
+  background-color: transparent;
+  bottom: calc(25.26% - 10px);
+  height: 38px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  right: 28px;
+  text-align: left;
+  white-space: nowrap;
+  width: 316px;
+}
+
+.strom .persnliche-informationen-ohhxMP {
+  background-color: transparent;
+  bottom: 8px;
+  height: 38px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  white-space: nowrap;
+  width: 346px;
+}
+
+.strom .gruppe-1532-ohhxMP {
+  background-color: transparent;
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 65px;
+}
+
+.strom .rechteck-226-7xhBbM {
+  background-color: transparent;
+  border: 3px solid;
+  border-color: var(--forest-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom .x1-7xhBbM {
+  background-color: transparent;
+  color: var(--cararra);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 45px;
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% - 8px);
+  letter-spacing: 0.00px;
+  line-height: 45px;
+  position: absolute;
+  right: calc(47.83% - 9px);
+  text-align: left;
+  top: 13px;
+  white-space: nowrap;
+  width: 19px;
+}
+
+.strom .gruppe-1533-ohhxMP {
+  background-color: transparent;
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  top: calc(24.92% - 16px);
+  width: 65px;
+}
+
+.strom .rechteck-226-SYXebj {
+  background-color: transparent;
+  border: 3px solid;
+  border-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.strom .gruppe-1534-ohhxMP {
+  background-color: transparent;
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  top: calc(49.95% - 32px);
+  width: 65px;
+}
+
+.strom .rechteck-226-6Y6585 {
+  background-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom .x3-6Y6585 {
+  background-color: transparent;
+  height: calc(100.00% - 8px);
+  letter-spacing: 0.00px;
+  line-height: 45px;
+  position: absolute;
+  right: calc(44.74% - 12px);
+  text-align: left;
+  top: 10px;
+  white-space: nowrap;
+  width: 27px;
+}
+
+.strom .gruppe-1535-ohhxMP {
+  background-color: transparent;
+  bottom: calc(25.03% - 16px);
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  width: 65px;
+}
+
+.strom .rechteck-226-gH0zRL {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom .x4-gH0zRL {
+  background-color: transparent;
+  height: calc(100.00% - 8px);
+  letter-spacing: 0.00px;
+  line-height: 45px;
+  position: absolute;
+  right: calc(44.74% - 12px);
+  text-align: left;
+  top: 10px;
+  white-space: nowrap;
+  width: 27px;
+}
+
+.strom .gruppe-1536-ohhxMP {
+  background-color: transparent;
+  bottom: 0px;
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  width: 65px;
+}
+
+.strom .rechteck-226-KUCMsV {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom .x5-KUCMsV {
+  background-color: transparent;
+  height: calc(100.00% - 8px);
+  letter-spacing: 0.00px;
+  line-height: 45px;
+  position: absolute;
+  right: calc(44.74% - 12px);
+  text-align: left;
+  top: 10px;
+  white-space: nowrap;
+  width: 27px;
+}
+
+.strom .linie-59-ohhxMP {
+  background-color: transparent;
+  height: 59px;
+  left: 31px;
+  object-fit: cover;
+  position: absolute;
+  top: 64px;
+  width: 3px;
+}
+
+.strom .linie-60-ohhxMP {
+  background-color: transparent;
+  height: 59px;
+  left: 31px;
+  object-fit: cover;
+  position: absolute;
+  top: calc(37.64% - 22px);
+  width: 3px;
+}
+
+.strom .linie-61-ohhxMP {
+  background-color: transparent;
+  bottom: calc(37.64% - 22px);
+  height: 59px;
+  left: 31px;
+  object-fit: cover;
+  position: absolute;
+  width: 3px;
+}
+
+.strom .linie-62-ohhxMP {
+  background-color: transparent;
+  bottom: 64px;
+  height: 59px;
+  left: 31px;
+  object-fit: cover;
+  position: absolute;
+  width: 3px;
+}
+
+.strom .stromversorger-f3HDUc {
+  background-color: transparent;
+  height: 31px;
+  left: calc(44.56% - 171px);
+  position: absolute;
+  top: 384px;
+  width: 384px;
+}
+
+.strom .netze-bw-FEDtbV {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.strom .polygon-26-FEDtbV {
+  background-color: transparent;
+  height: calc(100.00% - 11px);
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 6px;
+  width: 26px;
+}
+
+.strom .stromhauptzaehleranzahl-f3HDUc {
+  background-color: transparent;
+  height: 31px;
+  position: absolute;
+  right: calc(20.81% - 80px);
+  top: 384px;
+  width: 384px;
+}
+
+.strom .x2-Ofm0GN {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 15px;
+}
+
+.strom .polygon-33-Ofm0GN {
+  background-color: transparent;
+  height: calc(100.00% - 11px);
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 6px;
+  width: 26px;
+}
+
+.strom .icon-check_mark-f3HDUc {
+  background-color: transparent;
+  height: 27px;
+  left: 102px;
+  object-fit: cover;
+  position: fixed;
+  top: 231px;
+  width: 34px;
+}
+
+.strom .icon-check_mark-xPUjyy {
+  background-color: transparent;
+  height: 27px;
+  left: 102px;
+  object-fit: cover;
+  position: fixed;
+  top: 354px;
+  width: 34px;
+}
+
+.strom .speichern-f3HDUc {
+  background-color: transparent;
+  bottom: 318px;
+  height: 115px;
+  position: absolute;
+  right: 125px;
+  width: 472px;
+}
+
+.strom .rechteck-240-T1YDZX {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom .speichern-und-weiter-T1YDZX {
+  background-color: transparent;
+  bottom: calc(44.94% - 16px);
+  height: 36px;
+  letter-spacing: 0.00px;
+  line-height: 29px;
+  position: absolute;
+  right: calc(49.21% - 138px);
+  text-align: left;
+  white-space: nowrap;
+  width: 281px;
+}
+
+.strom .ueberspringen-f3HDUc {
+  background-color: transparent;
+  bottom: 318px;
+  height: 67px;
+  position: absolute;
+  right: calc(45.24% - 95px);
+  width: 209px;
+}
+
+.strom .pfad-568-MmaU3V {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom .berspringen-MmaU3V {
+  background-color: transparent;
+  bottom: calc(34.95% - 8px);
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: 19px;
+  font-style: normal;
+  font-weight: 400;
+  height: 24px;
+  left: calc(50.00% - 56px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 113px;
+}
+
+.strom .zurueck-f3HDUc {
+  background-color: transparent;
+  bottom: 318px;
+  height: 67px;
+  left: calc(38.75% - 81px);
+  position: absolute;
+  width: 209px;
+}
+
+.strom .pfad-569-C5Vx7B {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom .zurck-C5Vx7B {
+  background-color: transparent;
+  bottom: calc(34.95% - 8px);
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: 19px;
+  font-style: normal;
+  font-weight: 400;
+  height: 24px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: calc(49.33% - 29px);
+  text-align: left;
+  white-space: nowrap;
+  width: 59px;
+}
+
+.strom .rechteck-249-f3HDUc {
+  background-color: var(--white);
+  border-radius: 15px;
+  bottom: calc(43.93% - 191px);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 434px;
+  position: absolute;
+  right: calc(36.36% - 319px);
+  width: 876px;
+}
+
+.strom .zhlerschrank-f3HDUc {
+  background-color: transparent;
+  height: 27px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  right: calc(42.90% - 308px);
+  text-align: left;
+  top: calc(49.37% - 13px);
+  width: 719px;
+}
+
+.strom .gesamter-zhlerschran-f3HDUc {
+  background-color: transparent;
+  bottom: calc(46.63% - 61px);
+  height: 130px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: calc(42.90% - 308px);
+  text-align: left;
+  width: 719px;
+}
+
+.strom .bilderupload-f3HDUc {
+  background-color: transparent;
+  height: 33px;
+  left: calc(37.37% - 53px);
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  position: absolute;
+  text-align: left;
+  top: calc(42.87% - 14px);
+  white-space: nowrap;
+  width: 141px;
+}
+
+.strom .dateihochladenzaehlerschrank-f3HDUc {
+  background-color: transparent;
+  bottom: calc(41.55% - 52px);
+  height: 124px;
+  position: absolute;
+  right: calc(37.74% - 288px);
+  width: 762px;
+}
+
+.strom .rechteck-250-yENl51 {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom .x352278_cloud_upload_icon-yENl51 {
+  background-color: transparent;
+  height: 32px;
+  left: calc(28.48% - 9px);
+  position: absolute;
+  top: calc(50.00% - 16px);
+  width: 32px;
+}
+
+.strom .pfad-645-vpOQvx {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom .pfad-646-vpOQvx {
+  background-color: transparent;
+  height: calc(100.00% - 11px);
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.strom .datei-hier-hochladen-yENl51 {
+  background-color: transparent;
+  bottom: calc(45.54% - 10px);
+  height: 23px;
+  left: calc(41.36% - 68px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 164px;
+}
+
+.strom .rechteck-251-yENl51 {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 22px);
+  height: 47px;
+  position: absolute;
+  right: calc(25.12% - 32px);
+  width: 129px;
+}
+
+.strom .hochladen-yENl51 {
+  background-color: transparent;
+  bottom: calc(45.05% - 10px);
+  height: 23px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: calc(26.59% - 23px);
+  text-align: left;
+  white-space: nowrap;
+  width: 85px;
+}
+
+.strom .rechteck-273-f3HDUc {
+  background-color: var(--white);
+  border-radius: 15px;
+  bottom: calc(26.22% - 94px);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 357px;
+  position: absolute;
+  right: calc(36.36% - 319px);
+  width: 876px;
+}
+
+.strom .alle-zhler-f3HDUc {
+  background-color: transparent;
+  bottom: calc(33.42% - 9px);
+  height: 27px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  right: calc(42.90% - 308px);
+  text-align: left;
+  width: 719px;
+}
+
+.strom .die-zhlernummer-soll-f3HDUc {
+  background-color: transparent;
+  bottom: calc(31.15% - 9px);
+  height: 30px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: calc(42.90% - 308px);
+  text-align: left;
+  width: 719px;
+}
+
+.strom .dateihochladenzaeehler-f3HDUc {
+  background-color: transparent;
+  bottom: calc(25.94% - 32px);
+  height: 124px;
+  position: absolute;
+  right: calc(37.74% - 288px);
+  width: 762px;
+}
+
+.strom .rechteck-274-Bh6l2z {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom .x352278_cloud_upload_icon-Bh6l2z {
+  background-color: transparent;
+  height: 32px;
+  left: calc(29.57% - 9px);
+  position: absolute;
+  top: calc(50.00% - 16px);
+  width: 32px;
+}
+
+.strom .pfad-645-e7U8d2 {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom .pfad-646-e7U8d2 {
+  background-color: transparent;
+  height: calc(100.00% - 11px);
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.strom .datei-hier-hochladen-Bh6l2z {
+  background-color: transparent;
+  bottom: calc(45.54% - 10px);
+  height: 23px;
+  left: calc(42.69% - 70px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 164px;
+}
+
+.strom .rechteck-275-Bh6l2z {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 22px);
+  height: 47px;
+  position: absolute;
+  right: calc(25.12% - 32px);
+  width: 129px;
+}
+
+.strom .hochladen-Bh6l2z {
+  background-color: transparent;
+  bottom: calc(45.05% - 10px);
+  height: 23px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: calc(26.59% - 23px);
+  text-align: left;
+  white-space: nowrap;
+  width: 85px;
+}
+
+.strom .rechteck-234-f3HDUc {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  position: absolute;
+  right: 286px;
+  top: calc(41.13% - 45px);
+  width: 971px;
+}
+
+.strom .was-verbraucht-bei-ihnen-strom-f3HDUc {
+  background-color: transparent;
+  height: 21px;
+  left: calc(40.55% - 94px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(40.55% - 9px);
+  white-space: nowrap;
+  width: 232px;
+}
+
+.strom .stromzusatzverbrauch-f3HDUc {
+  background-color: transparent;
+  height: 36px;
+  position: absolute;
+  right: calc(31.83% - 292px);
+  top: calc(42.15% - 15px);
+  width: 916px;
+}
+
+.strom .haushaltsstrom-sauna-pool-wrmepumpe-pxNpM7 {
+  background-color: transparent;
+  height: calc(100.00% - 3px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 8px;
+  white-space: nowrap;
+  width: 478px;
+}
+
+.strom .polygon-41-pxNpM7 {
+  background-color: transparent;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 26px;
+}
+
+.strom .bilderupload-xPUjyy {
+  background-color: transparent;
+  height: 33px;
+  left: calc(37.37% - 53px);
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  position: absolute;
+  text-align: left;
+  top: calc(46.95% - 15px);
+  white-space: nowrap;
+  width: 141px;
+}
+
+.strom .gruppe-5-f3HDUc {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.strom .rechteck-8-irepr1 {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom .logo-irepr1 {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 23px);
+  left: 86px;
+  object-fit: cover;
+  position: absolute;
+  top: 11px;
+  width: 101px;
+}
+/* screen - strom-1 */
+
+.strom-1 {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 2755px;
+  min-width: 1200px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.strom-1 .gruppe-1537-92w2Za {
+  background-color: transparent;
+  height: 292px;
+  left: 39px;
+  position: fixed;
+  top: 176px;
+  width: 189px;
+}
+
+.strom-1 .haushalt-pQn6V5 {
+  background-color: transparent;
+  height: 26px;
+  left: calc(46.11% - 37px);
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  text-align: left;
+  top: 4px;
+  white-space: nowrap;
+  width: 81px;
+}
+
+.strom-1 .heizung-pQn6V5 {
+  background-color: transparent;
+  height: 26px;
+  left: calc(43.29% - 32px);
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  text-align: left;
+  top: calc(26.00% - 7px);
+  white-space: nowrap;
+  width: 74px;
+}
+
+.strom-1 .xx-pQn6V5 {
+  background-color: transparent;
+  bottom: calc(49.63% - 13px);
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  white-space: nowrap;
+  width: 141px;
+}
+
+.strom-1 .technisches-pQn6V5 {
+  background-color: transparent;
+  bottom: calc(25.25% - 7px);
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  right: calc(37.68% - 42px);
+  text-align: left;
+  white-space: nowrap;
+  width: 111px;
+}
+
+.strom-1 .kontakt-pQn6V5 {
+  background-color: transparent;
+  bottom: 2px;
+  height: 26px;
+  left: calc(40.47% - 28px);
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 68px;
+}
+
+.strom-1 .gruppe-1532-pQn6V5 {
+  background-color: transparent;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 34px;
+}
+
+.strom-1 .rechteck-226-kFyAGc {
+  background-color: transparent;
+  border: 2px solid;
+  border-color: var(--forest-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .x1-kFyAGc {
+  background-color: transparent;
+  color: var(--cararra);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% - 5px);
+  letter-spacing: 0.00px;
+  line-height: 22px;
+  position: absolute;
+  right: calc(47.66% - 5px);
+  text-align: left;
+  top: 7px;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.strom-1 .gruppe-1533-pQn6V5 {
+  background-color: transparent;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  top: calc(24.92% - 8px);
+  width: 34px;
+}
+
+.strom-1 .rechteck-226-7IRFFT {
+  background-color: transparent;
+  border: 2px solid;
+  border-color: #006f3a;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .gruppe-1534-pQn6V5 {
+  background-color: transparent;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  top: calc(49.95% - 17px);
+  width: 34px;
+}
+
+.strom-1 .rechteck-226-UJgZ9B {
+  background-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .x3-UJgZ9B {
+  background-color: transparent;
+  height: calc(100.00% - 5px);
+  letter-spacing: 0.00px;
+  line-height: 22px;
+  position: absolute;
+  right: calc(45.03% - 6px);
+  text-align: left;
+  top: 7px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.strom-1 .gruppe-1535-pQn6V5 {
+  background-color: transparent;
+  bottom: calc(25.03% - 8px);
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  width: 34px;
+}
+
+.strom-1 .rechteck-226-qVlHnx {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .x4-qVlHnx {
+  background-color: transparent;
+  height: calc(100.00% - 5px);
+  letter-spacing: 0.00px;
+  line-height: 22px;
+  position: absolute;
+  right: calc(45.03% - 6px);
+  text-align: left;
+  top: 7px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.strom-1 .gruppe-1536-pQn6V5 {
+  background-color: transparent;
+  bottom: 1px;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  width: 34px;
+}
+
+.strom-1 .rechteck-226-EVe0Hy {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .x5-EVe0Hy {
+  background-color: transparent;
+  bottom: -3px;
+  height: 29px;
+  letter-spacing: 0.00px;
+  line-height: 22px;
+  position: absolute;
+  right: calc(45.03% - 6px);
+  text-align: left;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.strom-1 .pfad-718-pQn6V5 {
+  background-color: transparent;
+  height: 31px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  top: 34px;
+  width: 3px;
+}
+
+.strom-1 .linie-60-pQn6V5 {
+  background-color: transparent;
+  height: 31px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  top: calc(37.64% - 12px);
+  width: 3px;
+}
+
+.strom-1 .linie-61-pQn6V5 {
+  background-color: transparent;
+  bottom: calc(37.64% - 12px);
+  height: 31px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  width: 3px;
+}
+
+.strom-1 .linie-62-pQn6V5 {
+  background-color: transparent;
+  bottom: 34px;
+  height: 31px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  width: 3px;
+}
+
+.strom-1 .icon-check_mark-92w2Za {
+  background-color: transparent;
+  height: 18px;
+  left: 43px;
+  object-fit: cover;
+  position: fixed;
+  top: 184px;
+  width: 22px;
+}
+
+.strom-1 .icon-check_mark-OxfB5a {
+  background-color: transparent;
+  height: 18px;
+  left: 43px;
+  object-fit: cover;
+  position: fixed;
+  top: 249px;
+  width: 22px;
+}
+
+.strom-1 .gruppe-1647-92w2Za {
+  background-color: transparent;
+  bottom: calc(45.91% - 233px);
+  height: 507px;
+  position: absolute;
+  right: calc(14.81% - 130px);
+  width: 876px;
+}
+
+.strom-1 .bilderupload-iKE8jx {
+  background-color: transparent;
+  height: 33px;
+  left: 1px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 141px;
+}
+
+.strom-1 .gruppe-1646-iKE8jx {
+  background-color: transparent;
+  height: calc(100.00% - 73px);
+  left: 0px;
+  position: absolute;
+  top: 73px;
+  width: 100%;
+}
+
+.strom-1 .rechteck-249-hOT1AU {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .zhlerschrank-hOT1AU {
+  background-color: transparent;
+  height: 27px;
+  left: 69px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  text-align: left;
+  top: 24px;
+  width: calc(100.00% - 157px);
+}
+
+.strom-1 .gesamter-zhlerschran-hOT1AU {
+  background-color: transparent;
+  height: 130px;
+  left: 69px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  text-align: left;
+  top: calc(29.93% - 39px);
+  width: calc(100.00% - 157px);
+}
+
+.strom-1 .dateihochladenzaehlerschrank-iKE8jx {
+  background-color: transparent;
+  bottom: 56px;
+  height: 117px;
+  left: 97px;
+  position: absolute;
+  width: calc(100.00% - 157px);
+}
+
+.strom-1 .rechteck-326-vuwyxe {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .x352278_cloud_upload_icon-vuwyxe {
+  background-color: transparent;
+  bottom: calc(50.00% - 15px);
+  height: 30px;
+  left: calc(27.60% - 8px);
+  position: absolute;
+  width: 30px;
+}
+
+.strom-1 .pfad-645-FDAdbD {
+  background-color: transparent;
+  height: 100%;
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.strom-1 .pfad-646-FDAdbD {
+  background-color: transparent;
+  height: calc(100.00% - 10px);
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.strom-1 .datei-hier-hochladen-vuwyxe {
+  background-color: transparent;
+  bottom: calc(46.34% - 10px);
+  height: 22px;
+  left: calc(40.71% - 63px);
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 155px;
+}
+
+.strom-1 .rechteck-327-vuwyxe {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 21px);
+  height: 44px;
+  position: absolute;
+  right: calc(25.27% - 31px);
+  width: 122px;
+}
+
+.strom-1 .hochladen-vuwyxe {
+  background-color: transparent;
+  bottom: calc(45.37% - 10px);
+  height: 21px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  position: absolute;
+  right: calc(26.77% - 20px);
+  text-align: left;
+  white-space: nowrap;
+  width: 76px;
+}
+
+.strom-1 .gruppe-1649-92w2Za {
+  background-color: transparent;
+  bottom: calc(25.35% - 91px);
+  height: 357px;
+  position: absolute;
+  right: calc(14.81% - 130px);
+  width: 876px;
+}
+
+.strom-1 .rechteck-273-WaTRZH {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .alle-zhler-WaTRZH {
+  background-color: transparent;
+  height: 27px;
+  left: 69px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  text-align: left;
+  top: 24px;
+  width: calc(100.00% - 157px);
+}
+
+.strom-1 .die-zhlernummer-soll-WaTRZH {
+  background-color: transparent;
+  height: 30px;
+  left: 69px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  text-align: left;
+  top: calc(27.83% - 8px);
+  width: calc(100.00% - 157px);
+}
+
+.strom-1 .dateihochladenzaeehler-WaTRZH {
+  background-color: transparent;
+  bottom: calc(25.61% - 30px);
+  height: 117px;
+  left: 86px;
+  position: absolute;
+  width: calc(100.00% - 157px);
+}
+
+.strom-1 .dateihochladen-1xpO5Q {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .rechteck-334-EnRUxC {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .x352278_cloud_upload_icon-EnRUxC {
+  background-color: transparent;
+  bottom: calc(50.00% - 15px);
+  height: 30px;
+  left: calc(27.89% - 8px);
+  position: absolute;
+  width: 30px;
+}
+
+.strom-1 .pfad-645-F7QwTd {
+  background-color: transparent;
+  height: 100%;
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.strom-1 .pfad-646-F7QwTd {
+  background-color: transparent;
+  height: calc(100.00% - 10px);
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.strom-1 .datei-hier-hochladen-EnRUxC {
+  background-color: transparent;
+  bottom: calc(46.34% - 10px);
+  height: 22px;
+  left: calc(41.07% - 64px);
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 155px;
+}
+
+.strom-1 .rechteck-335-EnRUxC {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 21px);
+  height: 44px;
+  position: absolute;
+  right: calc(25.27% - 31px);
+  width: 122px;
+}
+
+.strom-1 .hochladen-EnRUxC {
+  background-color: transparent;
+  bottom: calc(45.37% - 10px);
+  height: 21px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  position: absolute;
+  right: calc(26.77% - 20px);
+  text-align: left;
+  white-space: nowrap;
+  width: 76px;
+}
+
+.strom-1 .speichern-92w2Za {
+  background-color: transparent;
+  bottom: 269px;
+  height: 120px;
+  position: absolute;
+  right: 90px;
+  width: 426px;
+}
+
+.strom-1 .gruppe-1545-Uhtdfd {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .rechteck-240-FRDjrc {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .speichern-und-weiter-FRDjrc {
+  background-color: transparent;
+  bottom: calc(45.83% - 16px);
+  height: 36px;
+  letter-spacing: 0.00px;
+  line-height: 29px;
+  position: absolute;
+  right: calc(48.97% - 138px);
+  text-align: left;
+  white-space: nowrap;
+  width: 281px;
+}
+
+.strom-1 .ueberspringen-92w2Za {
+  background-color: transparent;
+  bottom: calc(9.93% - 5px);
+  height: 47px;
+  left: calc(43.02% - 63px);
+  position: absolute;
+  width: 147px;
+}
+
+.strom-1 .pfad-568-3vzqqF {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.strom-1 .berspringen-3vzqqF {
+  background-color: transparent;
+  bottom: calc(34.37% - 6px);
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  left: calc(49.99% - 39px);
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 78px;
+}
+
+.strom-1 .c-92w2Za {
+  background-color: transparent;
+  bottom: 58px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xs);
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  left: 219px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.strom-1 .c-92w2Za.bp3-animate-enter {
+  animation: bp3-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-1 .ellipse-12-92w2Za {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 8px;
+  bottom: 52px;
+  display: block;
+  height: 16px;
+  left: 215px;
+  opacity: 0;
+  position: absolute;
+  width: 16px;
+}
+
+.strom-1 .ellipse-12-92w2Za.bp3-animate-enter1 {
+  animation: bp3-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-1 .rechteck-21-92w2Za {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: calc(100.23% - 109px);
+  width: 100%;
+}
+
+.strom-1 .rechteck-21-92w2Za.bp3-animate-enter2 {
+  animation: bp3-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-1 .gruppe-1454-92w2Za {
+  background-color: transparent;
+  bottom: 0.88%;
+  height: 18px;
+  left: calc(50.00% - 480px);
+  position: absolute;
+  width: 960px;
+}
+
+.strom-1 .shs-montage-express-8VyKfh {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xs);
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  left: 18px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -1px;
+  white-space: nowrap;
+  width: 635px;
+}
+
+.strom-1 .shs-montage-express-8VyKfh.bp3-animate-enter3 {
+  animation: bp3-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-1 .impressum-8VyKfh {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(18.23% - 18px);
+  text-align: left;
+  top: 0px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 99px;
+}
+
+.strom-1 .impressum-8VyKfh.bp3-animate-enter4 {
+  animation: bp3-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-1 .impressum-8VyKfh:hover {
+  filter: grayscale(100%);
+}
+
+.strom-1 .datenschutz-8VyKfh {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  top: 1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.strom-1 .datenschutz-8VyKfh.bp3-animate-enter5 {
+  animation: bp3-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-1 .datenschutz-8VyKfh:hover {
+  filter: grayscale(100%);
+}
+
+.strom-1 .x-8VyKfh {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-s);
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  right: calc(28.95% - 3px);
+  text-align: left;
+  top: 0px;
+  white-space: nowrap;
+  width: 12px;
+}
+
+.strom-1 .x-8VyKfh.bp3-animate-enter6 {
+  animation: bp3-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-1 .x-hDwaST {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-s);
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  right: 137px;
+  text-align: left;
+  top: 0px;
+  white-space: nowrap;
+  width: 12px;
+}
+
+.strom-1 .x-hDwaST.bp3-animate-enter7 {
+  animation: bp3-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-1 .c-8VyKfh {
+  background-color: transparent;
+  bottom: calc(121.43% - 13px);
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 400;
+  height: 11px;
+  left: 3px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 7px;
+}
+
+.strom-1 .c-8VyKfh.bp3-animate-enter8 {
+  animation: bp3-animate-enter8-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter8-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-1 .ellipse-12-8VyKfh {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 5.5px/5px;
+  display: block;
+  height: 10px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: calc(37.49% - 4px);
+  width: 11px;
+}
+
+.strom-1 .ellipse-12-8VyKfh.bp3-animate-enter9 {
+  animation: bp3-animate-enter9-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter9-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-1 .zurueck-92w2Za {
+  background-color: transparent;
+  bottom: calc(9.93% - 5px);
+  height: 47px;
+  left: calc(26.21% - 39px);
+  position: absolute;
+  width: 147px;
+}
+
+.strom-1 .pfad-568-JHENSL {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.strom-1 .zurck-JHENSL {
+  background-color: transparent;
+  bottom: calc(33.26% - 6px);
+  height: 19px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: calc(49.00% - 23px);
+  text-align: left;
+  white-space: nowrap;
+  width: 47px;
+}
+
+.strom-1 .gruppe-1705-92w2Za {
+  background-color: transparent;
+  height: 930px;
+  position: absolute;
+  right: calc(37.09% - 282px);
+  top: 176px;
+  width: 761px;
+}
+
+.strom-1 .gruppe-1620-ErOnir {
+  background-color: transparent;
+  height: 41px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 519px;
+}
+
+.strom-1 .xx-S5RpPE {
+  -webkit-text-stroke: 1px var(--hunter-green);
+  background-color: transparent;
+  height: 43px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 37px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 4.88%;
+  white-space: nowrap;
+  width: 521px;
+}
+
+.strom-1 .gruppe-1704-ErOnir {
+  background-color: transparent;
+  height: 817px;
+  left: calc(50.00% - 381px);
+  position: absolute;
+  top: 113px;
+  width: 761px;
+}
+
+.strom-1 .gruppe-1599-YnGEjj {
+  background-color: transparent;
+  bottom: 0px;
+  height: 109px;
+  left: calc(50.00% - 381px);
+  position: absolute;
+  width: 761px;
+}
+
+.strom-1 .rechteck-312-lHvq7S {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .was-verbraucht-bei-ihnen-strom-lHvq7S {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 247px;
+}
+
+.strom-1 .stromzusatzverbrauch-lHvq7S {
+  background-color: transparent;
+  bottom: calc(29.27% - 8px);
+  height: 27px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 83px);
+}
+
+.strom-1 .haushaltsstrom-sauna-pool-wrmepumpe-mjLxfg {
+  background-color: transparent;
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 22px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 421px;
+}
+
+.strom-1 .polygon-47-mjLxfg {
+  background-color: transparent;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 2px;
+  width: 26px;
+}
+
+.strom-1 .gruppe-1703-YnGEjj {
+  background-color: transparent;
+  height: 676px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 348px;
+}
+
+.strom-1 .gruppe-1702-kzxWxZ {
+  background-color: transparent;
+  height: 676px;
+  left: calc(50.00% - 174px);
+  position: relative;
+  top: calc(50.00% - 338px);
+  width: 348px;
+}
+
+.strom-1 .gruppe-1593-w2grUH {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 174px);
+  position: absolute;
+  top: 0px;
+  width: 348px;
+}
+
+.strom-1 .rechteck-224-n2uM5y {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .x-n2uM5y {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 189px;
+}
+
+.strom-1 .gruppe-1595-w2grUH {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 174px);
+  position: absolute;
+  top: 146px;
+  width: 348px;
+}
+
+.strom-1 .rechteck-308-7uSU02 {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .zhlernummer-hauptzhler-7uSU02 {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 206px;
+}
+
+.strom-1 .stromhauptzaehlernummer-7uSU02 {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 139px;
+}
+
+.strom-1 .stromversorger-w2grUH {
+  background-color: transparent;
+  height: 34px;
+  left: 45px;
+  position: absolute;
+  top: 55px;
+  width: calc(100.00% - 86px);
+}
+
+.strom-1 .netze-bw-xx9ubf {
+  background-color: transparent;
+  height: calc(100.00% - 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.strom-1 .polygon-53-xx9ubf {
+  background-color: transparent;
+  bottom: 0px;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  width: 26px;
+}
+
+.strom-1 .gruppe-1597-w2grUH {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 174px);
+  position: absolute;
+  top: 286px;
+  width: 348px;
+}
+
+.strom-1 .rechteck-310-wQn5dV {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .jahresstromverbrauch-hauptzhler-in-k-wh-wQn5dV {
+  background-color: transparent;
+  height: 21px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(22.73% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 67px);
+}
+
+.strom-1 .stromjahresverbrauch-wQn5dV {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 59px;
+}
+
+.strom-1 .gruppe-1656-w2grUH {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 174px);
+  position: absolute;
+  top: 427px;
+  width: 348px;
+}
+
+.strom-1 .rechteck-310-Uoq9A4 {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .arbeitspreis-brutto-centk-wh-Uoq9A4 {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 219px;
+}
+
+.strom-1 .stromarbeitspreis-Uoq9A4 {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 29px;
+}
+
+.strom-1 .gruppe-1657-w2grUH {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 174px);
+  position: absolute;
+  top: 568px;
+  width: 348px;
+}
+
+.strom-1 .rechteck-310-9ugxgR {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .wrmestrom-arbeitspreis-brutto-centk-wh-9ugxgR {
+  background-color: transparent;
+  height: 21px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(22.73% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 66px);
+}
+
+.strom-1 .stromarbeitspreiswaerme-9ugxgR {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 27px;
+}
+
+.strom-1 .gruppe-5-92w2Za {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .rechteck-8-Ouz7Ck {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .logo-Ouz7Ck {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 23px);
+  left: 86px;
+  object-fit: cover;
+  position: absolute;
+  top: 11px;
+  width: 101px;
+}
+
+.strom-1 .gruppe-1645-92w2Za {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: calc(19.09% - 66px);
+  top: calc(16.36% - 18px);
+  width: 348px;
+}
+
+.strom-1 .rechteck-307-LUY54K {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .zhlernummer-nebenzhler-LUY54K {
+  background-color: transparent;
+  height: 53px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 14px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(41.96% - 22px);
+  white-space: nowrap;
+  width: 173px;
+}
+
+.strom-1 .stromnebenzaehlernummer-LUY54K {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 125px;
+}
+
+.strom-1 .gruppe-1658-92w2Za {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: calc(19.09% - 66px);
+  top: calc(21.75% - 24px);
+  width: 348px;
+}
+
+.strom-1 .rechteck-310-7DcfuV {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .x2-stromzhler-zweck-u-7DcfuV {
+  background-color: transparent;
+  height: 17px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: 18px;
+  white-space: nowrap;
+  width: calc(100.00% - 52px);
+}
+
+.strom-1 .stromnebenzaehlerfunktion-7DcfuV {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 210px;
+}
+
+.strom-1 .gruppe-1659-92w2Za {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: calc(19.09% - 66px);
+  top: 716px;
+  width: 348px;
+}
+
+.strom-1 .rechteck-310-vwDR8d {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .grundpreis-brutto-jahr-vwDR8d {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 172px;
+}
+
+.strom-1 .stromgrundpreis-vwDR8d {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 39px;
+}
+
+.strom-1 .gruppe-1660-92w2Za {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: calc(19.09% - 66px);
+  top: 856px;
+  width: 348px;
+}
+
+.strom-1 .rechteck-310-Px4XxO {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .wrmestrom-grundpreis-brutto-jahr-Px4XxO {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 76px);
+}
+
+.strom-1 .stromagrundpreiswaerme-Px4XxO {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 41px;
+}
+
+.strom-1 .gruppe-1695-92w2Za {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: calc(19.09% - 66px);
+  top: calc(10.92% - 12px);
+  width: 348px;
+}
+
+.strom-1 .gruppe-1594-AN3yKu {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 174px);
+  position: absolute;
+  top: calc(50.00% - 54px);
+  width: 348px;
+}
+
+.strom-1 .rechteck-307-sdbmuO {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-1 .anzahl-der-stromzhler-sdbmuO {
+  background-color: transparent;
+  height: 21px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(22.16% - 5px);
+  white-space: nowrap;
+  width: 165px;
+}
+
+.strom-1 .stromhauptzaehleranzahl-AN3yKu {
+  background-color: transparent;
+  bottom: calc(29.49% - 9px);
+  height: 31px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 72px);
+}
+
+.strom-1 .x2-yLxHfB {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 15px;
+}
+
+.strom-1 .polygon-54-yLxHfB {
+  background-color: transparent;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: calc(40.91% - 8px);
+  width: 26px;
+}
+/* screen - strom-3 */
+
+.strom-3 {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 3033px;
+  min-width: 375px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.strom-3 .gruppe-1620-h5WJWM {
+  background-color: transparent;
+  height: 24px;
+  left: calc(50.00% - 149px);
+  position: absolute;
+  top: 255px;
+  width: 298px;
+}
+
+.strom-3 .xxxx-y8udiE {
+  -webkit-text-stroke: 0.4000000059604645px var(--hunter-green);
+  background-color: transparent;
+  bottom: 18.75%;
+  color: var(--hunter-green);
+  font-family: var(--font-family-applebraille-pinpoint8_dot);
+  font-size: 23px;
+  font-style: normal;
+  font-weight: 400;
+  height: 26px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 37px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 300px;
+}
+
+.strom-3 .gruppe-1593-h5WJWM {
+  background-color: transparent;
+  height: 3.59%;
+  left: 26px;
+  position: absolute;
+  top: 10.52%;
+  width: calc(100.00% - 62px);
+}
+
+.strom-3 .rechteck-224-Vc4JUY {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .x-Vc4JUY {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 189px;
+}
+
+.strom-3 .stromversorger-Vc4JUY {
+  background-color: transparent;
+  bottom: calc(29.49% - 9px);
+  height: 31px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 86px);
+}
+
+.strom-3 .netze-bw-HQkohx {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.strom-3 .polygon-56-HQkohx {
+  background-color: transparent;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 3px;
+  width: 26px;
+}
+
+.strom-3 .gruppe-1594-h5WJWM {
+  background-color: transparent;
+  height: 3.59%;
+  left: 26px;
+  position: absolute;
+  top: 15.01%;
+  width: calc(100.00% - 62px);
+}
+
+.strom-3 .rechteck-307-kTxxEd {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .anzahl-der-stromzhler-kTxxEd {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 175px;
+}
+
+.strom-3 .stromhauptzaehleranzahl-kTxxEd {
+  background-color: transparent;
+  bottom: calc(29.68% - 9px);
+  height: 32px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 86px);
+}
+
+.strom-3 .x2-82y2wx {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 4px;
+  white-space: nowrap;
+  width: 15px;
+}
+
+.strom-3 .polygon-57-82y2wx {
+  background-color: transparent;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 26px;
+}
+
+.strom-3 .gruppe-1595-h5WJWM {
+  background-color: transparent;
+  height: 3.59%;
+  left: 26px;
+  position: absolute;
+  top: 19.50%;
+  width: calc(100.00% - 62px);
+}
+
+.strom-3 .rechteck-308-DyWavF {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .zhlernummer-hauptzhler-DyWavF {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 206px;
+}
+
+.strom-3 .stromhauptzaehlernummer-DyWavF {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 153px;
+}
+
+.strom-3 .gruppe-1668-h5WJWM {
+  background-color: transparent;
+  height: 3.59%;
+  left: 26px;
+  position: absolute;
+  top: 37.99%;
+  width: calc(100.00% - 62px);
+}
+
+.strom-3 .rechteck-308-AplMZS {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .arbeitspreis-brutto-centk-wh-AplMZS {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 219px;
+}
+
+.strom-3 .stromarbeitspreis-AplMZS {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 29px;
+}
+
+.strom-3 .gruppe-1596-h5WJWM {
+  background-color: transparent;
+  height: 3.59%;
+  left: 26px;
+  position: absolute;
+  top: 23.99%;
+  width: calc(100.00% - 62px);
+}
+
+.strom-3 .rechteck-309-sSBLJU {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .zhlernummer-nebenzhler-sSBLJU {
+  background-color: transparent;
+  height: 59px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(48.00% - 28px);
+  white-space: nowrap;
+  width: 185px;
+}
+
+.strom-3 .stromnebenzaehlernummer-sSBLJU {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 155px;
+}
+
+.strom-3 .gruppe-1669-h5WJWM {
+  background-color: transparent;
+  height: 3.59%;
+  left: 26px;
+  position: absolute;
+  top: 42.49%;
+  width: calc(100.00% - 62px);
+}
+
+.strom-3 .rechteck-309-3Ipqg9 {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .grundpreis-brutto-jahr-3Ipqg9 {
+  background-color: transparent;
+  height: 40px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(31.88% - 13px);
+  white-space: nowrap;
+  width: 152px;
+}
+
+.strom-3 .stromgrundpreis-3Ipqg9 {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 39px;
+}
+
+.strom-3 .gruppe-1597-h5WJWM {
+  background-color: transparent;
+  height: 3.59%;
+  left: 26px;
+  position: absolute;
+  top: 28.48%;
+  width: calc(100.00% - 62px);
+}
+
+.strom-3 .rechteck-310-Xz2aMP {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .jahresstromverbrauch-in-k-wh-Xz2aMP {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 224px;
+}
+
+.strom-3 .stromjahresverbrauch-Xz2aMP {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 59px;
+}
+
+.strom-3 .gruppe-1670-h5WJWM {
+  background-color: transparent;
+  height: 3.59%;
+  left: 26px;
+  position: absolute;
+  top: 46.98%;
+  width: calc(100.00% - 62px);
+}
+
+.strom-3 .rechteck-310-qZqY0w {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .wrmestrom-arbeitspreis-in-cent-qZqY0w {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 64px);
+}
+
+.strom-3 .stromarbeitspreiswaerme-qZqY0w {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 27px;
+}
+
+.strom-3 .gruppe-1667-h5WJWM {
+  background-color: transparent;
+  height: 4.12%;
+  left: 26px;
+  position: absolute;
+  top: 32.98%;
+  width: calc(100.00% - 62px);
+}
+
+.strom-3 .rechteck-310-S1Or2x {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .x2-stromzhler-zweck-u-S1Or2x {
+  background-color: transparent;
+  height: 42px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(28.85% - 12px);
+  white-space: nowrap;
+  width: calc(100.00% - 61px);
+}
+
+.strom-3 .stromnebenzaehlerfunktion-S1Or2x {
+  background-color: transparent;
+  bottom: calc(16.31% - 5px);
+  height: 33px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 210px;
+}
+
+.strom-3 .gruppe-1671-h5WJWM {
+  background-color: transparent;
+  height: 4.12%;
+  left: 26px;
+  position: absolute;
+  top: 51.47%;
+  width: calc(100.00% - 62px);
+}
+
+.strom-3 .rechteck-310-FcS0Oy {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .wrmestrom-grundpreis-brutto-jahr-FcS0Oy {
+  background-color: transparent;
+  height: 21px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(23.02% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 73px);
+}
+
+.strom-3 .stromagrundpreiswaerme-FcS0Oy {
+  background-color: transparent;
+  bottom: calc(16.31% - 5px);
+  height: 33px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 41px;
+}
+
+.strom-3 .gruppe-1626-h5WJWM {
+  background-color: transparent;
+  height: 5.97%;
+  left: 26px;
+  position: absolute;
+  top: 56.49%;
+  width: calc(100.00% - 62px);
+}
+
+.strom-3 .rechteck-314-QjfRCJ {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .was-verbraucht-bei-ihnen-strom-QjfRCJ {
+  background-color: transparent;
+  height: 90px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: 17px;
+  width: calc(100.00% - 52px);
+}
+
+.strom-3 .stromzusatzverbrauch-QjfRCJ {
+  background-color: transparent;
+  bottom: 27px;
+  height: 93px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 83px);
+}
+
+.strom-3 .haushaltsstrom-sauna-poolwrmepumpe-HbEHQd {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 9px;
+  white-space: nowrap;
+  width: 187px;
+}
+
+.strom-3 .polygon-49-HbEHQd {
+  background-color: transparent;
+  bottom: calc(22.60% - 5px);
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  width: 26px;
+}
+
+.strom-3 .gruppe-1633-h5WJWM {
+  background-color: transparent;
+  height: 23px;
+  left: calc(48.79% - 62px);
+  position: absolute;
+  top: 1962px;
+  width: 128px;
+}
+
+.strom-3 .bilderupload-0dSkga {
+  -webkit-text-stroke: 0.4000000059604645px var(--hunter-green);
+  background-color: transparent;
+  bottom: 21.74%;
+  color: var(--hunter-green);
+  font-family: var(--font-family-applebraille-pinpoint8_dot);
+  font-size: 23px;
+  font-style: normal;
+  font-weight: 400;
+  height: 25px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 37px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 130px;
+}
+
+.strom-3 .gruppe-1686-h5WJWM {
+  background-color: transparent;
+  bottom: calc(28.25% - 65px);
+  height: 229px;
+  left: 31px;
+  position: absolute;
+  width: calc(100.00% - 62px);
+}
+
+.strom-3 .rechteck-249-frwhI8 {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .gesamter-zhlerschran-frwhI8 {
+  background-color: transparent;
+  bottom: calc(48.53% - 49px);
+  height: 102px;
+  left: 25px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  text-align: left;
+  width: calc(100.00% - 40px);
+}
+
+.strom-3 .gruppe-1688-h5WJWM {
+  background-color: transparent;
+  bottom: calc(18.91% - 43px);
+  height: 229px;
+  left: 31px;
+  position: absolute;
+  width: calc(100.00% - 62px);
+}
+
+.strom-3 .rechteck-249-4cFMex {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .die-zhlernummer-soll-4cFMex {
+  background-color: transparent;
+  bottom: calc(48.53% - 49px);
+  height: 102px;
+  left: 25px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  text-align: left;
+  width: calc(100.00% - 40px);
+}
+
+.strom-3 .zhlerschrank-h5WJWM {
+  background-color: transparent;
+  bottom: calc(32.58% - 8px);
+  height: 25px;
+  left: 56px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  position: absolute;
+  text-align: left;
+  width: calc(100.00% - 117px);
+}
+
+.strom-3 .alle-zhler-h5WJWM {
+  background-color: transparent;
+  bottom: calc(23.87% - 6px);
+  height: 25px;
+  left: 56px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  position: absolute;
+  text-align: left;
+  width: calc(100.00% - 117px);
+}
+
+.strom-3 .dateihochladenzaehlerschrank-h5WJWM {
+  background-color: transparent;
+  bottom: calc(27.06% - 13px);
+  height: 48px;
+  left: calc(50.00% - 136px);
+  position: absolute;
+  width: 272px;
+}
+
+.strom-3 .rechteck-250-Yjm4vx {
+  background-color: transparent;
+  border-radius: 10px;
+  bottom: 0px;
+  height: 48px;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+
+.strom-3 .x352278_cloud_upload_icon-Yjm4vx {
+  background-color: transparent;
+  bottom: calc(50.00% - 6px);
+  height: 12px;
+  left: calc(26.55% - 3px);
+  position: absolute;
+  width: 11px;
+}
+
+.strom-3 .pfad-645-pAZx8p {
+  background-color: transparent;
+  height: 100%;
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.strom-3 .pfad-646-pAZx8p {
+  background-color: transparent;
+  height: calc(100.00% - 4px);
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 2px;
+  width: 100%;
+}
+
+.strom-3 .datei-hier-hochladen-Yjm4vx {
+  background-color: transparent;
+  bottom: calc(41.56% - 5px);
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 400;
+  height: 13px;
+  left: calc(45.03% - 37px);
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 83px;
+}
+
+.strom-3 .rechteck-251-Yjm4vx {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 9px);
+  height: 18px;
+  position: absolute;
+  right: 36px;
+  width: 46px;
+}
+
+.strom-3 .hochladen-Yjm4vx {
+  background-color: transparent;
+  bottom: calc(43.36% - 5px);
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 400;
+  height: 11px;
+  letter-spacing: 0.00px;
+  line-height: 8px;
+  position: absolute;
+  right: 39px;
+  text-align: left;
+  white-space: nowrap;
+  width: 39px;
+}
+
+.strom-3 .dateihochladenzaeehler-h5WJWM {
+  background-color: transparent;
+  bottom: calc(18.28% - 9px);
+  height: 48px;
+  left: calc(50.00% - 136px);
+  position: absolute;
+  width: 272px;
+}
+
+.strom-3 .dateihochladen-2HR0IO {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .rechteck-250-9X6QtG {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .x352278_cloud_upload_icon-9X6QtG {
+  background-color: transparent;
+  bottom: calc(50.00% - 6px);
+  height: 12px;
+  left: calc(27.70% - 3px);
+  position: absolute;
+  width: 11px;
+}
+
+.strom-3 .pfad-645-SGbwmR {
+  background-color: transparent;
+  height: 100%;
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .pfad-646-SGbwmR {
+  background-color: transparent;
+  height: calc(100.00% - 4px);
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 2px;
+  width: 100%;
+}
+
+.strom-3 .datei-hier-hochladen-9X6QtG {
+  background-color: transparent;
+  bottom: calc(41.56% - 5px);
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 400;
+  height: 13px;
+  left: calc(46.62% - 39px);
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 83px;
+}
+
+.strom-3 .rechteck-251-9X6QtG {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 9px);
+  height: 18px;
+  position: absolute;
+  right: 36px;
+  width: 46px;
+}
+
+.strom-3 .hochladen-9X6QtG {
+  background-color: transparent;
+  bottom: calc(43.36% - 5px);
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 400;
+  height: 11px;
+  letter-spacing: 0.00px;
+  line-height: 8px;
+  position: absolute;
+  right: 39px;
+  text-align: left;
+  white-space: nowrap;
+  width: 39px;
+}
+
+.strom-3 .gruppe-1642-h5WJWM {
+  background-color: transparent;
+  bottom: 175px;
+  height: 181px;
+  left: 35px;
+  position: absolute;
+  width: calc(100.00% - 62px);
+}
+
+.strom-3 .speichern-qQdgiG {
+  background-color: transparent;
+  bottom: 86px;
+  height: 95px;
+  position: absolute;
+  right: 0px;
+  width: 313px;
+}
+
+.strom-3 .gruppe-1545-jISqZm {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .rechteck-240-tJ8OZo {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .speichern-und-weiter-tJ8OZo {
+  background-color: transparent;
+  bottom: calc(44.07% - 16px);
+  height: 36px;
+  left: 17px;
+  letter-spacing: 0.00px;
+  line-height: 29px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% - 32px);
+}
+
+.strom-3 .ueberspringen-qQdgiG {
+  background-color: transparent;
+  height: 39px;
+  position: absolute;
+  right: 0px;
+  top: calc(100.00% - 39px);
+  width: 123px;
+}
+
+.strom-3 .pfad-568-sQHAkY {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.strom-3 .berspringen-sQHAkY {
+  background-color: transparent;
+  bottom: calc(32.53% - 5px);
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  position: absolute;
+  right: calc(48.03% - 35px);
+  text-align: left;
+  white-space: nowrap;
+  width: 72px;
+}
+
+.strom-3 .zurueck-qQdgiG {
+  background-color: transparent;
+  height: 39px;
+  left: 0px;
+  position: absolute;
+  top: calc(100.00% - 39px);
+  width: 123px;
+}
+
+.strom-3 .pfad-568-OrzTxd {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.strom-3 .zurck-OrzTxd {
+  background-color: transparent;
+  bottom: calc(32.53% - 5px);
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  position: absolute;
+  right: calc(48.82% - 19px);
+  text-align: left;
+  white-space: nowrap;
+  width: 38px;
+}
+
+.strom-3 .gruppe-1468-h5WJWM {
+  background-color: transparent;
+  bottom: 0px;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  width: 100%;
+}
+
+.strom-3 .rechteck-21-D3xVxM {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: calc(50.00% - 54px);
+  width: 100%;
+}
+
+.strom-3 .rechteck-21-D3xVxM.bp1-animate-enter {
+  animation: bp1-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-3 .gruppe-1454-D3xVxM {
+  background-color: transparent;
+  bottom: calc(5.91% - 1px);
+  height: 16px;
+  position: absolute;
+  right: calc(4.66% - 10px);
+  width: 225px;
+}
+
+.strom-3 .impressum-3OYBtk {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  text-align: left;
+  top: -1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 87px;
+}
+
+.strom-3 .impressum-3OYBtk.bp1-animate-enter1 {
+  animation: bp1-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-3 .impressum-3OYBtk:hover {
+  filter: grayscale(100%);
+}
+
+.strom-3 .datenschutz-3OYBtk {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  top: -1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 105px;
+}
+
+.strom-3 .datenschutz-3OYBtk.bp1-animate-enter2 {
+  animation: bp1-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-3 .datenschutz-3OYBtk:hover {
+  filter: grayscale(100%);
+}
+
+.strom-3 .x-3OYBtk {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  left: calc(46.70% - 5px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.strom-3 .x-3OYBtk.bp1-animate-enter3 {
+  animation: bp1-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-3 .gruppe-1462-D3xVxM {
+  background-color: transparent;
+  height: 35px;
+  left: calc(50.00% - 168px);
+  position: absolute;
+  top: calc(34.46% - 12px);
+  width: 336px;
+}
+
+.strom-3 .shs-montage-express-gmb-h-hcxliE {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 14px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  right: calc(45.74% - 79px);
+  text-align: left;
+  top: -1px;
+  white-space: nowrap;
+  width: 172px;
+}
+
+.strom-3 .shs-montage-express-gmb-h-hcxliE.bp1-animate-enter4 {
+  animation: bp1-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-3 .dachmontage-elektrik-hcxliE {
+  background-color: transparent;
+  bottom: 0px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 14px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% + 2px);
+}
+
+.strom-3 .dachmontage-elektrik-hcxliE.bp1-animate-enter5 {
+  animation: bp1-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-3 .c-hcxliE {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 400;
+  height: 10px;
+  left: calc(24.00% - 1px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -3px;
+  white-space: nowrap;
+  width: 6px;
+}
+
+.strom-3 .c-hcxliE.bp1-animate-enter6 {
+  animation: bp1-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-3 .ellipse-12-hcxliE {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 4.86px/5px;
+  display: block;
+  height: 10px;
+  left: calc(23.46% - 2px);
+  opacity: 0;
+  position: absolute;
+  top: 0px;
+  width: 10px;
+}
+
+.strom-3 .ellipse-12-hcxliE.bp1-animate-enter7 {
+  animation: bp1-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.strom-3 .gruppe-1624-h5WJWM {
+  background-color: transparent;
+  height: 172px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .gruppe-5-bzX6an {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .rechteck-8-G3AGRs {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .logo-G3AGRs {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 135px);
+  left: 24px;
+  object-fit: cover;
+  position: absolute;
+  top: 12px;
+  width: 61px;
+}
+
+.strom-3 .gruppe-1537-bzX6an {
+  background-color: transparent;
+  height: 30.21%;
+  left: 7.02%;
+  position: absolute;
+  top: 53.23%;
+  width: 85.96%;
+}
+
+.strom-3 .haushalt-28Q2HV {
+  background-color: transparent;
+  height: 14px;
+  left: 5px;
+  letter-spacing: 0.00px;
+  line-height: 10px;
+  position: absolute;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 42px;
+}
+
+.strom-3 .heizung-28Q2HV {
+  background-color: transparent;
+  height: 14px;
+  left: calc(26.38% - 10px);
+  letter-spacing: 0.00px;
+  line-height: 10px;
+  position: absolute;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 38px;
+}
+
+.strom-3 .strom-28Q2HV {
+  background-color: transparent;
+  height: 14px;
+  letter-spacing: 0.00px;
+  line-height: 10px;
+  position: absolute;
+  right: calc(49.66% - 14px);
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 29px;
+}
+
+.strom-3 .technisches-28Q2HV {
+  background-color: transparent;
+  height: 14px;
+  letter-spacing: 0.00px;
+  line-height: 10px;
+  position: absolute;
+  right: calc(24.04% - 13px);
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 56px;
+}
+
+.strom-3 .kontakt-28Q2HV {
+  background-color: transparent;
+  height: 14px;
+  letter-spacing: 0.00px;
+  line-height: 10px;
+  position: absolute;
+  right: 6px;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 35px;
+}
+
+.strom-3 .gruppe-1532-28Q2HV {
+  background-color: transparent;
+  bottom: 1px;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  width: 50px;
+}
+
+.strom-3 .rechteck-226-xJcYxo {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: #10841e;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .icon-check_mark-xJcYxo {
+  background-color: transparent;
+  height: calc(100.00% - 16px);
+  left: calc(50.00% - 11px);
+  object-fit: cover;
+  position: absolute;
+  top: 8px;
+  width: 22px;
+}
+
+.strom-3 .gruppe-1533-28Q2HV {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  left: calc(25.00% - 12px);
+  position: absolute;
+  width: 50px;
+}
+
+.strom-3 .rechteck-332-CUJEld {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .icon-check_mark-CUJEld {
+  background-color: transparent;
+  height: calc(100.00% - 16px);
+  object-fit: cover;
+  position: absolute;
+  right: calc(46.90% - 10px);
+  top: 8px;
+  width: 22px;
+}
+
+.strom-3 .gruppe-1621-28Q2HV {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  position: absolute;
+  right: calc(50.00% - 25px);
+  width: 50px;
+}
+
+.strom-3 .rechteck-226-P07crC {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .rechteck-332-P07crC {
+  background-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .x3-P07crC {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.20% - 7px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.strom-3 .gruppe-1622-28Q2HV {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  position: absolute;
+  right: calc(25.00% - 12px);
+  width: 50px;
+}
+
+.strom-3 .rechteck-226-erw2x4 {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .rechteck-332-erw2x4 {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .x4-erw2x4 {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.20% - 7px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.strom-3 .gruppe-1623-28Q2HV {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  position: absolute;
+  right: 0px;
+  width: 50px;
+}
+
+.strom-3 .rechteck-226-AEoVUz {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .rechteck-332-AEoVUz {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.strom-3 .x5-AEoVUz {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.20% - 7px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 14px;
+}
+@media screen and (max-width: 766px) {
+  .screen.strom { 
+    display: none;
+   }
+  .screen.strom-1 { 
+    display: none;
+   }
+  .screen.full-project { 
+    display: none;
+   }
+}
+@media screen and (min-width: 767px) and (max-width: 1199px) {
+  .screen.strom { 
+    display: none;
+   }
+  .screen.strom-1 { 
+    display: none;
+   }
+  .screen.strom-3 { 
+    display: none;
+   }
+}
+@media screen and (min-width: 1200px) and (max-width: 1919px) {
+  .screen.strom { 
+    display: none;
+   }
+  .screen.full-project { 
+    display: none;
+   }
+  .screen.strom-3 { 
+    display: none;
+   }
+}
+@media screen and (min-width: 1920px) {
+  .screen.strom-1 { 
+    display: none;
+   }
+  .screen.full-project { 
+    display: none;
+   }
+  .screen.strom-3 { 
+    display: none;
+   }
+}

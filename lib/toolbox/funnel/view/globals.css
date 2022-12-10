@@ -1,0 +1,45 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css");
+/* The following line is used to measure usage of this code in production. For more info see our usage billing page */
+@import url("https://px.animaapp.com/61aa0c1637bc8119fc5ecef2.61aa0c181a3b9f9d45993252.63665aa14aab17dcf2e26cf9.hcp.png");
+
+@font-face {
+  font-family: "FormaDJR Micro-Bold";
+  font-style: normal;
+  font-weight: 700;
+  src: url("https://fonts.animaapp.com/FormaDJRMicro-Bold") format("truetype");
+}
+@font-face {
+  font-family: "FormaDJR Micro-Regular";
+  font-style: normal;
+  font-weight: 400;
+  src: url("https://fonts.animaapp.com/FormaDJRMicro-Regular") format("opentype");
+}
+@font-face {
+  font-family: "FormaDJR Micro-Light";
+  font-style: normal;
+  font-weight: 300;
+  src: url("https://fonts.animaapp.com/FormaDJRMicro-Light") format("opentype");
+}
+
+
+.screen a {
+  display: contents;
+  text-decoration: none;
+}
+
+.container-center-horizontal {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  pointer-events: none;
+  width: 100%;
+}
+
+.container-center-horizontal > * {
+  flex-shrink: 0;
+  pointer-events: auto;
+}
+
+* {
+  box-sizing: border-box;
+}

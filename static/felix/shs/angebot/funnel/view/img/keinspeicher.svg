@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="277" height="226" viewBox="0 0 277 226">
+  <defs>
+    <clipPath id="clip-keinspeicher">
+      <rect width="277" height="226"/>
+    </clipPath>
+  </defs>
+  <g id="keinspeicher" clip-path="url(#clip-keinspeicher)">
+    <g id="Gruppe_1514" data-name="Gruppe 1514" transform="translate(32.09 9.724)">
+      <g id="Rechteck_138" data-name="Rechteck 138" transform="translate(34.91 19.276)" fill="none" stroke="#f7aa20" stroke-width="8">
+        <rect width="113" height="187" rx="15" stroke="none"/>
+        <rect x="4" y="4" width="105" height="179" rx="11" fill="none"/>
+      </g>
+      <g id="Rechteck_139" data-name="Rechteck 139" transform="translate(71.91 0.276)" fill="none" stroke="#f7aa20" stroke-width="5">
+        <path d="M10,0H29A10,10,0,0,1,39,10V24a0,0,0,0,1,0,0H0a0,0,0,0,1,0,0V10A10,10,0,0,1,10,0Z" stroke="none"/>
+        <path d="M10,2.5H29A7.5,7.5,0,0,1,36.5,10V21.5a0,0,0,0,1,0,0H2.5a0,0,0,0,1,0,0V10A7.5,7.5,0,0,1,10,2.5Z" fill="none"/>
+      </g>
+      <g id="Rechteck_142" data-name="Rechteck 142" transform="translate(56.91 44.276)" fill="#f6aa20" stroke="#f7aa20" stroke-width="5">
+        <rect width="70" height="24" rx="5" stroke="none"/>
+        <rect x="2.5" y="2.5" width="65" height="19" rx="2.5" fill="none"/>
+      </g>
+      <g id="Rechteck_143" data-name="Rechteck 143" transform="translate(56.91 83.276)" fill="#f7aa20" stroke="#f7aa20" stroke-width="5">
+        <rect width="70" height="24" rx="5" stroke="none"/>
+        <rect x="2.5" y="2.5" width="65" height="19" rx="2.5" fill="none"/>
+      </g>
+      <g id="Rechteck_144" data-name="Rechteck 144" transform="translate(56.91 122.276)" fill="#f4a820" stroke="#f7aa20" stroke-width="5">
+        <rect width="70" height="24" rx="5" stroke="none"/>
+        <rect x="2.5" y="2.5" width="65" height="19" rx="2.5" fill="none"/>
+      </g>
+      <g id="Rechteck_145" data-name="Rechteck 145" transform="translate(56.91 163.276)" fill="#f6aa20" stroke="#f7aa20" stroke-width="5">
+        <rect width="70" height="24" rx="5" stroke="none"/>
+        <rect x="2.5" y="2.5" width="65" height="19" rx="2.5" fill="none"/>
+      </g>
+      <g id="Gruppe_1515" data-name="Gruppe 1515" transform="translate(135.22 127.568)">
+        <g id="Ellipse_23" data-name="Ellipse 23" fill="#ba1313" stroke="#ba1313" stroke-width="5">
+          <circle cx="39.354" cy="39.354" r="39.354" stroke="none"/>
+          <circle cx="39.354" cy="39.354" r="36.854" fill="none"/>
+        </g>
+      </g>
+      <g id="Gruppe_1482" data-name="Gruppe 1482" transform="translate(158.937 151.898)">
+        <line id="Linie_57" data-name="Linie 57" x2="31.576" y2="30.604" fill="none" stroke="#d1d1d1" stroke-linecap="round" stroke-width="15"/>
+        <line id="Linie_58" data-name="Linie 58" y1="30.604" x2="31.576" fill="none" stroke="#d1d1d1" stroke-linecap="round" stroke-width="15"/>
+      </g>
+    </g>
+  </g>
+</svg>

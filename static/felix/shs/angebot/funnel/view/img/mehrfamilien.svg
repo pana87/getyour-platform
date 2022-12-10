@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="277" height="226" viewBox="0 0 277 226">
+  <defs>
+    <clipPath id="clip-mehrfamilien">
+      <rect width="277" height="226"/>
+    </clipPath>
+  </defs>
+  <g id="mehrfamilien" clip-path="url(#clip-mehrfamilien)">
+    <g id="Gruppe_1495" data-name="Gruppe 1495" transform="translate(25.882 -32.685)">
+      <g id="Gruppe_1572" data-name="Gruppe 1572">
+        <g id="Gruppe_1477" data-name="Gruppe 1477" transform="translate(0 32.685)">
+          <g id="Ellipse_21" data-name="Ellipse 21" transform="translate(19.322 23.118)" fill="#f0c34f" stroke="#f0c34f" stroke-width="1">
+            <circle cx="10.351" cy="10.351" r="10.351" stroke="none"/>
+            <circle cx="10.351" cy="10.351" r="9.851" fill="none"/>
+          </g>
+          <line id="Linie_37" data-name="Linie 37" y1="13.112" transform="translate(29.329)" fill="none" stroke="#f0c34f" stroke-width="1"/>
+          <line id="Linie_43" data-name="Linie 43" y2="13.112" transform="translate(29.329 52.447)" fill="none" stroke="#f0c34f" stroke-width="1"/>
+          <line id="Linie_39" data-name="Linie 39" y2="13.112" transform="translate(13.112 33.469) rotate(90)" fill="none" stroke="#f0c34f" stroke-width="1"/>
+          <line id="Linie_42" data-name="Linie 42" y1="13.112" transform="translate(58.657 32.779) rotate(90)" fill="none" stroke="#f0c34f" stroke-width="1"/>
+          <line id="Linie_38" data-name="Linie 38" x1="11.041" y1="11.041" transform="translate(7.591 8.626)" fill="none" stroke="#f0c34f" stroke-width="1"/>
+          <line id="Linie_45" data-name="Linie 45" x1="11.041" y2="11.041" transform="translate(7.591 45.891)" fill="none" stroke="#f0c34f" stroke-width="1"/>
+          <line id="Linie_41" data-name="Linie 41" y1="11.041" x2="11.041" transform="translate(40.025 7.936)" fill="none" stroke="#f0c34f" stroke-width="1"/>
+          <line id="Linie_44" data-name="Linie 44" x2="11.041" y2="11.041" transform="translate(40.025 46.581)" fill="none" stroke="#f0c34f" stroke-width="1"/>
+        </g>
+        <path id="Pfad_72" data-name="Pfad 72" d="M19914.275-16080.006l-42.922-13.138v90.994l42.922-5Z" transform="translate(-19696.879 16249.925)" fill="#f9c975"/>
+        <path id="Pfad_73" data-name="Pfad 73" d="M20106.615-16093.144l-145.826,8.548v80.126l145.826,2.838Z" transform="translate(-19932.141 16249.925)" fill="#e8b964"/>
+        <path id="Pfad_74" data-name="Pfad 74" d="M19913.131-16052.792l-17.719-3.489v16.991l17.719,1.782Z" transform="translate(-19707.281 16230.753)" fill="#d1d1d1"/>
+        <path id="Pfad_75" data-name="Pfad 75" d="M20011.615-16059.684h-21.256v17.123h21.256Z" transform="translate(-19851.328 16232.522)" fill="#d1d1d1"/>
+        <path id="Pfad_76" data-name="Pfad 76" d="M20078.221-16056.281h-18.354v16.723h18.354Z" transform="translate(-19951.293 16230.753)" fill="#d1d1d1"/>
+        <path id="Pfad_77" data-name="Pfad 77" d="M20167.422-16050.8h-16.77v14.879h16.77Z" transform="translate(-20084.063 16227.899)" fill="#d1d1d1"/>
+        <path id="Pfad_78" data-name="Pfad 78" d="M20222.379-16046.382h-15.717v14.32h15.717Z" transform="translate(-20165.902 16225.604)" fill="#d1d1d1"/>
+        <path id="Pfad_79" data-name="Pfad 79" d="M20195.928-15971.99h-15.9v27.221h15.9Z" transform="translate(-20126.664 16186.914)" fill="#d1d1d1"/>
+        <path id="Pfad_80" data-name="Pfad 80" d="M20044.033-15974.975h-20.66v30.922h20.66Z" transform="translate(-19899.594 16188.466)" fill="#d1d1d1"/>
+        <path id="Pfad_81" data-name="Pfad 81" d="M20059.5-16122.753l-53.449-47.819-111.828,10.258-39.2,32.97,153.863-9.636Z" transform="translate(-19834.266 16290.194)" fill="#e8b964"/>
+        <path id="Pfad_82" data-name="Pfad 82" d="M20104.3-16161.188l-104.961,9.981-28.248,23.042,133.209-8.912Z" transform="translate(-19934.766 16285.313)" fill="#d1d1d1"/>
+        <path id="Pfad_83" data-name="Pfad 83" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19855.688 16281.45)" fill="#006f39"/>
+        <path id="Pfad_97" data-name="Pfad 97" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19858.57 16288.658)" fill="#006f39"/>
+        <path id="Pfad_100" data-name="Pfad 100" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19861.289 16296.229)" fill="#006f39"/>
+        <path id="Pfad_87" data-name="Pfad 87" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19909.941 16286.259)" fill="#006f39"/>
+        <path id="Pfad_93" data-name="Pfad 93" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19912.922 16293.104)" fill="#006f39"/>
+        <path id="Pfad_104" data-name="Pfad 104" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19915.863 16300.157)" fill="#006f39"/>
+        <path id="Pfad_86" data-name="Pfad 86" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19881.605 16283.614)" fill="#006f39"/>
+        <path id="Pfad_95" data-name="Pfad 95" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19884.965 16291.273)" fill="#006f39"/>
+        <path id="Pfad_102" data-name="Pfad 102" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19887.969 16298.613)" fill="#006f39"/>
+        <path id="Pfad_90" data-name="Pfad 90" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19937.559 16288.283)" fill="#006f39"/>
+        <path id="Pfad_107" data-name="Pfad 107" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19941.012 16295.27)" fill="#006f39"/>
+        <path id="Pfad_108" data-name="Pfad 108" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19944.719 16302.256)" fill="#006f39"/>
+        <path id="Pfad_84" data-name="Pfad 84" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19843.852 16280.49)" fill="#006f39"/>
+        <path id="Pfad_98" data-name="Pfad 98" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19846.25 16287.92)" fill="#006f39"/>
+        <path id="Pfad_99" data-name="Pfad 99" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19848.813 16295.489)" fill="#006f39"/>
+        <path id="Pfad_88" data-name="Pfad 88" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19895.164 16285.024)" fill="#006f39"/>
+        <path id="Pfad_94" data-name="Pfad 94" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19898.109 16292.507)" fill="#006f39"/>
+        <path id="Pfad_103" data-name="Pfad 103" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19901.082 16299.354)" fill="#006f39"/>
+        <path id="Pfad_85" data-name="Pfad 85" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19868.328 16282.41)" fill="#006f39"/>
+        <path id="Pfad_96" data-name="Pfad 96" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19871.688 16289.98)" fill="#006f39"/>
+        <path id="Pfad_101" data-name="Pfad 101" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19874.246 16297.292)" fill="#006f39"/>
+        <path id="Pfad_89" data-name="Pfad 89" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19924.215 16287.219)" fill="#006f39"/>
+        <path id="Pfad_92" data-name="Pfad 92" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19927.16 16294.397)" fill="#006f39"/>
+        <path id="Pfad_105" data-name="Pfad 105" d="M20011.5-16153.761h-9.066l-2.77,6.248h9.434Z" transform="translate(-19930.133 16301.258)" fill="#006f39"/>
+      </g>
+    </g>
+  </g>
+</svg>

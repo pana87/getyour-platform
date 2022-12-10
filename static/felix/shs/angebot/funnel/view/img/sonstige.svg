@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="232" height="168" viewBox="0 0 232 168">
+  <defs>
+    <clipPath id="clip-sonstige">
+      <rect width="232" height="168"/>
+    </clipPath>
+  </defs>
+  <g id="sonstige" clip-path="url(#clip-sonstige)">
+    <g id="Gruppe_1498" data-name="Gruppe 1498" transform="translate(72.267 36.622)">
+      <ellipse id="Ellipse_24" data-name="Ellipse 24" cx="43.734" cy="47.378" rx="43.734" ry="47.378" transform="translate(0 0)" fill="#006f39"/>
+      <g id="_3994396_ask_faq_help_mark_question_icon" data-name="3994396_ask_faq_help_mark_question_icon" transform="translate(28.536 18.992)">
+        <path id="Pfad_332" data-name="Pfad 332" d="M39.165,0A15.183,15.183,0,0,0,24,15.165a3.791,3.791,0,0,0,7.583,0,7.583,7.583,0,1,1,15.165,0c0,3.288-1.933,5.306-5.109,8.238-2.94,2.706-6.265,5.772-6.265,10.719a3.791,3.791,0,1,0,7.583,0c0-1.544,1.451-2.962,3.821-5.146,3.184-2.94,7.553-6.964,7.553-13.81A15.183,15.183,0,0,0,39.165,0Z" transform="translate(-24)" fill="#f9c975"/>
+        <path id="Pfad_333" data-name="Pfad 333" d="M43.583,72a7.583,7.583,0,1,0,7.583,7.583A7.583,7.583,0,0,0,43.583,72Z" transform="translate(-28.417 -26.504)" fill="#f9c975"/>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,206 @@
+/* screen - funnel-erstellen */
+
+.funnel-erstellen {
+  background-color: var(--eerie-black);
+  height: 816px;
+  position: relative;
+  width: 375px;
+}
+
+.funnel-erstellen .overlap-group3 {
+  height: 95px;
+  left: 18px;
+  position: absolute;
+  top: 10px;
+  width: 100px;
+}
+
+.funnel-erstellen .logo-final {
+  height: 95px;
+  left: 2px;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  width: 95px;
+}
+
+.funnel-erstellen .title {
+  left: 0;
+  letter-spacing: 0;
+  line-height: 32px;
+  opacity: 0.85;
+  position: absolute;
+  top: 36px;
+  white-space: nowrap;
+}
+
+.funnel-erstellen .gruppe-1463 {
+  background-color: var(--star-dust);
+  border-radius: 10px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 434px;
+  left: 28px;
+  position: absolute;
+  top: 202px;
+  width: 319px;
+}
+
+.funnel-erstellen .gruppe-1457 {
+  height: 102px;
+  left: 65px;
+  position: absolute;
+  top: 27px;
+  width: 191px;
+}
+
+.funnel-erstellen .funnel-erstellen-1 {
+  -webkit-text-stroke: 1px var(--black-2);
+  left: 0;
+  letter-spacing: 0;
+  line-height: 32px;
+  opacity: 0.85;
+  position: absolute;
+  top: 71px;
+  white-space: nowrap;
+}
+
+.funnel-erstellen .gruppe-maskieren-51 {
+  height: 57px;
+  left: 66px;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  width: 57px;
+}
+
+.funnel-erstellen .overlap-group2 {
+  height: 16px;
+  left: 26px;
+  position: absolute;
+  top: 150px;
+  width: 10px;
+}
+
+.funnel-erstellen .i {
+  left: 4px;
+  letter-spacing: 0;
+  line-height: 21px;
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+}
+
+.funnel-erstellen .ellipse-59550 {
+  border: 0.9px solid;
+  border-color: var(--black);
+  border-radius: 5px/5.5px;
+  height: 11px;
+  left: 0;
+  position: absolute;
+  top: 4px;
+  width: 10px;
+}
+
+.funnel-erstellen .erstelle-deinen-funnel {
+  left: 40px;
+  letter-spacing: 0;
+  line-height: 21px;
+  position: absolute;
+  top: 149px;
+  white-space: nowrap;
+}
+
+.funnel-erstellen .gruppe-1461 {
+  background-color: var(--pumice);
+  border: 2px solid;
+  border-color: var(--thunderbird);
+  border-radius: 7px;
+  height: 116px;
+  left: 26px;
+  position: absolute;
+  top: 167px;
+  width: 267px;
+}
+
+.funnel-erstellen .overlap-group {
+  background-image: url(../img/rechteck-1422-1x-png@1x.png);
+  background-position: 50% 50%;
+  background-size: cover;
+  border-radius: 5px;
+  height: 31px;
+  left: 14px;
+  position: absolute;
+  top: 21px;
+  width: 234px;
+}
+
+.funnel-erstellen .funnelname {
+  left: 9px;
+  letter-spacing: 0;
+  line-height: 18px;
+  opacity: 0.31;
+  position: absolute;
+  top: 6px;
+  white-space: nowrap;
+}
+
+.funnel-erstellen .overlap-group1 {
+  background-image: url(../img/rechteck-1431@1x.png);
+  background-position: 50% 50%;
+  background-size: cover;
+  border-radius: 5px;
+  height: 31px;
+  left: 14px;
+  position: absolute;
+  top: 62px;
+  width: 234px;
+}
+
+.funnel-erstellen .plattform-auswhlen {
+  left: 9px;
+  letter-spacing: 0;
+  line-height: 18px;
+  opacity: 0.31;
+  position: absolute;
+  top: 5px;
+  white-space: nowrap;
+}
+
+.funnel-erstellen .polygon-17 {
+  height: 8px;
+  left: 114px;
+  object-fit: cover;
+  position: absolute;
+  top: 12px;
+  width: 11px;
+}
+
+.funnel-erstellen .gruppe-1462 {
+  background-color: var(--vida-loca);
+  border-radius: 6px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 38px;
+  left: 79px;
+  position: absolute;
+  top: 348px;
+  width: 214px;
+}
+
+.funnel-erstellen .hinzufgen {
+  left: 42px;
+  letter-spacing: 0;
+  line-height: 32px;
+  opacity: 0.85;
+  position: absolute;
+  top: 3px;
+  white-space: nowrap;
+}
+
+.funnel-erstellen .icon-plus {
+  height: 22px;
+  left: 153px;
+  object-fit: cover;
+  position: absolute;
+  top: 8px;
+  width: 22px;
+}

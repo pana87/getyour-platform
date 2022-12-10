@@ -1,0 +1,5773 @@
+/* screen - full-project */
+
+.full-project {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 2860px;
+  min-width: 1920px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.full-project .rechteck-21-KqxCzi {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  bottom: 0px;
+  display: block;
+  height: 118px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.full-project .rechteck-21-KqxCzi.bp4-animate-enter {
+  animation: bp4-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .shs-montage-express-KqxCzi {
+  background-color: transparent;
+  bottom: 53px;
+  display: block;
+  height: 26px;
+  left: 243px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 988px;
+}
+
+.full-project .shs-montage-express-KqxCzi.bp4-animate-enter1 {
+  animation: bp4-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .impressum-KqxCzi {
+  background-color: transparent;
+  bottom: 54px;
+  cursor: pointer;
+  display: block;
+  height: 25px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(25.91% - 37px);
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 141px;
+}
+
+.full-project .impressum-KqxCzi.bp4-animate-enter2 {
+  animation: bp4-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .impressum-KqxCzi:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .datenschutz-KqxCzi {
+  background-color: transparent;
+  bottom: 54px;
+  cursor: pointer;
+  display: block;
+  height: 25px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: 213px;
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 172px;
+}
+
+.full-project .datenschutz-KqxCzi.bp4-animate-enter3 {
+  animation: bp4-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .datenschutz-KqxCzi:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .x-KqxCzi {
+  background-color: transparent;
+  bottom: 53px;
+  display: block;
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  right: calc(33.19% - 5px);
+  text-align: left;
+  white-space: nowrap;
+  width: 16px;
+}
+
+.full-project .x-KqxCzi.bp4-animate-enter4 {
+  animation: bp4-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .x-G2FEbR {
+  background-color: transparent;
+  bottom: 53px;
+  display: block;
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  right: calc(21.80% - 3px);
+  text-align: left;
+  white-space: nowrap;
+  width: 16px;
+}
+
+.full-project .x-G2FEbR.bp4-animate-enter5 {
+  animation: bp4-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .c-KqxCzi {
+  background-color: transparent;
+  bottom: 64px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  left: 219px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.full-project .c-KqxCzi.bp4-animate-enter6 {
+  animation: bp4-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .ellipse-12-KqxCzi {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 8px;
+  bottom: 58px;
+  display: block;
+  height: 16px;
+  left: 215px;
+  opacity: 0;
+  position: absolute;
+  width: 16px;
+}
+
+.full-project .ellipse-12-KqxCzi.bp4-animate-enter7 {
+  animation: bp4-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .informationen-zur-heizungsanlage-KqxCzi {
+  -webkit-text-stroke: 1px var(--hunter-green);
+  background-color: transparent;
+  height: 44px;
+  letter-spacing: 0.00px;
+  line-height: 37px;
+  opacity: 0.86;
+  position: absolute;
+  right: calc(37.30% - 321px);
+  text-align: left;
+  top: 217px;
+  white-space: nowrap;
+  width: 862px;
+}
+
+.full-project .rechteck-227-KqxCzi {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  left: calc(44.79% - 197px);
+  position: absolute;
+  top: 329px;
+  width: 439px;
+}
+
+.full-project .rechteck-229-KqxCzi {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  left: calc(44.79% - 197px);
+  position: absolute;
+  top: calc(18.28% - 20px);
+  width: 439px;
+}
+
+.full-project .rechteck-230-KqxCzi {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  left: calc(44.79% - 197px);
+  position: absolute;
+  top: calc(24.43% - 27px);
+  width: 439px;
+}
+
+.full-project .rechteck-225-KqxCzi {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  position: absolute;
+  right: 286px;
+  top: 329px;
+  width: 439px;
+}
+
+.full-project .rechteck-228-KqxCzi {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 109px;
+  position: absolute;
+  right: 286px;
+  top: calc(18.28% - 20px);
+  width: 439px;
+}
+
+.full-project .womit-heizen-sie-aktuell-KqxCzi {
+  background-color: transparent;
+  height: 62px;
+  left: calc(39.54% - 75px);
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: 350px;
+  white-space: nowrap;
+  width: 189px;
+}
+
+.full-project .wie-hoch-ist-die-vor-KqxCzi {
+  background-color: transparent;
+  height: 21px;
+  left: calc(43.48% - 150px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: 522px;
+  white-space: nowrap;
+  width: 346px;
+}
+
+.full-project .wie-hoch-sind-ihre-j-KqxCzi {
+  background-color: transparent;
+  height: 21px;
+  left: calc(43.26% - 146px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(24.36% - 5px);
+  white-space: nowrap;
+  width: 338px;
+}
+
+.full-project .wie-werden-ihre-rume-derzeit-beheizt-KqxCzi {
+  background-color: transparent;
+  height: 32px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  overflow: hidden;
+  position: absolute;
+  right: calc(25.05% - 74px);
+  text-align: left;
+  top: 346px;
+  width: 297px;
+}
+
+.full-project .wie-wird-aktuell-bei-KqxCzi {
+  background-color: transparent;
+  height: 59px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  right: calc(23.21% - 78px);
+  text-align: left;
+  top: calc(18.76% - 11px);
+  white-space: nowrap;
+  width: 336px;
+}
+
+.full-project .heizungvorlauf-KqxCzi {
+  background-color: transparent;
+  height: 33px;
+  left: calc(38.06% - 46px);
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: calc(19.84% - 7px);
+  white-space: nowrap;
+  width: 122px;
+}
+
+.full-project .heizungkosten-KqxCzi {
+  background-color: transparent;
+  height: 33px;
+  left: calc(36.88% - 24px);
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: calc(25.82% - 9px);
+  white-space: nowrap;
+  width: 64px;
+}
+
+.full-project .gruppe-1537-KqxCzi {
+  background-color: transparent;
+  height: 558px;
+  left: 87px;
+  position: fixed;
+  top: 211px;
+  width: 439px;
+}
+
+.full-project .angaben-zum-haus-Mp0N4I {
+  background-color: transparent;
+  height: 38px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  right: calc(47.80% - 123px);
+  text-align: left;
+  top: 17px;
+  white-space: nowrap;
+  width: 257px;
+}
+
+.full-project .heizungsanlage-Mp0N4I {
+  background-color: transparent;
+  height: 38px;
+  left: calc(42.22% - 90px);
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  text-align: left;
+  top: calc(27.09% - 10px);
+  white-space: nowrap;
+  width: 214px;
+}
+
+.full-project .stromversorger-Mp0N4I {
+  background-color: transparent;
+  bottom: calc(49.09% - 19px);
+  height: 38px;
+  left: calc(41.48% - 87px);
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 210px;
+}
+
+.full-project .technische-ausstattung-Mp0N4I {
+  background-color: transparent;
+  bottom: calc(25.26% - 10px);
+  height: 38px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  right: 28px;
+  text-align: left;
+  white-space: nowrap;
+  width: 316px;
+}
+
+.full-project .persnliche-informationen-Mp0N4I {
+  background-color: transparent;
+  bottom: 8px;
+  height: 38px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  white-space: nowrap;
+  width: 346px;
+}
+
+.full-project .gruppe-1532-Mp0N4I {
+  background-color: transparent;
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 65px;
+}
+
+.full-project .rechteck-226-7YgprE {
+  background-color: transparent;
+  border: 3px solid;
+  border-color: var(--forest-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x1-7YgprE {
+  background-color: transparent;
+  color: var(--cararra);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 45px;
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% - 8px);
+  letter-spacing: 0.00px;
+  line-height: 45px;
+  position: absolute;
+  right: calc(47.83% - 9px);
+  text-align: left;
+  top: 13px;
+  white-space: nowrap;
+  width: 19px;
+}
+
+.full-project .gruppe-1533-Mp0N4I {
+  background-color: transparent;
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  top: calc(24.92% - 16px);
+  width: 65px;
+}
+
+.full-project .rechteck-226-XAS35A {
+  background-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x2-XAS35A {
+  background-color: transparent;
+  height: calc(100.00% - 8px);
+  letter-spacing: 0.00px;
+  line-height: 45px;
+  position: absolute;
+  right: calc(46.15% - 12px);
+  text-align: left;
+  top: 10px;
+  white-space: nowrap;
+  width: 26px;
+}
+
+.full-project .gruppe-1534-Mp0N4I {
+  background-color: transparent;
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  top: calc(49.95% - 32px);
+  width: 65px;
+}
+
+.full-project .rechteck-226-QiRl1r {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x3-QiRl1r {
+  background-color: transparent;
+  height: calc(100.00% - 8px);
+  letter-spacing: 0.00px;
+  line-height: 45px;
+  position: absolute;
+  right: calc(44.74% - 12px);
+  text-align: left;
+  top: 10px;
+  white-space: nowrap;
+  width: 27px;
+}
+
+.full-project .gruppe-1535-Mp0N4I {
+  background-color: transparent;
+  bottom: calc(25.03% - 16px);
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  width: 65px;
+}
+
+.full-project .rechteck-226-HVM4nx {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x4-HVM4nx {
+  background-color: transparent;
+  height: calc(100.00% - 8px);
+  letter-spacing: 0.00px;
+  line-height: 45px;
+  position: absolute;
+  right: calc(44.74% - 12px);
+  text-align: left;
+  top: 10px;
+  white-space: nowrap;
+  width: 27px;
+}
+
+.full-project .gruppe-1536-Mp0N4I {
+  background-color: transparent;
+  bottom: 0px;
+  height: 65px;
+  left: 0px;
+  position: absolute;
+  width: 65px;
+}
+
+.full-project .rechteck-226-bsuyiH {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x5-bsuyiH {
+  background-color: transparent;
+  height: calc(100.00% - 8px);
+  letter-spacing: 0.00px;
+  line-height: 45px;
+  position: absolute;
+  right: calc(44.74% - 12px);
+  text-align: left;
+  top: 10px;
+  white-space: nowrap;
+  width: 27px;
+}
+
+.full-project .linie-59-Mp0N4I {
+  background-color: transparent;
+  height: 59px;
+  left: 31px;
+  object-fit: cover;
+  position: absolute;
+  top: 64px;
+  width: 3px;
+}
+
+.full-project .linie-60-Mp0N4I {
+  background-color: transparent;
+  height: 59px;
+  left: 31px;
+  object-fit: cover;
+  position: absolute;
+  top: calc(37.64% - 22px);
+  width: 3px;
+}
+
+.full-project .linie-61-Mp0N4I {
+  background-color: transparent;
+  bottom: calc(37.64% - 22px);
+  height: 59px;
+  left: 31px;
+  object-fit: cover;
+  position: absolute;
+  width: 3px;
+}
+
+.full-project .linie-62-Mp0N4I {
+  background-color: transparent;
+  bottom: 64px;
+  height: 59px;
+  left: 31px;
+  object-fit: cover;
+  position: absolute;
+  width: 3px;
+}
+
+.full-project .heizungheizen-KqxCzi {
+  background-color: transparent;
+  height: 31px;
+  left: calc(44.56% - 171px);
+  position: absolute;
+  top: 384px;
+  width: 384px;
+}
+
+.full-project .erdgas-znds4S {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 79px;
+}
+
+.full-project .polygon-26-znds4S {
+  background-color: transparent;
+  height: calc(100.00% - 11px);
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 6px;
+  width: 26px;
+}
+
+.full-project .heizungwarm-KqxCzi {
+  background-color: transparent;
+  height: 31px;
+  position: absolute;
+  right: calc(20.81% - 80px);
+  top: calc(19.72% - 6px);
+  width: 384px;
+}
+
+.full-project .solarthermie-ZqGlAn {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 146px;
+}
+
+.full-project .polygon-34-ZqGlAn {
+  background-color: transparent;
+  height: calc(100.00% - 11px);
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 6px;
+  width: 26px;
+}
+
+.full-project .heizungwie-KqxCzi {
+  background-color: transparent;
+  height: 31px;
+  position: absolute;
+  right: calc(20.81% - 80px);
+  top: 384px;
+  width: 384px;
+}
+
+.full-project .fuboden-wandheizung-Ln0pdn {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 276px;
+}
+
+.full-project .polygon-33-Ln0pdn {
+  background-color: transparent;
+  height: calc(100.00% - 11px);
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 6px;
+  width: 26px;
+}
+
+.full-project .icon-check_mark-KqxCzi {
+  background-color: transparent;
+  height: 27px;
+  left: 102px;
+  object-fit: cover;
+  position: fixed;
+  top: 231px;
+  width: 34px;
+}
+
+.full-project .speichern-KqxCzi {
+  background-color: transparent;
+  bottom: 279px;
+  height: 115px;
+  position: absolute;
+  right: 125px;
+  width: 472px;
+}
+
+.full-project .rechteck-240-4CxSml {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .speichern-und-weiter-4CxSml {
+  background-color: transparent;
+  bottom: calc(44.94% - 16px);
+  height: 36px;
+  letter-spacing: 0.00px;
+  line-height: 29px;
+  position: absolute;
+  right: calc(49.21% - 138px);
+  text-align: left;
+  white-space: nowrap;
+  width: 281px;
+}
+
+.full-project .ueberspringen-KqxCzi {
+  background-color: transparent;
+  bottom: 279px;
+  height: 67px;
+  position: absolute;
+  right: calc(45.24% - 95px);
+  width: 209px;
+}
+
+.full-project .pfad-568-SyCCXe {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .berspringen-SyCCXe {
+  background-color: transparent;
+  bottom: calc(34.95% - 8px);
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: 19px;
+  font-style: normal;
+  font-weight: 400;
+  height: 24px;
+  left: calc(50.00% - 56px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 113px;
+}
+
+.full-project .zurueck-KqxCzi {
+  background-color: transparent;
+  bottom: 279px;
+  height: 67px;
+  left: calc(38.75% - 81px);
+  position: absolute;
+  width: 209px;
+}
+
+.full-project .pfad-569-ejYZOb {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .zurck-ejYZOb {
+  background-color: transparent;
+  bottom: calc(34.95% - 8px);
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: 19px;
+  font-style: normal;
+  font-weight: 400;
+  height: 24px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: calc(49.33% - 29px);
+  text-align: left;
+  white-space: nowrap;
+  width: 59px;
+}
+
+.full-project .rechteck-249-KqxCzi {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 434px;
+  position: absolute;
+  right: calc(36.36% - 319px);
+  top: calc(38.05% - 165px);
+  width: 876px;
+}
+
+.full-project .rechteck-273-KqxCzi {
+  background-color: var(--white);
+  border-radius: 15px;
+  bottom: calc(43.11% - 154px);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 357px;
+  position: absolute;
+  right: calc(36.36% - 319px);
+  width: 876px;
+}
+
+.full-project .rechteck-276-KqxCzi {
+  background-color: var(--white);
+  border-radius: 15px;
+  bottom: calc(25.65% - 92px);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 357px;
+  position: absolute;
+  right: calc(36.36% - 319px);
+  width: 876px;
+}
+
+.full-project .aufstellungsort-wrmepumpe-KqxCzi {
+  background-color: transparent;
+  height: 27px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  right: calc(42.90% - 308px);
+  text-align: left;
+  top: calc(33.43% - 9px);
+  width: 719px;
+}
+
+.full-project .aufstellungsort-wasserspeicher-KqxCzi {
+  background-color: transparent;
+  bottom: calc(48.89% - 13px);
+  height: 27px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  right: calc(42.90% - 308px);
+  text-align: left;
+  width: 719px;
+}
+
+.full-project .aufstellungsort-stromspeicher-KqxCzi {
+  background-color: transparent;
+  bottom: calc(33.46% - 9px);
+  height: 27px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  right: calc(42.90% - 308px);
+  text-align: left;
+  width: 719px;
+}
+
+.full-project .die-wrmepumpe-wird-i-KqxCzi {
+  background-color: transparent;
+  height: 130px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: calc(42.90% - 308px);
+  text-align: left;
+  top: calc(37.14% - 48px);
+  width: 719px;
+}
+
+.full-project .eventuell-ort-des-vo-KqxCzi {
+  background-color: transparent;
+  bottom: calc(46.47% - 14px);
+  height: 30px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: calc(42.90% - 308px);
+  text-align: left;
+  width: 719px;
+}
+
+.full-project .in-der-nhe-des-zhlerschranks-KqxCzi {
+  background-color: transparent;
+  bottom: calc(31.02% - 9px);
+  height: 30px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: calc(42.90% - 308px);
+  text-align: left;
+  width: 719px;
+}
+
+.full-project .bilderupload-KqxCzi {
+  background-color: transparent;
+  height: 33px;
+  left: calc(37.37% - 53px);
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  position: absolute;
+  text-align: left;
+  top: calc(31.02% - 10px);
+  white-space: nowrap;
+  width: 141px;
+}
+
+.full-project .dateihochladenwaermepumpe-KqxCzi {
+  background-color: transparent;
+  height: 124px;
+  position: absolute;
+  right: calc(37.74% - 288px);
+  top: calc(42.65% - 53px);
+  width: 762px;
+}
+
+.full-project .rechteck-250-V7QcJc {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x352278_cloud_upload_icon-V7QcJc {
+  background-color: transparent;
+  height: 32px;
+  left: calc(30.48% - 10px);
+  position: absolute;
+  top: calc(50.00% - 16px);
+  width: 32px;
+}
+
+.full-project .pfad-645-GeTx7Z {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .pfad-646-GeTx7Z {
+  background-color: transparent;
+  height: calc(100.00% - 11px);
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.full-project .datei-hier-hochladen-V7QcJc {
+  background-color: transparent;
+  bottom: calc(45.54% - 10px);
+  height: 23px;
+  left: calc(43.81% - 72px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 164px;
+}
+
+.full-project .rechteck-251-V7QcJc {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 22px);
+  height: 47px;
+  position: absolute;
+  right: calc(25.12% - 32px);
+  width: 129px;
+}
+
+.full-project .hochladen-V7QcJc {
+  background-color: transparent;
+  bottom: calc(45.05% - 10px);
+  height: 23px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: calc(26.59% - 23px);
+  text-align: left;
+  white-space: nowrap;
+  width: 85px;
+}
+
+.full-project .dateihochladenwasserspeicher-KqxCzi {
+  background-color: transparent;
+  bottom: calc(41.37% - 51px);
+  height: 124px;
+  position: absolute;
+  right: calc(37.74% - 288px);
+  width: 762px;
+}
+
+.full-project .rechteck-274-lGWmR0 {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x352278_cloud_upload_icon-lGWmR0 {
+  background-color: transparent;
+  height: 32px;
+  left: calc(30.48% - 10px);
+  position: absolute;
+  top: calc(50.00% - 16px);
+  width: 32px;
+}
+
+.full-project .pfad-645-ArW2xa {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .pfad-646-ArW2xa {
+  background-color: transparent;
+  height: calc(100.00% - 11px);
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.full-project .datei-hier-hochladen-lGWmR0 {
+  background-color: transparent;
+  bottom: calc(45.54% - 10px);
+  height: 23px;
+  left: calc(43.81% - 72px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 164px;
+}
+
+.full-project .rechteck-275-lGWmR0 {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 22px);
+  height: 47px;
+  position: absolute;
+  right: calc(25.12% - 32px);
+  width: 129px;
+}
+
+.full-project .hochladen-lGWmR0 {
+  background-color: transparent;
+  bottom: calc(45.05% - 10px);
+  height: 23px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: calc(26.59% - 23px);
+  text-align: left;
+  white-space: nowrap;
+  width: 85px;
+}
+
+.full-project .dateihochladenstromspeicher-KqxCzi {
+  background-color: transparent;
+  bottom: calc(25.40% - 31px);
+  height: 124px;
+  position: absolute;
+  right: calc(37.74% - 288px);
+  width: 762px;
+}
+
+.full-project .rechteck-277-ZhxDFZ {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .x352278_cloud_upload_icon-ZhxDFZ {
+  background-color: transparent;
+  height: 32px;
+  left: calc(30.48% - 10px);
+  position: absolute;
+  top: calc(50.00% - 16px);
+  width: 32px;
+}
+
+.full-project .pfad-645-n6aoO7 {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .pfad-646-n6aoO7 {
+  background-color: transparent;
+  height: calc(100.00% - 11px);
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.full-project .datei-hier-hochladen-ZhxDFZ {
+  background-color: transparent;
+  bottom: calc(45.54% - 10px);
+  height: 23px;
+  left: calc(43.81% - 72px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 164px;
+}
+
+.full-project .rechteck-278-ZhxDFZ {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 22px);
+  height: 47px;
+  position: absolute;
+  right: calc(25.12% - 32px);
+  width: 129px;
+}
+
+.full-project .hochladen-ZhxDFZ {
+  background-color: transparent;
+  bottom: calc(45.05% - 10px);
+  height: 23px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  right: calc(26.59% - 23px);
+  text-align: left;
+  white-space: nowrap;
+  width: 85px;
+}
+
+.full-project .gruppe-5-KqxCzi {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .rechteck-8-4Otmiw {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .logo-4Otmiw {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 23px);
+  left: 86px;
+  object-fit: cover;
+  position: absolute;
+  top: 11px;
+  width: 101px;
+}
+/* screen - heizung-1200 */
+
+.heizung-1200 {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 2860px;
+  min-width: 1200px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.heizung-1200 .c-TPaRzh {
+  background-color: transparent;
+  bottom: 64px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  left: 219px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.heizung-1200 .c-TPaRzh.bp3-animate-enter {
+  animation: bp3-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-1200 .ellipse-12-TPaRzh {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 8px;
+  bottom: 58px;
+  display: block;
+  height: 16px;
+  left: 215px;
+  opacity: 0;
+  position: absolute;
+  width: 16px;
+}
+
+.heizung-1200 .ellipse-12-TPaRzh.bp3-animate-enter1 {
+  animation: bp3-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-1200 .gruppe-1537-TPaRzh {
+  background-color: transparent;
+  height: 292px;
+  left: 39px;
+  position: fixed;
+  top: 176px;
+  width: 189px;
+}
+
+.heizung-1200 .haushalt-I9aQgf {
+  background-color: transparent;
+  height: 26px;
+  left: calc(46.11% - 37px);
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  text-align: left;
+  top: 4px;
+  white-space: nowrap;
+  width: 81px;
+}
+
+.heizung-1200 .heizung-I9aQgf {
+  background-color: transparent;
+  height: 26px;
+  left: calc(43.29% - 32px);
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  text-align: left;
+  top: calc(26.00% - 7px);
+  white-space: nowrap;
+  width: 74px;
+}
+
+.heizung-1200 .stromversorger-I9aQgf {
+  background-color: transparent;
+  bottom: calc(49.63% - 13px);
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  white-space: nowrap;
+  width: 141px;
+}
+
+.heizung-1200 .technisches-I9aQgf {
+  background-color: transparent;
+  bottom: calc(25.25% - 7px);
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  right: calc(37.68% - 42px);
+  text-align: left;
+  white-space: nowrap;
+  width: 111px;
+}
+
+.heizung-1200 .kontakt-I9aQgf {
+  background-color: transparent;
+  bottom: 2px;
+  height: 26px;
+  left: calc(40.47% - 28px);
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 68px;
+}
+
+.heizung-1200 .gruppe-1532-I9aQgf {
+  background-color: transparent;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 34px;
+}
+
+.heizung-1200 .rechteck-226-vlKb6c {
+  background-color: transparent;
+  border: 2px solid;
+  border-color: var(--forest-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .x1-vlKb6c {
+  background-color: transparent;
+  color: var(--cararra);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% - 5px);
+  letter-spacing: 0.00px;
+  line-height: 22px;
+  position: absolute;
+  right: calc(47.66% - 5px);
+  text-align: left;
+  top: 7px;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.heizung-1200 .gruppe-1533-I9aQgf {
+  background-color: transparent;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  top: calc(24.92% - 8px);
+  width: 34px;
+}
+
+.heizung-1200 .rechteck-226-ccyYh3 {
+  background-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .x2-ccyYh3 {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.65% - 6px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 13px;
+}
+
+.heizung-1200 .gruppe-1534-I9aQgf {
+  background-color: transparent;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  top: calc(49.95% - 17px);
+  width: 34px;
+}
+
+.heizung-1200 .rechteck-226-Xcurzv {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .x3-Xcurzv {
+  background-color: transparent;
+  height: calc(100.00% - 5px);
+  letter-spacing: 0.00px;
+  line-height: 22px;
+  position: absolute;
+  right: calc(45.03% - 6px);
+  text-align: left;
+  top: 7px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.heizung-1200 .gruppe-1535-I9aQgf {
+  background-color: transparent;
+  bottom: calc(25.03% - 8px);
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  width: 34px;
+}
+
+.heizung-1200 .rechteck-226-17s1ux {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .x4-17s1ux {
+  background-color: transparent;
+  height: calc(100.00% - 5px);
+  letter-spacing: 0.00px;
+  line-height: 22px;
+  position: absolute;
+  right: calc(45.03% - 6px);
+  text-align: left;
+  top: 7px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.heizung-1200 .gruppe-1536-I9aQgf {
+  background-color: transparent;
+  bottom: 1px;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  width: 34px;
+}
+
+.heizung-1200 .rechteck-226-BAi0h7 {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .x5-BAi0h7 {
+  background-color: transparent;
+  bottom: -3px;
+  height: 29px;
+  letter-spacing: 0.00px;
+  line-height: 22px;
+  position: absolute;
+  right: calc(45.03% - 6px);
+  text-align: left;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.heizung-1200 .pfad-718-I9aQgf {
+  background-color: transparent;
+  height: 31px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  top: 34px;
+  width: 3px;
+}
+
+.heizung-1200 .linie-60-I9aQgf {
+  background-color: transparent;
+  height: 31px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  top: calc(37.64% - 12px);
+  width: 3px;
+}
+
+.heizung-1200 .linie-61-I9aQgf {
+  background-color: transparent;
+  bottom: calc(37.64% - 12px);
+  height: 31px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  width: 3px;
+}
+
+.heizung-1200 .linie-62-I9aQgf {
+  background-color: transparent;
+  bottom: 34px;
+  height: 31px;
+  left: 15px;
+  object-fit: cover;
+  position: absolute;
+  width: 3px;
+}
+
+.heizung-1200 .gruppe-1620-TPaRzh {
+  background-color: transparent;
+  height: 509px;
+  left: calc(47.10% - 289px);
+  position: absolute;
+  top: 176px;
+  width: 614px;
+}
+
+.heizung-1200 .informationen-zur-heizungsanlage-oHcQiJ {
+  -webkit-text-stroke: 1px var(--hunter-green);
+  background-color: transparent;
+  height: 43px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 37px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 0.43%;
+  white-space: nowrap;
+  width: 616px;
+}
+
+.heizung-1200 .gruppe-1619-oHcQiJ {
+  background-color: transparent;
+  bottom: 0px;
+  height: 396px;
+  left: 0px;
+  position: absolute;
+  width: 348px;
+}
+
+.heizung-1200 .gruppe-1593-X8FsC8 {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 174px);
+  position: absolute;
+  top: 0px;
+  width: 348px;
+}
+
+.heizung-1200 .rechteck-224-oGcBx2 {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .womit-heizen-sie-aktuell-oGcBx2 {
+  background-color: transparent;
+  height: 42px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(29.85% - 13px);
+  white-space: nowrap;
+  width: 189px;
+}
+
+.heizung-1200 .gruppe-1595-X8FsC8 {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 174px);
+  position: absolute;
+  top: 146px;
+  width: 348px;
+}
+
+.heizung-1200 .rechteck-308-SLJx4D {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .die-vorlauftemperatur-ihrer-heizung-SLJx4D {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 71px);
+}
+
+.heizung-1200 .heizungvorlauf-SLJx4D {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 122px;
+}
+
+.heizung-1200 .heizungheizen-X8FsC8 {
+  background-color: transparent;
+  height: 34px;
+  left: 45px;
+  position: absolute;
+  top: 55px;
+  width: calc(100.00% - 86px);
+}
+
+.heizung-1200 .erdgas-vK5iXv {
+  background-color: transparent;
+  height: calc(100.00% - 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 79px;
+}
+
+.heizung-1200 .polygon-53-vK5iXv {
+  background-color: transparent;
+  bottom: 0px;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  width: 26px;
+}
+
+.heizung-1200 .gruppe-1597-X8FsC8 {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 174px);
+  position: absolute;
+  top: 286px;
+  width: 348px;
+}
+
+.heizung-1200 .rechteck-310-TZ7XKW {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .jhrlichen-heizkosten-in-euro-TZ7XKW {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: 226px;
+}
+
+.heizung-1200 .heizungkosten-TZ7XKW {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 59px;
+}
+
+.heizung-1200 .gruppe-1647-TPaRzh {
+  background-color: transparent;
+  height: 507px;
+  position: absolute;
+  right: calc(14.81% - 130px);
+  top: calc(36.12% - 183px);
+  width: 876px;
+}
+
+.heizung-1200 .bilderupload-uKf942 {
+  background-color: transparent;
+  height: 33px;
+  left: 1px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 141px;
+}
+
+.heizung-1200 .gruppe-1646-uKf942 {
+  background-color: transparent;
+  height: calc(100.00% - 73px);
+  left: 0px;
+  position: absolute;
+  top: 73px;
+  width: 100%;
+}
+
+.heizung-1200 .rechteck-249-2LOzxs {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .aufstellungsort-wrmepumpe-2LOzxs {
+  background-color: transparent;
+  height: 27px;
+  left: 69px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  overflow: hidden;
+  position: absolute;
+  text-align: left;
+  top: 24px;
+  white-space: nowrap;
+  width: calc(100.00% - 157px);
+}
+
+.heizung-1200 .die-wrmepumpe-wird-i-2LOzxs {
+  background-color: transparent;
+  height: 130px;
+  left: 69px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  text-align: left;
+  top: calc(29.93% - 39px);
+  width: calc(100.00% - 157px);
+}
+
+.heizung-1200 .gruppe-1649-TPaRzh {
+  background-color: transparent;
+  bottom: calc(43.11% - 154px);
+  height: 357px;
+  position: absolute;
+  right: calc(14.81% - 130px);
+  width: 876px;
+}
+
+.heizung-1200 .rechteck-273-iBqpHk {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .aufstellungsort-wasserspeicher-iBqpHk {
+  background-color: transparent;
+  height: 27px;
+  left: 69px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  overflow: hidden;
+  position: absolute;
+  text-align: left;
+  top: 24px;
+  white-space: nowrap;
+  width: calc(100.00% - 157px);
+}
+
+.heizung-1200 .eventuell-ort-des-vo-iBqpHk {
+  background-color: transparent;
+  height: 30px;
+  left: 69px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  text-align: left;
+  top: calc(27.83% - 8px);
+  width: calc(100.00% - 157px);
+}
+
+.heizung-1200 .dateihochladenwaermepumpe-TPaRzh {
+  background-color: transparent;
+  height: 117px;
+  position: absolute;
+  right: calc(22.49% - 162px);
+  top: calc(43.17% - 51px);
+  width: 719px;
+}
+
+.heizung-1200 .rechteck-326-dqdbDp {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .x352278_cloud_upload_icon-dqdbDp {
+  background-color: transparent;
+  bottom: calc(50.00% - 15px);
+  height: 30px;
+  left: calc(27.60% - 8px);
+  position: absolute;
+  width: 30px;
+}
+
+.heizung-1200 .pfad-645-qkoykK {
+  background-color: transparent;
+  height: 100%;
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-1200 .pfad-646-qkoykK {
+  background-color: transparent;
+  height: calc(100.00% - 10px);
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.heizung-1200 .datei-hier-hochladen-dqdbDp {
+  background-color: transparent;
+  bottom: calc(46.34% - 10px);
+  height: 22px;
+  left: calc(40.71% - 63px);
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 155px;
+}
+
+.heizung-1200 .rechteck-327-dqdbDp {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 21px);
+  height: 44px;
+  position: absolute;
+  right: calc(25.27% - 31px);
+  width: 122px;
+}
+
+.heizung-1200 .hochladen-dqdbDp {
+  background-color: transparent;
+  bottom: calc(45.37% - 10px);
+  height: 21px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  position: absolute;
+  right: calc(26.77% - 20px);
+  text-align: left;
+  white-space: nowrap;
+  width: 76px;
+}
+
+.heizung-1200 .gruppe-1651-TPaRzh {
+  background-color: transparent;
+  bottom: calc(25.65% - 92px);
+  height: 357px;
+  position: absolute;
+  right: calc(14.81% - 130px);
+  width: 876px;
+}
+
+.heizung-1200 .rechteck-276-xJCQ05 {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .aufstellungsort-stromspeicher-xJCQ05 {
+  background-color: transparent;
+  height: 27px;
+  left: 69px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  overflow: hidden;
+  position: absolute;
+  text-align: left;
+  top: 24px;
+  white-space: nowrap;
+  width: calc(100.00% - 157px);
+}
+
+.heizung-1200 .in-der-nhe-des-zhlerschranks-xJCQ05 {
+  background-color: transparent;
+  height: 30px;
+  left: 69px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  position: absolute;
+  text-align: left;
+  top: calc(27.83% - 8px);
+  width: calc(100.00% - 157px);
+}
+
+.heizung-1200 .dateihochladenstromspeicher-xJCQ05 {
+  background-color: transparent;
+  bottom: calc(25.61% - 30px);
+  height: 117px;
+  left: 86px;
+  position: absolute;
+  width: calc(100.00% - 157px);
+}
+
+.heizung-1200 .rechteck-336-gzqx4F {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .x352278_cloud_upload_icon-gzqx4F {
+  background-color: transparent;
+  bottom: calc(50.00% - 15px);
+  height: 30px;
+  left: calc(28.91% - 9px);
+  position: absolute;
+  width: 30px;
+}
+
+.heizung-1200 .pfad-645-8vyVEv {
+  background-color: transparent;
+  height: 100%;
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-1200 .pfad-646-8vyVEv {
+  background-color: transparent;
+  height: calc(100.00% - 10px);
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.heizung-1200 .datei-hier-hochladen-gzqx4F {
+  background-color: transparent;
+  bottom: calc(46.34% - 10px);
+  height: 22px;
+  left: calc(42.31% - 66px);
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 155px;
+}
+
+.heizung-1200 .rechteck-337-gzqx4F {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 21px);
+  height: 44px;
+  position: absolute;
+  right: calc(25.27% - 31px);
+  width: 122px;
+}
+
+.heizung-1200 .hochladen-gzqx4F {
+  background-color: transparent;
+  bottom: calc(45.37% - 10px);
+  height: 21px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  position: absolute;
+  right: calc(26.77% - 20px);
+  text-align: left;
+  white-space: nowrap;
+  width: 76px;
+}
+
+.heizung-1200 .speichern-TPaRzh {
+  background-color: transparent;
+  bottom: 275px;
+  height: 120px;
+  position: absolute;
+  right: 90px;
+  width: 426px;
+}
+
+.heizung-1200 .gruppe-1545-qVfy1J {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .rechteck-240-EzaO5F {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .speichern-und-weiter-EzaO5F {
+  background-color: transparent;
+  bottom: calc(45.83% - 16px);
+  height: 36px;
+  letter-spacing: 0.00px;
+  line-height: 29px;
+  position: absolute;
+  right: calc(48.97% - 138px);
+  text-align: left;
+  white-space: nowrap;
+  width: 281px;
+}
+
+.heizung-1200 .dateihochladenwasserspeicher-TPaRzh {
+  background-color: transparent;
+  bottom: calc(41.58% - 49px);
+  height: 117px;
+  position: absolute;
+  right: calc(24.64% - 177px);
+  width: 719px;
+}
+
+.heizung-1200 .rechteck-334-R84YsP {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .x352278_cloud_upload_icon-R84YsP {
+  background-color: transparent;
+  bottom: calc(50.00% - 15px);
+  height: 30px;
+  left: calc(29.06% - 9px);
+  position: absolute;
+  width: 30px;
+}
+
+.heizung-1200 .pfad-645-82DMIY {
+  background-color: transparent;
+  height: 100%;
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-1200 .pfad-646-82DMIY {
+  background-color: transparent;
+  height: calc(100.00% - 10px);
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.heizung-1200 .datei-hier-hochladen-R84YsP {
+  background-color: transparent;
+  bottom: calc(46.34% - 10px);
+  height: 22px;
+  left: calc(42.48% - 66px);
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 155px;
+}
+
+.heizung-1200 .rechteck-335-R84YsP {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 21px);
+  height: 44px;
+  position: absolute;
+  right: calc(25.27% - 31px);
+  width: 122px;
+}
+
+.heizung-1200 .hochladen-R84YsP {
+  background-color: transparent;
+  bottom: calc(45.37% - 10px);
+  height: 21px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  position: absolute;
+  right: calc(26.77% - 20px);
+  text-align: left;
+  white-space: nowrap;
+  width: 76px;
+}
+
+.heizung-1200 .ueberspringen-TPaRzh {
+  background-color: transparent;
+  bottom: calc(9.78% - 5px);
+  height: 47px;
+  left: calc(43.02% - 63px);
+  position: absolute;
+  width: 147px;
+}
+
+.heizung-1200 .pfad-568-xsRiAx {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .berspringen-xsRiAx {
+  background-color: transparent;
+  bottom: calc(33.26% - 6px);
+  height: 19px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: calc(48.24% - 43px);
+  text-align: left;
+  white-space: nowrap;
+  width: 90px;
+}
+
+.heizung-1200 .zurueck-TPaRzh {
+  background-color: transparent;
+  bottom: calc(9.78% - 5px);
+  height: 47px;
+  left: calc(26.21% - 39px);
+  position: absolute;
+  width: 147px;
+}
+
+.heizung-1200 .pfad-568-dCFaqr {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .zurck-dCFaqr {
+  background-color: transparent;
+  bottom: calc(33.26% - 6px);
+  height: 19px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: calc(49.00% - 23px);
+  text-align: left;
+  white-space: nowrap;
+  width: 47px;
+}
+
+.heizung-1200 .rechteck-21-TPaRzh {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  bottom: 0px;
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.heizung-1200 .rechteck-21-TPaRzh.bp3-animate-enter2 {
+  animation: bp3-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-1200 .gruppe-1454-TPaRzh {
+  background-color: transparent;
+  bottom: 1.06%;
+  height: 18px;
+  left: calc(50.00% - 480px);
+  position: absolute;
+  width: 960px;
+}
+
+.heizung-1200 .shs-montage-express-zxdhzl {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  left: 18px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -1px;
+  white-space: nowrap;
+  width: 635px;
+}
+
+.heizung-1200 .shs-montage-express-zxdhzl.bp3-animate-enter3 {
+  animation: bp3-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-1200 .impressum-zxdhzl {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(18.23% - 18px);
+  text-align: left;
+  top: 0px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 99px;
+}
+
+.heizung-1200 .impressum-zxdhzl.bp3-animate-enter4 {
+  animation: bp3-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-1200 .impressum-zxdhzl:hover {
+  filter: grayscale(100%);
+}
+
+.heizung-1200 .datenschutz-zxdhzl {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  top: 1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.heizung-1200 .datenschutz-zxdhzl.bp3-animate-enter5 {
+  animation: bp3-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-1200 .datenschutz-zxdhzl:hover {
+  filter: grayscale(100%);
+}
+
+.heizung-1200 .x-zxdhzl {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xs);
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  right: calc(28.95% - 3px);
+  text-align: left;
+  top: 0px;
+  white-space: nowrap;
+  width: 12px;
+}
+
+.heizung-1200 .x-zxdhzl.bp3-animate-enter6 {
+  animation: bp3-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-1200 .x-SygwoK {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xs);
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  right: 137px;
+  text-align: left;
+  top: 0px;
+  white-space: nowrap;
+  width: 12px;
+}
+
+.heizung-1200 .x-SygwoK.bp3-animate-enter7 {
+  animation: bp3-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-1200 .c-zxdhzl {
+  background-color: transparent;
+  bottom: calc(121.43% - 13px);
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 400;
+  height: 11px;
+  left: 3px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 7px;
+}
+
+.heizung-1200 .c-zxdhzl.bp3-animate-enter8 {
+  animation: bp3-animate-enter8-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter8-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-1200 .ellipse-12-zxdhzl {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 5.5px/5px;
+  display: block;
+  height: 10px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: calc(37.49% - 4px);
+  width: 11px;
+}
+
+.heizung-1200 .ellipse-12-zxdhzl.bp3-animate-enter9 {
+  animation: bp3-animate-enter9-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter9-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-1200 .icon-check_mark-TPaRzh {
+  background-color: transparent;
+  height: 18px;
+  left: 43px;
+  object-fit: cover;
+  position: fixed;
+  top: 184px;
+  width: 22px;
+}
+
+.heizung-1200 .gruppe-1684-TPaRzh {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: 163px;
+  top: 289px;
+  width: 348px;
+}
+
+.heizung-1200 .gruppe-1594-xEo4Ix {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 174px);
+  position: absolute;
+  top: calc(50.00% - 54px);
+  width: 348px;
+}
+
+.heizung-1200 .rechteck-307-4bxesQ {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .wie-werden-ihre-rume-derzeit-beheizt-4bxesQ {
+  background-color: transparent;
+  height: 59px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(45.00% - 27px);
+  white-space: nowrap;
+  width: calc(100.00% - 68px);
+}
+
+.heizung-1200 .heizungwie-xEo4Ix {
+  background-color: transparent;
+  bottom: calc(29.49% - 9px);
+  height: 31px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 72px);
+}
+
+.heizung-1200 .fuboden-wandhei-AVISGC {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 232px;
+}
+
+.heizung-1200 .polygon-54-AVISGC {
+  background-color: transparent;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: calc(40.91% - 8px);
+  width: 26px;
+}
+
+.heizung-1200 .gruppe-1685-TPaRzh {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: 163px;
+  top: 433px;
+  width: 348px;
+}
+
+.heizung-1200 .gruppe-1645-pPxVIe {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 174px);
+  position: absolute;
+  top: calc(50.00% - 54px);
+  width: 348px;
+}
+
+.heizung-1200 .rechteck-307-k06IUx {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .wie-wird-aktuell-bei-k06IUx {
+  background-color: transparent;
+  bottom: calc(35.90% - 25px);
+  height: 70px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 14px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% - 53px);
+}
+
+.heizung-1200 .heizungwarm-pPxVIe {
+  background-color: transparent;
+  bottom: calc(29.49% - 9px);
+  height: 31px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 72px);
+}
+
+.heizung-1200 .solarthermie-H1ME2t {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 146px;
+}
+
+.heizung-1200 .polygon-55-H1ME2t {
+  background-color: transparent;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: calc(13.64% - 3px);
+  width: 26px;
+}
+
+.heizung-1200 .gruppe-5-TPaRzh {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .rechteck-8-GC5PPL {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-1200 .logo-GC5PPL {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 23px);
+  left: 86px;
+  object-fit: cover;
+  position: absolute;
+  top: 11px;
+  width: 101px;
+}
+/* screen - heizung-375 */
+
+.heizung-375 {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 2371px;
+  min-width: 375px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.heizung-375 .gruppe-1620-PcJ0D8 {
+  background-color: transparent;
+  height: 24px;
+  left: calc(50.00% - 126px);
+  position: absolute;
+  top: 255px;
+  width: 251px;
+}
+
+.heizung-375 .angaben-zu-ihrem-haus-Q8kQan {
+  -webkit-text-stroke: 0.4000000059604645px var(--hunter-green);
+  background-color: transparent;
+  bottom: 18.75%;
+  color: var(--hunter-green);
+  font-family: var(--font-family-applebraille-pinpoint8_dot);
+  font-size: 23px;
+  font-style: normal;
+  font-weight: 400;
+  height: 26px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 37px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 253px;
+}
+
+.heizung-375 .gruppe-1593-PcJ0D8 {
+  background-color: transparent;
+  height: 4.60%;
+  left: 26px;
+  position: absolute;
+  top: 13.45%;
+  width: calc(100.00% - 62px);
+}
+
+.heizung-375 .rechteck-224-snJM9a {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .womit-heizen-sie-aktuell-snJM9a {
+  background-color: transparent;
+  height: 42px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(29.85% - 13px);
+  white-space: nowrap;
+  width: 189px;
+}
+
+.heizung-375 .heizungheizen-snJM9a {
+  background-color: transparent;
+  bottom: calc(29.49% - 9px);
+  height: 31px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 86px);
+}
+
+.heizung-375 .erdgas-Esx59u {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 79px;
+}
+
+.heizung-375 .polygon-56-Esx59u {
+  background-color: transparent;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: calc(26.99% - 5px);
+  width: 26px;
+}
+
+.heizung-375 .gruppe-1594-PcJ0D8 {
+  background-color: transparent;
+  height: 4.60%;
+  left: 26px;
+  position: absolute;
+  top: 19.20%;
+  width: calc(100.00% - 62px);
+}
+
+.heizung-375 .rechteck-307-vRfNse {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .wie-heizen-sie-vRfNse {
+  background-color: transparent;
+  height: 62px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(45.74% - 28px);
+  white-space: nowrap;
+  width: 117px;
+}
+
+.heizung-375 .heizungwie-vRfNse {
+  background-color: transparent;
+  bottom: calc(29.68% - 9px);
+  height: 32px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 86px);
+}
+
+.heizung-375 .fuboden-wan-47idAr {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 4px;
+  white-space: nowrap;
+  width: 185px;
+}
+
+.heizung-375 .polygon-57-47idAr {
+  background-color: transparent;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 26px;
+}
+
+.heizung-375 .gruppe-1595-PcJ0D8 {
+  background-color: transparent;
+  height: 4.60%;
+  left: 26px;
+  position: absolute;
+  top: 24.95%;
+  width: calc(100.00% - 62px);
+}
+
+.heizung-375 .rechteck-308-v2mqfz {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .wie-wird-warmwasser-erzeugt-v2mqfz {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 78px);
+}
+
+.heizung-375 .heizungwarm-v2mqfz {
+  background-color: transparent;
+  bottom: calc(29.49% - 9px);
+  height: 31px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 86px);
+}
+
+.heizung-375 .solarthermie-9IkrsM {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 146px;
+}
+
+.heizung-375 .polygon-26-9IkrsM {
+  background-color: transparent;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: calc(50.00% - 10px);
+  width: 26px;
+}
+
+.heizung-375 .gruppe-1596-PcJ0D8 {
+  background-color: transparent;
+  height: 4.60%;
+  left: 26px;
+  position: absolute;
+  top: 30.69%;
+  width: calc(100.00% - 62px);
+}
+
+.heizung-375 .rechteck-309-QqzTk5 {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .die-vorlauftemperatur-ihrer-heizung-QqzTk5 {
+  background-color: transparent;
+  height: 21px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(22.73% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 68px);
+}
+
+.heizung-375 .heizungvorlauf-QqzTk5 {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 122px;
+}
+
+.heizung-375 .gruppe-1597-PcJ0D8 {
+  background-color: transparent;
+  height: 4.60%;
+  left: 26px;
+  position: absolute;
+  top: 36.44%;
+  width: calc(100.00% - 62px);
+}
+
+.heizung-375 .rechteck-310-XQrq3a {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .jhrlichen-heizkosten-in-euro-XQrq3a {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 87px);
+}
+
+.heizung-375 .heizungkosten-XQrq3a {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 48px;
+}
+
+.heizung-375 .gruppe-1633-PcJ0D8 {
+  background-color: transparent;
+  height: 23px;
+  left: calc(48.79% - 62px);
+  position: absolute;
+  top: 1055px;
+  width: 128px;
+}
+
+.heizung-375 .bilderupload-2MOz6j {
+  -webkit-text-stroke: 0.4000000059604645px var(--hunter-green);
+  background-color: transparent;
+  bottom: 21.74%;
+  color: var(--hunter-green);
+  font-family: var(--font-family-applebraille-pinpoint8_dot);
+  font-size: 23px;
+  font-style: normal;
+  font-weight: 400;
+  height: 25px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 37px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 130px;
+}
+
+.heizung-375 .gruppe-1642-PcJ0D8 {
+  background-color: transparent;
+  bottom: 172px;
+  height: 181px;
+  left: 35px;
+  position: absolute;
+  width: calc(100.00% - 62px);
+}
+
+.heizung-375 .speichern-V432pq {
+  background-color: transparent;
+  bottom: 86px;
+  height: 95px;
+  position: absolute;
+  right: 0px;
+  width: 313px;
+}
+
+.heizung-375 .gruppe-1545-pRc28o {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .rechteck-240-2c85up {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .speichern-und-weiter-2c85up {
+  background-color: transparent;
+  bottom: calc(44.07% - 16px);
+  height: 36px;
+  left: 17px;
+  letter-spacing: 0.00px;
+  line-height: 29px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% - 32px);
+}
+
+.heizung-375 .ueberspringen-V432pq {
+  background-color: transparent;
+  height: 39px;
+  position: absolute;
+  right: 0px;
+  top: calc(100.00% - 39px);
+  width: 123px;
+}
+
+.heizung-375 .pfad-568-WxfCyC {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-375 .berspringen-WxfCyC {
+  background-color: transparent;
+  bottom: calc(32.53% - 5px);
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: var(--font-size-xxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  position: absolute;
+  right: calc(48.03% - 35px);
+  text-align: left;
+  white-space: nowrap;
+  width: 72px;
+}
+
+.heizung-375 .zurueck-V432pq {
+  background-color: transparent;
+  height: 39px;
+  left: 0px;
+  position: absolute;
+  top: calc(100.00% - 39px);
+  width: 123px;
+}
+
+.heizung-375 .pfad-568-LLXTCW {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-375 .zurck-LLXTCW {
+  background-color: transparent;
+  bottom: calc(32.53% - 5px);
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: var(--font-size-xxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  position: absolute;
+  right: calc(48.82% - 19px);
+  text-align: left;
+  white-space: nowrap;
+  width: 38px;
+}
+
+.heizung-375 .gruppe-1468-PcJ0D8 {
+  background-color: transparent;
+  bottom: -3px;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  width: 100%;
+}
+
+.heizung-375 .rechteck-21-ATpZAg {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: calc(50.00% - 54px);
+  width: 100%;
+}
+
+.heizung-375 .rechteck-21-ATpZAg.bp1-animate-enter {
+  animation: bp1-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-375 .gruppe-1454-ATpZAg {
+  background-color: transparent;
+  bottom: calc(5.91% - 1px);
+  height: 16px;
+  position: absolute;
+  right: calc(4.66% - 10px);
+  width: 225px;
+}
+
+.heizung-375 .impressum-s3eTXO {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  text-align: left;
+  top: -1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 87px;
+}
+
+.heizung-375 .impressum-s3eTXO.bp1-animate-enter1 {
+  animation: bp1-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-375 .impressum-s3eTXO:hover {
+  filter: grayscale(100%);
+}
+
+.heizung-375 .datenschutz-s3eTXO {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  top: -1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 105px;
+}
+
+.heizung-375 .datenschutz-s3eTXO.bp1-animate-enter2 {
+  animation: bp1-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-375 .datenschutz-s3eTXO:hover {
+  filter: grayscale(100%);
+}
+
+.heizung-375 .x-s3eTXO {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  left: calc(46.70% - 5px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.heizung-375 .x-s3eTXO.bp1-animate-enter3 {
+  animation: bp1-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-375 .gruppe-1462-ATpZAg {
+  background-color: transparent;
+  height: 35px;
+  left: calc(50.00% - 168px);
+  position: absolute;
+  top: calc(34.46% - 12px);
+  width: 336px;
+}
+
+.heizung-375 .shs-montage-express-gmb-h-CRaUVG {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 14px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  right: calc(45.74% - 79px);
+  text-align: left;
+  top: -1px;
+  white-space: nowrap;
+  width: 172px;
+}
+
+.heizung-375 .shs-montage-express-gmb-h-CRaUVG.bp1-animate-enter4 {
+  animation: bp1-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-375 .dachmontage-elektrik-CRaUVG {
+  background-color: transparent;
+  bottom: 0px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 14px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% + 2px);
+}
+
+.heizung-375 .dachmontage-elektrik-CRaUVG.bp1-animate-enter5 {
+  animation: bp1-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-375 .c-CRaUVG {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 400;
+  height: 10px;
+  left: calc(24.00% - 1px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -3px;
+  white-space: nowrap;
+  width: 6px;
+}
+
+.heizung-375 .c-CRaUVG.bp1-animate-enter6 {
+  animation: bp1-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-375 .ellipse-12-CRaUVG {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 4.86px/5px;
+  display: block;
+  height: 10px;
+  left: calc(23.46% - 2px);
+  opacity: 0;
+  position: absolute;
+  top: 0px;
+  width: 10px;
+}
+
+.heizung-375 .ellipse-12-CRaUVG.bp1-animate-enter7 {
+  animation: bp1-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-375 .gruppe-1686-PcJ0D8 {
+  background-color: transparent;
+  bottom: calc(48.42% - 111px);
+  height: 229px;
+  left: 31px;
+  position: absolute;
+  width: calc(100.00% - 62px);
+}
+
+.heizung-375 .rechteck-249-u1lI2w {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .die-wrmepumpe-wird-i-u1lI2w {
+  background-color: transparent;
+  bottom: calc(48.53% - 49px);
+  height: 102px;
+  left: 25px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  text-align: left;
+  width: calc(100.00% - 40px);
+}
+
+.heizung-375 .gruppe-1688-PcJ0D8 {
+  background-color: transparent;
+  bottom: calc(36.19% - 83px);
+  height: 229px;
+  left: 31px;
+  position: absolute;
+  width: calc(100.00% - 62px);
+}
+
+.heizung-375 .rechteck-249-wGG5o9 {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .eventuell-ort-des-vo-wGG5o9 {
+  background-color: transparent;
+  bottom: calc(48.53% - 49px);
+  height: 102px;
+  left: 25px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  text-align: left;
+  width: calc(100.00% - 40px);
+}
+
+.heizung-375 .gruppe-1690-PcJ0D8 {
+  background-color: transparent;
+  bottom: calc(23.95% - 55px);
+  height: 229px;
+  left: 31px;
+  position: absolute;
+  width: calc(100.00% - 62px);
+}
+
+.heizung-375 .rechteck-249-F384TF {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .in-der-nhe-des-zhlerschranks-F384TF {
+  background-color: transparent;
+  bottom: calc(48.53% - 49px);
+  height: 102px;
+  left: 25px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  text-align: left;
+  width: calc(100.00% - 40px);
+}
+
+.heizung-375 .aufstellungsort-wrmepumpe-PcJ0D8 {
+  background-color: transparent;
+  height: 25px;
+  left: 56px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  position: absolute;
+  text-align: left;
+  top: calc(47.79% - 12px);
+  width: calc(100.00% - 117px);
+}
+
+.heizung-375 .aufstellungsort-wasserspeicher-PcJ0D8 {
+  background-color: transparent;
+  bottom: calc(41.05% - 10px);
+  height: 25px;
+  left: 56px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  position: absolute;
+  text-align: left;
+  width: calc(100.00% - 117px);
+}
+
+.heizung-375 .aufstellungsort-stromspeicher-PcJ0D8 {
+  background-color: transparent;
+  bottom: calc(29.88% - 7px);
+  height: 25px;
+  left: 56px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  position: absolute;
+  text-align: left;
+  width: calc(100.00% - 117px);
+}
+
+.heizung-375 .dateihochladenwaermepumpe-PcJ0D8 {
+  background-color: transparent;
+  bottom: calc(45.32% - 22px);
+  height: 48px;
+  left: calc(50.00% - 136px);
+  position: absolute;
+  width: 272px;
+}
+
+.heizung-375 .rechteck-250-ZGe5xT {
+  background-color: transparent;
+  border-radius: 10px;
+  bottom: 0px;
+  height: 48px;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+
+.heizung-375 .x352278_cloud_upload_icon-ZGe5xT {
+  background-color: transparent;
+  bottom: calc(50.00% - 6px);
+  height: 12px;
+  left: calc(27.32% - 3px);
+  position: absolute;
+  width: 11px;
+}
+
+.heizung-375 .pfad-645-y63Ctr {
+  background-color: transparent;
+  height: 100%;
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-375 .pfad-646-y63Ctr {
+  background-color: transparent;
+  height: calc(100.00% - 4px);
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 2px;
+  width: 100%;
+}
+
+.heizung-375 .datei-hier-hochladen-ZGe5xT {
+  background-color: transparent;
+  bottom: calc(41.56% - 5px);
+  height: 13px;
+  left: calc(46.09% - 38px);
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 83px;
+}
+
+.heizung-375 .rechteck-251-ZGe5xT {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 9px);
+  height: 18px;
+  position: absolute;
+  right: 36px;
+  width: 46px;
+}
+
+.heizung-375 .hochladen-ZGe5xT {
+  background-color: transparent;
+  bottom: calc(43.36% - 5px);
+  height: 11px;
+  letter-spacing: 0.00px;
+  line-height: 8px;
+  position: absolute;
+  right: 39px;
+  text-align: left;
+  white-space: nowrap;
+  width: 39px;
+}
+
+.heizung-375 .dateihochladenwasserspeicher-PcJ0D8 {
+  background-color: transparent;
+  bottom: calc(34.04% - 16px);
+  height: 48px;
+  left: calc(50.00% - 136px);
+  position: absolute;
+  width: 272px;
+}
+
+.heizung-375 .rechteck-250-S6n8xp {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .x352278_cloud_upload_icon-S6n8xp {
+  background-color: transparent;
+  bottom: calc(50.00% - 6px);
+  height: 12px;
+  left: calc(28.47% - 3px);
+  position: absolute;
+  width: 11px;
+}
+
+.heizung-375 .pfad-645-qMpb5d {
+  background-color: transparent;
+  height: 100%;
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-375 .pfad-646-qMpb5d {
+  background-color: transparent;
+  height: calc(100.00% - 4px);
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 2px;
+  width: 100%;
+}
+
+.heizung-375 .datei-hier-hochladen-S6n8xp {
+  background-color: transparent;
+  bottom: calc(41.56% - 5px);
+  height: 13px;
+  left: calc(47.68% - 40px);
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 83px;
+}
+
+.heizung-375 .rechteck-251-S6n8xp {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 9px);
+  height: 18px;
+  position: absolute;
+  right: 36px;
+  width: 46px;
+}
+
+.heizung-375 .hochladen-S6n8xp {
+  background-color: transparent;
+  bottom: calc(43.36% - 5px);
+  height: 11px;
+  letter-spacing: 0.00px;
+  line-height: 8px;
+  position: absolute;
+  right: 39px;
+  text-align: left;
+  white-space: nowrap;
+  width: 39px;
+}
+
+.heizung-375 .dateihochladenstromspeicher-PcJ0D8 {
+  background-color: transparent;
+  bottom: calc(22.76% - 11px);
+  height: 48px;
+  left: calc(50.00% - 136px);
+  position: absolute;
+  width: 272px;
+}
+
+.heizung-375 .rechteck-250-ZxOjxB {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .x352278_cloud_upload_icon-ZxOjxB {
+  background-color: transparent;
+  bottom: calc(50.00% - 6px);
+  height: 12px;
+  left: calc(26.55% - 3px);
+  position: absolute;
+  width: 11px;
+}
+
+.heizung-375 .pfad-645-XhjixD {
+  background-color: transparent;
+  height: 100%;
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-375 .pfad-646-XhjixD {
+  background-color: transparent;
+  height: calc(100.00% - 4px);
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 2px;
+  width: 100%;
+}
+
+.heizung-375 .datei-hier-hochladen-ZxOjxB {
+  background-color: transparent;
+  bottom: calc(41.56% - 5px);
+  height: 13px;
+  left: calc(45.03% - 37px);
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 83px;
+}
+
+.heizung-375 .rechteck-251-ZxOjxB {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 9px);
+  height: 18px;
+  position: absolute;
+  right: 36px;
+  width: 46px;
+}
+
+.heizung-375 .hochladen-ZxOjxB {
+  background-color: transparent;
+  bottom: calc(43.36% - 5px);
+  height: 11px;
+  letter-spacing: 0.00px;
+  line-height: 8px;
+  position: absolute;
+  right: 39px;
+  text-align: left;
+  white-space: nowrap;
+  width: 39px;
+}
+
+.heizung-375 .gruppe-1624-PcJ0D8 {
+  background-color: transparent;
+  height: 172px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .gruppe-5-wTYBG6 {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .rechteck-8-wtCYUo {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .logo-wtCYUo {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 135px);
+  left: 24px;
+  object-fit: cover;
+  position: absolute;
+  top: 12px;
+  width: 61px;
+}
+
+.heizung-375 .gruppe-1537-wTYBG6 {
+  background-color: transparent;
+  height: 31.37%;
+  left: 7.02%;
+  position: absolute;
+  top: 52.07%;
+  width: 85.96%;
+}
+
+.heizung-375 .haushalt-z0uSCA {
+  background-color: transparent;
+  height: 17px;
+  left: 1px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 49px;
+}
+
+.heizung-375 .heizung-z0uSCA {
+  background-color: transparent;
+  height: 17px;
+  left: calc(25.79% - 12px);
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 45px;
+}
+
+.heizung-375 .strom-z0uSCA {
+  background-color: transparent;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: calc(49.65% - 17px);
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 34px;
+}
+
+.heizung-375 .technisches-z0uSCA {
+  background-color: transparent;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: calc(23.62% - 16px);
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 67px;
+}
+
+.heizung-375 .kontakt-z0uSCA {
+  background-color: transparent;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: 3px;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 42px;
+}
+
+.heizung-375 .gruppe-1532-z0uSCA {
+  background-color: transparent;
+  bottom: 1px;
+  height: 34px;
+  left: 0px;
+  position: absolute;
+  width: 50px;
+}
+
+.heizung-375 .rechteck-226-eNZgV9 {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: #10841e;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .icon-check_mark-eNZgV9 {
+  background-color: transparent;
+  height: calc(100.00% - 16px);
+  left: calc(50.00% - 11px);
+  object-fit: cover;
+  position: absolute;
+  top: 8px;
+  width: 22px;
+}
+
+.heizung-375 .gruppe-1533-z0uSCA {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  left: calc(25.00% - 12px);
+  position: absolute;
+  width: 50px;
+}
+
+.heizung-375 .rechteck-226-GNQxgy {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .rechteck-332-GNQxgy {
+  background-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .x2-GNQxgy {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.28% - 6px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 13px;
+}
+
+.heizung-375 .gruppe-1621-z0uSCA {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  position: absolute;
+  right: calc(50.00% - 25px);
+  width: 50px;
+}
+
+.heizung-375 .rechteck-226-THziXe {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .rechteck-332-THziXe {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .x3-THziXe {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.20% - 7px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.heizung-375 .gruppe-1622-z0uSCA {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  position: absolute;
+  right: calc(25.00% - 12px);
+  width: 50px;
+}
+
+.heizung-375 .rechteck-226-xUmxIV {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .rechteck-332-xUmxIV {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .x4-xUmxIV {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.20% - 7px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.heizung-375 .gruppe-1623-z0uSCA {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  position: absolute;
+  right: 0px;
+  width: 50px;
+}
+
+.heizung-375 .rechteck-226-Favsub {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .rechteck-332-Favsub {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-375 .x5-Favsub {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.20% - 7px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 14px;
+}
+/* screen - heizung-767 */
+
+.heizung-767 {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 2772px;
+  min-width: 767px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.heizung-767 .gruppe-1620-y5m3xm {
+  background-color: transparent;
+  height: 509px;
+  left: calc(27.35% - 168px);
+  position: absolute;
+  top: 249px;
+  width: 614px;
+}
+
+.heizung-767 .informationen-zur-heizungsanlage-fi7xfx {
+  -webkit-text-stroke: 1px var(--hunter-green);
+  background-color: transparent;
+  height: 43px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 37px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 0.43%;
+  white-space: nowrap;
+  width: 616px;
+}
+
+.heizung-767 .gruppe-1619-fi7xfx {
+  background-color: transparent;
+  bottom: 0px;
+  height: 396px;
+  left: 0px;
+  position: absolute;
+  width: 313px;
+}
+
+.heizung-767 .gruppe-1593-GCiDMc {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 156px);
+  position: absolute;
+  top: 0px;
+  width: 313px;
+}
+
+.heizung-767 .rechteck-224-cHSdj6 {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .womit-heizen-sie-aktuell-cHSdj6 {
+  background-color: transparent;
+  height: 42px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(29.85% - 13px);
+  white-space: nowrap;
+  width: 189px;
+}
+
+.heizung-767 .heizungheizen-cHSdj6 {
+  background-color: transparent;
+  bottom: calc(29.49% - 9px);
+  height: 31px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 86px);
+}
+
+.heizung-767 .erdgas-qb1ob5 {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 79px;
+}
+
+.heizung-767 .pfad-716-qb1ob5 {
+  background-color: transparent;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 4px;
+  width: 26px;
+}
+
+.heizung-767 .gruppe-1595-GCiDMc {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 156px);
+  position: absolute;
+  top: 146px;
+  width: 313px;
+}
+
+.heizung-767 .rechteck-308-hCKQT8 {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .die-vorlauftemperatur-ihrer-heizung-hCKQT8 {
+  background-color: transparent;
+  height: 21px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(22.73% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 68px);
+}
+
+.heizung-767 .heizungvorlauf-hCKQT8 {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 122px;
+}
+
+.heizung-767 .gruppe-1597-GCiDMc {
+  background-color: transparent;
+  height: 109px;
+  left: calc(50.00% - 156px);
+  position: absolute;
+  top: 286px;
+  width: 313px;
+}
+
+.heizung-767 .rechteck-310-06Vtnh {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .jhrlichen-heizkosten-in-euro-06Vtnh {
+  background-color: transparent;
+  height: 22px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(21.26% - 5px);
+  white-space: nowrap;
+  width: calc(100.00% - 87px);
+}
+
+.heizung-767 .heizungkosten-06Vtnh {
+  background-color: transparent;
+  bottom: calc(23.68% - 8px);
+  height: 33px;
+  left: 45px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 59px;
+}
+
+.heizung-767 .gruppe-1653-y5m3xm {
+  background-color: transparent;
+  bottom: calc(38.96% - 526px);
+  height: 1349px;
+  left: 23px;
+  position: absolute;
+  width: calc(100.00% - 46px);
+}
+
+.heizung-767 .gruppe-1610-5Pj9xT {
+  background-color: transparent;
+  height: 481px;
+  left: calc(50.00% - 361px);
+  position: absolute;
+  top: 0px;
+  width: 721px;
+}
+
+.heizung-767 .rechteck-249-fP4SPq {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: calc(100.00% - 85px);
+  left: 0px;
+  position: absolute;
+  top: 85px;
+  width: 100%;
+}
+
+.heizung-767 .aufstellungsort-wrmepumpe-fP4SPq {
+  background-color: transparent;
+  height: 24px;
+  left: 57px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  overflow: hidden;
+  position: absolute;
+  text-align: left;
+  top: calc(23.26% - 6px);
+  white-space: nowrap;
+  width: calc(100.00% - 129px);
+}
+
+.heizung-767 .die-wrmepumpe-wird-i-fP4SPq {
+  background-color: transparent;
+  height: 117px;
+  left: 57px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  text-align: left;
+  top: calc(45.40% - 53px);
+  width: calc(100.00% - 129px);
+}
+
+.heizung-767 .bilderupload-fP4SPq {
+  background-color: transparent;
+  color: var(--hunter-green);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: 21px;
+  font-style: normal;
+  font-weight: 400;
+  height: 27px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 119px;
+}
+
+.heizung-767 .dateihochladenwaermepumpe-fP4SPq {
+  background-color: transparent;
+  bottom: 56px;
+  height: 108px;
+  left: 55px;
+  position: absolute;
+  width: calc(100.00% - 94px);
+}
+
+.heizung-767 .rechteck-250-lQWbA2 {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-767 .x352278_cloud_upload_icon-lQWbA2 {
+  background-color: transparent;
+  height: 28px;
+  left: calc(30.39% - 8px);
+  position: absolute;
+  top: calc(50.00% - 14px);
+  width: 26px;
+}
+
+.heizung-767 .pfad-645-qDtoRf {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-767 .pfad-646-qDtoRf {
+  background-color: transparent;
+  height: calc(100.00% - 9px);
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.heizung-767 .datei-hier-hochladen-lQWbA2 {
+  background-color: transparent;
+  bottom: calc(45.98% - 9px);
+  height: 19px;
+  left: calc(43.49% - 56px);
+  letter-spacing: 0.00px;
+  line-height: 14px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 128px;
+}
+
+.heizung-767 .rechteck-251-lQWbA2 {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 19px);
+  height: 41px;
+  position: absolute;
+  right: calc(25.27% - 27px);
+  width: 106px;
+}
+
+.heizung-767 .hochladen-lQWbA2 {
+  background-color: transparent;
+  bottom: calc(45.49% - 9px);
+  height: 19px;
+  letter-spacing: 0.00px;
+  line-height: 14px;
+  position: absolute;
+  right: calc(26.81% - 18px);
+  text-align: left;
+  white-space: nowrap;
+  width: 66px;
+}
+
+.heizung-767 .gruppe-1654-5Pj9xT {
+  background-color: transparent;
+  bottom: calc(46.20% - 152px);
+  height: 330px;
+  left: calc(50.00% - 361px);
+  position: absolute;
+  width: 721px;
+}
+
+.heizung-767 .rechteck-249-6z9Rq5 {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .aufstellungsort-wasserspeicher-6z9Rq5 {
+  background-color: transparent;
+  height: 24px;
+  left: 57px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  overflow: hidden;
+  position: absolute;
+  text-align: left;
+  top: 21px;
+  white-space: nowrap;
+  width: calc(100.00% - 129px);
+}
+
+.heizung-767 .eventuell-ort-des-vo-6z9Rq5 {
+  background-color: transparent;
+  height: 117px;
+  left: 57px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  text-align: left;
+  top: calc(37.55% - 44px);
+  width: calc(100.00% - 129px);
+}
+
+.heizung-767 .dateihochladenwasserspeicher-6z9Rq5 {
+  background-color: transparent;
+  bottom: calc(23.75% - 26px);
+  height: 108px;
+  left: 55px;
+  position: absolute;
+  width: calc(100.00% - 94px);
+}
+
+.heizung-767 .rechteck-250-NO4XdG {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-767 .x352278_cloud_upload_icon-NO4XdG {
+  background-color: transparent;
+  height: 28px;
+  left: calc(30.89% - 8px);
+  position: absolute;
+  top: calc(50.00% - 14px);
+  width: 26px;
+}
+
+.heizung-767 .pfad-645-UvQi5N {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-767 .pfad-646-UvQi5N {
+  background-color: transparent;
+  height: calc(100.00% - 9px);
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.heizung-767 .datei-hier-hochladen-NO4XdG {
+  background-color: transparent;
+  bottom: calc(45.98% - 9px);
+  height: 19px;
+  left: calc(44.09% - 56px);
+  letter-spacing: 0.00px;
+  line-height: 14px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 128px;
+}
+
+.heizung-767 .rechteck-251-NO4XdG {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 19px);
+  height: 41px;
+  position: absolute;
+  right: calc(25.27% - 27px);
+  width: 106px;
+}
+
+.heizung-767 .hochladen-NO4XdG {
+  background-color: transparent;
+  bottom: calc(45.49% - 9px);
+  height: 19px;
+  letter-spacing: 0.00px;
+  line-height: 14px;
+  position: absolute;
+  right: calc(26.81% - 18px);
+  text-align: left;
+  white-space: nowrap;
+  width: 66px;
+}
+
+.heizung-767 .gruppe-1655-5Pj9xT {
+  background-color: transparent;
+  height: 338px;
+  left: calc(50.00% - 361px);
+  position: absolute;
+  top: calc(100.00% - 338px);
+  width: 721px;
+}
+
+.heizung-767 .rechteck-249-zGVjUd {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .aufstellungsort-stromspeicher-zGVjUd {
+  background-color: transparent;
+  height: 24px;
+  left: 57px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  overflow: hidden;
+  position: absolute;
+  text-align: left;
+  top: 21px;
+  white-space: nowrap;
+  width: calc(100.00% - 129px);
+}
+
+.heizung-767 .in-der-nhe-des-zhlerschranks-zGVjUd {
+  background-color: transparent;
+  height: 40px;
+  left: 57px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  text-align: left;
+  top: calc(26.83% - 11px);
+  width: calc(100.00% - 129px);
+}
+
+.heizung-767 .dateihochladenstromspeicher-zGVjUd {
+  background-color: transparent;
+  bottom: 55px;
+  height: 108px;
+  left: 55px;
+  position: absolute;
+  width: calc(100.00% - 94px);
+}
+
+.heizung-767 .rechteck-250-OZXe7B {
+  background-color: transparent;
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-767 .x352278_cloud_upload_icon-OZXe7B {
+  background-color: transparent;
+  height: 28px;
+  left: calc(31.39% - 8px);
+  position: absolute;
+  top: calc(50.00% - 14px);
+  width: 26px;
+}
+
+.heizung-767 .pfad-645-cBasaf {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-767 .pfad-646-cBasaf {
+  background-color: transparent;
+  height: calc(100.00% - 9px);
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 5px;
+  width: 100%;
+}
+
+.heizung-767 .datei-hier-hochladen-OZXe7B {
+  background-color: transparent;
+  bottom: calc(45.98% - 9px);
+  height: 19px;
+  left: calc(44.69% - 57px);
+  letter-spacing: 0.00px;
+  line-height: 14px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 128px;
+}
+
+.heizung-767 .rechteck-251-OZXe7B {
+  background-color: var(--bright-yellow);
+  border-radius: 7px;
+  bottom: calc(46.75% - 19px);
+  height: 41px;
+  position: absolute;
+  right: calc(25.27% - 27px);
+  width: 106px;
+}
+
+.heizung-767 .hochladen-OZXe7B {
+  background-color: transparent;
+  bottom: calc(45.49% - 9px);
+  height: 19px;
+  letter-spacing: 0.00px;
+  line-height: 14px;
+  position: absolute;
+  right: calc(26.81% - 18px);
+  text-align: left;
+  white-space: nowrap;
+  width: 66px;
+}
+
+.heizung-767 .speichern-y5m3xm {
+  background-color: transparent;
+  bottom: 309px;
+  height: 95px;
+  position: absolute;
+  right: 23px;
+  width: 313px;
+}
+
+.heizung-767 .gruppe-1545-nMzEuf {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .rechteck-240-AST55q {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .speichern-und-weiter-AST55q {
+  background-color: transparent;
+  bottom: calc(44.07% - 16px);
+  height: 36px;
+  left: 17px;
+  letter-spacing: 0.00px;
+  line-height: 29px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% - 32px);
+}
+
+.heizung-767 .ueberspringen-y5m3xm {
+  background-color: transparent;
+  bottom: calc(11.31% - 4px);
+  height: 39px;
+  left: calc(31.61% - 39px);
+  position: absolute;
+  width: 123px;
+}
+
+.heizung-767 .pfad-568-r7g3El {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-767 .berspringen-r7g3El {
+  background-color: transparent;
+  bottom: calc(29.95% - 6px);
+  height: 19px;
+  left: 17px;
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% - 33px);
+}
+
+.heizung-767 .zurueck-y5m3xm {
+  background-color: transparent;
+  bottom: calc(11.31% - 4px);
+  height: 39px;
+  left: calc(3.55% - 4px);
+  position: absolute;
+  width: 123px;
+}
+
+.heizung-767 .pfad-568-RqkHeT {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.heizung-767 .zurck-RqkHeT {
+  background-color: transparent;
+  bottom: calc(29.95% - 6px);
+  height: 19px;
+  letter-spacing: 0.00px;
+  line-height: 9px;
+  position: absolute;
+  right: calc(48.68% - 23px);
+  text-align: left;
+  white-space: nowrap;
+  width: 47px;
+}
+
+.heizung-767 .rechteck-21-y5m3xm {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: calc(100.04% - 109px);
+  width: 100%;
+}
+
+.heizung-767 .rechteck-21-y5m3xm.bp2-animate-enter {
+  animation: bp2-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-767 .gruppe-1454-y5m3xm {
+  background-color: transparent;
+  bottom: 0.46%;
+  height: 60px;
+  position: absolute;
+  right: calc(35.19% - 256px);
+  width: 728px;
+}
+
+.heizung-767 .shs-montage-express-gxDWZ3 {
+  background-color: transparent;
+  display: block;
+  height: 18px;
+  left: 21px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: calc(100.00% - 51px);
+}
+
+.heizung-767 .shs-montage-express-gxDWZ3.bp2-animate-enter1 {
+  animation: bp2-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-767 .impressum-gxDWZ3 {
+  background-color: transparent;
+  bottom: 0px;
+  cursor: pointer;
+  display: block;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(21.52% - 19px);
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 87px;
+}
+
+.heizung-767 .impressum-gxDWZ3.bp2-animate-enter2 {
+  animation: bp2-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-767 .impressum-gxDWZ3:hover {
+  filter: grayscale(100%);
+}
+
+.heizung-767 .datenschutz-gxDWZ3 {
+  background-color: transparent;
+  bottom: -1px;
+  cursor: pointer;
+  display: block;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 105px;
+}
+
+.heizung-767 .datenschutz-gxDWZ3.bp2-animate-enter3 {
+  animation: bp2-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-767 .datenschutz-gxDWZ3:hover {
+  filter: grayscale(100%);
+}
+
+.heizung-767 .x-gxDWZ3 {
+  background-color: transparent;
+  bottom: 0px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  right: 121px;
+  text-align: left;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.heizung-767 .x-gxDWZ3.bp2-animate-enter4 {
+  animation: bp2-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-767 .c-gxDWZ3 {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 400;
+  height: 10px;
+  left: 3px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -2px;
+  white-space: nowrap;
+  width: 6px;
+}
+
+.heizung-767 .c-gxDWZ3.bp2-animate-enter5 {
+  animation: bp2-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-767 .ellipse-12-gxDWZ3 {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 4.86px/5px;
+  display: block;
+  height: 10px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: 1px;
+  width: 10px;
+}
+
+.heizung-767 .ellipse-12-gxDWZ3.bp2-animate-enter6 {
+  animation: bp2-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.heizung-767 .gruppe-1652-y5m3xm {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: calc(8.75% - 27px);
+  top: calc(19.08% - 21px);
+  width: 313px;
+}
+
+.heizung-767 .rechteck-308-qHqwXg {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .wie-wird-warmwasser-erzeugt-qHqwXg {
+  background-color: transparent;
+  height: 40px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(31.88% - 13px);
+  white-space: nowrap;
+  width: 207px;
+}
+
+.heizung-767 .heizungwarm-qHqwXg {
+  background-color: transparent;
+  bottom: calc(29.49% - 9px);
+  height: 31px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 86px);
+}
+
+.heizung-767 .solarthermie-eYxd3Q {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: 146px;
+}
+
+.heizung-767 .polygon-26-eYxd3Q {
+  background-color: transparent;
+  height: calc(100.00% - 11px);
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 6px;
+  width: 26px;
+}
+
+.heizung-767 .gruppe-1594-y5m3xm {
+  background-color: transparent;
+  height: 109px;
+  position: absolute;
+  right: calc(9.21% - 29px);
+  top: calc(13.59% - 15px);
+  width: 313px;
+}
+
+.heizung-767 .rechteck-307-D4O0lO {
+  background-color: var(--white);
+  border: 1px solid;
+  border-color: var(--black);
+  border-radius: 7px;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .wie-heizen-sie-D4O0lO {
+  background-color: transparent;
+  height: 62px;
+  left: 44px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0.4;
+  position: absolute;
+  text-align: left;
+  top: calc(45.74% - 28px);
+  white-space: nowrap;
+  width: 117px;
+}
+
+.heizung-767 .heizungwie-D4O0lO {
+  background-color: transparent;
+  bottom: calc(29.49% - 9px);
+  height: 31px;
+  left: 45px;
+  position: absolute;
+  width: calc(100.00% - 83px);
+}
+
+.heizung-767 .fuboden-wand-ixv1kj {
+  background-color: transparent;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 25px;
+  opacity: 0.86;
+  position: absolute;
+  text-align: left;
+  top: 3px;
+  white-space: nowrap;
+  width: calc(100.00% - 31px);
+}
+
+.heizung-767 .pfad-717-ixv1kj {
+  background-color: transparent;
+  height: 20px;
+  object-fit: cover;
+  position: absolute;
+  right: 0px;
+  top: 4px;
+  width: 26px;
+}
+
+.heizung-767 .gruppe-1624-y5m3xm {
+  background-color: transparent;
+  height: 172px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .gruppe-5-8XKgyh {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .rechteck-8-PsxeB9 {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .logo-PsxeB9 {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 125px);
+  left: 32px;
+  object-fit: cover;
+  position: absolute;
+  top: 13px;
+  width: 77px;
+}
+
+.heizung-767 .gruppe-1537-8XKgyh {
+  background-color: transparent;
+  height: 31.37%;
+  left: 19.91%;
+  position: absolute;
+  top: 48.58%;
+  width: 60.17%;
+}
+
+.heizung-767 .haushalt-v2bMIG {
+  background-color: transparent;
+  height: 17px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 49px;
+}
+
+.heizung-767 .heizung-v2bMIG {
+  background-color: transparent;
+  height: 17px;
+  left: calc(25.52% - 11px);
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 45px;
+}
+
+.heizung-767 .strom-v2bMIG {
+  background-color: transparent;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: calc(49.77% - 17px);
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 34px;
+}
+
+.heizung-767 .technisches-v2bMIG {
+  background-color: transparent;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: calc(23.65% - 16px);
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 67px;
+}
+
+.heizung-767 .kontakt-v2bMIG {
+  background-color: transparent;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 12px;
+  position: absolute;
+  right: 3px;
+  text-align: left;
+  top: 2px;
+  white-space: nowrap;
+  width: 42px;
+}
+
+.heizung-767 .gruppe-1532-v2bMIG {
+  background-color: transparent;
+  bottom: 1px;
+  height: 34px;
+  left: 1px;
+  position: absolute;
+  width: 50px;
+}
+
+.heizung-767 .rechteck-226-hiiUeI {
+  background-color: transparent;
+  border: 1.5px solid;
+  border-color: var(--forest-green);
+  height: 100%;
+  left: 0px;
+  position: relative;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .gruppe-1533-v2bMIG {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  left: calc(25.00% - 12px);
+  position: absolute;
+  width: 50px;
+}
+
+.heizung-767 .rechteck-226-QzPpg4 {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .rechteck-332-QzPpg4 {
+  background-color: var(--fun-green);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .x2-QzPpg4 {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.28% - 6px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 13px;
+}
+
+.heizung-767 .gruppe-1621-v2bMIG {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  left: calc(50.00% - 25px);
+  position: absolute;
+  width: 50px;
+}
+
+.heizung-767 .rechteck-226-mDNjsK {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .rechteck-332-mDNjsK {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .x3-mDNjsK {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.20% - 7px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.heizung-767 .gruppe-1622-v2bMIG {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  position: absolute;
+  right: calc(25.00% - 12px);
+  width: 50px;
+}
+
+.heizung-767 .rechteck-226-Gx2rPR {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .rechteck-332-Gx2rPR {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .x4-Gx2rPR {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.20% - 7px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.heizung-767 .gruppe-1623-v2bMIG {
+  background-color: transparent;
+  bottom: 0px;
+  height: 34px;
+  position: absolute;
+  right: 1px;
+  width: 50px;
+}
+
+.heizung-767 .rechteck-226-v7UaVR {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .rechteck-332-v7UaVR {
+  background-color: var(--mischka);
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.heizung-767 .x5-v7UaVR {
+  background-color: transparent;
+  height: calc(100.00% - 7px);
+  letter-spacing: 0.00px;
+  line-height: 21px;
+  position: absolute;
+  right: calc(47.20% - 7px);
+  text-align: left;
+  top: 6px;
+  white-space: nowrap;
+  width: 14px;
+}
+
+.heizung-767 .icon-check_mark-8XKgyh {
+  background-color: transparent;
+  bottom: calc(27.33% - 5px);
+  height: 18px;
+  left: calc(22.31% - 5px);
+  object-fit: cover;
+  position: absolute;
+  width: 22px;
+}
+@media screen and (max-width: 766px) {
+  .screen.full-project { 
+    display: none;
+   }
+  .screen.heizung-1200 { 
+    display: none;
+   }
+  .screen.heizung-767 { 
+    display: none;
+   }
+}
+@media screen and (min-width: 767px) and (max-width: 1199px) {
+  .screen.full-project { 
+    display: none;
+   }
+  .screen.heizung-1200 { 
+    display: none;
+   }
+  .screen.heizung-375 { 
+    display: none;
+   }
+}
+@media screen and (min-width: 1200px) and (max-width: 1919px) {
+  .screen.full-project { 
+    display: none;
+   }
+  .screen.heizung-767 { 
+    display: none;
+   }
+  .screen.heizung-375 { 
+    display: none;
+   }
+}
+@media screen and (min-width: 1920px) {
+  .screen.heizung-1200 { 
+    display: none;
+   }
+  .screen.heizung-767 { 
+    display: none;
+   }
+  .screen.heizung-375 { 
+    display: none;
+   }
+}

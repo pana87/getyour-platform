@@ -1,0 +1,2212 @@
+/* screen - angebotsseite */
+
+.angebotsseite {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 1065px;
+  min-width: 1920px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.angebotsseite .rechteck-21-n0Iqbu {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  bottom: 0px;
+  display: block;
+  height: 118px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.angebotsseite .rechteck-21-n0Iqbu.bp4-animate-enter {
+  animation: bp4-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite .shs-montage-express-n0Iqbu {
+  background-color: transparent;
+  bottom: 53px;
+  display: block;
+  height: 26px;
+  left: 243px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 988px;
+}
+
+.angebotsseite .shs-montage-express-n0Iqbu.bp4-animate-enter1 {
+  animation: bp4-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite .impressum-n0Iqbu {
+  background-color: transparent;
+  bottom: 54px;
+  cursor: pointer;
+  display: block;
+  height: 25px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(25.91% - 37px);
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 141px;
+}
+
+.angebotsseite .impressum-n0Iqbu.bp4-animate-enter2 {
+  animation: bp4-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite .impressum-n0Iqbu:hover {
+  filter: grayscale(100%);
+}
+
+.angebotsseite .datenschutz-n0Iqbu {
+  background-color: transparent;
+  bottom: 54px;
+  cursor: pointer;
+  display: block;
+  height: 25px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: 213px;
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 172px;
+}
+
+.angebotsseite .datenschutz-n0Iqbu.bp4-animate-enter3 {
+  animation: bp4-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite .datenschutz-n0Iqbu:hover {
+  filter: grayscale(100%);
+}
+
+.angebotsseite .x-n0Iqbu {
+  background-color: transparent;
+  bottom: 53px;
+  display: block;
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  right: calc(33.19% - 5px);
+  text-align: left;
+  white-space: nowrap;
+  width: 16px;
+}
+
+.angebotsseite .x-n0Iqbu.bp4-animate-enter4 {
+  animation: bp4-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite .x-xw8QtD {
+  background-color: transparent;
+  bottom: 53px;
+  display: block;
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  right: calc(21.80% - 3px);
+  text-align: left;
+  white-space: nowrap;
+  width: 16px;
+}
+
+.angebotsseite .x-xw8QtD.bp4-animate-enter5 {
+  animation: bp4-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite .c-n0Iqbu {
+  background-color: transparent;
+  bottom: 64px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  left: 219px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.angebotsseite .c-n0Iqbu.bp4-animate-enter6 {
+  animation: bp4-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite .ellipse-12-n0Iqbu {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 8px;
+  bottom: 58px;
+  display: block;
+  height: 16px;
+  left: 215px;
+  opacity: 0;
+  position: absolute;
+  width: 16px;
+}
+
+.angebotsseite .ellipse-12-n0Iqbu.bp4-animate-enter7 {
+  animation: bp4-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite .gruppe-1466-n0Iqbu {
+  background-color: transparent;
+  height: 601px;
+  position: absolute;
+  right: calc(50.00% - 826px);
+  top: calc(46.75% - 281px);
+  width: 1652px;
+}
+
+.angebotsseite .gruppe-1465-OUECbc {
+  background-color: transparent;
+  height: 100%;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 789px;
+}
+
+.angebotsseite .pfad-27-ixFVZ7 {
+  background-color: transparent;
+  bottom: 55px;
+  height: 2px;
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+
+.angebotsseite .pfad-28-ixFVZ7 {
+  background-color: transparent;
+  height: 77px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(48.02% - 30px);
+  top: calc(25.75% - 20px);
+  width: 63px;
+}
+
+.angebotsseite .gruppe-1464-ixFVZ7 {
+  background-color: transparent;
+  height: 193px;
+  position: absolute;
+  right: calc(48.19% - 70px);
+  top: 0px;
+  width: 146px;
+}
+
+.angebotsseite .ellipse-15-QL4xXA {
+  background-color: var(--puce);
+  border-radius: 55.85px;
+  bottom: 20px;
+  height: 112px;
+  position: absolute;
+  right: 5px;
+  width: 112px;
+}
+
+.angebotsseite .pfad-29-QL4xXA {
+  background-color: transparent;
+  height: calc(100.00% - 16px);
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.angebotsseite .pfad-30-QL4xXA {
+  background-color: transparent;
+  bottom: 1px;
+  height: 110px;
+  left: calc(33.08% - 15px);
+  object-fit: cover;
+  position: absolute;
+  width: 46px;
+}
+
+.angebotsseite .pfad-31-ixFVZ7 {
+  background-color: transparent;
+  bottom: 1px;
+  height: 35px;
+  left: calc(43.21% - 56px);
+  object-fit: cover;
+  position: absolute;
+  width: 130px;
+}
+
+.angebotsseite .pfad-32-ixFVZ7 {
+  background-color: transparent;
+  bottom: calc(33.22% - 15px);
+  height: 46px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(48.00% - 69px);
+  width: 144px;
+}
+
+.angebotsseite .pfad-33-ixFVZ7 {
+  background-color: transparent;
+  bottom: calc(29.42% - 45px);
+  height: 153px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(29.81% - 25px);
+  width: 85px;
+}
+
+.angebotsseite .pfad-34-ixFVZ7 {
+  background-color: transparent;
+  height: 183px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(46.99% - 92px);
+  top: calc(47.87% - 88px);
+  width: 196px;
+}
+
+.angebotsseite .pfad-35-ixFVZ7 {
+  background-color: transparent;
+  bottom: calc(22.91% - 18px);
+  height: 77px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(48.34% - 90px);
+  width: 187px;
+}
+
+.angebotsseite .pfad-36-ixFVZ7 {
+  background-color: transparent;
+  bottom: 0px;
+  height: 129px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(38.52% - 176px);
+  width: 457px;
+}
+
+.angebotsseite .pfad-37-ixFVZ7 {
+  background-color: transparent;
+  bottom: 36px;
+  height: 41px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(41.96% - 34px);
+  width: 81px;
+}
+
+.angebotsseite .pfad-38-ixFVZ7 {
+  background-color: transparent;
+  height: 116px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(33.59% - 19px);
+  top: calc(47.36% - 55px);
+  width: 57px;
+}
+
+.angebotsseite .pfad-39-ixFVZ7 {
+  background-color: transparent;
+  bottom: calc(28.07% - 43px);
+  height: 153px;
+  left: calc(34.13% - 28px);
+  object-fit: cover;
+  position: absolute;
+  width: 81px;
+}
+
+.angebotsseite .pfad-40-ixFVZ7 {
+  background-color: transparent;
+  height: 116px;
+  left: calc(37.38% - 21px);
+  object-fit: cover;
+  position: absolute;
+  top: calc(47.36% - 55px);
+  width: 57px;
+}
+
+.angebotsseite .ellipse-16-ixFVZ7 {
+  background-color: var(--puce);
+  border-radius: 24px/35.5px;
+  bottom: calc(23.18% - 16px);
+  height: 71px;
+  position: absolute;
+  right: calc(25.18% - 12px);
+  width: 48px;
+}
+
+.angebotsseite .ellipse-17-ixFVZ7 {
+  background-color: var(--puce);
+  border-radius: 24px/35.5px;
+  bottom: calc(22.05% - 16px);
+  height: 71px;
+  left: calc(29.32% - 14px);
+  position: absolute;
+  width: 48px;
+}
+
+.angebotsseite .pfad-41-ixFVZ7 {
+  background-color: transparent;
+  bottom: 31px;
+  height: 62px;
+  left: calc(48.61% - 51px);
+  object-fit: cover;
+  position: absolute;
+  width: 104px;
+}
+
+.angebotsseite .hier-knnen-sich-sie-OUECbc {
+  background-color: transparent;
+  color: var(--black);
+  display: block;
+  font-family: var(--font-family-ligurino-bold);
+  font-size: var(--font-size-l);
+  font-style: normal;
+  font-weight: 700;
+  height: 268px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 88px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 80px;
+  transform: translate(-25px, 0);
+  white-space: nowrap;
+  width: 892px;
+}
+
+.angebotsseite .hier-knnen-sich-sie-OUECbc.bp4-animate-enter8 {
+  animation: bp4-animate-enter8-frames 3.00s ease 0.00s 1 normal forwards;
+  display: block;
+  opacity: 0;
+  transform: translate(-25px, 0);
+}
+
+@keyframes bp4-animate-enter8-frames {
+  from{opacity: 0;
+transform: translate(-25px, 0);
+}
+to{opacity: 1;
+transform: translate(0,0);
+}
+}
+
+.angebotsseite .gruppe-5-n0Iqbu {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.angebotsseite .rechteck-8-7ajdxV {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.angebotsseite .logo-7ajdxV {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 23px);
+  left: 86px;
+  object-fit: cover;
+  position: absolute;
+  top: 11px;
+  width: 101px;
+}
+/* screen - angebotsseite-1200 */
+
+.angebotsseite-1200 {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 1065px;
+  min-width: 1200px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.angebotsseite-1200 .gruppe-1466-Ox3lb4 {
+  background-color: transparent;
+  height: 208px;
+  left: calc(15.01% - 95px);
+  position: absolute;
+  top: calc(29.40% - 61px);
+  width: 635px;
+}
+
+.angebotsseite-1200 .hier-knnen-sich-sie-SjzIJD {
+  background-color: transparent;
+  color: var(--black);
+  display: block;
+  font-family: var(--font-family-ligurino-bold);
+  font-size: var(--font-size-m);
+  font-style: normal;
+  font-weight: 700;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 72px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -4px;
+  transform: translate(-25px, 0);
+  white-space: nowrap;
+  width: calc(100.00% + 2px);
+}
+
+.angebotsseite-1200 .hier-knnen-sich-sie-SjzIJD.bp3-animate-enter {
+  animation: bp3-animate-enter-frames 3.00s ease 0.00s 1 normal forwards;
+  display: block;
+  opacity: 0;
+  transform: translate(-25px, 0);
+}
+
+@keyframes bp3-animate-enter-frames {
+  from{opacity: 0;
+transform: translate(-25px, 0);
+}
+to{opacity: 1;
+transform: translate(0,0);
+}
+}
+
+.angebotsseite-1200 .gruppe-1465-Ox3lb4 {
+  background-color: transparent;
+  bottom: calc(39.25% - 236px);
+  height: 601px;
+  left: calc(111.71% - 881px);
+  position: absolute;
+  width: 789px;
+}
+
+.angebotsseite-1200 .pfad-27-zIqamY {
+  background-color: transparent;
+  bottom: 55px;
+  height: 2px;
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+
+.angebotsseite-1200 .pfad-28-zIqamY {
+  background-color: transparent;
+  height: 77px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(48.02% - 30px);
+  top: calc(25.75% - 20px);
+  width: 63px;
+}
+
+.angebotsseite-1200 .gruppe-1464-zIqamY {
+  background-color: transparent;
+  height: 193px;
+  position: absolute;
+  right: calc(48.19% - 70px);
+  top: 0px;
+  width: 146px;
+}
+
+.angebotsseite-1200 .ellipse-15-UHD3Rk {
+  background-color: var(--puce);
+  border-radius: 55.85px;
+  bottom: 20px;
+  height: 112px;
+  position: absolute;
+  right: 5px;
+  width: 112px;
+}
+
+.angebotsseite-1200 .pfad-29-UHD3Rk {
+  background-color: transparent;
+  height: calc(100.00% - 16px);
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.angebotsseite-1200 .pfad-30-UHD3Rk {
+  background-color: transparent;
+  bottom: 0px;
+  height: 110px;
+  left: calc(33.08% - 15px);
+  object-fit: cover;
+  position: absolute;
+  width: 46px;
+}
+
+.angebotsseite-1200 .pfad-31-zIqamY {
+  background-color: transparent;
+  bottom: 1px;
+  height: 35px;
+  left: calc(43.21% - 56px);
+  object-fit: cover;
+  position: absolute;
+  width: 130px;
+}
+
+.angebotsseite-1200 .pfad-32-zIqamY {
+  background-color: transparent;
+  bottom: calc(33.22% - 15px);
+  height: 46px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(48.00% - 69px);
+  width: 144px;
+}
+
+.angebotsseite-1200 .pfad-33-zIqamY {
+  background-color: transparent;
+  bottom: calc(29.42% - 45px);
+  height: 153px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(29.81% - 25px);
+  width: 85px;
+}
+
+.angebotsseite-1200 .pfad-34-zIqamY {
+  background-color: transparent;
+  height: 183px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(46.99% - 92px);
+  top: calc(47.87% - 88px);
+  width: 196px;
+}
+
+.angebotsseite-1200 .pfad-35-zIqamY {
+  background-color: transparent;
+  bottom: calc(22.91% - 18px);
+  height: 77px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(48.34% - 90px);
+  width: 187px;
+}
+
+.angebotsseite-1200 .pfad-36-zIqamY {
+  background-color: transparent;
+  bottom: 0px;
+  height: 129px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(38.52% - 176px);
+  width: 457px;
+}
+
+.angebotsseite-1200 .pfad-37-zIqamY {
+  background-color: transparent;
+  bottom: 36px;
+  height: 41px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(41.96% - 34px);
+  width: 81px;
+}
+
+.angebotsseite-1200 .pfad-38-zIqamY {
+  background-color: transparent;
+  height: 116px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(33.59% - 19px);
+  top: calc(47.36% - 55px);
+  width: 57px;
+}
+
+.angebotsseite-1200 .pfad-39-zIqamY {
+  background-color: transparent;
+  bottom: calc(28.07% - 43px);
+  height: 153px;
+  left: calc(34.13% - 28px);
+  object-fit: cover;
+  position: absolute;
+  width: 81px;
+}
+
+.angebotsseite-1200 .pfad-40-zIqamY {
+  background-color: transparent;
+  height: 116px;
+  left: calc(37.38% - 21px);
+  object-fit: cover;
+  position: absolute;
+  top: calc(47.36% - 55px);
+  width: 57px;
+}
+
+.angebotsseite-1200 .ellipse-16-zIqamY {
+  background-color: var(--puce);
+  border-radius: 24px/35.5px;
+  bottom: calc(23.18% - 16px);
+  height: 71px;
+  position: absolute;
+  right: calc(25.18% - 12px);
+  width: 48px;
+}
+
+.angebotsseite-1200 .ellipse-17-zIqamY {
+  background-color: var(--puce);
+  border-radius: 24px/35.5px;
+  bottom: calc(22.05% - 16px);
+  height: 71px;
+  left: calc(29.32% - 14px);
+  position: absolute;
+  width: 48px;
+}
+
+.angebotsseite-1200 .pfad-41-zIqamY {
+  background-color: transparent;
+  bottom: 31px;
+  height: 62px;
+  left: calc(48.61% - 51px);
+  object-fit: cover;
+  position: absolute;
+  width: 104px;
+}
+
+.angebotsseite-1200 .rechteck-21-Ox3lb4 {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  bottom: 0px;
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.angebotsseite-1200 .rechteck-21-Ox3lb4.bp3-animate-enter1 {
+  animation: bp3-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-1200 .gruppe-1454-Ox3lb4 {
+  background-color: transparent;
+  bottom: calc(2.87% - 1px);
+  height: 18px;
+  left: calc(50.00% - 480px);
+  position: absolute;
+  width: 960px;
+}
+
+.angebotsseite-1200 .shs-montage-express-w7WN2D {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  left: 18px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -1px;
+  white-space: nowrap;
+  width: 635px;
+}
+
+.angebotsseite-1200 .shs-montage-express-w7WN2D.bp3-animate-enter2 {
+  animation: bp3-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-1200 .impressum-w7WN2D {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(18.23% - 18px);
+  text-align: left;
+  top: 0px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 99px;
+}
+
+.angebotsseite-1200 .impressum-w7WN2D.bp3-animate-enter3 {
+  animation: bp3-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-1200 .impressum-w7WN2D:hover {
+  filter: grayscale(100%);
+}
+
+.angebotsseite-1200 .datenschutz-w7WN2D {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  top: 1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.angebotsseite-1200 .datenschutz-w7WN2D.bp3-animate-enter4 {
+  animation: bp3-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-1200 .datenschutz-w7WN2D:hover {
+  filter: grayscale(100%);
+}
+
+.angebotsseite-1200 .x-w7WN2D {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  right: calc(28.95% - 3px);
+  text-align: left;
+  top: 0px;
+  white-space: nowrap;
+  width: 12px;
+}
+
+.angebotsseite-1200 .x-w7WN2D.bp3-animate-enter5 {
+  animation: bp3-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-1200 .x-F9Jgqc {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  right: 137px;
+  text-align: left;
+  top: 0px;
+  white-space: nowrap;
+  width: 12px;
+}
+
+.angebotsseite-1200 .x-F9Jgqc.bp3-animate-enter6 {
+  animation: bp3-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-1200 .c-w7WN2D {
+  background-color: transparent;
+  bottom: calc(121.43% - 13px);
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 400;
+  height: 11px;
+  left: 3px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 7px;
+}
+
+.angebotsseite-1200 .c-w7WN2D.bp3-animate-enter7 {
+  animation: bp3-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-1200 .ellipse-12-w7WN2D {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 5.5px/5px;
+  display: block;
+  height: 10px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: calc(37.49% - 4px);
+  width: 11px;
+}
+
+.angebotsseite-1200 .ellipse-12-w7WN2D.bp3-animate-enter8 {
+  animation: bp3-animate-enter8-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter8-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-1200 .gruppe-5-Ox3lb4 {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.angebotsseite-1200 .rechteck-8-UEUw21 {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.angebotsseite-1200 .logo-UEUw21 {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 23px);
+  left: 86px;
+  object-fit: cover;
+  position: absolute;
+  top: 11px;
+  width: 101px;
+}
+/* screen - angebotsseite-375 */
+
+.angebotsseite-375 {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 1065px;
+  min-width: 374px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.angebotsseite-375 .gruppe-1467-syvVOr {
+  background-color: transparent;
+  bottom: calc(46.72% - 299px);
+  height: 641px;
+  left: calc(45.12% - 146px);
+  position: absolute;
+  width: 324px;
+}
+
+.angebotsseite-375 .gruppe-1466-pw79tH {
+  background-color: transparent;
+  height: 120px;
+  left: calc(50.00% - 162px);
+  position: absolute;
+  top: 0px;
+  width: 324px;
+}
+
+.angebotsseite-375 .hier-knnen-sich-sie-IxIQ1q {
+  background-color: transparent;
+  color: var(--black);
+  display: block;
+  font-family: var(--font-family-ligurino-bold);
+  font-size: var(--font-size-s);
+  font-style: normal;
+  font-weight: 700;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 44px;
+  opacity: 0;
+  position: absolute;
+  text-align: center;
+  top: -6px;
+  transform: translate(-25px, 0);
+  white-space: nowrap;
+  width: calc(100.00% + 2px);
+}
+
+.angebotsseite-375 .hier-knnen-sich-sie-IxIQ1q.bp1-animate-enter {
+  animation: bp1-animate-enter-frames 3.00s ease 0.00s 1 normal forwards;
+  display: block;
+  opacity: 0;
+  transform: translate(-25px, 0);
+}
+
+@keyframes bp1-animate-enter-frames {
+  from{opacity: 0;
+transform: translate(-25px, 0);
+}
+to{opacity: 1;
+transform: translate(0,0);
+}
+}
+
+.angebotsseite-375 .gruppe-1465-pw79tH {
+  background-color: transparent;
+  bottom: 0px;
+  height: 376px;
+  position: absolute;
+  right: calc(43.58% - 125px);
+  width: 286px;
+}
+
+.angebotsseite-375 .pfad-28-xUUNMZ {
+  background-color: transparent;
+  height: 48px;
+  left: calc(43.97% - 17px);
+  object-fit: cover;
+  position: absolute;
+  top: calc(25.75% - 12px);
+  width: 39px;
+}
+
+.angebotsseite-375 .gruppe-1464-xUUNMZ {
+  background-color: transparent;
+  height: 121px;
+  left: calc(41.47% - 38px);
+  position: absolute;
+  top: 0px;
+  width: 91px;
+}
+
+.angebotsseite-375 .ellipse-15-KToBvK {
+  background-color: var(--puce);
+  border-radius: 34.98px;
+  bottom: 12px;
+  height: 70px;
+  position: absolute;
+  right: 3px;
+  width: 70px;
+}
+
+.angebotsseite-375 .pfad-29-KToBvK {
+  background-color: transparent;
+  height: calc(100.00% - 10px);
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.angebotsseite-375 .pfad-30-KToBvK {
+  background-color: transparent;
+  bottom: 1px;
+  height: 69px;
+  left: calc(33.08% - 10px);
+  object-fit: cover;
+  position: absolute;
+  width: 29px;
+}
+
+.angebotsseite-375 .pfad-31-xUUNMZ {
+  background-color: transparent;
+  bottom: 1px;
+  height: 22px;
+  left: calc(24.59% - 20px);
+  object-fit: cover;
+  position: absolute;
+  width: 82px;
+}
+
+.angebotsseite-375 .pfad-32-xUUNMZ {
+  background-color: transparent;
+  bottom: calc(33.22% - 10px);
+  height: 29px;
+  left: calc(41.92% - 38px);
+  object-fit: cover;
+  position: absolute;
+  width: 90px;
+}
+
+.angebotsseite-375 .pfad-33-xUUNMZ {
+  background-color: transparent;
+  bottom: calc(29.42% - 28px);
+  height: 96px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(22.04% - 12px);
+  width: 53px;
+}
+
+.angebotsseite-375 .pfad-34-xUUNMZ {
+  background-color: transparent;
+  height: 115px;
+  left: calc(42.21% - 52px);
+  object-fit: cover;
+  position: absolute;
+  top: calc(47.87% - 55px);
+  width: 123px;
+}
+
+.angebotsseite-375 .pfad-35-xUUNMZ {
+  background-color: transparent;
+  bottom: calc(22.91% - 11px);
+  height: 48px;
+  left: calc(39.55% - 46px);
+  object-fit: cover;
+  position: absolute;
+  width: 117px;
+}
+
+.angebotsseite-375 .pfad-36-xUUNMZ {
+  background-color: transparent;
+  bottom: 1px;
+  height: 81px;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+
+.angebotsseite-375 .pfad-37-xUUNMZ {
+  background-color: transparent;
+  bottom: 23px;
+  height: 26px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(45.00% - 23px);
+  width: 51px;
+}
+
+.angebotsseite-375 .pfad-38-xUUNMZ {
+  background-color: transparent;
+  height: 73px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(29.50% - 11px);
+  top: calc(47.36% - 34px);
+  width: 36px;
+}
+
+.angebotsseite-375 .pfad-39-xUUNMZ {
+  background-color: transparent;
+  bottom: calc(28.07% - 27px);
+  height: 96px;
+  left: 23px;
+  object-fit: cover;
+  position: absolute;
+  width: 50px;
+}
+
+.angebotsseite-375 .pfad-40-xUUNMZ {
+  background-color: transparent;
+  height: 73px;
+  left: calc(17.33% - 6px);
+  object-fit: cover;
+  position: absolute;
+  top: calc(47.36% - 34px);
+  width: 36px;
+}
+
+.angebotsseite-375 .ellipse-16-xUUNMZ {
+  background-color: var(--puce);
+  border-radius: 15.03px/22.24px;
+  bottom: calc(23.18% - 10px);
+  height: 44px;
+  position: absolute;
+  right: 37px;
+  width: 30px;
+}
+
+.angebotsseite-375 .ellipse-17-xUUNMZ {
+  background-color: var(--puce);
+  border-radius: 15.03px/22.24px;
+  bottom: calc(22.05% - 10px);
+  height: 44px;
+  left: 8px;
+  position: absolute;
+  width: 30px;
+}
+
+.angebotsseite-375 .pfad-41-xUUNMZ {
+  background-color: transparent;
+  bottom: 19px;
+  height: 39px;
+  left: calc(36.49% - 24px);
+  object-fit: cover;
+  position: absolute;
+  width: 65px;
+}
+
+.angebotsseite-375 .gruppe-1468-syvVOr {
+  background-color: transparent;
+  bottom: 0px;
+  height: 109px;
+  left: 0px;
+  position: absolute;
+  width: calc(100.00% + 1px);
+}
+
+.angebotsseite-375 .rechteck-21-MJ5Ozs {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: calc(50.00% - 54px);
+  width: 100%;
+}
+
+.angebotsseite-375 .rechteck-21-MJ5Ozs.bp1-animate-enter1 {
+  animation: bp1-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-375 .gruppe-1454-MJ5Ozs {
+  background-color: transparent;
+  bottom: calc(5.91% - 1px);
+  height: 16px;
+  position: absolute;
+  right: calc(4.66% - 10px);
+  width: 225px;
+}
+
+.angebotsseite-375 .impressum-0qmYaH {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  text-align: left;
+  top: -1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 87px;
+}
+
+.angebotsseite-375 .impressum-0qmYaH.bp1-animate-enter2 {
+  animation: bp1-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-375 .impressum-0qmYaH:hover {
+  filter: grayscale(100%);
+}
+
+.angebotsseite-375 .datenschutz-0qmYaH {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  top: -1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 105px;
+}
+
+.angebotsseite-375 .datenschutz-0qmYaH.bp1-animate-enter3 {
+  animation: bp1-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-375 .datenschutz-0qmYaH:hover {
+  filter: grayscale(100%);
+}
+
+.angebotsseite-375 .x-0qmYaH {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  left: calc(46.70% - 5px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.angebotsseite-375 .x-0qmYaH.bp1-animate-enter4 {
+  animation: bp1-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-375 .gruppe-1462-MJ5Ozs {
+  background-color: transparent;
+  height: 35px;
+  left: calc(50.00% - 168px);
+  position: absolute;
+  top: calc(34.46% - 12px);
+  width: 336px;
+}
+
+.angebotsseite-375 .shs-montage-express-gmb-h-xMQPHa {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 14px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  right: calc(45.74% - 79px);
+  text-align: left;
+  top: -1px;
+  white-space: nowrap;
+  width: 172px;
+}
+
+.angebotsseite-375 .shs-montage-express-gmb-h-xMQPHa.bp1-animate-enter5 {
+  animation: bp1-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-375 .dachmontage-elektrik-xMQPHa {
+  background-color: transparent;
+  bottom: 0px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 14px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% + 2px);
+}
+
+.angebotsseite-375 .dachmontage-elektrik-xMQPHa.bp1-animate-enter6 {
+  animation: bp1-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-375 .c-xMQPHa {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 400;
+  height: 10px;
+  left: calc(24.00% - 1px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -3px;
+  white-space: nowrap;
+  width: 6px;
+}
+
+.angebotsseite-375 .c-xMQPHa.bp1-animate-enter7 {
+  animation: bp1-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-375 .ellipse-12-xMQPHa {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 4.86px/5px;
+  display: block;
+  height: 10px;
+  left: calc(23.46% - 2px);
+  opacity: 0;
+  position: absolute;
+  top: 0px;
+  width: 10px;
+}
+
+.angebotsseite-375 .ellipse-12-xMQPHa.bp1-animate-enter8 {
+  animation: bp1-animate-enter8-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter8-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.angebotsseite-375 .gruppe-5-syvVOr {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: calc(100.00% + 1px);
+}
+
+.angebotsseite-375 .rechteck-8-xz7cGk {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.angebotsseite-375 .logo-xz7cGk {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 23px);
+  left: 25px;
+  object-fit: cover;
+  position: absolute;
+  top: 11px;
+  width: 101px;
+}
+/* screen - full-project */
+
+.full-project {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 1065px;
+  min-width: 767px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.full-project .gruppe-1467-KqxCzi {
+  background-color: transparent;
+  bottom: calc(45.29% - 334px);
+  height: 738px;
+  left: calc(50.00% - 318px);
+  position: absolute;
+  width: 636px;
+}
+
+.full-project .gruppe-1466-foSUOL {
+  background-color: transparent;
+  height: 202px;
+  left: calc(50.00% - 318px);
+  position: absolute;
+  top: 0px;
+  width: 636px;
+}
+
+.full-project .hier-knnen-sich-sie-8I2X5E {
+  background-color: transparent;
+  color: var(--black);
+  display: block;
+  font-family: var(--font-family-ligurino-bold);
+  font-size: var(--font-size-m);
+  font-style: normal;
+  font-weight: 700;
+  height: calc(100.00% + 2px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 69px;
+  opacity: 0;
+  position: absolute;
+  text-align: center;
+  top: -2px;
+  transform: translate(-25px, 0);
+  white-space: nowrap;
+  width: calc(100.00% + 2px);
+}
+
+.full-project .hier-knnen-sich-sie-8I2X5E.bp2-animate-enter {
+  animation: bp2-animate-enter-frames 3.00s ease 0.00s 1 normal forwards;
+  display: block;
+  opacity: 0;
+  transform: translate(-25px, 0);
+}
+
+@keyframes bp2-animate-enter-frames {
+  from{opacity: 0;
+transform: translate(-25px, 0);
+}
+to{opacity: 1;
+transform: translate(0,0);
+}
+}
+
+.full-project .gruppe-1465-foSUOL {
+  background-color: transparent;
+  height: 468px;
+  left: calc(50.00% - 307px);
+  position: absolute;
+  top: calc(100.00% - 468px);
+  width: 614px;
+}
+
+.full-project .pfad-27-dbDx57 {
+  background-color: transparent;
+  bottom: 43px;
+  height: 2px;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+
+.full-project .pfad-28-dbDx57 {
+  background-color: transparent;
+  height: 60px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(48.02% - 24px);
+  top: calc(25.75% - 15px);
+  width: 49px;
+}
+
+.full-project .gruppe-1464-dbDx57 {
+  background-color: transparent;
+  height: 150px;
+  position: absolute;
+  right: calc(48.19% - 55px);
+  top: 0px;
+  width: 113px;
+}
+
+.full-project .ellipse-15-DTd59o {
+  background-color: var(--puce);
+  border-radius: 43.48px;
+  bottom: 15px;
+  height: 87px;
+  position: absolute;
+  right: 4px;
+  width: 87px;
+}
+
+.full-project .pfad-29-DTd59o {
+  background-color: transparent;
+  height: calc(100.00% - 13px);
+  left: 1px;
+  object-fit: cover;
+  position: absolute;
+  top: 1px;
+  width: 100%;
+}
+
+.full-project .pfad-30-DTd59o {
+  background-color: transparent;
+  bottom: 0px;
+  height: 86px;
+  left: calc(33.08% - 12px);
+  object-fit: cover;
+  position: absolute;
+  width: 36px;
+}
+
+.full-project .pfad-31-dbDx57 {
+  background-color: transparent;
+  bottom: 1px;
+  height: 27px;
+  left: calc(43.21% - 44px);
+  object-fit: cover;
+  position: absolute;
+  width: 102px;
+}
+
+.full-project .pfad-32-dbDx57 {
+  background-color: transparent;
+  bottom: calc(33.22% - 12px);
+  height: 36px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(48.00% - 54px);
+  width: 112px;
+}
+
+.full-project .pfad-33-dbDx57 {
+  background-color: transparent;
+  bottom: calc(29.42% - 35px);
+  height: 119px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(29.81% - 20px);
+  width: 66px;
+}
+
+.full-project .pfad-34-dbDx57 {
+  background-color: transparent;
+  height: 142px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(46.99% - 72px);
+  top: calc(47.87% - 68px);
+  width: 153px;
+}
+
+.full-project .pfad-35-dbDx57 {
+  background-color: transparent;
+  bottom: calc(22.91% - 14px);
+  height: 60px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(48.34% - 70px);
+  width: 146px;
+}
+
+.full-project .pfad-36-dbDx57 {
+  background-color: transparent;
+  bottom: 1px;
+  height: 101px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(38.52% - 137px);
+  width: 355px;
+}
+
+.full-project .pfad-37-dbDx57 {
+  background-color: transparent;
+  bottom: 28px;
+  height: 32px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(41.96% - 27px);
+  width: 63px;
+}
+
+.full-project .pfad-38-dbDx57 {
+  background-color: transparent;
+  height: 90px;
+  object-fit: cover;
+  position: absolute;
+  right: calc(33.59% - 15px);
+  top: calc(47.36% - 43px);
+  width: 45px;
+}
+
+.full-project .pfad-39-dbDx57 {
+  background-color: transparent;
+  bottom: calc(28.07% - 34px);
+  height: 119px;
+  left: calc(34.13% - 21px);
+  object-fit: cover;
+  position: absolute;
+  width: 63px;
+}
+
+.full-project .pfad-40-dbDx57 {
+  background-color: transparent;
+  height: 90px;
+  left: calc(37.38% - 17px);
+  object-fit: cover;
+  position: absolute;
+  top: calc(47.36% - 43px);
+  width: 45px;
+}
+
+.full-project .ellipse-16-dbDx57 {
+  background-color: var(--puce);
+  border-radius: 18.69px/27.64px;
+  bottom: calc(23.18% - 13px);
+  height: 55px;
+  position: absolute;
+  right: calc(25.18% - 9px);
+  width: 37px;
+}
+
+.full-project .ellipse-17-dbDx57 {
+  background-color: var(--puce);
+  border-radius: 18.69px/27.64px;
+  bottom: calc(22.05% - 12px);
+  height: 55px;
+  left: calc(29.32% - 11px);
+  position: absolute;
+  width: 37px;
+}
+
+.full-project .pfad-41-dbDx57 {
+  background-color: transparent;
+  bottom: 24px;
+  height: 48px;
+  left: calc(48.61% - 39px);
+  object-fit: cover;
+  position: absolute;
+  width: 81px;
+}
+
+.full-project .rechteck-21-KqxCzi {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  bottom: 0px;
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.full-project .rechteck-21-KqxCzi.bp2-animate-enter1 {
+  animation: bp2-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .gruppe-1454-KqxCzi {
+  background-color: transparent;
+  bottom: calc(1.34% - 1px);
+  height: 60px;
+  position: absolute;
+  right: calc(35.19% - 256px);
+  width: 728px;
+}
+
+.full-project .shs-montage-express-KNDObk {
+  background-color: transparent;
+  display: block;
+  height: 18px;
+  left: 21px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: calc(100.00% - 51px);
+}
+
+.full-project .shs-montage-express-KNDObk.bp2-animate-enter2 {
+  animation: bp2-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .impressum-KNDObk {
+  background-color: transparent;
+  bottom: 0px;
+  cursor: pointer;
+  display: block;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(21.52% - 19px);
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 87px;
+}
+
+.full-project .impressum-KNDObk.bp2-animate-enter3 {
+  animation: bp2-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .impressum-KNDObk:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .datenschutz-KNDObk {
+  background-color: transparent;
+  bottom: -1px;
+  cursor: pointer;
+  display: block;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 105px;
+}
+
+.full-project .datenschutz-KNDObk.bp2-animate-enter4 {
+  animation: bp2-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .datenschutz-KNDObk:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .x-KNDObk {
+  background-color: transparent;
+  bottom: 0px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  right: 121px;
+  text-align: left;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.full-project .x-KNDObk.bp2-animate-enter5 {
+  animation: bp2-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .c-KNDObk {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 400;
+  height: 10px;
+  left: 3px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -2px;
+  white-space: nowrap;
+  width: 6px;
+}
+
+.full-project .c-KNDObk.bp2-animate-enter6 {
+  animation: bp2-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .ellipse-12-KNDObk {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 4.86px/5px;
+  display: block;
+  height: 10px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: 1px;
+  width: 10px;
+}
+
+.full-project .ellipse-12-KNDObk.bp2-animate-enter7 {
+  animation: bp2-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .gruppe-5-KqxCzi {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .rechteck-8-4Otmiw {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .logo-4Otmiw {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% - 23px);
+  left: 62px;
+  object-fit: cover;
+  position: absolute;
+  top: 11px;
+  width: 101px;
+}
+@media screen and (max-width: 766px) {
+  .screen.angebotsseite { 
+    display: none;
+   }
+  .screen.angebotsseite-1200 { 
+    display: none;
+   }
+  .screen.full-project { 
+    display: none;
+   }
+}
+@media screen and (min-width: 767px) and (max-width: 1199px) {
+  .screen.angebotsseite { 
+    display: none;
+   }
+  .screen.angebotsseite-1200 { 
+    display: none;
+   }
+  .screen.angebotsseite-375 { 
+    display: none;
+   }
+}
+@media screen and (min-width: 1200px) and (max-width: 1919px) {
+  .screen.angebotsseite { 
+    display: none;
+   }
+  .screen.full-project { 
+    display: none;
+   }
+  .screen.angebotsseite-375 { 
+    display: none;
+   }
+}
+@media screen and (min-width: 1920px) {
+  .screen.angebotsseite-1200 { 
+    display: none;
+   }
+  .screen.full-project { 
+    display: none;
+   }
+  .screen.angebotsseite-375 { 
+    display: none;
+   }
+}

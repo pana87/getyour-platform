@@ -1,0 +1,122 @@
+:root { 
+  --black: #000000;
+  --black-2: #000001;
+  --eerie-black: #181818;
+  --gallery: #ededed;
+  --star-dust: #9d9f9df0;
+  --vida-loca: #4db018dd;
+ 
+  --font-size-l2: 16px;
+  --font-size-m2: 12px;
+  --font-size-s3: 10px;
+  --font-size-s4: 11px;
+  --font-size-xl2: 25px;
+  --font-size-xs: 8px;
+  --font-size-xxl2: 28px;
+ 
+  --font-family-forma_djr_micro: "Forma DJR Micro", Helvetica;
+  --font-family-formadjr_micro-bold: "FormaDJR Micro-Bold", Helvetica;
+  --font-family-formadjr_micro-light: "FormaDJR Micro-Light", Helvetica;
+  --font-family-formadjr_micro-regular: "FormaDJR Micro-Regular", Helvetica;
+}
+.formadjrmicro-normal-black-10px {
+  color: var(--black);
+  font-family: var(--font-family-forma_djr_micro);
+  font-size: var(--font-size-s3);
+}
+
+.formadjrmicro-bold-black-10px {
+  color: var(--black);
+  font-family: var(--font-family-formadjr_micro-bold);
+  font-size: var(--font-size-s3);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.formadjrmicro-regular-normal-black-10px {
+  color: var(--black);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-s3);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-black-8px {
+  color: var(--black);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-xs);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-bold-black-16px {
+  color: var(--black);
+  font-family: var(--font-family-formadjr_micro-bold);
+  font-size: var(--font-size-l2);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.formadjrmicro-regular-normal-black-12px {
+  color: var(--black);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-m2);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-eerie-black-11px {
+  color: var(--eerie-black);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-s4);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-regular-normal-eerie-black-8px {
+  color: var(--eerie-black);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-xs);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-bold-gallery-28px {
+  color: var(--gallery);
+  font-family: var(--font-family-formadjr_micro-bold);
+  font-size: var(--font-size-xxl2);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.formadjrmicro-regular-normal-black-25px {
+  color: var(--black);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-xl2);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.formadjrmicro-light-eerie-black-10px {
+  color: var(--eerie-black);
+  font-family: var(--font-family-formadjr_micro-light);
+  font-size: var(--font-size-s3);
+  font-style: normal;
+  font-weight: 300;
+}
+
+.formadjrmicro-light-eerie-black-8px {
+  color: var(--eerie-black);
+  font-family: var(--font-family-formadjr_micro-light);
+  font-size: var(--font-size-xs);
+  font-style: normal;
+  font-weight: 300;
+}
+
+.formadjrmicro-regular-normal-black-16px {
+  color: var(--black);
+  font-family: var(--font-family-formadjr_micro-regular);
+  font-size: var(--font-size-l2);
+  font-style: normal;
+  font-weight: 400;
+}
