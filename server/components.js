@@ -3,7 +3,7 @@ const cors = require("cors")
 const Notification = require('../lib/Notification')
 const HtmlParser = require('../lib/HtmlParser')
 const app = express()
-const {platformLocation, componentsLocation} = require('../config/Location')
+const {platformLocation, componentsLocation} = require('../config/ServerLocation.js')
 
 app.use(express.json())
 app.use(cors({

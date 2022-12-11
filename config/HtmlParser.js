@@ -1,6 +1,6 @@
 const fs = require("node:fs")
 const path = require("node:path")
-const { platformLocation, authLocation, componentsLocation, dbLocation } = require("../config/Location.js")
+const { platformLocation, authLocation, componentsLocation, dbLocation } = require("../config/ServerLocation.js")
 
 const PATH_TO_FAVICON = "/img/favicon.ico"
 
@@ -34,6 +34,7 @@ const ENVIRONMENT_VARIABLES = `
 const CSS_REGEX = /type="text\/css" href="/g
 const IMG_REGEX = /src="img\//g
 const URL_REGEX = /https:\/\/get-your.de/g
+const LOCALHOST_REGEX = /http:\/\/localhost:[0-9]+/g
 const BODY_REGEX = /<\/body>/
 const SCRIPT_REGEX = /<script type="module" src="\.\/index\.js"><\/script>/g
 const ANIMA_BOILERPLATE_REGEX_1 = /<!--<meta name=description content="This site was generated with Anima\. www\.animaapp\.com"\/>-->/g
@@ -67,7 +68,9 @@ module.exports.HtmlParser = class {
   }
 
   #setUrl(html) {
-    this.html = html.replace(URL_REGEX, platformLocation.origin)
+    this.html = html
+      .replace(URL_REGEX, platformLocation.origin)
+      .replace(LOCALHOST_REGEX, platformLocation.origin)
   }
 
   #parseHtml(file) {
@@ -88,7 +91,7 @@ module.exports.HtmlParser = class {
   constructor() {
     this.html = ""
 
-    const files = getAllFiles("/static").filter(it => it.endsWith(".html"))
+    const files = getAllFiles("/client").filter(it => it.endsWith(".html"))
 
     files.forEach(file => this.#parseHtml(file))
   }
