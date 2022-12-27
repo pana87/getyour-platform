@@ -2,17 +2,24 @@ require('dotenv').config()
 const express = require('express')
 const bodyParser = require("body-parser")
 const path = require("node:path")
-const Location = require('../config/Location.js')
+// const Location = require('../config/Location.js')
 const {HtmlParser} = require('../config/HtmlParser.js')
 const Notification = require('../lib/Notification.js')
-const { fstat } = require('node:fs')
+// const { fstat } = require('node:fs')
 const app = express()
-const location = Location.platformLocation
+const { platformLocation } = require('../config/ServerLocation.js')
+const location = platformLocation
 const rawParser = bodyParser.raw()
 const jsonParser = bodyParser.json({ limit: "50mb" })
 const textParser = bodyParser.text()
-const db = require("nano")(process.env.DB)
+// const db = require("nano")(process.env.DB)
 const fs = require("node:fs")
+const { CSSParser } = require('../config/CSSParser.js')
+// const { Helper } = require('../lib/Helper.js')
+// const { nano } = require('../config/CouchDB.js')
+// console.log(nano);
+// console.log(await nano.db.list());
+// const CouchDB = require('../config/CouchDB.js')
 // const Blob = require('node:buffer').Blob
 // const multer  = require('multer')
 // const upload = multer
@@ -22,12 +29,17 @@ const fs = require("node:fs")
 // // app.use(bodyParser.urlencoded());
 // // // in latest body-parser use like below.
 // app.use(bodyParser.urlencoded({ extended: true }));
-
+// const db = db
 // const formidableMiddleware = require('express-formidable');
 
 // app.use(formidableMiddleware());
 
 new HtmlParser()
+new CSSParser()
+// new CouchDB()
+
+// const files = Helper.getAllFilesFromDirectory(".")
+// console.log(files);
 
 function dataURItoBlob(dataURI) {
   // convert base64 to raw binary data held in a string
@@ -152,7 +164,6 @@ app.get("/testing/", async (req, res) => {
 //   const result = parser.parse("/toolbox/funnel/view/")
 //   res.send(result)
 // })
-
-app.use(express.static(path.join(__dirname, "..", "static")))
+app.use(express.static(path.join(__dirname, "..", "client")))
 
 app.listen(location.port, () => Notification.warn(`platform listening on ${location.origin}`))

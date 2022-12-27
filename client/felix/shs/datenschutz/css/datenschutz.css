@@ -1,0 +1,1647 @@
+/* screen - datenschutz */
+
+.datenschutz {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 5151px;
+  min-width: 1920px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.datenschutz .rechteck-21-SVsGi2 {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  bottom: 0px;
+  display: block;
+  height: 118px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.datenschutz .rechteck-21-SVsGi2.bp4-animate-enter {
+  animation: bp4-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz .shs-montage-express-SVsGi2 {
+  background-color: transparent;
+  bottom: 48px;
+  display: block;
+  height: 26px;
+  left: 243px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 988px;
+}
+
+.datenschutz .shs-montage-express-SVsGi2.bp4-animate-enter1 {
+  animation: bp4-animate-enter1-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter1-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz .impressumgobutton-SVsGi2 {
+  background-color: transparent;
+  bottom: 50px;
+  cursor: pointer;
+  display: block;
+  height: 25px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(25.91% - 37px);
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 141px;
+}
+
+.datenschutz .impressumgobutton-SVsGi2.bp4-animate-enter2 {
+  animation: bp4-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz .impressumgobutton-SVsGi2:hover {
+  filter: grayscale(100%);
+}
+
+.datenschutz .datenschutzgobutton-SVsGi2 {
+  background-color: transparent;
+  bottom: 48px;
+  cursor: pointer;
+  display: block;
+  height: 25px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: 213px;
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 172px;
+}
+
+.datenschutz .datenschutzgobutton-SVsGi2.bp4-animate-enter3 {
+  animation: bp4-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz .datenschutzgobutton-SVsGi2:hover {
+  filter: grayscale(100%);
+}
+
+.datenschutz .x-SVsGi2 {
+  background-color: transparent;
+  bottom: 48px;
+  display: block;
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  right: calc(33.19% - 5px);
+  text-align: left;
+  white-space: nowrap;
+  width: 16px;
+}
+
+.datenschutz .x-SVsGi2.bp4-animate-enter4 {
+  animation: bp4-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz .x-vCpmku {
+  background-color: transparent;
+  bottom: 48px;
+  display: block;
+  height: 26px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  right: calc(21.80% - 3px);
+  text-align: left;
+  white-space: nowrap;
+  width: 16px;
+}
+
+.datenschutz .x-vCpmku.bp4-animate-enter5 {
+  animation: bp4-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz .c-SVsGi2 {
+  background-color: transparent;
+  bottom: 60px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  left: 219px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.datenschutz .c-SVsGi2.bp4-animate-enter6 {
+  animation: bp4-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz .ellipse-12-SVsGi2 {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 8px;
+  bottom: 53px;
+  display: block;
+  height: 16px;
+  left: 215px;
+  opacity: 0;
+  position: absolute;
+  width: 16px;
+}
+
+.datenschutz .ellipse-12-SVsGi2.bp4-animate-enter7 {
+  animation: bp4-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp4-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz .datenschutz-SVsGi2 {
+  background-color: transparent;
+  display: block;
+  height: 25px;
+  left: 171px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 204px;
+  transform: translate(0, 25px);
+  white-space: nowrap;
+  width: 130px;
+}
+
+.datenschutz .datenschutz-SVsGi2.bp4-animate-enter8 {
+  animation: bp4-animate-enter8-frames 2.00s linear 0.50s 1 normal forwards;
+  display: block;
+  opacity: 0;
+  transform: translate(0, 25px);
+}
+
+@keyframes bp4-animate-enter8-frames {
+  from{opacity: 0;
+transform: translate(0, 25px);
+}
+to{opacity: 1;
+transform: translate(0,0);
+}
+}
+
+.datenschutz .geltungsbereich-dies-SVsGi2 {
+  background-color: transparent;
+  display: block;
+  height: 4637px;
+  left: 171px;
+  letter-spacing: 0.00px;
+  line-height: 28px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 308px;
+  transform: translate(0, 25px);
+  width: calc(100.00% - 311px);
+}
+
+.datenschutz .geltungsbereich-dies-SVsGi2.bp4-animate-enter9 {
+  animation: bp4-animate-enter9-frames 2.00s linear 0.50s 1 normal forwards;
+  display: block;
+  opacity: 0;
+  transform: translate(0, 25px);
+}
+
+@keyframes bp4-animate-enter9-frames {
+  from{opacity: 0;
+transform: translate(0, 25px);
+}
+to{opacity: 1;
+transform: translate(0,0);
+}
+}
+
+.datenschutz .gruppe-5-SVsGi2 {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.datenschutz .rechteck-8-HoYb9m {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.datenschutz .angeboterstellenbutton-HoYb9m {
+  background-color: transparent;
+  bottom: calc(48.28% - 27px);
+  cursor: pointer;
+  height: 56px;
+  pointer-events: auto;
+  position: absolute;
+  right: 152px;
+  transition: all 1.5s ease-in-out;
+  width: 168px;
+}
+
+.datenschutz .angeboterstellenbutton-HoYb9m:hover {
+  transform: translate(0, -5px);
+}
+
+.datenschutz .rechteck-1-kWBeB2 {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.datenschutz .angebot-erstellen-kWBeB2 {
+  background-color: transparent;
+  bottom: calc(40.91% - 9px);
+  height: 23px;
+  left: 14px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  text-align: center;
+  white-space: nowrap;
+  width: calc(100.00% - 26px);
+}
+
+.datenschutz .logo-HoYb9m {
+  background-color: transparent;
+  height: calc(100.00% - 23px);
+  left: 86px;
+  object-fit: cover;
+  position: absolute;
+  top: 11px;
+  width: 101px;
+}
+/* screen - datenschutz-1200 */
+
+.datenschutz-1200 {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 5420px;
+  min-width: 1200px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.datenschutz-1200 .datenschutz-zqZOTZ {
+  background-color: transparent;
+  display: block;
+  height: 25px;
+  left: 120px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 204px;
+  transform: translate(0, 25px);
+  white-space: nowrap;
+  width: 130px;
+}
+
+.datenschutz-1200 .datenschutz-zqZOTZ.bp3-animate-enter {
+  animation: bp3-animate-enter-frames 2.00s linear 0.50s 1 normal forwards;
+  display: block;
+  opacity: 0;
+  transform: translate(0, 25px);
+}
+
+@keyframes bp3-animate-enter-frames {
+  from{opacity: 0;
+transform: translate(0, 25px);
+}
+to{opacity: 1;
+transform: translate(0,0);
+}
+}
+
+.datenschutz-1200 .geltungsbereich-dies-zqZOTZ {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-s);
+  font-style: normal;
+  font-weight: 400;
+  height: 4946px;
+  left: 120px;
+  letter-spacing: 0.00px;
+  line-height: 26px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 308px;
+  transform: translate(0, 25px);
+  width: calc(100.00% - 170px);
+}
+
+.datenschutz-1200 .geltungsbereich-dies-zqZOTZ.bp3-animate-enter1 {
+  animation: bp3-animate-enter1-frames 2.00s linear 0.50s 1 normal forwards;
+  display: block;
+  opacity: 0;
+  transform: translate(0, 25px);
+}
+
+@keyframes bp3-animate-enter1-frames {
+  from{opacity: 0;
+transform: translate(0, 25px);
+}
+to{opacity: 1;
+transform: translate(0,0);
+}
+}
+
+.datenschutz-1200 .rechteck-21-zqZOTZ {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: calc(100.02% - 109px);
+  width: 100%;
+}
+
+.datenschutz-1200 .rechteck-21-zqZOTZ.bp3-animate-enter2 {
+  animation: bp3-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-1200 .gruppe-1454-zqZOTZ {
+  background-color: transparent;
+  bottom: 0.54%;
+  height: 18px;
+  left: calc(50.00% - 480px);
+  position: absolute;
+  width: 960px;
+}
+
+.datenschutz-1200 .shs-montage-express-0jxdvR {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  left: 18px;
+  letter-spacing: 0.00px;
+  line-height: 17px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -1px;
+  white-space: nowrap;
+  width: 635px;
+}
+
+.datenschutz-1200 .shs-montage-express-0jxdvR.bp3-animate-enter3 {
+  animation: bp3-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-1200 .impressumgobutton-0jxdvR {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(18.23% - 18px);
+  text-align: left;
+  top: 0px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 99px;
+}
+
+.datenschutz-1200 .impressumgobutton-0jxdvR.bp3-animate-enter4 {
+  animation: bp3-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-1200 .impressumgobutton-0jxdvR:hover {
+  filter: grayscale(100%);
+}
+
+.datenschutz-1200 .datenschutzgobutton-0jxdvR {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  top: 1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.datenschutz-1200 .datenschutzgobutton-0jxdvR.bp3-animate-enter5 {
+  animation: bp3-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-1200 .datenschutzgobutton-0jxdvR:hover {
+  filter: grayscale(100%);
+}
+
+.datenschutz-1200 .x-0jxdvR {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  right: calc(28.95% - 3px);
+  text-align: left;
+  top: 0px;
+  white-space: nowrap;
+  width: 12px;
+}
+
+.datenschutz-1200 .x-0jxdvR.bp3-animate-enter6 {
+  animation: bp3-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-1200 .x-WowmLk {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xxs);
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  right: 137px;
+  text-align: left;
+  top: 0px;
+  white-space: nowrap;
+  width: 12px;
+}
+
+.datenschutz-1200 .x-WowmLk.bp3-animate-enter7 {
+  animation: bp3-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-1200 .c-0jxdvR {
+  background-color: transparent;
+  bottom: calc(121.43% - 13px);
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 400;
+  height: 11px;
+  left: 3px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 7px;
+}
+
+.datenschutz-1200 .c-0jxdvR.bp3-animate-enter8 {
+  animation: bp3-animate-enter8-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter8-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-1200 .ellipse-12-0jxdvR {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 5.5px/5px;
+  display: block;
+  height: 10px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: calc(37.49% - 4px);
+  width: 11px;
+}
+
+.datenschutz-1200 .ellipse-12-0jxdvR.bp3-animate-enter9 {
+  animation: bp3-animate-enter9-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp3-animate-enter9-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-1200 .gruppe-5-zqZOTZ {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.datenschutz-1200 .rechteck-8-UXRc38 {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.datenschutz-1200 .angeboterstellenbutton-UXRc38 {
+  background-color: transparent;
+  bottom: calc(48.28% - 27px);
+  cursor: pointer;
+  height: 56px;
+  pointer-events: auto;
+  position: absolute;
+  right: 81px;
+  transition: all 1.5s ease-in-out;
+  width: 168px;
+}
+
+.datenschutz-1200 .angeboterstellenbutton-UXRc38:hover {
+  transform: translate(0, -5px);
+}
+
+.datenschutz-1200 .rechteck-1-Zafyxc {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.datenschutz-1200 .angebot-erstellen-Zafyxc {
+  background-color: transparent;
+  bottom: calc(40.91% - 9px);
+  height: 23px;
+  left: 14px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  text-align: center;
+  white-space: nowrap;
+  width: calc(100.00% - 26px);
+}
+
+.datenschutz-1200 .logo-UXRc38 {
+  background-color: transparent;
+  height: calc(100.00% - 23px);
+  left: 86px;
+  object-fit: cover;
+  position: absolute;
+  top: 11px;
+  width: 101px;
+}
+/* screen - datenschutz-375 */
+
+.datenschutz-375 {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 7319px;
+  min-width: 375px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.datenschutz-375 .datenschutz-z8MVbc {
+  background-color: transparent;
+  display: block;
+  height: 25px;
+  left: 46px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 164px;
+  transform: translate(0, 25px);
+  white-space: nowrap;
+  width: 130px;
+}
+
+.datenschutz-375 .datenschutz-z8MVbc.bp1-animate-enter {
+  animation: bp1-animate-enter-frames 2.00s linear 0.50s 1 normal forwards;
+  display: block;
+  opacity: 0;
+  transform: translate(0, 25px);
+}
+
+@keyframes bp1-animate-enter-frames {
+  from{opacity: 0;
+transform: translate(0, 25px);
+}
+to{opacity: 1;
+transform: translate(0,0);
+}
+}
+
+.datenschutz-375 .geltungsbereich-dies-z8MVbc {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 6942px;
+  left: 46px;
+  letter-spacing: 0.00px;
+  line-height: 20px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 268px;
+  transform: translate(0, 25px);
+  width: calc(100.00% - 70px);
+}
+
+.datenschutz-375 .geltungsbereich-dies-z8MVbc.bp1-animate-enter1 {
+  animation: bp1-animate-enter1-frames 2.00s linear 0.50s 1 normal forwards;
+  display: block;
+  opacity: 0;
+  transform: translate(0, 25px);
+}
+
+@keyframes bp1-animate-enter1-frames {
+  from{opacity: 0;
+transform: translate(0, 25px);
+}
+to{opacity: 1;
+transform: translate(0,0);
+}
+}
+
+.datenschutz-375 .rechteck-21-z8MVbc {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  bottom: 0px;
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.datenschutz-375 .rechteck-21-z8MVbc.bp1-animate-enter2 {
+  animation: bp1-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-375 .gruppe-1454-z8MVbc {
+  background-color: transparent;
+  bottom: 0px;
+  height: 16px;
+  position: absolute;
+  right: calc(4.66% - 10px);
+  width: 225px;
+}
+
+.datenschutz-375 .impressumgobutton-xFSqJo {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  text-align: left;
+  top: -1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 87px;
+}
+
+.datenschutz-375 .impressumgobutton-xFSqJo.bp1-animate-enter3 {
+  animation: bp1-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-375 .impressumgobutton-xFSqJo:hover {
+  filter: grayscale(100%);
+}
+
+.datenschutz-375 .datenschutzgobutton-xFSqJo {
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  top: -1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 105px;
+}
+
+.datenschutz-375 .datenschutzgobutton-xFSqJo.bp1-animate-enter4 {
+  animation: bp1-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-375 .datenschutzgobutton-xFSqJo:hover {
+  filter: grayscale(100%);
+}
+
+.datenschutz-375 .x-xFSqJo {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xxxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: calc(100.00% + 1px);
+  left: calc(46.70% - 5px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.datenschutz-375 .x-xFSqJo.bp1-animate-enter5 {
+  animation: bp1-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-375 .gruppe-1462-z8MVbc {
+  background-color: transparent;
+  bottom: 0.67%;
+  height: 35px;
+  left: calc(50.00% - 168px);
+  position: absolute;
+  width: 336px;
+}
+
+.datenschutz-375 .shs-montage-express-gmb-h-IFpIaw {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxxxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 14px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  right: calc(45.74% - 79px);
+  text-align: left;
+  top: -1px;
+  white-space: nowrap;
+  width: 172px;
+}
+
+.datenschutz-375 .shs-montage-express-gmb-h-IFpIaw.bp1-animate-enter6 {
+  animation: bp1-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-375 .dachmontage-elektrik-IFpIaw {
+  background-color: transparent;
+  bottom: 0px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxxxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 14px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: calc(100.00% + 2px);
+}
+
+.datenschutz-375 .dachmontage-elektrik-IFpIaw.bp1-animate-enter7 {
+  animation: bp1-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-375 .c-IFpIaw {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 400;
+  height: 10px;
+  left: calc(24.00% - 1px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -3px;
+  white-space: nowrap;
+  width: 6px;
+}
+
+.datenschutz-375 .c-IFpIaw.bp1-animate-enter8 {
+  animation: bp1-animate-enter8-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter8-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-375 .ellipse-12-IFpIaw {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 4.86px/5px;
+  display: block;
+  height: 10px;
+  left: calc(23.46% - 2px);
+  opacity: 0;
+  position: absolute;
+  top: 0px;
+  width: 10px;
+}
+
+.datenschutz-375 .ellipse-12-IFpIaw.bp1-animate-enter9 {
+  animation: bp1-animate-enter9-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter9-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.datenschutz-375 .gruppe-5-z8MVbc {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.datenschutz-375 .rechteck-8-mp52DW {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.datenschutz-375 .angeboterstellenbutton-mp52DW {
+  background-color: transparent;
+  cursor: pointer;
+  height: 47px;
+  pointer-events: auto;
+  position: absolute;
+  right: 13px;
+  top: calc(50.00% - 24px);
+  transition: all 1.5s ease-in-out;
+  width: 142px;
+}
+
+.datenschutz-375 .angeboterstellenbutton-mp52DW:hover {
+  transform: translate(0, -5px);
+}
+
+.datenschutz-375 .rechteck-1-Xx5rk8 {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.datenschutz-375 .angebot-erstellen-Xx5rk8 {
+  background-color: transparent;
+  bottom: calc(42.86% - 8px);
+  color: var(--cod-gray);
+  font-family: var(--font-family-ligurino-regular);
+  font-size: var(--font-size-xxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 19px;
+  left: 12px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  position: absolute;
+  text-align: center;
+  white-space: nowrap;
+  width: calc(100.00% - 22px);
+}
+
+.datenschutz-375 .logo-mp52DW {
+  background-color: transparent;
+  height: calc(100.00% - 23px);
+  left: 25px;
+  object-fit: cover;
+  position: absolute;
+  top: 11px;
+  width: 101px;
+}
+/* screen - full-project */
+
+.full-project {
+  background-color: var(--cararra);
+  height: 100vh;
+  margin: 0px;
+  min-height: 6160px;
+  min-width: 767px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.full-project .datenschutz-KqxCzi {
+  background-color: transparent;
+  display: block;
+  height: 25px;
+  left: 87px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 204px;
+  transform: translate(0, 25px);
+  white-space: nowrap;
+  width: 130px;
+}
+
+.full-project .datenschutz-KqxCzi.bp2-animate-enter {
+  animation: bp2-animate-enter-frames 2.00s linear 0.50s 1 normal forwards;
+  display: block;
+  opacity: 0;
+  transform: translate(0, 25px);
+}
+
+@keyframes bp2-animate-enter-frames {
+  from{opacity: 0;
+transform: translate(0, 25px);
+}
+to{opacity: 1;
+transform: translate(0,0);
+}
+}
+
+.full-project .geltungsbereich-dies-KqxCzi {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xs);
+  font-style: normal;
+  font-weight: 400;
+  height: 5669px;
+  left: 87px;
+  letter-spacing: 0.00px;
+  line-height: 24px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 308px;
+  transform: translate(0, 25px);
+  width: calc(100.00% - 147px);
+}
+
+.full-project .geltungsbereich-dies-KqxCzi.bp2-animate-enter1 {
+  animation: bp2-animate-enter1-frames 2.00s linear 0.50s 1 normal forwards;
+  display: block;
+  opacity: 0;
+  transform: translate(0, 25px);
+}
+
+@keyframes bp2-animate-enter1-frames {
+  from{opacity: 0;
+transform: translate(0, 25px);
+}
+to{opacity: 1;
+transform: translate(0,0);
+}
+}
+
+.full-project .rechteck-21-KqxCzi {
+  background-color: var(--sea-mist);
+  border: 0.30000001192092896px solid;
+  border-color: var(--celeste);
+  display: block;
+  height: 109px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: calc(100.02% - 109px);
+  width: 100%;
+}
+
+.full-project .rechteck-21-KqxCzi.bp2-animate-enter2 {
+  animation: bp2-animate-enter2-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter2-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .gruppe-1454-KqxCzi {
+  background-color: transparent;
+  bottom: 0.20%;
+  height: 60px;
+  position: absolute;
+  right: calc(35.19% - 256px);
+  width: 728px;
+}
+
+.full-project .shs-montage-express-KNDObk {
+  background-color: transparent;
+  display: block;
+  height: 18px;
+  left: 21px;
+  letter-spacing: 0.00px;
+  line-height: 15px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 1px;
+  white-space: nowrap;
+  width: calc(100.00% - 51px);
+}
+
+.full-project .shs-montage-express-KNDObk.bp2-animate-enter3 {
+  animation: bp2-animate-enter3-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter3-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .impressumgobutton-KNDObk {
+  background-color: transparent;
+  bottom: 0px;
+  cursor: pointer;
+  display: block;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(21.52% - 19px);
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 87px;
+}
+
+.full-project .impressumgobutton-KNDObk.bp2-animate-enter4 {
+  animation: bp2-animate-enter4-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter4-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .impressumgobutton-KNDObk:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .datenschutzgobutton-KNDObk {
+  background-color: transparent;
+  bottom: -1px;
+  cursor: pointer;
+  display: block;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 105px;
+}
+
+.full-project .datenschutzgobutton-KNDObk.bp2-animate-enter5 {
+  animation: bp2-animate-enter5-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter5-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .datenschutzgobutton-KNDObk:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .x-KNDObk {
+  background-color: transparent;
+  bottom: 0px;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: var(--font-size-xxxxs);
+  font-style: normal;
+  font-weight: 400;
+  height: 17px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  right: 121px;
+  text-align: left;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.full-project .x-KNDObk.bp2-animate-enter6 {
+  animation: bp2-animate-enter6-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter6-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .c-KNDObk {
+  background-color: transparent;
+  color: var(--woodsmoke);
+  display: block;
+  font-family: var(--font-family-applebraille-regular);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 400;
+  height: 10px;
+  left: 3px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: -2px;
+  white-space: nowrap;
+  width: 6px;
+}
+
+.full-project .c-KNDObk.bp2-animate-enter7 {
+  animation: bp2-animate-enter7-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter7-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .ellipse-12-KNDObk {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--woodsmoke);
+  border-radius: 4.86px/5px;
+  display: block;
+  height: 10px;
+  left: 0px;
+  opacity: 0;
+  position: absolute;
+  top: 1px;
+  width: 10px;
+}
+
+.full-project .ellipse-12-KNDObk.bp2-animate-enter8 {
+  animation: bp2-animate-enter8-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp2-animate-enter8-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .gruppe-5-KqxCzi {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .rechteck-8-4Otmiw {
+  background-color: var(--white);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .angeboterstellenbutton-4Otmiw {
+  background-color: transparent;
+  bottom: calc(48.28% - 27px);
+  cursor: pointer;
+  height: 56px;
+  pointer-events: auto;
+  position: absolute;
+  right: 20px;
+  transition: all 1.5s ease-in-out;
+  width: 168px;
+}
+
+.full-project .angeboterstellenbutton-4Otmiw:hover {
+  transform: translate(0, -5px);
+}
+
+.full-project .rechteck-1-Hof4oq {
+  background-color: var(--bright-yellow);
+  border-radius: 10px;
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .angebot-erstellen-Hof4oq {
+  background-color: transparent;
+  bottom: calc(40.91% - 9px);
+  height: 23px;
+  left: 14px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  position: absolute;
+  text-align: center;
+  white-space: nowrap;
+  width: calc(100.00% - 26px);
+}
+
+.full-project .logo-4Otmiw {
+  background-color: transparent;
+  height: calc(100.00% - 23px);
+  left: 62px;
+  object-fit: cover;
+  position: absolute;
+  top: 11px;
+  width: 101px;
+}
+@media screen and (max-width: 766px) {
+  .screen.datenschutz { 
+    display: none;
+   }
+  .screen.datenschutz-1200 { 
+    display: none;
+   }
+  .screen.full-project { 
+    display: none;
+   }
+}
+@media screen and (min-width: 767px) and (max-width: 1199px) {
+  .screen.datenschutz { 
+    display: none;
+   }
+  .screen.datenschutz-1200 { 
+    display: none;
+   }
+  .screen.datenschutz-375 { 
+    display: none;
+   }
+}
+@media screen and (min-width: 1200px) and (max-width: 1919px) {
+  .screen.datenschutz { 
+    display: none;
+   }
+  .screen.full-project { 
+    display: none;
+   }
+  .screen.datenschutz-375 { 
+    display: none;
+   }
+}
+@media screen and (min-width: 1920px) {
+  .screen.datenschutz-1200 { 
+    display: none;
+   }
+  .screen.full-project { 
+    display: none;
+   }
+  .screen.datenschutz-375 { 
+    display: none;
+   }
+}

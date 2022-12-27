@@ -1,12 +1,13 @@
 const express = require('express')
 const cors = require("cors")
-const Location = require('../config/Location')
-const Storage = require('../config/Storage')
+// const Location = require('../config/Location')
+// const Storage = require('../config/Storage')
 const Auth = require('../lib/AuthServer.js')
 const Notification = require('../lib/Notification')
+const { dbLocation, platformLocation } = require('../config/ServerLocation.js')
 const app = express()
-const location = Location.dbLocation
-const platformLocation = Location.platformLocation
+// const location = dbLocation
+// const platformLocation = platformLocation
 
 app.use(express.json())
 app.use(cors({
@@ -61,4 +62,4 @@ app.use(cors({
 //   })
 // })
 
-app.listen(location.port, () => Notification.warn(`database listening on ${location.origin}`))
+app.listen(dbLocation.port, () => Notification.warn(`database listening on ${dbLocation.origin}`))
