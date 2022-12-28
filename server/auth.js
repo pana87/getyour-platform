@@ -9,7 +9,7 @@ const crypto = require("node:crypto")
 const StringDecoder = require("node:string_decoder")
 const { User } = require('../lib/domain/User.js')
 const { JWTToken } = require('../lib/JWTToken')
-const { authLocation, platformLocation } = require('../config/ServerLocation.js')
+const { authLocation, clientLocation } = require('../config/ServerLocation.js')
 const userChallenge = Array.from(Uint8Array.from(crypto.randomBytes(32)))
 const userHandle = Array.from(Uint8Array.from(crypto.randomBytes(16)))
 const pubKeyCredParams = [
@@ -19,7 +19,7 @@ const pubKeyCredParams = [
 
 app.use(express.json())
 app.use(cors({
-  origin: `${platformLocation.protocol}//${platformLocation.hostname}:${platformLocation.port}`,
+  origin: `${clientLocation.protocol}//${clientLocation.hostname}:${clientLocation.port}`,
   methods: [ "POST" ],
   credentials: true,
 }))
@@ -79,7 +79,7 @@ app.post("/public-key/credential/request/options/", async (req, res) => {
   const options = {
     publicKey: {
       challenge: userChallenge,
-      rpId: platformLocation.hostname,
+      rpId: clientLocation.hostname,
       allowCredentials: [{
         id: credentialRecord.id,
         type: "public-key",
@@ -136,7 +136,7 @@ app.post("/public-key/credential/creation/options/", async (req, res) => {
     publicKey: {
       rp: {
         name: "getyour platform",
-        id: platformLocation.hostname,
+        id: clientLocation.hostname,
       },
       user: {
         name: email.value.split("@")[0],

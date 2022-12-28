@@ -1,10 +1,10 @@
 {
   "scripts": {
-    "db": "nodemon ./server/db.js",
+    "docs": "nodemon ./server/docs.js",
     "platform": "nodemon ./server/platform.js",
     "auth": "nodemon ./server/auth.js",
     "components": "nodemon ./server/components.js",
-    "server": "(npm run platform&) && (npm run auth&) && (npm run components&) && (npm run db&)",
+    "server": "(npm run platform&) && (npm run auth&) && (npm run components&) && (npm run docs&)",
     "start": "npm run build && npm run server",
     "build": "npm install --omit=dev",
     "close": "killall -9 node",

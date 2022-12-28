@@ -7,8 +7,8 @@ const {HtmlParser} = require('../config/HtmlParser.js')
 const Notification = require('../lib/Notification.js')
 // const { fstat } = require('node:fs')
 const app = express()
-const { platformLocation } = require('../config/ServerLocation.js')
-const location = platformLocation
+const { clientLocation } = require('../config/ServerLocation.js')
+// const location = clientLocation
 const rawParser = bodyParser.raw()
 const jsonParser = bodyParser.json({ limit: "50mb" })
 const textParser = bodyParser.text()
@@ -33,8 +33,8 @@ const { CSSParser } = require('../config/CSSParser.js')
 // const formidableMiddleware = require('express-formidable');
 
 // app.use(formidableMiddleware());
-
-new HtmlParser()
+// console.log(clientLocation.relativePath);
+new HtmlParser(clientLocation.relativePath)
 new CSSParser()
 // new CouchDB()
 
@@ -164,6 +164,6 @@ app.get("/testing/", async (req, res) => {
 //   const result = parser.parse("/toolbox/funnel/view/")
 //   res.send(result)
 // })
-app.use(express.static(path.join(__dirname, "..", "client")))
+app.use(express.static(clientLocation.absolutePath))
 
-app.listen(location.port, () => Notification.warn(`platform listening on ${location.origin}`))
+app.listen(clientLocation.port, () => Notification.warn(`client listening on ${clientLocation.origin}`))
