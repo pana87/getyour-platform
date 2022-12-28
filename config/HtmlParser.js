@@ -1,6 +1,6 @@
 const fs = require("node:fs")
 const path = require("node:path")
-const { platformLocation, authLocation, componentsLocation, dbLocation } = require("../config/ServerLocation.js")
+const { clientLocation, authLocation, componentsLocation, docsLocation } = require("../config/ServerLocation.js")
 
 const PATH_TO_FAVICON = "/img/favicon.ico"
 
@@ -10,7 +10,7 @@ const INDEX_SCRIPT = `
 `
 
 const GLOBAL_SCRIPT = `
-  <script type="module" src="${platformLocation.origin}/js/global.js"></script>
+  <script type="module" src="${clientLocation.origin}/js/global.js"></script>
 </body>
 `
 
@@ -23,8 +23,8 @@ const searchStrings = [
 
 const ENVIRONMENT_VARIABLES = `
 <script id="__EXPOSE__">
-  window.__DB_LOCATION__=${JSON.stringify(dbLocation)}
-  window.__PLATFORM_LOCATION__=${JSON.stringify(platformLocation)}
+  window.__DB_LOCATION__=${JSON.stringify(docsLocation)}
+  window.__PLATFORM_LOCATION__=${JSON.stringify(clientLocation)}
   window.__AUTH_LOCATION__=${JSON.stringify(authLocation)}
   window.__COMPONENTS_LOCATION__=${JSON.stringify(componentsLocation)}
   document.getElementById("__EXPOSE__").remove()
@@ -63,14 +63,14 @@ module.exports.HtmlParser = class {
 
   #setAnimaBoilerplate3(html) {
     if (html.includes(searchStrings[3])) {
-      this.html = html.replace(ANIMA_BOILERPLATE_REGEX_3, `<link rel="shortcut icon" type="image/png" href="${platformLocation.origin}/img/favicon.ico"`)
+      this.html = html.replace(ANIMA_BOILERPLATE_REGEX_3, `<link rel="shortcut icon" type="image/png" href="${clientLocation.origin}/img/favicon.ico"`)
     }
   }
 
   #setUrl(html) {
     this.html = html
-      .replace(URL_REGEX, platformLocation.origin)
-      .replace(LOCALHOST_REGEX, platformLocation.origin)
+      .replace(URL_REGEX, clientLocation.origin)
+      .replace(LOCALHOST_REGEX, clientLocation.origin) // all pointing to platform
   }
 
   #parseHtml(file) {
@@ -88,10 +88,10 @@ module.exports.HtmlParser = class {
     }
   }
 
-  constructor() {
+  constructor(directory) {
     this.html = ""
 
-    const files = getAllFiles("/client").filter(it => it.endsWith(".html"))
+    const files = getAllFiles(directory).filter(it => it.endsWith(".html"))
 
     files.forEach(file => this.#parseHtml(file))
   }

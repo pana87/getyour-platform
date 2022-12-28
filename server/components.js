@@ -3,11 +3,11 @@ const cors = require("cors")
 const Notification = require('../lib/Notification')
 const HtmlParser = require('../lib/HtmlParser')
 const app = express()
-const {platformLocation, componentsLocation} = require('../config/ServerLocation.js')
+const {clientLocation, componentsLocation} = require('../config/ServerLocation.js')
 
 app.use(express.json())
 app.use(cors({
-  origin: `${platformLocation.protocol}//${platformLocation.hostname}:${platformLocation.port}`,
+  origin: `${clientLocation.protocol}//${clientLocation.hostname}:${clientLocation.port}`,
   methods: [ "POST", "GET" ],
   credentials: true,
 }))
