@@ -1,6 +1,4 @@
 node_modules/
-public/
 .netlify/
-test.html
 .DS_Store
 .env

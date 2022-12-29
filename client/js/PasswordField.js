@@ -1,4 +1,4 @@
-export class TextField {
+export class PasswordField {
 
   #setNoStyle(input) {
     input.removeAttribute("style")
@@ -6,7 +6,8 @@ export class TextField {
   }
 
   withNoStyle() {
-    document.querySelectorAll(this.inputSelector).forEach(input => this.#setNoStyle(input))
+    const inputs = document.querySelectorAll(this.inputSelector)
+    inputs.forEach(input => this.#setNoStyle(input))
     return this
   }
 
@@ -20,16 +21,6 @@ export class TextField {
     input.style.border = "2px solid #d50000"
     input.style.borderRadius = "3px"
     return input
-  }
-
-  withValidStyle() {
-    document.querySelectorAll(this.inputSelector).forEach(input => this.#setValidStyle(input))
-    return this
-  }
-
-  withNotValidStyle() {
-    document.querySelectorAll(this.inputSelector).forEach(input => this.#setNotValidStyle(input))
-    return this
   }
 
   #setMaxLength(input) {
@@ -63,7 +54,8 @@ export class TextField {
 
   withPattern(pattern) {
     this.pattern = pattern
-    document.querySelectorAll(this.inputSelector).forEach(input => this.#setPattern(input))
+    const inputs = document.querySelectorAll(this.inputSelector)
+    inputs.forEach(input => this.#setPattern(input))
     return this
   }
 
@@ -118,14 +110,25 @@ export class TextField {
       !this.isUndefined(input.value)
   }
 
+  withValidStyle() {
+    document.querySelectorAll(this.inputSelector).forEach(input => {
+      if (this.checkValidity(input)) {
+        this.#setValidStyle(input)
+        return
+      }
+      this.#setNotValidStyle(input)
+    })
+    return this
+  }
+
   withValidValue(callback) {
     document.querySelectorAll(this.inputSelector).forEach(input => {
       if (this.checkValidity(input)) {
-        this.withValidStyle()
+        this.#setValidStyle(input)
         callback(input.value)
         return
       }
-      this.withNotValidStyle()
+      this.#setNotValidStyle(input)
       console.error("VALUE_NOT_VALID")
     })
     return this
@@ -137,9 +140,8 @@ export class TextField {
     return this
   }
 
-  #setSync(input) {
+  syncFields(input) {
     document.body.querySelectorAll(this.inputSelector).forEach(other => other.value = input.value)
-    return input
   }
 
   withPlaceholder(placeholder) {
@@ -154,23 +156,10 @@ export class TextField {
     return input
   }
 
-  #setSHSDefaultStyle(input) {
-    input.style.border = "none"
-    input.style.fontSize = "24px"
-    input.style.maxWidth = "250px"
-    return input
-  }
-
-  withSHSDefaultStyle() {
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setSHSDefaultStyle(input))
-    return this
-  }
-
   constructor(fieldSelector) {
     this.fieldSelector = fieldSelector
     this.className = this.fieldSelector.split("'")[1]
-    this.inputSelector = `input[name='${this.className}']`
+    this.inputSelector = `input[id='${this.className}']`
 
     const divs = document.querySelectorAll(this.fieldSelector)
     if (divs.length > 0) {
@@ -178,7 +167,7 @@ export class TextField {
         div.innerHTML = ""
 
         const input = document.createElement("input")
-        input.type = "text"
+        input.type = "password"
         input.name = this.className
         input.id = this.className
 

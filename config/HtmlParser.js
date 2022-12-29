@@ -23,14 +23,22 @@ const searchStrings = [
 
 const ENVIRONMENT_VARIABLES = `
 <script id="__EXPOSE__">
-  window.__DB_LOCATION__=${JSON.stringify(docsLocation)}
-  window.__PLATFORM_LOCATION__=${JSON.stringify(clientLocation)}
-  window.__AUTH_LOCATION__=${JSON.stringify(authLocation)}
-  window.__COMPONENTS_LOCATION__=${JSON.stringify(componentsLocation)}
+  window.__AUTH_LOCATION__=${JSON.stringify(authLocation.origin)}
   document.getElementById("__EXPOSE__").remove()
 </script>
 </body>
 `
+
+// const ENVIRONMENT_VARIABLES = `
+// <script id="__EXPOSE__">
+//   window.__DB_LOCATION__=${JSON.stringify(docsLocation)}
+//   window.__PLATFORM_LOCATION__=${JSON.stringify(clientLocation)}
+//   window.__AUTH_LOCATION__=${JSON.stringify(authLocation)}
+//   window.__COMPONENTS_LOCATION__=${JSON.stringify(componentsLocation)}
+//   document.getElementById("__EXPOSE__").remove()
+// </script>
+// </body>
+// `
 const CSS_REGEX = /type="text\/css" href="/g
 const IMG_REGEX = /src="img\//g
 const URL_REGEX = /https:\/\/get-your.de/g
