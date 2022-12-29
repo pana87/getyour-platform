@@ -2,7 +2,7 @@ const fs = require("node:fs")
 const path = require("node:path")
 const { clientLocation, authLocation, componentsLocation, docsLocation } = require("../config/ServerLocation.js")
 
-const PATH_TO_FAVICON = "/img/favicon.ico"
+const PATH_TO_FAVICON = `${clientLocation.origin}/favicon.ico`
 
 const INDEX_SCRIPT = `
   <script type="module" src="./index.js"></script>
@@ -63,7 +63,7 @@ module.exports.HtmlParser = class {
 
   #setAnimaBoilerplate3(html) {
     if (html.includes(searchStrings[3])) {
-      this.html = html.replace(ANIMA_BOILERPLATE_REGEX_3, `<link rel="shortcut icon" type="image/png" href="${clientLocation.origin}/img/favicon.ico"`)
+      this.html = html.replace(ANIMA_BOILERPLATE_REGEX_3, `<link rel="shortcut icon" type="image/x-icon" href="${PATH_TO_FAVICON}"`)
     }
   }
 
