@@ -1,7 +1,7 @@
-import { SHSInteraction } from "../../js/SHSInteraction.js";
+import { ButtonField } from "../../js/ButtonField.js"
 
-new SHSInteraction("img[class*=logo]").withClickAssign("/felix/shs/")
-new SHSInteraction("div[class*=bewerbungabgebenbutton]").withClickAssign("/felix/shs/funnel/monteur-bewerbung/")
-new SHSInteraction("div[class*=angeboterstellenbutton]").withClickAssign("/felix/shs/funnel/start/")
-new SHSInteraction("div[class*=impressumgobutton]").withClickAssign("/felix/shs/impressum/")
-new SHSInteraction("div[class*=datenschutzgobutton]").withClickAssign("/felix/shs/datenschutz/")
+new ButtonField("img[class*=logo]").withAssign("/felix/shs/")
+new ButtonField("div[class*=bewerbungabgebenbutton]").withAssign("/felix/shs/funnel/monteur-bewerbung/")
+new ButtonField("div[class*=angeboterstellenbutton]").withAssign("/felix/shs/funnel/start/")
+new ButtonField("div[class*=impressumgobutton]").withAssign("/felix/shs/impressum/")
+new ButtonField("div[class*=datenschutzgobutton]").withAssign("/felix/shs/datenschutz/")
