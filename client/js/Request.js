@@ -1,50 +1,178 @@
 import { CBORDecoder } from "./CBORDecoder.js"
 import { EndPoints } from "./EndPoints.js"
+import { Helper } from "./Helper.js"
 const NOT_VALID_AUTHENTICATOR = "Der Authenticator auf deinem Gerentspricht nicht den Sicherheitsstandards."
 const REGISTRATION_ABORTED_DUE_TO_SECURITY_ISSUES = "Aus Sicherheitsgründen musste die Registrierung abgebrochen werden. Bitte kontaktiere den Support unter: 'datenschutz@get-your.de'"
 const AUTHENTICATION_ABORTED_DUE_TO_SECURITY_ISSUES = "Aus Sicherheitsgründen musste die Anmeldung abgebrochen werden. Bitte kontaktiere den Support unter: 'datenschutz@get-your.de'"
 // import {Compressor} from "compressorjs"
 
-function fileToDataUrl(file) {
-  try {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.addEventListener("loadend", () => {
-      return {
-        status: 200,
-        message: "FILE_TO_DATA_URL_SUCCESS",
-        dataUrl: reader.result,
-      }
-    })
-  } catch (error) {
-    return {
-      status: 500,
-      message: "FILE_TO_DATA_URL_ABORT",
-    }
-  }
-}
-
-function isJson(string) {
-  try {
-    JSON.parse(string)
-    return true
-  } catch {
-    return false
-  }
-}
-
-// function sortedObjectToArray(object) {
-//   let array = []
-//   for (let key in object) {
-//     array.push(object[key])
-//   }
-//   return array
-// }
-
-
 
 
 export class Request {
+
+  // static async storeUser(object) {
+  //   const id = await Request.userEmail()
+  //   return new Promise((resolve, reject) => {
+  //     const xhr = new XMLHttpRequest()
+  //     xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/user/`)
+  //     xhr.setRequestHeader("Accept", "application/json")
+  //     xhr.setRequestHeader("Content-Type", "application/json")
+  //     xhr.overrideMimeType("text/html")
+  //     xhr.onload = () => {
+  //       const response = JSON.parse(xhr.response)
+  //       if (response.status === 200) {
+  //         console.info("User stored..")
+  //         return resolve()
+  //       }
+  //       console.error(response.message)
+  //     }
+  //     xhr.send(JSON.stringify({ id, object }))
+  //   })
+  // }
+
+  static userDigest() {
+    return new Promise((resolve, reject) => {
+      const digest = window.sessionStorage.getItem("digest")
+      if (digest !== null) return resolve(digest)
+      console.error("NO_DIGEST_FOUND")
+      window.location.assign("/zugang/")
+    })
+  }
+
+  static async storePassword(password) {
+    const id = await Request.userEmail()
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/password/`)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.overrideMimeType("text/html")
+      xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        if (response.status === 200) {
+          console.info("Password stored..")
+          return resolve()
+        }
+        console.error(response.message)
+      }
+      xhr.send(JSON.stringify({ id, password }))
+    })
+  }
+
+  static async storeName(name) {
+    const id = await Request.userEmail()
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/name/`)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.overrideMimeType("text/html")
+      xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        if (response.status === 200) {
+          console.info("Name stored..")
+          return resolve()
+        }
+        console.error(response.message)
+      }
+      xhr.send(JSON.stringify({ id, name }))
+    })
+  }
+
+  static userEmail() {
+    return new Promise((resolve, reject) => {
+      const email = window.localStorage.getItem("email")
+      if (email !== null) return resolve(email)
+      console.error("NO_EMAIL_FOUND")
+      window.location.assign("/zugang/")
+    })
+  }
+
+  static async storeRoles(roles) {
+    const id = await Request.userEmail()
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/roles/`)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.overrideMimeType("text/html")
+      xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        if (response.status === 200) {
+          console.info("Roles stored..")
+          return resolve()
+        }
+        console.error(response.message)
+      }
+      xhr.send(JSON.stringify({ id, roles }))
+    })
+  }
+
+  static storeEmail(email) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/email/`)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.overrideMimeType("text/html")
+      xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        if (response.status === 200) {
+          console.info("Email stored..")
+          return resolve()
+        }
+        console.error(response.message)
+      }
+      xhr.send(JSON.stringify({ email }))
+    })
+  }
+
+  static async storeToLocalstorage(key, value) {
+    if (key !== undefined && value !== undefined) {
+      window.localStorage.setItem(key, value)
+      const message = JSON.stringify(window.localStorage)
+      const digest = await Helper.digest(message)
+      window.sessionStorage.setItem("digest", digest)
+    }
+  }
+
+  static verifyPin(pin) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${window.__AUTH_LOCATION__}/request/verify/pin/`)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.overrideMimeType("text/html")
+      xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        if (response.status === 200) {
+          console.info("Email verified..")
+          return resolve()
+        }
+        console.error(response.message)
+      }
+      xhr.send(JSON.stringify({ pin }))
+    })
+  }
+
+  static verifyEmail(email) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${window.__AUTH_LOCATION__}/request/verify/email/`)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.overrideMimeType("text/html")
+      xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        if (response.status === 200) {
+          console.info("Email verification started..")
+          return resolve()
+        }
+        console.error(response.message)
+      }
+      xhr.send(JSON.stringify({ email }))
+    })
+  }
 
   static sendFile(file) {
     return new Promise((resolve, reject) => {
@@ -131,7 +259,7 @@ export class Request {
       const utf8DecodedClientDataJSON = new TextDecoder("utf-8").decode(clientDataJSON)
 
       // 6.) https://w3c.github.io/webauthn/#sctn-verifying-assertion
-      if (!isJson(utf8DecodedClientDataJSON)) {
+      if (!Helper.isJson(utf8DecodedClientDataJSON)) {
         alert(REGISTRATION_ABORTED_DUE_TO_SECURITY_ISSUES)
         return reject({
           status: 500,
@@ -242,7 +370,7 @@ export class Request {
       const utf8DecodedClientDataJSON = new TextDecoder("utf-8").decode(clientDataJSON)
 
       // 6.) https://w3c.github.io/webauthn/#sctn-registering-a-new-credential
-      if (!isJson(utf8DecodedClientDataJSON)) {
+      if (!Helper.isJson(utf8DecodedClientDataJSON)) {
         alert(REGISTRATION_ABORTED_DUE_TO_SECURITY_ISSUES)
         return
       }

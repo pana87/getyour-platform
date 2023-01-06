@@ -1,8 +1,7 @@
 const express = require('express')
 const cors = require("cors")
-// const Storage = require('../config/Storage')
 const AuthServer = require('../lib/AuthServer.js')
-const Notification = require('../lib/Notification')
+const Notification = require('../lib/Notification.js')
 const base64url = require('base64url')
 const app = express()
 const crypto = require("node:crypto")
@@ -10,6 +9,8 @@ const StringDecoder = require("node:string_decoder")
 const { User } = require('../lib/domain/User.js')
 const { JWTToken } = require('../lib/JWTToken')
 const { authLocation, clientLocation } = require('../config/ServerLocation.js')
+const { Helper } = require('../lib/Helper.js')
+// huge security bug
 const userChallenge = Array.from(Uint8Array.from(crypto.randomBytes(32)))
 const userHandle = Array.from(Uint8Array.from(crypto.randomBytes(16)))
 const pubKeyCredParams = [
@@ -23,6 +24,47 @@ app.use(cors({
   methods: [ "POST" ],
   credentials: true,
 }))
+
+app.post("/request/verify/pin/", async (req, res) => {
+  const { pin } = req.body
+  if (pin === userPin) {
+    return res.send({
+      status: 200,
+      message: "PIN_VERIFIED",
+    })
+  }
+
+  return res.send({
+    status: 500,
+    message: "VERIFY_PIN_FAILED",
+  })
+})
+
+let userPin
+app.post("/request/verify/email/", async (req, res) => {
+
+  const { email } = req.body
+  userPin = Helper.generateRandomPin(4)
+
+  const sendEmailRx = await Helper.sendEmail({
+    from: "<droid@get-your.de>",
+    to: email,
+    subject: "[getyour plattform] Aus Sicherheitsgründen bestätige bitte deine E-Mail Adresse",
+    html: /*html*/`<div>PIN: ${userPin}</div>`
+  })
+
+  if (sendEmailRx.status === 200) {
+    return res.send({
+      status: 200,
+      message: "EMAIL_VERIFIED",
+    })
+  }
+
+  return res.send({
+    status: 500,
+    message: "VERIFY_EMAIL_FAILED",
+  })
+})
 
 app.post("/request/jwt/token/", async (req, res) => {
   const requestJwtTokenRx = JWTToken.sign(req.body)

@@ -1,0 +1,260 @@
+body {
+  margin: 0;
+  line-height: normal;
+}
+.rechteck-21 {
+  position: absolute;
+  width: 100%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: var(--color-beige);
+  border: 0.3px solid var(--color-gray-200);
+  box-sizing: border-box;
+  height: 118px;
+}
+.impressum,
+.shs-montage-express {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 717px);
+}
+.impressum {
+  left: calc(50% + 358px);
+}
+.datenschutz,
+.div,
+.div1 {
+  position: absolute;
+  top: 4.17%;
+  left: calc(50% + 575px);
+}
+.div,
+.div1 {
+  top: 0;
+  left: calc(50% + 312px);
+}
+.div1 {
+  left: calc(50% + 529px);
+}
+.c,
+.gruppe-1865-child {
+  position: absolute;
+  top: 16.67%;
+}
+.c {
+  left: calc(50% - 741px);
+  font-size: var(--font-size-3xs);
+}
+.gruppe-1865-child {
+  height: 66.67%;
+  bottom: 16.67%;
+  left: calc(50% - 745px);
+  max-height: 100%;
+  width: 16px;
+}
+.gruppe-1865 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.account-erstellen,
+.gruppe-1864 {
+  position: absolute;
+  font-family: var(--font-apple-braille);
+}
+.gruppe-1864 {
+  height: 1.15%;
+  width: calc(100% - 430px);
+  top: 96.04%;
+  right: 215px;
+  bottom: 59px;
+  left: 215px;
+  font-size: var(--font-size-base);
+  color: var(--color-gray-400);
+}
+.account-erstellen {
+  top: calc(50% - 831.73px);
+  left: 4.63%;
+  font-size: var(--font-size-3xl);
+  line-height: 37px;
+  -webkit-text-stroke: 1px #161616;
+  opacity: 0.86;
+}
+.jetzt-zur-bersicht {
+  position: absolute;
+  top: calc(50% - 17.5px);
+  left: calc(50% - 124px);
+  font-size: var(--font-size-2xl);
+  line-height: 29px;
+  font-family: var(--font-ligurino);
+  color: var(--color-gray-500);
+  text-align: left;
+}
+.angeboterhaltenbutton {
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background-color: var(--color-orange-100);
+  position: absolute;
+  height: calc(100% - 38px);
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 38px;
+  left: 0;
+  border-radius: var(--br-md);
+}
+.angeboterhaltenbutton:hover {
+  background-color: var(--color-orange-200);
+}
+.unverbindliches-und-kostenlose {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+.gruppe-1863 {
+  position: absolute;
+  top: 1602px;
+  left: calc(50% - 236px);
+  width: 472px;
+  height: 153px;
+  font-size: var(--font-size-4xs);
+  color: var(--color-gray-500);
+  font-family: var(--font-ligurino);
+}
+.logo-icon {
+  position: absolute;
+  height: calc(100% - 23px);
+  top: 11px;
+  bottom: 12px;
+  left: 86px;
+  max-height: 100%;
+  width: 101px;
+  object-fit: cover;
+}
+.gruppe-5,
+.rechteck-262 {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  right: 0;
+  left: 0;
+  background-color: var(--color-white);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  height: 85px;
+}
+.rechteck-262 {
+  height: 100%;
+  bottom: 0;
+  border-radius: var(--br-lg);
+  background-color: var(--color-green);
+  opacity: 0.25;
+}
+.hausbaujahr {
+  position: absolute;
+  top: calc(50% - 44.77px);
+  left: 23.91px;
+  opacity: 0.86;
+}
+.gruppe-1774 {
+  position: absolute;
+  height: 8.44%;
+  width: 90.68%;
+  top: 16.57%;
+  right: 4.66%;
+  bottom: 74.99%;
+  left: 4.66%;
+  opacity: 0.71;
+  text-align: center;
+  font-size: 22px;
+}
+.rechteck-2621 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: var(--br-lg);
+  background-color: var(--color-white);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  border: 0.3px solid var(--color-black);
+  box-sizing: border-box;
+}
+.hausbaujahr1,
+.hausbaujahr2 {
+  position: absolute;
+  left: 56.91px;
+}
+.hausbaujahr1 {
+  top: calc(50% - 43px);
+  opacity: 0.86;
+}
+.hausbaujahr2 {
+  border: 0;
+  font-family: var(--font-forma-djr-micro);
+  font-size: var(--font-size-base);
+  background-color: transparent;
+  top: calc(50% + 14px);
+  color: var(--color-gray-300);
+  text-align: left;
+}
+.gruppe-1873 {
+  position: absolute;
+  height: 6.21%;
+  width: 90.68%;
+  top: 30.9%;
+  right: 4.66%;
+  bottom: 62.89%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.hausbaujahr3,
+.hausbaujahr4 {
+  position: absolute;
+  left: 56.91px;
+}
+.hausbaujahr3 {
+  top: calc(50% - 34px);
+  opacity: 0.86;
+}
+.hausbaujahr4 {
+  border: 0;
+  font-family: var(--font-forma-djr-micro);
+  font-size: var(--font-size-base);
+  background-color: transparent;
+  top: calc(50% + 20px);
+  color: var(--color-gray-300);
+  text-align: left;
+}
+.gruppe-1874 {
+  position: absolute;
+  height: 6.21%;
+  width: 90.68%;
+  top: 40.45%;
+  right: 4.66%;
+  bottom: 53.34%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.kontaktformular {
+  position: relative;
+  background-color: var(--color-gray-100);
+  width: 100%;
+  height: 2094px;
+  text-align: left;
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-300);
+  font-family: var(--font-forma-djr-micro);
+}
+@media screen and (max-width: 768px) {
+  .gruppe-1863 {
+    width: 472px;
+  }
+}

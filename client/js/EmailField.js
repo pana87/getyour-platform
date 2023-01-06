@@ -1,48 +1,24 @@
 export class EmailField {
 
-  #withValidityCalled = false
-
   #setValidStyle(input) {
-    input.style.borderBottom = "1px solid green"
+    input.style.border = "2px solid #00c853"
+    input.style.borderRadius = "3px"
     return input
   }
 
   #setNotValidStyle(input) {
-    input.style.borderBottom = "1px solid red"
+    input.style.border = "2px solid #d50000"
+    input.style.borderRadius = "3px"
     return input
   }
 
   withValidStyle() {
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
-
-    inputs.forEach(input => {
-      this.#setValidStyle(input)
-    })
+    document.querySelectorAll(this.inputSelector).forEach(input => this.#setValidStyle(input))
     return this
   }
 
   withNotValidStyle() {
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
-
-    inputs.forEach(input => {
-      this.#setNotValidStyle(input)
-    })
-    return this
-  }
-
-  #setValidity(input) {
-    if (!this.#isValid(input)) {
-      this.#setNotValidStyle(input)
-    }
-    if (this.#isValid(input)) {
-      this.valid = this.#isValid(input)
-      this.#setValidStyle(input)
-    }
-    return input
-  }
-
-  withValidity() {
-    this.#withValidityCalled = true
+    document.querySelectorAll(this.inputSelector).forEach(input => this.#setNotValidStyle(input))
     return this
   }
 
@@ -53,7 +29,7 @@ export class EmailField {
 
   withMaxLength(maxLength) {
     this.maxLength = maxLength
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setMaxLength(input))
     return this
   }
@@ -65,11 +41,7 @@ export class EmailField {
 
   withPattern(pattern) {
     this.pattern = pattern
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
-
-    inputs.forEach(input => {
-      this.#setPattern(input)
-    })
+    document.querySelectorAll(this.inputSelector).forEach(input => this.#setPattern(input))
     return this
   }
 
@@ -80,14 +52,14 @@ export class EmailField {
 
   withRequired() {
     this.required = true
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setRequired(input))
     return this
   }
 
   withBackgroundColor(backgroundColor) {
     this.backgroundColor = backgroundColor
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setBackgroundColor(input))
     return this
   }
@@ -97,56 +69,55 @@ export class EmailField {
     return input
   }
 
-  #getInput() {
-    let value = undefined
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
-    inputs.forEach(input => {
-      if (this.#isValid(input)) {
-        value = input.value
-      }
-    })
-    return value
+  get value() {
+    let result = undefined
+    const inputs = document.querySelectorAll(this.inputSelector)
+    inputs.forEach(input => result = input.value)
+    return result
   }
 
-  storeInputToLocalStorage(storageName) {
-    const value = this.#getInput()
-
-    if (value !== undefined) {
-      const storage = JSON.parse(window.localStorage.getItem(storageName)) || {}
-
-      storage[this.className] = value
-
-      window.localStorage.setItem(storageName, JSON.stringify(storage))
-    }
-    return this
+  isEmpty(value) {
+    return value.replace(/\s/g,"") === ""
   }
 
-  #isValid(input) {
+  isUndefined(value) {
+    return value === undefined
+  }
+
+  checkValidity(input) {
     return input.checkValidity() &&
-      other.value !== undefined &&
-      other.value.replace(/\s/g,"") !== ""
+      !this.isEmpty(input.value) &&
+      !this.isUndefined(input.value)
   }
 
-  withSync() {
-    const inputs = document.body.querySelectorAll(this.cssSelectorInput)
-    inputs.forEach(input => {
-      input.addEventListener("input", () => {
-        if (this.#withValidityCalled === true) {
-          this.#setValidity(input)
-        }
-        inputs.forEach(other => {
-          other.value = input.value
-
-          if (this.#isValid(other)) this.value = other.value
-        })
-      })
+  withValidValue(callback) {
+    document.querySelectorAll(this.inputSelector).forEach(input => {
+      if (this.checkValidity(input)) {
+        this.withValidStyle()
+        callback(input.value)
+        return
+      }
+      this.withNotValidStyle()
+      console.error("VALUE_NOT_VALID")
     })
     return this
+  }
+
+  withInputEventListener(callback) {
+    const inputs = document.body.querySelectorAll(this.inputSelector)
+    inputs.forEach(input => input.addEventListener("input", (event) => callback(event)))
+    return this
+  }
+
+  #setSync(input) {
+    const inputs = document.body.querySelectorAll(this.inputSelector)
+    inputs.forEach(other => other.value = input.value)
+    return input
   }
 
   withPlaceholder(placeholder) {
     this.placeholder = placeholder
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setPlaceholder(input))
     return this
   }
@@ -164,23 +135,21 @@ export class EmailField {
   }
 
   withSHSDefaultStyle() {
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setSHSDefaultStyle(input))
     return this
   }
 
-  constructor(cssSelectorField) {
-    this.cssSelectorField = cssSelectorField
-    this.className = this.cssSelectorField.split("=")[1].split("]")[0]
-    this.cssSelectorInput = `input[name='${this.className}']`
+  constructor(fieldSelector) {
+    this.fieldSelector = fieldSelector
+    this.className = this.fieldSelector.split("'")[1]
+    this.inputSelector = `input[name='${this.className}']`
 
-    const divs = document.querySelectorAll(this.cssSelectorField)
+    const divs = document.querySelectorAll(this.fieldSelector)
 
     if (divs.length === 0) {
-      return {
-        status: 500,
-        message: "DIV_NOT_FOUND",
-      }
+      console.warn(`Field with class '${this.className}' not found.`)
+      return
     }
 
     divs.forEach(div => {
@@ -193,13 +162,5 @@ export class EmailField {
 
       div.append(input)
     })
-
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
-    if (inputs.length === 0) {
-      return {
-        status: 500,
-        message: "INPUT_NOT_FOUND",
-      }
-    }
   }
 }
