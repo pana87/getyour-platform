@@ -22,16 +22,6 @@ export class TextField {
     return input
   }
 
-  withValidStyle() {
-    document.querySelectorAll(this.inputSelector).forEach(input => this.#setValidStyle(input))
-    return this
-  }
-
-  withNotValidStyle() {
-    document.querySelectorAll(this.inputSelector).forEach(input => this.#setNotValidStyle(input))
-    return this
-  }
-
   #setMaxLength(input) {
     input.maxLength = this.maxLength
     return input
@@ -121,11 +111,11 @@ export class TextField {
   withValidValue(callback) {
     document.querySelectorAll(this.inputSelector).forEach(input => {
       if (this.checkValidity(input)) {
-        this.withValidStyle()
+        this.#setValidStyle(input)
         callback(input.value)
         return
       }
-      this.withNotValidStyle()
+      this.#setNotValidStyle(input)
       console.error("VALUE_NOT_VALID")
     })
     return this

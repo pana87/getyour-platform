@@ -1,8 +1,10 @@
-import {TextField} from "../../../js/TextField.js"
-import {ButtonField} from "../../../js/ButtonField.js"
-import {PasswordField} from "../../../js/PasswordField.js"
-import {Helper} from "../../../js/Helper.js"
-import {Request} from "../../../js/Request.js"
+import {TextField} from "../../../../js/TextField.js"
+import {ButtonField} from "../../../../js/ButtonField.js"
+import {PasswordField} from "../../../../js/PasswordField.js"
+import {Helper} from "../../../../js/Helper.js"
+import {Request} from "../../../../js/Request.js"
+
+// await Request.verifyId()
 
 const nameField = new TextField("div[class*='create-name']")
   .withPlaceholder("Nutzername..")

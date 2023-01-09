@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+
+    <link rel="stylesheet" href="./global.css" />
+    <link rel="stylesheet" href="./index.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Forma DJR Micro:wght@400&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Apple Braille:wght@400&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Georgia:wght@700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Ligurino:wght@400&display=swap"
+    />
+  </head>
+  <body>
+    <div class="haus" data-animate-on-scroll>
+      <div class="mir-ist-bekannt">
+        *Mir ist bekannt dass, bei einem Flachdach mit einer Neigung von mehr
+        als 4 Grad eine Aufständerung mit Ballastierung nicht möglich ist. Daher
+        ist nur eine Befestigung mit Dachdurchdringung möglich.
+      </div>
+      <div class="gruppe-1923">
+        <div class="rechteck-516"></div>
+        <div class="aufstellung">Aufstellung</div>
+      </div>
+      <div class="gruppe-5" id="headerid">
+        <img class="logo-icon" alt="" src="public/logo@2x.png" />
+      </div>
+      <div class="angaben-zum-haus">Angaben zum Haus</div>
+      <div class="sparrenabstand">Sparrenabstand</div>
+      <div class="flachdach">Flachdach</div>
+      <div class="bilderupload">Bilderupload</div>
+      <div class="gerstaufstellung">Gerüstaufstellung</div>
+      <div class="gruppe-1922">
+        <div class="rechteck-516"></div>
+        <div class="breite-des-hauses">Breite des Hauses</div>
+      </div>
+      <div class="gruppe-1928">
+        <div class="rechteck-516"></div>
+        <div class="ausrichtung-flachdach">Ausrichtung Flachdach</div>
+      </div>
+      <div class="gruppe-1938">
+        <div class="rechteck-516"></div>
+        <div class="hausmae">Hausmaße</div>
+      </div>
+      <div class="gruppe-1941">
+        <div class="rechteck-516"></div>
+        <div class="frontansicht">Frontansicht</div>
+      </div>
+      <div class="gruppe-1942">
+        <div class="rechteck-516"></div>
+        <div class="frontansicht"><p class="heidelberger">Südansicht</p></div>
+      </div>
+      <div class="gruppe-1943">
+        <div class="rechteck-516"></div>
+        <div class="frontansicht">
+          <p class="heidelberger">Gerüststandort</p>
+        </div>
+      </div>
+      <div class="gruppe-1950">
+        <div class="rechteck-516"></div>
+        <div class="frontansicht"><p class="heidelberger">Ortgang</p></div>
+      </div>
+      <div class="gruppe-1951">
+        <div class="rechteck-516"></div>
+        <div class="frontansicht">Sparrenansicht</div>
+      </div>
+      <div class="gruppe-1952">
+        <div class="rechteck-516"></div>
+        <div class="frontansicht">Bild des Ziegels</div>
+      </div>
+      <div class="clicktechnischesknopf" id="gehezutechnischesbutton">
+        <div class="clicktechnischesbutton">Technisches</div>
+        <div class="fss">
+          <div class="rechteck-226"></div>
+          <div class="rechteck-226"></div>
+          <div class="div">4</div>
+        </div>
+      </div>
+      <div class="clickzumstromknopf" id="gehezustrombutton">
+        <div class="clickzumsstrombutton">Strom</div>
+        <div class="fss">
+          <div class="rechteck-226"></div>
+          <div class="rechteck-226"></div>
+          <div class="div">3</div>
+        </div>
+      </div>
+      <div class="clickzurheizungknopf" id="gehezuheizungbutton">
+        <div class="clickzurheizungbutton">Heizung</div>
+        <div class="fss">
+          <div class="rechteck-226"></div>
+          <div class="rechteck-226"></div>
+          <div class="div2">2</div>
+        </div>
+      </div>
+      <div class="clickzumhausknopf" id="gehezuhausbutton">
+        <div class="clickzumhausbutton">Haus</div>
+        <div class="vv"><div class="div3">1</div></div>
+      </div>
+      <div class="gruppe-1873" id="baujahrid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Baujahr</div>
+        <input
+          class="hausbaujahr1"
+          type="text"
+          placeholder="2005"
+          id="baujahrinput"
+        />
+      </div>
+      <div class="gruppe-1884" id="renovierungid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Letzte Renovierung/Umbau</div>
+        <input
+          class="hausbaujahr1"
+          type="text"
+          placeholder="2012"
+          id="renovierunginput"
+        />
+      </div>
+      <div class="gruppe-1887" id="wohnflaecheid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Wohnfläche (qm)</div>
+        <input
+          class="hausbaujahr1"
+          type="text"
+          placeholder="180"
+          id="wohnflaecheinput"
+        />
+      </div>
+      <div class="gruppe-1902" id="abstandaid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Abstand (a) in cm</div>
+        <input
+          class="hausbaujahr1"
+          type="text"
+          placeholder="70"
+          id="abstandainput"
+        />
+      </div>
+      <div class="gruppe-1918" id="breitedeshausesabid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Breite (a+b) in Meter</div>
+        <input
+          class="hausbaujahr1"
+          type="text"
+          placeholder="11"
+          id="breitedeshausesabinput"
+        />
+      </div>
+      <div class="gruppe-1903" id="breitebid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Breite (b) in cm</div>
+        <input
+          class="hausbaujahr1"
+          type="text"
+          placeholder="50"
+          id="breitebinput"
+        />
+      </div>
+      <div class="gruppe-1919" id="laengedeshauseabid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Länge (a+b) in Meter</div>
+        <input
+          class="hausbaujahr1"
+          type="text"
+          placeholder="20"
+          id="laengedeshauseabinput"
+        />
+      </div>
+      <div class="gruppe-1925" id="breiteattikaaid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Breite (a) in cm</div>
+        <input
+          class="hausbaujahr1"
+          type="text"
+          placeholder="20"
+          id="breiteattikaainput"
+        />
+      </div>
+      <div class="gruppe-1932" id="hausmassetraufhoeheid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Traufhöhe in Meter</div>
+        <input
+          class="hausbaujahr1"
+          type="number"
+          placeholder="3,5"
+          id="hausmassetraufhoeheinput"
+        />
+      </div>
+      <div class="gruppe-1904" id="hoehecid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Höhe (c) in cm</div>
+        <input
+          class="hausbaujahr1"
+          type="text"
+          placeholder="45"
+          id="hoehecinput"
+        />
+      </div>
+      <div class="gruppe-1920" id="anzahlgeruestid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Gerüstanzahl</div>
+        <input
+          class="hausbaujahr1"
+          type="number"
+          placeholder="2"
+          id="anzahlgeruestinput"
+        />
+      </div>
+      <div class="gruppe-1926" id="hoeheattikaid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Höhe (b) in cm</div>
+        <input
+          class="hausbaujahr1"
+          type="number"
+          placeholder="15"
+          id="hoeheattikainput"
+        />
+      </div>
+      <div class="gruppe-1933" id="hausmassedachbreiteid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Dachbreite in Meter</div>
+        <input
+          class="hausbaujahr1"
+          type="number"
+          placeholder="11"
+          id="hausmassedachbreiteinput"
+        />
+      </div>
+      <div class="gruppe-1921" id="gesamtgeruestflaecheid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Gesamtgerüstfläche (Länge x Höhe) in m^2</div>
+        <input
+          class="hausbaujahr1"
+          type="number"
+          placeholder="50"
+          id="gesamtgeruestflaecheidinput"
+        />
+      </div>
+      <div class="gruppe-1927" id="gradzahlneigungflachdachid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Gradzahl Flachdach in Meter</div>
+        <input
+          class="hausbaujahr1"
+          type="number"
+          placeholder="3"
+          id="gradzahlneigungflachdachinput"
+        />
+      </div>
+      <div class="gruppe-1934" id="hausmassedachlaengeid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Dachlänge in Meter</div>
+        <input
+          class="hausbaujahr1"
+          type="number"
+          placeholder="8"
+          id="hausmassedachlaengeinput"
+        />
+      </div>
+      <div class="gruppe-1948" id="ziegeldeckmasslaengeid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Ziegeldeckmaß Länge in mm</div>
+        <input
+          class="hausbaujahr1"
+          type="number"
+          placeholder="27"
+          id="ziegeldeckmasslaengeinput"
+        />
+      </div>
+      <div class="gruppe-1935" id="hausmassefirsthoeheid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Firsthöhe in Meter</div>
+        <input
+          class="hausbaujahr1"
+          type="number"
+          placeholder="8"
+          id="hausmassefirsthoeheinput"
+        />
+      </div>
+      <div class="gruppe-1949" id="ziegeldeckmassbreiteid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Ziegeldeckmaß Breite in mm</div>
+        <input
+          class="hausbaujahr1"
+          type="number"
+          placeholder="30"
+          id="ziegeldeckmassbreiteinput"
+        />
+      </div>
+      <div class="gruppe-1937" id="dachneigungingradid">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Dachneigung in Grad</div>
+        <input
+          class="hausbaujahr1"
+          type="number"
+          placeholder="33"
+          id="dachneigungingradinput"
+        />
+      </div>
+      <div class="gruppe-1885" id="bewohnteetagenidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Bewohnte Etagen</div>
+        <div class="gruppe-1886" id="bewohnteetageidfeld">
+          <div class="hausbaujahr41">Erdgeschoss</div>
+        </div>
+      </div>
+      <div class="gruppe-1888" id="dachhautmoeglichidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">DC durch Dachhaut möglich</div>
+        <div class="gruppe-1886" id="dachhautmoeglichidfeld">
+          <div class="hausbaujahr41">Ja</div>
+        </div>
+      </div>
+      <div class="gruppe-1889" id="aussenfassademoeglichidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">DC an Außenfassade möglich</div>
+        <div class="gruppe-1886" id="aussenfassademoeglichidfeld">
+          <div class="hausbaujahr41">Ja</div>
+        </div>
+      </div>
+      <div class="gruppe-1890" id="aussenfassadegedaemmtidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Ist die Außenfassade gedämmt</div>
+        <div class="gruppe-1886" id="aussenfassadegedaemmtidfeld">
+          <div class="hausbaujahr41">Ja</div>
+        </div>
+      </div>
+      <div class="gruppe-1891" id="denkmalschutzidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Denkmal- oder Ensembleschutz?</div>
+        <div class="gruppe-1886" id="denkmalschutzidfeld">
+          <div class="hausbaujahr41">Ja</div>
+        </div>
+      </div>
+      <div class="gruppe-1894" id="lagermoeglichkeitidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Lagermöglichkeit vorhanden</div>
+        <div class="gruppe-1886" id="lagermoeglichkeitidfeld">
+          <div class="hausbaujahr41">Ja</div>
+        </div>
+      </div>
+      <div class="gruppe-1895" id="dacheindeckungidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Die Dacheindeckung ist..</div>
+        <div class="gruppe-1886" id="dacheindeckungidfeld">
+          <div class="hausbaujahr41">gelegt</div>
+        </div>
+      </div>
+      <div class="gruppe-1896" id="unterkonstrunktionausfuehrungidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Ausführung der UK ist bekannt</div>
+        <div class="gruppe-1886" id="unterkonstrunktionausfuehrungidfeld">
+          <div class="hausbaujahr41">Ja</div>
+        </div>
+      </div>
+      <div class="gruppe-1897" id="landesbauordnungidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Landesbauordnung ist bekannt</div>
+        <div class="gruppe-1886" id="landesbauordnungidfeld">
+          <div class="hausbaujahr41">Ja, ist mir bekannt</div>
+        </div>
+      </div>
+      <div class="gruppe-1898" id="entlueftungsrohreidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Be-/ Entlüftungsrohre vorhanden</div>
+        <div class="gruppe-1886" id="entlueftungsrohreidfeld">
+          <div class="hausbaujahr41">Ja</div>
+        </div>
+      </div>
+      <div class="gruppe-1899" id="blitzschutzanlageidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Blitzschutzanlage vorhanden</div>
+        <div class="gruppe-1886" id="blitzschutzanlageidfeld">
+          <div class="hausbaujahr41">Nein</div>
+        </div>
+      </div>
+      <div class="gruppe-1900" id="dachaufbautenidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Sind “Dachaufbauten” angebracht</div>
+        <div class="gruppe-1886" id="dachaufbautenidfeld">
+          <div class="hausbaujahr41">Schneefanggitter</div>
+        </div>
+      </div>
+      <div class="gruppe-1905" id="materialsparrenidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Material der Sparren</div>
+        <div class="gruppe-1886" id="materialsparrenidfeld">
+          <div class="hausbaujahr41">Holz</div>
+        </div>
+      </div>
+      <div class="gruppe-1906" id="geruestgehwegidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Muss Gerüst auf öff. Gehwegen</div>
+        <div class="gruppe-1886" id="geruestgehwegidfeld">
+          <div class="hausbaujahr41">Nein</div>
+        </div>
+      </div>
+      <div class="gruppe-1907" id="montageteamstelltidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Montageteam stellt Gerüst</div>
+        <div class="gruppe-1886" id="montageteamstelltidfeld">
+          <div class="hausbaujahr41">Ja</div>
+        </div>
+      </div>
+      <div class="gruppe-1924" id="attikavorhandenidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Attika vorhanden ( Flachdach)</div>
+        <div class="gruppe-1886" id="attikavorhandenidfeld">
+          <div class="hausbaujahr41">Ja</div>
+        </div>
+      </div>
+      <div class="gruppe-1936" id="dachausrichtungidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Dachausrichtung</div>
+        <div class="gruppe-1886" id="dachausrichtungidfeld">
+          <div class="hausbaujahr41">Süd-West</div>
+        </div>
+      </div>
+      <div class="gruppe-1892" id="energiesystemidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Energiesystem vorhanden</div>
+        <div class="gruppe-1886" id="energiesystemidfeld">
+          <div class="hausbaujahr41">Ja, Photovoltaik</div>
+        </div>
+      </div>
+      <div class="gruppe-1893" id="entsorgenidd">
+        <div class="rechteck-262"></div>
+        <div class="hausbaujahr">Altes Energiesystem entsorgen</div>
+        <div class="gruppe-1886" id="entsorgenidfeld">
+          <div class="hausbaujahr41">Nein</div>
+        </div>
+      </div>
+      <div class="gruppe-1542">
+        <img class="pfad-555-icon" alt="" src="public/pfad-555.svg" /><img
+          class="pfad-554-icon"
+          alt=""
+          src="public/pfad-554.svg"
+        /><img class="pfad-561-icon" alt="" src="public/pfad-561.svg" /><img
+          class="pfad-548-icon"
+          alt=""
+          src="public/pfad-548.svg"
+        /><img class="pfad-551-icon" alt="" src="public/pfad-551.svg" /><img
+          class="pfad-549-icon"
+          alt=""
+          src="public/pfad-549.svg"
+        /><img class="pfad-560-icon" alt="" src="public/pfad-560.svg" /><img
+          class="pfad-547-icon"
+          alt=""
+          src="public/pfad-547.svg"
+        /><img class="pfad-557-icon" alt="" src="public/pfad-557.svg" /><img
+          class="linie-70-icon"
+          alt=""
+          src="public/linie-70.svg"
+        /><img class="pfad-552-icon" alt="" src="public/pfad-552.svg" /><img
+          class="pfad-553-icon"
+          alt=""
+          src="public/pfad-553.svg"
+        /><img class="linie-69-icon" alt="" src="public/linie-69.svg" /><img
+          class="linie-71-icon"
+          alt=""
+          src="public/linie-71.svg"
+        /><img class="pfad-550-icon" alt="" src="public/pfad-550.svg" /><img
+          class="pfad-543-icon"
+          alt=""
+          src="public/pfad-543.svg"
+        /><img class="pfad-556-icon" alt="" src="public/pfad-556.svg" /><img
+          class="pfad-542-icon"
+          alt=""
+          src="public/pfad-542.svg"
+        /><img class="linie-63-icon" alt="" src="public/linie-63.svg" /><img
+          class="linie-64-icon"
+          alt=""
+          src="public/linie-64.svg"
+        /><img class="linie-67-icon" alt="" src="public/linie-64.svg" /><img
+          class="linie-65-icon"
+          alt=""
+          src="public/linie-65.svg"
+        /><img class="linie-66-icon" alt="" src="public/linie-66.svg" /><img
+          class="linie-68-icon"
+          alt=""
+          src="public/linie-68.svg"
+        /><img class="linie-68-icon1" alt="" src="public/linie-68.svg" /><img
+          class="linie-68-icon2"
+          alt=""
+          src="public/linie-68.svg"
+        /><img class="linie-68-icon3" alt="" src="public/linie-68.svg" /><img
+          class="linie-68-icon4"
+          alt=""
+          src="public/linie-68.svg"
+        /><img class="linie-68-icon5" alt="" src="public/linie-68.svg" /><img
+          class="linie-68-icon6"
+          alt=""
+          src="public/linie-68.svg"
+        /><img class="linie-68-icon7" alt="" src="public/linie-68.svg" /><img
+          class="linie-68-icon8"
+          alt=""
+          src="public/linie-68.svg"
+        /><img class="linie-68-icon9" alt="" src="public/linie-689.svg" /><img
+          class="linie-68-icon10"
+          alt=""
+          src="public/linie-6810.svg"
+        /><img class="linie-68-icon11" alt="" src="public/linie-6811.svg" /><img
+          class="linie-68-icon12"
+          alt=""
+          src="public/linie-6812.svg"
+        /><img class="linie-68-icon13" alt="" src="public/linie-6813.svg" /><img
+          class="linie-68-icon14"
+          alt=""
+          src="public/linie-6814.svg"
+        /><img class="linie-68-icon15" alt="" src="public/linie-6815.svg" /><img
+          class="linie-68-icon16"
+          alt=""
+          src="public/linie-6816.svg"
+        /><img class="pfad-544-icon" alt="" src="public/pfad-544.svg" /><img
+          class="pfad-545-icon"
+          alt=""
+          src="public/pfad-545.svg"
+        /><img class="pfad-546-icon" alt="" src="public/pfad-546.svg" /><img
+          class="gruppe-1542-child"
+          alt=""
+          src="public/ellipse-36.svg"
+        /><img
+          class="check-mark-ok-icon"
+          alt=""
+          src="public/5416276-check-mark-ok-icon.svg"
+        /><img class="pfad-558-icon" alt="" src="public/pfad-560.svg" /><img
+          class="pfad-559-icon"
+          alt=""
+          src="public/pfad-559.svg"
+        /><img class="pfad-562-icon" alt="" src="public/pfad-562.svg" /><img
+          class="gruppe-1538-icon"
+          alt=""
+          src="public/gruppe-1538.svg"
+        /><img
+          class="gruppe-1539-icon"
+          alt=""
+          src="public/gruppe-1539.svg"
+        /><img
+          class="gruppe-1540-icon"
+          alt=""
+          src="public/gruppe-1540.svg"
+        /><img class="gruppe-1541-icon" alt="" src="public/gruppe-1541.svg" />
+        <div class="modul">Modul</div>
+        <div class="profilschiene">Profilschiene</div>
+        <div class="dachhacken">Dachhacken</div>
+        <div class="dachziegel">Dachziegel</div>
+      </div>
+      <div class="gruppe-1901">
+        <img class="gruppe-1901-child" alt="" src="public/ellipse-96.svg" /><img
+          class="gruppe-1779-icon"
+          alt=""
+          src="public/gruppe-1779.svg"
+        /><img class="gruppe-1780-icon" alt="" src="public/gruppe-1779.svg" />
+        <div class="linie-139"></div>
+        <div class="linie-140"></div>
+        <div class="linie-141"></div>
+        <div class="c">c)</div>
+        <div class="b">b)</div>
+        <div class="a">a)</div>
+        <div class="linie-142"></div>
+        <div class="linie-147"></div>
+        <div class="linie-143"></div>
+        <div class="linie-145"></div>
+        <div class="linie-144"></div>
+        <div class="linie-146"></div>
+      </div>
+      <div class="gruppe-1910">
+        <div class="lnge-a">Länge (a)</div>
+        <div class="lnge-b">Länge (b)</div>
+        <div class="breite-b">Breite (b)</div>
+        <div class="breite-a">Breite (a)</div>
+        <img class="pfad-782-icon" alt="" src="public/pfad-782.svg" /><img
+          class="pfad-782-icon"
+          alt=""
+          src="public/pfad-783.svg"
+        /><img class="pfad-784-icon" alt="" src="public/pfad-784.svg" /><img
+          class="pfad-785-icon"
+          alt=""
+          src="public/pfad-784.svg"
+        /><img class="pfad-786-icon" alt="" src="public/pfad-786.svg" /><img
+          class="pfad-787-icon"
+          alt=""
+          src="public/pfad-786.svg"
+        />
+      </div>
+      <div class="gruppe-1913">
+        <div class="gruppe-1915">
+          <div class="nordausrichtung">Nordausrichtung</div>
+          <input
+            class="rechteck-513"
+            type="checkbox"
+            id="nordausrichtungcheckbox"
+          />
+        </div>
+        <img class="gruppe-1914-icon" alt="" src="public/gruppe-1914.svg" />
+        <div class="nord">Nord</div>
+      </div>
+      <div class="gruppe-1916">
+        <div class="sdausrichtung">Südausrichtung</div>
+        <div class="sd">Süd</div>
+        <div class="rechteck-481"></div>
+        <img class="pfad-781-icon" alt="" src="public/pfad-781.svg" /><img
+          class="gruppe-1776-icon"
+          alt=""
+          src="public/gruppe-1776.svg"
+        /><input
+          class="rechteck-514"
+          type="checkbox"
+          id="suedausrichtungcheckbox"
+        />
+      </div>
+      <div class="gruppe-1917">
+        <div class="gruppe-1909">
+          <div class="westausrichtung">Westausrichtung</div>
+          <div class="ostausrichtung">Ostausrichtung</div>
+          <img class="gruppe-1912-icon" alt="" src="public/gruppe-1912.svg" />
+          <div class="gruppe-1911">
+            <img class="pfad-800-icon" alt="" src="public/pfad-800.svg" />
+            <div class="ost">Ost</div>
+            <div class="west">West</div>
+          </div>
+        </div>
+        <input
+          class="rechteck-511"
+          type="checkbox"
+          id="ostausrichtungcheckbox"
+        /><input
+          class="rechteck-512"
+          type="checkbox"
+          id="westausrichtungcheckbox"
+        />
+      </div>
+      <div class="gruppe-1851">
+        <img class="pfad-788-icon" alt="" src="public/pfad-788.svg" /><img
+          class="pfad-789-icon"
+          alt=""
+          src="public/pfad-789.svg"
+        /><img class="pfad-790-icon" alt="" src="public/pfad-790.svg" />
+        <div class="linie-133"></div>
+        <div class="linie-138"></div>
+        <div class="linie-134"></div>
+        <div class="linie-137"></div>
+        <div class="linie-135"></div>
+        <div class="linie-136"></div>
+        <div class="breite-a1">Breite (a)</div>
+        <div class="hhe-b">Höhe (b)</div>
+      </div>
+      <div class="gruppe-1929">
+        <div class="nordseite">Nordseite</div>
+        <div class="ostseite">Ostseite</div>
+        <img class="pfad-793-icon" alt="" src="public/pfad-793.svg" /><img
+          class="pfad-794-icon"
+          alt=""
+          src="public/pfad-794.svg"
+        /><img class="pfad-795-icon" alt="" src="public/pfad-795.svg" /><input
+          class="rechteck-517"
+          type="checkbox"
+          id="flachdachnordseitecheckbox"
+        /><input
+          class="rechteck-518"
+          type="checkbox"
+          id="flachdachostseitecheckbox"
+        />
+      </div>
+      <div class="gruppe-1930">
+        <div class="sdseite">Südseite</div>
+        <div class="westseite">Westseite</div>
+        <img class="pfad-796-icon" alt="" src="public/pfad-796.svg" /><img
+          class="pfad-797-icon"
+          alt=""
+          src="public/pfad-797.svg"
+        /><img class="pfad-798-icon" alt="" src="public/pfad-798.svg" />
+        <div class="linie-148"></div>
+        <input
+          class="rechteck-519"
+          type="checkbox"
+          id="flachdachsuedseitecheckbox"
+        /><input
+          class="rechteck-520"
+          type="checkbox"
+          id="flachdachwestseitecheckbox"
+        />
+      </div>
+      <input
+        class="rechteck-521"
+        type="checkbox"
+        id="flachdachaufstaenderungcheckbox"
+      />
+      <div class="ja-das-ist">Ja, das ist mir bekannt.</div>
+      <div class="gruppe-1931">
+        <img class="gruppe-1543-icon" alt="" src="public/gruppe-1543.svg" />
+        <div class="dachbreite">Dachbreite</div>
+        <div class="firsthhe">Firsthöhe</div>
+        <div class="traufhhe">Traufhöhe</div>
+        <div class="dachlnge">Dachlänge</div>
+        <img class="pfad-563-icon" alt="" src="public/pfad-563.svg" /><img
+          class="pfad-564-icon"
+          alt=""
+          src="public/pfad-564.svg"
+        /><img class="pfad-566-icon" alt="" src="public/pfad-566.svg" /><img
+          class="pfad-567-icon"
+          alt=""
+          src="public/pfad-567.svg"
+        />
+      </div>
+      <img class="gruppe-1940-icon" alt="" src="public/gruppe-1940.svg" />
+      <div class="dateihochladenfrontansicht">
+        <img
+          class="cloud-upload-icon"
+          alt=""
+          src="public/352278-cloud-upload-icon.svg"
+        />
+        <div class="datei-hier-hochladen">Datei hier hochladen</div>
+      </div>
+      <div class="dateihochladenfrontansicht1">
+        <img
+          class="cloud-upload-icon"
+          alt=""
+          src="public/352278-cloud-upload-icon.svg"
+        />
+        <div class="datei-hier-hochladen">Datei hier hochladen</div>
+      </div>
+      <div class="dateihochladenfrontansicht2">
+        <img
+          class="cloud-upload-icon"
+          alt=""
+          src="public/352278-cloud-upload-icon.svg"
+        />
+        <div class="datei-hier-hochladen">Datei hier hochladen</div>
+      </div>
+      <div class="dateihochladenfrontansicht3">
+        <img
+          class="cloud-upload-icon"
+          alt=""
+          src="public/352278-cloud-upload-icon.svg"
+        />
+        <div class="datei-hier-hochladen">Datei hier hochladen</div>
+      </div>
+      <div class="dateihochladenfrontansicht4">
+        <img
+          class="cloud-upload-icon"
+          alt=""
+          src="public/352278-cloud-upload-icon.svg"
+        />
+        <div class="datei-hier-hochladen">Datei hier hochladen</div>
+      </div>
+      <div class="dateihochladenfrontansicht5">
+        <img
+          class="cloud-upload-icon"
+          alt=""
+          src="public/352278-cloud-upload-icon.svg"
+        />
+        <div class="datei-hier-hochladen">Datei hier hochladen</div>
+      </div>
+      <input class="pfad-801" type="file" /><input
+        class="pfad-802"
+        type="file"
+      /><input class="pfad-803" type="file" /><input
+        class="pfad-804"
+        type="file"
+      /><input class="pfad-806" type="file" /><input
+        class="pfad-807"
+        type="file"
+      /><img class="gruppe-1494-icon" alt="" src="public/gruppe-1494.svg" /><img
+        class="gruppe-1944-icon"
+        alt=""
+        src="public/gruppe-1944.svg"
+      /><img class="gruppe-1554-icon" alt="" src="public/gruppe-1554.svg" /><img
+        class="gruppe-1555-icon"
+        alt=""
+        src="public/gruppe-1555.svg"
+      />
+      <div class="gruppe-1556">
+        <img class="pfad-509-icon" alt="" src="public/pfad-509.svg" /><b
+          class="heidelberger-dachstein"
+          ><p class="heidelberger">Heidelberger</p>
+          <p class="heidelberger">Dachstein</p></b
+        >
+      </div>
+      <div class="gruppe-1863" id="buttonuebersichtangebote">
+        <button class="angeboterhaltenbutton">
+          <div class="speichern-und-weiter">Speichern und weiter</div>
+        </button>
+      </div>
+      <div class="gruppe-1883">
+        <div class="rechteck-26239"></div>
+        <div class="hausbaujahr78">Impressum</div>
+        <div class="hausbaujahr79">Datenschutz</div>
+      </div>
+      <div class="mir-ist-bekannt1">
+        *Mir ist bekannt, dass ab einer Traufhöhe von vier Metern eine
+        Verankerung notwendig sein könnte
+      </div>
+      <input
+        class="rechteck-522"
+        type="checkbox"
+        id="traufhoeheviermetercheckbox"
+      />
+      <div class="ja-das-ist1">Ja, das ist mir bekannt.</div>
+    </div>
+
+    <script>
+      var scrollAnimElements = document.querySelectorAll("[data-animate-on-scroll]");
+      var observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting || entry.intersectionRatio > 0) {
+              const targetElement = entry.target;
+              targetElement.classList.add("animate");
+              observer.unobserve(targetElement);
+            }
+          }
+        },
+        {
+          threshold: 0.15,
+        }
+      );
+      
+      for (let i = 0; i < scrollAnimElements.length; i++) {
+        observer.observe(scrollAnimElements[i]);
+      }
+      </script>
+  
+  <script type="module" src="./index.js"></script>
+</body>
+
+</html>

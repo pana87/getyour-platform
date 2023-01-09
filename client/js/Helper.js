@@ -1,5 +1,11 @@
 export class Helper {
 
+  static async digestSessionStorage() {
+    const message = JSON.stringify(window.sessionStorage)
+    const digest = await this.digest(message)
+    return digest
+  }
+
   static fileToDataUrl(file) {
     try {
       const reader = new FileReader()

@@ -1,55 +1,55 @@
 export class NumberField {
 
-  #withValidityCalled = false
-
   #setNoStyle(input) {
     input.removeAttribute("style")
     return input
   }
 
   withNoStyle() {
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setNoStyle(input))
     return this
   }
 
   #setValidStyle(input) {
-    input.style.borderBottom = "1px solid green"
+    input.style.border = "2px solid #00c853"
+    input.style.borderRadius = "3px"
     return input
   }
 
   #setNotValidStyle(input) {
-    input.style.borderBottom = "1px solid red"
+    input.style.border = "2px solid #d50000"
+    input.style.borderRadius = "3px"
     return input
   }
 
   withValidStyle() {
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setValidStyle(input))
     return this
   }
 
   withNotValidStyle() {
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setNotValidStyle(input))
     return this
   }
 
-  #setValidity(input) {
-    if (!input.checkValidity()) {
-      this.#setNotValidStyle(input)
-    }
-    if (input.checkValidity()) {
-      this.valid = input.checkValidity()
-      this.#setValidStyle(input)
-    }
-    return input
-  }
+  // #setValidity(input) {
+  //   if (!input.checkValidity()) {
+  //     this.#setNotValidStyle(input)
+  //   }
+  //   if (input.checkValidity()) {
+  //     this.valid = input.checkValidity()
+  //     this.#setValidStyle(input)
+  //   }
+  //   return input
+  // }
 
-  withValidity() {
-    this.#withValidityCalled = true
-    return this
-  }
+  // withValidity() {
+  //   this.#withValidityCalled = true
+  //   return this
+  // }
 
   #setRequired(input) {
     input.required = true
@@ -58,56 +58,101 @@ export class NumberField {
 
   withRequired() {
     this.required = true
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setRequired(input))
     return this
   }
 
-  withSync() {
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
-
-    inputs.forEach(input => {
-      input.addEventListener("input", () => {
-        if (this.#withValidityCalled === true) {
-          this.#setValidity(input)
-        }
-        inputs.forEach(other => {
-          other.value = input.value
-
-          if (this.#isValid(other)) this.value = other.value
-        })
-      })
-    })
-    return this
+  get value() {
+    let result = undefined
+    const inputs = document.querySelectorAll(this.inputSelector)
+    inputs.forEach(input => result = input.value)
+    return result
   }
 
-  storeInputToLocalStorage(storageName) {
-    const value = this.#getInput()
+  // withSync() {
+  //   const inputs = document.querySelectorAll(this.inputSelector)
 
-    if (value !== undefined) {
-      const storage = JSON.parse(window.localStorage.getItem(storageName)) || {}
+  //   inputs.forEach(input => {
+  //     input.addEventListener("input", () => {
+  //       if (this.#withValidityCalled === true) {
+  //         this.#setValidity(input)
+  //       }
+  //       inputs.forEach(other => {
+  //         other.value = input.value
 
-      storage[this.className] = value
+  //         if (this.#isValid(other)) this.value = other.value
+  //       })
+  //     })
+  //   })
+  //   return this
+  // }
 
-      window.localStorage.setItem(storageName, JSON.stringify(storage))
-    }
-    return this
+  // storeInputToLocalStorage(storageName) {
+  //   const value = this.#getInput()
+
+  //   if (value !== undefined) {
+  //     const storage = JSON.parse(window.localStorage.getItem(storageName)) || {}
+
+  //     storage[this.className] = value
+
+  //     window.localStorage.setItem(storageName, JSON.stringify(storage))
+  //   }
+  //   return this
+  // }
+
+  isEmpty(value) {
+    return value.replace(/\s/g,"") === ""
   }
 
-  #isValid(input) {
-    return input.checkValidity() && input.value !== ""
+  isUndefined(value) {
+    return value === undefined
   }
 
-  #getInput() {
-    let value = undefined
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
-    if (inputs.length === 0) return value
-    inputs.forEach(input => {
-      if (this.#isValid(input)) {
-        value = input.value
+  checkValidity(input) {
+    return input.checkValidity() &&
+      !this.isEmpty(input.value) &&
+      !this.isUndefined(input.value)
+  }
+
+  // #isValid(input) {
+  //   return input.checkValidity() && input.value !== ""
+  // }
+
+  withValidValue(callback) {
+    document.querySelectorAll(this.inputSelector).forEach(input => {
+      if (this.checkValidity(input)) {
+        this.withValidStyle()
+        callback(input.value)
+        return
       }
+      this.withNotValidStyle()
+      console.error("VALUE_NOT_VALID")
     })
-    return value
+    return this
+  }
+
+  // #getInput() {
+  //   let value = undefined
+  //   const inputs = document.querySelectorAll(this.inputSelector)
+  //   if (inputs.length === 0) return value
+  //   inputs.forEach(input => {
+  //     if (this.#isValid(input)) {
+  //       value = input.value
+  //     }
+  //   })
+  //   return value
+  // }
+
+  withInputEventListener(callback) {
+    const inputs = document.body.querySelectorAll(this.inputSelector)
+    inputs.forEach(input => input.addEventListener("input", (event) => callback(event)))
+    return this
+  }
+
+  #setSync(input) {
+    document.body.querySelectorAll(this.inputSelector).forEach(other => other.value = input.value)
+    return input
   }
 
   #setMax(input) {
@@ -117,7 +162,7 @@ export class NumberField {
 
   withMax(max) {
     this.max = max
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setMax(input))
     return this
   }
@@ -129,7 +174,7 @@ export class NumberField {
 
   withMin(min) {
     this.min = min
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setMin(input))
     return this
   }
@@ -142,15 +187,8 @@ export class NumberField {
   }
 
   withSHSDefaultStyle() {
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setSHSDefaultStyle(input))
-    return this
-  }
-
-  withPlaceholder(placeholder) {
-    this.placeholder = placeholder
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
-    inputs.forEach(input => this.#setPlaceholder(input))
     return this
   }
 
@@ -159,36 +197,32 @@ export class NumberField {
     return input
   }
 
-  constructor(cssSelectorField) {
-    this.cssSelectorField = cssSelectorField
-    this.className = cssSelectorField.split("=")[1].split("]")[0]
-    this.cssSelectorInput = `input[name='${this.className}']`
+  withPlaceholder(placeholder) {
+    this.placeholder = placeholder
+    const inputs = document.querySelectorAll(this.inputSelector)
+    inputs.forEach(input => this.#setPlaceholder(input))
+    return this
+  }
 
-    const divs = document.querySelectorAll(this.cssSelectorField)
-    if (divs.length === 0) {
-      return {
-        status: 500,
-        message: "DIV_NOT_FOUND",
-      }
+  constructor(fieldSelector) {
+    this.fieldSelector = fieldSelector
+    this.className = this.fieldSelector.split("'")[1]
+    this.inputSelector = `input[name='${this.className}']`
+
+    const divs = document.querySelectorAll(this.fieldSelector)
+    if (divs.length > 0) {
+      divs.forEach(div => {
+        div.innerHTML = ""
+
+        const input = document.createElement("input")
+        input.type = "number"
+        input.name = this.className
+        input.id = this.className
+
+        div.append(input)
+      })
+      return
     }
-
-    divs.forEach(div => {
-      div.innerHTML = ""
-
-      const input = document.createElement("input")
-      input.type = "number"
-      input.name = this.className
-      input.id = this.className
-
-      div.append(input)
-    })
-
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
-    if (inputs.length === 0) {
-      return {
-        status: 500,
-        message: "INPUT_NOT_FOUND",
-      }
-    }
+    console.error("FIELD_NOT_FOUND")
   }
 }

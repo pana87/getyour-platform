@@ -25,7 +25,7 @@ class ServerLocation {
     if (hostname === undefined) this.hostname = "localhost"
     if (protocol === undefined) this.protocol = "http:"
     this.host = `${this.hostname}:${this.port}`
-    this.origin = `${this.protocol}//${this.host}`
+    this.origin = `${this.protocol}://${this.host}`
 
     return this
   }

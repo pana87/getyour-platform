@@ -6,18 +6,22 @@ const path = require("node:path")
 const {HtmlParser} = require('../config/HtmlParser.js')
 const Notification = require('../lib/Notification.js')
 // const { fstat } = require('node:fs')
+const cookieParser = require('cookie-parser')
+
 const app = express()
 const { clientLocation, authLocation, databaseLocation } = require('../config/ServerLocation.js')
 // const location = clientLocation
 const rawParser = bodyParser.raw()
 const jsonParser = bodyParser.json({ limit: "50mb" })
 const textParser = bodyParser.text()
-// const db = require("nano")(process.env.DB)
 const fs = require("node:fs")
 const { CSSParser } = require('../config/CSSParser.js')
 const Storage = require('../lib/Storage.js')
 const { Helper } = require('../lib/Helper.js')
 const { User } = require('../lib/domain/User.js')
+const { Request } = require('../lib/Request.js')
+
+app.use(cookieParser())
 // const { Helper } = require('../lib/Helper.js')
 // const { nano } = require('../config/CouchDB.js')
 // console.log(nano);
@@ -44,7 +48,8 @@ const { User } = require('../lib/domain/User.js')
 //   Storage.insert({ users: [] }, "users")
 // }
 // createDatabase()
-Storage.clientConfig()
+// Storage.clientConfig()
+Storage.configureClient()
 
 
 
@@ -228,16 +233,19 @@ app.post("/send/file/", jsonParser, async (req, res) => {
   })
 })
 
-app.get("/testing/", async (req, res) => {
-  const {doc} = await Storage.get("getyour", "users")
-  console.log(doc);
+// app.get("/testing/set-cookies/", async (req, res) => {
+
+//   res.cookie('username', 'Webtutorials.ME', {
+//     maxAge: 1000 * 60, // 1 min
+//     httpOnly: true // http only, prevents JavaScript cookie access
+//   });
+
+//   return res.send("check cookies")
+// })
 
 
-  // const {html} = HtmlParser.parse({
-  //   pathToAssets: "",
-  //   pathToHtmlFile: "/lib/views/default.html",
-  // })
-  return res.send("hi")
+app.get("/show/cookies/", async (req, res) => {
+  return res.send(req.cookies)
 })
 
 app.get("/:username/", async (req, res) => {
@@ -290,7 +298,12 @@ app.get("/:username/", async (req, res) => {
 })
 
 
-app.get("/plattform/zugang/plattformentwickler/registrieren/", (req, res) => {
+app.get("/plattform/zugang/plattformentwickler/registrieren/", async (req, res) => {
+  // define allowed roles
+  // verify id
+  // verify roles
+  // get credential record from db
+  // await Request.verifySession(req, res)
   return res.send(/*html*/`
     <!DOCTYPE html>
     <html>

@@ -12,16 +12,6 @@ export class EmailField {
     return input
   }
 
-  withValidStyle() {
-    document.querySelectorAll(this.inputSelector).forEach(input => this.#setValidStyle(input))
-    return this
-  }
-
-  withNotValidStyle() {
-    document.querySelectorAll(this.inputSelector).forEach(input => this.#setNotValidStyle(input))
-    return this
-  }
-
   #setMaxLength(input) {
     input.maxLength = this.maxLength
     return input
@@ -93,11 +83,13 @@ export class EmailField {
   withValidValue(callback) {
     document.querySelectorAll(this.inputSelector).forEach(input => {
       if (this.checkValidity(input)) {
-        this.withValidStyle()
-        callback(input.value)
+        this.#setValidStyle(input)
+        if (callback !== undefined) {
+          callback(input.value)
+        }
         return
       }
-      this.withNotValidStyle()
+      this.#setNotValidStyle(input)
       console.error("VALUE_NOT_VALID")
     })
     return this
@@ -115,16 +107,16 @@ export class EmailField {
     return input
   }
 
+  #setPlaceholder(input) {
+    input.placeholder = this.placeholder
+    return input
+  }
+
   withPlaceholder(placeholder) {
     this.placeholder = placeholder
     const inputs = document.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setPlaceholder(input))
     return this
-  }
-
-  #setPlaceholder(input) {
-    input.placeholder = this.placeholder
-    return input
   }
 
   #setSHSDefaultStyle(input) {
