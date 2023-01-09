@@ -1,0 +1,48 @@
+:root {
+  /* fonts */
+  --font-forma-djr-micro: "Forma DJR Micro";
+  --font-ligurino: Ligurino;
+  --font-apple-braille: "Apple Braille";
+  --font-georgia: Georgia;
+
+  /* font sizes */
+  --font-size-6xs: 10px;
+  --font-size-5xs: 13px;
+  --font-size-4xs: 14px;
+  --font-size-3xs: 15px;
+  --font-size-2xs: 16px;
+  --font-size-xs: 17px;
+  --font-size-sm: 18px;
+  --font-size-base: 19px;
+  --font-size-lg: 20px;
+  --font-size-xl: 21px;
+  --font-size-2xl: 22px;
+  --font-size-3xl: 23px;
+  --font-size-4xl: 24px;
+  --font-size-5xl: 25px;
+  --font-size-6xl: 30px;
+  --font-size-7xl: 35px;
+  --font-size-8xl: 40px;
+
+  /* Colors */
+  --color-gray-100: #ebebeb;
+  --color-gray-200: #cfd4e2;
+  --color-gray-300: #707070;
+  --color-gray-400: #161616;
+  --color-gray-500: #0d0d0c;
+  --color-gray-600: #080808;
+  --color-gray-700: rgba(0, 0, 0, 0.4);
+  --color-gray-800: rgba(255, 255, 255, 0);
+  --color-green-100: #11841e;
+  --color-green-200: #006f39;
+  --color-white: #fff;
+  --color-orange-100: #f7aa20;
+  --color-orange-200: #f19d08;
+  --color-black: #000;
+  --color-tan-100: #e8ba68;
+
+  /* border radiuses */
+  --br-sm: 7px;
+  --br-md: 10px;
+  --br-lg: 15px;
+}

@@ -15,17 +15,17 @@ export class FileField {
   }
 
   withValidStyle() {
-    document.querySelectorAll(this.cssSelectorField).forEach(element => this.#setValidStyle(element))
+    document.querySelectorAll(this.fieldSelector).forEach(element => this.#setValidStyle(element))
     return this
   }
 
   withNotValidStyle() {
-    document.querySelectorAll(this.cssSelectorField).forEach(element => this.#setNotValidStyle(element))
+    document.querySelectorAll(this.fieldSelector).forEach(element => this.#setNotValidStyle(element))
     return this
   }
 
   #setValidity(input) {
-    const divs = document.querySelectorAll(this.cssSelectorField)
+    const divs = document.querySelectorAll(this.fieldSelector)
 
     if (!this.#isValid(input)) {
       divs.forEach(div => this.#setNotValidStyle(div))
@@ -48,7 +48,7 @@ export class FileField {
 
   withRequired() {
     this.required = true
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setRequired(input))
     return this
   }
@@ -59,7 +59,7 @@ export class FileField {
   }
 
   withSHSDefaultStyle() {
-    const inputs = document.body.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.body.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setSHSDefaultStyle(input))
     return this
   }
@@ -70,7 +70,7 @@ export class FileField {
   }
 
   withSync() {
-    const inputs = document.body.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.body.querySelectorAll(this.inputSelector)
 
     inputs.forEach(input => {
       input.addEventListener("input", () => {
@@ -112,7 +112,7 @@ export class FileField {
 
   #getInputAsDataUrl() {
     return new Promise((resolve, reject) => {
-      const inputs = document.querySelectorAll(this.cssSelectorInput)
+      const inputs = document.querySelectorAll(this.inputSelector)
 
       if (inputs.length === 0) {
         return reject({
@@ -153,7 +153,7 @@ export class FileField {
 
   #getFiles() {
     let value = undefined
-    const inputs = document.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.querySelectorAll(this.inputSelector)
     if (inputs.length === 0) return value
     inputs.forEach(input => {
       if (this.#isValid(input)) {
@@ -170,17 +170,19 @@ export class FileField {
 
   withAccept(type) {
     this.type = type
-    const inputs = document.body.querySelectorAll(this.cssSelectorInput)
+    const inputs = document.body.querySelectorAll(this.inputSelector)
     inputs.forEach(input => this.#setAccept(input))
     return this
   }
 
-  constructor(cssSelectorField) {
-    this.cssSelectorField = cssSelectorField
-    this.className = this.cssSelectorField.split("=")[1].split("]")[0]
-    this.cssSelectorInput = `input[name='${this.className}']`
+  constructor(fieldSelector) {
+    this.fieldSelector = fieldSelector
+    this.className = this.fieldSelector.split("'")[1]
 
-    const divs = document.querySelectorAll(this.cssSelectorField)
+    // this.className = this.fieldSelector.split("=")[1].split("]")[0]
+    this.inputSelector = `input[name='${this.className}']`
+
+    const divs = document.querySelectorAll(this.fieldSelector)
     if (divs.length === 0) {
       return {
         status: 500,
@@ -202,12 +204,12 @@ export class FileField {
       div.addEventListener("click", () => input.click())
     })
 
-    const inputs = document.body.querySelectorAll(this.cssSelectorInput)
-    if (inputs.length === 0) {
-      return {
-        status: 500,
-        message: "INPUT_NOT_FOUND",
-      }
-    }
+    // const inputs = document.body.querySelectorAll(this.inputSelector)
+    // if (inputs.length === 0) {
+    //   return {
+    //     status: 500,
+    //     message: "INPUT_NOT_FOUND",
+    //   }
+    // }
   }
 }

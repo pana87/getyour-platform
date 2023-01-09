@@ -12,81 +12,81 @@ app.use(cors({
   credentials: true,
 }))
 
-app.post("/request/store/name/", async (req, res) => {
-  const { id, name } = req.body
-
-  const {user} = await User.find(it => it.name === name)
-  console.log(user)
-
-  if (user !== undefined) {
-    const userUpdateRx = await User.update(id, (user) => {
-      user.name = name
+app.post("/request/store/digest/", async (req, res) => {
+  const { id, digest } = req.body
+  if (id !== undefined && digest !== undefined) {
+    await User.storeDigest({id, digest})
+    return res.send({
+      status: 200,
+      message: "STORE_DIGEST_REQUEST_SUCCEED",
     })
-    if (userUpdateRx.status === 200) {
-      return res.send({
-        status: 200,
-        message: "NAME_STORED",
-      })
-    }
   }
   return res.send({
     status: 500,
-    message: "NAME_STORE_FAILED",
+    message: "STORE_DIGEST_REQUEST_FAILED",
+  })
+})
+
+app.post("/request/store/name/", async (req, res) => {
+  const { id, name } = req.body
+  if (id !== undefined && name !== undefined) {
+    await User.storeName({id, name})
+    return res.send({
+      status: 200,
+      message: "STORE_NAME_REQUEST_SUCCEED",
+    })
+  }
+  return res.send({
+    status: 500,
+    message: "STORE_NAME_REQUEST_FAILED",
   })
 })
 
 app.post("/request/store/password/", async (req, res) => {
   const { id, password } = req.body
-  if (password !== undefined) {
-    const userUpdateRx = await User.update(id, (user) => {
-      user.password = password
+  if (id !== undefined && password !== undefined) {
+    await User.storePassword({id, password})
+    return res.send({
+      status: 200,
+      message: "STORE_PASSWORD_REQUEST_SUCCEED",
     })
-    if (userUpdateRx.status === 200) {
-      return res.send({
-        status: 200,
-        message: "NAME_STORED",
-      })
-    }
   }
   return res.send({
     status: 500,
-    message: "PASSWORD_STORE_FAILED",
+    message: "STORE_PASSWORD_REQUEST_FAILED",
   })
 })
 
-app.post("/request/store/roles/", async (req, res) => {
-  const { roles } = req.body
-  if (roles.length !== 0) {
-    User.storeRoles(req.body)
+app.post("/request/store/role/", async (req, res) => {
+  const {id, role} = req.body
+  if (id !== undefined && role !== undefined) {
+    await User.storeRole({id, role})
     return res.send({
       status: 200,
-      message: "ROLES_STORED",
+      message: "STORE_ROLE_REQUEST_SUCCEED",
     })
   }
   return res.send({
     status: 500,
-    message: "ROLES_STORE_FAILED",
+    message: "STORE_ROLE_REQUEST_FAILED",
   })
 })
 
-app.post("/request/store/email/", async (req, res) => {
-  const { email } = req.body
-  if (email !== undefined) {
-
-    User.storeEmail({
-      value: email,
-      verified: true,
-    })
-
+app.post("/request/store/id/", async (req, res) => {
+  const { id } = req.body
+  if (id !== undefined) {
+    await User.storeId(id)
+    const {user} = await User.find(it => it.email.value === id)
+    // console.log(user);
     return res.send({
       status: 200,
-      message: "EMAIL_STORED",
+      message: "STORE_EMAIL_REQUEST_SUCCEED",
+      id: user.id,
     })
   }
-
   return res.send({
     status: 500,
-    message: "EMAIL_STORE_FAILED",
+    message: "STORE_EMAIL_REQUEST_FAILED",
   })
 })
 
