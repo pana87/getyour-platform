@@ -21,11 +21,16 @@ export class FunnelField {
     return this
   }
 
+  withNextFunnelPath(nextFunnelPath) {
+    this.nextFunnelPath = nextFunnelPath
+    return this
+  }
+
   #setQuestion(index) {
     this.questionIndex = index
 
     if (index >= this.questions.length) {
-      window.location.assign("/felix/shs/funnel/haus/")
+      window.location.assign(this.nextFunnelPath)
       return
     }
 

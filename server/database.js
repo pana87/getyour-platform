@@ -57,18 +57,18 @@ app.post("/request/store/password/", async (req, res) => {
   })
 })
 
-app.post("/request/store/roles/", async (req, res) => {
-  const {id, roles} = req.body
-  if (id !== undefined && roles !== undefined) {
-    await User.storeRoles({id, roles})
+app.post("/request/store/role/", async (req, res) => {
+  const {id, role} = req.body
+  if (id !== undefined && role !== undefined) {
+    await User.storeRole({id, role})
     return res.send({
       status: 200,
-      message: "STORE_ROLES_REQUEST_SUCCEED",
+      message: "STORE_ROLE_REQUEST_SUCCEED",
     })
   }
   return res.send({
     status: 500,
-    message: "STORE_ROLES_REQUEST_FAILED",
+    message: "STORE_ROLE_REQUEST_FAILED",
   })
 })
 

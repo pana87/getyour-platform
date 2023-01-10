@@ -1,5 +1,29 @@
 export class SelectionField {
 
+  #setSize(select) {
+    select.size = this.size
+    return select
+  }
+
+  withSize(size) {
+    this.size = size
+    const selects = document.querySelectorAll(this.selectSelector)
+    selects.forEach(select => this.#setSize(select))
+    return this
+  }
+
+  #setMultiple(select) {
+    select.multiple = this.multiple
+    return select
+  }
+
+  withMultiple() {
+    this.multiple = true
+    const selects = document.querySelectorAll(this.selectSelector)
+    selects.forEach(select => this.#setMultiple(select))
+    return this
+  }
+
   withSelect(callback) {
     const selects = document.querySelectorAll(this.selectSelector)
     selects.forEach(select => callback(select))

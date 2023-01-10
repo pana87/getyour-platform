@@ -14,9 +14,9 @@ body {
 }
 .mir-ist-bekannt {
   position: absolute;
-  height: 0.5%;
+  height: 0.48%;
   width: calc(100% - 88.9px);
-  top: 54.16%;
+  top: 52.1%;
   left: 45.18px;
   font-size: var(--font-size-xs);
   line-height: 22px;
@@ -45,13 +45,13 @@ body {
 }
 .gruppe-1923 {
   position: absolute;
-  height: 4.57%;
+  height: 4.39%;
   width: 97.67%;
-  top: 33.7%;
+  top: 32.42%;
   right: 1.16%;
-  bottom: 61.73%;
+  bottom: 63.19%;
   left: 1.16%;
-  font-size: var(--font-size-6xl);
+  font-size: var(--font-size-7xl);
   font-family: var(--font-apple-braille);
 }
 .logo-icon {
@@ -74,50 +74,58 @@ body {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
   height: 228px;
 }
-.angaben-zum-haus,
+.angabszumhaus {
+  top: calc(50% - 9537.73px);
+  left: 4.63%;
+  font-size: var(--font-size-8xl);
+  font-family: var(--font-apple-braille);
+  -webkit-text-stroke: 1px #161616;
+}
+.angabszumhaus,
+.flachdach,
 .sparrenabstand {
   position: absolute;
   line-height: 37px;
   opacity: 0.86;
 }
-.angaben-zum-haus {
-  top: calc(50% - 9160.73px);
-  left: 4.63%;
-  font-size: var(--font-size-7xl);
-  font-family: var(--font-apple-braille);
-  -webkit-text-stroke: 1px #161616;
-}
 .sparrenabstand {
-  top: calc(50% - 5221.87px);
-}
-.bilderupload,
-.flachdach,
-.sparrenabstand {
+  top: calc(50% - 5598.87px);
   left: 4.63%;
-  font-size: var(--font-size-7xl);
+  font-size: var(--font-size-8xl);
   font-family: var(--font-apple-braille);
   -webkit-text-stroke: 1px #161616;
 }
 .flachdach {
-  position: absolute;
-  top: calc(50% - 474.28px);
-  line-height: 37px;
-  opacity: 0.86;
-}
-.bilderupload {
-  top: calc(50% + 4058.69px);
+  top: calc(50% - 851.28px);
 }
 .bilderupload,
-.breite-des-hauses,
+.flachdach,
 .gerstaufstellung {
+  left: 4.63%;
+  font-size: var(--font-size-8xl);
+  font-family: var(--font-apple-braille);
+  -webkit-text-stroke: 1px #161616;
+}
+.bilderupload {
   position: absolute;
+  top: calc(50% + 4433.96px);
   line-height: 37px;
   opacity: 0.86;
 }
 .gerstaufstellung {
-  top: calc(50% - 3820.06px);
+  top: calc(50% - 4197.06px);
+}
+.breite-des-hauses,
+.gerstaufstellung,
+.trapezdach {
+  position: absolute;
+  line-height: 37px;
+  opacity: 0.86;
+}
+.trapezdach {
+  top: calc(50% + 1889.94px);
   left: 4.63%;
-  font-size: var(--font-size-7xl);
+  font-size: var(--font-size-8xl);
   font-family: var(--font-apple-braille);
   -webkit-text-stroke: 1px #161616;
 }
@@ -128,13 +136,13 @@ body {
 }
 .gruppe-1922 {
   position: absolute;
-  height: 3.91%;
+  height: 3.76%;
   width: 95.34%;
-  top: 38.55%;
+  top: 37.09%;
   right: 2.33%;
-  bottom: 57.54%;
+  bottom: 59.15%;
   left: 2.33%;
-  font-size: var(--font-size-6xl);
+  font-size: var(--font-size-7xl);
   font-family: var(--font-apple-braille);
 }
 .ausrichtung-flachdach {
@@ -147,13 +155,13 @@ body {
 }
 .gruppe-1928 {
   position: absolute;
-  height: 5.78%;
+  height: 5.56%;
   width: 95.34%;
-  top: 55.32%;
+  top: 53.22%;
   right: 2.33%;
-  bottom: 38.9%;
+  bottom: 41.22%;
   left: 2.33%;
-  font-size: var(--font-size-6xl);
+  font-size: var(--font-size-7xl);
   font-family: var(--font-apple-braille);
 }
 .hausmae {
@@ -166,13 +174,13 @@ body {
 }
 .gruppe-1938 {
   position: absolute;
-  height: 2.58%;
+  height: 2.48%;
   width: 97.67%;
-  top: 61.89%;
+  top: 63.33%;
   right: 1.16%;
-  bottom: 35.53%;
+  bottom: 34.19%;
   left: 1.16%;
-  font-size: var(--font-size-6xl);
+  font-size: var(--font-size-7xl);
   font-family: var(--font-apple-braille);
 }
 .frontansicht {
@@ -190,13 +198,13 @@ body {
 .gruppe-1951,
 .gruppe-1952 {
   position: absolute;
-  height: 3.41%;
+  height: 3.28%;
   width: 95.34%;
-  top: 71.66%;
+  top: 72.73%;
   right: 2.33%;
-  bottom: 24.93%;
+  bottom: 23.99%;
   left: 2.33%;
-  font-size: var(--font-size-6xl);
+  font-size: var(--font-size-7xl);
   font-family: var(--font-apple-braille);
 }
 .gruppe-1942,
@@ -204,30 +212,30 @@ body {
 .gruppe-1950,
 .gruppe-1951,
 .gruppe-1952 {
-  top: 75.49%;
-  bottom: 21.1%;
+  top: 76.41%;
+  bottom: 20.31%;
 }
 .gruppe-1943,
 .gruppe-1950,
 .gruppe-1951,
 .gruppe-1952 {
-  top: 79.32%;
-  bottom: 17.27%;
+  top: 80.09%;
+  bottom: 16.62%;
 }
 .gruppe-1950,
 .gruppe-1951,
 .gruppe-1952 {
-  top: 83.14%;
-  bottom: 13.45%;
+  top: 83.78%;
+  bottom: 12.94%;
 }
 .gruppe-1951,
 .gruppe-1952 {
-  top: 86.97%;
-  bottom: 9.62%;
+  top: 87.46%;
+  bottom: 9.26%;
 }
 .gruppe-1952 {
-  top: 90.8%;
-  bottom: 5.79%;
+  top: 91.14%;
+  bottom: 5.58%;
 }
 .clicktechnischesbutton {
   position: absolute;
@@ -262,11 +270,11 @@ body {
 }
 .clicktechnischesknopf {
   position: absolute;
-  height: 0.3%;
+  height: 0.29%;
   width: 4.27%;
-  top: 0.58%;
+  top: 0.56%;
   right: 21.24%;
-  bottom: 99.12%;
+  bottom: 99.15%;
   left: 74.49%;
   font-size: var(--font-size-3xs);
 }
@@ -277,11 +285,11 @@ body {
 }
 .clickzumstromknopf {
   position: absolute;
-  height: 0.3%;
+  height: 0.29%;
   width: 2.59%;
-  top: 0.58%;
+  top: 0.56%;
   right: 40.71%;
-  bottom: 99.12%;
+  bottom: 99.15%;
   left: 56.69%;
   font-size: var(--font-size-3xs);
 }
@@ -297,11 +305,11 @@ body {
 }
 .clickzurheizungknopf {
   position: absolute;
-  height: 0.3%;
+  height: 0.29%;
   width: 2.81%;
-  top: 0.58%;
+  top: 0.56%;
   right: 58.06%;
-  bottom: 99.12%;
+  bottom: 99.15%;
   left: 39.13%;
   font-size: var(--font-size-3xs);
 }
@@ -321,23 +329,23 @@ body {
 .vv {
   top: calc(50% - 5.48px);
   left: calc(50% - 24.88px);
-  background-color: #11841e;
+  background-color: var(--color-green-100);
   width: 49.75px;
   height: 33.95px;
-  font-size: 22px;
+  font-size: var(--font-size-2xl);
   color: var(--color-gray-100);
 }
 .clickzumhausknopf {
   position: absolute;
-  height: 0.3%;
+  height: 0.29%;
   width: 2.59%;
-  top: 0.58%;
+  top: 0.56%;
   right: 75.6%;
-  bottom: 99.12%;
+  bottom: 99.15%;
   left: 21.81%;
   font-size: var(--font-size-3xs);
 }
-.rechteck-262 {
+.fdghd {
   position: absolute;
   height: 100%;
   width: 100%;
@@ -351,180 +359,273 @@ body {
   border: 0.3px solid var(--color-black);
   box-sizing: border-box;
 }
-.hausbaujahr,
-.hausbaujahr1 {
+.fsdd,
+.hausbaujahr {
   position: absolute;
   left: 33.91px;
 }
-.hausbaujahr {
+.fsdd {
   top: calc(50% - 43px);
   opacity: 0.86;
 }
-.hausbaujahr1 {
-  border: 0;
-  font-family: var(--font-forma-djr-micro);
-  font-size: var(--font-size-2xl);
-  background-color: transparent;
+.hausbaujahr {
   top: calc(50% + 14px);
-  color: var(--color-gray-400);
-  text-align: left;
+  width: 52px;
+  height: 28px;
+  font-size: var(--font-size-3xl);
 }
-.gruppe-1873,
-.gruppe-1884 {
+.baujahrcontainer {
   position: absolute;
-  height: 0.68%;
+  height: 0.66%;
   width: 90.68%;
-  top: 2.77%;
+  top: 2.66%;
   right: 4.66%;
-  bottom: 96.55%;
+  bottom: 96.68%;
   left: 4.66%;
   opacity: 0.71;
 }
-.gruppe-1884 {
-  top: 3.82%;
-  bottom: 95.5%;
-}
-.gruppe-1887,
-.gruppe-1902,
-.gruppe-1903,
-.gruppe-1918,
-.gruppe-1919,
-.gruppe-1925 {
+.hausumbau {
   position: absolute;
-  height: 0.68%;
+  top: calc(50% + 14px);
+  left: 33.91px;
+  width: 46px;
+  height: 28px;
+  font-size: var(--font-size-3xl);
+}
+.umbaucontainer {
+  position: absolute;
+  height: 0.66%;
   width: 90.68%;
-  top: 5.91%;
+  top: 3.67%;
   right: 4.66%;
-  bottom: 93.41%;
+  bottom: 95.67%;
   left: 4.66%;
   opacity: 0.71;
 }
-.gruppe-1902,
-.gruppe-1903,
-.gruppe-1918,
-.gruppe-1919,
-.gruppe-1925 {
-  top: 25.37%;
-  bottom: 73.95%;
+.hausflaeche {
+  position: absolute;
+  top: calc(50% + 14px);
+  left: 33.91px;
+  width: 35px;
+  height: 28px;
+  font-size: var(--font-size-3xl);
 }
-.gruppe-1903,
-.gruppe-1918,
-.gruppe-1919,
-.gruppe-1925 {
-  top: 42.95%;
-  bottom: 56.37%;
+.wohnflaechecontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 5.69%;
+  right: 4.66%;
+  bottom: 93.66%;
+  left: 4.66%;
+  opacity: 0.71;
 }
-.gruppe-1903,
-.gruppe-1919,
-.gruppe-1925 {
+.hausabstandsparren {
+  position: absolute;
+  top: calc(50% + 14px);
+  left: 33.91px;
+  width: 26px;
+  height: 28px;
+  font-size: var(--font-size-3xl);
+}
+.sparrenabstandcontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 24.41%;
+  right: 4.66%;
+  bottom: 74.94%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.hausbreitedesgeruest {
+  position: absolute;
+  top: calc(50% + 14px);
+  left: 33.91px;
+  width: 13px;
+  height: 28px;
+  font-size: var(--font-size-3xl);
+}
+.geruestbreitecontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 41.32%;
+  right: 4.66%;
+  bottom: 58.03%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.haussparrenbreite {
+  position: absolute;
+  top: calc(50% + 14px);
+  left: 33.91px;
+  width: 25px;
+  height: 28px;
+  font-size: var(--font-size-3xl);
+}
+.sparrenbreitecontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 25.42%;
+  right: 4.66%;
+  bottom: 73.93%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.hauslaengedesgeruest {
+  position: absolute;
+  top: calc(50% + 14px);
+  left: 33.91px;
+  width: 22px;
+  height: 28px;
+  font-size: var(--font-size-3xl);
+}
+.attikabreitecontainer,
+.gerustlaengecontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 42.32%;
+  right: 4.66%;
+  bottom: 57.02%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.attikabreitecontainer {
+  top: 49.01%;
+  bottom: 50.33%;
+}
+.dachtraufhoehe {
+  position: absolute;
+  top: calc(50% + 14px);
+  left: 33.91px;
+  width: 11px;
+  height: 28px;
+  font-size: var(--font-size-3xl);
+}
+.sparrenhoehecontainer,
+.traufhoehecontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 66.11%;
+  right: 4.66%;
+  bottom: 33.23%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.sparrenhoehecontainer {
   top: 26.42%;
-  bottom: 72.9%;
+  bottom: 72.92%;
 }
-.gruppe-1919,
-.gruppe-1925 {
-  top: 44%;
-  bottom: 55.32%;
-}
-.gruppe-1925 {
-  top: 50.95%;
-  bottom: 48.37%;
-}
-.gruppe-1904,
-.gruppe-1920,
-.gruppe-1921,
-.gruppe-1926,
-.gruppe-1932,
-.gruppe-1933 {
+.hauswievielegerueste {
   position: absolute;
-  height: 0.68%;
+  top: calc(50% + 14px);
+  left: 33.91px;
+  width: 12px;
+  height: 28px;
+  font-size: var(--font-size-3xl);
+}
+.attikahohecontainer,
+.geruestanzahlcontainer {
+  position: absolute;
+  height: 0.66%;
   width: 90.68%;
-  top: 64.78%;
+  top: 43.33%;
   right: 4.66%;
-  bottom: 34.54%;
+  bottom: 56.01%;
   left: 4.66%;
   opacity: 0.71;
 }
-.gruppe-1904,
-.gruppe-1920,
-.gruppe-1921,
-.gruppe-1926,
-.gruppe-1933 {
-  top: 27.47%;
-  bottom: 71.85%;
+.attikahohecontainer {
+  top: 50.02%;
+  bottom: 49.32%;
 }
-.gruppe-1920,
-.gruppe-1921,
-.gruppe-1926,
-.gruppe-1933 {
-  top: 45.05%;
-  bottom: 54.27%;
-}
-.gruppe-1921,
-.gruppe-1926,
-.gruppe-1933 {
-  top: 52%;
-  bottom: 47.32%;
-}
-.gruppe-1921,
-.gruppe-1933 {
-  top: 65.83%;
-  bottom: 33.49%;
-}
-.gruppe-1921 {
-  top: 46.09%;
-  bottom: 53.22%;
-}
-.gruppe-1927,
-.gruppe-1934,
-.gruppe-1935,
-.gruppe-1937,
-.gruppe-1948,
-.gruppe-1949 {
+.hausdachbreite {
   position: absolute;
-  height: 0.68%;
+  top: calc(50% + 14px);
+  left: 33.91px;
+  width: 34px;
+  height: 28px;
+  font-size: var(--font-size-3xl);
+}
+.dachbreitecontainer {
+  position: absolute;
+  height: 0.66%;
   width: 90.68%;
-  top: 53.05%;
+  top: 67.12%;
   right: 4.66%;
-  bottom: 46.27%;
+  bottom: 32.22%;
   left: 4.66%;
   opacity: 0.71;
 }
-.gruppe-1934,
-.gruppe-1935,
-.gruppe-1937,
-.gruppe-1948,
+.dachlaengecontainer,
+.deckmasslaengecontainer,
+.gesamtflaechecontainer,
+.gradzahlcontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 44.34%;
+  right: 4.66%;
+  bottom: 55%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.dachlaengecontainer,
+.deckmasslaengecontainer,
+.gradzahlcontainer {
+  top: 51.03%;
+  bottom: 48.32%;
+}
+.dachlaengecontainer,
+.deckmasslaengecontainer {
+  top: 68.13%;
+  bottom: 31.21%;
+}
+.deckmasslaengecontainer {
+  top: 94.82%;
+  bottom: 4.53%;
+}
+.hausfirsthoehe {
+  position: absolute;
+  top: calc(50% + 14px);
+  left: 33.91px;
+  width: 21px;
+  height: 28px;
+  font-size: var(--font-size-3xl);
+}
+.dachneigungcontainer,
+.firsthoehecontainer,
 .gruppe-1949 {
-  top: 66.88%;
-  bottom: 32.44%;
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 69.14%;
+  right: 4.66%;
+  bottom: 30.21%;
+  left: 4.66%;
+  opacity: 0.71;
 }
-.gruppe-1935,
-.gruppe-1937,
-.gruppe-1948,
+.dachneigungcontainer,
 .gruppe-1949 {
-  top: 94.62%;
-  bottom: 4.7%;
+  top: 95.83%;
+  bottom: 3.52%;
 }
-.gruppe-1935,
-.gruppe-1937,
-.gruppe-1949 {
-  top: 67.93%;
-  bottom: 31.39%;
+.dachneigungcontainer {
+  top: 71.16%;
+  bottom: 28.19%;
 }
-.gruppe-1937,
-.gruppe-1949 {
-  top: 95.67%;
-  bottom: 3.65%;
-}
-.gruppe-1937 {
-  top: 70.03%;
-  bottom: 29.29%;
-}
-.hausbaujahr41 {
+.hausetage {
   position: absolute;
   top: calc(50% - 11.01px);
   left: 19.36px;
+  width: 132px;
+  height: 28px;
 }
-.gruppe-1886 {
+.kldjkade {
   position: absolute;
   width: calc(100% - 72.1px);
   right: 38.55px;
@@ -535,152 +636,350 @@ body {
   border: 0.4px solid var(--color-black);
   box-sizing: border-box;
   height: 60px;
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-3xl);
 }
-.gruppe-1885 {
+.bewohnteetagencontainer {
   position: absolute;
-  height: 0.68%;
+  height: 0.66%;
   width: 90.68%;
-  top: 4.86%;
+  top: 4.68%;
   right: 4.66%;
-  bottom: 94.45%;
+  bottom: 94.66%;
   left: 4.66%;
   opacity: 0.71;
 }
-.gruppe-1888,
-.gruppe-1889,
-.gruppe-1890,
-.gruppe-1891,
-.gruppe-1894,
-.gruppe-1895 {
+.hausdckabelfuehrung {
   position: absolute;
-  height: 0.68%;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 25px;
+  height: 28px;
+}
+.dachhautcontainer {
+  position: absolute;
+  height: 0.66%;
   width: 90.68%;
-  top: 6.96%;
+  top: 6.7%;
   right: 4.66%;
-  bottom: 92.36%;
+  bottom: 92.65%;
   left: 4.66%;
   opacity: 0.71;
 }
-.gruppe-1889,
-.gruppe-1890,
-.gruppe-1891,
-.gruppe-1894,
-.gruppe-1895 {
-  top: 8.01%;
-  bottom: 91.31%;
-}
-.gruppe-1890,
-.gruppe-1891,
-.gruppe-1894,
-.gruppe-1895 {
-  top: 9.06%;
-  bottom: 90.26%;
-}
-.gruppe-1891,
-.gruppe-1894,
-.gruppe-1895 {
-  top: 10.11%;
-  bottom: 89.21%;
-}
-.gruppe-1894,
-.gruppe-1895 {
-  top: 13.25%;
-  bottom: 86.07%;
-}
-.gruppe-1895 {
-  top: 14.3%;
-  bottom: 85.02%;
-}
-.gruppe-1896,
-.gruppe-1897,
-.gruppe-1898,
-.gruppe-1899,
-.gruppe-1900,
-.gruppe-1905 {
+.hausverkabelungdc {
   position: absolute;
-  height: 0.68%;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 37px;
+  height: 28px;
+}
+.dcaussencontainer {
+  position: absolute;
+  height: 0.66%;
   width: 90.68%;
-  top: 15.35%;
+  top: 7.71%;
   right: 4.66%;
-  bottom: 83.97%;
+  bottom: 91.64%;
   left: 4.66%;
   opacity: 0.71;
 }
-.gruppe-1897,
-.gruppe-1898,
-.gruppe-1899,
-.gruppe-1900,
-.gruppe-1905 {
-  top: 18.07%;
-  bottom: 81.25%;
-}
-.gruppe-1898,
-.gruppe-1899,
-.gruppe-1900,
-.gruppe-1905 {
-  top: 19.12%;
-  bottom: 80.2%;
-}
-.gruppe-1899,
-.gruppe-1900,
-.gruppe-1905 {
-  top: 20.17%;
-  bottom: 79.15%;
-}
-.gruppe-1900,
-.gruppe-1905 {
-  top: 21.22%;
-  bottom: 78.1%;
-}
-.gruppe-1905 {
-  top: 28.52%;
-  bottom: 70.8%;
-}
-.gruppe-1892,
-.gruppe-1893,
-.gruppe-1906,
-.gruppe-1907,
-.gruppe-1924,
-.gruppe-1936 {
+.hausaussenfasadegedaemmt {
   position: absolute;
-  height: 0.68%;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 50px;
+  height: 28px;
+}
+.gedaemmtcontainer {
+  position: absolute;
+  height: 0.66%;
   width: 90.68%;
-  top: 30.55%;
+  top: 8.71%;
   right: 4.66%;
-  bottom: 68.76%;
+  bottom: 90.63%;
   left: 4.66%;
   opacity: 0.71;
 }
-.gruppe-1892,
-.gruppe-1893,
-.gruppe-1907,
-.gruppe-1924,
-.gruppe-1936 {
-  top: 31.6%;
-  bottom: 67.72%;
+.hausdenkmal {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 76px;
+  height: 28px;
 }
-.gruppe-1892,
-.gruppe-1893,
-.gruppe-1924,
-.gruppe-1936 {
-  top: 49.9%;
-  bottom: 49.42%;
+.denkmalcontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 9.72%;
+  right: 4.66%;
+  bottom: 89.62%;
+  left: 4.66%;
+  opacity: 0.71;
 }
-.gruppe-1892,
-.gruppe-1893,
-.gruppe-1936 {
-  top: 68.98%;
-  bottom: 30.34%;
+.hauslager {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 71px;
+  height: 28px;
 }
-.gruppe-1892,
-.gruppe-1893 {
-  top: 11.16%;
-  bottom: 88.16%;
+.lagermoeglichkeitcontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 12.75%;
+  right: 4.66%;
+  bottom: 86.6%;
+  left: 4.66%;
+  opacity: 0.71;
 }
-.gruppe-1893 {
-  top: 12.2%;
-  bottom: 87.11%;
+.hausdacheindeckung {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 64px;
+  height: 28px;
+}
+.dacheindeckungcontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 13.76%;
+  right: 4.66%;
+  bottom: 85.59%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.hausukueberstand {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 47px;
+  height: 28px;
+}
+.ausfuehrungcontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 14.77%;
+  right: 4.66%;
+  bottom: 84.58%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.hausandereshausabstand {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 180px;
+  height: 28px;
+}
+.landesordnungcontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 17.38%;
+  right: 4.66%;
+  bottom: 81.96%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.hausentlueftungsrohre {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 35px;
+  height: 28px;
+}
+.entlueftungsrohrcontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 18.39%;
+  right: 4.66%;
+  bottom: 80.95%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.hausblitzschutzanlage {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 41px;
+  height: 28px;
+}
+.blitzschutzcontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 19.4%;
+  right: 4.66%;
+  bottom: 79.94%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.hausbesonderheiten {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 176px;
+  height: 28px;
+}
+.dachaufbautencontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 20.41%;
+  right: 4.66%;
+  bottom: 78.93%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.hausmaterialsparren {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 45px;
+  height: 28px;
+}
+.materialsparrencontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 27.43%;
+  right: 4.66%;
+  bottom: 71.91%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.hausgeruestoeffentlich {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 97px;
+  height: 28px;
+}
+.gehwegecontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 29.39%;
+  right: 4.66%;
+  bottom: 69.95%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.haustrapezdachalu {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 273px;
+  height: 28px;
+}
+.trapezalucontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 60.09%;
+  right: 4.66%;
+  bottom: 39.26%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.hausgeruestselbstgestellt {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 118px;
+  height: 28px;
+}
+.montagegeruestcontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 30.4%;
+  right: 4.66%;
+  bottom: 68.94%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.haustrapezdachstahl {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 210px;
+  height: 28px;
+}
+.attikavorhandencontainer,
+.trapezstahlcontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 61.1%;
+  right: 4.66%;
+  bottom: 38.25%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.attikavorhandencontainer {
+  top: 48%;
+  bottom: 51.34%;
+}
+.hausdachausrichtung {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 96px;
+  height: 28px;
+}
+.dachausrichtungcontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 70.15%;
+  right: 4.66%;
+  bottom: 29.2%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.hausenergie {
+  position: absolute;
+  top: calc(50% - 14px);
+  left: 0;
+}
+.hausenergievorhanden {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 160px;
+  height: 28px;
+}
+.systemcontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 10.73%;
+  right: 4.66%;
+  bottom: 88.61%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.hausenergiesystementsorgen {
+  position: absolute;
+  top: calc(50% - 11.01px);
+  left: 19.36px;
+  width: 46px;
+  height: 28px;
+}
+.entsorgencontainer {
+  position: absolute;
+  height: 0.66%;
+  width: 90.68%;
+  top: 11.74%;
+  right: 4.66%;
+  bottom: 87.6%;
+  left: 4.66%;
+  opacity: 0.71;
 }
 .pfad-554-icon,
 .pfad-555-icon {
@@ -1179,7 +1478,7 @@ body {
 }
 .gruppe-1901 {
   position: absolute;
-  top: calc(50% - 5119px);
+  top: calc(50% - 5496px);
   left: calc(50% - 178px);
   width: 357px;
   height: 351px;
@@ -1247,11 +1546,11 @@ body {
 }
 .gruppe-1910 {
   position: absolute;
-  height: 2.42%;
+  height: 2.33%;
   width: 17.7%;
-  top: 39.52%;
+  top: 38.01%;
   right: 41.15%;
-  bottom: 58.07%;
+  bottom: 59.66%;
   left: 41.15%;
   font-size: var(--font-size-xs);
 }
@@ -1260,8 +1559,7 @@ body {
   top: 4px;
   left: 0;
 }
-.rechteck-513 {
-  cursor: pointer;
+.geruestaufstellungcheckboxnord {
   position: absolute;
   height: 100%;
   top: 0;
@@ -1294,11 +1592,11 @@ body {
 }
 .gruppe-1913 {
   position: absolute;
-  height: 1.2%;
+  height: 1.15%;
   width: 8.3%;
-  top: 34.63%;
+  top: 33.32%;
   right: 72.33%;
-  bottom: 64.17%;
+  bottom: 65.53%;
   left: 19.38%;
   font-size: var(--font-size-3xs);
 }
@@ -1317,7 +1615,7 @@ body {
   position: absolute;
   top: calc(50% - 32.5px);
   left: calc(50% - 76px);
-  background-color: #e8ba68;
+  background-color: var(--color-tan-100);
   width: 152.01px;
   height: 98px;
 }
@@ -1337,22 +1635,28 @@ body {
   height: 99px;
 }
 .rechteck-514 {
-  cursor: pointer;
-  top: calc(50% + 87.5px);
-  left: calc(50% + 40.13px);
+  top: calc(50% - 13.5px);
+  left: calc(50% - 13.5px);
   background-color: var(--color-white);
   border: 0.7px solid var(--color-black);
   box-sizing: border-box;
   width: 27px;
   height: 27px;
 }
+.geruestaufstellungcheckboxsued,
 .gruppe-1916 {
   position: absolute;
-  height: 1.2%;
+  right: 13.11px;
+  bottom: 0;
+  width: 27px;
+  height: 27px;
+}
+.gruppe-1916 {
+  height: 1.15%;
   width: 8.36%;
-  top: 34.63%;
+  top: 33.32%;
   right: 19.38%;
-  bottom: 64.17%;
+  bottom: 65.53%;
   left: 72.27%;
   font-size: var(--font-size-3xs);
 }
@@ -1412,9 +1716,8 @@ body {
   bottom: 2px;
   left: 0;
 }
-.rechteck-511,
-.rechteck-512 {
-  cursor: pointer;
+.geruestaufstellungcheckboxost,
+.geruestaufstellungcheckboxwest {
   position: absolute;
   left: calc(50% + 39.01px);
   background-color: var(--color-white);
@@ -1423,15 +1726,15 @@ body {
   width: 27px;
   height: 27px;
 }
-.rechteck-511 {
+.geruestaufstellungcheckboxost {
   top: calc(50% + 53.5px);
 }
-.rechteck-512 {
+.geruestaufstellungcheckboxwest {
   bottom: 0;
 }
 .gruppe-1917 {
   position: absolute;
-  top: calc(50% - 2631.63px);
+  top: calc(50% - 3008.63px);
   left: calc(50% - 98px);
   width: 196px;
   height: 309px;
@@ -1528,7 +1831,7 @@ body {
   left: calc(50% - 25.49px);
 }
 .gruppe-1851 {
-  top: calc(50% - 373.41px);
+  top: calc(50% - 750.41px);
   left: calc(50% - 175px);
   width: 350px;
   height: 274.55px;
@@ -1564,9 +1867,8 @@ body {
   width: 157.84px;
   height: 22.42px;
 }
-.rechteck-517,
-.rechteck-518 {
-  cursor: pointer;
+.flachdachnordcheckbox,
+.flachdachostcheckbox {
   position: absolute;
   left: calc(50% + 12.08px);
   background-color: var(--color-white);
@@ -1575,15 +1877,15 @@ body {
   width: 26px;
   height: 24px;
 }
-.rechteck-517 {
+.flachdachnordcheckbox {
   top: calc(50% + 62.74px);
 }
-.rechteck-518 {
+.flachdachostcheckbox {
   bottom: 0;
 }
 .gruppe-1929 {
   position: absolute;
-  top: calc(50% + 1191.41px);
+  top: calc(50% + 814.41px);
   left: calc(50% - 163.22px);
   width: 326.43px;
   height: 325.49px;
@@ -1628,9 +1930,8 @@ body {
   width: 2px;
   height: 17.28px;
 }
-.rechteck-519,
-.rechteck-520 {
-  cursor: pointer;
+.flachdachsuedcheckbox,
+.flachdachwestcheckbox {
   position: absolute;
   left: calc(50% + 23.08px);
   background-color: var(--color-white);
@@ -1638,38 +1939,34 @@ body {
   box-sizing: border-box;
   width: 26px;
 }
-.rechteck-519 {
+.flachdachsuedcheckbox {
   top: calc(50% + 61.43px);
   height: 26px;
 }
-.rechteck-520 {
+.flachdachwestcheckbox {
   bottom: 0;
   height: 25px;
 }
 .gruppe-1930 {
   position: absolute;
-  top: calc(50% + 1667.04px);
+  top: calc(50% + 1290.04px);
   left: calc(50% - 163.24px);
   width: 326.48px;
   height: 326.86px;
   font-size: var(--font-size-4xs);
 }
-.rechteck-521 {
-  cursor: pointer;
+.flachdachneigungbekanntcheckbo {
   position: absolute;
-  top: calc(50% + 749.6px);
+  top: calc(50% + 372.6px);
   left: 44.73px;
-  background-color: var(--color-white);
-  border: 0.3px solid var(--color-black);
-  box-sizing: border-box;
   width: 27px;
   height: 27px;
 }
 .ja-das-ist {
   position: absolute;
-  top: calc(50% + 749.1px);
+  top: calc(50% + 372.1px);
   left: 85.18px;
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-3xl);
   line-height: 22px;
   opacity: 0.8;
 }
@@ -1753,133 +2050,41 @@ body {
 }
 .gruppe-1931 {
   position: absolute;
-  top: calc(50% + 2421.99px);
+  top: calc(50% + 2797.26px);
   left: calc(50% - 169.79px);
   width: 357.58px;
   height: 260.87px;
   font-size: var(--font-size-3xs);
 }
+.gruppe-1494-icon,
 .gruppe-1940-icon {
   position: absolute;
-  top: calc(50% + 4328.34px);
+  top: calc(50% + 4703.61px);
   left: calc(50% - 175px);
   width: 350px;
   height: 206.06px;
 }
-.cloud-upload-icon {
-  position: absolute;
-  height: 100%;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  max-height: 100%;
-  width: 31.6px;
-}
-.datei-hier-hochladen {
-  position: absolute;
-  top: calc(50% - 9.5px);
-  right: -1px;
-  opacity: 0.86;
-}
-.dateihochladenfrontansicht,
-.dateihochladenfrontansicht1 {
-  position: absolute;
-  top: calc(50% + 4686.2px);
-  left: calc(50% - 87.16px);
-  width: 174.31px;
-  height: 31.6px;
-  font-size: var(--font-size-3xs);
-}
-.dateihochladenfrontansicht1 {
-  top: calc(50% + 5416.2px);
-}
-.dateihochladenfrontansicht2,
-.dateihochladenfrontansicht3,
-.dateihochladenfrontansicht4,
-.dateihochladenfrontansicht5 {
-  position: absolute;
-  top: calc(50% + 6146.2px);
-  left: calc(50% - 87.16px);
-  width: 174.31px;
-  height: 31.6px;
-  font-size: var(--font-size-3xs);
-}
-.dateihochladenfrontansicht3,
-.dateihochladenfrontansicht4,
-.dateihochladenfrontansicht5 {
-  top: calc(50% + 6876.2px);
-}
-.dateihochladenfrontansicht4,
-.dateihochladenfrontansicht5 {
-  top: calc(50% + 7606.2px);
-}
-.dateihochladenfrontansicht5 {
-  top: calc(50% + 8336.2px);
-}
-.pfad-801,
-.pfad-802,
-.pfad-803,
-.pfad-804,
-.pfad-806,
-.pfad-807 {
-  position: absolute;
-  top: calc(50% + 4639px);
-  left: calc(50% - 162px);
-  background-color: var(--color-gray-800);
-  border: 1px dashed var(--color-black);
-  box-sizing: border-box;
-  width: 325px;
-  height: 85px;
-}
-.pfad-802,
-.pfad-803,
-.pfad-804,
-.pfad-806,
-.pfad-807 {
-  top: calc(50% + 5369px);
-}
-.pfad-803,
-.pfad-804,
-.pfad-806,
-.pfad-807 {
-  top: calc(50% + 6099px);
-}
-.pfad-804,
-.pfad-806,
-.pfad-807 {
-  top: calc(50% + 6829px);
-}
-.pfad-806,
-.pfad-807 {
-  top: calc(50% + 7559px);
-}
-.pfad-807 {
-  top: calc(50% + 8289px);
-}
 .gruppe-1494-icon {
-  position: absolute;
-  top: calc(50% + 5037.54px);
-  left: calc(50% - 175px);
-  width: 350px;
+  top: calc(50% + 5412.81px);
   height: 231.95px;
 }
 .gruppe-1944-icon {
   position: absolute;
-  top: calc(50% + 5729.55px);
+  top: calc(50% + 6104.82px);
   left: calc(50% - 167.62px);
   width: 336.73px;
   height: 317.01px;
 }
 .gruppe-1554-icon {
   position: absolute;
-  top: calc(50% + 6482.04px);
+  top: calc(50% + 6857.31px);
   left: calc(50% - 156.77px);
   width: 313.54px;
   height: 272.58px;
 }
 .gruppe-1555-icon {
   position: absolute;
-  top: calc(50% + 7224.55px);
+  top: calc(50% + 7599.82px);
   left: calc(50% - 168.75px);
   width: 337.5px;
   height: 247.3px;
@@ -1911,7 +2116,7 @@ body {
 }
 .gruppe-1556 {
   position: absolute;
-  top: calc(50% + 7978.82px);
+  top: calc(50% + 8337.09px);
   left: calc(50% - 151.66px);
   width: 303.32px;
   height: 244.02px;
@@ -1921,111 +2126,181 @@ body {
   color: #b78d79;
   font-family: var(--font-georgia);
 }
-.speichern-und-weiter {
+.mir-ist-bekannt1,
+.wenn-dacheindeckung-vom {
   position: absolute;
-  top: calc(50% - 14px);
-  left: calc(50% - 125px);
-  font-size: var(--font-size-4xl);
-  line-height: 21px;
-  font-family: var(--font-ligurino);
-  color: var(--color-gray-600);
-  text-align: left;
-}
-.angeboterhaltenbutton {
-  cursor: pointer;
-  border: 0;
-  padding: 0;
-  background-color: var(--color-orange-100);
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  border-radius: var(--br-md);
-}
-.angeboterhaltenbutton:hover {
-  background-color: var(--color-orange-200);
-}
-.gruppe-1863,
-.rechteck-26239 {
-  position: absolute;
-  height: 0.56%;
-  width: 89.27%;
-  top: 97.84%;
-  right: 5.36%;
-  bottom: 1.6%;
-  left: 5.36%;
-}
-.rechteck-26239 {
-  height: 100%;
-  width: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: var(--color-green-100);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
-  opacity: 0.59;
-}
-.hausbaujahr78,
-.hausbaujahr79 {
-  position: absolute;
-  top: calc(50% - 9px);
-  left: 48.91px;
-  text-transform: uppercase;
-}
-.hausbaujahr79 {
-  left: 207.91px;
-}
-.gruppe-1883 {
-  position: absolute;
-  height: 0.75%;
-  width: 100%;
-  top: 99.26%;
-  right: 0;
-  bottom: -0.01%;
-  left: 0;
-  text-align: center;
-  font-size: var(--font-size-lg);
-  color: var(--color-black);
-}
-.mir-ist-bekannt1 {
-  position: absolute;
-  height: 0.5%;
+  height: 0.48%;
   width: calc(100% - 88.9px);
-  top: 32.76%;
+  top: 31.52%;
   left: 45.18px;
   font-size: var(--font-size-xs);
   line-height: 22px;
   display: inline-block;
   opacity: 0.8;
 }
-.rechteck-522 {
-  cursor: pointer;
-  position: absolute;
-  top: calc(50% - 3332.4px);
+.wenn-dacheindeckung-vom {
+  top: 62.21%;
+}
+.hausverankerungcheckbox {
+  top: calc(50% - 3709.4px);
   left: 44.73px;
-  background-color: var(--color-white);
-  border: 0.3px solid var(--color-black);
-  box-sizing: border-box;
+}
+.fsadffdasfsda,
+.hausverankerungcheckbox,
+.icopalnichtcheckbox {
+  position: absolute;
   width: 27px;
   height: 27px;
 }
-.ja-das-ist1 {
+.fsadffdasfsda {
+  top: calc(50% - 13.5px);
+  left: 0;
+  background-color: var(--color-white);
+  border: 0.3px solid var(--color-black);
+  box-sizing: border-box;
+}
+.icopalnichtcheckbox {
+  top: calc(50% + 2377.6px);
+  left: 44.73px;
+}
+.ja-das-ist1,
+.ja-das-ist2 {
   position: absolute;
-  top: calc(50% - 3332.9px);
+  top: calc(50% - 3709.9px);
   left: 85.18px;
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-3xl);
   line-height: 22px;
   opacity: 0.8;
+}
+.ja-das-ist2 {
+  top: calc(50% + 2377.1px);
+}
+.pfad-801-icon {
+  position: absolute;
+  top: calc(50% - 42.5px);
+  left: calc(50% - 162.5px);
+  width: 325px;
+  height: 85px;
+}
+.cloud-upload-icon {
+  position: absolute;
+  height: 100%;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  max-height: 100%;
+  width: 31.6px;
+}
+.datei-hier-hochladen {
+  position: absolute;
+  top: calc(50% - 9.5px);
+  right: -1px;
+  opacity: 0.86;
+}
+.lfjshfalsd {
+  position: absolute;
+  top: calc(50% + 4.7px);
+  left: calc(50% - 87.66px);
+  width: 174.31px;
+  height: 31.6px;
+}
+.hausfrontbildbildupload,
+.haussuedansichtbildbildupload {
+  position: absolute;
+  top: calc(50% + 5008px);
+  left: calc(50% - 162px);
+  width: 325px;
+  height: 85px;
+  font-size: var(--font-size-3xs);
+}
+.haussuedansichtbildbildupload {
+  top: calc(50% + 5743px);
+}
+.hausgerueststandortbildbildupl,
+.hausortgangbildbildupload,
+.haussparrenansichtbildbilduplo,
+.hausziegelbildbildupload {
+  position: absolute;
+  top: calc(50% + 6478px);
+  left: calc(50% - 162px);
+  width: 325px;
+  height: 85px;
+  font-size: var(--font-size-3xs);
+}
+.hausortgangbildbildupload,
+.haussparrenansichtbildbilduplo,
+.hausziegelbildbildupload {
+  top: calc(50% + 7201px);
+}
+.haussparrenansichtbildbilduplo,
+.hausziegelbildbildupload {
+  top: calc(50% + 7928px);
+}
+.hausziegelbildbildupload {
+  top: calc(50% + 8679px);
+}
+.rechteck-262 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: var(--color-green-200);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 0.59;
+}
+.datenschutzv,
+.impressum {
+  position: absolute;
+  top: calc(50% - 9px);
+  left: 48.91px;
+  text-transform: uppercase;
+}
+.datenschutzv {
+  left: 207.91px;
+}
+.gruppe-1883 {
+  position: absolute;
+  height: 0.72%;
+  width: 100%;
+  top: 99.28%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  text-align: center;
+  font-size: var(--font-size-lg);
+  color: var(--color-black);
+}
+.speichern-und-weiter {
+  position: absolute;
+  top: calc(50% - 11px);
+  left: calc(50% - 102px);
+  line-height: 21px;
+}
+.speichernundweiterbutton {
+  position: absolute;
+  height: 0.53%;
+  width: calc(100% - 103px);
+  top: 97.92%;
+  right: 51.5px;
+  bottom: 1.55%;
+  left: 51.5px;
+  border-radius: var(--br-md);
+  background-color: var(--color-orange-100);
+  font-size: var(--font-size-2xl);
+  color: var(--color-gray-600);
+  font-family: var(--font-ligurino);
+}
+.speichernundweiterbutton:hover {
+  background-color: var(--color-orange-200);
 }
 .haus {
   position: relative;
   background-color: var(--color-gray-100);
   width: 100%;
-  height: 19076px;
+  height: 19830px;
   opacity: 0;
   text-align: left;
   font-size: var(--font-size-base);
@@ -2037,7 +2312,8 @@ body {
 }
 @media screen and (max-width: 768px) {
   .mir-ist-bekannt,
-  .mir-ist-bekannt1 {
+  .mir-ist-bekannt1,
+  .wenn-dacheindeckung-vom {
     height: 80px;
   }
 }

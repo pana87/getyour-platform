@@ -1,8 +1,8 @@
-import { ButtonField } from "../../../../js/ButtonField.js";
-import { CheckboxField } from "../../../../js/CheckBoxField.js";
-import { FileField } from "../../../../js/FileField.js";
-import { NumberField } from "../../../../js/NumberField.js";
-import { SelectionField } from "../../../../js/SelectionField.js";
+import { CheckboxField } from "../../../../js/CheckBoxField.js"
+import { DivField } from "../../../../js/DivField.js"
+import { FileField } from "../../../../js/FileField.js"
+import { NumberField } from "../../../../js/NumberField.js"
+import { SelectionField } from "../../../../js/SelectionField.js"
 
 // const SHS_FUNNEL_STORAGE_NAME = "shsFunnel"
 // const NEXT_FUNNEL_PATHNAME = "/felix/shs/funnel/strom/"
@@ -22,13 +22,19 @@ const heizungvorlauf = new NumberField("div[class*='heizungvorlauf']")
 const heizungwarm = new SelectionField("div[class*='heizungwarm']")
   .withOptions(["Zentral über Heizung", "Separat (z.B. Durchlauferhitzer)", "Solarthermie", "Andere"])
 
-// const heizungkosten = new NumberField("div[class*='heizungkosten']").withMin(0).withMax(1000000).withPlaceholder("in Euro")
+const heizungkosten = new NumberField("div[class*='heizungkosten']")
+  .withMin(0)
+  .withMax(1000000)
+  .withPlaceholder("in Euro")
 
+const heizungwaermepumpebildupload = new FileField("div[class*='heizungwaermepumpebildupload']")
+  .withAccept("image/*")
 
+const heizungwasserspeicherbilduploa = new FileField("div[class*='heizungwasserspeicherbilduploa']")
+  .withAccept("image/*")
 
-const heizungwaermepumpebildupload = new FileField("div[class*='heizungwaermepumpebildupload']").withAccept("image/*")
-const heizungwasserspeicherbilduploa = new FileField("div[class*='heizungwasserspeicherbilduploa']").withAccept("image/*")
-const heizungstromspeicherbildupload = new FileField("div[class*='heizungstromspeicherbildupload']").withAccept("image/*")
+const heizungstromspeicherbildupload = new FileField("div[class*='heizungstromspeicherbildupload']")
+  .withAccept("image/*")
 
 const traufhoeheviermetercheckbox = new CheckboxField("div[class*='traufhoeheviermetercheckbox']")
 
@@ -47,14 +53,24 @@ const heizunghheizungeintrittzehnmetereizen = new SelectionField("div[class*='he
 const heizunggleichesgebaeude = new SelectionField("div[class*='heizunggleichesgebaeude']")
   .withOptions(["Ja", "Nein"])
 
-// const heizunggleichesgebaeude = new SelectionField("div[class*='heizunggleichesgebaeude']")
-//   .withOptions(["Ja", "Nein"])
-
 const heizungeintrittzehnmeter = new SelectionField("div[class*='heizungeintrittzehnmeter']")
   .withOptions(["Nein", "20-30m", "30-40m", "40-50m", "mehr als 50m"])
 
 
 
+const saveAndProceed = new DivField("div[class*='angeboterhaltenbutton']")
+  .withClickEventListener(() => {
+    // save in storage
+
+    // window.location.assign("/felix/shs/funnel/abfrage-strom/")
+  })
+
+
+const impresum = new DivField("div[class*='impressum']")
+  .withClickEventListener(() => window.location.assign("/felix/shs/impressum/"))
+
+const datenschutz = new DivField("div[class*='datenschutz']")
+  .withClickEventListener(() => window.location.assign("/felix/shs/datenschutz/"))
 
 
 

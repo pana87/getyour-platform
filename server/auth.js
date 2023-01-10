@@ -29,71 +29,49 @@ app.use(cors({
 }))
 app.use(cookieParser())
 
-
-app.get("/get-cookies/", (req, res) => {
-  res.send(req.cookies)
-})
-
-app.get("/set-cookies/", (req, res) => {
-  res.cookie("jwtToken", "jwtToken", {
-    maxAge: 1000 * 60, // 1 min
-    httpOnly: true // http only, prevents JavaScript cookie access
-  })
-  res.send("ok")
-})
-
-let salt
-let jwtToken
 app.post("/request/session/token/", async (req, res) => {
   try {
-    const {email, digest} = req.body
-    const {user} = await User.find(it => it.email.value === email)
-    const userDigest = user.digest
-    const testDigest = Helper.digest(JSON.stringify({
-      email: user.email.value,
-    }))
-    const userId = Helper.digest(JSON.stringify({
-      userEmail: user.email,
-      userRoles: user.roles,
-    }))
-    jwtToken = JWTToken.sign({
+    const {id} = req.body
+    const {user} = await User.find(it => it.id === id)
+    const salt = Helper.generateRandomBytes(32)
+    const jwtToken = JWTToken.sign({
       roles: user.roles,
-      id: userId,
+      id: id,
     }).jwtToken
-    salt = Helper.generateRandomBytes(32)
-    // digest all and save it in credential record
+    const saltDigest = Helper.digest(JSON.stringify(salt))
+    const pinDigest = Helper.digest(userPin)
+    const jwtTokenDigest = Helper.digest(jwtToken)
     const sessionToken = Helper.digest(JSON.stringify({
-      salt,
-      userPin,
-      digest,
-      jwtToken,
+      id,
+      pinDigest,
+      saltDigest,
+      jwtTokenDigest,
     }))
 
-    if (
-      email !== undefined &&
-      digest !== undefined &&
-      digest === userDigest &&
-      digest === testDigest &&
-      userDigest === testDigest &&
-      salt !== undefined &&
-      jwtToken !== undefined &&
-      sessionToken !== undefined
-      ) {
-      // Request.sessionTimeout(email, 30)
-      // res.setHeader("Set-Cookie", `jwtToken=${jwtToken}`)
-      // console.log("hi");
-      res.cookie("jwtToken", jwtToken, {
-        maxAge: sessionLength, // 1 min
-        httpOnly: true // http only, prevents JavaScript cookie access
-      })
-      // console.log(response);
-      return res.send({
-        status: 200,
-        message: "SESSION_TOKEN_REQUEST_SUCCEED",
-        // sessionToken,
-        // jwtToken,
-      })
-    }
+    User.storeSession({
+      id,
+      session: {
+        pin: pinDigest,
+        salt: saltDigest,
+        jwt: jwtTokenDigest,
+      }
+    })
+
+    res.cookie("jwtToken", jwtToken, {
+      maxAge: sessionLength,
+      httpOnly: true,
+      sameSite: "lax",
+    })
+    res.cookie("sessionToken", sessionToken, {
+      maxAge: sessionLength,
+      httpOnly: true,
+      sameSite: "lax",
+    })
+
+    return res.send({
+      status: 200,
+      message: "SESSION_TOKEN_REQUEST_SUCCEED",
+    })
   } catch (error) {
     console.error(error)
   }
@@ -120,7 +98,6 @@ app.post("/request/verify/pin/", async (req, res) => {
 let userPin
 app.post("/request/verify/email/", async (req, res) => {
   const { email } = req.body
-  // console.log(email);
   if (email !== undefined) {
     userPin = Helper.generateRandomPin(4)
 
