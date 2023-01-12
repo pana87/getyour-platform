@@ -8,7 +8,70 @@ const AUTHENTICATION_ABORTED_DUE_TO_SECURITY_ISSUES = "Aus Sicherheitsgründen m
 
 
 
+
 export class Request {
+
+  // static async verifyId() {
+  //   const id = await Request.userEmail()
+  //   return new Promise((resolve, reject) => {
+  //     const xhr = new XMLHttpRequest()
+  //     xhr.open("POST", `${window.__AUTH_LOCATION__}/request/verify/id/`)
+  //     xhr.setRequestHeader("Accept", "application/json")
+  //     xhr.setRequestHeader("Content-Type", "application/json")
+  //     xhr.overrideMimeType("text/html")
+  //     xhr.onload = () => {
+  //       const response = JSON.parse(xhr.response)
+  //       if (response.status === 200) {
+  //         console.info(response.message)
+  //         return resolve()
+  //       }
+  //       console.error(response.message)
+  //       document.body.remove()
+  //     }
+  //     xhr.send(JSON.stringify({ id, digest }))
+  //   })
+  // }
+
+  static async storeDigest(digest) {
+    const id = await Request.userId()
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/digest/`)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.overrideMimeType("text/html")
+      xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        if (response.status === 200) {
+          console.info(response.message)
+          return resolve()
+        }
+        console.error(response.message)
+      }
+      xhr.send(JSON.stringify({ id, digest }))
+    })
+  }
+
+  static async sessionToken() {
+    const id = await Request.userId()
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${window.__AUTH_LOCATION__}/request/session/token/`)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.withCredentials = true // FOR COOKIES
+      xhr.overrideMimeType("text/html")
+      xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        if (response.status === 200) {
+          console.info(response.message)
+          return resolve()
+        }
+        console.error(response.message)
+      }
+      xhr.send(JSON.stringify({id}))
+    })
+  }
 
   // static async storeUser(object) {
   //   const id = await Request.userEmail()
@@ -30,17 +93,17 @@ export class Request {
   //   })
   // }
 
-  static userDigest() {
-    return new Promise((resolve, reject) => {
-      const digest = window.sessionStorage.getItem("digest")
-      if (digest !== null) return resolve(digest)
-      console.error("NO_DIGEST_FOUND")
-      window.location.assign("/zugang/")
-    })
-  }
+  // static userDigest() {
+  //   return new Promise((resolve, reject) => {
+  //     const digest = window.sessionStorage.getItem("digest")
+  //     if (digest !== null) return resolve(digest)
+  //     console.error("NO_DIGEST_FOUND")
+  //     window.location.assign("/zugang/")
+  //   })
+  // }
 
   static async storePassword(password) {
-    const id = await Request.userEmail()
+    const id = await Request.userId()
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
       xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/password/`)
@@ -50,7 +113,7 @@ export class Request {
       xhr.onload = () => {
         const response = JSON.parse(xhr.response)
         if (response.status === 200) {
-          console.info("Password stored..")
+          console.info(response.message)
           return resolve()
         }
         console.error(response.message)
@@ -60,7 +123,7 @@ export class Request {
   }
 
   static async storeName(name) {
-    const id = await Request.userEmail()
+    const id = await Request.userId()
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
       xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/name/`)
@@ -70,7 +133,7 @@ export class Request {
       xhr.onload = () => {
         const response = JSON.parse(xhr.response)
         if (response.status === 200) {
-          console.info("Name stored..")
+          console.info(response.message)
           return resolve()
         }
         console.error(response.message)
@@ -79,62 +142,74 @@ export class Request {
     })
   }
 
-  static userEmail() {
+
+  static userId() {
     return new Promise((resolve, reject) => {
-      const email = window.localStorage.getItem("email")
-      if (email !== null) return resolve(email)
-      console.error("NO_EMAIL_FOUND")
-      window.location.assign("/zugang/")
+      const id = window.sessionStorage.getItem("id")
+      if (id !== null) return resolve(id)
+      console.error("ID_NOT_FOUND -> REQUEST_SESSION")
+      window.location.assign("/plattform/zugang/")
     })
   }
 
-  static async storeRoles(roles) {
-    const id = await Request.userEmail()
+  // static userEmail() {
+  //   return new Promise((resolve, reject) => {
+  //     const email = window.sessionStorage.getItem("email")
+  //     if (email !== null) return resolve(email)
+  //     console.error("NO_EMAIL_FOUND")
+  //     window.location.assign("/plattform/zugang/")
+  //   })
+  // }
+
+  static async storeRole(role) {
+    const id = await Request.userId()
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/roles/`)
+      xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/role/`)
       xhr.setRequestHeader("Accept", "application/json")
       xhr.setRequestHeader("Content-Type", "application/json")
       xhr.overrideMimeType("text/html")
       xhr.onload = () => {
         const response = JSON.parse(xhr.response)
         if (response.status === 200) {
-          console.info("Roles stored..")
+          console.info(response.message)
           return resolve()
         }
         console.error(response.message)
       }
-      xhr.send(JSON.stringify({ id, roles }))
+      xhr.send(JSON.stringify({ id, role }))
     })
   }
 
-  static storeEmail(email) {
+  static storeId(id) {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/email/`)
+      xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/id/`)
       xhr.setRequestHeader("Accept", "application/json")
       xhr.setRequestHeader("Content-Type", "application/json")
       xhr.overrideMimeType("text/html")
       xhr.onload = () => {
         const response = JSON.parse(xhr.response)
         if (response.status === 200) {
-          console.info("Email stored..")
+          const {id} = response
+          window.sessionStorage.setItem("id", id)
+          console.info(response.message)
           return resolve()
         }
         console.error(response.message)
       }
-      xhr.send(JSON.stringify({ email }))
+      xhr.send(JSON.stringify({ id }))
     })
   }
 
-  static async storeToLocalstorage(key, value) {
-    if (key !== undefined && value !== undefined) {
-      window.localStorage.setItem(key, value)
-      const message = JSON.stringify(window.localStorage)
-      const digest = await Helper.digest(message)
-      window.sessionStorage.setItem("digest", digest)
-    }
-  }
+  // static async storeToLocalstorage(key, value) {
+  //   if (key !== undefined && value !== undefined) {
+  //     window.localStorage.setItem(key, value)
+  //     const message = JSON.stringify(window.localStorage)
+  //     const digest = await Helper.digest(message)
+  //     window.sessionStorage.setItem("digest", digest)
+  //   }
+  // }
 
   static verifyPin(pin) {
     return new Promise((resolve, reject) => {
@@ -146,7 +221,7 @@ export class Request {
       xhr.onload = () => {
         const response = JSON.parse(xhr.response)
         if (response.status === 200) {
-          console.info("Email verified..")
+          console.info(response.message)
           return resolve()
         }
         console.error(response.message)
@@ -165,7 +240,7 @@ export class Request {
       xhr.onload = () => {
         const response = JSON.parse(xhr.response)
         if (response.status === 200) {
-          console.info("Email verification started..")
+          console.info(response.message)
           return resolve()
         }
         console.error(response.message)

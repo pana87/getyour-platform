@@ -6,18 +6,22 @@ const path = require("node:path")
 const {HtmlParser} = require('../config/HtmlParser.js')
 const Notification = require('../lib/Notification.js')
 // const { fstat } = require('node:fs')
+const cookieParser = require('cookie-parser')
+
 const app = express()
 const { clientLocation, authLocation, databaseLocation } = require('../config/ServerLocation.js')
 // const location = clientLocation
 const rawParser = bodyParser.raw()
 const jsonParser = bodyParser.json({ limit: "50mb" })
 const textParser = bodyParser.text()
-// const db = require("nano")(process.env.DB)
 const fs = require("node:fs")
 const { CSSParser } = require('../config/CSSParser.js')
 const Storage = require('../lib/Storage.js')
 const { Helper } = require('../lib/Helper.js')
 const { User } = require('../lib/domain/User.js')
+const { Request } = require('../lib/Request.js')
+
+app.use(cookieParser())
 // const { Helper } = require('../lib/Helper.js')
 // const { nano } = require('../config/CouchDB.js')
 // console.log(nano);
@@ -44,7 +48,8 @@ const { User } = require('../lib/domain/User.js')
 //   Storage.insert({ users: [] }, "users")
 // }
 // createDatabase()
-Storage.clientConfig()
+// Storage.clientConfig()
+Storage.configureClient()
 
 
 
@@ -63,30 +68,30 @@ new CSSParser()
 // const files = Helper.getAllFilesFromDirectory(".")
 // console.log(files);
 
-function dataURItoBlob(dataURI) {
-  // convert base64 to raw binary data held in a string
-  // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
-  var byteString = atob(dataURI.split(',')[1]);
+// function dataURItoBlob(dataURI) {
+//   // convert base64 to raw binary data held in a string
+//   // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+//   var byteString = atob(dataURI.split(',')[1]);
 
-  // separate out the mime component
-  var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+//   // separate out the mime component
+//   var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
 
-  // write the bytes of the string to an ArrayBuffer
-  var ab = new ArrayBuffer(byteString.length);
+//   // write the bytes of the string to an ArrayBuffer
+//   var ab = new ArrayBuffer(byteString.length);
 
-  // create a view into the buffer
-  var ia = new Uint8Array(ab);
+//   // create a view into the buffer
+//   var ia = new Uint8Array(ab);
 
-  // set the bytes of the buffer to the correct values
-  for (var i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-  }
+//   // set the bytes of the buffer to the correct values
+//   for (var i = 0; i < byteString.length; i++) {
+//       ia[i] = byteString.charCodeAt(i);
+//   }
 
-  // write the ArrayBuffer to a blob, and you're done
-  var blob = new Blob([ab], {type: mimeString});
-  return blob;
+//   // write the ArrayBuffer to a blob, and you're done
+//   var blob = new Blob([ab], {type: mimeString});
+//   return blob;
 
-}
+// }
 
 app.get("/plattform/zugang/", (req, res) => {
   return res.send(/*html*/`
@@ -228,49 +233,14 @@ app.post("/send/file/", jsonParser, async (req, res) => {
   })
 })
 
-app.get("/testing/", async (req, res) => {
-  const {doc} = await Storage.get("getyour", "users")
-  console.log(doc);
-
-
-  // const {html} = HtmlParser.parse({
-  //   pathToAssets: "",
-  //   pathToHtmlFile: "/lib/views/default.html",
-  // })
-  return res.send("hi")
+app.get("/cookies/anzeigen/", async (req, res) => {
+  return res.send(req.cookies)
 })
 
 app.get("/:username/", async (req, res) => {
   const {user} = await User.find(it => it.name === req.params.username)
-  console.log(user);
-
-  if (user !== undefined) {
-    const username = Helper.capitalizeFirstLetter(req.params.username)
-
-    return res.send(/*html*/`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8">
-          <meta http-equiv="X-UA-Compatible" content="IE=edge">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Dein Profil</title>
-        </head>
-        <body>
-
-          <h1 class="title">Hey ${username}</h1>
-          <p class="info">Ich bin Droid, dein persönlicher Assistent. Es scheint als würdest du dich das erste mal anmelden. Ich benötige noch einige Informationen, um dich auf die Plattform vorzubereiten.</p>
-
-
-          <script id="__EXPOSE__">
-            window.__DATABASE_LOCATION__=${JSON.stringify(databaseLocation.origin)}
-            document.getElementById("__EXPOSE__").remove()
-          </script>
-        </body>
-      </html>
-    `)
-  }
-
+  if (user === undefined) return res.sendStatus(404)
+  const username = Helper.capitalizeFirstLetter(req.params.username)
   return res.send(/*html*/`
     <!DOCTYPE html>
     <html>
@@ -278,19 +248,26 @@ app.get("/:username/", async (req, res) => {
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Weiterleitung</title>
+        <title>Dein Profil</title>
       </head>
       <body>
-        <script>
-          window.location.assign("/plattform/zugang/")
+
+        <h1 class="title">Hey ${username}</h1>
+        <p class="info">Ich bin Droid, dein persönlicher Assistent Droide. Was kann ich für dich tun?</p>
+
+        <script id="__EXPOSE__">
+          window.__DATABASE_LOCATION__=${JSON.stringify(databaseLocation.origin)}
+          document.getElementById("__EXPOSE__").remove()
         </script>
       </body>
     </html>
   `)
 })
 
-
-app.get("/plattform/zugang/plattformentwickler/registrieren/", (req, res) => {
+app.get("/plattform/zugang/plattformentwickler/registrieren/", Request.verifySession, Request.verifyRole(0), async (req, res) => {
+  const {user} = await User.find(it => it.id === req.user.id)
+  if (user === undefined) return res.redirect(req.redirectPath)
+  if (user.name !== undefined) return res.redirect(`/${user.name}/`)
   return res.send(/*html*/`
     <!DOCTYPE html>
     <html>
