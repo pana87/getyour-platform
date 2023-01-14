@@ -24,13 +24,13 @@ body {
 }
 .gruppe-1941 {
   position: absolute;
-  height: 17.45%;
+  height: 15.19%;
   width: 95.34%;
-  top: 51.98%;
+  top: 45.26%;
   right: 2.33%;
-  bottom: 30.57%;
+  bottom: 39.55%;
   left: 2.33%;
-  font-size: var(--font-size-7xl);
+  font-size: var(--font-size-8xl);
   font-family: var(--font-apple-braille);
 }
 .rechteck-262 {
@@ -80,11 +80,11 @@ body {
 }
 .gruppe-1885 {
   position: absolute;
-  height: 4.33%;
+  height: 3.77%;
   width: 90.68%;
-  top: 14.16%;
+  top: 12.33%;
   right: 4.66%;
-  bottom: 81.51%;
+  bottom: 83.9%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -116,11 +116,11 @@ body {
 }
 .gruppe-1980 {
   position: absolute;
-  height: 3.49%;
+  height: 3.04%;
   width: 90.68%;
-  top: 29.82%;
+  top: 25.96%;
   right: 4.66%;
-  bottom: 66.7%;
+  bottom: 71.01%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -144,19 +144,19 @@ body {
 }
 .gruppe-1981 {
   position: absolute;
-  height: 4.88%;
+  height: 4.25%;
   width: 90.68%;
-  top: 41.77%;
+  top: 36.37%;
   right: 4.66%;
-  bottom: 53.34%;
+  bottom: 59.38%;
   left: 4.66%;
   opacity: 0.71;
 }
 .technische-ausstattung {
   position: absolute;
-  top: calc(50% - 1487.23px);
+  top: calc(50% - 1764.23px);
   left: 4.63%;
-  font-size: var(--font-size-8xl);
+  font-size: var(--font-size-9xl);
   line-height: 37px;
   font-family: var(--font-apple-braille);
   -webkit-text-stroke: 1px #161616;
@@ -332,7 +332,7 @@ body {
 }
 .gruppe-1557 {
   position: absolute;
-  top: calc(50% - 1087.6px);
+  top: calc(50% - 1364.6px);
   left: calc(50% - 183.79px);
   width: 367.59px;
   height: 301.46px;
@@ -881,18 +881,18 @@ body {
   height: 2.55px;
 }
 .gruppe-1551 {
-  top: calc(50% - 541.77px);
+  top: calc(50% - 818.77px);
   left: calc(50% - 190.33px);
   width: 380.66px;
   height: 201.52px;
-  font-size: var(--font-size-6xs);
+  font-size: var(--font-size-7xs);
   color: var(--color-gray-100);
 }
 .bilderupload {
   position: absolute;
-  top: calc(50% + 0.19px);
+  top: calc(50% - 276.81px);
   left: 4.63%;
-  font-size: var(--font-size-8xl);
+  font-size: var(--font-size-9xl);
   line-height: 37px;
   font-family: var(--font-apple-braille);
   -webkit-text-stroke: 1px #161616;
@@ -929,7 +929,7 @@ body {
 }
 .technischeshakbildupload {
   position: absolute;
-  top: calc(50% + 580.5px);
+  top: calc(50% + 303.5px);
   left: calc(50% - 162px);
   width: 325px;
   height: 85px;
@@ -937,7 +937,7 @@ body {
 }
 .gruppe-1672-icon {
   position: absolute;
-  top: calc(50% + 219.35px);
+  top: calc(50% - 57.65px);
   left: calc(50% - 52.68px);
   width: 105.37px;
   height: 324.5px;
@@ -951,17 +951,17 @@ body {
 }
 .gruppe-1968 {
   position: absolute;
-  height: 3.49%;
+  height: 3.04%;
   width: 90.68%;
-  top: 71.04%;
+  top: 61.85%;
   right: 4.66%;
-  bottom: 25.47%;
+  bottom: 35.11%;
   left: 4.66%;
   opacity: 0.71;
 }
 .hausbaujahr4 {
   position: absolute;
-  top: calc(50% - 53.48px);
+  top: calc(50% - 45.9px);
   left: 33.91px;
   opacity: 0.86;
 }
@@ -974,19 +974,19 @@ body {
 }
 .gruppe-1965 {
   position: absolute;
-  height: 4.44%;
+  height: 3.27%;
   width: 90.68%;
-  top: 76.41%;
+  top: 66.52%;
   right: 4.66%;
-  bottom: 19.15%;
+  bottom: 30.21%;
   left: 4.66%;
   opacity: 0.71;
 }
 .der-hak-ist {
   position: absolute;
-  height: 2.55%;
+  height: 2.22%;
   width: calc(100% - 88.9px);
-  top: 83.02%;
+  top: 72.28%;
   left: 45.18px;
   font-size: var(--font-size-xs);
   line-height: 22px;
@@ -1006,52 +1006,18 @@ body {
 }
 .technischeshakfreicheckbox {
   position: absolute;
-  bottom: 650.09px;
+  top: calc(50% + 910.41px);
   left: 44.73px;
   width: 27px;
   height: 27px;
 }
 .ja-hak {
   position: absolute;
-  top: calc(50% + 1186.91px);
+  top: calc(50% + 909.91px);
   left: 85.18px;
   font-size: var(--font-size-3xl);
   line-height: 22px;
   opacity: 0.8;
-}
-.rechteck-2625 {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: var(--color-green-200);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
-  opacity: 0.59;
-}
-.datenschutzv,
-.impressum {
-  position: absolute;
-  top: calc(50% - 9px);
-  left: 48.91px;
-  text-transform: uppercase;
-}
-.datenschutzv {
-  left: 207.91px;
-}
-.gruppe-1883 {
-  position: absolute;
-  height: 3.82%;
-  width: 100%;
-  top: 96.19%;
-  right: 0;
-  bottom: -0.01%;
-  left: 0;
-  text-align: center;
-  font-size: var(--font-size-lg);
-  color: var(--color-black);
 }
 .angebot-erhalten {
   position: absolute;
@@ -1061,16 +1027,16 @@ body {
 }
 .angeboterhaltenbutton {
   position: absolute;
-  height: 2.84%;
+  height: 2.47%;
   width: calc(100% - 103px);
-  top: 88.93%;
+  top: 90.36%;
   right: 51.5px;
-  bottom: 8.23%;
+  bottom: 7.16%;
   left: 51.5px;
   border-radius: var(--br-md);
   background-color: var(--color-orange-100);
   font-size: var(--font-size-2xl);
-  color: var(--color-gray-600);
+  color: var(--color-gray-800);
   font-family: var(--font-ligurino);
 }
 .angeboterhaltenbutton:hover {
@@ -1086,7 +1052,8 @@ body {
   width: 101px;
   object-fit: cover;
 }
-.header {
+.header,
+.rechteck-2625 {
   position: absolute;
   width: 100%;
   top: 0;
@@ -1096,103 +1063,105 @@ body {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
   height: 228px;
 }
-.clicktechnischesbutton {
+.rechteck-2625 {
+  height: 100%;
+  bottom: 0;
+  background-color: var(--color-green-200);
+  opacity: 0.59;
+}
+.datenschutzv,
+.impressum {
+  position: absolute;
+  top: calc(50% - 9px);
+  left: 48.91px;
+  text-transform: uppercase;
+}
+.datenschutzv {
+  left: 207.91px;
+}
+.gruppe-1883 {
+  position: absolute;
+  height: 3.33%;
+  width: 100%;
+  top: 96.67%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  text-align: center;
+  font-size: var(--font-size-lg);
+  color: var(--color-black);
+}
+.zusatzinformationen {
+  position: absolute;
+  top: calc(50% - 215.18px);
+  left: 2.43%;
+  line-height: 37px;
+  -webkit-text-stroke: 0.5px #161616;
+  opacity: 0.86;
+}
+.gruppe-1956 {
+  position: absolute;
+  height: 11.89%;
+  width: 95.34%;
+  top: 75.36%;
+  right: 2.33%;
+  bottom: 12.75%;
+  left: 2.33%;
+  font-size: var(--font-size-8xl);
+  font-family: var(--font-apple-braille);
+}
+.zusatzinfosinput {
+  position: absolute;
+  width: 90.73%;
+  top: calc(50% + 1231.06px);
+  left: 4.66%;
+  font-size: var(--font-size-sm);
+  display: inline-block;
+  height: 319px;
+  opacity: 0.45;
+}
+.technischestext {
   position: absolute;
   top: calc(50% - 28.48px);
   left: calc(50% - 41px);
 }
-.rechteck-226,
-.rechteck-332 {
-  height: 100%;
-  width: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-}
-.rechteck-226 {
-  position: absolute;
-  background-color: var(--color-gray-200);
-}
-.rechteck-332 {
-  background-color: var(--color-green-100);
-}
-.div,
-.fss,
-.rechteck-332 {
-  position: absolute;
-}
 .div {
+  position: absolute;
   top: 4.48px;
   left: calc(50% - 6px);
 }
-.fss {
+.clicktechnischesknopf {
+  position: absolute;
   top: calc(50% - 5.48px);
   left: calc(50% - 24.88px);
+  background-color: var(--color-green-100);
   width: 49.75px;
   height: 33.95px;
   font-size: var(--font-size-xl);
   color: var(--color-white);
 }
-.clicktechnischesknopf {
+.technischesnav {
   position: absolute;
-  height: 1.53%;
+  height: 1.33%;
   width: 4.27%;
-  top: 2.98%;
+  top: 2.59%;
   right: 21.24%;
-  bottom: 95.5%;
+  bottom: 96.08%;
   left: 74.49%;
   font-size: var(--font-size-3xs);
 }
-.clickzumsstrombutton {
-  position: absolute;
-  top: calc(50% - 28.48px);
-  left: calc(50% - 20px);
-}
-.clickzumstromknopf {
-  position: absolute;
-  height: 1.53%;
-  width: 2.59%;
-  top: 2.98%;
-  right: 40.71%;
-  bottom: 95.5%;
-  left: 56.69%;
-  font-size: var(--font-size-3xs);
-}
-.clickzurheizungbutton {
-  position: absolute;
-  top: calc(50% - 28.48px);
-  left: calc(50% - 27px);
-}
-.div2 {
-  position: absolute;
-  top: 4.48px;
-  left: calc(50% - 5.5px);
-}
-.clickzurheizungknopf {
-  position: absolute;
-  height: 1.53%;
-  width: 2.81%;
-  top: 2.98%;
-  right: 58.06%;
-  bottom: 95.5%;
-  left: 39.13%;
-  font-size: var(--font-size-3xs);
-}
-.clickzumhausbutton {
+.haustext {
   position: absolute;
   top: calc(50% - 28.48px);
   left: calc(50% - 17.5px);
 }
-.div3,
-.vv {
+.dfsaf {
   position: absolute;
-}
-.div3 {
   top: 3.48px;
   left: calc(50% - 4px);
 }
-.vv {
+.clickzumhausknopf {
+  position: absolute;
   top: calc(50% - 5.48px);
   left: calc(50% - 24.88px);
   background-color: var(--color-green-100);
@@ -1201,24 +1170,99 @@ body {
   font-size: var(--font-size-2xl);
   color: var(--color-gray-100);
 }
-.clickzumhausknopf {
-  position: absolute;
-  height: 1.53%;
+.navhaus {
+  height: 1.33%;
   width: 2.59%;
-  top: 2.98%;
+  top: 2.59%;
   right: 75.6%;
-  bottom: 95.5%;
+  bottom: 96.08%;
   left: 21.81%;
   font-size: var(--font-size-3xs);
+}
+.div1,
+.heizung,
+.navhaus {
+  position: absolute;
+}
+.heizung {
+  top: calc(50% - 27.47px);
+  left: calc(50% - 27px);
+}
+.div1 {
+  top: 3px;
+  left: calc(50% - 6.32px);
+}
+.clickzurheizungknopf {
+  position: absolute;
+  top: calc(50% - 6.47px);
+  left: calc(50% - 24.55px);
+  background-color: var(--color-green-100);
+  width: 49.75px;
+  height: 33.95px;
+  font-size: var(--font-size-2xl);
+  color: var(--color-white);
+}
+.navheizung {
+  position: absolute;
+  height: 1.28%;
+  width: 2.81%;
+  top: 2.64%;
+  right: 58.07%;
+  bottom: 96.08%;
+  left: 39.11%;
+  font-size: var(--font-size-3xs);
+  color: var(--color-black);
+}
+.zhler {
+  position: absolute;
+  top: calc(50% - 27.97px);
+  left: calc(50% - 20.88px);
+}
+.pfad-805-icon {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+.div2 {
+  position: absolute;
+  top: 4px;
+  left: calc(50% - 5.88px);
+}
+.clickzumzaehlerknopf {
+  position: absolute;
+  top: calc(50% - 5.97px);
+  left: calc(50% - 24.88px);
+  width: 49.75px;
+  height: 33.95px;
+  font-size: var(--font-size-xl);
+  color: var(--color-white);
+}
+.navzaehler {
+  position: absolute;
+  height: 1.31%;
+  width: 2.59%;
+  top: 2.62%;
+  right: 40.71%;
+  bottom: 96.08%;
+  left: 56.69%;
+  font-size: var(--font-size-3xs);
+  color: var(--color-black);
 }
 .technisches {
   position: relative;
   background-color: var(--color-gray-100);
   width: 100%;
-  height: 3729px;
+  height: 4283px;
   text-align: left;
   font-size: var(--font-size-base);
-  color: var(--color-gray-400);
+  color: var(--color-gray-600);
   font-family: var(--font-forma-djr-micro);
 }
 @media screen and (max-width: 768px) {

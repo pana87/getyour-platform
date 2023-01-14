@@ -11,6 +11,84 @@ const AUTHENTICATION_ABORTED_DUE_TO_SECURITY_ISSUES = "Aus Sicherheitsgründen m
 
 export class Request {
 
+  static registerId(id) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${window.__DB_LOCATION__}/request/register/id/`)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.overrideMimeType("text/html")
+      xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        console.info(response)
+        return resolve({
+          status: response.status,
+          message: response.message,
+        })
+      }
+      xhr.send(JSON.stringify({ id }))
+    })
+  }
+
+  static verifyId(id) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${window.__AUTH_LOCATION__}/request/verify/id/`)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.overrideMimeType("text/html")
+      xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        console.info(response)
+        if (response.status === 200) window.localStorage.setItem("id", response.id)
+        return resolve({
+          status: response.status,
+          message: response.message,
+        })
+      }
+      xhr.send(JSON.stringify({ id }))
+    })
+  }
+
+  static sendEmailWithPin(email) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${window.__AUTH_LOCATION__}/request/send/email/with/pin/`)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.overrideMimeType("text/html")
+      xhr.onload = async () => {
+        const response = JSON.parse(xhr.response)
+        console.info(response)
+        return resolve({
+          status: response.status,
+          message: response.message,
+        })
+      }
+      xhr.send(JSON.stringify({ email }))
+    })
+  }
+
+  static async registerOperator(operator) {
+    const id = Request.userId()
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${window.__DB_LOCATION__}/request/register/operator/`)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.overrideMimeType("text/html")
+      xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        console.info(response)
+        return resolve({
+          status: response.status,
+          message: response.message,
+        })
+      }
+      xhr.send(JSON.stringify({id, operator}))
+    })
+  }
+
   // static async verifyId() {
   //   const id = await Request.userEmail()
   //   return new Promise((resolve, reject) => {
@@ -32,28 +110,28 @@ export class Request {
   //   })
   // }
 
-  static async storeDigest(digest) {
-    const id = await Request.userId()
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/digest/`)
-      xhr.setRequestHeader("Accept", "application/json")
-      xhr.setRequestHeader("Content-Type", "application/json")
-      xhr.overrideMimeType("text/html")
-      xhr.onload = () => {
-        const response = JSON.parse(xhr.response)
-        if (response.status === 200) {
-          console.info(response.message)
-          return resolve()
-        }
-        console.error(response.message)
-      }
-      xhr.send(JSON.stringify({ id, digest }))
-    })
-  }
+  // static async storeDigest(digest) {
+  //   const id = await Request.userId()
+  //   return new Promise((resolve, reject) => {
+  //     const xhr = new XMLHttpRequest()
+  //     xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/digest/`)
+  //     xhr.setRequestHeader("Accept", "application/json")
+  //     xhr.setRequestHeader("Content-Type", "application/json")
+  //     xhr.overrideMimeType("text/html")
+  //     xhr.onload = () => {
+  //       const response = JSON.parse(xhr.response)
+  //       if (response.status === 200) {
+  //         console.info(response.message)
+  //         return resolve()
+  //       }
+  //       console.error(response.message)
+  //     }
+  //     xhr.send(JSON.stringify({ id, digest }))
+  //   })
+  // }
 
   static async sessionToken() {
-    const id = await Request.userId()
+    const id = Request.userId()
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
       xhr.open("POST", `${window.__AUTH_LOCATION__}/request/session/token/`)
@@ -63,11 +141,11 @@ export class Request {
       xhr.overrideMimeType("text/html")
       xhr.onload = () => {
         const response = JSON.parse(xhr.response)
-        if (response.status === 200) {
-          console.info(response.message)
-          return resolve()
-        }
-        console.error(response.message)
+        console.info(response)
+        return resolve({
+          status: response.status,
+          message: response.message,
+        })
       }
       xhr.send(JSON.stringify({id}))
     })
@@ -102,55 +180,65 @@ export class Request {
   //   })
   // }
 
-  static async storePassword(password) {
-    const id = await Request.userId()
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/password/`)
-      xhr.setRequestHeader("Accept", "application/json")
-      xhr.setRequestHeader("Content-Type", "application/json")
-      xhr.overrideMimeType("text/html")
-      xhr.onload = () => {
-        const response = JSON.parse(xhr.response)
-        if (response.status === 200) {
-          console.info(response.message)
-          return resolve()
-        }
-        console.error(response.message)
-      }
-      xhr.send(JSON.stringify({ id, password }))
-    })
-  }
+  // static async storePassword(password) {
+  //   const id = await Request.userId()
+  //   return new Promise((resolve, reject) => {
+  //     const xhr = new XMLHttpRequest()
+  //     xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/password/`)
+  //     xhr.setRequestHeader("Accept", "application/json")
+  //     xhr.setRequestHeader("Content-Type", "application/json")
+  //     xhr.overrideMimeType("text/html")
+  //     xhr.onload = () => {
+  //       const response = JSON.parse(xhr.response)
+  //       if (response.status === 200) {
+  //         console.info(response.message)
+  //         return resolve()
+  //       }
+  //       console.error(response.message)
+  //     }
+  //     xhr.send(JSON.stringify({ id, password }))
+  //   })
+  // }
 
-  static async storeName(name) {
-    const id = await Request.userId()
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/name/`)
-      xhr.setRequestHeader("Accept", "application/json")
-      xhr.setRequestHeader("Content-Type", "application/json")
-      xhr.overrideMimeType("text/html")
-      xhr.onload = () => {
-        const response = JSON.parse(xhr.response)
-        if (response.status === 200) {
-          console.info(response.message)
-          return resolve()
-        }
-        console.error(response.message)
-      }
-      xhr.send(JSON.stringify({ id, name }))
-    })
-  }
-
-
+  // static async storeName(name) {
+  //   const id = await Request.userId()
+  //   return new Promise((resolve, reject) => {
+  //     const xhr = new XMLHttpRequest()
+  //     xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/name/`)
+  //     xhr.setRequestHeader("Accept", "application/json")
+  //     xhr.setRequestHeader("Content-Type", "application/json")
+  //     xhr.overrideMimeType("text/html")
+  //     xhr.onload = () => {
+  //       const response = JSON.parse(xhr.response)
+  //       if (response.status === 200) {
+  //         console.info(response.message)
+  //         return resolve()
+  //       }
+  //       console.error(response.message)
+  //     }
+  //     xhr.send(JSON.stringify({ id, name }))
+  //   })
+  // }
   static userId() {
-    return new Promise((resolve, reject) => {
-      const id = window.sessionStorage.getItem("id")
-      if (id !== null) return resolve(id)
-      console.error("ID_NOT_FOUND -> REQUEST_SESSION")
-      window.location.assign("/plattform/zugang/")
-    })
+    try {
+      const id = window.localStorage.getItem("id")
+      if (id !== null) return id
+    } catch (error) {
+      console.error(error)
+    }
+    return undefined
   }
+
+
+
+  // static userId() {
+  //   return new Promise((resolve, reject) => {
+  //     const id = window.localStorage.getItem("id")
+  //     if (id !== null) return resolve(id)
+  //     console.error("ID_NOT_FOUND -> REQUEST_SESSION")
+  //     window.location.assign("/plattform/zugang/")
+  //   })
+  // }
 
   // static userEmail() {
   //   return new Promise((resolve, reject) => {
@@ -161,57 +249,49 @@ export class Request {
   //   })
   // }
 
-  static async storeRole(role) {
-    const id = await Request.userId()
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/role/`)
-      xhr.setRequestHeader("Accept", "application/json")
-      xhr.setRequestHeader("Content-Type", "application/json")
-      xhr.overrideMimeType("text/html")
-      xhr.onload = () => {
-        const response = JSON.parse(xhr.response)
-        if (response.status === 200) {
-          console.info(response.message)
-          return resolve()
-        }
-        console.error(response.message)
-      }
-      xhr.send(JSON.stringify({ id, role }))
-    })
-  }
-
-  static storeId(id) {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/id/`)
-      xhr.setRequestHeader("Accept", "application/json")
-      xhr.setRequestHeader("Content-Type", "application/json")
-      xhr.overrideMimeType("text/html")
-      xhr.onload = () => {
-        const response = JSON.parse(xhr.response)
-        if (response.status === 200) {
-          const {id} = response
-          window.sessionStorage.setItem("id", id)
-          console.info(response.message)
-          return resolve()
-        }
-        console.error(response.message)
-      }
-      xhr.send(JSON.stringify({ id }))
-    })
-  }
-
-  // static async storeToLocalstorage(key, value) {
-  //   if (key !== undefined && value !== undefined) {
-  //     window.localStorage.setItem(key, value)
-  //     const message = JSON.stringify(window.localStorage)
-  //     const digest = await Helper.digest(message)
-  //     window.sessionStorage.setItem("digest", digest)
-  //   }
+  // static async storeRole(role) {
+  //   const id = await Request.userId()
+  //   return new Promise((resolve, reject) => {
+  //     const xhr = new XMLHttpRequest()
+  //     xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/role/`)
+  //     xhr.setRequestHeader("Accept", "application/json")
+  //     xhr.setRequestHeader("Content-Type", "application/json")
+  //     xhr.overrideMimeType("text/html")
+  //     xhr.onload = () => {
+  //       const response = JSON.parse(xhr.response)
+  //       if (response.status === 200) {
+  //         console.info(response.message)
+  //         return resolve()
+  //       }
+  //       console.error(response.message)
+  //     }
+  //     xhr.send(JSON.stringify({ id, role }))
+  //   })
   // }
 
-  static verifyPin(pin) {
+  // static storeId(id) {
+  //   return new Promise((resolve, reject) => {
+  //     const xhr = new XMLHttpRequest()
+  //     xhr.open("POST", `${window.__AUTH_LOCATION__}/request/store/id/`)
+  //     xhr.setRequestHeader("Accept", "application/json")
+  //     xhr.setRequestHeader("Content-Type", "application/json")
+  //     xhr.overrideMimeType("text/html")
+  //     xhr.onload = () => {
+  //       const response = JSON.parse(xhr.response)
+  //       if (response.status === 200) {
+  //         console.info(response.message)
+  //         const {id} = response
+  //         window.localStorage.setItem("id", id)
+  //         return resolve()
+  //       }
+  //       console.error(response.message)
+  //     }
+  //     xhr.send(JSON.stringify({ id }))
+  //   })
+  // }
+
+  static verifyPin(email) {
+    const pin = prompt(`Es wurde eine PIN an die E-Mail: '${email}' gesendet.\n\nBestätige deine PIN.`)
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
       xhr.open("POST", `${window.__AUTH_LOCATION__}/request/verify/pin/`)
@@ -220,34 +300,37 @@ export class Request {
       xhr.overrideMimeType("text/html")
       xhr.onload = () => {
         const response = JSON.parse(xhr.response)
-        if (response.status === 200) {
-          console.info(response.message)
-          return resolve()
-        }
-        console.error(response.message)
+        console.info(response)
+        return resolve({
+          status: response.status,
+          message: response.message,
+        })
       }
-      xhr.send(JSON.stringify({ pin }))
+      xhr.send(JSON.stringify({ id: email, pin }))
     })
   }
 
-  static verifyEmail(email) {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__AUTH_LOCATION__}/request/verify/email/`)
-      xhr.setRequestHeader("Accept", "application/json")
-      xhr.setRequestHeader("Content-Type", "application/json")
-      xhr.overrideMimeType("text/html")
-      xhr.onload = () => {
-        const response = JSON.parse(xhr.response)
-        if (response.status === 200) {
-          console.info(response.message)
-          return resolve()
-        }
-        console.error(response.message)
-      }
-      xhr.send(JSON.stringify({ email }))
-    })
-  }
+  // static verifyEmail(email) {
+  //   return new Promise((resolve, reject) => {
+  //     const xhr = new XMLHttpRequest()
+  //     xhr.open("POST", `${window.__AUTH_LOCATION__}/request/verify/email/`)
+  //     xhr.setRequestHeader("Accept", "application/json")
+  //     xhr.setRequestHeader("Content-Type", "application/json")
+  //     xhr.overrideMimeType("text/html")
+  //     xhr.onload = async () => {
+  //       const response = JSON.parse(xhr.response)
+  //       if (response.status === 200) {
+  //         console.info(response.message)
+  //         const pin = prompt(`Es wurde eine PIN an die E-Mail: '${email}' gesendet.\n\nBestätige deine PIN.`)
+  //         await this.verifyPin({ id: email, pin})
+  //         await this.storeId(email)
+  //         return resolve()
+  //       }
+  //       console.error(response.message)
+  //     }
+  //     xhr.send(JSON.stringify({ email }))
+  //   })
+  // }
 
   static sendFile(file) {
     return new Promise((resolve, reject) => {

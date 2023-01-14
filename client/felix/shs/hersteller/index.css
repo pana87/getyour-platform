@@ -1,0 +1,313 @@
+body {
+  margin: 0;
+  line-height: normal;
+}
+.logo-icon {
+  position: absolute;
+  height: calc(100% - 23px);
+  top: 11px;
+  bottom: 12px;
+  left: 86px;
+  max-height: 100%;
+  width: 101px;
+  object-fit: cover;
+}
+.gruppe-5 {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  right: 0;
+  left: 0;
+  background-color: var(--color-white);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  height: 85px;
+}
+.angebotsbersicht {
+  position: absolute;
+  top: calc(50% - 747.23px);
+  left: 4.63%;
+  line-height: 37px;
+  font-family: var(--font-apple-braille);
+  -webkit-text-stroke: 1px #161616;
+  opacity: 0.86;
+}
+.rererejwajslf {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: var(--br-lg);
+  background-color: var(--color-green-200);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 0.25;
+}
+.datenneueingebenbutton {
+  position: absolute;
+  top: calc(50% - 45px);
+  left: 25.91px;
+  text-decoration: underline;
+  opacity: 0.9;
+}
+.angebotdatenaendern {
+  position: absolute;
+  height: 9.19%;
+  width: 96.52%;
+  top: 17.47%;
+  right: 1.74%;
+  bottom: 73.34%;
+  left: 1.74%;
+  opacity: 0.71;
+  text-align: center;
+  font-size: var(--font-size-7xl);
+}
+.rechteck-516 {
+  border-radius: var(--br-lg);
+  background-color: var(--color-white);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+}
+.groweitrechteck,
+.rechteck-516 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.herstellerinfotext,
+.namedessystemsvomhersteller {
+  position: absolute;
+  width: calc(100% + 1px);
+  left: 0;
+  display: inline-block;
+}
+.herstellerinfotext {
+  top: calc(50% - 28px);
+  line-height: 23px;
+  height: 101px;
+}
+.namedessystemsvomhersteller {
+  top: calc(50% - 73px);
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  height: 24px;
+}
+.herstellermehrinfos {
+  position: absolute;
+  width: calc(100% - 54.99px);
+  top: calc(50% - 207.57px);
+  right: 23px;
+  left: 32px;
+  height: 146px;
+}
+.websitezumhersteller {
+  position: absolute;
+  top: calc(50% - 9.5px);
+  left: 38px;
+  text-decoration: underline;
+}
+.linktowebsitehersteller,
+.pfad-777-icon {
+  position: absolute;
+  top: calc(50% - 14px);
+  left: 0;
+  width: 28px;
+  height: 28px;
+}
+.linktowebsitehersteller {
+  width: 4.74%;
+  top: calc(50% - 295.58px);
+  right: 93.59%;
+  left: 32px;
+  font-size: var(--font-size-3xs);
+}
+.herstellername1 {
+  position: absolute;
+  width: calc(100% + 1px);
+  top: calc(50% - 12px);
+  left: 0;
+  font-weight: 500;
+  display: inline-block;
+  height: 24px;
+}
+.herstellername {
+  position: absolute;
+  width: calc(100% - 46.35px);
+  top: calc(50% - 340.58px);
+  right: 14.35px;
+  left: 32px;
+  height: 24px;
+  font-size: var(--font-size-lg);
+}
+.herstellerlogobild-icon {
+  position: absolute;
+  top: calc(50% - 15.5px);
+  left: 0;
+  width: 174px;
+  height: 31px;
+  object-fit: cover;
+}
+.herstellerlogo {
+  position: absolute;
+  width: 9.06%;
+  top: calc(50% - 431.58px);
+  right: 89.27%;
+  left: 32px;
+  height: 31px;
+}
+.rereerere {
+  position: absolute;
+  top: calc(50% - 31.2px);
+  left: 0;
+  border-radius: var(--br-md);
+  background-color: var(--color-orange-100);
+  width: 335.04px;
+  height: 62.41px;
+}
+.weiter-zum-angebot {
+  position: absolute;
+  top: calc(50% - 10.5px);
+  left: 86.52px;
+  line-height: 14px;
+}
+.zumangebotbutton {
+  position: absolute;
+  top: calc(50% + 95.26px);
+  right: 0;
+  width: 335.04px;
+  height: 62.41px;
+  color: var(--color-gray-800);
+  font-family: var(--font-ligurino);
+}
+.gesamt,
+.nettobetrag,
+.preisbersicht,
+.ust-1900 {
+  position: absolute;
+  top: calc(50% - 98.54px);
+  right: 182.94px;
+  display: inline-block;
+  width: 152.1px;
+  height: 22.99px;
+}
+.gesamt,
+.preisbersicht,
+.ust-1900 {
+  top: calc(50% - 62.41px);
+}
+.gesamt,
+.preisbersicht {
+  top: calc(50% + 4.38px);
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  height: 26.28px;
+}
+.preisbersicht {
+  top: calc(50% - 157.67px);
+  right: 0.64px;
+  font-size: var(--font-size-4xl);
+  width: 334.4px;
+  height: 45.99px;
+}
+.herstellergesamtpreis,
+.herstellernettobeitrag,
+.herstellerust {
+  position: absolute;
+  top: calc(50% - 98.54px);
+  right: -0.62px;
+  display: inline-block;
+  width: 133.48px;
+  height: 22.99px;
+}
+.herstellergesamtpreis,
+.herstellerust {
+  top: calc(50% - 62.41px);
+  width: 121.44px;
+}
+.herstellergesamtpreis {
+  top: calc(50% + 4.38px);
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  width: 146.62px;
+  height: 26.28px;
+}
+.gruppe-1982,
+.pfad-802-icon {
+  position: absolute;
+  top: calc(50% - 26.48px);
+  right: 0.75px;
+  width: 335.04px;
+  height: 1.5px;
+}
+.gruppe-1982 {
+  width: 100%;
+  top: calc(50% - 157.67px);
+  right: 0;
+  left: 0;
+  height: 315.33px;
+}
+.herstellerkomplettpreiscontain {
+  position: absolute;
+  top: calc(50% + 127.43px);
+  right: 21.4px;
+  width: 335.04px;
+  height: 315.33px;
+  font-size: var(--font-size-sm);
+}
+.herstelleritem,
+.rechteck-262 {
+  position: absolute;
+  width: 100%;
+  right: 0;
+  left: 0;
+}
+.herstelleritem {
+  height: 50.56%;
+  top: 30.85%;
+  bottom: 18.59%;
+  font-size: var(--font-size-2xs);
+}
+.rechteck-262 {
+  height: 100%;
+  top: 0;
+  bottom: 0;
+  background-color: var(--color-green-200);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 0.59;
+}
+.datenschutzv,
+.impressum {
+  position: absolute;
+  top: calc(50% - 9px);
+  left: 48.91px;
+  text-transform: uppercase;
+}
+.datenschutzv {
+  left: 207.91px;
+}
+.gruppe-1883 {
+  position: absolute;
+  height: 7.4%;
+  width: 100%;
+  top: 92.6%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  text-align: center;
+  font-size: var(--font-size-lg);
+  color: var(--color-black);
+}
+.angebotsuebersicht {
+  position: relative;
+  background-color: var(--color-gray-100);
+  width: 100%;
+  height: 1925px;
+  text-align: left;
+  font-size: var(--font-size-9xl);
+  color: var(--color-gray-600);
+  font-family: var(--font-forma-djr-micro);
+}

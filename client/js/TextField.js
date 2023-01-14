@@ -1,5 +1,34 @@
 export class TextField {
 
+  withChangeEventListener(callback) {
+    if (callback !== undefined) document.body.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("change", (event) => callback(event)))
+    return this
+  }
+
+  withInput(callback) {
+    document.querySelectorAll(this.inputSelector).forEach(input => callback(input))
+    return this
+  }
+
+  #isEmpty(value) {
+    return value === undefined ||
+      value === "" ||
+      value.replace(/\s/g, "") === "" ||
+      value === null
+  }
+
+  async withStorage(name) {
+    this.storageName = name
+    await this.withValidValue((value) => {
+      if (!this.#isEmpty(value)) {
+        this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
+        this.storage[this.className] = value
+        window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
+      }
+    })
+    return this
+  }
+
   #setNoStyle(input) {
     input.removeAttribute("style")
     return input
@@ -81,49 +110,39 @@ export class TextField {
     return this
   }
 
-  get value() {
-    let result = undefined
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => result = input.value)
-    return result
-  }
-
   withUrlValue() {
     const inputs = document.body.querySelectorAll(this.inputSelector)
     inputs.forEach(input => input.value = encodeURIComponent(input.value).replace(/%20/g, "-"))
     return this
   }
 
-  isEmpty(value) {
-    return value.replace(/\s/g,"") === ""
-  }
-
-  isUndefined(value) {
-    return value === undefined
-  }
-
-  checkValidity(input) {
-    return input.checkValidity() &&
-      !this.isEmpty(input.value) &&
-      !this.isUndefined(input.value)
+  #isRequired(input) {
+    if (input.required === true) return true
+    return false
   }
 
   withValidValue(callback) {
-    document.querySelectorAll(this.inputSelector).forEach(input => {
-      if (this.checkValidity(input)) {
+    return new Promise((resolve, reject) => {
+      document.querySelectorAll(this.inputSelector).forEach(input => {
+        if (this.#isRequired(input)) {
+          if (input.checkValidity()) {
+            this.#setValidStyle(input)
+            if (callback !== undefined) callback(input.value)
+            return resolve(input.value)
+          }
+          this.#setNotValidStyle(input)
+          console.error(`class='${this.className}' - required valid value`)
+          return
+        }
         this.#setValidStyle(input)
-        callback(input.value)
-        return
-      }
-      this.#setNotValidStyle(input)
-      console.error("VALUE_NOT_VALID")
+        if (callback !== undefined) callback(input.value)
+        return resolve(input.value)
+      })
     })
-    return this
   }
 
   withInputEventListener(callback) {
-    const inputs = document.body.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => input.addEventListener("input", (event) => callback(event)))
+    if (callback !== undefined) document.body.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("input", (event) => callback(event)))
     return this
   }
 
@@ -132,28 +151,15 @@ export class TextField {
     return input
   }
 
-  withPlaceholder(placeholder) {
-    this.placeholder = placeholder
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setPlaceholder(input))
-    return this
-  }
-
   #setPlaceholder(input) {
     input.placeholder = this.placeholder
     return input
   }
 
-  #setSHSDefaultStyle(input) {
-    input.style.border = "none"
-    input.style.fontSize = "24px"
-    input.style.maxWidth = "250px"
-    return input
-  }
-
-  withSHSDefaultStyle() {
+  withPlaceholder(placeholder) {
+    this.placeholder = placeholder
     const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setSHSDefaultStyle(input))
+    inputs.forEach(input => this.#setPlaceholder(input))
     return this
   }
 

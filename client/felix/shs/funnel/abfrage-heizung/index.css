@@ -20,11 +20,11 @@ body {
 }
 .womitheizencontainer {
   position: absolute;
-  height: 2.22%;
+  height: 2.18%;
   width: 90.68%;
-  top: 9.03%;
+  top: 8.86%;
   right: 4.66%;
-  bottom: 88.74%;
+  bottom: 88.96%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -44,7 +44,7 @@ body {
 }
 .kfsdalfjasdlf {
   position: absolute;
-  top: calc(50% - 54.03px);
+  top: calc(50% - 61.9px);
   left: 33.91px;
   opacity: 0.86;
 }
@@ -70,11 +70,11 @@ body {
 }
 .dchausantrittcontainer {
   position: absolute;
-  height: 2.87%;
+  height: 3.48%;
   width: 90.68%;
-  top: 74.01%;
+  top: 74.54%;
   right: 4.66%;
-  bottom: 23.12%;
+  bottom: 21.99%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -93,11 +93,11 @@ body {
 }
 .modulegleichesdachdcontainer {
   position: absolute;
-  height: 2.92%;
+  height: 2.86%;
   width: 90.68%;
-  top: 78.05%;
+  top: 78.7%;
   right: 4.66%;
-  bottom: 19.03%;
+  bottom: 18.44%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -107,31 +107,81 @@ body {
   left: 33.91px;
   opacity: 0.86;
 }
+.heizunggleicherraum1 {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.heizunggleicherraum {
+  position: absolute;
+  top: calc(50% - 10.76px);
+  left: 19px;
+  width: 103px;
+  height: 28px;
+}
+.speicherbeizaehlercontainer {
+  position: absolute;
+  width: calc(100% - 72.1px);
+  right: 38.55px;
+  bottom: 13.99px;
+  left: 33.55px;
+  border-radius: var(--br-md);
+  background-color: var(--color-white);
+  border: 0.4px solid var(--color-black);
+  box-sizing: border-box;
+  height: 60px;
+  font-size: var(--font-size-3xl);
+  color: var(--color-black);
+}
 .speicherzaehlercontainer {
   position: absolute;
-  height: 2.96%;
+  height: 2.91%;
   width: 90.68%;
-  top: 82.18%;
+  top: 82.54%;
   right: 4.66%;
-  bottom: 14.86%;
+  bottom: 14.55%;
   left: 4.66%;
   opacity: 0.71;
 }
-.fsdfasdfas {
+.heizungmehralszwanzigmeter {
   position: absolute;
-  top: calc(50% - 53.61px);
-  left: 33.91px;
-  opacity: 0.86;
+  top: calc(50% - 11.35px);
+  left: 19px;
+  width: 105px;
+  height: 28px;
+}
+.gruppe-18861 {
+  position: absolute;
+  width: calc(100% - 72.1px);
+  right: 38.55px;
+  bottom: 13.99px;
+  left: 33.55px;
+  border-radius: var(--br-md);
+  background-color: var(--color-white);
+  border: 0.4px solid var(--color-black);
+  box-sizing: border-box;
+  height: 60px;
+}
+.kabel-vom-speicher {
+  position: absolute;
+  top: calc(50% - 57.3px);
+  left: 33.55px;
+  font-size: var(--font-size-base);
+  line-height: 23px;
+  color: var(--color-gray-600);
+  opacity: 0.83;
 }
 .speciherzaehlerzehnmcontainer {
   position: absolute;
-  height: 2.84%;
+  height: 2.79%;
   width: 90.68%;
-  top: 86.35%;
+  top: 86.63%;
   right: 4.66%;
-  bottom: 10.81%;
+  bottom: 10.58%;
   left: 4.66%;
   opacity: 0.71;
+  font-size: var(--font-size-3xl);
+  color: var(--color-black);
 }
 .heizungwie {
   position: absolute;
@@ -142,11 +192,11 @@ body {
 }
 .wieheizensiecontainer {
   position: absolute;
-  height: 2.22%;
+  height: 2.18%;
   width: 90.68%;
-  top: 12.46%;
+  top: 12.21%;
   right: 4.66%;
-  bottom: 85.32%;
+  bottom: 85.61%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -159,19 +209,19 @@ body {
 }
 .wiewarmwassercontainer {
   position: absolute;
-  height: 2.22%;
+  height: 2.18%;
   width: 90.68%;
-  top: 19.3%;
+  top: 18.92%;
   right: 4.66%;
-  bottom: 78.47%;
+  bottom: 78.9%;
   left: 4.66%;
   opacity: 0.71;
 }
 .heizungsanlage {
   position: absolute;
-  top: calc(50% - 2544.73px);
+  top: calc(50% - 2603.23px);
   left: 4.63%;
-  font-size: var(--font-size-8xl);
+  font-size: var(--font-size-9xl);
   line-height: 37px;
   font-family: var(--font-apple-braille);
   -webkit-text-stroke: 1px #161616;
@@ -192,11 +242,11 @@ body {
 }
 .vorlauftempcontainer {
   position: absolute;
-  height: 2.22%;
+  height: 2.18%;
   width: 90.68%;
-  top: 15.88%;
+  top: 15.57%;
   right: 4.66%;
-  bottom: 81.9%;
+  bottom: 82.25%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -204,25 +254,23 @@ body {
   position: absolute;
   top: calc(50% + 14px);
   left: 33.91px;
-  width: 50px;
-  height: 28px;
   font-size: var(--font-size-3xl);
 }
 .heizkostencontainer {
   position: absolute;
-  height: 2.22%;
+  height: 2.18%;
   width: 90.68%;
-  top: 22.72%;
+  top: 22.28%;
   right: 4.66%;
-  bottom: 75.05%;
+  bottom: 75.54%;
   left: 4.66%;
   opacity: 0.71;
 }
 .bilderupload {
   position: absolute;
-  top: calc(50% - 1374.31px);
+  top: calc(50% - 1432.81px);
   left: 4.63%;
-  font-size: var(--font-size-8xl);
+  font-size: var(--font-size-9xl);
   line-height: 37px;
   font-family: var(--font-apple-braille);
   -webkit-text-stroke: 1px #161616;
@@ -252,31 +300,31 @@ body {
 .gruppe-1956,
 .gruppe-1957 {
   position: absolute;
-  height: 8.72%;
+  height: 8.55%;
   width: 95.34%;
-  top: 27.74%;
+  top: 27.2%;
   right: 2.33%;
-  bottom: 63.54%;
+  bottom: 64.26%;
   left: 2.33%;
-  font-size: var(--font-size-7xl);
+  font-size: var(--font-size-8xl);
   font-family: var(--font-apple-braille);
 }
 .gruppe-1956,
 .gruppe-1957 {
-  top: 37.84%;
-  bottom: 53.44%;
+  top: 37.1%;
+  bottom: 54.36%;
 }
 .gruppe-1957 {
-  top: 47.94%;
-  bottom: 43.35%;
+  top: 46.99%;
+  bottom: 44.46%;
 }
 .gruppe-1960 {
   position: absolute;
-  height: 13.21%;
+  height: 12.95%;
   width: 97.67%;
-  top: 59.76%;
+  top: 60.56%;
   right: 1.16%;
-  bottom: 27.03%;
+  bottom: 26.48%;
   left: 1.16%;
 }
 .die-wrmepumpe-wird-container,
@@ -284,7 +332,7 @@ body {
 .in-der-nhe {
   position: absolute;
   width: 90.73%;
-  top: calc(50% - 1155.66px);
+  top: calc(50% - 1214.16px);
   left: 4.66%;
   font-size: var(--font-size-sm);
   display: inline-block;
@@ -292,10 +340,10 @@ body {
 }
 .eventuell-ort-des,
 .in-der-nhe {
-  top: calc(50% - 565.66px);
+  top: calc(50% - 624.16px);
 }
 .in-der-nhe {
-  top: calc(50% + 24.34px);
+  top: calc(50% - 34.16px);
 }
 .in-welcher-etage-container,
 .mir-ist-bekannt {
@@ -306,14 +354,14 @@ body {
   opacity: 0.8;
 }
 .mir-ist-bekannt {
-  height: 1.63%;
+  height: 1.59%;
   width: calc(100% - 88.9px);
-  top: 58.41%;
+  top: 57.27%;
   left: 45.18px;
 }
 .in-welcher-etage-container {
   width: 95.37%;
-  top: calc(50% + 646.6px);
+  top: calc(50% + 706.1px);
   left: 3.74%;
   height: 155px;
 }
@@ -329,14 +377,14 @@ body {
 }
 .traufhoeheviermetercheckbox {
   position: absolute;
-  top: calc(50% + 447.6px);
+  top: calc(50% + 389.1px);
   left: 44.73px;
   width: 27px;
   height: 27px;
 }
 .ja-das-ist {
   position: absolute;
-  top: calc(50% + 447.1px);
+  top: calc(50% + 388.6px);
   left: 85.18px;
   font-size: var(--font-size-3xl);
   line-height: 22px;
@@ -357,29 +405,29 @@ body {
   width: 298.79px;
   height: 115.79px;
 }
-.etage {
+.erdgeschoss,
+.etage,
+.etage1,
+.keller {
   position: absolute;
   top: calc(50% - 65.03px);
   right: 28px;
   font-size: var(--font-size-5xs);
 }
-.etage1 {
+.erdgeschoss,
+.etage1,
+.keller {
   top: calc(50% + 12.94px);
   right: 29px;
 }
 .erdgeschoss,
-.etage1,
 .keller {
-  position: absolute;
-  font-size: var(--font-size-5xs);
-}
-.erdgeschoss {
   top: calc(50% + 91.86px);
   right: -1px;
 }
 .keller {
+  top: calc(50% + 168.47px);
   right: 41px;
-  bottom: 30.28px;
 }
 .linie-149 {
   top: calc(50% - 18.53px);
@@ -507,7 +555,7 @@ body {
 }
 .gruppe-1959 {
   position: absolute;
-  top: calc(50% + 826.54px);
+  top: calc(50% + 886.04px);
   left: calc(50% - 189.39px);
   width: 372.79px;
   height: 429.49px;
@@ -523,7 +571,8 @@ body {
   width: 101px;
   object-fit: cover;
 }
-.gruppe-5 {
+.gruppe-5,
+.rechteck-2621 {
   position: absolute;
   width: 100%;
   top: 0;
@@ -533,134 +582,10 @@ body {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
   height: 228px;
 }
-.clicktechnischesbutton {
-  position: absolute;
-  top: calc(50% - 28.48px);
-  left: calc(50% - 41px);
-}
-.rechteck-226 {
-  height: 100%;
-  width: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: var(--color-gray-200);
-}
-.div,
-.fss,
-.rechteck-226 {
-  position: absolute;
-}
-.div {
-  top: 4.48px;
-  left: calc(50% - 6px);
-}
-.fss {
-  top: calc(50% - 5.48px);
-  left: calc(50% - 24.88px);
-  width: 49.75px;
-  height: 33.95px;
-  font-size: var(--font-size-xl);
-  color: var(--color-white);
-}
-.clicktechnischesknopf {
-  position: absolute;
-  height: 0.97%;
-  width: 4.27%;
-  top: 1.9%;
-  right: 21.24%;
-  bottom: 97.13%;
-  left: 74.49%;
-  font-size: var(--font-size-3xs);
-}
-.clickzumsstrombutton {
-  position: absolute;
-  top: calc(50% - 28.48px);
-  left: calc(50% - 20px);
-}
-.clickzumstromknopf {
-  position: absolute;
-  height: 0.97%;
-  width: 2.59%;
-  top: 1.9%;
-  right: 40.71%;
-  bottom: 97.13%;
-  left: 56.69%;
-  font-size: var(--font-size-3xs);
-}
-.clickzurheizungbutton {
-  position: absolute;
-  top: calc(50% - 28.48px);
-  left: calc(50% - 27px);
-}
-.rechteck-3322 {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: var(--color-green-100);
-}
-.div2 {
-  position: absolute;
-  top: 4.48px;
-  left: calc(50% - 5.5px);
-}
-.clickzurheizungknopf {
-  position: absolute;
-  height: 0.97%;
-  width: 2.81%;
-  top: 1.9%;
-  right: 58.06%;
-  bottom: 97.13%;
-  left: 39.13%;
-  font-size: var(--font-size-3xs);
-}
-.clickzumhausbutton {
-  position: absolute;
-  top: calc(50% - 28.48px);
-  left: calc(50% - 17.5px);
-}
-.div3,
-.vv {
-  position: absolute;
-}
-.div3 {
-  top: 3.48px;
-  left: calc(50% - 4px);
-}
-.vv {
-  top: calc(50% - 5.48px);
-  left: calc(50% - 24.88px);
-  background-color: var(--color-green-100);
-  width: 49.75px;
-  height: 33.95px;
-  font-size: var(--font-size-2xl);
-  color: var(--color-gray-100);
-}
-.clickzumhausknopf {
-  position: absolute;
-  height: 0.97%;
-  width: 2.59%;
-  top: 1.9%;
-  right: 75.6%;
-  bottom: 97.13%;
-  left: 21.81%;
-  font-size: var(--font-size-3xs);
-}
 .rechteck-2621 {
-  position: absolute;
   height: 100%;
-  width: 100%;
-  top: 0;
-  right: 0;
   bottom: 0;
-  left: 0;
   background-color: var(--color-green-200);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 0.59;
 }
 .datenschutzv,
@@ -675,11 +600,11 @@ body {
 }
 .gruppe-1883 {
   position: absolute;
-  height: 2.44%;
+  height: 2.39%;
   width: 100%;
-  top: 97.56%;
+  top: 97.63%;
   right: 0;
-  bottom: 0;
+  bottom: -0.02%;
   left: 0;
   text-align: center;
   font-size: var(--font-size-lg);
@@ -693,16 +618,16 @@ body {
 }
 .angeboterhaltenbutton {
   position: absolute;
-  height: 1.81%;
+  height: 1.78%;
   width: calc(100% - 103px);
-  top: 92.93%;
+  top: 93.09%;
   right: 51.5px;
-  bottom: 5.25%;
+  bottom: 5.13%;
   left: 51.5px;
   border-radius: var(--br-md);
   background-color: var(--color-orange-100);
   font-size: var(--font-size-2xl);
-  color: var(--color-gray-600);
+  color: var(--color-gray-800);
   font-family: var(--font-ligurino);
 }
 .angeboterhaltenbutton:hover {
@@ -741,7 +666,7 @@ body {
 .heizungwaermepumpebildupload,
 .heizungwasserspeicherbilduploa {
   position: absolute;
-  top: calc(50% - 943px);
+  top: calc(50% - 1001.5px);
   left: calc(50% - 162px);
   width: 325px;
   height: 85px;
@@ -749,19 +674,154 @@ body {
 }
 .heizungstromspeicherbildupload,
 .heizungwasserspeicherbilduploa {
-  top: calc(50% - 353px);
+  top: calc(50% - 411.5px);
 }
 .heizungstromspeicherbildupload {
-  top: calc(50% + 237px);
+  top: calc(50% + 178.5px);
+}
+.technischestext {
+  position: absolute;
+  top: calc(50% - 28.48px);
+  left: calc(50% - 41px);
+}
+.div {
+  position: absolute;
+  top: 4.48px;
+  left: calc(50% - 6px);
+}
+.clicktechnischesknopf {
+  position: absolute;
+  top: calc(50% - 5.48px);
+  left: calc(50% - 24.88px);
+  background-color: var(--color-gray-300);
+  width: 49.75px;
+  height: 33.95px;
+  font-size: var(--font-size-xl);
+  color: var(--color-white);
+}
+.technischesnav {
+  position: absolute;
+  height: 0.96%;
+  width: 4.27%;
+  top: 1.86%;
+  right: 21.24%;
+  bottom: 97.18%;
+  left: 74.49%;
+  font-size: var(--font-size-3xs);
+}
+.haustext {
+  position: absolute;
+  top: calc(50% - 28.48px);
+  left: calc(50% - 17.5px);
+}
+.dfsaf {
+  position: absolute;
+  top: 3.48px;
+  left: calc(50% - 4px);
+}
+.clickzumhausknopf {
+  position: absolute;
+  top: calc(50% - 5.48px);
+  left: calc(50% - 24.88px);
+  background-color: var(--color-green-100);
+  width: 49.75px;
+  height: 33.95px;
+  font-size: var(--font-size-2xl);
+  color: var(--color-gray-100);
+}
+.navhaus {
+  height: 0.96%;
+  width: 2.59%;
+  top: 1.86%;
+  right: 75.6%;
+  bottom: 97.18%;
+  left: 21.81%;
+  font-size: var(--font-size-3xs);
+}
+.div1,
+.heizung1,
+.navhaus {
+  position: absolute;
+}
+.heizung1 {
+  top: calc(50% - 27.47px);
+  left: calc(50% - 27px);
+}
+.div1 {
+  top: 3px;
+  left: calc(50% - 6.32px);
+}
+.clickzurheizungknopf {
+  position: absolute;
+  top: calc(50% - 6.47px);
+  left: calc(50% - 24.55px);
+  background-color: var(--color-green-100);
+  width: 49.75px;
+  height: 33.95px;
+  font-size: var(--font-size-2xl);
+  color: var(--color-white);
+}
+.navheizung {
+  position: absolute;
+  height: 0.92%;
+  width: 2.81%;
+  top: 1.9%;
+  right: 58.07%;
+  bottom: 97.18%;
+  left: 39.11%;
+  font-size: var(--font-size-3xs);
+  color: var(--color-black);
+}
+.zhler {
+  position: absolute;
+  top: calc(50% - 27.97px);
+  left: calc(50% - 20.88px);
+}
+.pfad-805-icon {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+.div2 {
+  position: absolute;
+  top: 4px;
+  left: calc(50% - 5.88px);
+}
+.clickzumzaehlerknopf {
+  position: absolute;
+  top: calc(50% - 5.97px);
+  left: calc(50% - 24.88px);
+  width: 49.75px;
+  height: 33.95px;
+  font-size: var(--font-size-xl);
+  color: var(--color-white);
+}
+.navzaehler {
+  position: absolute;
+  height: 0.94%;
+  width: 2.59%;
+  top: 1.88%;
+  right: 40.71%;
+  bottom: 97.18%;
+  left: 56.69%;
+  font-size: var(--font-size-3xs);
+  color: var(--color-black);
 }
 .heizung {
   position: relative;
   background-color: var(--color-gray-100);
   width: 100%;
-  height: 5844px;
+  height: 5961px;
   text-align: left;
   font-size: var(--font-size-base);
-  color: var(--color-gray-400);
+  color: var(--color-gray-600);
   font-family: var(--font-forma-djr-micro);
 }
 @media screen and (max-width: 768px) {

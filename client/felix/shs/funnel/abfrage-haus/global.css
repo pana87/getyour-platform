@@ -1,7 +1,7 @@
 :root {
   /* fonts */
-  --font-ligurino: Ligurino;
   --font-forma-djr-micro: "Forma DJR Micro";
+  --font-ligurino: Ligurino;
   --font-georgia: Georgia;
   --font-apple-braille: "Apple Braille";
   --font-helvetica: Helvetica;
@@ -39,19 +39,16 @@
   --color-gray-700: #0d0d0c;
   --color-gray-800: #080808;
   --color-gray-900: rgba(0, 0, 0, 0.4);
+  --color-white: #fff;
+  --color-black: #000;
   --color-orange-100: #f7aa20;
   --color-orange-200: #f19d08;
-  --color-black: #000;
   --color-green-100: #11841e;
   --color-green-200: #006f39;
-  --color-white: #fff;
   --color-tan-100: #e8ba68;
   --color-beige: #bedcce;
   --color-indigo: #5e61db;
   --color-brown: #930000;
-
-  /* Gaps */
-  --gap-md: 21px;
 
   /* border radiuses */
   --br-sm: 7px;

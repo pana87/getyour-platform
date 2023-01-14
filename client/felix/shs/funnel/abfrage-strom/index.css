@@ -5,7 +5,7 @@ body {
   position: absolute;
   top: calc(50% - 2416.23px);
   left: 4.63%;
-  font-size: var(--font-size-8xl);
+  font-size: var(--font-size-9xl);
   line-height: 37px;
   font-family: var(--font-apple-braille);
   -webkit-text-stroke: 1px #161616;
@@ -53,13 +53,13 @@ body {
 }
 .dasdsda {
   position: absolute;
-  top: calc(50% - 54.5px);
-  left: 33.91px;
+  top: calc(50% - 61.01px);
+  left: 33.55px;
   opacity: 0.86;
 }
 .stromplatzzaehlerschrank {
   position: absolute;
-  top: calc(50% - 10.96px);
+  top: calc(50% - 10.61px);
   left: 19.36px;
   width: 25px;
   height: 28px;
@@ -68,7 +68,7 @@ body {
   position: absolute;
   width: calc(100% - 72.1px);
   right: 38.55px;
-  bottom: 14.04px;
+  bottom: 14.39px;
   left: 33.55px;
   border-radius: var(--br-md);
   background-color: var(--color-white);
@@ -79,11 +79,11 @@ body {
 }
 .geeigneterzaehlerschrank {
   position: absolute;
-  height: 3.03%;
+  height: 3.32%;
   width: 90.68%;
   top: 16.61%;
   right: 4.66%;
-  bottom: 80.36%;
+  bottom: 80.07%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -98,9 +98,9 @@ body {
   position: absolute;
   height: 2.33%;
   width: 90.68%;
-  top: 20.89%;
+  top: 21.18%;
   right: 4.66%;
-  bottom: 76.78%;
+  bottom: 76.49%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -162,9 +162,9 @@ body {
   position: absolute;
   height: 2.33%;
   width: 90.68%;
-  top: 32.96%;
+  top: 33.25%;
   right: 4.66%;
-  bottom: 64.72%;
+  bottom: 64.42%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -180,9 +180,9 @@ body {
   position: absolute;
   height: 2.33%;
   width: 90.68%;
-  top: 36.54%;
+  top: 36.83%;
   right: 4.66%;
-  bottom: 61.14%;
+  bottom: 60.84%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -223,9 +223,9 @@ body {
   position: absolute;
   height: 2.42%;
   width: 90.68%;
-  top: 44.55%;
+  top: 44.85%;
   right: 4.66%;
-  bottom: 53.03%;
+  bottom: 52.74%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -241,9 +241,9 @@ body {
   position: absolute;
   height: 2.33%;
   width: 90.68%;
-  top: 51.71%;
+  top: 52.01%;
   right: 4.66%;
-  bottom: 45.96%;
+  bottom: 45.67%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -259,9 +259,9 @@ body {
   position: absolute;
   height: 2.33%;
   width: 90.68%;
-  top: 58.87%;
+  top: 59.17%;
   right: 4.66%;
-  bottom: 38.8%;
+  bottom: 38.51%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -277,9 +277,9 @@ body {
   position: absolute;
   height: 2.33%;
   width: 90.68%;
-  top: 48.13%;
+  top: 48.43%;
   right: 4.66%;
-  bottom: 49.54%;
+  bottom: 49.25%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -295,9 +295,9 @@ body {
   position: absolute;
   height: 2.33%;
   width: 90.68%;
-  top: 55.29%;
+  top: 55.59%;
   right: 4.66%;
-  bottom: 42.38%;
+  bottom: 42.09%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -313,9 +313,9 @@ body {
   position: absolute;
   height: 2.33%;
   width: 90.68%;
-  top: 62.45%;
+  top: 62.75%;
   right: 4.66%;
-  bottom: 35.22%;
+  bottom: 34.93%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -337,9 +337,9 @@ body {
   position: absolute;
   height: 3.18%;
   width: 90.68%;
-  top: 40.12%;
+  top: 40.41%;
   right: 4.66%;
-  bottom: 56.7%;
+  bottom: 56.41%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -347,7 +347,7 @@ body {
   position: absolute;
   top: calc(50% + 986.51px);
   left: 4.63%;
-  font-size: var(--font-size-8xl);
+  font-size: var(--font-size-9xl);
   line-height: 37px;
   font-family: var(--font-apple-braille);
   -webkit-text-stroke: 1px #161616;
@@ -382,7 +382,7 @@ body {
   right: 2.33%;
   bottom: 21.91%;
   left: 2.33%;
-  font-size: var(--font-size-7xl);
+  font-size: var(--font-size-8xl);
   font-family: var(--font-apple-braille);
 }
 .gruppe-1979 {
@@ -447,9 +447,9 @@ body {
   position: absolute;
   height: 2.96%;
   width: 90.68%;
-  top: 24.47%;
+  top: 24.76%;
   right: 4.66%;
-  bottom: 72.57%;
+  bottom: 72.28%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -470,9 +470,9 @@ body {
   position: absolute;
   height: 3.02%;
   width: 90.68%;
-  top: 28.69%;
+  top: 28.98%;
   right: 4.66%;
-  bottom: 68.3%;
+  bottom: 68%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -496,165 +496,13 @@ body {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
   height: 228px;
 }
-.clicktechnischesbutton {
-  position: absolute;
-  top: calc(50% - 28.48px);
-  left: calc(50% - 41px);
-}
-.rechteck-226 {
-  height: 100%;
-  width: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: var(--color-gray-200);
-}
-.div,
-.fss,
-.rechteck-226 {
-  position: absolute;
-}
-.div {
-  top: 4.48px;
-  left: calc(50% - 6px);
-}
-.fss {
-  top: calc(50% - 5.48px);
-  left: calc(50% - 24.88px);
-  width: 49.75px;
-  height: 33.95px;
-  font-size: var(--font-size-xl);
-  color: var(--color-white);
-}
-.clicktechnischesknopf {
-  position: absolute;
-  height: 1.02%;
-  width: 4.27%;
-  top: 1.99%;
-  right: 21.24%;
-  bottom: 96.99%;
-  left: 74.49%;
-  font-size: var(--font-size-3xs);
-}
-.clickzumsstrombutton {
-  position: absolute;
-  top: calc(50% - 28.48px);
-  left: calc(50% - 20px);
-}
-.rechteck-3321 {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: var(--color-green-100);
-}
-.clickzumstromknopf {
-  position: absolute;
-  height: 1.02%;
-  width: 2.59%;
-  top: 1.99%;
-  right: 40.71%;
-  bottom: 96.99%;
-  left: 56.69%;
-  font-size: var(--font-size-3xs);
-}
-.clickzurheizungbutton {
-  position: absolute;
-  top: calc(50% - 28.48px);
-  left: calc(50% - 27px);
-}
-.div2 {
-  position: absolute;
-  top: 4.48px;
-  left: calc(50% - 5.5px);
-}
-.clickzurheizungknopf {
-  position: absolute;
-  height: 1.02%;
-  width: 2.81%;
-  top: 1.99%;
-  right: 58.06%;
-  bottom: 96.99%;
-  left: 39.13%;
-  font-size: var(--font-size-3xs);
-}
-.clickzumhausbutton {
-  position: absolute;
-  top: calc(50% - 28.48px);
-  left: calc(50% - 17.5px);
-}
-.div3,
-.vv {
-  position: absolute;
-}
-.div3 {
-  top: 3.48px;
-  left: calc(50% - 4px);
-}
-.vv {
-  top: calc(50% - 5.48px);
-  left: calc(50% - 24.88px);
-  background-color: var(--color-green-100);
-  width: 49.75px;
-  height: 33.95px;
-  font-size: var(--font-size-2xl);
-  color: var(--color-gray-100);
-}
-.clickzumhausknopf {
-  position: absolute;
-  height: 1.02%;
-  width: 2.59%;
-  top: 1.99%;
-  right: 75.6%;
-  bottom: 96.99%;
-  left: 21.81%;
-  font-size: var(--font-size-3xs);
-}
-.rechteck-2627 {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: var(--color-green-200);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
-  opacity: 0.59;
-}
-.datenschutzv,
-.impressum {
-  position: absolute;
-  top: calc(50% - 4.5px);
-  left: 48.91px;
-  text-transform: uppercase;
-}
-.datenschutzv {
-  left: 207.91px;
-}
-.gruppe-1883 {
-  position: absolute;
-  height: 2.39%;
-  width: 100%;
-  top: 97.61%;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  text-align: center;
-  font-size: var(--font-size-lg);
-  color: var(--color-black);
-}
 .speichern-und-weiter {
   position: absolute;
   top: calc(50% - 11px);
   left: calc(50% - 102px);
   line-height: 21px;
 }
-.angeboterhaltenbutton {
+.speichernundweiterrrbutton {
   position: absolute;
   height: 1.9%;
   width: calc(100% - 103px);
@@ -665,10 +513,10 @@ body {
   border-radius: var(--br-md);
   background-color: var(--color-orange-100);
   font-size: var(--font-size-2xl);
-  color: var(--color-gray-600);
+  color: var(--color-gray-800);
   font-family: var(--font-ligurino);
 }
-.angeboterhaltenbutton:hover {
+.speichernundweiterrrbutton:hover {
   background-color: var(--color-orange-200);
 }
 .pfad-801-icon {
@@ -712,6 +560,175 @@ body {
 .stromallezaehlerbildupload {
   top: calc(50% + 2009.5px);
 }
+.rechteck-2627 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: var(--color-green-200);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 0.59;
+}
+.datenschutzv,
+.impressum {
+  position: absolute;
+  top: calc(50% - 9px);
+  left: 48.91px;
+  text-transform: uppercase;
+}
+.datenschutzv {
+  left: 207.91px;
+}
+.gruppe-1883 {
+  position: absolute;
+  height: 2.55%;
+  width: 100%;
+  top: 97.55%;
+  right: 0;
+  bottom: -0.1%;
+  left: 0;
+  text-align: center;
+  font-size: var(--font-size-lg);
+  color: var(--color-black);
+}
+.technischestext {
+  position: absolute;
+  top: calc(50% - 28.48px);
+  left: calc(50% - 41px);
+}
+.div {
+  position: absolute;
+  top: 4.48px;
+  left: calc(50% - 6px);
+}
+.clicktechnischesknopf {
+  position: absolute;
+  top: calc(50% - 5.48px);
+  left: calc(50% - 24.88px);
+  background-color: var(--color-gray-300);
+  width: 49.75px;
+  height: 33.95px;
+  font-size: var(--font-size-xl);
+  color: var(--color-white);
+}
+.technischesnav {
+  position: absolute;
+  height: 1.02%;
+  width: 4.27%;
+  top: 1.99%;
+  right: 21.24%;
+  bottom: 96.99%;
+  left: 74.49%;
+  font-size: var(--font-size-3xs);
+}
+.haustext {
+  position: absolute;
+  top: calc(50% - 28.48px);
+  left: calc(50% - 17.5px);
+}
+.dfsaf {
+  position: absolute;
+  top: 3.48px;
+  left: calc(50% - 4px);
+}
+.clickzumhausknopf {
+  position: absolute;
+  top: calc(50% - 5.48px);
+  left: calc(50% - 24.88px);
+  background-color: var(--color-green-100);
+  width: 49.75px;
+  height: 33.95px;
+  font-size: var(--font-size-2xl);
+  color: var(--color-gray-100);
+}
+.navhaus {
+  height: 1.02%;
+  width: 2.59%;
+  top: 1.99%;
+  right: 75.6%;
+  bottom: 96.99%;
+  left: 21.81%;
+  font-size: var(--font-size-3xs);
+}
+.div1,
+.heizung,
+.navhaus {
+  position: absolute;
+}
+.heizung {
+  top: calc(50% - 27.47px);
+  left: calc(50% - 27px);
+}
+.div1 {
+  top: 3px;
+  left: calc(50% - 6.32px);
+}
+.clickzurheizungknopf {
+  position: absolute;
+  top: calc(50% - 6.47px);
+  left: calc(50% - 24.55px);
+  background-color: var(--color-green-100);
+  width: 49.75px;
+  height: 33.95px;
+  font-size: var(--font-size-2xl);
+  color: var(--color-white);
+}
+.navheizung {
+  position: absolute;
+  height: 0.98%;
+  width: 2.81%;
+  top: 2.02%;
+  right: 58.07%;
+  bottom: 96.99%;
+  left: 39.11%;
+  font-size: var(--font-size-3xs);
+  color: var(--color-black);
+}
+.zhler {
+  position: absolute;
+  top: calc(50% - 27.97px);
+  left: calc(50% - 20.88px);
+}
+.pfad-805-icon {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+.div2 {
+  position: absolute;
+  top: 4px;
+  left: calc(50% - 5.88px);
+}
+.clickzumzaehlerknopf {
+  position: absolute;
+  top: calc(50% - 5.97px);
+  left: calc(50% - 24.88px);
+  width: 49.75px;
+  height: 33.95px;
+  font-size: var(--font-size-xl);
+  color: var(--color-white);
+}
+.navzaehler {
+  position: absolute;
+  height: 1%;
+  width: 2.59%;
+  top: 2%;
+  right: 40.71%;
+  bottom: 96.99%;
+  left: 56.69%;
+  font-size: var(--font-size-3xs);
+  color: var(--color-black);
+}
 .strom {
   position: relative;
   background-color: var(--color-gray-100);
@@ -719,6 +736,6 @@ body {
   height: 5587px;
   text-align: left;
   font-size: var(--font-size-base);
-  color: var(--color-gray-400);
+  color: var(--color-gray-600);
   font-family: var(--font-forma-djr-micro);
 }

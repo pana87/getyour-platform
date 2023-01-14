@@ -1,6 +1,6 @@
 const fs = require("node:fs")
 const path = require("node:path")
-const { clientLocation, authLocation, componentsLocation, docsLocation } = require("../config/ServerLocation.js")
+const { clientLocation, authLocation, databaseLocation, docsLocation } = require("../config/ServerLocation.js")
 
 const PATH_TO_FAVICON = `${clientLocation.origin}/favicon.ico`
 
@@ -21,24 +21,16 @@ const searchStrings = [
   `<link rel="shortcut icon" type="image/png" href="https://animaproject.s3.amazonaws.com/home/favicon.png"`
 ]
 
-const ENVIRONMENT_VARIABLES = `
-<script id="__EXPOSE__">
-  window.__AUTH_LOCATION__=${JSON.stringify(authLocation.origin)}
-  document.getElementById("__EXPOSE__").remove()
-</script>
+const EXPOSE_TAG = `<script id="__EXPOSE__">`
+const EXPOSE_DEFAULT = `
+  <script id="__EXPOSE__">
+    window.__AUTH_LOCATION__="."
+    window.__DB_LOCATION__="."
+    document.getElementById("__EXPOSE__").remove()
+  </script>
 </body>
 `
 
-// const ENVIRONMENT_VARIABLES = `
-// <script id="__EXPOSE__">
-//   window.__DB_LOCATION__=${JSON.stringify(docsLocation)}
-//   window.__PLATFORM_LOCATION__=${JSON.stringify(clientLocation)}
-//   window.__AUTH_LOCATION__=${JSON.stringify(authLocation)}
-//   window.__COMPONENTS_LOCATION__=${JSON.stringify(componentsLocation)}
-//   document.getElementById("__EXPOSE__").remove()
-// </script>
-// </body>
-// `
 const CSS_REGEX = /type="text\/css" href="/g
 const IMG_REGEX = /src="img\//g
 const URL_REGEX = /https:\/\/get-your.de/g
@@ -48,8 +40,25 @@ const SCRIPT_REGEX = /<script type="module" src="\.\/index\.js"><\/script>/g
 const ANIMA_BOILERPLATE_REGEX_1 = /<!--<meta name=description content="This site was generated with Anima\. www\.animaapp\.com"\/>-->/g
 const ANIMA_BOILERPLATE_REGEX_2 = /<!-- <link rel="shortcut icon" type=image\/png href="https:\/\/animaproject\.s3\.amazonaws\.com\/home\/favicon\.png" \/> -->/g
 const ANIMA_BOILERPLATE_REGEX_3 = /<link rel="shortcut icon" type="image\/png" href="https:\/\/animaproject\.s3\.amazonaws\.com\/home\/favicon\.png"/g
+const AUTH_LOCATION_REGEX = /window\.__AUTH_LOCATION__=".+"/g
+const DB_LOCATION_REGEX = /window\.__DB_LOCATION__=".+"/g
+
 
 module.exports.HtmlParser = class {
+
+  #setDatabaseLocation(html) {
+    this.html = html.replace(DB_LOCATION_REGEX, `window.__DB_LOCATION__="${databaseLocation.origin}"`)
+  }
+
+  #setAuthLocation(html) {
+    this.html = html.replace(AUTH_LOCATION_REGEX, `window.__AUTH_LOCATION__="${authLocation.origin}"`)
+  }
+
+  #setExpose(html) {
+    if (!html.includes(EXPOSE_TAG)){
+      this.html = html.replace(BODY_REGEX, EXPOSE_DEFAULT)
+    }
+  }
 
   #setIndexScript(html) {
     if (!html.includes(searchStrings[0])) {
@@ -75,21 +84,18 @@ module.exports.HtmlParser = class {
     }
   }
 
-  #setUrl(html) {
-    this.html = html
-      .replace(URL_REGEX, clientLocation.origin)
-      .replace(LOCALHOST_REGEX, clientLocation.origin) // all pointing to platform
-  }
-
   #parseHtml(file) {
     if (fs.existsSync(file)) {
       this.html = fs.readFileSync(file).toString()
 
-      this.#setUrl(this.html)
       this.#setIndexScript(this.html)
+      this.#setExpose(this.html)
       this.#setAnimaBoilerplate1(this.html)
       this.#setAnimaBoilerplate2(this.html)
       this.#setAnimaBoilerplate3(this.html)
+
+      this.#setAuthLocation(this.html)
+      this.#setDatabaseLocation(this.html)
 
       if (this.html === "") return
       fs.writeFileSync(file, this.html, "utf-8")
