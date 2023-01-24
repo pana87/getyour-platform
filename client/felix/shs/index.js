@@ -1,7 +1,15 @@
-import { ButtonField } from "../../js/ButtonField.js"
+import { DivField } from "../../js/DivField.js"
 
-new ButtonField("img[class*=logo]").withAssign("/felix/shs/")
-new ButtonField("div[class*=bewerbungabgebenbutton]").withAssign("/felix/shs/funnel/monteur-bewerbung/")
-new ButtonField("div[class*=angeboterstellenbutton]").withAssign("/felix/shs/funnel/start/")
-new ButtonField("div[class*=impressumgobutton]").withAssign("/felix/shs/impressum/")
-new ButtonField("div[class*=datenschutzgobutton]").withAssign("/felix/shs/datenschutz/")
+const zumloginbutton = new DivField("div[class*='zumloginbutton']")
+.withClickEventListener(() => window.location.assign("/felix/shs/anmelden/"))
+
+const angeboterstellenbutton = new DivField("div[class*='angeboterstellenbutton']")
+.withClickEventListener(() => window.location.assign("/felix/shs/funnel/qualifizierung/"))
+
+const impressumgobutton = new DivField("div[class*='impressumgobutton']")
+.withClickEventListener(() => window.location.assign("/felix/shs/impressum/"))
+
+const datenschutzgobutton = new DivField("div[class*='datenschutzgobutton']")
+.withClickEventListener(() => window.location.assign("/felix/shs/datenschutz/"))
+
+

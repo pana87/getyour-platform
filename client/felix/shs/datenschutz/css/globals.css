@@ -9,10 +9,10 @@
   src: url("../fonts/Helvetica.ttf") format("truetype");
 }
 @font-face {
-  font-family: "AppleBraille-Regular";
+  font-family: "Helvetica-Bold";
   font-style: normal;
-  font-weight: 400;
-  src: url("../fonts/Apple Braille.ttf") format("truetype");
+  font-weight: 700;
+  src: url("../fonts/HelveticaBd___-.ttf") format("truetype");
 }
 
 
@@ -33,12 +33,6 @@
 .screen a {
   display: contents;
   text-decoration: none;
-}
-
-.hidden,
-.hidden * {
-  pointer-events: none;
-  visibility: hidden;
 }
 
 .smart-layers-pointers,
