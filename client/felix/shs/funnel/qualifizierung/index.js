@@ -84,5 +84,4 @@ const questions = [
 new FunnelField("div[class*='funnel-placeholder']")
   .withQuestions(questions)
   .withNextFunnelPath("/felix/shs/funnel/abfrage-haus/")
-
-
+  .withStorage("shsFunnel")

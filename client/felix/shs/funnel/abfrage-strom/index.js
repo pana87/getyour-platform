@@ -1,133 +1,168 @@
 import { SelectionField } from "../../../../js/SelectionField.js"
-import { ButtonField } from "../../../../js/ButtonField.js"
 import { TextField } from "../../../../js/TextField.js"
 import { NumberField } from "../../../../js/NumberField.js"
 import { FileField } from "../../../../js/FileField.js"
+import { DivField } from "../../../../js/DivField.js"
 
 const SHS_FUNNEL_STORAGE_NAME = "shsFunnel"
-const NEXT_FUNNEL_PATHNAME = "/felix/shs/funnel/technisches/"
-const PREVIOUS_FUNNEL_PATHNAME = "/felix/shs/funnel/heizung/"
-function errorInputMessage() {alert("Es fehlen noch wichtige Angaben, um dein Angebot erstellen zu können.")}
+const NEXT_FUNNEL_PATHNAME = "/felix/shs/funnel/abfrage-technisches/"
+const PREVIOUS_FUNNEL_PATHNAME = "/felix/shs/funnel/abfrage-heizung/"
 
 
-const stromversorger = new TextField("div[class*='stromversorger']")
-  .withPlaceholder("zb Netze - BW..")
+if (window.sessionStorage.getItem("shsFunnel") !== null) {
 
-const stromzaehlerschrankverbaut = new SelectionField("div[class*='stromzaehlerschrankverbaut']")
-  .withOptions(["Ja", "Nein"])
-  .withSelect((select) => {
-    if (select.value === "Ja") {
-      document.querySelectorAll("div[class*='geeigneterzaehlerschrank']")
-        .forEach(field => field.style.display = "none")
-    }
-  })
-  .withInputEventListener((event) => {
-    if (event.target.value === "Ja") {
-      document.querySelectorAll("div[class*='geeigneterzaehlerschrank']")
-        .forEach(field => field.style.display = "none")
-    }
-    if (event.target.value === "Nein") {
-      document.querySelectorAll("div[class*='geeigneterzaehlerschrank']")
-        .forEach(field => field.style.display = "block")
-    }
-  })
+  const stromversorger = new TextField("div[class*='stromversorger']")
+    .withPlaceholder("zb Netze - BW..")
 
-const stromplatzzaehlerschrank = new SelectionField("div[class*='stromplatzzaehlerschrank']")
-  .withOptions(["Ja", "Nein"])
+  const stromzaehlerschrankverbaut = new SelectionField("div[class*='stromzaehlerschrankverbaut']")
+    .withOptions(["Ja", "Nein"])
+    .withSelected(1)
+    .withChangeEventListener((event) => {
+      if (event.target.value === "Ja") {
+        document.querySelectorAll(stromplatzzaehlerschrank.selectSelector).forEach(field => field.disabled = true)
+      }
+      if (event.target.value === "Nein") {
+        document.querySelectorAll(stromplatzzaehlerschrank.selectSelector).forEach(field => field.disabled = false)
+      }
+      stromplatzzaehlerschrank.withValidValue()
+    })
 
-const stromhauptzaehleranzahl = new SelectionField("div[class*='stromhauptzaehleranzahl']")
-  .withOptions(["1", "2", "3", "mehr"])
+  const stromplatzzaehlerschrank = new SelectionField("div[class*='stromplatzzaehlerschrank']")
+    .withOptions(["Ja", "Nein"])
+    .withSelected(1)
+    .withRequired(0)
 
-const stromunterzaehlernotwendig = new SelectionField("div[class*='stromunterzaehlernotwendig']")
-  .withOptions(["Ja", "Nein"])
-  .withInputEventListener((event) => {
-    if (event.target.value === "Nein") {
-      document.querySelectorAll("div[class*='stromwvneuezaehlercontainer']")
-        .forEach(field => field.style.display = "none")
-    }
-    if (event.target.value === "Ja") {
-      document.querySelectorAll("div[class*='stromwvneuezaehlercontainer']")
-        .forEach(field => field.style.display = "block")
-    }
-  })
+  const stromhauptzaehleranzahl = new SelectionField("div[class*='stromhauptzaehleranzahl']")
+    .withOptions(["1", "2", "3", "mehr"])
 
-const stromwievieleneuezaehler = new SelectionField("div[class*='stromwievieleneuezaehler']")
-  .withOptions(["1", "2", "3"])
+  const stromwievieleneuezaehler = new SelectionField("div[class*='stromwievieleneuezaehler']")
+    .withOptions(["1", "2", "3"])
 
-
-
-const stromhauptzaehlernummer = new TextField("div[class*='stromhauptzaehlernummer']").withPlaceholder("44600637")
-const stromnebenzaehlernummer = new TextField("div[class*='stromnebenzaehlernummer']").withPlaceholder("33104800")
-
-const stromszaehlerkonzeptzusammen = new SelectionField("div[class*='stromszaehlerkonzeptzusammen']")
-  .withOptions(["Ja", "E-Auto", "Wärmepumpe", "Pool", "Durchlauferhitzer", "Nachtspeicherheizung", "Sonstige", "Nein"])
+  const stromunterzaehlernotwendig = new SelectionField("div[class*='stromunterzaehlernotwendig']")
+    .withOptions(["Ja", "Nein"])
+    .withSelected(1)
+    .withInputEventListener((event) => {
+      if (event.target.value === "Ja") {
+        document.querySelectorAll(stromwievieleneuezaehler.selectSelector)
+          .forEach(select => select.disabled = false)
+      }
+      if (event.target.value === "Nein") {
+        document.querySelectorAll(stromwievieleneuezaehler.selectSelector)
+          .forEach(select => select.disabled = true)
+      }
+    })
+    .withSelect((select) => {
+      if (select.value === "Nein") {
+        document.querySelectorAll(stromwievieleneuezaehler.selectSelector)
+          .forEach(select => select.disabled = true)
+      }
+    })
 
 
 
-const stromjahresverbrauch = new NumberField("div[class*='stromjahresverbrauch']").withMin(0).withMax(1000000).withPlaceholder("in kWh")
-const stromnebenzaehlerfunktion = new NumberField("div[class*='stromnebenzaehlerfunktion']").withMin(0).withMax(1000000).withPlaceholder("in kWh")
-const stromarbeitspreis = new NumberField("div[class*='stromarbeitspreis']").withMin(0).withMax(1000000).withPlaceholder("in cent")
-const stromgrundpreis = new NumberField("div[class*='stromgrundpreis']").withMin(0).withMax(1000000).withPlaceholder("in euro")
-const stromarbeitspreiswaerme = new NumberField("div[class*='stromarbeitspreiswaerme']").withMin(0).withMax(1000000).withPlaceholder("in cent")
-const stromagrundpreiswaerme = new NumberField("div[class*='stromagrundpreiswaerme']").withMin(0).withMax(1000000).withPlaceholder("in euro")
+
+  const stromhauptzaehlernummer = new TextField("div[class*='stromhauptzaehlernummer']")
+    .withInput((input) => {
+      input.placeholder = "44600637"
+      const q7 = JSON.parse(window.sessionStorage.getItem("shsFunnel")).q7
+      if (q7 === 0) {
+        input.required = true
+      }
+    })
+
+  const stromnebenzaehlernummer = new TextField("div[class*='stromnebenzaehlernummer']")
+    .withInput((input) => {
+      input.placeholder = "33104800"
+    })
+
+  const stromszaehlerkonzeptzusammen = new SelectionField("div[class*='stromszaehlerkonzeptzusammen']")
+    .withOptions(["Nein", "Ja", "E-Auto", "Wärmepumpe", "Pool", "Durchlauferhitzer", "Nachtspeicherheizung", "Sonstige"])
+    .withSelected(0)
+    .withSelect((select) => {
+      select.multiple = true
+    })
 
 
-const stromzaehlerschrankbildupload = new FileField("div[class*='stromzaehlerschrankbildupload']").withAccept("image/*")
-const stromallezaehlerbildupload = new FileField("div[class*='stromallezaehlerbildupload']").withAccept("image/*")
+
+  const stromjahresverbrauch = new NumberField("div[class*='stromjahresverbrauch']").withMin(0).withMax(1000000).withPlaceholder("in kWh")
+  const stromnebenzaehlerfunktion = new NumberField("div[class*='stromnebenzaehlerfunktion']").withMin(0).withMax(1000000).withPlaceholder("in kWh")
+  const stromarbeitspreis = new NumberField("div[class*='stromarbeitspreis']").withMin(0).withMax(1000000).withPlaceholder("in cent")
+  const stromgrundpreis = new NumberField("div[class*='stromgrundpreis']").withMin(0).withMax(1000000).withPlaceholder("in euro")
+  const stromarbeitspreiswaerme = new NumberField("div[class*='stromarbeitspreiswaerme']").withMin(0).withMax(1000000).withPlaceholder("in cent")
+  const stromagrundpreiswaerme = new NumberField("div[class*='stromagrundpreiswaerme']").withMin(0).withMax(1000000).withPlaceholder("in euro")
+
+  const stromzaehlerschrankbildupload = new FileField("div[class*='stromzaehlerschrankbildupload']")
+    .withInput((input) => {
+      input.accept = "image/*"
+      const q7 = JSON.parse(window.sessionStorage.getItem("shsFunnel")).q7
+      if (q7 === 0) {
+        input.required = true
+      }
+    })
+
+  const stromallezaehlerbildupload = new FileField("div[class*='stromallezaehlerbildupload']")
+    .withInput((input) => {
+      input.accept = "image/*"
+      input.multiple = true
+      const q7 = JSON.parse(window.sessionStorage.getItem("shsFunnel")).q7
+      if (q7 === 0) {
+        input.required = true
+      }
+    })
+
+  const fields = [
+    stromversorger,
+    stromzaehlerschrankverbaut,
+    stromplatzzaehlerschrank,
+    stromhauptzaehleranzahl,
+    stromunterzaehlernotwendig,
+    stromwievieleneuezaehler,
+    stromhauptzaehlernummer,
+    stromnebenzaehlernummer,
+    stromszaehlerkonzeptzusammen,
+    stromjahresverbrauch,
+    stromnebenzaehlerfunktion,
+    stromarbeitspreis,
+    stromgrundpreis,
+    stromarbeitspreiswaerme,
+    stromagrundpreiswaerme,
+    stromzaehlerschrankbildupload,
+    stromallezaehlerbildupload,
+  ]
+
+  fields.forEach(field => field.withValidValue())
+  fields.forEach(field => field.withInputEventListener(() => field.withValidValue()))
+
+  const speichernundweiterrrbutton = new DivField("div[class*='speichernundweiterrrbutton']")
+    .withClickEventListener(async () => {
+
+      await stromversorger.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromzaehlerschrankverbaut.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromplatzzaehlerschrank.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromhauptzaehleranzahl.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromunterzaehlernotwendig.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromwievieleneuezaehler.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromhauptzaehlernummer.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromnebenzaehlernummer.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromszaehlerkonzeptzusammen.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromjahresverbrauch.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromnebenzaehlerfunktion.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromarbeitspreis.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromgrundpreis.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromarbeitspreiswaerme.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromagrundpreiswaerme.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromzaehlerschrankbildupload.withStorage(SHS_FUNNEL_STORAGE_NAME)
+      await stromallezaehlerbildupload.withStorage(SHS_FUNNEL_STORAGE_NAME)
+
+      window.location.assign(NEXT_FUNNEL_PATHNAME)
+    })
 
 
-// new ButtonField("div[class*=zurueck]").withAssign(PREVIOUS_FUNNEL_PATHNAME)
-// new ButtonField("div[class*=speichern]").withOnclick(() => storeAndProceed())
-// new ButtonField("div[class*=ueberspringen]").withOnclick(() => storeAndProceed())
+  const impressum = new DivField("div[class*='impressum']")
+    .withClickEventListener(() => window.location.assign("/felix/shs/impressum/"))
 
-
-// function storeAndProceed() {
-
-//   if (!inputsValid()) {
-//     errorInputMessage()
-//     return
-//   }
-
-//   stromversorger.storeInputToLocalStorage(SHS_FUNNEL_STORAGE_NAME)
-//   stromhauptzaehler.storeInputToLocalStorage(SHS_FUNNEL_STORAGE_NAME)
-//   stromzusatzverbrauch.storeInputToLocalStorage(SHS_FUNNEL_STORAGE_NAME)
-
-//   stromhauptzaehlernummer.storeInputToLocalStorage(SHS_FUNNEL_STORAGE_NAME)
-//   stromnebenzaehlernummer.storeInputToLocalStorage(SHS_FUNNEL_STORAGE_NAME)
-
-//   stromjahresverbrauch.storeInputToLocalStorage(SHS_FUNNEL_STORAGE_NAME)
-//   stromnebenzaehlerfunktion.storeInputToLocalStorage(SHS_FUNNEL_STORAGE_NAME)
-//   stromarbeitspreis.storeInputToLocalStorage(SHS_FUNNEL_STORAGE_NAME)
-//   stromgrundpreis.storeInputToLocalStorage(SHS_FUNNEL_STORAGE_NAME)
-//   stromarbeitspreiswaerme.storeInputToLocalStorage(SHS_FUNNEL_STORAGE_NAME)
-//   stromagrundpreiswaerme.storeInputToLocalStorage(SHS_FUNNEL_STORAGE_NAME)
-
-//   dateihochladenzaehlerschrank.storeInputToLocalStorage(SHS_FUNNEL_STORAGE_NAME)
-//   dateihochladenzaeehler.storeInputToLocalStorage(SHS_FUNNEL_STORAGE_NAME)
-
-//   window.location.assign(NEXT_FUNNEL_PATHNAME)
-// }
-
-// function inputsValid() {
-//   let valid = true
-
-//   if (Number(stromhauptzaehler.value) === 1) {
-//     if (stromhauptzaehlernummer.value === undefined) {
-//       stromhauptzaehlernummer.withNotValidStyle()
-//       valid = false
-//     }
-//   }
-
-//   if (Number(stromhauptzaehler.value) !== 1) {
-//     if (stromnebenzaehlernummer.value === undefined) {
-//       stromnebenzaehlernummer.withNotValidStyle()
-//       valid = false
-//     }
-//   }
-
-//   if (dateihochladenzaehlerschrank.files === undefined) {
-//     dateihochladenzaehlerschrank.withNotValidStyle()
-//     valid = false
-//   }
-//   return valid
-// }
+  const datenschutz = new DivField("div[class*='datenschutz']")
+    .withClickEventListener(() => window.location.assign("/felix/shs/datenschutz/"))
+} else {
+  window.location.assign("/felix/shs/funnel/qualifizierung/")
+}

@@ -12,6 +12,7 @@ const { authLocation, clientLocation } = require('../config/ServerLocation.js')
 const { Helper } = require('../lib/Helper.js')
 const { Request } = require('../lib/Request.js')
 const cookieParser = require('cookie-parser')
+const { has } = require('lodash')
 // huge security bug
 const userChallenge = Array.from(Uint8Array.from(crypto.randomBytes(32)))
 const userHandle = Array.from(Uint8Array.from(crypto.randomBytes(16)))
@@ -29,7 +30,7 @@ app.use(cors({
 }))
 app.use(cookieParser())
 
-app.post("/request/session/token/", async (req, res) => {
+app.post("/request/session/token/", Request.verifyId, async (req, res) => {
   try {
     const {id} = req.body
     const {user} = await User.find(it => it.id === id)
@@ -39,39 +40,49 @@ app.post("/request/session/token/", async (req, res) => {
       id: id,
     }).jwtToken
     const saltDigest = Helper.digest(JSON.stringify(salt))
-    const pinDigest = Helper.digest(userPin)
     const jwtTokenDigest = Helper.digest(jwtToken)
     const sessionToken = Helper.digest(JSON.stringify({
       id,
-      pin: pinDigest,
+      pin: userPin,
       salt: saltDigest,
       jwt: jwtTokenDigest,
     }))
 
-    User.storeSession({
-      id,
-      session: {
-        pin: pinDigest,
-        salt: saltDigest,
-        jwt: jwtTokenDigest,
+    if (
+      !Helper.stringIsEmpty(id) &&
+      !Helper.objectIsEmpty(user) &&
+      !Helper.arrayIsEmpty(salt) &&
+      !Helper.stringIsEmpty(jwtToken) &&
+      !Helper.stringIsEmpty(saltDigest) &&
+      !Helper.stringIsEmpty(jwtTokenDigest) &&
+      !Helper.stringIsEmpty(sessionToken)
+      ) {
+      const storeSessionRx = await User.storeSession({
+        id,
+        session: {
+          pin: userPin,
+          salt: saltDigest,
+          jwt: jwtTokenDigest,
+        }
+      })
+      if (storeSessionRx.status === 200) {
+        res.cookie("jwtToken", jwtToken, {
+          maxAge: sessionLength,
+          httpOnly: true,
+          sameSite: "lax",
+        })
+        res.cookie("sessionToken", sessionToken, {
+          maxAge: sessionLength,
+          httpOnly: true,
+          sameSite: "lax",
+        })
+
+        return res.send({
+          status: 200,
+          message: "SESSION_TOKEN_REQUEST_SUCCEED",
+        })
       }
-    })
-
-    res.cookie("jwtToken", jwtToken, {
-      maxAge: sessionLength,
-      httpOnly: true,
-      sameSite: "lax",
-    })
-    res.cookie("sessionToken", sessionToken, {
-      maxAge: sessionLength,
-      httpOnly: true,
-      sameSite: "lax",
-    })
-
-    return res.send({
-      status: 200,
-      message: "SESSION_TOKEN_REQUEST_SUCCEED",
-    })
+    }
   } catch (error) {
     console.error(error)
   }
@@ -81,13 +92,71 @@ app.post("/request/session/token/", async (req, res) => {
   })
 })
 
-app.post("/request/verify/pin/", async (req, res) => {
-  const { pin } = req.body
-  if (pin === userPin && pin !== undefined) {
+app.post("/request/store/id/", async (req, res) => {
+  const {id} = req.body
+  if (id !== undefined) {
+    const {user} = await User.find((user) => user.id === Helper.digest(JSON.stringify({email: id, verified: user.verified})))
+    if (user === undefined) {
+      const {userId} = await User.storeId(id)
+      if (userId !== undefined) {
+        return res.send({
+          status: 200,
+          message: "ID_FROM_NEW_USER",
+          id: userId,
+        })
+      }
+      return res.send({
+        status: 500,
+        message: "USER_IS_NOT_VERIFIED",
+      })
+    }
     return res.send({
       status: 200,
-      message: "VERIFY_PIN_REQUEST_SUCCEED",
+      message: "ID_FROM_EXISTING_USER",
+      id: user.id,
     })
+  }
+  return res.send({
+    status: 500,
+    message: "STORE_ID_REQUEST_FAILED",
+  })
+})
+
+app.post("/request/verify/id/", async (req, res) => {
+  const {id} = req.body
+  if (id !== undefined) {
+    const {user} = await User.find((user) => user.id === Helper.digest(JSON.stringify({email: id, verified: user.verified})))
+    if (user !== undefined) {
+      if (user.verified === true) {
+        return res.send({
+          status: 200,
+          message: "VERIFY_ID_REQUEST_SUCCEED",
+          id: user.id,
+        })
+      }
+    }
+  }
+  return res.send({
+    status: 500,
+    message: "VERIFY_ID_REQUEST_FAILED",
+  })
+})
+
+app.post("/request/verify/pin/", async (req, res) => {
+  const { id, pin } = req.body
+  if (
+    pin === userPin &&
+    pin !== undefined &&
+    userPin !== undefined &&
+    id !== undefined
+    ) {
+    const verifyIdRx = await User.verify(id)
+    if (verifyIdRx.status === 200) {
+      return res.send({
+        status: 200,
+        message: "VERIFY_PIN_REQUEST_SUCCEED",
+      })
+    }
   }
   return res.send({
     status: 500,
@@ -96,29 +165,28 @@ app.post("/request/verify/pin/", async (req, res) => {
 })
 
 let userPin
-app.post("/request/verify/email/", async (req, res) => {
+app.post("/request/send/email/with/pin/", async (req, res) => {
   const { email } = req.body
   if (email !== undefined) {
-    userPin = Helper.generateRandomPin(4)
-
+    userPin = Helper.digest(crypto.randomBytes(32))
+    setTimeout(() => userPin = undefined, sessionLength)
     const sendEmailRx = await Helper.sendEmailFromDroid({
       from: "<droid@get-your.de>",
       to: email,
-      subject: "[getyour plattform] Aus Sicherheitsgründen bestätige bitte deine E-Mail Adresse",
+      subject: "[getyour plattform] Aus Sicherheitsgründen, bestätige diesen PIN",
       html: /*html*/`<div>PIN: ${userPin}</div>`
     })
 
     if (sendEmailRx.status === 200) {
       return res.send({
         status: 200,
-        message: "VERIFY_EMAIL_REQUEST_SUCCEED",
+        message: "SEND_EMAIL_WITH_PIN_REQUEST_SUCCEED",
       })
     }
   }
-
   return res.send({
     status: 500,
-    message: "VERIFY_EMAIL_REQUEST_FAILED",
+    message: "SEND_EMAIL_WITH_PIN_REQUEST_FAILED",
   })
 })
 

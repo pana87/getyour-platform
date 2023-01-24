@@ -14,9 +14,9 @@ body {
 }
 .mir-ist-bekannt {
   position: absolute;
-  height: 0.48%;
+  height: 0.47%;
   width: calc(100% - 88.9px);
-  top: 52.1%;
+  top: 52.47%;
   left: 45.18px;
   font-size: var(--font-size-xs);
   line-height: 22px;
@@ -45,11 +45,11 @@ body {
 }
 .gruppe-1923 {
   position: absolute;
-  height: 4.39%;
+  height: 4.27%;
   width: 97.67%;
-  top: 32.42%;
+  top: 33.36%;
   right: 1.16%;
-  bottom: 63.19%;
+  bottom: 62.37%;
   left: 1.16%;
   font-size: var(--font-size-8xl);
   font-family: var(--font-apple-braille);
@@ -75,7 +75,7 @@ body {
   height: 228px;
 }
 .angabszumhaus {
-  top: calc(50% - 9537.73px);
+  top: calc(50% - 9832.73px);
   left: 4.63%;
   font-size: var(--font-size-9xl);
   font-family: var(--font-apple-braille);
@@ -89,14 +89,14 @@ body {
   opacity: 0.86;
 }
 .sparrenabstand {
-  top: calc(50% - 5598.87px);
+  top: calc(50% - 5566.12px);
   left: 4.63%;
   font-size: var(--font-size-9xl);
   font-family: var(--font-apple-braille);
   -webkit-text-stroke: 1px #161616;
 }
 .flachdach {
-  top: calc(50% - 851.28px);
+  top: calc(50% - 763.04px);
 }
 .bilderupload,
 .flachdach,
@@ -108,12 +108,12 @@ body {
 }
 .bilderupload {
   position: absolute;
-  top: calc(50% + 4433.96px);
+  top: calc(50% + 4522.2px);
   line-height: 37px;
   opacity: 0.86;
 }
 .gerstaufstellung {
-  top: calc(50% - 4197.06px);
+  top: calc(50% - 4164.31px);
 }
 .breite-des-hauses,
 .gerstaufstellung,
@@ -123,7 +123,7 @@ body {
   opacity: 0.86;
 }
 .trapezdach {
-  top: calc(50% + 1889.94px);
+  top: calc(50% + 1978.18px);
   left: 4.63%;
   font-size: var(--font-size-9xl);
   font-family: var(--font-apple-braille);
@@ -136,11 +136,11 @@ body {
 }
 .gruppe-1922 {
   position: absolute;
-  height: 3.76%;
+  height: 3.65%;
   width: 95.34%;
-  top: 37.09%;
+  top: 37.89%;
   right: 2.33%;
-  bottom: 59.15%;
+  bottom: 58.45%;
   left: 2.33%;
   font-size: var(--font-size-8xl);
   font-family: var(--font-apple-braille);
@@ -155,11 +155,11 @@ body {
 }
 .gruppe-1928 {
   position: absolute;
-  height: 5.56%;
+  height: 5.4%;
   width: 95.34%;
-  top: 53.22%;
+  top: 53.56%;
   right: 2.33%;
-  bottom: 41.22%;
+  bottom: 41.04%;
   left: 2.33%;
   font-size: var(--font-size-8xl);
   font-family: var(--font-apple-braille);
@@ -174,11 +174,11 @@ body {
 }
 .gruppe-1938 {
   position: absolute;
-  height: 2.48%;
+  height: 2.41%;
   width: 97.67%;
-  top: 63.33%;
+  top: 63.38%;
   right: 1.16%;
-  bottom: 34.19%;
+  bottom: 34.21%;
   left: 1.16%;
   font-size: var(--font-size-8xl);
   font-family: var(--font-apple-braille);
@@ -198,11 +198,11 @@ body {
 .gruppe-1951,
 .gruppe-1952 {
   position: absolute;
-  height: 3.28%;
+  height: 3.19%;
   width: 95.34%;
-  top: 72.73%;
+  top: 72.51%;
   right: 2.33%;
-  bottom: 23.99%;
+  bottom: 24.31%;
   left: 2.33%;
   font-size: var(--font-size-8xl);
   font-family: var(--font-apple-braille);
@@ -212,121 +212,73 @@ body {
 .gruppe-1950,
 .gruppe-1951,
 .gruppe-1952 {
-  top: 76.41%;
-  bottom: 20.31%;
+  top: 76.08%;
+  bottom: 20.73%;
 }
 .gruppe-1943,
 .gruppe-1950,
 .gruppe-1951,
 .gruppe-1952 {
-  top: 80.09%;
-  bottom: 16.62%;
+  top: 79.66%;
+  bottom: 17.16%;
 }
 .gruppe-1950,
 .gruppe-1951,
 .gruppe-1952 {
-  top: 83.78%;
-  bottom: 12.94%;
+  top: 83.23%;
+  bottom: 13.58%;
 }
 .gruppe-1951,
 .gruppe-1952 {
-  top: 87.46%;
-  bottom: 9.26%;
+  top: 86.81%;
+  bottom: 10.01%;
 }
 .gruppe-1952 {
-  top: 91.14%;
-  bottom: 5.58%;
+  top: 90.38%;
+  bottom: 6.43%;
 }
-.clicktechnischesbutton {
+.technischestext {
   position: absolute;
   top: calc(50% - 28.48px);
   left: calc(50% - 41px);
 }
-.rechteck-226 {
-  height: 100%;
-  width: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: var(--color-gray-300);
-}
-.div,
-.fss,
-.rechteck-226 {
-  position: absolute;
-}
 .div {
+  position: absolute;
   top: 4.48px;
   left: calc(50% - 6px);
 }
-.fss {
+.clicktechnischesknopf {
+  position: absolute;
   top: calc(50% - 5.48px);
   left: calc(50% - 24.88px);
+  background-color: var(--color-gray-300);
   width: 49.75px;
   height: 33.95px;
   font-size: var(--font-size-xl);
   color: var(--color-white);
 }
-.clicktechnischesknopf {
+.technischesnav {
   position: absolute;
-  height: 0.29%;
+  height: 0.28%;
   width: 4.27%;
-  top: 0.56%;
+  top: 0.54%;
   right: 21.24%;
-  bottom: 99.15%;
+  bottom: 99.18%;
   left: 74.49%;
   font-size: var(--font-size-3xs);
 }
-.clickzumsstrombutton {
-  position: absolute;
-  top: calc(50% - 28.48px);
-  left: calc(50% - 20px);
-}
-.clickzumstromknopf {
-  position: absolute;
-  height: 0.29%;
-  width: 2.59%;
-  top: 0.56%;
-  right: 40.71%;
-  bottom: 99.15%;
-  left: 56.69%;
-  font-size: var(--font-size-3xs);
-}
-.clickzurheizungbutton {
-  position: absolute;
-  top: calc(50% - 28.48px);
-  left: calc(50% - 27px);
-}
-.div2 {
-  position: absolute;
-  top: 4.48px;
-  left: calc(50% - 5.5px);
-}
-.clickzurheizungknopf {
-  position: absolute;
-  height: 0.29%;
-  width: 2.81%;
-  top: 0.56%;
-  right: 58.06%;
-  bottom: 99.15%;
-  left: 39.13%;
-  font-size: var(--font-size-3xs);
-}
-.clickzumhausbutton {
+.haustext {
   position: absolute;
   top: calc(50% - 28.48px);
   left: calc(50% - 17.5px);
 }
-.div3,
-.vv {
+.dfsaf {
   position: absolute;
-}
-.div3 {
   top: 3.48px;
   left: calc(50% - 4px);
 }
-.vv {
+.clickzumhausknopf {
+  position: absolute;
   top: calc(50% - 5.48px);
   left: calc(50% - 24.88px);
   background-color: var(--color-green-100);
@@ -335,18 +287,20 @@ body {
   font-size: var(--font-size-2xl);
   color: var(--color-gray-100);
 }
-.clickzumhausknopf {
+.fdghd,
+.navhaus {
   position: absolute;
-  height: 0.29%;
+}
+.navhaus {
+  height: 0.28%;
   width: 2.59%;
-  top: 0.56%;
+  top: 0.54%;
   right: 75.6%;
-  bottom: 99.15%;
+  bottom: 99.18%;
   left: 21.81%;
   font-size: var(--font-size-3xs);
 }
 .fdghd {
-  position: absolute;
   height: 100%;
   width: 100%;
   top: 0;
@@ -376,11 +330,11 @@ body {
 }
 .baujahrcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 2.66%;
+  top: 2.59%;
   right: 4.66%;
-  bottom: 96.68%;
+  bottom: 96.78%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -394,11 +348,11 @@ body {
 }
 .umbaucontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 3.67%;
+  top: 3.57%;
   right: 4.66%;
-  bottom: 95.67%;
+  bottom: 95.8%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -412,11 +366,11 @@ body {
 }
 .wohnflaechecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 5.69%;
+  top: 5.52%;
   right: 4.66%;
-  bottom: 93.66%;
+  bottom: 93.84%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -430,11 +384,11 @@ body {
 }
 .sparrenabstandcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 24.41%;
+  top: 25.31%;
   right: 4.66%;
-  bottom: 74.94%;
+  bottom: 74.06%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -448,11 +402,11 @@ body {
 }
 .geruestbreitecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 41.32%;
+  top: 42%;
   right: 4.66%;
-  bottom: 58.03%;
+  bottom: 57.36%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -466,11 +420,11 @@ body {
 }
 .sparrenbreitecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 25.42%;
+  top: 26.29%;
   right: 4.66%;
-  bottom: 73.93%;
+  bottom: 73.08%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -484,11 +438,11 @@ body {
 }
 .gerustlaengecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 42.32%;
+  top: 42.98%;
   right: 4.66%;
-  bottom: 57.02%;
+  bottom: 56.38%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -500,11 +454,11 @@ body {
 }
 .attikabreitecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 49.01%;
+  top: 49.47%;
   right: 4.66%;
-  bottom: 50.33%;
+  bottom: 49.89%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -518,11 +472,11 @@ body {
 }
 .traufhoehecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 66.11%;
+  top: 66.08%;
   right: 4.66%;
-  bottom: 33.23%;
+  bottom: 33.28%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -534,11 +488,11 @@ body {
 }
 .sparrenhoehecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 26.42%;
+  top: 27.27%;
   right: 4.66%;
-  bottom: 72.92%;
+  bottom: 72.1%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -552,11 +506,11 @@ body {
 }
 .geruestanzahlcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 43.33%;
+  top: 43.96%;
   right: 4.66%;
-  bottom: 56.01%;
+  bottom: 55.41%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -575,11 +529,11 @@ body {
 }
 .attikahohecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 50.02%;
+  top: 50.45%;
   right: 4.66%;
-  bottom: 49.32%;
+  bottom: 48.91%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -593,11 +547,11 @@ body {
 }
 .dachbreitecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 67.12%;
+  top: 67.06%;
   right: 4.66%;
-  bottom: 32.22%;
+  bottom: 32.3%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -607,20 +561,32 @@ body {
   left: 33.55px;
   font-size: var(--font-size-3xl);
 }
-.gesamtflaechecontainer,
-.gradzahlcontainer {
+.gesamtflaechecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 44.34%;
+  top: 44.94%;
   right: 4.66%;
-  bottom: 55%;
+  bottom: 54.43%;
   left: 4.66%;
   opacity: 0.71;
 }
+.hausgradzahlflachdach {
+  position: absolute;
+  top: calc(50% + 13.66px);
+  left: 34.55px;
+  font-size: var(--font-size-3xl);
+  color: var(--color-black);
+}
 .gradzahlcontainer {
-  top: 51.03%;
-  bottom: 48.32%;
+  position: absolute;
+  height: 0.64%;
+  width: 90.68%;
+  top: 51.43%;
+  right: 4.66%;
+  bottom: 47.93%;
+  left: 4.66%;
+  opacity: 0.71;
 }
 .hausdachlaenge {
   position: absolute;
@@ -630,11 +596,11 @@ body {
 }
 .dachlaengecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 68.13%;
+  top: 68.04%;
   right: 4.66%;
-  bottom: 31.21%;
+  bottom: 31.32%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -646,11 +612,11 @@ body {
 }
 .deckmasslaengecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 94.82%;
+  top: 93.96%;
   right: 4.66%;
-  bottom: 4.53%;
+  bottom: 5.41%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -664,11 +630,11 @@ body {
 }
 .firsthoehecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 69.14%;
+  top: 69.02%;
   right: 4.66%;
-  bottom: 30.21%;
+  bottom: 30.35%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -682,11 +648,40 @@ body {
 }
 .deckmassbreitecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 95.83%;
+  top: 94.94%;
   right: 4.66%;
-  bottom: 3.52%;
+  bottom: 4.43%;
+  left: 4.66%;
+  opacity: 0.71;
+}
+.hausersatzsiegel {
+  position: absolute;
+  top: calc(50% - 10.85px);
+  left: 19.64px;
+}
+.hausersatzziegel {
+  position: absolute;
+  width: calc(100% - 72.1px);
+  right: 38.19px;
+  bottom: 13px;
+  left: 33.91px;
+  border-radius: var(--br-md);
+  background-color: var(--color-white);
+  border: 0.4px solid var(--color-black);
+  box-sizing: border-box;
+  height: 60px;
+  font-size: var(--font-size-3xl);
+  color: var(--color-black);
+}
+.ersatzziegelcontainer {
+  position: absolute;
+  height: 0.64%;
+  width: 90.68%;
+  top: 95.92%;
+  right: 4.66%;
+  bottom: 3.45%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -700,11 +695,11 @@ body {
 }
 .dachneigungcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 71.16%;
+  top: 70.98%;
   right: 4.66%;
-  bottom: 28.19%;
+  bottom: 28.39%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -730,45 +725,83 @@ body {
 }
 .bewohnteetagencontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 4.68%;
+  top: 4.54%;
   right: 4.66%;
-  bottom: 94.66%;
+  bottom: 94.82%;
   left: 4.66%;
   opacity: 0.71;
 }
+.jdsafjasdkf {
+  position: absolute;
+  top: calc(50% - 58.06px);
+  left: 33.91px;
+  opacity: 0.86;
+}
 .hausdckabelfuehrung {
   position: absolute;
-  top: calc(50% - 11.01px);
+  top: calc(50% - 10.84px);
   left: 19.36px;
   width: 25px;
   height: 28px;
 }
+.klmknono {
+  position: absolute;
+  width: calc(100% - 72.1px);
+  right: 38.55px;
+  bottom: 14.16px;
+  left: 33.55px;
+  border-radius: var(--br-md);
+  background-color: var(--color-white);
+  border: 0.4px solid var(--color-black);
+  box-sizing: border-box;
+  height: 60px;
+  font-size: var(--font-size-3xl);
+}
 .dachhautcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.89%;
   width: 90.68%;
-  top: 6.7%;
+  top: 6.5%;
   right: 4.66%;
-  bottom: 92.65%;
+  bottom: 92.61%;
   left: 4.66%;
   opacity: 0.71;
 }
+.jsadfhaskdlf {
+  position: absolute;
+  top: calc(50% - 57.08px);
+  left: 33.91px;
+  opacity: 0.86;
+}
 .hausverkabelungdc {
   position: absolute;
-  top: calc(50% - 11.01px);
+  top: calc(50% - 11.18px);
   left: 19.36px;
   width: 37px;
   height: 28px;
 }
+.klmlnlp {
+  position: absolute;
+  width: calc(100% - 72.1px);
+  right: 38.55px;
+  bottom: 13.82px;
+  left: 33.55px;
+  border-radius: var(--br-md);
+  background-color: var(--color-white);
+  border: 0.4px solid var(--color-black);
+  box-sizing: border-box;
+  height: 60px;
+  font-size: var(--font-size-3xl);
+}
 .dcaussencontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.87%;
   width: 90.68%;
-  top: 7.71%;
+  top: 7.73%;
   right: 4.66%;
-  bottom: 91.64%;
+  bottom: 91.4%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -781,28 +814,47 @@ body {
 }
 .gedaemmtcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 8.71%;
+  top: 8.95%;
   right: 4.66%;
-  bottom: 90.63%;
+  bottom: 90.42%;
   left: 4.66%;
   opacity: 0.71;
 }
+.demkmalschutz {
+  position: absolute;
+  top: calc(50% - 57.75px);
+  left: 33.91px;
+  opacity: 0.86;
+}
 .hausdenkmal {
   position: absolute;
-  top: calc(50% - 11.01px);
+  top: calc(50% - 10.92px);
   left: 19.36px;
   width: 76px;
   height: 28px;
 }
+.jkfsdlksfjoe {
+  position: absolute;
+  width: calc(100% - 72.1px);
+  right: 38.55px;
+  bottom: 14.08px;
+  left: 33.55px;
+  border-radius: var(--br-md);
+  background-color: var(--color-white);
+  border: 0.4px solid var(--color-black);
+  box-sizing: border-box;
+  height: 60px;
+  font-size: var(--font-size-3xl);
+}
 .denkmalcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.88%;
   width: 90.68%;
-  top: 9.72%;
+  top: 9.93%;
   right: 4.66%;
-  bottom: 89.62%;
+  bottom: 89.19%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -815,11 +867,11 @@ body {
 }
 .lagermoeglichkeitcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 12.75%;
+  top: 13.38%;
   right: 4.66%;
-  bottom: 86.6%;
+  bottom: 85.98%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -832,45 +884,79 @@ body {
 }
 .dacheindeckungcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 13.76%;
+  top: 14.36%;
   right: 4.66%;
-  bottom: 85.59%;
+  bottom: 85%;
   left: 4.66%;
   opacity: 0.71;
 }
+.fsdafjsadf {
+  position: absolute;
+  top: calc(50% - 59.43px);
+  left: 33.91px;
+  opacity: 0.86;
+}
 .hausukueberstand {
   position: absolute;
-  top: calc(50% - 11.01px);
+  top: calc(50% - 11.21px);
   left: 19.36px;
   width: 47px;
   height: 28px;
 }
+.csdcascsc {
+  position: absolute;
+  width: calc(100% - 72.1px);
+  right: 38.55px;
+  bottom: 13.79px;
+  left: 33.55px;
+  border-radius: var(--br-md);
+  background-color: var(--color-white);
+  border: 0.4px solid var(--color-black);
+  box-sizing: border-box;
+  height: 60px;
+  font-size: var(--font-size-3xl);
+}
 .ausfuehrungcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.91%;
   width: 90.68%;
-  top: 14.77%;
+  top: 15.34%;
   right: 4.66%;
-  bottom: 84.58%;
+  bottom: 83.75%;
   left: 4.66%;
   opacity: 0.71;
 }
+.fsdfasdf {
+  position: absolute;
+  top: calc(50% - 63.61px);
+  left: 33.91px;
+  opacity: 0.86;
+}
+.hausandereshausabstand1 {
+  position: absolute;
+  width: calc(100% + 1px);
+  top: calc(50% - 14px);
+  left: 0;
+  display: inline-block;
+  height: 28px;
+}
 .hausandereshausabstand {
   position: absolute;
+  width: calc(100% - 32px);
   top: calc(50% - 11.01px);
+  right: 12.64px;
   left: 19.36px;
-  width: 180px;
   height: 28px;
 }
 .landesordnungcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.98%;
   width: 90.68%;
-  top: 17.38%;
+  top: 18.14%;
   right: 4.66%;
-  bottom: 81.96%;
+  bottom: 80.88%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -883,11 +969,11 @@ body {
 }
 .entlueftungsrohrcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 18.39%;
+  top: 19.47%;
   right: 4.66%;
-  bottom: 80.95%;
+  bottom: 79.9%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -900,11 +986,11 @@ body {
 }
 .blitzschutzcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 19.4%;
+  top: 20.45%;
   right: 4.66%;
-  bottom: 79.94%;
+  bottom: 78.92%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -917,11 +1003,11 @@ body {
 }
 .dachaufbautencontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 20.41%;
+  top: 21.43%;
   right: 4.66%;
-  bottom: 78.93%;
+  bottom: 77.94%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -934,28 +1020,35 @@ body {
 }
 .materialsparrencontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 27.43%;
+  top: 28.25%;
   right: 4.66%;
-  bottom: 71.91%;
+  bottom: 71.12%;
   left: 4.66%;
   opacity: 0.71;
 }
+.sadkfasdfasdofksad {
+  position: absolute;
+  top: calc(50% - 59.34px);
+  left: 33.91px;
+  opacity: 0.86;
+}
 .hausgeruestoeffentlich {
   position: absolute;
+  width: calc(100% - 47px);
   top: calc(50% - 11.01px);
+  right: 27.64px;
   left: 19.36px;
-  width: 97px;
   height: 28px;
 }
 .gehwegecontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.91%;
   width: 90.68%;
-  top: 29.39%;
+  top: 30.15%;
   right: 4.66%;
-  bottom: 69.95%;
+  bottom: 68.94%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -968,45 +1061,47 @@ body {
 }
 .trapezalucontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 60.09%;
+  top: 60.23%;
   right: 4.66%;
-  bottom: 39.26%;
+  bottom: 39.13%;
   left: 4.66%;
   opacity: 0.71;
 }
 .hausgeruestselbstgestellt {
   position: absolute;
+  width: calc(100% - 46px);
   top: calc(50% - 11.01px);
+  right: 26.64px;
   left: 19.36px;
-  width: 118px;
   height: 28px;
 }
 .montagegeruestcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 30.4%;
+  top: 31.4%;
   right: 4.66%;
-  bottom: 68.94%;
+  bottom: 67.96%;
   left: 4.66%;
   opacity: 0.71;
 }
 .haustrapezdachstahl {
   position: absolute;
+  width: calc(100% - 37px);
   top: calc(50% - 11.01px);
+  right: 17.64px;
   left: 19.36px;
-  width: 210px;
   height: 28px;
 }
 .trapezstahlcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 61.1%;
+  top: 61.21%;
   right: 4.66%;
-  bottom: 38.25%;
+  bottom: 38.16%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -1017,28 +1112,29 @@ body {
 }
 .attikavorhandencontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 48%;
+  top: 48.49%;
   right: 4.66%;
-  bottom: 51.34%;
+  bottom: 50.87%;
   left: 4.66%;
   opacity: 0.71;
 }
 .hausdachausrichtung {
   position: absolute;
+  width: calc(100% - 55px);
   top: calc(50% - 11.01px);
+  right: 35.64px;
   left: 19.36px;
-  width: 96px;
   height: 28px;
 }
 .dachausrichtungcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 70.15%;
+  top: 70%;
   right: 4.66%;
-  bottom: 29.2%;
+  bottom: 29.37%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -1056,28 +1152,47 @@ body {
 }
 .systemcontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.64%;
   width: 90.68%;
-  top: 10.73%;
+  top: 11.15%;
   right: 4.66%;
-  bottom: 88.61%;
+  bottom: 88.21%;
   left: 4.66%;
   opacity: 0.71;
 }
+.udhvfaskdfhdaslf {
+  position: absolute;
+  top: calc(50% - 59.38px);
+  left: 33.91px;
+  opacity: 0.86;
+}
 .hausenergiesystementsorgen {
   position: absolute;
-  top: calc(50% - 11.01px);
+  top: calc(50% - 11.36px);
   left: 19.36px;
   width: 46px;
   height: 28px;
 }
+.jiadslfjlsaf {
+  position: absolute;
+  width: calc(100% - 72.1px);
+  right: 38.55px;
+  bottom: 13.64px;
+  left: 33.55px;
+  border-radius: var(--br-md);
+  background-color: var(--color-white);
+  border: 0.4px solid var(--color-black);
+  box-sizing: border-box;
+  height: 60px;
+  font-size: var(--font-size-3xl);
+}
 .entsorgencontainer {
   position: absolute;
-  height: 0.66%;
+  height: 0.91%;
   width: 90.68%;
-  top: 11.74%;
+  top: 12.13%;
   right: 4.66%;
-  bottom: 87.6%;
+  bottom: 86.96%;
   left: 4.66%;
   opacity: 0.71;
 }
@@ -1153,7 +1268,7 @@ body {
 }
 .pfad-552-icon {
   position: absolute;
-  top: calc(50% - 84.56px);
+  top: calc(50% - 84.55px);
   right: 52.69px;
   width: 156.73px;
   height: 140.1px;
@@ -1467,7 +1582,7 @@ body {
 }
 .gruppe-1542 {
   position: absolute;
-  top: 3105.99px;
+  top: 3363.73px;
   left: calc(50% - 181.2px);
   width: 362.41px;
   height: 271.43px;
@@ -1578,7 +1693,7 @@ body {
 }
 .gruppe-1901 {
   position: absolute;
-  top: calc(50% - 5496px);
+  top: calc(50% - 5463.25px);
   left: calc(50% - 178px);
   width: 357px;
   height: 351px;
@@ -1606,7 +1721,7 @@ body {
 }
 .breite-a,
 .breite-b {
-  top: calc(50% + 203.67px);
+  top: calc(50% + 203.68px);
   left: calc(50% - 46.81px);
   width: 166.93px;
 }
@@ -1646,11 +1761,11 @@ body {
 }
 .gruppe-1910 {
   position: absolute;
-  height: 2.33%;
+  height: 2.26%;
   width: 17.7%;
-  top: 38.01%;
+  top: 38.79%;
   right: 41.15%;
-  bottom: 59.66%;
+  bottom: 58.95%;
   left: 41.15%;
   font-size: var(--font-size-xs);
 }
@@ -1682,7 +1797,7 @@ body {
   top: calc(50% - 91.29px);
   left: calc(50% - 79.66px);
   width: 159.32px;
-  height: 157.09px;
+  height: 157.08px;
 }
 .nord {
   position: absolute;
@@ -1692,27 +1807,21 @@ body {
 }
 .gruppe-1913 {
   position: absolute;
-  height: 1.15%;
+  height: 1.12%;
   width: 8.3%;
-  top: 33.32%;
+  top: 34.23%;
   right: 72.33%;
-  bottom: 65.53%;
+  bottom: 64.65%;
   left: 19.38%;
   font-size: var(--font-size-3xs);
 }
-.sd,
-.sdausrichtung {
-  position: absolute;
-  top: calc(50% + 91.5px);
-  left: calc(50% - 70px);
-}
+.rechteck-481,
 .sd {
+  position: absolute;
   top: calc(50% - 114.5px);
   left: calc(50% - 15.5px);
-  font-size: var(--font-size-sm);
 }
 .rechteck-481 {
-  position: absolute;
   top: calc(50% - 32.5px);
   left: calc(50% - 76px);
   background-color: var(--color-tan-100);
@@ -1721,18 +1830,23 @@ body {
 }
 .pfad-781-icon {
   position: absolute;
-  top: calc(50% - 91.08px);
+  top: calc(50% - 91.09px);
   left: calc(50% - 80.25px);
   width: 160.49px;
   height: 58.59px;
 }
-.gruppe-1776-icon,
-.rechteck-514 {
+.gruppe-1776-icon {
   position: absolute;
   top: calc(50% - 32.5px);
   left: calc(50% - 45.13px);
   width: 91.26px;
   height: 99px;
+}
+.rechteck-514,
+.sdausrichtung {
+  position: absolute;
+  top: calc(50% - 9.5px);
+  left: calc(50% - 68.57px);
 }
 .rechteck-514 {
   top: calc(50% - 13.5px);
@@ -1743,22 +1857,31 @@ body {
   width: 27px;
   height: 27px;
 }
-.geruestaufstellungcheckboxsued,
-.gruppe-1916 {
+.geruestaufstellungcheckboxsued {
   position: absolute;
-  right: 13.11px;
+  height: 100%;
+  top: 0;
+  right: 0;
   bottom: 0;
   width: 27px;
+}
+.gruppe-1983 {
+  position: absolute;
+  top: calc(50% + 87.5px);
+  left: calc(50% - 70px);
+  width: 137.13px;
   height: 27px;
+  font-size: var(--font-size-3xs);
 }
 .gruppe-1916 {
-  height: 1.15%;
+  position: absolute;
+  height: 1.12%;
   width: 8.36%;
-  top: 33.32%;
+  top: 34.23%;
   right: 19.38%;
-  bottom: 65.53%;
+  bottom: 64.65%;
   left: 72.27%;
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-sm);
 }
 .ostausrichtung,
 .westausrichtung {
@@ -1834,7 +1957,7 @@ body {
 }
 .gruppe-1917 {
   position: absolute;
-  top: calc(50% - 3008.63px);
+  top: calc(50% - 2920.39px);
   left: calc(50% - 98px);
   width: 196px;
   height: 309px;
@@ -1931,7 +2054,7 @@ body {
   left: calc(50% - 25.49px);
 }
 .gruppe-1851 {
-  top: calc(50% - 750.41px);
+  top: calc(50% - 662.17px);
   left: calc(50% - 175px);
   width: 350px;
   height: 274.55px;
@@ -1957,7 +2080,7 @@ body {
 .pfad-794-icon,
 .pfad-795-icon {
   position: absolute;
-  top: calc(50% - 162.74px);
+  top: calc(50% - 162.75px);
   left: calc(50% - 163.21px);
   width: 326.43px;
   height: 49.79px;
@@ -1985,7 +2108,7 @@ body {
 }
 .gruppe-1929 {
   position: absolute;
-  top: calc(50% + 814.41px);
+  top: calc(50% + 902.65px);
   left: calc(50% - 163.22px);
   width: 326.43px;
   height: 325.49px;
@@ -2049,7 +2172,7 @@ body {
 }
 .gruppe-1930 {
   position: absolute;
-  top: calc(50% + 1290.04px);
+  top: calc(50% + 1378.28px);
   left: calc(50% - 163.24px);
   width: 326.48px;
   height: 326.86px;
@@ -2057,14 +2180,14 @@ body {
 }
 .flachdachneigungbekanntcheckbo {
   position: absolute;
-  top: calc(50% + 372.6px);
+  top: calc(50% + 460.84px);
   left: 44.73px;
   width: 27px;
   height: 27px;
 }
 .ja-das-ist {
   position: absolute;
-  top: calc(50% + 372.1px);
+  top: calc(50% + 460.34px);
   left: 85.18px;
   font-size: var(--font-size-3xl);
   line-height: 22px;
@@ -2150,7 +2273,7 @@ body {
 }
 .gruppe-1931 {
   position: absolute;
-  top: calc(50% + 2797.26px);
+  top: calc(50% + 2885.5px);
   left: calc(50% - 169.79px);
   width: 357.58px;
   height: 260.87px;
@@ -2159,32 +2282,32 @@ body {
 .gruppe-1494-icon,
 .gruppe-1940-icon {
   position: absolute;
-  top: calc(50% + 4703.61px);
+  top: calc(50% + 4791.85px);
   left: calc(50% - 175px);
   width: 350px;
   height: 206.06px;
 }
 .gruppe-1494-icon {
-  top: calc(50% + 5412.81px);
+  top: calc(50% + 5501.05px);
   height: 231.95px;
 }
 .gruppe-1944-icon {
   position: absolute;
-  top: calc(50% + 6104.82px);
+  top: calc(50% + 6193.06px);
   left: calc(50% - 167.62px);
   width: 336.73px;
   height: 317.01px;
 }
 .gruppe-1554-icon {
   position: absolute;
-  top: calc(50% + 6857.31px);
+  top: calc(50% + 6945.55px);
   left: calc(50% - 156.77px);
   width: 313.54px;
   height: 272.58px;
 }
 .gruppe-1555-icon {
   position: absolute;
-  top: calc(50% + 7599.82px);
+  top: calc(50% + 7688.06px);
   left: calc(50% - 168.75px);
   width: 337.5px;
   height: 247.3px;
@@ -2193,7 +2316,7 @@ body {
   position: absolute;
   height: calc(100% + 76.73px);
   width: calc(100% - 33.09px);
-  top: 28.09px;
+  top: 28.08px;
   right: -5.19px;
   bottom: -104.82px;
   left: 38.28px;
@@ -2216,7 +2339,7 @@ body {
 }
 .gruppe-1556 {
   position: absolute;
-  top: calc(50% + 8337.09px);
+  top: calc(50% + 8425.33px);
   left: calc(50% - 151.66px);
   width: 303.32px;
   height: 244.02px;
@@ -2229,9 +2352,9 @@ body {
 .mir-ist-bekannt1,
 .wenn-dacheindeckung-vom {
   position: absolute;
-  height: 0.48%;
+  height: 0.47%;
   width: calc(100% - 88.9px);
-  top: 31.52%;
+  top: 32.48%;
   left: 45.18px;
   font-size: var(--font-size-xs);
   line-height: 22px;
@@ -2239,10 +2362,10 @@ body {
   opacity: 0.8;
 }
 .wenn-dacheindeckung-vom {
-  top: 62.21%;
+  top: 62.29%;
 }
 .hausverankerungcheckbox {
-  top: calc(50% - 3709.4px);
+  top: calc(50% - 3621.16px);
   left: 44.73px;
 }
 .fsadffdasfsda,
@@ -2260,20 +2383,20 @@ body {
   box-sizing: border-box;
 }
 .icopalnichtcheckbox {
-  top: calc(50% + 2377.6px);
+  top: calc(50% + 2465.84px);
   left: 44.73px;
 }
 .ja-das-ist1,
 .ja-das-ist2 {
   position: absolute;
-  top: calc(50% - 3709.9px);
+  top: calc(50% - 3621.66px);
   left: 85.18px;
   font-size: var(--font-size-3xl);
   line-height: 22px;
   opacity: 0.8;
 }
 .ja-das-ist2 {
-  top: calc(50% + 2377.1px);
+  top: calc(50% + 2465.34px);
 }
 .pfad-801-icon {
   position: absolute;
@@ -2307,21 +2430,21 @@ body {
 .hausfrontbildbildupload,
 .haussuedansichtbildbildupload {
   position: absolute;
-  top: calc(50% + 5008px);
+  top: calc(50% + 5096.24px);
   left: calc(50% - 162px);
   width: 325px;
   height: 85px;
   font-size: var(--font-size-3xs);
 }
 .haussuedansichtbildbildupload {
-  top: calc(50% + 5743px);
+  top: calc(50% + 5831.24px);
 }
 .hausgerueststandortbildbildupl,
 .hausortgangbildbildupload,
 .haussparrenansichtbildbilduplo,
 .hausziegelbildbildupload {
   position: absolute;
-  top: calc(50% + 6478px);
+  top: calc(50% + 6566.24px);
   left: calc(50% - 162px);
   width: 325px;
   height: 85px;
@@ -2330,14 +2453,14 @@ body {
 .hausortgangbildbildupload,
 .haussparrenansichtbildbilduplo,
 .hausziegelbildbildupload {
-  top: calc(50% + 7201px);
+  top: calc(50% + 7289.24px);
 }
 .haussparrenansichtbildbilduplo,
 .hausziegelbildbildupload {
-  top: calc(50% + 7928px);
+  top: calc(50% + 8016.24px);
 }
 .hausziegelbildbildupload {
-  top: calc(50% + 8679px);
+  top: calc(50% + 8767.24px);
 }
 .rechteck-262 {
   position: absolute;
@@ -2363,9 +2486,9 @@ body {
 }
 .gruppe-1883 {
   position: absolute;
-  height: 0.72%;
+  height: 0.7%;
   width: 100%;
-  top: 99.28%;
+  top: 99.3%;
   right: 0;
   bottom: 0;
   left: 0;
@@ -2381,11 +2504,11 @@ body {
 }
 .speichernundweiterbutton {
   position: absolute;
-  height: 0.53%;
+  height: 0.52%;
   width: calc(100% - 103px);
-  top: 97.92%;
+  top: 97.98%;
   right: 51.5px;
-  bottom: 1.55%;
+  bottom: 1.5%;
   left: 51.5px;
   border-radius: var(--br-md);
   background-color: var(--color-orange-100);
@@ -2396,11 +2519,86 @@ body {
 .speichernundweiterbutton:hover {
   background-color: var(--color-orange-200);
 }
+.div1,
+.heizung {
+  position: absolute;
+}
+.heizung {
+  top: calc(50% - 27.47px);
+  left: calc(50% - 27px);
+}
+.div1 {
+  top: 3px;
+  left: calc(50% - 6.32px);
+}
+.clickzurheizungknopf {
+  position: absolute;
+  top: calc(50% - 6.47px);
+  left: calc(50% - 24.55px);
+  background-color: var(--color-gray-300);
+  width: 49.75px;
+  height: 33.95px;
+  font-size: var(--font-size-2xl);
+  color: var(--color-white);
+}
+.navheizung {
+  position: absolute;
+  height: 0.27%;
+  width: 2.81%;
+  top: 0.55%;
+  right: 58.07%;
+  bottom: 99.18%;
+  left: 39.11%;
+  font-size: var(--font-size-3xs);
+  color: var(--color-black);
+}
+.zhler {
+  position: absolute;
+  top: calc(50% - 27.97px);
+  left: calc(50% - 20.88px);
+}
+.pfad-805-icon {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+.div2 {
+  position: absolute;
+  top: 4px;
+  left: calc(50% - 5.88px);
+}
+.clickzumzaehlerknopf {
+  position: absolute;
+  top: calc(50% - 5.97px);
+  left: calc(50% - 24.88px);
+  width: 49.75px;
+  height: 33.95px;
+  font-size: var(--font-size-xl);
+  color: var(--color-white);
+}
+.navzaehler {
+  position: absolute;
+  height: 0.27%;
+  width: 2.59%;
+  top: 0.55%;
+  right: 40.71%;
+  bottom: 99.18%;
+  left: 56.69%;
+  font-size: var(--font-size-3xs);
+  color: var(--color-black);
+}
 .haus {
   position: relative;
   background-color: var(--color-gray-100);
   width: 100%;
-  height: 19830px;
+  height: 20420px;
   opacity: 0;
   text-align: left;
   font-size: var(--font-size-base);

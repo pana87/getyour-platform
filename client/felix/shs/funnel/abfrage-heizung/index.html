@@ -9,7 +9,7 @@
 
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Forma DJR Micro:wght@400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Forma DJR Micro:wght@400;500&display=swap"
     />
     <link
       rel="stylesheet"
@@ -22,6 +22,14 @@
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Georgia:wght@700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Helvetica Neue:wght@400;500;700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Helvetica:wght@400&display=swap"
     />
   </head>
   <body>
@@ -41,7 +49,7 @@
       <div class="dchausantrittcontainer">
         <div class="kjfasdfklasdjfa"></div>
         <div class="kfsdalfjasdlf">
-          DC: von Hauseintritt - Speicher &gt; 10m
+          Beträgt die DC-Kabelführung von Hausantritt bis Speicher mehr als 10
         </div>
         <div class="kjfkasldfasdf">
           <div class="heizungeintrittzehnmeter">
@@ -51,7 +59,9 @@
       </div>
       <div class="modulegleichesdachdcontainer">
         <div class="kjfasdfklasdjfa"></div>
-        <div class="kfasjdkflasdfk">Module auf gleichem Haus wie Speicher</div>
+        <div class="kfasjdkflasdfk">
+          Befinden sich die Module auf dem Haus, in dem der Speicher ist
+        </div>
         <div class="kjfkasldfasdf">
           <div class="heizunggleichesgebaeude">
             <div class="fjksadlfjadlskf">Ja</div>
@@ -62,22 +72,24 @@
         <div class="kjfasdfklasdjfa"></div>
         <div class="kflasdjfkladsjfadsf">
           <p class="womit-heizen-sie">
-            Kann Speicher beim Zählerschrank montiert werden
+            Kann Speicher und WR Raum vom Zählerschrank montiert werden
           </p>
         </div>
-        <div class="kjfkasldfasdf">
-          <div class="heizungeintrittzehnmeter">
-            <div class="fjksadlfjadlskf">Nein</div>
+        <div class="speicherbeizaehlercontainer">
+          <div class="heizunggleicherraum">
+            <div class="heizunggleicherraum1">Ja kann er</div>
           </div>
         </div>
       </div>
       <div class="speciherzaehlerzehnmcontainer">
         <div class="kjfasdfklasdjfa"></div>
-        <div class="fsdfasdfas">Kabellänge: Speicher - Zähler &gt; 20m</div>
-        <div class="kjfkasldfasdf">
-          <div class="heizungeintrittzehnmeter">
-            <div class="fjksadlfjadlskf">Nein</div>
+        <div class="gruppe-18861">
+          <div class="heizungmehralszwanzigmeter">
+            <div class="heizunggleicherraum1">Neeeeeee</div>
           </div>
+        </div>
+        <div class="kabel-vom-speicher">
+          Kabel vom Speicher bis Zähler mehr als 20m
         </div>
       </div>
       <div class="wieheizensiecontainer">
@@ -113,7 +125,7 @@
       <div class="heizkostencontainer">
         <div class="kjfasdfklasdjfa"></div>
         <div class="hausbaujahr">Jährliche Heizkosten in EUR</div>
-        <div class="heizungkosten"><div class="fjksadlfjadlskf">3282</div></div>
+        <div class="heizungkosten">3282</div>
       </div>
       <div class="bilderupload">Bilderupload</div>
       <div class="gruppe-1941">
@@ -199,34 +211,6 @@
       <div class="gruppe-5" id="headerid">
         <img class="logo-icon" alt="" src="public/logo@2x.png" />
       </div>
-      <div class="clicktechnischesknopf" id="gehezutechnischesbutton">
-        <div class="clicktechnischesbutton">Technisches</div>
-        <div class="fss">
-          <div class="rechteck-226"></div>
-          <div class="rechteck-226"></div>
-          <div class="div">4</div>
-        </div>
-      </div>
-      <div class="clickzumstromknopf" id="gehezustrombutton">
-        <div class="clickzumsstrombutton">Strom</div>
-        <div class="fss">
-          <div class="rechteck-226"></div>
-          <div class="rechteck-226"></div>
-          <div class="div">3</div>
-        </div>
-      </div>
-      <div class="clickzurheizungknopf" id="gehezuheizungbutton">
-        <div class="clickzurheizungbutton">Heizung</div>
-        <div class="fss">
-          <div class="rechteck-226"></div>
-          <div class="rechteck-3322"></div>
-          <div class="div2">2</div>
-        </div>
-      </div>
-      <div class="clickzumhausknopf" id="gehezuhausbutton">
-        <div class="clickzumhausbutton">Haus</div>
-        <div class="vv"><div class="div3">1</div></div>
-      </div>
       <div class="gruppe-1883">
         <div class="rechteck-2621"></div>
         <div class="impressum">Impressum</div>
@@ -268,9 +252,35 @@
           <div class="datei-hier-hochladen">Datei hier hochladen</div>
         </div>
       </div>
+      <div class="technischesnav" id="gehezutechnischesbutton">
+        <div class="technischestext">Technisches</div>
+        <div class="clicktechnischesknopf"><div class="div">4</div></div>
+      </div>
+      <div class="navhaus" id="gehezuhausbutton">
+        <div class="haustext">Haus</div>
+        <div class="clickzumhausknopf"><div class="dfsaf">1</div></div>
+      </div>
+      <div class="navheizung">
+        <div class="heizung1">Heizung</div>
+        <div class="clickzurheizungknopf"><div class="div1">2</div></div>
+      </div>
+      <div class="navzaehler">
+        <div class="zhler">Zähler</div>
+        <div class="clickzumzaehlerknopf">
+          <img class="pfad-805-icon" alt="" src="public/pfad-805.svg" />
+          <div class="div2">3</div>
+        </div>
+      </div>
     </div>
   
   <script type="module" src="./index.js"></script>
+
+  <script id="__EXPOSE__">
+    window.__AUTH_LOCATION__="http://localhost:10003"
+    window.__DB_LOCATION__="http://localhost:10001"
+    document.getElementById("__EXPOSE__").remove()
+  </script>
 </body>
+
 
 </html>

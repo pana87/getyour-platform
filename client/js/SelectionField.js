@@ -1,5 +1,92 @@
 export class SelectionField {
 
+  withChangeEventListener(callback) {
+    if (callback !== undefined) {
+      const selects = document.body.querySelectorAll(this.selectSelector)
+      selects.forEach(select => select.addEventListener("change", (event) => callback(event)))
+    }
+    return this
+  }
+
+  withRequired(index) {
+    this.requiredIndex = index
+    return this
+  }
+
+  #setValidStyle(select) {
+    select.style.border = "2px solid #00c853"
+    select.style.borderRadius = "3px"
+    return select
+  }
+
+  #setNotValidStyle(select) {
+    select.style.border = "2px solid #d50000"
+    select.style.borderRadius = "3px"
+    return select
+  }
+
+  #isRequired(select) {
+    if (select.disabled === true) return false
+    if (this.requiredIndex === undefined) return false
+    return true
+  }
+
+  withValidValue(callback) {
+    return new Promise((resolve, reject) => {
+      const result = []
+      document.querySelectorAll(this.selectSelector).forEach(select => {
+        if (this.#isRequired(select)) {
+          for (let i = 0; i < select.options.length; i++) {
+            const option = select.options[i]
+            if (option.selected) {
+              if (option.value === select.options[this.requiredIndex].value) {
+                this.#setValidStyle(select)
+                result.push(option.value || option.text)
+                if (callback) callback(result)
+                return resolve()
+              }
+            }
+          }
+          this.#setNotValidStyle(select)
+          console.error(`class='${this.className}' - required valid value`)
+          return
+        }
+        for (let i = 0; i < select.options.length; i++) {
+          const option = select.options[i]
+          if (option.selected) {
+            this.#setValidStyle(select)
+            result.push(option.value || option.text)
+            if (callback) callback(result)
+            return resolve()
+          }
+        }
+      })
+    })
+  }
+
+  withSelected(index) {
+    document.querySelectorAll(this.selectSelector)
+      .forEach(select => select.options[index].selected = true)
+    return this
+  }
+
+  #isEmpty(value) {
+    return value === undefined ||
+      value === null
+  }
+
+  async withStorage(name) {
+    this.storageName = name
+    await this.withValidValue((value) => {
+      if (!this.#isEmpty(value)) {
+        this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
+        this.storage[this.className] = value
+        window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
+      }
+    })
+    return this
+  }
+
   #setSize(select) {
     select.size = this.size
     return select
@@ -31,8 +118,10 @@ export class SelectionField {
   }
 
   withInputEventListener(callback) {
-    const selects = document.body.querySelectorAll(this.selectSelector)
-    selects.forEach(select => select.addEventListener("input", (event) => callback(event)))
+    if (callback !== undefined) {
+      const selects = document.body.querySelectorAll(this.selectSelector)
+      selects.forEach(select => select.addEventListener("input", (event) => callback(event)))
+    }
     return this
   }
 

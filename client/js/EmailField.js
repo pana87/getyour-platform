@@ -1,5 +1,29 @@
 export class EmailField {
 
+  withInput(callback) {
+    document.querySelectorAll(this.inputSelector).forEach(input => callback(input))
+    return this
+  }
+
+  #isEmpty(value) {
+    return value === undefined ||
+      value === "" ||
+      value.replace(/\s/g, "") === "" ||
+      value === null
+  }
+
+  async withStorage(name) {
+    this.storageName = name
+    await this.withValidValue((value) => {
+      if (!this.#isEmpty(value)) {
+        this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
+        this.storage[this.className] = value
+        window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
+      }
+    })
+    return this
+  }
+
   #setValidStyle(input) {
     input.style.border = "2px solid #00c853"
     input.style.borderRadius = "3px"
@@ -59,45 +83,33 @@ export class EmailField {
     return input
   }
 
-  get value() {
-    let result = undefined
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => result = input.value)
-    return result
-  }
-
-  isEmpty(value) {
-    return value.replace(/\s/g,"") === ""
-  }
-
-  isUndefined(value) {
-    return value === undefined
-  }
-
-  checkValidity(input) {
-    return input.checkValidity() &&
-      !this.isEmpty(input.value) &&
-      !this.isUndefined(input.value)
+  #isRequired(input) {
+    if (input.required === true) return true
+    return false
   }
 
   withValidValue(callback) {
-    document.querySelectorAll(this.inputSelector).forEach(input => {
-      if (this.checkValidity(input)) {
-        this.#setValidStyle(input)
-        if (callback !== undefined) {
-          callback(input.value)
+    return new Promise((resolve, reject) => {
+      document.querySelectorAll(this.inputSelector).forEach(input => {
+        if (this.#isRequired(input)) {
+          if (input.checkValidity()) {
+            this.#setValidStyle(input)
+            if (callback) callback(input.value)
+            return resolve(input.value)
+          }
+          this.#setNotValidStyle(input)
+          console.error(`class='${this.className}' - required valid value`)
+          return
         }
-        return
-      }
-      this.#setNotValidStyle(input)
-      console.error("VALUE_NOT_VALID")
+        this.#setValidStyle(input)
+        if (callback) callback(input.value)
+        return resolve(input.value)
+      })
     })
-    return this
   }
 
   withInputEventListener(callback) {
-    const inputs = document.body.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => input.addEventListener("input", (event) => callback(event)))
+    if (callback !== undefined) document.body.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("input", (event) => callback(event)))
     return this
   }
 
@@ -119,40 +131,25 @@ export class EmailField {
     return this
   }
 
-  #setSHSDefaultStyle(input) {
-    input.style.border = "none"
-    input.style.fontSize = "24px"
-    input.style.maxWidth = "250px"
-    return input
-  }
-
-  withSHSDefaultStyle() {
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setSHSDefaultStyle(input))
-    return this
-  }
-
   constructor(fieldSelector) {
     this.fieldSelector = fieldSelector
     this.className = this.fieldSelector.split("'")[1]
     this.inputSelector = `input[name='${this.className}']`
 
     const divs = document.querySelectorAll(this.fieldSelector)
+    if (divs.length > 0) {
+      divs.forEach(div => {
+        div.innerHTML = ""
 
-    if (divs.length === 0) {
-      console.warn(`Field with class '${this.className}' not found.`)
+        let input = document.createElement("input")
+        input.type = "email"
+        input.name = this.className
+        input.id = this.className
+
+        div.append(input)
+      })
       return
     }
-
-    divs.forEach(div => {
-      div.innerHTML = ""
-
-      let input = document.createElement("input")
-      input.type = "email"
-      input.name = this.className
-      input.id = this.className
-
-      div.append(input)
-    })
+    console.warn(`class='${this.className}' - field not found`)
   }
 }
