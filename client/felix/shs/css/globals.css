@@ -9,16 +9,16 @@
   src: url("../fonts/Helvetica.ttf") format("truetype");
 }
 @font-face {
-  font-family: "AppleBraille-Regular";
-  font-style: normal;
-  font-weight: 400;
-  src: url("../fonts/Apple Braille.ttf") format("truetype");
-}
-@font-face {
   font-family: "Helvetica-Bold";
   font-style: normal;
   font-weight: 700;
   src: url("../fonts/HelveticaBd___-.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Helvetica-Light";
+  font-style: normal;
+  font-weight: 300;
+  src: url("../fonts/Helvetica Light.ttf") format("truetype");
 }
 
 
@@ -39,12 +39,6 @@
 .screen a {
   display: contents;
   text-decoration: none;
-}
-
-.hidden,
-.hidden * {
-  pointer-events: none;
-  visibility: hidden;
 }
 
 .smart-layers-pointers,

@@ -1,7 +1,6 @@
 :root { 
   --bright-yellow: #f7aa20;
   --cararra: #ebebeb;
-  --celeste: #cecece;
   --cod-gray: #080808;
   --sea-mist: #bedcce;
   --white: #ffffff;
@@ -15,18 +14,9 @@
   --font-size-xxxxs: 14px;
   --font-size-xxxxxs: 12px;
  
-  --font-family-applebraille-regular: "AppleBraille-Regular", Helvetica;
+  --font-family-helvetica-bold: "Helvetica-Bold", Helvetica;
   --font-family-helvetica-regular: "Helvetica-Regular", Helvetica;
-  --font-family-ligurino-regular: "ligurino", Helvetica;
 }
-.applebraille-regular-normal-woodsmoke-23px {
-  color: var(--woodsmoke);
-  font-family: var(--font-family-applebraille-regular);
-  font-size: var(--font-size-m);
-  font-style: normal;
-  font-weight: 400;
-}
-
 .helvetica-regular-normal-woodsmoke-14px {
   color: var(--woodsmoke);
   font-family: var(--font-family-helvetica-regular);
@@ -35,21 +25,53 @@
   font-weight: 400;
 }
 
-.ligurino-regular-normal-cod-gray-18px {
-  color: var(--cod-gray);
-  font-family: var(--font-family-ligurino-regular);
-  font-size: var(--font-size-xs);
-  font-style: normal;
-  font-weight: 400;
-}
-
-.helvetica-regular-normal-woodsmoke-16px {
+.helvetica-bold-woodsmoke-23px {
   color: var(--woodsmoke);
-  font-family: var(--font-family-helvetica-regular);
-  font-size: var(--font-size-xxs);
+  font-family: var(--font-family-helvetica-bold);
+  font-size: var(--font-size-m);
   font-style: normal;
-  font-weight: 400;
+  font-weight: 700;
 }
 
 :root {
+}
+
+@media screen and (min-width: 1920px) {
+  .helvetica-regular-normal-woodsmoke-23px {
+    color: var(--woodsmoke);
+    font-family: var(--font-family-helvetica-regular);
+    font-size: var(--font-size-m);
+    font-style: normal;
+    font-weight: 400;
+  }
+}
+
+@media screen and (min-width: 1200px) and (max-width: 1919px) {
+  .helvetica-regular-normal-woodsmoke-16px {
+    color: var(--woodsmoke);
+    font-family: var(--font-family-helvetica-regular);
+    font-size: var(--font-size-xxs);
+    font-style: normal;
+    font-weight: 400;
+  }
+}
+
+@media screen and (min-width: 767px) and (max-width: 1199px) {
+  .helvetica-regular-normal-cod-gray-18px {
+    color: var(--cod-gray);
+    font-family: var(--font-family-helvetica-regular);
+    font-size: var(--font-size-xs);
+    font-style: normal;
+    font-weight: 400;
+  }
+}
+
+@media screen and (max-width: 766px) {
+  .helvetica-regular-normal-woodsmoke-15px {
+    color: var(--woodsmoke);
+    font-family: var(--font-family-helvetica-regular);
+    font-size: var(--font-size-xxxs);
+    font-style: normal;
+    font-weight: 400;
+  }
 }

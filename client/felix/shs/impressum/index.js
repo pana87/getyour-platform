@@ -1,6 +1,10 @@
-import { SHSInteraction } from "../../../js/SHSInteraction.js";
+import { DivField } from "../../../js/DivField.js"
 
-new SHSInteraction("img[class*=logo]").withClickAssign("/felix/shs/")
-new SHSInteraction("div[class*=angeboterstellenbutton]").withClickAssign("/felix/shs/funnel/start/")
-new SHSInteraction("div[class*=impressumgobutton]").withClickAssign("/felix/shs/impressum/")
-new SHSInteraction("div[class*=datenschutzgobutton]").withClickAssign("/felix/shs/datenschutz/")
+const zumloginbutton = new DivField("div[class*='zumloginbutton']")
+.withClickEventListener(() => window.location.assign("/felix/shs/anmelden/"))
+
+const impressumgobutton = new DivField("div[class*='impressumgobutton']")
+.withClickEventListener(() => window.location.assign("/felix/shs/impressum/"))
+
+const datenschutzgobutton = new DivField("div[class*='datenschutzgobutton']")
+.withClickEventListener(() => window.location.assign("/felix/shs/datenschutz/"))
