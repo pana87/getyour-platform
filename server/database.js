@@ -32,15 +32,16 @@ app.post("/request/register/operator/", Request.verifyId, async (req, res) => {
 })
 
 app.post("/request/register/id/", async (req, res) => {
-  const {id} = req.body
-  if (id !== undefined) {
-    const storeIdRx = await User.registerId(id)
+  try {
+    const storeIdRx = await User.registerId(req.body)
     if (storeIdRx.status === 200) {
       return res.send({
         status: 200,
         message: "REGISTER_ID_REQUEST_SUCCEED",
       })
     }
+  } catch (error) {
+    console.error(error)
   }
   return res.send({
     status: 500,
@@ -78,20 +79,20 @@ app.post("/request/register/id/", async (req, res) => {
 //   })
 // })
 
-app.post("/request/store/password/", async (req, res) => {
-  const { id, password } = req.body
-  if (id !== undefined && password !== undefined) {
-    await User.storePassword({id, password})
-    return res.send({
-      status: 200,
-      message: "STORE_PASSWORD_REQUEST_SUCCEED",
-    })
-  }
-  return res.send({
-    status: 500,
-    message: "STORE_PASSWORD_REQUEST_FAILED",
-  })
-})
+// app.post("/request/store/password/", async (req, res) => {
+//   const { id, password } = req.body
+//   if (id !== undefined && password !== undefined) {
+//     await User.storePassword({id, password})
+//     return res.send({
+//       status: 200,
+//       message: "STORE_PASSWORD_REQUEST_SUCCEED",
+//     })
+//   }
+//   return res.send({
+//     status: 500,
+//     message: "STORE_PASSWORD_REQUEST_FAILED",
+//   })
+// })
 
 // app.post("/request/store/role/", async (req, res) => {
 //   const {id, role} = req.body

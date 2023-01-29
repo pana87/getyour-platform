@@ -43,8 +43,20 @@ const ANIMA_BOILERPLATE_REGEX_3 = /<link rel="shortcut icon" type="image\/png" h
 const AUTH_LOCATION_REGEX = /window\.__AUTH_LOCATION__=".+"/g
 const DB_LOCATION_REGEX = /window\.__DB_LOCATION__=".+"/g
 
+const FAVICON_REGEX = /<link rel="favicon".+/g
+const UPDATE_FAVICON_REGEX = /<link rel=".+" type=".+" href=".+"/g
+
 
 module.exports.HtmlParser = class {
+
+
+  // #updateFavicon(html) {
+  //   this.html = html.replace(UPDATE_FAVICON_REGEX, `<link rel="shortcut icon" type="image/png" href="${clientLocation.origin}/img/favicon.png"`)
+  // }
+
+  // #setFavicon(html) {
+  //   this.html = html.replace(FAVICON_REGEX, `<link rel="shortcut icon" type="image/png" href="${clientLocation.origin}/img/favicon.png">`)
+  // }
 
   #setDatabaseLocation(html) {
     this.html = html.replace(DB_LOCATION_REGEX, `window.__DB_LOCATION__="${databaseLocation.origin}"`)
@@ -61,7 +73,7 @@ module.exports.HtmlParser = class {
   }
 
   #setIndexScript(html) {
-    if (!html.includes(searchStrings[0])) {
+    if (!html.includes(`<script type="module"`)) {
       this.html = html.replace(BODY_REGEX, INDEX_SCRIPT)
     }
   }
@@ -84,12 +96,18 @@ module.exports.HtmlParser = class {
     }
   }
 
+
   #parseHtml(file) {
     if (fs.existsSync(file)) {
       this.html = fs.readFileSync(file).toString()
 
       this.#setIndexScript(this.html)
       this.#setExpose(this.html)
+      // this.#setFavicon(this.html)
+
+      // this.#updateFavicon(this.html)
+
+
       this.#setAnimaBoilerplate1(this.html)
       this.#setAnimaBoilerplate2(this.html)
       this.#setAnimaBoilerplate3(this.html)

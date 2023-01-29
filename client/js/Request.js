@@ -4,12 +4,56 @@ import { Helper } from "./Helper.js"
 const NOT_VALID_AUTHENTICATOR = "Der Authenticator auf deinem Gerentspricht nicht den Sicherheitsstandards."
 const REGISTRATION_ABORTED_DUE_TO_SECURITY_ISSUES = "Aus Sicherheitsgründen musste die Registrierung abgebrochen werden. Bitte kontaktiere den Support unter: 'datenschutz@get-your.de'"
 const AUTHENTICATION_ABORTED_DUE_TO_SECURITY_ISSUES = "Aus Sicherheitsgründen musste die Anmeldung abgebrochen werden. Bitte kontaktiere den Support unter: 'datenschutz@get-your.de'"
-// import {Compressor} from "compressorjs"
-
-
 
 
 export class Request {
+
+  static userView() {
+    const id = this.userId()
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${window.__AUTH_LOCATION__}/request/user/view/`)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.overrideMimeType("text/html")
+      xhr.withCredentials = true // FOR COOKIES
+      xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        console.info(response)
+        if (response.status === 200) window.location.assign(response.view)
+        return resolve({
+          status: response.status,
+          message: response.message,
+        })
+      }
+      xhr.send(JSON.stringify({ id }))
+    })
+  }
+
+  static async withVerifiedEmail(address, callback) {
+    try {
+      const sendEmailWithPinRx = await this.sendEmailWithPin(address)
+      if (sendEmailWithPinRx.status === 200) {
+        const verifyPinRx = await this.verifyPin(address)
+        if (verifyPinRx.status === 200) {
+          await this.registerId(address)
+          const verifyIdRx = await this.verifyId(address)
+          if (verifyIdRx.status === 200) {
+            const getIdRx = await this.getId(address)
+            if (getIdRx.status === 200) {
+              callback()
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error(error)
+    }
+    return {
+      status: 500,
+      message: "VERIFY_EMAIL_FAILED"
+    }
+  }
 
   static registerId(id) {
     return new Promise((resolve, reject) => {
@@ -30,6 +74,26 @@ export class Request {
     })
   }
 
+  static getId(id) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", `${window.__AUTH_LOCATION__}/request/get/id/`)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.overrideMimeType("text/html")
+      xhr.onload = () => {
+        const response = JSON.parse(xhr.response)
+        console.info(response)
+        if (response.status === 200) window.localStorage.setItem("id", response.id)
+        return resolve({
+          status: response.status,
+          message: response.message,
+        })
+      }
+      xhr.send(JSON.stringify({ id }))
+    })
+  }
+
   static verifyId(id) {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
@@ -40,7 +104,6 @@ export class Request {
       xhr.onload = () => {
         const response = JSON.parse(xhr.response)
         console.info(response)
-        if (response.status === 200) window.localStorage.setItem("id", response.id)
         return resolve({
           status: response.status,
           message: response.message,
@@ -70,7 +133,7 @@ export class Request {
   }
 
   static async registerOperator(operator) {
-    const id = Request.userId()
+    const id = this.userId()
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
       xhr.open("POST", `${window.__DB_LOCATION__}/request/register/operator/`)
@@ -131,7 +194,7 @@ export class Request {
   // }
 
   static async sessionToken() {
-    const id = Request.userId()
+    const id = this.userId()
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
       xhr.open("POST", `${window.__AUTH_LOCATION__}/request/session/token/`)
@@ -291,7 +354,7 @@ export class Request {
   // }
 
   static verifyPin(email) {
-    const pin = prompt(`Es wurde eine PIN an die E-Mail: '${email}' gesendet.\n\nBestätige deine PIN.`)
+    const pin = prompt(`Es wurde eine PIN an die E-Mail: '${email}' gesendet.\n\nBestätige deine PIN um fortzufahren.`)
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
       xhr.open("POST", `${window.__AUTH_LOCATION__}/request/verify/pin/`)
