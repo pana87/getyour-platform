@@ -1,7 +1,7 @@
 import { DivField } from "../../js/DivField.js"
 
 const zumloginbutton = new DivField("div[class*='zumloginbutton']")
-.withClickEventListener(() => window.location.assign("/felix/shs/anmelden/"))
+.withClickEventListener(() => window.location.assign("/home/"))
 
 const angeboterstellenbutton = new DivField("div[class*='angeboterstellenbutton']")
 .withClickEventListener(() => window.location.assign("/felix/shs/funnel/qualifizierung/"))

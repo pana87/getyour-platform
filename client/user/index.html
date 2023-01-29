@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" type="image/png" href="http://localhost:10002/img/favicon.png">
+        <title>Mein Profil</title>
+      </head>
+      <body>
+
+        <h1 class="title"></h1>
+        <h2 class="sub-title"></h2>
+
+        <div class="platform-list"></div>
+
+
+  <script type="module">
+    import { DivField } from "./../js/DivField.js"
+
+    const platformList = new DivField("div[class*='platform-list']")
+    console.log(platformList);
+  </script>
+
+  <script id="__EXPOSE__">
+    window.__AUTH_LOCATION__="http://localhost:10003"
+    window.__DB_LOCATION__="http://localhost:10001"
+    document.getElementById("__EXPOSE__").remove()
+  </script>
+</body>
+
+</html>

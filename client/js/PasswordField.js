@@ -121,7 +121,7 @@ export class PasswordField {
 
   #isValid(input) {
     return input.checkValidity() &&
-      input.value.length >= input.minlength
+      input.value.length >= input.minLength
   }
 
   #isRequired(input) {

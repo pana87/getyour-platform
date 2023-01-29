@@ -1,0 +1,463 @@
+.full-project .pfad-3908-DHh6RZ {
+  background-color: transparent;
+  bottom: 0px;
+  height: 128px;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+
+.full-project .nutzervereinbarungbutton-KNDObk {
+  height: 17px;
+  left: 0px;
+  line-height: 17px;
+  overflow: hidden;
+  text-align: center;
+  top: 0px;
+  width: calc(100.00% - 307px);
+}
+
+.full-project .impressumgobutton-ScmtHM {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% + 1px);
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  pointer-events: auto;
+  position: absolute;
+  text-align: left;
+  top: -1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 87px;
+}
+
+.full-project .impressumgobutton-ScmtHM:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .nutzervereinbarungbutton-P6a2mk {
+  height: 16px;
+  line-height: 15px;
+  right: -2px;
+  text-align: center;
+  top: 0px;
+  width: 170px;
+}
+
+.full-project .nutzervereinbarungbutton-IcORsW {
+  height: 25px;
+  left: 0px;
+  line-height: 30px;
+  text-align: center;
+  top: -4px;
+  width: calc(100.00% - 490px);
+}
+
+.full-project .impressumgobutton-KNDObk {
+  background-color: transparent;
+  cursor: pointer;
+  height: 18px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(18.62% - 18px);
+  text-align: left;
+  top: 0px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 99px;
+}
+
+.full-project .impressumgobutton-KNDObk:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .datenschutzgobutton-ScmtHM {
+  background-color: transparent;
+  cursor: pointer;
+  height: calc(100.00% + 1px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  top: -1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 105px;
+}
+
+.full-project .datenschutzgobutton-ScmtHM:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .impressumgobutton-P6a2mk {
+  background-color: transparent;
+  bottom: 0px;
+  height: 16px;
+  left: 0px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+  width: 87px;
+}
+
+.full-project .full-projectgobutton-IcORsW {
+  background-color: transparent;
+  cursor: pointer;
+  height: 25px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  pointer-events: auto;
+  position: absolute;
+  right: calc(18.56% - 26px);
+  text-align: left;
+  top: -4px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 142px;
+}
+
+.full-project .full-projectgobutton-IcORsW:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .datenschutzgobutton-KNDObk {
+  background-color: transparent;
+  cursor: pointer;
+  height: 18px;
+  letter-spacing: 0.00px;
+  line-height: 18px;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  top: 1px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.full-project .datenschutzgobutton-KNDObk:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .x-ScmtHM {
+  background-color: transparent;
+  display: block;
+  height: calc(100.00% + 1px);
+  left: calc(46.70% - 5px);
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  text-align: left;
+  top: 0px;
+  white-space: nowrap;
+  width: 10px;
+}
+
+.full-project .x-ScmtHM.bp1-animate-enter {
+  animation: bp1-animate-enter-frames 1.00s ease 0.30s 1 normal forwards;
+  display: block;
+  opacity: 0;
+}
+
+@keyframes bp1-animate-enter-frames {
+  from{opacity: 0;
+}
+to{opacity: 1;
+}
+}
+
+.full-project .datenschutzgobutton-P6a2mk {
+  background-color: transparent;
+  bottom: -1px;
+  height: 16px;
+  letter-spacing: 0.00px;
+  line-height: 16px;
+  position: absolute;
+  right: 0px;
+  text-align: left;
+  white-space: nowrap;
+  width: 105px;
+}
+
+.full-project .datenschutzgobutton-IcORsW {
+  background-color: transparent;
+  cursor: pointer;
+  height: 25px;
+  letter-spacing: 0.00px;
+  line-height: 30px;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  text-align: left;
+  top: -2px;
+  transition: all 1.5s ease-out;
+  white-space: nowrap;
+  width: 172px;
+}
+
+.full-project .datenschutzgobutton-IcORsW:hover {
+  filter: grayscale(100%);
+}
+
+.full-project .nutzervereinbarungbutton-DHh6RZ {
+  bottom: 67px;
+  height: 16px;
+  line-height: 15px;
+  right: 16px;
+  text-align: left;
+  width: 171px;
+}
+
+.full-project {
+  background-color: var(--log-cabin);
+  height: 100vh;
+  margin: 0px;
+  overflow: hidden;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.full-project .inhaltlich-verantwor-KqxCzi {
+  background-color: transparent;
+  font-family: var(--font-family-helvetica-regular);
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0.00px;
+  position: absolute;
+  text-align: left;
+}
+
+.full-project .impressum-KqxCzi {
+  background-color: transparent;
+  font-size: var(--font-size-m);
+  font-style: normal;
+  height: 25px;
+  letter-spacing: 0.00px;
+  position: absolute;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.full-project .gruppe-5-KqxCzi {
+  background-color: transparent;
+  height: 85px;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .rechteck-8-4Otmiw {
+  background-color: var(--black);
+  box-shadow: 0px 3px 6px #00000029;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .logo-final-4Otmiw {
+  background-color: transparent;
+  bottom: calc(46.78% - 29px);
+  height: 63px;
+  left: 21px;
+  position: absolute;
+  width: 61px;
+}
+
+.full-project .gruppe-1454-KqxCzi {
+  background-color: transparent;
+  position: absolute;
+}
+
+.full-project .logo {
+  background-color: transparent;
+  height: 100%;
+  left: 0px;
+  object-fit: cover;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
+.full-project .nutzervereinbarungbutton {
+  background-color: transparent;
+  letter-spacing: 0.00px;
+  position: absolute;
+  white-space: nowrap;
+}
+
+.full-project .rechteck-22 {
+  background-color: var(--falu-red);
+  bottom: 0px;
+  height: 128px;
+  left: 0px;
+  position: absolute;
+  width: 100%;
+}
+
+@media screen and (min-width: 1200px) and (max-width: 1919px) {
+  .full-project {
+    min-height: 2160px;
+    min-width: 1200px;
+  }
+  
+  .full-project .inhaltlich-verantwor-KqxCzi {
+    color: var(--silver-sand);
+    font-size: var(--font-size-s);
+    height: 1705px;
+    left: 59px;
+    line-height: 26px;
+    overflow: hidden;
+    top: 308px;
+    width: calc(100.00% - 170px);
+  }
+  
+  .full-project .impressum-KqxCzi {
+    color: var(--silver-sand);
+    font-family: var(--font-family-helvetica-regular);
+    font-weight: 400;
+    left: 59px;
+    line-height: 30px;
+    top: 204px;
+    width: 211px;
+  }
+  
+  .full-project .gruppe-1454-KqxCzi {
+    bottom: 1.40%;
+    height: 18px;
+    right: calc(46.51% - 438px);
+    width: 942px;
+  }
+  
+  .hide-on-1200 {
+    display: none !important;
+  }
+}
+
+@media screen and (max-width: 766px) {
+  .full-project {
+    min-height: 2483px;
+    min-width: 375px;
+  }
+  
+  .full-project .inhaltlich-verantwor-KqxCzi {
+    color: var(--silver-sand);
+    font-size: var(--font-size-xxxs);
+    height: 2097px;
+    left: 36px;
+    line-height: 20px;
+    top: 232px;
+    width: calc(100.00% - 70px);
+  }
+  
+  .full-project .impressum-KqxCzi {
+    color: var(--silver-sand);
+    font-family: var(--font-family-helvetica-regular);
+    font-weight: 400;
+    left: 36px;
+    line-height: 30px;
+    top: 156px;
+    width: 211px;
+  }
+  
+  .full-project .gruppe-1454-KqxCzi {
+    bottom: 1.07%;
+    height: 15px;
+    right: calc(11.99% - 27px);
+    width: 225px;
+  }
+  
+  .hide-on-375 {
+    display: none !important;
+  }
+}
+
+@media screen and (min-width: 767px) and (max-width: 1199px) {
+  .full-project {
+    min-height: 2327px;
+    min-width: 767px;
+  }
+  
+  .full-project .inhaltlich-verantwor-KqxCzi {
+    color: var(--silver-sand);
+    font-size: var(--font-size-xs);
+    height: 1881px;
+    left: 63px;
+    line-height: 24px;
+    top: 308px;
+    width: calc(100.00% - 147px);
+  }
+  
+  .full-project .impressum-KqxCzi {
+    color: var(--silver-sand);
+    font-family: var(--font-family-helvetica-bold);
+    font-weight: 700;
+    left: 63px;
+    line-height: 30px;
+    top: 204px;
+    width: 211px;
+  }
+  
+  .full-project .gruppe-1454-KqxCzi {
+    bottom: 0.60%;
+    height: 59px;
+    right: calc(2.54% - 6px);
+    width: 225px;
+  }
+  
+  .hide-on-767 {
+    display: none !important;
+  }
+}
+
+@media screen and (min-width: 1920px) {
+  .full-project {
+    min-height: 2120px;
+    min-width: 1920px;
+  }
+  
+  .full-project .inhaltlich-verantwor-KqxCzi {
+    color: #b8b8b8;
+    font-size: var(--font-size-m);
+    height: 1629px;
+    left: 171px;
+    line-height: 28px;
+    top: 288px;
+    width: calc(100.00% - 311px);
+  }
+  
+  .full-project .impressum-KqxCzi {
+    color: #b8b8b8;
+    font-family: var(--font-family-helvetica-bold);
+    font-weight: 700;
+    left: 171px;
+    line-height: 28px;
+    top: 144px;
+    width: 191px;
+  }
+  
+  .full-project .gruppe-1454-KqxCzi {
+    bottom: calc(2.24% - 1px);
+    height: 24px;
+    right: calc(46.94% - 686px);
+    width: 1462px;
+  }
+  
+  .hide-on-1920 {
+    display: none !important;
+  }
+}

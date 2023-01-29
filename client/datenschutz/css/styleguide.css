@@ -1,0 +1,47 @@
+:root { 
+  --black: #040404;
+  --falu-red: #781717;
+  --log-cabin: #212020;
+  --silver-sand: #c2c2c2;
+  --woodsmoke: #0d0d0c;
+ 
+  --font-size-m: 23px;
+  --font-size-s: 20px;
+  --font-size-xs: 18px;
+  --font-size-xxs: 16px;
+  --font-size-xxxs: 15px;
+  --font-size-xxxxs: 14px;
+ 
+  --font-family-helvetica-bold: "Helvetica-Bold", Helvetica;
+  --font-family-helvetica-regular: "Helvetica-Regular", Helvetica;
+}
+.helvetica-regular-normal-woodsmoke-14px {
+  color: var(--woodsmoke);
+  font-family: var(--font-family-helvetica-regular);
+  font-size: var(--font-size-xxxxs);
+  font-style: normal;
+  font-weight: 400;
+}
+
+:root {
+}
+
+@media screen and (min-width: 1920px) {
+  .helvetica-regular-normal-woodsmoke-23px {
+    color: var(--woodsmoke);
+    font-family: var(--font-family-helvetica-regular);
+    font-size: var(--font-size-m);
+    font-style: normal;
+    font-weight: 400;
+  }
+}
+
+@media screen and (min-width: 1200px) and (max-width: 1919px) {
+  .helvetica-regular-normal-woodsmoke-16px {
+    color: var(--woodsmoke);
+    font-family: var(--font-family-helvetica-regular);
+    font-size: var(--font-size-xxs);
+    font-style: normal;
+    font-weight: 400;
+  }
+}
