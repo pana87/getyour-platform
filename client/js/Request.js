@@ -3,8 +3,6 @@ import { EndPoints } from "./EndPoints.js"
 import { Helper } from "./Helper.js"
 const NOT_VALID_AUTHENTICATOR = "Der Authenticator auf deinem Gerentspricht nicht den Sicherheitsstandards."
 const REGISTRATION_ABORTED_DUE_TO_SECURITY_ISSUES = "Aus Sicherheitsgründen musste die Registrierung abgebrochen werden. Bitte kontaktiere den Support unter: 'datenschutz@get-your.de'"
-const AUTHENTICATION_ABORTED_DUE_TO_SECURITY_ISSUES = "Aus Sicherheitsgründen musste die Anmeldung abgebrochen werden. Bitte kontaktiere den Support unter: 'datenschutz@get-your.de'"
-
 
 export class Request {
 
@@ -152,47 +150,6 @@ export class Request {
     })
   }
 
-  // static async verifyId() {
-  //   const id = await Request.userEmail()
-  //   return new Promise((resolve, reject) => {
-  //     const xhr = new XMLHttpRequest()
-  //     xhr.open("POST", `${window.__AUTH_LOCATION__}/request/verify/id/`)
-  //     xhr.setRequestHeader("Accept", "application/json")
-  //     xhr.setRequestHeader("Content-Type", "application/json")
-  //     xhr.overrideMimeType("text/html")
-  //     xhr.onload = () => {
-  //       const response = JSON.parse(xhr.response)
-  //       if (response.status === 200) {
-  //         console.info(response.message)
-  //         return resolve()
-  //       }
-  //       console.error(response.message)
-  //       document.body.remove()
-  //     }
-  //     xhr.send(JSON.stringify({ id, digest }))
-  //   })
-  // }
-
-  // static async storeDigest(digest) {
-  //   const id = await Request.userId()
-  //   return new Promise((resolve, reject) => {
-  //     const xhr = new XMLHttpRequest()
-  //     xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/digest/`)
-  //     xhr.setRequestHeader("Accept", "application/json")
-  //     xhr.setRequestHeader("Content-Type", "application/json")
-  //     xhr.overrideMimeType("text/html")
-  //     xhr.onload = () => {
-  //       const response = JSON.parse(xhr.response)
-  //       if (response.status === 200) {
-  //         console.info(response.message)
-  //         return resolve()
-  //       }
-  //       console.error(response.message)
-  //     }
-  //     xhr.send(JSON.stringify({ id, digest }))
-  //   })
-  // }
-
   static async sessionToken() {
     const id = this.userId()
     return new Promise((resolve, reject) => {
@@ -214,74 +171,6 @@ export class Request {
     })
   }
 
-  // static async storeUser(object) {
-  //   const id = await Request.userEmail()
-  //   return new Promise((resolve, reject) => {
-  //     const xhr = new XMLHttpRequest()
-  //     xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/user/`)
-  //     xhr.setRequestHeader("Accept", "application/json")
-  //     xhr.setRequestHeader("Content-Type", "application/json")
-  //     xhr.overrideMimeType("text/html")
-  //     xhr.onload = () => {
-  //       const response = JSON.parse(xhr.response)
-  //       if (response.status === 200) {
-  //         console.info("User stored..")
-  //         return resolve()
-  //       }
-  //       console.error(response.message)
-  //     }
-  //     xhr.send(JSON.stringify({ id, object }))
-  //   })
-  // }
-
-  // static userDigest() {
-  //   return new Promise((resolve, reject) => {
-  //     const digest = window.sessionStorage.getItem("digest")
-  //     if (digest !== null) return resolve(digest)
-  //     console.error("NO_DIGEST_FOUND")
-  //     window.location.assign("/zugang/")
-  //   })
-  // }
-
-  // static async storePassword(password) {
-  //   const id = await Request.userId()
-  //   return new Promise((resolve, reject) => {
-  //     const xhr = new XMLHttpRequest()
-  //     xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/password/`)
-  //     xhr.setRequestHeader("Accept", "application/json")
-  //     xhr.setRequestHeader("Content-Type", "application/json")
-  //     xhr.overrideMimeType("text/html")
-  //     xhr.onload = () => {
-  //       const response = JSON.parse(xhr.response)
-  //       if (response.status === 200) {
-  //         console.info(response.message)
-  //         return resolve()
-  //       }
-  //       console.error(response.message)
-  //     }
-  //     xhr.send(JSON.stringify({ id, password }))
-  //   })
-  // }
-
-  // static async storeName(name) {
-  //   const id = await Request.userId()
-  //   return new Promise((resolve, reject) => {
-  //     const xhr = new XMLHttpRequest()
-  //     xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/name/`)
-  //     xhr.setRequestHeader("Accept", "application/json")
-  //     xhr.setRequestHeader("Content-Type", "application/json")
-  //     xhr.overrideMimeType("text/html")
-  //     xhr.onload = () => {
-  //       const response = JSON.parse(xhr.response)
-  //       if (response.status === 200) {
-  //         console.info(response.message)
-  //         return resolve()
-  //       }
-  //       console.error(response.message)
-  //     }
-  //     xhr.send(JSON.stringify({ id, name }))
-  //   })
-  // }
   static userId() {
     try {
       const id = window.localStorage.getItem("id")
@@ -291,67 +180,6 @@ export class Request {
     }
     return undefined
   }
-
-
-
-  // static userId() {
-  //   return new Promise((resolve, reject) => {
-  //     const id = window.localStorage.getItem("id")
-  //     if (id !== null) return resolve(id)
-  //     console.error("ID_NOT_FOUND -> REQUEST_SESSION")
-  //     window.location.assign("/plattform/zugang/")
-  //   })
-  // }
-
-  // static userEmail() {
-  //   return new Promise((resolve, reject) => {
-  //     const email = window.sessionStorage.getItem("email")
-  //     if (email !== null) return resolve(email)
-  //     console.error("NO_EMAIL_FOUND")
-  //     window.location.assign("/plattform/zugang/")
-  //   })
-  // }
-
-  // static async storeRole(role) {
-  //   const id = await Request.userId()
-  //   return new Promise((resolve, reject) => {
-  //     const xhr = new XMLHttpRequest()
-  //     xhr.open("POST", `${window.__DATABASE_LOCATION__}/request/store/role/`)
-  //     xhr.setRequestHeader("Accept", "application/json")
-  //     xhr.setRequestHeader("Content-Type", "application/json")
-  //     xhr.overrideMimeType("text/html")
-  //     xhr.onload = () => {
-  //       const response = JSON.parse(xhr.response)
-  //       if (response.status === 200) {
-  //         console.info(response.message)
-  //         return resolve()
-  //       }
-  //       console.error(response.message)
-  //     }
-  //     xhr.send(JSON.stringify({ id, role }))
-  //   })
-  // }
-
-  // static storeId(id) {
-  //   return new Promise((resolve, reject) => {
-  //     const xhr = new XMLHttpRequest()
-  //     xhr.open("POST", `${window.__AUTH_LOCATION__}/request/store/id/`)
-  //     xhr.setRequestHeader("Accept", "application/json")
-  //     xhr.setRequestHeader("Content-Type", "application/json")
-  //     xhr.overrideMimeType("text/html")
-  //     xhr.onload = () => {
-  //       const response = JSON.parse(xhr.response)
-  //       if (response.status === 200) {
-  //         console.info(response.message)
-  //         const {id} = response
-  //         window.localStorage.setItem("id", id)
-  //         return resolve()
-  //       }
-  //       console.error(response.message)
-  //     }
-  //     xhr.send(JSON.stringify({ id }))
-  //   })
-  // }
 
   static verifyPin(email) {
     const pin = prompt(`Es wurde eine PIN an die E-Mail: '${email}' gesendet.\n\nBestätige deine PIN um fortzufahren.`)
@@ -372,28 +200,6 @@ export class Request {
       xhr.send(JSON.stringify({ id: email, pin }))
     })
   }
-
-  // static verifyEmail(email) {
-  //   return new Promise((resolve, reject) => {
-  //     const xhr = new XMLHttpRequest()
-  //     xhr.open("POST", `${window.__AUTH_LOCATION__}/request/verify/email/`)
-  //     xhr.setRequestHeader("Accept", "application/json")
-  //     xhr.setRequestHeader("Content-Type", "application/json")
-  //     xhr.overrideMimeType("text/html")
-  //     xhr.onload = async () => {
-  //       const response = JSON.parse(xhr.response)
-  //       if (response.status === 200) {
-  //         console.info(response.message)
-  //         const pin = prompt(`Es wurde eine PIN an die E-Mail: '${email}' gesendet.\n\nBestätige deine PIN.`)
-  //         await this.verifyPin({ id: email, pin})
-  //         await this.storeId(email)
-  //         return resolve()
-  //       }
-  //       console.error(response.message)
-  //     }
-  //     xhr.send(JSON.stringify({ email }))
-  //   })
-  // }
 
   static sendFile(file) {
     return new Promise((resolve, reject) => {
@@ -422,7 +228,6 @@ export class Request {
       })
     })
   }
-
 
   static component(pathname) {
     return new Promise((resolve, reject) => {
