@@ -10,7 +10,6 @@ const { User } = require('../lib/domain/User.js')
 const { Request } = require('../lib/Request.js')
 const path = require("node:path")
 
-
 Storage.configureClient()
 new HtmlParser(clientLocation.relativePath)
 new CSSParser()

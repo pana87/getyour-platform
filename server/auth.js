@@ -2,7 +2,6 @@ const express = require('express')
 const cors = require("cors")
 const AuthServer = require('../lib/AuthServer.js')
 const Notification = require('../lib/Notification.js')
-const base64url = require('base64url')
 const app = express()
 const crypto = require("node:crypto")
 const { User } = require('../lib/domain/User.js')
@@ -36,22 +35,20 @@ app.post("/request/user/view/", Request.verifyId, Request.verifySession, async (
     message: "PLATFORM_DEVELOPER_USER_ROLE_MISSING",
     view: "/user/register/platform-developer/",
   })
-
   if (user.email.endsWith("@get-your.de") && req.user.roles[0] === UserRole.PLATFORM_DEVELOPER) return res.send({
     status: 200,
-    message: "PLATFORM_DEVELOPER_VIEW",
+    message: "REDIRECT_TO_PLATFORM_DEVELOPER_VIEW",
     view: `/${user.name}/`,
   })
-
+  if (req.user.roles[0] === UserRole.OPERATOR) return res.send({
+    status: 200,
+    message: "REDIRECT_TO_OPERATOR_VIEW",
+    view: `/felix/shs/checkliste/${req.user.id}`,
+  })
   if (req.user.roles.length === 0) return res.send({
     status: 200,
     message: "USER_ROLE_MISSING",
     view: "/user/entries/",
-  })
-  if (req.user.roles[0] === UserRole.OPERATOR) return res.send({
-    status: 200,
-    message: "USER_ROLE_MISSING",
-    view: `/felix/shs/checkliste/${req.user.id}`,
   })
   return res.send({
     status: 500,
@@ -118,36 +115,6 @@ app.post("/request/session/token/", Request.verifyId, async (req, res) => {
     message: "SESSION_TOKEN_REQUEST_FAILED",
   })
 })
-
-// app.post("/request/store/id/", async (req, res) => {
-//   const {id} = req.body
-//   if (id !== undefined) {
-//     const {user} = await User.find((user) => user.id === Helper.digest(JSON.stringify({email: id, verified: user.verified})))
-//     if (user === undefined) {
-//       const {userId} = await User.storeId(id)
-//       if (userId !== undefined) {
-//         return res.send({
-//           status: 200,
-//           message: "ID_FROM_NEW_USER",
-//           id: userId,
-//         })
-//       }
-//       return res.send({
-//         status: 500,
-//         message: "USER_IS_NOT_VERIFIED",
-//       })
-//     }
-//     return res.send({
-//       status: 200,
-//       message: "ID_FROM_EXISTING_USER",
-//       id: user.id,
-//     })
-//   }
-//   return res.send({
-//     status: 500,
-//     message: "STORE_ID_REQUEST_FAILED",
-//   })
-// })
 
 app.post("/request/get/id/", async (req, res) => {
   const {id} = req.body
