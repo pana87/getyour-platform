@@ -1,5 +1,9 @@
 export class Helper {
 
+  static encodeStringToUri(string) {
+    return encodeURIComponent(string).replace(/%20/g, "-").replace(/u%CC%88/g, "ue").replace(/a%CC%88/g, "ae").replace(/o%CC%88/g, "oe").replace(/%2F/g, "-").replace(/%C3%A4/g, "ae").replace(/%C3%BC/g, "ue").replace(/\(/g, "").replace(/\)/g, "").replace(/%C3%B6/g, "oe").replace(/%C3%96/g, "Oe").replace(/\./g, "-").replace(/%C3%9F/g, "ss").replace(/%3F/g, "").replace(/-$/g, "")
+  }
+
   static async digestUserEmail() {
     const message = JSON.stringify(window.sessionStorage.getItem("email"))
     const digest = await this.digest(message)
