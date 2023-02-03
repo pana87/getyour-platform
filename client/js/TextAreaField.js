@@ -5,8 +5,15 @@ export class TextAreaField {
     return this
   }
 
-  withInput(callback) {
-    document.querySelectorAll(this.inputSelector).forEach(input => callback(input))
+  withType(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => {
+      input.fromSessionStorage = (name) => {
+        const value = JSON.parse(window.sessionStorage.getItem(name))[this.className]
+        if (value !== undefined) input.value = value
+      }
+
+      callback(input)
+    })
     return this
   }
 
@@ -19,23 +26,12 @@ export class TextAreaField {
 
   async withStorage(name) {
     this.storageName = name
-    await this.withValidValue((value) => {
-      if (!this.#isEmpty(value)) {
-        this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
-        this.storage[this.className] = value
-        window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
-      }
-    })
-    return this
-  }
-
-  #setNoStyle(input) {
-    input.removeAttribute("style")
-    return input
-  }
-
-  withNoStyle() {
-    document.querySelectorAll(this.inputSelector).forEach(input => this.#setNoStyle(input))
+    const value = await this.withValidValue()
+    if (!this.#isEmpty(value)) {
+      this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
+      this.storage[this.className] = value
+      window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
+    }
     return this
   }
 
@@ -56,27 +52,24 @@ export class TextAreaField {
   }
 
   #isRequired(input) {
-    if (input.disabled === true) return false
-    if (input.required !== true) return false
-    return true
+    if (input.required !== true) return true
+    return false
   }
 
-  withValidValue(callback) {
+  withValidValue() {
     return new Promise((resolve, reject) => {
       document.querySelectorAll(this.inputSelector).forEach(input => {
         if (this.#isRequired(input)) {
           if (input.checkValidity()) {
             this.#setValidStyle(input)
-            if (callback) callback(input.value)
-            return resolve()
+            return resolve(input.value)
           }
           this.#setNotValidStyle(input)
           console.error(`class='${this.className}' - required valid value`)
           return
         }
         this.#setValidStyle(input)
-        if (callback) callback(input.value)
-        return resolve()
+        return resolve(input.value)
       })
     })
   }

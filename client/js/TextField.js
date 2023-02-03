@@ -5,8 +5,15 @@ export class TextField {
     return this
   }
 
-  withInput(callback) {
-    document.querySelectorAll(this.inputSelector).forEach(input => callback(input))
+  withType(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => {
+      input.fromSessionStorage = (name) => {
+        const value = JSON.parse(window.sessionStorage.getItem(name))[this.className]
+        if (value !== undefined) input.value = value
+      }
+
+      callback(input)
+    })
     return this
   }
 
@@ -19,23 +26,12 @@ export class TextField {
 
   async withStorage(name) {
     this.storageName = name
-    await this.withValidValue((value) => {
-      if (!this.#isEmpty(value)) {
-        this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
-        this.storage[this.className] = value
-        window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
-      }
-    })
-    return this
-  }
-
-  #setNoStyle(input) {
-    input.removeAttribute("style")
-    return input
-  }
-
-  withNoStyle() {
-    document.querySelectorAll(this.inputSelector).forEach(input => this.#setNoStyle(input))
+    const value = await this.withValidValue()
+    if (!this.#isEmpty(value)) {
+      this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
+      this.storage[this.className] = value
+      window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
+    }
     return this
   }
 
@@ -51,65 +47,6 @@ export class TextField {
     return input
   }
 
-  #setMaxLength(input) {
-    input.maxLength = this.maxLength
-    return input
-  }
-
-  withMaxLength(maxLength) {
-    this.maxLength = maxLength
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setMaxLength(input))
-    return this
-  }
-
-  #setMinLength(input) {
-    input.minLength = this.minLength
-    return input
-  }
-
-  withMinLength(minLength) {
-    this.minLength = minLength
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setMinLength(input))
-    return this
-  }
-
-  #setPattern(input) {
-    input.pattern = this.pattern
-    return input
-  }
-
-  withPattern(pattern) {
-    this.pattern = pattern
-    document.querySelectorAll(this.inputSelector).forEach(input => this.#setPattern(input))
-    return this
-  }
-
-  #setRequired(input) {
-    input.required = true
-    return input
-  }
-
-  withRequired() {
-    this.required = true
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setRequired(input))
-    return this
-  }
-
-  #setBackgroundColor(input) {
-    input.style.backgroundColor = this.backgroundColor
-    return input
-  }
-
-  withBackgroundColor(backgroundColor) {
-    this.backgroundColor = backgroundColor
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setBackgroundColor(input))
-    return this
-  }
-
   withUrlValue() {
     const inputs = document.body.querySelectorAll(this.inputSelector)
     inputs.forEach(input => input.value = encodeURIComponent(input.value).replace(/%20/g, "-"))
@@ -121,13 +58,12 @@ export class TextField {
     return false
   }
 
-  withValidValue(callback) {
+  withValidValue() {
     return new Promise((resolve, reject) => {
       document.querySelectorAll(this.inputSelector).forEach(input => {
         if (this.#isRequired(input)) {
           if (input.checkValidity()) {
             this.#setValidStyle(input)
-            if (callback !== undefined) callback(input.value)
             return resolve(input.value)
           }
           this.#setNotValidStyle(input)
@@ -135,7 +71,6 @@ export class TextField {
           return
         }
         this.#setValidStyle(input)
-        if (callback !== undefined) callback(input.value)
         return resolve(input.value)
       })
     })
@@ -143,23 +78,6 @@ export class TextField {
 
   withInputEventListener(callback) {
     if (callback !== undefined) document.body.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("input", (event) => callback(event)))
-    return this
-  }
-
-  #setSync(input) {
-    document.body.querySelectorAll(this.inputSelector).forEach(other => other.value = input.value)
-    return input
-  }
-
-  #setPlaceholder(input) {
-    input.placeholder = this.placeholder
-    return input
-  }
-
-  withPlaceholder(placeholder) {
-    this.placeholder = placeholder
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setPlaceholder(input))
     return this
   }
 

@@ -18,7 +18,7 @@ const pubKeyCredParams = [
   { type: "public-key", alg: -7 },
   { type: "public-key", alg: -257 }
 ]
-const sessionLength = 1 * 60000
+const sessionLength = 120 * 60000
 
 app.use(express.json())
 app.use(cors({

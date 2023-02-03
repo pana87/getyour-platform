@@ -10,19 +10,16 @@ export class CheckboxField {
     return this
   }
 
-  #setRequired(box) {
-    box.required = this.required
-    return box
-  }
-
-  withRequired() {
-    this.required = true
-    document.querySelectorAll(this.checkboxSelector).forEach(box => this.#setRequired(box))
-    return this
-  }
-
-  withCheckbox(callback) {
-    document.querySelectorAll(this.checkboxSelector).forEach(box => callback(box))
+  withType(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.checkboxSelector).forEach(checkbox => {
+      checkbox.fromSessionStorage = (name) => {
+        const value = JSON.parse(window.sessionStorage.getItem(name))[this.className]
+        if (value !== undefined) {
+          checkbox.checked = value
+        }
+      }
+      callback(checkbox)
+    })
     return this
   }
 
@@ -39,9 +36,8 @@ export class CheckboxField {
   }
 
   #isRequired(box) {
-    if (box.disabled === true) return false
-    if (box.required !== true) return false
-    return true
+    if (box.required === true) return true
+    return false
   }
 
   withValidValue(callback) {
@@ -50,34 +46,33 @@ export class CheckboxField {
         if (this.#isRequired(box)) {
           if (box.checked) {
             this.#setValidStyle(box)
-            if (callback) callback(box.checked)
-            return resolve()
+            return resolve(box.checked)
           }
           this.#setNotValidStyle(box)
           console.error(`class='${this.className}' - required valid value`)
           return
         }
         this.#setValidStyle(box)
-        if (callback) callback(box.checked)
-        return resolve()
+        return resolve(box.checked)
       })
     })
   }
 
   #isEmpty(value) {
     return value === undefined ||
-      value === null
+      value === null ||
+      typeof value !== "boolean"
   }
 
   async withStorage(name) {
     this.storageName = name
-    await this.withValidValue((value) => {
-      if (!this.#isEmpty(value)) {
-        this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
-        this.storage[this.className] = value
-        window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
-      }
-    })
+    const value = await this.withValidValue()
+    // console.log(value)
+    if (!this.#isEmpty(value)) {
+      this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
+      this.storage[this.className] = value
+      window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
+    }
     return this
   }
 

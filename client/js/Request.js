@@ -6,26 +6,56 @@ const REGISTRATION_ABORTED_DUE_TO_SECURITY_ISSUES = "Aus Sicherheitsgründen mus
 
 export class Request {
 
-  static userView() {
-    const id = this.userId()
+  // set data
+  static async register({object, pathname, callback}) {
+    const localStorageId = this.localStorageId()
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__AUTH_LOCATION__}/request/user/view/`)
+      xhr.open("POST", `${window.__DB_LOCATION__}${pathname}`)
       xhr.setRequestHeader("Accept", "application/json")
       xhr.setRequestHeader("Content-Type", "application/json")
       xhr.overrideMimeType("text/html")
-      xhr.withCredentials = true // FOR COOKIES
+      xhr.withCredentials = true
       xhr.onload = () => {
-        const response = JSON.parse(xhr.response)
-        console.info(response)
-        if (response.status === 200) window.location.assign(response.view)
-        return resolve({
-          status: response.status,
-          message: response.message,
-        })
+        try {
+          const response = JSON.parse(xhr.response)
+          // callback(response)
+          return resolve({
+            status: response.status,
+            message: response.message,
+          })
+        } catch (error) {
+          console.error(error)
+        }
       }
-      xhr.send(JSON.stringify({ id }))
+      xhr.send(JSON.stringify({localStorageId, object}))
     })
+  }
+
+  static checklistUrlId() {
+    return window.location.pathname.split("/")[4]
+  }
+
+  // get data
+  static database({path}, callback) {
+    const urlId = this.checklistUrlId()
+    const localStorageId = this.localStorageId()
+
+    const xhr = new XMLHttpRequest()
+    xhr.open("POST", `${window.__DB_LOCATION__}${path}`)
+    xhr.setRequestHeader("Accept", "application/json")
+    xhr.setRequestHeader("Content-Type", "application/json")
+    xhr.overrideMimeType("text/html")
+    xhr.withCredentials = true
+    xhr.onload = () => {
+      try {
+        callback(JSON.parse(xhr.response))
+      } catch (error) {
+        console.error(error)
+        window.location.assign("/home/")
+      }
+    }
+    xhr.send(JSON.stringify({ urlId, localStorageId }))
   }
 
   static async withVerifiedEmail(address, callback) {
@@ -131,7 +161,7 @@ export class Request {
   }
 
   static async registerOperator(operator) {
-    const id = this.userId()
+    const id = this.localStorageId()
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
       xhr.open("POST", `${window.__DB_LOCATION__}/request/register/operator/`)
@@ -139,12 +169,16 @@ export class Request {
       xhr.setRequestHeader("Content-Type", "application/json")
       xhr.overrideMimeType("text/html")
       xhr.onload = () => {
-        const response = JSON.parse(xhr.response)
-        console.info(response)
-        return resolve({
-          status: response.status,
-          message: response.message,
-        })
+        console.log(xhr);
+        try {
+          const response = JSON.parse(xhr.response)
+          return resolve({
+            status: response.status,
+            message: response.message,
+          })
+        } catch (error) {
+          console.error(error)
+        }
       }
       xhr.send(JSON.stringify({id, operator}))
     })
@@ -169,6 +203,16 @@ export class Request {
       }
       xhr.send(JSON.stringify({id}))
     })
+  }
+
+  static localStorageId() {
+    try {
+      const id = window.localStorage.getItem("id")
+      if (id !== null) return id
+    } catch (error) {
+      console.error(error)
+    }
+    return undefined
   }
 
   static userId() {

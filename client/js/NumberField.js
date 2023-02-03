@@ -5,8 +5,14 @@ export class NumberField {
     return this
   }
 
-  withInput(callback) {
-    document.querySelectorAll(this.inputSelector).forEach(input => callback(input))
+  withType(callback) {
+    document.querySelectorAll(this.inputSelector).forEach(input => {
+      input.fromSessionStorage = (name) => {
+        const value = JSON.parse(window.sessionStorage.getItem(name))[this.className]
+        if (value !== undefined) input.value = value
+      }
+      callback(input)
+    })
     return this
   }
 
@@ -19,13 +25,12 @@ export class NumberField {
 
   async withStorage(name) {
     this.storageName = name
-    await this.withValidValue((value) => {
-      if (!this.#isEmpty(value)) {
-        this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
-        this.storage[this.className] = value
-        window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
-      }
-    })
+    const value = await this.withValidValue()
+    if (!this.#isEmpty(value)) {
+      this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
+      this.storage[this.className] = value
+      window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
+    }
     return this
   }
 
@@ -51,40 +56,25 @@ export class NumberField {
     return input
   }
 
-  #setRequired(input) {
-    input.required = true
-    return input
-  }
-
-  withRequired() {
-    this.required = true
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setRequired(input))
-    return this
-  }
-
   #isRequired(input) {
-    if (input.disabled === true) return false
-    if (input.required !== true) return false
-    return true
+    if (input.required === true) return true
+    return false
   }
 
-  withValidValue(callback) {
+  withValidValue() {
     return new Promise((resolve, reject) => {
       document.querySelectorAll(this.inputSelector).forEach(input => {
         if (this.#isRequired(input)) {
           if (input.checkValidity()) {
             this.#setValidStyle(input)
-            if (callback) callback(input.value)
-            return resolve()
+            return resolve(input.value)
           }
           this.#setNotValidStyle(input)
           console.error(`class='${this.className}' - required valid value`)
           return
         }
         this.#setValidStyle(input)
-        if (callback) callback(input.value)
-        return resolve()
+        return resolve(input.value)
       })
     })
   }
@@ -94,51 +84,10 @@ export class NumberField {
     return this
   }
 
-  #setSync(input) {
-    document.body.querySelectorAll(this.inputSelector).forEach(other => other.value = input.value)
-    return input
-  }
-
-  #setMax(input) {
-    input.max = this.max
-    return input
-  }
-
-  withMax(max) {
-    this.max = max
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setMax(input))
-    return this
-  }
-
-  #setMin(input) {
-    input.min = this.min
-    return input
-  }
-
-  withMin(min) {
-    this.min = min
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setMin(input))
-    return this
-  }
-
-  #setPlaceholder(input) {
-    input.placeholder = this.placeholder
-    return input
-  }
-
-  withPlaceholder(placeholder) {
-    this.placeholder = placeholder
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setPlaceholder(input))
-    return this
-  }
-
   constructor(fieldSelector) {
     this.fieldSelector = fieldSelector
     this.className = this.fieldSelector.split("'")[1]
-    this.inputSelector = `input[name='${this.className}']`
+    this.inputSelector = `input[id='${this.className}']`
 
     const divs = document.querySelectorAll(this.fieldSelector)
     if (divs.length > 0) {
@@ -154,6 +103,6 @@ export class NumberField {
       })
       return
     }
-    console.error("FIELD_NOT_FOUND")
+    console.warn(`class='${this.className}' - field not found`)
   }
 }

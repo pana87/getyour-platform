@@ -1,0 +1,782 @@
+body {
+  margin: 0;
+  line-height: normal;
+}
+.fafsdsfasd {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 0 var(--br-lg) 0 0;
+  background-color: var(--color-lightgray-200);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+}
+.fkdsa {
+  position: absolute;
+  top: calc(50% - 11.5px);
+  left: 162.55px;
+  font-weight: 500;
+}
+.gruppe-2062 {
+  position: absolute;
+  height: 1.36%;
+  width: 92%;
+  top: 86.88%;
+  right: 2.5%;
+  bottom: 11.76%;
+  left: 5.5%;
+  font-size: var(--font-size-base);
+}
+.logo-icon {
+  position: absolute;
+  height: calc(100% - 23px);
+  top: 11px;
+  bottom: 12px;
+  left: 44px;
+  max-height: 100%;
+  width: 101px;
+  object-fit: cover;
+}
+.gruppe-5 {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  right: 0;
+  left: 0;
+  background-color: var(--color-white);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  height: 85px;
+}
+.essentielles-zum-anlagenaufbau {
+  position: absolute;
+  top: calc(50% - 3922px);
+  left: 2.96%;
+  font-size: var(--font-size-11xl);
+  line-height: 37px;
+  font-weight: 500;
+  color: var(--color-gray-100);
+  -webkit-text-stroke: 1px #161616;
+  opacity: 0.86;
+}
+.gruppe-1985 {
+  position: absolute;
+  height: 1.36%;
+  width: 92%;
+  top: 6.68%;
+  right: 2.5%;
+  bottom: 91.96%;
+  left: 5.5%;
+  font-size: var(--font-size-base);
+}
+.sadfasdf {
+  position: absolute;
+  top: calc(50% - 27.34px);
+  left: 133.55px;
+  font-weight: 500;
+}
+.fdsfsadaf {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.gruppe-1990,
+.gruppe-1994,
+.gruppe-2033,
+.gruppe-2036,
+.gruppe-2065 {
+  position: absolute;
+  height: 1.36%;
+  width: 92%;
+  top: 12.41%;
+  right: 2.5%;
+  bottom: 86.23%;
+  left: 5.5%;
+  font-size: var(--font-size-base);
+}
+.gruppe-1994,
+.gruppe-2033,
+.gruppe-2036,
+.gruppe-2065 {
+  top: 18.14%;
+  bottom: 80.5%;
+}
+.gruppe-2033,
+.gruppe-2036,
+.gruppe-2065 {
+  top: 29.59%;
+  bottom: 69.04%;
+}
+.gruppe-2036,
+.gruppe-2065 {
+  top: 23.87%;
+  bottom: 74.77%;
+}
+.gruppe-2036 {
+  top: 35.32%;
+  bottom: 63.32%;
+}
+.gruppe-2039,
+.gruppe-2042,
+.gruppe-2045,
+.gruppe-2048,
+.gruppe-2051,
+.gruppe-2053,
+.gruppe-2056,
+.gruppe-2059 {
+  position: absolute;
+  height: 1.36%;
+  width: 92%;
+  top: 46.78%;
+  right: 2.5%;
+  bottom: 51.86%;
+  left: 5.5%;
+  font-size: var(--font-size-base);
+}
+.gruppe-2039,
+.gruppe-2045,
+.gruppe-2048,
+.gruppe-2051,
+.gruppe-2053,
+.gruppe-2056,
+.gruppe-2059 {
+  top: 63.97%;
+  bottom: 34.67%;
+}
+.gruppe-2039,
+.gruppe-2045,
+.gruppe-2048,
+.gruppe-2053,
+.gruppe-2056,
+.gruppe-2059 {
+  top: 81.15%;
+  bottom: 17.49%;
+}
+.gruppe-2039,
+.gruppe-2045,
+.gruppe-2048,
+.gruppe-2053,
+.gruppe-2056 {
+  top: 52.51%;
+  bottom: 46.13%;
+}
+.gruppe-2039,
+.gruppe-2048,
+.gruppe-2053,
+.gruppe-2056 {
+  top: 69.7%;
+  bottom: 28.94%;
+}
+.gruppe-2039,
+.gruppe-2048,
+.gruppe-2056 {
+  top: 41.05%;
+  bottom: 57.59%;
+}
+.gruppe-2048,
+.gruppe-2056 {
+  top: 58.24%;
+  bottom: 40.4%;
+}
+.gruppe-2056 {
+  top: 75.42%;
+  bottom: 23.21%;
+}
+.rechtecknummer01 {
+  position: absolute;
+  top: calc(50% - 56.2px);
+  left: 0;
+  border-radius: var(--br-lg) 0 0 var(--br-lg);
+  background-color: var(--color-seagreen);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  width: 125.1px;
+  height: 112.41px;
+}
+.nummer1 {
+  position: absolute;
+  top: calc(50% - 20px);
+  left: 55.55px;
+  font-weight: 500;
+}
+.rechteck01 {
+  position: absolute;
+  height: 1.35%;
+  width: 6.52%;
+  top: 6.68%;
+  right: 88.83%;
+  bottom: 91.97%;
+  left: 4.66%;
+  font-size: var(--font-size-9xl);
+}
+.rechtecknummer2 {
+  position: absolute;
+  top: calc(50% - 56px);
+  left: 0;
+  border-radius: var(--br-lg) 0 0 var(--br-lg);
+  background-color: var(--color-seagreen);
+  width: 126px;
+  height: 112px;
+}
+.nummer2 {
+  position: absolute;
+  top: calc(50% - 19.8px);
+  left: 56px;
+  font-weight: 500;
+}
+.rechteck02,
+.rechteck4,
+.rechteck5,
+.rechteck6 {
+  position: absolute;
+  height: 1.35%;
+  width: 6.56%;
+  top: 12.41%;
+  right: 88.8%;
+  bottom: 86.24%;
+  left: 4.64%;
+  font-size: var(--font-size-9xl);
+}
+.rechteck4,
+.rechteck5,
+.rechteck6 {
+  top: 29.59%;
+  bottom: 69.06%;
+}
+.rechteck4,
+.rechteck6 {
+  top: 23.87%;
+  bottom: 74.79%;
+}
+.rechteck6 {
+  top: 35.32%;
+  bottom: 63.33%;
+}
+.rechtecknummer8 {
+  position: absolute;
+  top: calc(50% - 56px);
+  left: 0;
+  border-radius: var(--br-lg) 0 0 var(--br-lg);
+  background-color: var(--color-silver-100);
+  width: 126px;
+  height: 112px;
+}
+.rechteck8 {
+  position: absolute;
+  height: 1.35%;
+  width: 6.56%;
+  top: 46.78%;
+  right: 88.8%;
+  bottom: 51.87%;
+  left: 4.64%;
+  font-size: var(--font-size-9xl);
+}
+.nummer11 {
+  position: absolute;
+  top: calc(50% - 19.8px);
+  left: 46.5px;
+  font-weight: 500;
+}
+.rechteck11,
+.rechteck14,
+.rechteck15,
+.rechteck9 {
+  position: absolute;
+  height: 1.35%;
+  width: 6.56%;
+  top: 63.97%;
+  right: 88.8%;
+  bottom: 34.69%;
+  left: 4.64%;
+  font-size: var(--font-size-9xl);
+}
+.rechteck14,
+.rechteck15,
+.rechteck9 {
+  top: 81.15%;
+  bottom: 17.5%;
+}
+.rechteck15,
+.rechteck9 {
+  top: 86.88%;
+  bottom: 11.77%;
+}
+.rechteck9 {
+  top: 52.51%;
+  bottom: 46.14%;
+}
+.rechtecknummer12 {
+  position: absolute;
+  top: calc(50% - 56px);
+  left: 0;
+  border-radius: var(--br-lg) 0 0 var(--br-lg);
+  background-color: #c7c7c7;
+  width: 126px;
+  height: 112px;
+}
+.nummer12 {
+  position: absolute;
+  top: calc(50% - 19.8px);
+  left: 50px;
+  font-weight: 500;
+}
+.rechteck10,
+.rechteck12,
+.rechteck7 {
+  position: absolute;
+  height: 1.35%;
+  width: 6.56%;
+  top: 69.7%;
+  right: 88.8%;
+  bottom: 28.96%;
+  left: 4.64%;
+  font-size: var(--font-size-9xl);
+}
+.rechteck10,
+.rechteck7 {
+  top: 41.05%;
+  bottom: 57.6%;
+}
+.rechteck10 {
+  top: 58.24%;
+  bottom: 40.41%;
+}
+.nummer13 {
+  position: absolute;
+  top: calc(50% - 19.8px);
+  left: 47.5px;
+  font-weight: 500;
+}
+.rechteck13 {
+  position: absolute;
+  height: 1.35%;
+  width: 6.56%;
+  top: 75.42%;
+  right: 88.8%;
+  bottom: 23.23%;
+  left: 4.64%;
+  font-size: var(--font-size-9xl);
+}
+.fafsdsfasd12 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 0 0 var(--br-lg) var(--br-lg);
+  background-color: var(--color-gainsboro-200);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+}
+.fkdsa12 {
+  position: absolute;
+  width: 93.28%;
+  top: calc(50% - 142.12px);
+  left: 13.55px;
+  display: inline-block;
+  height: 203.82px;
+}
+.gruppe-1987,
+.gruppe-1991,
+.gruppe-1995,
+.gruppe-2032,
+.gruppe-2035,
+.gruppe-2041,
+.gruppe-2067 {
+  position: absolute;
+  height: 4.01%;
+  width: 86.32%;
+  top: 8.04%;
+  right: 2.5%;
+  bottom: 87.95%;
+  left: 11.17%;
+  font-size: var(--font-size-3xl);
+}
+.gruppe-1991,
+.gruppe-1995,
+.gruppe-2032,
+.gruppe-2035,
+.gruppe-2041,
+.gruppe-2067 {
+  top: 13.77%;
+  bottom: 82.22%;
+}
+.gruppe-1995,
+.gruppe-2032,
+.gruppe-2035,
+.gruppe-2041,
+.gruppe-2067 {
+  top: 19.5%;
+  bottom: 76.49%;
+}
+.gruppe-2032,
+.gruppe-2035,
+.gruppe-2041,
+.gruppe-2067 {
+  top: 30.96%;
+  bottom: 65.03%;
+}
+.gruppe-2035,
+.gruppe-2041,
+.gruppe-2067 {
+  top: 25.23%;
+  bottom: 70.76%;
+}
+.gruppe-2035,
+.gruppe-2041 {
+  top: 36.68%;
+  bottom: 59.3%;
+}
+.gruppe-2041 {
+  top: 48.14%;
+  bottom: 47.85%;
+}
+.gruppe-2038,
+.gruppe-2044,
+.gruppe-2047,
+.gruppe-2050,
+.gruppe-2055,
+.gruppe-2058,
+.gruppe-2061,
+.gruppe-2064 {
+  position: absolute;
+  height: 4.01%;
+  width: 86.32%;
+  top: 65.33%;
+  right: 2.5%;
+  bottom: 30.66%;
+  left: 11.17%;
+  font-size: var(--font-size-3xl);
+}
+.gruppe-2038,
+.gruppe-2044,
+.gruppe-2047,
+.gruppe-2055,
+.gruppe-2058,
+.gruppe-2061,
+.gruppe-2064 {
+  top: 82.51%;
+  bottom: 13.47%;
+}
+.gruppe-2038,
+.gruppe-2044,
+.gruppe-2047,
+.gruppe-2055,
+.gruppe-2058,
+.gruppe-2064 {
+  top: 88.24%;
+  bottom: 7.74%;
+}
+.gruppe-2038,
+.gruppe-2044,
+.gruppe-2047,
+.gruppe-2055,
+.gruppe-2058 {
+  top: 53.87%;
+  bottom: 42.12%;
+}
+.gruppe-2038,
+.gruppe-2047,
+.gruppe-2055,
+.gruppe-2058 {
+  top: 71.06%;
+  bottom: 24.93%;
+}
+.gruppe-2038,
+.gruppe-2047,
+.gruppe-2058 {
+  top: 42.41%;
+  bottom: 53.57%;
+}
+.gruppe-2047,
+.gruppe-2058 {
+  top: 59.6%;
+  bottom: 36.39%;
+}
+.gruppe-2058 {
+  top: 76.79%;
+  bottom: 19.2%;
+}
+.cat {
+  position: absolute;
+  top: calc(50% - 10px);
+  left: calc(50% - 59px);
+  line-height: 21px;
+}
+.abnahmebutton,
+.angebothochladenbutton,
+.angebotsuebersichtbutton,
+.baugobutton,
+.dcnansprechpartnerbutton,
+.projektvorbereitungbutton,
+.warenlieferungbutton {
+  position: absolute;
+  top: calc(50% - 3233.5px);
+  right: 62px;
+  border-radius: var(--br-md);
+  background-color: var(--color-orange-100);
+  width: 200px;
+  height: 52px;
+  color: var(--color-gray-300);
+  font-family: var(--font-ligurino);
+}
+.abnahmebutton,
+.angebothochladenbutton,
+.baugobutton,
+.dcnansprechpartnerbutton,
+.projektvorbereitungbutton,
+.warenlieferungbutton {
+  top: calc(50% - 2757.5px);
+}
+.abnahmebutton,
+.baugobutton,
+.dcnansprechpartnerbutton,
+.projektvorbereitungbutton,
+.warenlieferungbutton {
+  top: calc(50% - 2281.5px);
+}
+.abnahmebutton,
+.dcnansprechpartnerbutton,
+.projektvorbereitungbutton,
+.warenlieferungbutton {
+  top: calc(50% - 1329.5px);
+}
+.abnahmebutton,
+.dcnansprechpartnerbutton,
+.projektvorbereitungbutton {
+  top: calc(50% - 1805.5px);
+}
+.abnahmebutton,
+.dcnansprechpartnerbutton {
+  top: calc(50% - 853.5px);
+}
+.abnahmebutton {
+  top: calc(50% + 98.5px);
+}
+.abnahmeachochladenbutton,
+.acansprechpartnerbutton,
+.acterminbuchenbutton,
+.dcterminbuchenbutton,
+.wpabnahmehochladenbutton,
+.wpansprechpartnerbutton,
+.wpterminbuchenbutton,
+.zurempfehlungsseitebutton {
+  position: absolute;
+  top: calc(50% + 1526.5px);
+  right: 62px;
+  border-radius: var(--br-md);
+  background-color: var(--color-orange-100);
+  width: 200px;
+  height: 52px;
+  color: var(--color-gray-300);
+  font-family: var(--font-ligurino);
+}
+.acansprechpartnerbutton,
+.acterminbuchenbutton,
+.dcterminbuchenbutton,
+.wpabnahmehochladenbutton,
+.wpansprechpartnerbutton,
+.wpterminbuchenbutton,
+.zurempfehlungsseitebutton {
+  top: calc(50% + 2954.5px);
+}
+.acansprechpartnerbutton,
+.acterminbuchenbutton,
+.dcterminbuchenbutton,
+.wpansprechpartnerbutton,
+.wpterminbuchenbutton,
+.zurempfehlungsseitebutton {
+  top: calc(50% + 3430.5px);
+}
+.acansprechpartnerbutton,
+.acterminbuchenbutton,
+.dcterminbuchenbutton,
+.wpansprechpartnerbutton,
+.wpterminbuchenbutton {
+  top: calc(50% + 574.5px);
+}
+.acterminbuchenbutton,
+.dcterminbuchenbutton,
+.wpansprechpartnerbutton,
+.wpterminbuchenbutton {
+  top: calc(50% + 2002.5px);
+}
+.acterminbuchenbutton,
+.dcterminbuchenbutton,
+.wpterminbuchenbutton {
+  top: calc(50% - 377.5px);
+}
+.acterminbuchenbutton,
+.wpterminbuchenbutton {
+  top: calc(50% + 1050.5px);
+}
+.wpterminbuchenbutton {
+  top: calc(50% + 2478.5px);
+}
+.rechteck-262 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: var(--color-seagreen);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  opacity: 0.59;
+}
+.datenschutzv,
+.impressum {
+  position: absolute;
+  top: calc(50% - 9px);
+  left: 48.91px;
+  text-transform: uppercase;
+}
+.datenschutzv {
+  left: 207.91px;
+}
+.gruppe-1883 {
+  position: absolute;
+  height: 1.71%;
+  width: 100%;
+  top: 98.29%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  text-align: center;
+}
+.div,
+.div1 {
+  font-size: var(--font-size-2xs);
+  text-align: center;
+}
+.div {
+  position: absolute;
+  top: 257px;
+  left: calc(50% + 146px);
+  color: var(--color-gray-100);
+}
+.div1 {
+  top: 279px;
+  left: calc(50% + 258px);
+}
+.div1,
+.div2,
+.fkdsa27 {
+  position: absolute;
+  color: var(--color-gray-100);
+}
+.div2 {
+  top: 568px;
+  left: calc(50% + 370px);
+  font-size: var(--font-size-2xs);
+  text-align: center;
+}
+.fkdsa27 {
+  top: calc(50% - 3807.09px);
+  left: 2.99%;
+  font-size: var(--font-size-6xl);
+  opacity: 0.9;
+}
+.ihr-termin-ist {
+  position: absolute;
+  top: calc(50% - 6px);
+  left: 15px;
+}
+.b {
+  position: absolute;
+  top: calc(50% - 6.15px);
+  right: 11.15px;
+  font-size: var(--font-size-4xs);
+  line-height: 15px;
+  font-family: var(--font-helvetica);
+  -webkit-text-stroke: 0.3px #0c0d0c;
+}
+.dcterminanzeige {
+  position: absolute;
+  top: calc(50% - 449.5px);
+  right: 62px;
+  border-radius: var(--br-md);
+  background-color: #1fb269;
+  width: 200px;
+  height: 52px;
+  font-size: var(--font-size-7xs);
+  color: var(--color-gray-200);
+  font-family: var(--font-apple-braille);
+}
+.b1 {
+  position: absolute;
+  top: calc(50% - 6.15px);
+  left: calc(50% + 38.85px);
+  font-size: var(--font-size-4xs);
+  line-height: 15px;
+  font-family: var(--font-helvetica);
+  -webkit-text-stroke: 0.3px #0c0d0c;
+}
+.acabnahmeanzeige,
+.wpterminanzeigebutton {
+  position: absolute;
+  top: calc(50% + 978.5px);
+  right: 62px;
+  border-radius: var(--br-md);
+  background-color: var(--color-white);
+  width: 200px;
+  height: 52px;
+  font-size: var(--font-size-7xs);
+  color: var(--color-gray-200);
+  font-family: var(--font-apple-braille);
+}
+.wpterminanzeigebutton {
+  top: calc(50% + 2406.5px);
+}
+.zumkundenprofil {
+  position: absolute;
+  top: 32px;
+  right: 42px;
+  font-size: var(--font-size-sm);
+  font-family: var(--font-ligurino);
+  text-align: center;
+}
+.zahl3 {
+  position: absolute;
+  top: calc(50% - 20px);
+  left: 54px;
+  font-weight: 500;
+}
+.rechteck03 {
+  position: absolute;
+  height: 1.35%;
+  width: 6.56%;
+  top: 18.15%;
+  right: 88.8%;
+  bottom: 80.5%;
+  left: 4.64%;
+  font-size: var(--font-size-9xl);
+}
+.checkliste {
+  position: relative;
+  background-color: var(--color-whitesmoke-200);
+  width: 100%;
+  height: 8309px;
+  text-align: left;
+  font-size: var(--font-size-lg);
+  color: var(--color-black);
+  font-family: var(--font-forma-djr-micro);
+}
+@media screen and (max-width: 768px) {
+  .essentielles-zum-anlagenaufbau {
+    font-size: var(--font-size-6xl);
+  }
+  .fkdsa12 {
+    font-size: var(--font-size-lg);
+  }
+  .fkdsa27 {
+    font-size: var(--font-size-2xl);
+  }
+}

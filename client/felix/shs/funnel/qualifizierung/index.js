@@ -1,5 +1,12 @@
 import { FunnelField } from "../../../../js/FunnelField.js"
 
+
+function storageExistRedirect(storageName, url) {
+  const storage = JSON.parse(window.sessionStorage.getItem(storageName))
+  if (storage !== null) window.location.assign(url)
+}
+storageExistRedirect("shsFunnel", "/felix/shs/funnel/abfrage-haus/")
+
 const pathToAssets = "/felix/shs/funnel/qualifizierung/"
 
 const questions = [

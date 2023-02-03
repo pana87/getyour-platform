@@ -12,11 +12,12 @@ const gotonutzervereinbarung = new DivField("div[class*='gotonutzervereinbarung'
 .withClickEventListener(() => window.location.assign("/nutzervereinbarung/"))
 
 const einloggeninput = new EmailField("div[class*='einloggeninput']")
-.withInput((input) => {
+.withType((input) => {
   input.placeholder = "E-Mail Adresse"
   input.required = true
 })
 .withInputEventListener(() => einloggeninput.withValidValue())
+einloggeninput.withValidValue()
 
 const loginbutton = new DivField("div[class*='loginbutton']")
 .withOverlayClickEventListener(async (event) => {
@@ -24,9 +25,8 @@ const loginbutton = new DivField("div[class*='loginbutton']")
 
   event.addOverlay()
   await Request.withVerifiedEmail(email, async () => {
-    const sessionTokenRx = await Request.sessionToken()
-
-    const userViewRx = await Request.userView()
+    await Request.sessionToken()
+    window.history.back()
   })
   event.removeOverlay()
 })
