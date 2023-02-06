@@ -1,7 +1,14 @@
 export class EmailField {
 
-  withInput(callback) {
-    document.querySelectorAll(this.inputSelector).forEach(input => callback(input))
+  withType(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => {
+      input.fromSessionStorage = (name) => {
+        const value = JSON.parse(window.sessionStorage.getItem(name))[this.className]
+        if (value !== undefined) input.value = value
+      }
+
+      callback(input)
+    })
     return this
   }
 
@@ -14,13 +21,12 @@ export class EmailField {
 
   async withStorage(name) {
     this.storageName = name
-    await this.withValidValue((value) => {
-      if (!this.#isEmpty(value)) {
-        this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
-        this.storage[this.className] = value
-        window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
-      }
-    })
+    const value = await this.withValidValue()
+    if (!this.#isEmpty(value)) {
+      this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
+      this.storage[this.className] = value
+      window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
+    }
     return this
   }
 
@@ -36,65 +42,17 @@ export class EmailField {
     return input
   }
 
-  #setMaxLength(input) {
-    input.maxLength = this.maxLength
-    return input
-  }
-
-  withMaxLength(maxLength) {
-    this.maxLength = maxLength
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setMaxLength(input))
-    return this
-  }
-
-  #setPattern(input) {
-    input.pattern = this.pattern
-    return input
-  }
-
-  withPattern(pattern) {
-    this.pattern = pattern
-    document.querySelectorAll(this.inputSelector).forEach(input => this.#setPattern(input))
-    return this
-  }
-
-  #setRequired(input) {
-    input.required = true
-    return input
-  }
-
-  withRequired() {
-    this.required = true
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setRequired(input))
-    return this
-  }
-
-  withBackgroundColor(backgroundColor) {
-    this.backgroundColor = backgroundColor
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setBackgroundColor(input))
-    return this
-  }
-
-  #setBackgroundColor(input) {
-    input.style.backgroundColor = this.backgroundColor
-    return input
-  }
-
   #isRequired(input) {
     if (input.required === true) return true
     return false
   }
 
-  withValidValue(callback) {
+  withValidValue() {
     return new Promise((resolve, reject) => {
       document.querySelectorAll(this.inputSelector).forEach(input => {
         if (this.#isRequired(input)) {
           if (input.checkValidity()) {
             this.#setValidStyle(input)
-            if (callback) callback(input.value)
             return resolve(input.value)
           }
           this.#setNotValidStyle(input)
@@ -102,7 +60,6 @@ export class EmailField {
           return
         }
         this.#setValidStyle(input)
-        if (callback) callback(input.value)
         return resolve(input.value)
       })
     })
@@ -113,28 +70,10 @@ export class EmailField {
     return this
   }
 
-  #setSync(input) {
-    const inputs = document.body.querySelectorAll(this.inputSelector)
-    inputs.forEach(other => other.value = input.value)
-    return input
-  }
-
-  #setPlaceholder(input) {
-    input.placeholder = this.placeholder
-    return input
-  }
-
-  withPlaceholder(placeholder) {
-    this.placeholder = placeholder
-    const inputs = document.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => this.#setPlaceholder(input))
-    return this
-  }
-
   constructor(fieldSelector) {
     this.fieldSelector = fieldSelector
     this.className = this.fieldSelector.split("'")[1]
-    this.inputSelector = `input[name='${this.className}']`
+    this.inputSelector = `input[id='${this.className}']`
 
     const divs = document.querySelectorAll(this.fieldSelector)
     if (divs.length > 0) {

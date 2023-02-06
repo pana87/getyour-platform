@@ -17,11 +17,21 @@ new CSSParser()
 const app = express()
 app.use(cookieParser())
 
+app.get("/felix/shs/checkliste/:id/01/", async(req, res) => {
+  return res.send(Helper.readFileSyncToString("../client/felix/shs/checkliste/01/index.html"))
+})
+
+app.get("/felix/shs/checkliste/:id/", async(req, res) => {
+  return res.send(Helper.readFileSyncToString("../client/felix/shs/checkliste/index.html"))
+})
+
+// app.get("/user/platform/magnet/checklist/:id/", async(req, res) => {
+//   return res.send(Helper.readFileSyncToString("../client/user/platform/magnet/checklist/index.html"))
+// })
 
 app.get("/user/register/platform-developer/", Request.verifySession, (req, res) => {
   res.send(Helper.readFileSyncToString("../client/user/register/platform-developer/index.html"))
 })
-
 
 // because express root is not serving any css or js files
 app.get("/", (req, res) => res.redirect("/home/"))
@@ -58,4 +68,5 @@ app.get("/:username/", async (req, res) => {
 })
 
 app.use(express.static(clientLocation.absolutePath))
+// app.use(express.static(path.join(__dirname, "../client/user/platform/magnet/checklist/")))
 app.listen(clientLocation.port, () => Notification.warn(`client listening on ${clientLocation.origin}`))

@@ -17,22 +17,20 @@ export class FunnelField {
       window.location.assign(this.nextFunnelPath)
       return
     }
-    const divs = document.body.querySelectorAll("div[class*=funnel-placeholder]")
+    const divs = document.body.querySelectorAll(this.fieldSelector)
     divs.forEach(div => this.#appendSHSClickAndProceedFunnel(div))
   }
 
   withQuestions(array) {
     this.questions = array
     this.questionIndex = 0
-    const divs = document.body.querySelectorAll(this.fieldSelector)
-      .forEach(div => this.#appendSHSClickAndProceedFunnel(div))
+    document.body.querySelectorAll(this.fieldSelector).forEach(div => this.#appendSHSClickAndProceedFunnel(div))
     return this
   }
 
   withFirstQuestion(index) {
     this.questionIndex = index
-    document.body.querySelectorAll("div[class*=funnel-placeholder]")
-      .forEach(div => this.#appendSHSClickAndProceedFunnel(div))
+    document.body.querySelectorAll(this.fieldSelector).forEach(div => this.#appendSHSClickAndProceedFunnel(div))
     return this
   }
 
@@ -51,7 +49,6 @@ export class FunnelField {
     }
 
     if (questionIndex === 0 && answerIndex === 1) {
-      window.sessionStorage.removeItem(this.storageName)
       window.location.assign("/felix/shs/")
       return
     }
@@ -67,9 +64,9 @@ export class FunnelField {
     }
 
     if (questionIndex === 10 && answerIndex === 1) {
-      const q7 = JSON.parse(window.sessionStorage.getItem("shsFunnel")).q7
-      const q8 = JSON.parse(window.sessionStorage.getItem("shsFunnel")).q8
-      const q9 = JSON.parse(window.sessionStorage.getItem("shsFunnel")).q9
+      const q7 = JSON.parse(window.sessionStorage.getItem(this.storageName)).q7
+      const q8 = JSON.parse(window.sessionStorage.getItem(this.storageName)).q8
+      const q9 = JSON.parse(window.sessionStorage.getItem(this.storageName)).q9
 
       if (q7 === 1 && q8 === 1 && q9 === 1) {
         window.location.assign("/felix/shs/")

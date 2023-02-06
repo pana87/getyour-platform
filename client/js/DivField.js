@@ -1,5 +1,10 @@
 export class DivField {
 
+  withDiv(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.fieldSelector).forEach(div => callback(div))
+    return this
+  }
+
   withOverlayClickEventListener(callback) {
     const divs = document.querySelectorAll(this.fieldSelector)
     divs.forEach(div => {

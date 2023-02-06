@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+
+    <style>
+      :root {
+        /* fonts */
+        --font-ligurino: Ligurino;
+        --font-forma-djr-micro: "Forma DJR Micro";
+        --font-helvetica: Helvetica;
+        --font-helvetica-neue: "Helvetica Neue";
+        --font-apple-braille: "Apple Braille";
+        --font-georgia: Georgia;
+
+        /* font sizes */
+        --font-size-8xs: 10px;
+        --font-size-7xs: 12px;
+        --font-size-6xs: 13px;
+        --font-size-5xs: 14px;
+        --font-size-4xs: 15px;
+        --font-size-3xs: 15.5px;
+        --font-size-2xs: 16px;
+        --font-size-xs: 17px;
+        --font-size-sm: 18px;
+        --font-size-base: 19px;
+        --font-size-lg: 20px;
+        --font-size-xl: 21px;
+        --font-size-2xl: 22px;
+        --font-size-3xl: 23px;
+        --font-size-4xl: 24px;
+        --font-size-5xl: 25px;
+        --font-size-6xl: 27px;
+        --font-size-7xl: 28px;
+        --font-size-8xl: 30px;
+        --font-size-9xl: 33px;
+        --font-size-10xl: 35px;
+        --font-size-11xl: 40px;
+
+        /* Colors */
+        --color-whitesmoke-100: #f7f7f7;
+        --color-whitesmoke-200: #ebebeb;
+        --color-black: #000;
+        --color-seagreen: #006f39;
+        --color-gray-100: #161616;
+        --color-gray-200: #0d0d0c;
+        --color-gray-300: #080808;
+        --color-gray-400: rgba(0, 0, 0, 0.4);
+        --color-orange-100: #f7aa20;
+        --color-orange-200: #f19d08;
+        --color-orange-300: #ef9300;
+        --color-slateblue: #5e61db;
+        --color-white: #fff;
+        --color-gainsboro-100: #ddddde;
+        --color-gainsboro-200: #dbdbdb;
+        --color-silver: #c7c7c7;
+        --color-lightgray-100: #cfd4e2;
+        --color-lightgray-200: #d1d0d0;
+        --color-lightgray-300: #cecece;
+        --color-forestgreen: #11841e;
+        --color-sandybrown: #e8ba68;
+        --color-dimgray: #707070;
+        --color-powderblue: #bedcce;
+        --color-darkred: #930000;
+
+        /* border radiuses */
+        --br-sm: 7px;
+        --br-md: 10px;
+        --br-lg: 15px;
+      }
+      body {
+        margin: 0;
+        line-height: normal;
+      }
+      .herstellerlogo,
+      .herstellerlogobild-icon {
+        position: absolute;
+        width: 255.84px;
+        height: 46.05px;
+      }
+      .herstellerlogobild-icon {
+        top: calc(50% - 23.03px);
+        left: 0;
+        object-fit: cover;
+      }
+      .herstellerlogo {
+        top: calc(50% - 23.02px);
+        left: calc(50% - 127.92px);
+      }
+      .herstelleritem {
+        position: absolute;
+        height: 0.64%;
+        width: 13.33%;
+        top: 1.74%;
+        right: 43.34%;
+        bottom: 97.61%;
+        left: 43.34%;
+      }
+      .sehr-geehrter-herr {
+        margin: 0;
+      }
+      .angebot,
+      .herstellerinfotext {
+        position: absolute;
+        width: calc(100% + 1px);
+        left: 0;
+        display: inline-block;
+      }
+      .herstellerinfotext {
+        top: calc(50% - 142px);
+        line-height: 30px;
+        height: 347px;
+      }
+      .angebot {
+        top: calc(50% - 205px);
+        font-size: var(--font-size-9xl);
+        font-weight: 500;
+        height: 49px;
+      }
+      .herstellermehrinfos {
+        position: absolute;
+        width: calc(100% - 54.99px);
+        top: calc(50% - 2739.63px);
+        right: 23px;
+        left: 32px;
+        height: 410px;
+        font-size: var(--font-size-3xl);
+        color: var(--color-gray-100);
+        font-family: var(--font-forma-djr-micro);
+      }
+      .bittebeachten,
+      .infosfuerdenkunden {
+        position: absolute;
+        width: calc(100% + 1px);
+        left: 0;
+        display: inline-block;
+      }
+      .infosfuerdenkunden {
+        top: calc(50% - 139.5px);
+        line-height: 30px;
+        height: 340px;
+      }
+      .bittebeachten {
+        top: calc(50% - 200.5px);
+        font-size: var(--font-size-8xl);
+        font-weight: 500;
+        height: 46px;
+      }
+      .zusatzinformationen {
+        position: absolute;
+        width: calc(100% - 54.99px);
+        top: calc(50% + 1568.6px);
+        right: 23px;
+        left: 32px;
+        height: 401px;
+        font-size: var(--font-size-3xl);
+        color: var(--color-gray-100);
+        font-family: var(--font-forma-djr-micro);
+      }
+      .infosfuerdenkunden1 {
+        position: absolute;
+        width: calc(100% + 1px);
+        top: calc(50% - 99.5px);
+        left: 0;
+        line-height: 23px;
+        display: inline-block;
+        height: 199px;
+        opacity: 0.8;
+      }
+      .zusatzinformationen1 {
+        position: absolute;
+        width: calc(100% - 48px);
+        top: calc(50% + 3336.57px);
+        right: 23px;
+        left: 25px;
+        height: 199px;
+        text-align: center;
+        font-size: var(--font-size-2xs);
+        color: var(--color-gray-100);
+        font-family: var(--font-forma-djr-micro);
+      }
+      .rechteck-451,
+      .rechteck-531,
+      .rechteck-532,
+      .rechteck-533,
+      .rechteck-534,
+      .rechteck-535,
+      .rechteck-536 {
+        position: absolute;
+        width: calc(100% - 9px);
+        top: calc(50% - 1773.5px);
+        right: 4px;
+        left: 5px;
+        background-color: var(--color-gainsboro-100);
+        height: 110px;
+        opacity: 0.58;
+      }
+      .rechteck-451,
+      .rechteck-531,
+      .rechteck-533,
+      .rechteck-534,
+      .rechteck-535,
+      .rechteck-536 {
+        top: calc(50% - 1999.5px);
+      }
+      .rechteck-451,
+      .rechteck-533,
+      .rechteck-534,
+      .rechteck-535,
+      .rechteck-536 {
+        top: calc(50% - 1547.5px);
+      }
+      .rechteck-451,
+      .rechteck-534,
+      .rechteck-535,
+      .rechteck-536 {
+        top: calc(50% - 2226px);
+      }
+      .rechteck-534,
+      .rechteck-535,
+      .rechteck-536 {
+        top: calc(50% - 1321.5px);
+      }
+      .rechteck-535,
+      .rechteck-536 {
+        top: calc(50% - 1095.5px);
+      }
+      .rechteck-536 {
+        top: calc(50% - 869.5px);
+      }
+      .rechteck-537,
+      .rechteck-538,
+      .rechteck-539,
+      .rechteck-540,
+      .rechteck-558,
+      .rechteck-559,
+      .rechteck-560,
+      .rechteck-561,
+      .rechteck-562,
+      .rechteck-563 {
+        position: absolute;
+        width: calc(100% - 9px);
+        top: calc(50% - 643.5px);
+        right: 4px;
+        left: 5px;
+        background-color: var(--color-gainsboro-100);
+        height: 110px;
+        opacity: 0.58;
+      }
+      .rechteck-538,
+      .rechteck-539,
+      .rechteck-540,
+      .rechteck-558,
+      .rechteck-559,
+      .rechteck-560,
+      .rechteck-561,
+      .rechteck-562,
+      .rechteck-563 {
+        top: calc(50% - 417.5px);
+      }
+      .rechteck-539,
+      .rechteck-540,
+      .rechteck-558,
+      .rechteck-559,
+      .rechteck-560,
+      .rechteck-561,
+      .rechteck-562,
+      .rechteck-563 {
+        top: calc(50% + 46.5px);
+      }
+      .rechteck-539,
+      .rechteck-558,
+      .rechteck-559,
+      .rechteck-560,
+      .rechteck-561,
+      .rechteck-562,
+      .rechteck-563 {
+        top: calc(50% + 272.5px);
+      }
+      .rechteck-539,
+      .rechteck-559,
+      .rechteck-560,
+      .rechteck-561,
+      .rechteck-562,
+      .rechteck-563 {
+        top: calc(50% + 498.5px);
+      }
+      .rechteck-539,
+      .rechteck-560,
+      .rechteck-561,
+      .rechteck-562,
+      .rechteck-563 {
+        top: calc(50% + 724.5px);
+      }
+      .rechteck-539,
+      .rechteck-561,
+      .rechteck-562,
+      .rechteck-563 {
+        top: calc(50% + 950.5px);
+      }
+      .rechteck-539,
+      .rechteck-562,
+      .rechteck-563 {
+        top: calc(50% + 1176.5px);
+      }
+      .rechteck-539,
+      .rechteck-563 {
+        top: calc(50% + 1402.5px);
+      }
+      .rechteck-539 {
+        top: calc(50% - 179.5px);
+      }
+      .logo-icon {
+        position: absolute;
+        height: calc(100% - 23px);
+        top: 11px;
+        bottom: 12px;
+        left: 86px;
+        max-height: 100%;
+        width: 101px;
+        object-fit: cover;
+      }
+      .gruppe-5 {
+        position: absolute;
+        width: 100%;
+        top: 0;
+        right: 0;
+        left: 0;
+        background-color: var(--color-white);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+        height: 85px;
+      }
+      .adressefeld,
+      .kundenadresseinput,
+      .kundennameinput,
+      .kundenstadtinput,
+      .namefirmafeld,
+      .nameunternehmenfeld {
+        position: absolute;
+        top: calc(50% - 3368.73px);
+        left: 32.45px;
+        font-size: var(--font-size-lg);
+        font-family: var(--font-forma-djr-micro);
+        color: var(--color-gray-100);
+        opacity: 0.86;
+      }
+      .adressefeld,
+      .kundenadresseinput,
+      .kundennameinput,
+      .kundenstadtinput,
+      .namefirmafeld {
+        top: calc(50% - 2968.73px);
+      }
+      .adressefeld,
+      .kundenadresseinput,
+      .kundenstadtinput,
+      .namefirmafeld {
+        top: calc(50% - 2929.73px);
+      }
+      .adressefeld,
+      .kundenstadtinput,
+      .namefirmafeld {
+        top: calc(50% - 2890.73px);
+      }
+      .adressefeld,
+      .namefirmafeld {
+        top: calc(50% - 3329.73px);
+      }
+      .adressefeld {
+        top: calc(50% - 3290.73px);
+      }
+      .angebotsnummerinput,
+      .produktnamefeld {
+        position: absolute;
+        top: calc(50% - 12px);
+        left: 0;
+        opacity: 0.86;
+      }
+      .angebotsnummerinput {
+        left: 186px;
+      }
+      .gruppe-1997,
+      .gruppe-1998 {
+        position: absolute;
+        width: calc(100% - 1681px);
+        top: calc(50% - 3209.73px);
+        right: 1648.55px;
+        left: 32.45px;
+        height: 24px;
+        font-size: var(--font-size-lg);
+        color: var(--color-gray-100);
+        font-family: var(--font-forma-djr-micro);
+      }
+      .gruppe-1998 {
+        width: calc(100% - 1646px);
+        top: calc(50% - 3170.73px);
+        right: 1613.55px;
+      }
+      .produktnamefeld2 {
+        position: absolute;
+        width: 100.06%;
+        top: calc(50% - 12px);
+        left: 0;
+        display: inline-block;
+        height: 24px;
+        opacity: 0.86;
+      }
+      .angebotgueltigkeitinput {
+        position: absolute;
+        top: calc(50% - 12px);
+        left: 186px;
+      }
+      .gruppe-1999,
+      .gruppe-2000 {
+        position: absolute;
+        width: calc(100% - 161px);
+        top: calc(50% - 3131.73px);
+        right: 128.55px;
+        left: 32.45px;
+        height: 24px;
+        font-size: var(--font-size-lg);
+        color: var(--color-gray-100);
+        font-family: var(--font-forma-djr-micro);
+      }
+      .gruppe-2000 {
+        width: calc(100% - 1673px);
+        top: calc(50% - 3092.73px);
+        right: 1640.55px;
+      }
+      .rechteck-380 {
+        position: absolute;
+        width: calc(100% - 9px);
+        top: 1288px;
+        right: 4px;
+        left: 5px;
+        background-color: var(--color-gainsboro-100);
+        height: 62px;
+      }
+      .beschreibung,
+      .geprft,
+      .nettobetrag {
+        position: absolute;
+        top: 1313px;
+        font-size: var(--font-size-3xs);
+        font-weight: 500;
+      }
+      .beschreibung {
+        left: 32.45px;
+      }
+      .geprft,
+      .nettobetrag {
+        right: 128.05px;
+      }
+      .geprft {
+        right: 29px;
+      }
+      .beschreibunginputfeld {
+        position: absolute;
+        top: 0;
+        left: 27.45px;
+        font-size: var(--font-size-3xl);
+        color: inherit;
+        text-decoration: none;
+      }
+      .mengestueckinputfeld {
+        position: absolute;
+        top: 5px;
+        left: 0;
+      }
+      .nettopreisinsgesamt {
+        position: absolute;
+        top: 56px;
+        right: 117.05px;
+        font-size: var(--font-size-base);
+      }
+      .rechteck-401 {
+        position: absolute;
+        top: 0;
+        right: 0;
+        border-radius: var(--br-lg);
+        background-color: var(--color-seagreen);
+        width: 93.53px;
+        height: 34px;
+      }
+      .angebotposition01-child {
+        position: absolute;
+        top: 3px;
+        right: 6px;
+        width: 28px;
+        height: 28px;
+      }
+      .ja {
+        position: absolute;
+        top: 8px;
+        right: 56.58px;
+      }
+      .angebotposition01 {
+        position: absolute;
+        top: 50px;
+        right: 0;
+        width: 93.53px;
+        height: 34px;
+        color: var(--color-white);
+      }
+      .positionangebot {
+        position: absolute;
+        width: calc(100% - 28px);
+        top: calc(50% - 2218.5px);
+        right: 11px;
+        left: 17px;
+        height: 84px;
+      }
+      .beschreibunginputfeld1 {
+        position: absolute;
+        top: 0;
+        left: 27.45px;
+        font-size: var(--font-size-3xl);
+      }
+      .mengestueckinputfeld1 {
+        position: absolute;
+        top: 8px;
+        left: 0;
+      }
+      .nettopreisinsgesamt1 {
+        position: absolute;
+        top: 58.5px;
+        right: 117.05px;
+        font-size: var(--font-size-base);
+      }
+      .angebotposition03 {
+        position: absolute;
+        top: 53px;
+        right: 0;
+        width: 93.53px;
+        height: 34px;
+        color: var(--color-white);
+      }
+      .positionangebot1,
+      .positionangebot2 {
+        position: absolute;
+        width: calc(100% - 28px);
+        top: calc(50% - 1995px);
+        right: 11px;
+        left: 17px;
+        height: 87px;
+      }
+      .positionangebot2 {
+        top: calc(50% - 1769px);
+      }
+      .mengestueckinputfeld3 {
+        position: absolute;
+        top: 8.5px;
+        left: 0;
+      }
+      .positionangebot3 {
+        position: absolute;
+        width: calc(100% - 28px);
+        top: calc(50% - 1543px);
+        right: 11px;
+        left: 17px;
+        height: 87px;
+      }
+      .positionangebot4,
+      .positionangebot5,
+      .positionangebot6,
+      .positionangebot7,
+      .positionangebot8 {
+        position: absolute;
+        width: calc(100% - 28px);
+        top: calc(50% - 1317px);
+        right: 11px;
+        left: 17px;
+        height: 87px;
+      }
+      .positionangebot5,
+      .positionangebot6,
+      .positionangebot7,
+      .positionangebot8 {
+        top: calc(50% - 1091px);
+      }
+      .positionangebot6,
+      .positionangebot7,
+      .positionangebot8 {
+        top: calc(50% - 865px);
+      }
+      .positionangebot7,
+      .positionangebot8 {
+        top: calc(50% - 639px);
+      }
+      .positionangebot8 {
+        top: calc(50% - 413px);
+      }
+      .positionangebot10,
+      .positionangebot11,
+      .positionangebot12,
+      .positionangebot9 {
+        position: absolute;
+        width: calc(100% - 28px);
+        top: calc(50% + 51px);
+        right: 11px;
+        left: 17px;
+        height: 87px;
+      }
+      .positionangebot10,
+      .positionangebot11,
+      .positionangebot12 {
+        top: calc(50% + 277px);
+      }
+      .positionangebot11,
+      .positionangebot12 {
+        top: calc(50% + 503px);
+      }
+      .positionangebot12 {
+        top: calc(50% + 729px);
+      }
+      .positionangebot13,
+      .positionangebot14,
+      .positionangebot15,
+      .positionangebot16 {
+        position: absolute;
+        width: calc(100% - 28px);
+        top: calc(50% + 955px);
+        right: 11px;
+        left: 17px;
+        height: 87px;
+      }
+      .positionangebot14,
+      .positionangebot15,
+      .positionangebot16 {
+        top: calc(50% + 1181px);
+      }
+      .positionangebot15,
+      .positionangebot16 {
+        top: calc(50% + 1407px);
+      }
+      .positionangebot16 {
+        top: calc(50% - 175px);
+      }
+      .beschreibunginputfeld17 {
+        position: absolute;
+        top: 0;
+        left: 35.45px;
+        font-size: var(--font-size-3xl);
+      }
+      .nettopreisinsgesamt17 {
+        position: absolute;
+        top: 59px;
+        right: 117.05px;
+        font-size: var(--font-size-base);
+      }
+      .positionangebot17 {
+        position: absolute;
+        width: calc(100% - 20px);
+        top: calc(50% - 2108.5px);
+        right: 11px;
+        left: 9px;
+        height: 87px;
+      }
+      .positionangebot18,
+      .positionangebot19,
+      .positionangebot20 {
+        position: absolute;
+        width: calc(100% - 28px);
+        top: calc(50% - 1882.5px);
+        right: 11px;
+        left: 17px;
+        height: 87px;
+      }
+      .positionangebot19,
+      .positionangebot20 {
+        top: calc(50% - 1656.5px);
+      }
+      .positionangebot20 {
+        top: calc(50% - 1430.5px);
+      }
+      .positionangebot21,
+      .positionangebot22,
+      .positionangebot23,
+      .positionangebot24 {
+        position: absolute;
+        width: calc(100% - 28px);
+        top: calc(50% - 1204.5px);
+        right: 11px;
+        left: 17px;
+        height: 87px;
+      }
+      .positionangebot22,
+      .positionangebot23,
+      .positionangebot24 {
+        top: calc(50% - 978.5px);
+      }
+      .positionangebot23,
+      .positionangebot24 {
+        top: calc(50% - 752.5px);
+      }
+      .positionangebot24 {
+        top: calc(50% - 526.5px);
+      }
+      .positionangebot25,
+      .positionangebot26,
+      .positionangebot27,
+      .positionangebot28 {
+        position: absolute;
+        width: calc(100% - 28px);
+        top: calc(50% - 300.5px);
+        right: 11px;
+        left: 17px;
+        height: 87px;
+      }
+      .positionangebot26,
+      .positionangebot27,
+      .positionangebot28 {
+        top: calc(50% - 62.5px);
+      }
+      .positionangebot27,
+      .positionangebot28 {
+        top: calc(50% + 163.5px);
+      }
+      .positionangebot28 {
+        top: calc(50% + 389.5px);
+      }
+      .positionangebot29,
+      .positionangebot30,
+      .positionangebot31,
+      .positionangebot32 {
+        position: absolute;
+        width: calc(100% - 28px);
+        top: calc(50% + 615.5px);
+        right: 11px;
+        left: 17px;
+        height: 87px;
+      }
+      .positionangebot30,
+      .positionangebot31,
+      .positionangebot32 {
+        top: calc(50% + 841.5px);
+      }
+      .positionangebot31,
+      .positionangebot32 {
+        top: calc(50% + 1067.5px);
+      }
+      .positionangebot32 {
+        top: calc(50% + 1293.5px);
+      }
+      .pdfagbsdownload,
+      .pdfproduktbroschueredownload,
+      .pdfuninfosdownload {
+        position: absolute;
+        top: calc(50% + 2453.46px);
+        left: 75.56px;
+        font-size: var(--font-size-xs);
+        font-family: var(--font-helvetica);
+        color: var(--color-slateblue);
+      }
+      .pdfproduktbroschueredownload,
+      .pdfuninfosdownload {
+        top: calc(50% + 2498.03px);
+      }
+      .pdfuninfosdownload {
+        top: calc(50% + 2542.6px);
+      }
+      .bxs-file-pdf-icon,
+      .bxs-file-pdf-icon1,
+      .bxs-file-pdf-icon2 {
+        position: absolute;
+        top: calc(50% + 2446.59px);
+        left: 33px;
+        width: 21.96px;
+        height: 27.46px;
+      }
+      .bxs-file-pdf-icon1,
+      .bxs-file-pdf-icon2 {
+        top: calc(50% + 2491.16px);
+      }
+      .bxs-file-pdf-icon2 {
+        top: calc(50% + 2535.74px);
+      }
+      .linie-150 {
+        position: absolute;
+        width: calc(100% - 27px);
+        right: 10.5px;
+        bottom: 1181.27px;
+        left: 16.5px;
+        border-top: 1px solid var(--color-black);
+        box-sizing: border-box;
+        height: 2px;
+      }
+      .rereerere {
+        position: absolute;
+        top: calc(50% - 31.2px);
+        left: 0;
+        border-radius: var(--br-md);
+        background-color: var(--color-orange-100);
+        width: 335.04px;
+        height: 62.41px;
+      }
+      .weiter {
+        position: absolute;
+        top: calc(50% - 10.5px);
+        left: 142.52px;
+        line-height: 14px;
+      }
+      .zumabschlussbutton {
+        position: absolute;
+        top: calc(50% + 133.26px);
+        right: 0;
+        width: 335.04px;
+        height: 62.41px;
+        color: var(--color-gray-300);
+        font-family: var(--font-ligurino);
+      }
+      .gesamt,
+      .nettobetrag1,
+      .preisbersicht,
+      .rabatt-2000,
+      .ust-1900,
+      .zwischensumme {
+        position: absolute;
+        top: calc(50% - 136.54px);
+        right: 182.94px;
+        display: inline-block;
+        width: 152.1px;
+        height: 22.99px;
+      }
+      .gesamt,
+      .nettobetrag1,
+      .preisbersicht,
+      .rabatt-2000,
+      .ust-1900 {
+        top: calc(50% - 50.04px);
+      }
+      .gesamt,
+      .preisbersicht,
+      .rabatt-2000,
+      .ust-1900 {
+        top: calc(50% - 100.41px);
+      }
+      .gesamt,
+      .preisbersicht,
+      .ust-1900 {
+        top: calc(50% - 13.91px);
+      }
+      .gesamt,
+      .preisbersicht {
+        top: calc(50% + 42.38px);
+        font-size: var(--font-size-lg);
+        font-weight: 500;
+        height: 26.28px;
+      }
+      .preisbersicht {
+        top: calc(50% - 195.67px);
+        right: 0.64px;
+        font-size: var(--font-size-4xl);
+        width: 334.4px;
+        height: 45.99px;
+      }
+      .herstellerbruttobeitrag,
+      .herstellernettobeitrag {
+        position: absolute;
+        top: calc(50% - 136.54px);
+        right: -0.62px;
+        display: inline-block;
+        width: 133.48px;
+        height: 22.99px;
+      }
+      .herstellernettobeitrag {
+        top: calc(50% - 50.04px);
+      }
+      .herstellergesamtpreis,
+      .herstellerrabatt,
+      .herstellerust {
+        position: absolute;
+        top: calc(50% - 100.41px);
+        right: 11.42px;
+        display: inline-block;
+        width: 121.44px;
+        height: 22.99px;
+      }
+      .herstellergesamtpreis,
+      .herstellerust {
+        top: calc(50% - 13.91px);
+        right: 0.64px;
+      }
+      .herstellergesamtpreis {
+        top: calc(50% + 42.38px);
+        right: -0.62px;
+        font-size: var(--font-size-lg);
+        font-weight: 500;
+        width: 146.62px;
+        height: 26.28px;
+      }
+      .gruppe-1982,
+      .pfad-802-icon,
+      .pfad-804-icon {
+        position: absolute;
+        top: calc(50% - 64.48px);
+        right: 0.75px;
+        width: 335.04px;
+        height: 1.5px;
+      }
+      .gruppe-1982,
+      .pfad-804-icon {
+        top: calc(50% + 22.02px);
+      }
+      .gruppe-1982 {
+        width: 100%;
+        top: calc(50% - 195.67px);
+        right: 0;
+        left: 0;
+        height: 391.33px;
+      }
+      .herstellerkomplettpreiscontain {
+        position: absolute;
+        top: calc(50% + 2808.6px);
+        right: 11px;
+        width: 335.04px;
+        height: 391.33px;
+        font-size: var(--font-size-sm);
+        color: var(--color-gray-100);
+        font-family: var(--font-forma-djr-micro);
+      }
+      .rechteck-262 {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: var(--color-seagreen);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+        opacity: 0.59;
+      }
+      .datenschutzv,
+      .impressum {
+        position: absolute;
+        top: calc(50% - 9px);
+        left: 48.91px;
+        text-transform: uppercase;
+      }
+      .datenschutzv {
+        left: 207.91px;
+      }
+      .gruppe-1883 {
+        position: absolute;
+        height: 1.99%;
+        width: 100%;
+        top: 98.01%;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        text-align: center;
+        font-size: var(--font-size-lg);
+        font-family: var(--font-forma-djr-micro);
+      }
+      .cat {
+        position: absolute;
+        top: calc(50% - 10px);
+        left: 23px;
+        line-height: 21px;
+      }
+      .zusatzinformationsendenbutton {
+        position: absolute;
+        top: calc(50% + 2615.29px);
+        left: 33px;
+        border-radius: var(--br-md);
+        background-color: #be090a;
+        border: 1px solid #be0909;
+        box-sizing: border-box;
+        width: 200px;
+        height: 52px;
+        font-size: var(--font-size-lg);
+        color: var(--color-whitesmoke-100);
+        font-family: var(--font-ligurino);
+      }
+      .bpe-angebot {
+        position: relative;
+        background-color: var(--color-whitesmoke-100);
+        width: 100%;
+        height: 7157px;
+        text-align: left;
+        font-size: var(--font-size-4xs);
+        color: var(--color-black);
+        font-family: var(--font-helvetica-neue);
+      }
+      @media screen and (max-width: 768px) {
+        .herstellerinfotext,
+        .infosfuerdenkunden {
+          font-size: var(--font-size-2xs);
+          line-height: 23px;
+        }
+        .infosfuerdenkunden {
+          line-height: 22px;
+        }
+        .bittebeachten {
+          font-size: var(--font-size-sm);
+        }
+        .beschreibunginputfeld,
+        .beschreibunginputfeld1,
+        .beschreibunginputfeld17 {
+          font-size: var(--font-size-4xs);
+        }
+      }
+
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Forma DJR Micro:wght@400;500;700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Helvetica Neue:wght@400;500;700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Helvetica:wght@400;700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Ligurino:wght@400&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Apple Braille:wght@400&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Georgia:wght@700&display=swap"
+    />
+  </head>
+  <body>
+    <div class="bpe-angebot">
+      <div class="herstelleritem">
+        <div class="herstellerlogo">
+          <img
+            class="herstellerlogobild-icon"
+            alt=""
+            src="public/herstellerlogobild@2x.png"
+          />
+        </div>
+      </div>
+      <div class="herstellermehrinfos">
+        <div class="herstellerinfotext">
+          <p class="sehr-geehrter-herr">Sehr geehrter Herr Steck,</p>
+          <p class="sehr-geehrter-herr">&nbsp;</p>
+          <p class="sehr-geehrter-herr">
+            Wir sind Ihnen schon jetzt für Ihr Vertrauen und Ihr Interesse an
+            unserem BPE-Solar Hybrid System, zur Erzielung einer autarken
+            Energierevolution, dankbar. Mit der BPE-Hybrid-Energie-Lösung
+            profitieren Sie von kostenloser Umweltwärme und einem
+            unvergleichlichen Heizkomfort in Bezug auf Ihr Auftragsobjekt.
+            Unsere innovative Wärmepumpe ermöglicht es, in kälteren Perioden als
+            Heizsystem und an heißen Tagen als Kühlgerät zu wirken.
+          </p>
+          <p class="sehr-geehrter-herr">&nbsp;</p>
+          <p class="sehr-geehrter-herr">
+            Unsere digitale Analyse hat folgendes Energiekonzept für Sie
+            ergeben:
+          </p>
+        </div>
+        <div class="angebot">Angebot</div>
+      </div>
+      <div class="zusatzinformationen">
+        <div class="infosfuerdenkunden">
+          <p class="sehr-geehrter-herr">
+            Befindet sich die Stellfläche des Gerüsts auf einem öffentlichen
+            Gehweg, muss der Kunde die Genehmigung vorerst bei der Stadt
+            beantragen. Bei einer Freileitung muss der Kunde die Isolierung der
+            Stromführung zur Freileitung beim Netzbetreiber vor der Installation
+            beantragen. Wenn das Gebäude Denkmal- oder Ensemblegeschützt ist,
+            muss der Kunde den Bau eines Energiesystems vorerst bei der Stadt
+            beantragen. Existiert kein W-Lan Signal in der Nähe des
+            Stromspeichers, muss der Kunde eine Internetverbindung ermöglichen.
+            Befindet sich vor Ort kein Hausanschlusskasten (HAK), muss der Kunde
+            diesen vorerst von einer Fachfirma installieren lassen. Bei mehr als
+            3 Stromzählern muss der Kunde ein, von diesem Angebot unabhängiges,
+            zusätzliches Angebot für ein individuelles Zählerkonzept anfragen.
+            Besitzt der Kunde keine Ersatzziegel ist es seine Aufgabe, diese zu
+            besorgen. Will der Kunde die Module nicht auf dem Haus anbringen, in
+            dem der Speicher ist, müssen die Erdarbeiten im Vorfeld vom Kunden
+            erledigt werden.
+          </p>
+          <p class="sehr-geehrter-herr">&nbsp;</p>
+          <p class="sehr-geehrter-herr">
+            Es handelt sich hierbei lediglich um ein Angebot. Wollen Sie das
+            Angebot annehmen, entsteht erst ein Vertrag, nachdem der Bauleiter
+            die Anfrage zu Ihrer Sicherheit geprüft hat.
+          </p>
+        </div>
+        <div class="bittebeachten">
+          <p class="sehr-geehrter-herr">Bitte beachten:</p>
+        </div>
+      </div>
+      <div class="zusatzinformationen1">
+        <div class="infosfuerdenkunden1">
+          Abkürzungen: PV = Photovoltaik ST = Solarthermie WP = Wärmepumpe WP/ST
+          = Heizkreislauf (Wärmepumpe/Solarthermie)
+        </div>
+      </div>
+      <div class="rechteck-532"></div>
+      <div class="rechteck-531"></div>
+      <div class="rechteck-533"></div>
+      <div class="rechteck-451"></div>
+      <div class="rechteck-534"></div>
+      <div class="rechteck-535"></div>
+      <div class="rechteck-536"></div>
+      <div class="rechteck-537"></div>
+      <div class="rechteck-538"></div>
+      <div class="rechteck-540"></div>
+      <div class="rechteck-558"></div>
+      <div class="rechteck-559"></div>
+      <div class="rechteck-560"></div>
+      <div class="rechteck-561"></div>
+      <div class="rechteck-562"></div>
+      <div class="rechteck-563"></div>
+      <div class="rechteck-539"></div>
+      <div class="gruppe-5">
+        <img class="logo-icon" alt="" src="public/logo@2x.png" />
+      </div>
+      <b class="nameunternehmenfeld">BestPrime GmbH</b
+      ><b class="kundennameinput">Felix Steck</b
+      ><b class="kundenadresseinput">Niedernhaller Straße 7a</b
+      ><b class="kundenstadtinput">74679 Weißbach</b>
+      <div class="namefirmafeld">BestPrimeEnergy</div>
+      <div class="adressefeld">Im Gewerbepark C25 • 93059 • Regensburg</div>
+      <div class="gruppe-1997">
+        <b class="produktnamefeld">Angebotsnummer: </b>
+        <div class="angebotsnummerinput">S1032</div>
+      </div>
+      <div class="gruppe-1998">
+        <b class="produktnamefeld">Angebotsdatum:</b>
+        <div class="angebotsnummerinput">16.01.2023</div>
+      </div>
+      <div class="gruppe-1999">
+        <b class="produktnamefeld2">Gültig bis:</b>
+        <div class="angebotgueltigkeitinput">02.02.2023</div>
+      </div>
+      <div class="gruppe-2000">
+        <b class="produktnamefeld">Kundennummer:</b>
+        <div class="angebotgueltigkeitinput">S99211</div>
+      </div>
+      <div class="rechteck-380"></div>
+      <div class="beschreibung">Beschreibung</div>
+      <div class="nettobetrag">Nettobetrag</div>
+      <div class="geprft">geprüft</div>
+      <div class="positionangebot">
+        <a class="beschreibunginputfeld"
+          >5 kW PV: Batterie - Box Premium HVS 5.1 (5,12kWh)</a
+        >
+        <div class="mengestueckinputfeld">1x</div>
+        <div class="nettopreisinsgesamt">9.990,00 €</div>
+        <div class="angebotposition01">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot1">
+        <div class="beschreibunginputfeld1">
+          5kW PV: 6 mm2 DC Solarkabel 100m
+        </div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt1">250,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot2">
+        <div class="beschreibunginputfeld1">5kW PV: Montageset 5 kW</div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt1">1.500,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot3">
+        <div class="beschreibunginputfeld1">
+          ST 12 kW: FROSTSCHUTZMITTEL, -37 C, 20 L/STK.
+        </div>
+        <div class="mengestueckinputfeld3">1x</div>
+        <div class="nettopreisinsgesamt1">85,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot4">
+        <div class="beschreibunginputfeld1">
+          ST 12 kW: MONTAGESATZ, AUF DACH, 2108
+        </div>
+        <div class="mengestueckinputfeld3">2x</div>
+        <div class="nettopreisinsgesamt1">535,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot5">
+        <div class="beschreibunginputfeld1">
+          WP 12 kW: Thermowatt Thermostat, 2KW
+        </div>
+        <div class="mengestueckinputfeld3">1x</div>
+        <div class="nettopreisinsgesamt1">20,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot6">
+        <div class="beschreibunginputfeld1">
+          WP 12 kW: WÄRMEPUMPE, BPE12 INV, 12kW
+        </div>
+        <div class="mengestueckinputfeld3">1x</div>
+        <div class="nettopreisinsgesamt1">9.950,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot7">
+        <div class="beschreibunginputfeld1">
+          WP/ST 12 kW: Automatic Air Ventilation, 160C, 1/2” Connection
+        </div>
+        <div class="mengestueckinputfeld3">1x</div>
+        <div class="nettopreisinsgesamt1">30,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot8">
+        <div class="beschreibunginputfeld1">
+          WP/ST 12 kW: BPEKOMBI Hygienespeicher + Solarspeicher + Puffer 300
+          Liter
+        </div>
+        <div class="mengestueckinputfeld3">1x</div>
+        <div class="nettopreisinsgesamt1">1.750,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot9">
+        <div class="beschreibunginputfeld1">
+          WP/ST 12 kW: Ventil, Sicherheit, 4 Bar, Watt, 1/2”, MSV/E (0207540)
+        </div>
+        <div class="mengestueckinputfeld3">1x</div>
+        <div class="nettopreisinsgesamt1">10,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot10">
+        <div class="beschreibunginputfeld1">
+          Option: Entsorgung des alten Energiesystems
+        </div>
+        <div class="mengestueckinputfeld3">1x</div>
+        <div class="nettopreisinsgesamt1">unbekannt €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot11">
+        <div class="beschreibunginputfeld1">
+          Option: Blitzschutzanlage verrücken
+        </div>
+        <div class="mengestueckinputfeld3">1x</div>
+        <div class="nettopreisinsgesamt1">unbekannt €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot12">
+        <div class="beschreibunginputfeld1">
+          Option: Montageteam stellt Gerüst
+        </div>
+        <div class="mengestueckinputfeld3">1x</div>
+        <div class="nettopreisinsgesamt1">unbekannt €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot13">
+        <div class="beschreibunginputfeld1">
+          Option: Speicherkabel 20 Extrameter
+        </div>
+        <div class="mengestueckinputfeld3">1x</div>
+        <div class="nettopreisinsgesamt1">unbekannt €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot14">
+        <div class="beschreibunginputfeld1">
+          Option: Einbau zusätzlicher Unter-/Zwischenzähler
+        </div>
+        <div class="mengestueckinputfeld3">1x</div>
+        <div class="nettopreisinsgesamt1">unbekannt €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot15">
+        <div class="beschreibunginputfeld1">
+          Option: Potentialausgleichsschiene inkl. Fundamenterder
+        </div>
+        <div class="mengestueckinputfeld3">1x</div>
+        <div class="nettopreisinsgesamt1">unbekannt €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot16">
+        <div class="beschreibunginputfeld1">
+          WP/ST 12 kW: SICHERHEITSVENTIL 6BAR
+        </div>
+        <div class="mengestueckinputfeld3">1x</div>
+        <div class="nettopreisinsgesamt1">12,50 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot17">
+        <div class="beschreibunginputfeld17">
+          5kW PV 13: HIGH PERFORMANCE PV MODULE RSM40-8-390M-415M
+        </div>
+        <div class="mengestueckinputfeld1">13x</div>
+        <div class="nettopreisinsgesamt17">4.875,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot18">
+        <div class="beschreibunginputfeld1">
+          5kW PV: MC4 Connector Set 4 Stk.
+        </div>
+        <div class="mengestueckinputfeld1">4x</div>
+        <div class="nettopreisinsgesamt17">32,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot19">
+        <div class="beschreibunginputfeld1">5kW PV: Wechselrichter 5 kW</div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt17">2.500,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot20">
+        <div class="beschreibunginputfeld1">
+          ST 12 kW: Solarkollektor BPE ALS 2110, FULL PLATE
+        </div>
+        <div class="mengestueckinputfeld1">2x</div>
+        <div class="nettopreisinsgesamt17">1.650,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot21">
+        <div class="beschreibunginputfeld1">
+          ST 12 kW: Solarschlauch, 15mt, doppelt, mit Sensor, Epdm isoliert
+          13mm, DN16
+        </div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt17">400,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot22">
+        <div class="beschreibunginputfeld1">
+          WP 12 kW: WIDERSTAND, THERMOWATT 182384, 3000W, 220V, 289mm
+        </div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt17">35,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot23">
+        <div class="beschreibunginputfeld1">
+          WP/ST 12 kW: Bausatz, Zubehör, für 300lt Forced System
+        </div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt17">370,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot24">
+        <div class="beschreibunginputfeld1">
+          WP/ST 12 kW: BEHÄLTER, AUSDEHNUNGSGEFÄSS, 12 L
+        </div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt17">80,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot25">
+        <div class="beschreibunginputfeld1">
+          WP/ST 12 kW: PUMPENGRUPPE, TIEMME, EINZELAGGREGAT, BPE 15/65
+        </div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt17">525,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot26">
+        <div class="beschreibunginputfeld1">
+          WP/ST 12 kW: STEUERUNG, AUTOMATISCH, RESOL DELTASOL CS/2, SSC-1
+        </div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt17">350,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot27">
+        <div class="beschreibunginputfeld1">
+          Montage und Lieferung Komplettsystem inklusive Abnahme und Übergabe*
+        </div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt17">9.955,00 €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot28">
+        <div class="beschreibunginputfeld1">
+          Option: Be- und Entlüftungsrohre verrücken
+        </div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt17">unbekannt €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot29">
+        <div class="beschreibunginputfeld1">
+          Option: Dachaufbauten verrücken
+        </div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt17">unbekannt €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot30">
+        <div class="beschreibunginputfeld1">Option: DC-Kabel 30 Extrameter</div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt17">unbekannt €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot31">
+        <div class="beschreibunginputfeld1">
+          Option: Einbau neuer Zählerschrank
+        </div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt17">unbekannt €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="positionangebot32">
+        <div class="beschreibunginputfeld1">
+          Option: Zusammenlegen der Zähler
+        </div>
+        <div class="mengestueckinputfeld1">1x</div>
+        <div class="nettopreisinsgesamt17">unbekannt €</div>
+        <div class="angebotposition03">
+          <div class="rechteck-401"></div>
+          <img
+            class="angebotposition01-child"
+            alt=""
+            src="public/ellipse-71.svg"
+          /><b class="ja">Ja</b>
+        </div>
+      </div>
+      <div class="pdfagbsdownload">Allgemeine Geschäftsbedingungen</div>
+      <div class="pdfproduktbroschueredownload">Produktbroschüre</div>
+      <div class="pdfuninfosdownload">Unternehmensinformationen</div>
+      <img
+        class="bxs-file-pdf-icon"
+        alt=""
+        src="public/9055322-bxs-file-pdf-icon.svg"
+      /><img
+        class="bxs-file-pdf-icon1"
+        alt=""
+        src="public/9055322-bxs-file-pdf-icon.svg"
+      /><img
+        class="bxs-file-pdf-icon2"
+        alt=""
+        src="public/9055322-bxs-file-pdf-icon.svg"
+      />
+      <div class="linie-150"></div>
+      <div class="herstellerkomplettpreiscontain">
+        <div class="gruppe-1982">
+          <div class="zumabschlussbutton">
+            <div class="rereerere"></div>
+            <div class="weiter">Weiter</div>
+          </div>
+          <div class="zwischensumme">Zwischensumme</div>
+          <div class="nettobetrag1">Nettobetrag</div>
+          <div class="rabatt-2000">Rabatt 20,00%</div>
+          <div class="ust-1900">USt. 19,00 %</div>
+          <div class="gesamt">Gesamt</div>
+          <div class="preisbersicht">Preisübersicht</div>
+          <div class="herstellerbruttobeitrag">53.436,36 €</div>
+          <div class="herstellernettobeitrag">35.923,60 €</div>
+          <div class="herstellerrabatt">10.687,27 €</div>
+          <div class="herstellerust">6.825,49 €</div>
+          <div class="herstellergesamtpreis">42.749,09 €</div>
+          <img class="pfad-802-icon" alt="" src="public/pfad-802.svg" /><img
+            class="pfad-804-icon"
+            alt=""
+            src="public/pfad-802.svg"
+          />
+        </div>
+      </div>
+      <div class="gruppe-1883">
+        <div class="rechteck-262"></div>
+        <div class="impressum">Impressum</div>
+        <div class="datenschutzv">Datenschutz</div>
+      </div>
+      <div class="zusatzinformationsendenbutton">
+        <div class="cat">Angebot drucken</div>
+      </div>
+    </div>
+
+  <script type="module">
+    import {Request} from "../../../../../js/Request.js"
+    document.querySelectorAll("img[class*='logo-icon']").forEach(img => {
+      img.src = `/felix/shs/checkliste/01/public/logo@2x.png`
+      img.alt = "SHS Energie Express Logo"
+    })
+    // get offer from database
+
+    Request.database({path: "/request/user/offer/"}, (data) => {
+      console.log(data);
+    })
+
+
+
+
+
+
+    document.querySelectorAll("img[class*='herstellerlogobild-icon']").forEach(img => {
+      img.src = `/felix/shs/checkliste/01/public/herstellerlogobild@2x.png`
+      img.alt = "Hersteller Logo Bestprime GmbH"
+    })
+  </script>
+
+  <script id="__EXPOSE__">
+    window.__AUTH_LOCATION__="http://localhost:10003"
+    window.__DB_LOCATION__="http://localhost:10001"
+    document.getElementById("__EXPOSE__").remove()
+  </script>
+</body>
+
+
+</html>
