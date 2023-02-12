@@ -1,10 +1,18 @@
+import { Helper } from "./Helper.js"
+
 export class EmailField {
 
   withType(callback) {
     if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => {
-      input.fromSessionStorage = (name) => {
-        const value = JSON.parse(window.sessionStorage.getItem(name))[this.className]
-        if (value !== undefined) input.value = value
+      input.fromStorage = (name) => {
+        if (name === this.type) {
+          const value = JSON.parse(window.localStorage.getItem(name))
+          if (value !== undefined) input.value = value
+        }
+        if (name === "shsFunnel") {
+          const value = JSON.parse(window.localStorage.getItem(name)).value[this.className]
+          if (value !== undefined) input.value = value
+        }
       }
 
       callback(input)
@@ -20,26 +28,28 @@ export class EmailField {
   }
 
   async withStorage(name) {
-    this.storageName = name
-    const value = await this.withValidValue()
-    if (!this.#isEmpty(value)) {
-      this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
-      this.storage[this.className] = value
-      window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
+    try {
+      this.storageName = name
+      const value = await this.withValidValue()
+      if (!this.#isEmpty(value)) {
+
+        if (name === this.type) {
+          window.localStorage.setItem(this.storageName, JSON.stringify(value))
+          return this
+        }
+
+        if (name === "shsFunnel") {
+          const storage = JSON.parse(window.localStorage.getItem(this.storageName))
+          storage.value[this.className] = value
+          window.localStorage.setItem(this.storageName, JSON.stringify(storage))
+        }
+
+        return this
+      }
+    } catch (error) {
+      console.error(error)
     }
-    return this
-  }
-
-  #setValidStyle(input) {
-    input.style.border = "2px solid #00c853"
-    input.style.borderRadius = "3px"
-    return input
-  }
-
-  #setNotValidStyle(input) {
-    input.style.border = "2px solid #d50000"
-    input.style.borderRadius = "3px"
-    return input
+    return new Error(`class='${this.className}' - storage failed`)
   }
 
   #isRequired(input) {
@@ -52,14 +62,14 @@ export class EmailField {
       document.querySelectorAll(this.inputSelector).forEach(input => {
         if (this.#isRequired(input)) {
           if (input.checkValidity()) {
-            this.#setValidStyle(input)
+            Helper.setValidStyle(input)
             return resolve(input.value)
           }
-          this.#setNotValidStyle(input)
+          Helper.setNotValidStyle(input)
           console.error(`class='${this.className}' - required valid value`)
           return
         }
-        this.#setValidStyle(input)
+        Helper.setValidStyle(input)
         return resolve(input.value)
       })
     })
@@ -74,6 +84,7 @@ export class EmailField {
     this.fieldSelector = fieldSelector
     this.className = this.fieldSelector.split("'")[1]
     this.inputSelector = `input[id='${this.className}']`
+    this.type = "email"
 
     const divs = document.querySelectorAll(this.fieldSelector)
     if (divs.length > 0) {

@@ -1,94 +1,60 @@
+import { Helper } from "./Helper.js"
+
 export class FunnelField {
 
-  #setStorage(questionIndex, answerIndex) {
-    this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
-    this.storage[`q${questionIndex}`] = answerIndex
-    window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
-  }
-
-  withStorage(name) {
-    this.storageName = name
-    return this
-  }
-
-  #setQuestion(index) {
-    this.questionIndex = index
-    if (index >= this.questions.length) {
-      window.location.assign(this.nextFunnelPath)
-      return
-    }
-    const divs = document.body.querySelectorAll(this.fieldSelector)
-    divs.forEach(div => this.#appendSHSClickAndProceedFunnel(div))
-  }
-
-  withQuestions(array) {
-    this.questions = array
-    this.questionIndex = 0
-    document.body.querySelectorAll(this.fieldSelector).forEach(div => this.#appendSHSClickAndProceedFunnel(div))
-    return this
-  }
-
-  withFirstQuestion(index) {
-    this.questionIndex = index
-    document.body.querySelectorAll(this.fieldSelector).forEach(div => this.#appendSHSClickAndProceedFunnel(div))
-    return this
-  }
-
-  withNextFunnelPath(nextFunnelPath) {
-    this.nextFunnelPath = nextFunnelPath
-    return this
-  }
-
-  #nextQuestion(event) {
-    const {questionIndex, answerIndex} = event.detail
-
-    if (questionIndex === 0) window.sessionStorage.removeItem(this.storageName)
-
-    if (this.storageName) {
-      this.#setStorage(questionIndex, answerIndex)
-    }
-
-    if (questionIndex === 0 && answerIndex === 1) {
-      window.location.assign("/felix/shs/")
-      return
-    }
-
-    if (questionIndex === 1 && answerIndex === 1) {
-      window.location.assign("/felix/shs/")
-      return
-    }
-
-    if (questionIndex === 1 && answerIndex === 3) {
-      window.location.assign("/felix/shs/")
-      return
-    }
-
-    if (questionIndex === 10 && answerIndex === 1) {
-      const q7 = JSON.parse(window.sessionStorage.getItem(this.storageName)).q7
-      const q8 = JSON.parse(window.sessionStorage.getItem(this.storageName)).q8
-      const q9 = JSON.parse(window.sessionStorage.getItem(this.storageName)).q9
-
-      if (q7 === 1 && q8 === 1 && q9 === 1) {
-        window.location.assign("/felix/shs/")
-        return
+  withUnloadEventListener() {
+    window.addEventListener("unload", () => {
+      if (this.funnel.questionIndex <= (this.funnel.questions.length - 1)) {
+        window.localStorage.removeItem(this.funnel.storage)
       }
-    }
-
-    if (questionIndex === 11 && answerIndex === 1) {
-      window.location.assign("/felix/shs/")
-      return
-    }
-
-    if (questionIndex === 12 && answerIndex === 0) {
-      this.#setQuestion(questionIndex + 2)
-      return
-    }
-
-    this.#setQuestion(questionIndex + 1)
+    })
+    return this
   }
 
-  #appendSHSClickAndProceedFunnel(div) {
+  withFunnelCompletedEventListener(callback) {
+    this.onFunnelCompleted = callback
+    return this
+  }
+
+  withFunnel(funnel) {
+    this.funnel = funnel
+    document.body.querySelectorAll(this.fieldSelector).forEach(div => this.#setFunnel(div))
+    return this
+  }
+
+  withType(callback) {
+    if (callback !== undefined) callback(this.funnel)
+    return this
+  }
+
+  #setStorage(questionIndex, answerIndex) {
+    try {
+      this.funnel.value[`q${questionIndex}`] = answerIndex
+      window.localStorage.setItem(this.funnel.storage, JSON.stringify(this.funnel))
+    } catch (error) {
+      console.error(error)
+    }
+    return this
+  }
+
+  withClickOnAnswerEventListener(callback) {
+    this.clickOnAnswer = callback
+    return this
+  }
+
+  #nextQuestion(index) {
+    this.funnel.questionIndex = index + 1
+  }
+
+  #setFunnel(div) {
     div.innerHTML = ""
+
+    if (this.funnel.questions[this.funnel.questionIndex] === undefined) {
+      // funnel finished callback
+      if (this.onFunnelCompleted !== undefined) this.onFunnelCompleted()
+      Helper.nextFunnel(this.funnel.paths)
+      return
+    }
 
     const container = document.createElement("div")
     container.classList.add("question-container")
@@ -98,11 +64,10 @@ export class FunnelField {
     container.style.overflow = "auto"
     container.style.height = "100%"
     container.style.fontFamily = "var(--font-family-applebraille-regular)"
-    container.addEventListener("nextQuestion", (event) => this.#nextQuestion(event))
 
     const questionText = document.createElement("p")
     questionText.classList.add("question-text")
-    questionText.innerHTML = this.questions[this.questionIndex].question
+    questionText.innerHTML = this.funnel.questions[this.funnel.questionIndex].question
     questionText.style.textAlign = "center"
     questionText.style.lineHeight = "2"
 
@@ -110,16 +75,17 @@ export class FunnelField {
     answerContainer.classList.add("answer-container")
     answerContainer.style.display = "flex"
 
-    const mql = window.matchMedia("(max-width: 900px)")
+    const mql = window.matchMedia("(max-width: 610px)")
     if (mql.matches) {
       answerContainer.style.flexDirection = "column"
     }
+
     answerContainer.style.flexWrap = "wrap"
     answerContainer.style.justifyContent = "space-around"
     answerContainer.style.alignItems = "center"
     answerContainer.style.marginTop = "5%"
 
-    this.questions[this.questionIndex].answers.forEach((answer, index) => {
+    this.funnel.questions[this.funnel.questionIndex].answers.forEach((answer, index) => {
       const answerBox = document.createElement("div")
       answerBox.classList.add("answer-box")
       answerBox.style.display = "flex"
@@ -129,19 +95,26 @@ export class FunnelField {
       answerBox.style.marginTop = "55px"
       answerBox.style.cursor = "pointer"
 
+      window.addEventListener("resize", () => {
+        if (window.innerWidth < 610) {
+          answerContainer.style.flexDirection = "column"
+          answerBox.style.width = "100%"
+        } else {
+          answerContainer.style.flexDirection = "row"
+          answerBox.style.width = "40%"
+        }
+      })
       if (mql.matches) {
         answerBox.style.width = "100%"
       }
 
-      const customEvent = new CustomEvent('nextQuestion', {
-        bubbles: true,
-        detail: {
-          questionIndex: this.questionIndex,
-          answerIndex: index,
-        },
+      answerBox.addEventListener("click", () => {
+        this.answerIndex = index
+        this.#setStorage(this.funnel.questionIndex, this.answerIndex)
+        if (this.clickOnAnswer !== undefined) this.clickOnAnswer(this.funnel.questionIndex, this.answerIndex)
+        else this.#nextQuestion(this.funnel.questionIndex)
+        this.#setFunnel(div)
       })
-
-      answerBox.addEventListener("click", () => answerBox.dispatchEvent(customEvent))
 
       const answerImage = document.createElement("img")
       answerImage.classList.add("answer-image")
@@ -169,8 +142,9 @@ export class FunnelField {
   constructor(fieldSelector) {
     this.fieldSelector = fieldSelector
     this.className = this.fieldSelector.split("'")[1]
+    this.type = "funnel"
     const divs = document.body.querySelectorAll(this.fieldSelector)
     if (divs.length > 0) return
-    console.error("FIELD_NOT_FOUND")
+    console.warn(`class='${this.className}' - field not found`)
   }
 }

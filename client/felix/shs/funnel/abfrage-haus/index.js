@@ -1,28 +1,38 @@
-import { CheckboxField } from "../../../../js/CheckBoxField.js"
+import { CheckboxField } from "../../../../js/CheckboxField.js"
 import { DivField } from "../../../../js/DivField.js"
 import { FileField } from "../../../../js/FileField.js"
+import { Helper } from "../../../../js/Helper.js"
 import { NumberField } from "../../../../js/NumberField.js"
 import { SelectionField } from "../../../../js/SelectionField.js"
 
-const SHS_FUNNEL_STORAGE_NAME = "shsFunnel"
-const NEXT_PATHNAME = "/felix/shs/funnel/abfrage-heizung/"
-
-if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
-
+// only you and your browser app feature
+const funnel = JSON.parse(window.localStorage.getItem("shsFunnel"))
+if (funnel === null) {
+  window.location.assign("/felix/shs/funnel/qualifizierung/")
+} else {
   const clickzumhausknopf = new DivField("div[class*='clickzumhausknopf']")
-    .withClickEventListener(async() => await saveAndProceed("/felix/shs/funnel/abfrage-haus/"))
+    .withClickEventListener(async() => {
+      await saveToStorage()
+      window.location.assign(funnel.paths[1])
+    })
 
   const clickzurheizungknopf = new DivField("div[class*='clickzurheizungknopf']")
-    .withClickEventListener(async() => await saveAndProceed("/felix/shs/funnel/abfrage-heizung/"))
+    .withClickEventListener(async() => {
+      await saveToStorage()
+      window.location.assign(funnel.paths[2])
+    })
 
   const clickzumzaehlerknopf = new DivField("div[class*='clickzumzaehlerknopf']")
-    .withClickEventListener(async() => await saveAndProceed("/felix/shs/funnel/abfrage-strom/"))
+    .withClickEventListener(async() => {
+      await saveToStorage()
+      window.location.assign(funnel.paths[3])
+    })
 
   const clicktechnischesknopf = new DivField("div[class*='clicktechnischesknopf']")
-    .withClickEventListener(async() => await saveAndProceed("/felix/shs/funnel/abfrage-technisches/"))
-
-
-
+    .withClickEventListener(async() => {
+      await saveToStorage()
+      window.location.assign(funnel.paths[4])
+    })
 
   const hausbaujahr = new NumberField("div[class*='hausbaujahr']")
   .withType((input) => {
@@ -30,13 +40,7 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
     input.max = "2100"
     input.placeholder = "1922"
     input.required = true
-    // input.fromSessionStorage(SHS_FUNNEL_STORAGE_NAME)
-    // const value = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausbaujahr"]
-    // if (value !== undefined) input.value = value
   })
-  // .withInputEventListener(() => {
-  //   hausbaujahr.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
 
   const hausumbau = new NumberField("div[class*='hausumbau']")
   .withType((input) => {
@@ -44,31 +48,10 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
     input.max = "2100"
     input.placeholder = "1962"
     input.required = true
-    // input.fromSessionStorage(SHS_FUNNEL_STORAGE_NAME)
-
-    // const value = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausumbau"]
-    // if (value !== undefined) input.value = value
   })
-  // .withInputEventListener(() => {
-  //   hausumbau.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
-
-    // .withMin("1800")
-    // .withMax("2100")
-    // .withPlaceholder("1920")
-    // .withRequired()
 
   const hausetage = new SelectionField("div[class*='hausetage']")
   .withOptions(["Keller", "Erdgeschoss", "1. Obergeschoss", "Dachgeschoss", "Andere"])
-  // .withSelect((select) => {
-  //   // select.fromSessionStorage(SHS_FUNNEL_STORAGE_NAME)
-  //   // const options = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausetage"]
-  //   // if (options !== undefined) select.setSelected(options)
-  // })
-  // .withInputEventListener(() => {
-  //   hausetage.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
-  // hausetage.withStorage(SHS_FUNNEL_STORAGE_NAME)
 
   const hausflaeche = new NumberField("div[class*='hausflaeche']")
   .withType((input) => {
@@ -76,112 +59,32 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
     input.max = "10000"
     input.placeholder = "in qm"
     input.required = true
-    // input.fromSessionStorage(SHS_FUNNEL_STORAGE_NAME)
-
-    // const value = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausflaeche"]
-    // if (value !== undefined) input.value = value
   })
-  // .withInputEventListener(() => {
-  //   hausflaeche.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
-
-  // return
-
-    // .withMin("0")
-    // .withMax("10000")
-    // .withPlaceholder("in qm")
-    // .withRequired()
 
   const hausdckabelfuehrung = new SelectionField("div[class*='hausdckabelfuehrung']")
   .withOptions(["Ja", "Nein"])
   .withSelected(1)
-  // .withSelect((select) => {
-  //   const options = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausdckabelfuehrung"]
-  //   if (options !== undefined) select.setSelected(options)
-
-  //   // const value = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausdckabelfuehrung"]
-  //   // if (value !== undefined) select.value = value
-  // })
-  // .withInputEventListener(() => {
-  //   hausdckabelfuehrung.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
-  // hausdckabelfuehrung.withStorage(SHS_FUNNEL_STORAGE_NAME)
-
 
   const hausverkabelungdc = new SelectionField("div[class*='hausverkabelungdc']")
   .withOptions(["Ja", "Nein"])
   .withSelected(1)
-  // .withSelect((select) => {
-  //   const options = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausverkabelungdc"]
-  //   if (options !== undefined) select.setSelected(options)
-
-  //   // const value = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausverkabelungdc"]
-  //   // if (value !== undefined) select.value = value
-  // })
-  // .withInputEventListener(() => {
-  //   hausverkabelungdc.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
-  // hausverkabelungdc.withStorage(SHS_FUNNEL_STORAGE_NAME)
-
 
   const hausaussenfasadegedaemmt = new SelectionField("div[class*='hausaussenfasadegedaemmt']")
   .withOptions(["Ja", "Nein"])
   .withSelected(1)
-  // .withSelect((select) => {
-  //   const options = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausaussenfasadegedaemmt"]
-  //   if (options !== undefined) select.setSelected(options)
-
-  //   // const value = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausaussenfasadegedaemmt"]
-  //   // if (value !== undefined) select.value = value
-  // })
-  // .withInputEventListener(() => {
-  //   hausaussenfasadegedaemmt.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
-  // hausaussenfasadegedaemmt.withStorage(SHS_FUNNEL_STORAGE_NAME)
-
-
 
   const hausdenkmal = new SelectionField("div[class*='hausdenkmal']")
   .withOptions(["Ja", "Nein"])
   .withSelected(1)
-  // .withSelect((select) => {
-  //   const options = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausdenkmal"]
-  //   if (options !== undefined) select.setSelected(options)
-
-  //   // const value = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausdenkmal"]
-  //   // if (value !== undefined) select.value = value
-  // })
-  // .withInputEventListener(() => {
-  //   hausdenkmal.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
-  // hausdenkmal.withStorage(SHS_FUNNEL_STORAGE_NAME)
-
 
   const hausenergiesystementsorgen = new SelectionField("div[class*='hausenergiesystementsorgen']")
   .withOptions(["Ja", "Nein"])
   .withSelected(1)
-  // .withSelect((select) => {
-
-  //   const options = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausenergiesystementsorgen"]
-  //   if (options !== undefined) select.setSelected(options)
-
-  //   // const value = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausenergiesystementsorgen"]
-  //   // if (value !== undefined) select.value = value
-  // })
-  // .withInputEventListener(() => {
-  //   hausenergiesystementsorgen.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
-  // hausenergiesystementsorgen.withStorage(SHS_FUNNEL_STORAGE_NAME)
-
-
 
   const hausenergievorhanden = new SelectionField("div[class*='hausenergievorhanden']")
   .withOptions(["Nein", "Ja, ich habe schon eine Photovoltaikanlage", "Ja, ich habe schon eine Wärmepumpe", "Ja, ich habe schon eine Solarthermie", "Ja, ich habe schon ein Stromspeicher"])
   .withType((select) => {
     select.multiple = true
-
-    // const options = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausenergievorhanden"]
-    // if (options !== undefined) select.setSelected(options)
     if (select.value === "Nein") {
       document.querySelectorAll(hausenergiesystementsorgen.selectSelector).forEach(select => select.disabled = true)
     }
@@ -193,103 +96,53 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
     if (event.target.value !== "Nein") {
       document.querySelectorAll(hausenergiesystementsorgen.selectSelector).forEach(select => select.disabled = false)
     }
-    // hausenergievorhanden.withStorage(SHS_FUNNEL_STORAGE_NAME)
   })
-  // hausenergievorhanden.withStorage(SHS_FUNNEL_STORAGE_NAME)
-
 
   const hauslager = new SelectionField("div[class*='hauslager']")
   .withOptions(["Ja", "Nein", "nicht bei mir zu Hause"])
-  // .withSelect((select) => {
-  //   const options = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hauslager"]
-  //   if (options !== undefined) select.setSelected(options)
-  // })
-  // .withInputEventListener(() => {
-  //   hauslager.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
-
 
   const hausdacheindeckung = new SelectionField("div[class*='hausdacheindeckung']")
   .withOptions(["gelegt", "geschraubt", "geklebt", "gebohrt"])
   .withType((select) => {
     select.disabled = true
-    // const options = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausdacheindeckung"]
-    // if (options !== undefined) select.setSelected(options)
-    const q6 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q6
+    const q6 = funnel.value.q6
     if (q6 === 4) {
       select.disabled = false
     }
   })
-  // .withInputEventListener(() => {
-  //   hausdacheindeckung.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
-
 
   const hausukueberstand = new SelectionField("div[class*='hausukueberstand']")
   .withOptions(["Ja", "Nein"])
   .withSelected(1)
   .withRequired(0)
   .withType((select) => {
-    // const options = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausukueberstand"]
-    // if (options !== undefined) select.setSelected(options)
-    const q7 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q7
+    const q7 = funnel.value.q7
     if (q7 !== 0) {
       select.disabled = true
     }
   })
-  // .withInputEventListener(() => {
-  //   hausukueberstand.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
 
   const hausandereshausabstand = new SelectionField("div[class*='hausandereshausabstand']")
   .withOptions(["Ja", "Nein"])
   .withSelected(1)
   .withRequired(0)
   .withType((select) => {
-    // const options = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausandereshausabstand"]
-    // if (options !== undefined) select.setSelected(options)
-    const q7 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q7
+    const q7 = funnel.value.q7
     if (q7 !== 0) {
       select.disabled = true
     }
   })
-  // .withInputEventListener(() => {
-  //   hausandereshausabstand.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
 
   const hausentlueftungsrohre = new SelectionField("div[class*='hausentlueftungsrohre']")
   .withOptions(["Ja", "Nein"])
   .withSelected(1)
-  // .withSelect((select) => {
-  //   const options = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausentlueftungsrohre"]
-  //   if (options !== undefined) select.setSelected(options)
-  // })
-  // .withInputEventListener(() => {
-  //   hausentlueftungsrohre.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
-
 
   const hausblitzschutzanlage = new SelectionField("div[class*='hausblitzschutzanlage']")
   .withOptions(["Ja", "Nein"])
   .withSelected(1)
-  // .withSelect((select) => {
-  //   const options = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausblitzschutzanlage"]
-  //   if (options !== undefined) select.setSelected(options)
-  // })
-  // .withInputEventListener(() => {
-  //   hausblitzschutzanlage.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
-
 
   const hausbesonderheiten = new SelectionField("div[class*='hausbesonderheiten']")
   .withOptions(["Nein", "SAT Antennen", "Blitzableiter", "Schneefanggitter", "Dachfenster", "Dachgauben", "Freileitung", "Andere"])
-  // .withSelect((select) => {
-  //   const options = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausbesonderheiten"]
-  //   if (options !== undefined) select.setSelected(options)
-  // })
-  // .withInputEventListener(() => {
-  //   hausbesonderheiten.withStorage(SHS_FUNNEL_STORAGE_NAME)
-  // })
 
   const hausabstandsparren = new NumberField("div[class*='hausabstandsparren']")
   .withType((input) => {
@@ -297,41 +150,31 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
     input.max = 100
     input.placeholder = "in cm"
     input.required = true
-    // input.fromSessionStorage(SHS_FUNNEL_STORAGE_NAME)
-    // const value = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausabstandsparren"]
-    // if (value !== undefined) input.value = value
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 === 2 || q5 === 4) {
       input.disabled = true
     }
   })
 
   const haussparrenbreite = new NumberField("div[class*='haussparrenbreite']")
-  // .withMin("0").withMax("100").withPlaceholder("in cm")
-  // .withRequired()
   .withType((input) => {
     input.min = 0
     input.max = 100
     input.placeholder = "in cm"
     input.required = true
-    // input.fromSessionStorage(SHS_FUNNEL_STORAGE_NAME)
-    // const value = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME))["hausabstandsparren"]
-    // if (value !== undefined) input.value = value
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 === 2 || q5 === 4) {
       input.disabled = true
     }
   })
 
   const haussparrenhoehe = new NumberField("div[class*='haussparrenhoehe']")
-    // .withMin("0").withMax("100").withPlaceholder("in cm")
-    // .withRequired()
   .withType((input) => {
     input.min = 0
     input.max = 100
     input.placeholder = "in cm"
     input.required = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 === 2 || q5 === 4) {
       input.disabled = true
     }
@@ -340,13 +183,11 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   const hausmaterialsparren = new SelectionField("div[class*='hausmaterialsparren']")
   .withOptions(["Holz", "Metall", "Sonstiges"])
   .withType((select) => {
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 === 2 || q5 === 4) {
       select.disabled = true
     }
   })
-
-
 
   const hausgeruestoeffentlich = new SelectionField("div[class*='hausgeruestoeffentlich']")
   .withOptions(["Ja", "Nein"])
@@ -370,7 +211,6 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
     number.max = 100
     number.placeholder = "in m"
   })
-    // .withMin("0").withMax("100").withPlaceholder("in m")
 
   const hauslaengedesgeruest = new NumberField("div[class*='hauslaengedesgeruest']")
   .withType(number => {
@@ -378,7 +218,6 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
     number.max = 100
     number.placeholder = "in m"
   })
-    // .withMin("0").withMax("100").withPlaceholder("in m")
 
   const hauswievielegerueste = new NumberField("div[class*='hauswievielegerueste']")
   .withType(number => {
@@ -387,8 +226,6 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
     number.placeholder = "1"
     number.required = true
   })
-    // .withMin("0").withMax("100").withPlaceholder("1")
-    // .withRequired()
 
   const hausgesamtgeruestflaeche = new NumberField("div[class*='hausgesamtgeruestflaeche']")
   .withType(number => {
@@ -396,28 +233,25 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
     number.max = 100
     number.placeholder = "in m^2"
   })
-    // .withMin("0").withMax("100").withPlaceholder("in m^2")
 
   const hausattikavorhanden = new SelectionField("div[class*='hausattikavorhanden']")
   .withOptions(["Ja", "Nein"])
   .withSelected(1)
   .withType((select) => {
     select.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 === 2 || q5 === 4) {
       select.disabled = false
     }
   })
 
   const hausattikabreite = new NumberField("div[class*='hausattikabreite']")
-    // .withMin("0").withMax("100").withPlaceholder("in cm")
-    // .withRequired()
   .withType((input) => {
     input.min = 0
     input.max = 100
     input.placeholder = "in cm"
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 === 2 || q5 === 4) {
       input.required = true
       input.disabled = false
@@ -425,14 +259,12 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   })
 
   const hausattikahoehe = new NumberField("div[class*='hausattikahoehe']")
-    // .withMin("0").withMax("100").withPlaceholder("in cm")
-    // .withRequired()
   .withType((input) => {
     input.min = 0
     input.max = 100
     input.placeholder = "in cm"
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 === 2 || q5 === 4) {
       input.required = true
       input.disabled = false
@@ -440,14 +272,12 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   })
 
   const hausgradzahlflachdach = new NumberField("div[class*='hausgradzahlflachdach']")
-    // .withMin("0").withMax("100").withPlaceholder("in m")
-    // .withRequired()
   .withType((input) => {
     input.min = 0
     input.max = 100
     input.placeholder = "in cm"
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 === 2 || q5 === 4) {
       input.required = true
       input.disabled = false
@@ -455,10 +285,9 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   })
 
   const flachdachneigungbekanntcheckbo = new CheckboxField("div[class*='flachdachneigungbekanntcheckbo']")
-  // .withRequired()
   .withType((box) => {
     box.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 === 2 || q5 === 4) {
       box.required = true
       box.disabled = false
@@ -468,7 +297,7 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   const flachdachnordcheckbox = new CheckboxField("div[class*='flachdachnordcheckbox']")
   .withType((box) => {
     box.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 === 2 || q5 === 4) {
       box.disabled = false
     }
@@ -484,7 +313,7 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   const flachdachostcheckbox = new CheckboxField("div[class*='flachdachostcheckbox']")
   .withType((box) => {
     box.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 === 2 || q5 === 4) {
       box.disabled = false
     }
@@ -500,7 +329,7 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   const flachdachsuedcheckbox = new CheckboxField("div[class*='flachdachsuedcheckbox']")
   .withType((box) => {
     box.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 === 2 || q5 === 4) {
       box.disabled = false
     }
@@ -513,11 +342,10 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
     }
   })
 
-
   const flachdachwestcheckbox = new CheckboxField("div[class*='flachdachwestcheckbox']")
   .withType((box) => {
     box.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 === 2 || q5 === 4) {
       box.disabled = false
     }
@@ -530,41 +358,37 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
     }
   })
 
-
   const haustrapezdachalu = new NumberField("div[class*='haustrapezdachalu']")
-  // .withMin("0").withMax("100").withPlaceholder("in mm")
   .withType((input) => {
     input.min = 0
     input.max = 100
     input.placeholder = "in mm"
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
-    const q6 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q6
+    const q5 = funnel.value.q5
+    const q6 = funnel.value.q6
     if (q5 === 2 && (q6 === 1 || q6 === 2)) {
       input.disabled = false
     }
   })
 
   const haustrapezdachstahl = new NumberField("div[class*='haustrapezdachstahl']")
-  // .withMin("0").withMax("100").withPlaceholder("in mm")
   .withType((input) => {
     input.min = 0
     input.max = 100
     input.placeholder = "in mm"
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
-    const q6 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q6
+    const q5 = funnel.value.q5
+    const q6 = funnel.value.q6
     if (q5 === 2 && (q6 === 1 || q6 === 2)) {
       input.disabled = false
     }
   })
 
   const icopalnichtcheckbox = new CheckboxField("div[class*='icopalnichtcheckbox']")
-    // .withRequired()
   .withType((box) => {
     box.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
-    const q6 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q6
+    const q5 = funnel.value.q5
+    const q6 = funnel.value.q6
     if (q5 === 2 && (q6 === 1 || q6 === 2)) {
       box.disabled = false
       box.required = true
@@ -572,13 +396,12 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   })
 
   const dachtraufhoehe = new NumberField("div[class*='dachtraufhoehe']")
-    // .withMin("0").withMax("100").withPlaceholder("in m")
   .withType((input) => {
     input.min = 0
     input.max = 100
     input.placeholder = "in m"
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 !== 2) {
       input.disabled = false
       input.required = true
@@ -586,13 +409,12 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   })
 
   const hausdachbreite = new NumberField("div[class*='hausdachbreite']")
-  // .withMin("0").withMax("100").withPlaceholder("in m")
   .withType((input) => {
     input.min = 0
     input.max = 100
     input.placeholder = "in m"
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 !== 2) {
       input.disabled = false
       input.required = true
@@ -600,13 +422,12 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   })
 
   const hausdachlaenge = new NumberField("div[class*='hausdachlaenge']")
-  // .withMin("0").withMax("100").withPlaceholder("in m")
   .withType((input) => {
     input.min = 0
     input.max = 100
     input.placeholder = "in m"
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 !== 2) {
       input.disabled = false
       input.required = true
@@ -614,13 +435,12 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   })
 
   const hausfirsthoehe = new NumberField("div[class*='hausfirsthoehe']")
-    // .withMin("0").withMax("100").withPlaceholder("in m")
   .withType((input) => {
     input.min = 0
     input.max = 100
     input.placeholder = "in m"
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 !== 2) {
       input.disabled = false
       input.required = true
@@ -631,20 +451,19 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   .withOptions(["Süd", "Nord", "Nord-Ost", "Ost", "Süd-Ost", "Süd-West", "West", "Nord-West"])
   .withType((select) => {
     select.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 !== 2) {
       select.disabled = false
     }
   })
 
   const hausdachneigung = new NumberField("div[class*='hausdachneigung']")
-    // .withMin("0").withMax("100").withPlaceholder("in Grad")
   .withType((input) => {
     input.min = 0
     input.max = 100
     input.placeholder = "in Grad"
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 !== 2) {
       input.disabled = false
       input.required = true
@@ -654,7 +473,7 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   const hausfrontbildbildupload = new FileField("div[class*='hausfrontbildbildupload']")
   .withType((input) => {
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 !== 2) {
       input.disabled = false
       input.accept = "image/*"
@@ -667,7 +486,7 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   const haussuedansichtbildbildupload = new FileField("div[class*='haussuedansichtbildbildupload']")
   .withType((input) => {
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 !== 2) {
       input.disabled = false
       input.accept = "image/*"
@@ -676,12 +495,10 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
     }
   })
 
-
-
   const hausgerueststandortbildbildupl = new FileField("div[class*='hausgerueststandortbildbildupl']")
   .withType((input) => {
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 !== 2) {
       input.disabled = false
       input.accept = "image/*"
@@ -695,7 +512,7 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   const hausortgangbildbildupload = new FileField("div[class*='hausortgangbildbildupload']")
   .withType((input) => {
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 !== 2) {
       input.disabled = false
       input.accept = "image/*"
@@ -708,7 +525,7 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   const haussparrenansichtbildbilduplo = new FileField("div[class*='haussparrenansichtbildbilduplo']")
   .withType((input) => {
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 !== 2) {
       input.disabled = false
       input.accept = "image/*"
@@ -721,7 +538,7 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   const hausziegelbildbildupload = new FileField("div[class*='hausziegelbildbildupload']")
   .withType((input) => {
     input.disabled = true
-    const q5 = JSON.parse(window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME)).q5
+    const q5 = funnel.value.q5
     if (q5 !== 2) {
       input.disabled = false
       input.accept = "image/*"
@@ -813,13 +630,16 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   ]
 
   fields.forEach(async field => {
-    field.withType(type => type.fromSessionStorage(SHS_FUNNEL_STORAGE_NAME))
-    field.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    field.withInputEventListener(() => field.withStorage(SHS_FUNNEL_STORAGE_NAME))
+    field.withType(type => type.fromStorage(funnel.storage))
+    field.withStorage(funnel.storage)
+    field.withInputEventListener(() => field.withStorage(funnel.storage))
   })
 
   const speichernundweiterbutton = new DivField("div[class*='speichernundweiterbutton']")
-    .withClickEventListener(async () => await saveAndProceed(NEXT_PATHNAME))
+    .withClickEventListener(async () => {
+      await saveToStorage()
+      Helper.nextFunnel(funnel.paths)
+    })
 
   const impresum = new DivField("div[class*='impressum']")
     .withClickEventListener(() => window.location.assign("/felix/shs/impressum/"))
@@ -827,71 +647,67 @@ if (window.sessionStorage.getItem(SHS_FUNNEL_STORAGE_NAME) !== null) {
   const datenschutz = new DivField("div[class*='datenschutz']")
     .withClickEventListener(() => window.location.assign("/felix/shs/datenschutz/"))
 
-  async function saveAndProceed(pathname) {
-    await hausbaujahr.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausumbau.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausetage.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausflaeche.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausdckabelfuehrung.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausverkabelungdc.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausaussenfasadegedaemmt.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausdenkmal.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausenergievorhanden.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausenergiesystementsorgen.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hauslager.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausdacheindeckung.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausukueberstand.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausandereshausabstand.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausentlueftungsrohre.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausblitzschutzanlage.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausbesonderheiten.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausabstandsparren.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await haussparrenbreite.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await haussparrenhoehe.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausmaterialsparren.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausgeruestoeffentlich.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausgeruestselbstgestellt.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausverankerungcheckbox.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await geruestaufstellungcheckboxnord.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await geruestaufstellungcheckboxsued.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await geruestaufstellungcheckboxost.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await geruestaufstellungcheckboxwest.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausbreitedesgeruest.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hauslaengedesgeruest.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hauswievielegerueste.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausgesamtgeruestflaeche.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausattikavorhanden.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausattikabreite.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausattikahoehe.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausgradzahlflachdach.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await flachdachneigungbekanntcheckbo.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await flachdachnordcheckbox.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await flachdachostcheckbox.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await flachdachsuedcheckbox.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await flachdachwestcheckbox.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await haustrapezdachalu.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await haustrapezdachstahl.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await icopalnichtcheckbox.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await dachtraufhoehe.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausdachbreite.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausdachlaenge.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausfirsthoehe.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausdachausrichtung.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausdachneigung.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausfrontbildbildupload.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await haussuedansichtbildbildupload.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausgerueststandortbildbildupl.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausortgangbildbildupload.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await haussparrenansichtbildbilduplo.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausziegelbildbildupload.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausdeckmasslaenge.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausdeckmassbreite.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await hausersatzsiegel.withStorage(SHS_FUNNEL_STORAGE_NAME)
-
-    window.location.assign(pathname)
+  async function saveToStorage() {
+    await hausbaujahr.withStorage(funnel.storage)
+    await hausumbau.withStorage(funnel.storage)
+    await hausetage.withStorage(funnel.storage)
+    await hausflaeche.withStorage(funnel.storage)
+    await hausdckabelfuehrung.withStorage(funnel.storage)
+    await hausverkabelungdc.withStorage(funnel.storage)
+    await hausaussenfasadegedaemmt.withStorage(funnel.storage)
+    await hausdenkmal.withStorage(funnel.storage)
+    await hausenergievorhanden.withStorage(funnel.storage)
+    await hausenergiesystementsorgen.withStorage(funnel.storage)
+    await hauslager.withStorage(funnel.storage)
+    await hausdacheindeckung.withStorage(funnel.storage)
+    await hausukueberstand.withStorage(funnel.storage)
+    await hausandereshausabstand.withStorage(funnel.storage)
+    await hausentlueftungsrohre.withStorage(funnel.storage)
+    await hausblitzschutzanlage.withStorage(funnel.storage)
+    await hausbesonderheiten.withStorage(funnel.storage)
+    await hausabstandsparren.withStorage(funnel.storage)
+    await haussparrenbreite.withStorage(funnel.storage)
+    await haussparrenhoehe.withStorage(funnel.storage)
+    await hausmaterialsparren.withStorage(funnel.storage)
+    await hausgeruestoeffentlich.withStorage(funnel.storage)
+    await hausgeruestselbstgestellt.withStorage(funnel.storage)
+    await hausverankerungcheckbox.withStorage(funnel.storage)
+    await geruestaufstellungcheckboxnord.withStorage(funnel.storage)
+    await geruestaufstellungcheckboxsued.withStorage(funnel.storage)
+    await geruestaufstellungcheckboxost.withStorage(funnel.storage)
+    await geruestaufstellungcheckboxwest.withStorage(funnel.storage)
+    await hausbreitedesgeruest.withStorage(funnel.storage)
+    await hauslaengedesgeruest.withStorage(funnel.storage)
+    await hauswievielegerueste.withStorage(funnel.storage)
+    await hausgesamtgeruestflaeche.withStorage(funnel.storage)
+    await hausattikavorhanden.withStorage(funnel.storage)
+    await hausattikabreite.withStorage(funnel.storage)
+    await hausattikahoehe.withStorage(funnel.storage)
+    await hausgradzahlflachdach.withStorage(funnel.storage)
+    await flachdachneigungbekanntcheckbo.withStorage(funnel.storage)
+    await flachdachnordcheckbox.withStorage(funnel.storage)
+    await flachdachostcheckbox.withStorage(funnel.storage)
+    await flachdachsuedcheckbox.withStorage(funnel.storage)
+    await flachdachwestcheckbox.withStorage(funnel.storage)
+    await haustrapezdachalu.withStorage(funnel.storage)
+    await haustrapezdachstahl.withStorage(funnel.storage)
+    await icopalnichtcheckbox.withStorage(funnel.storage)
+    await dachtraufhoehe.withStorage(funnel.storage)
+    await hausdachbreite.withStorage(funnel.storage)
+    await hausdachlaenge.withStorage(funnel.storage)
+    await hausfirsthoehe.withStorage(funnel.storage)
+    await hausdachausrichtung.withStorage(funnel.storage)
+    await hausdachneigung.withStorage(funnel.storage)
+    await hausfrontbildbildupload.withStorage(funnel.storage)
+    await haussuedansichtbildbildupload.withStorage(funnel.storage)
+    await hausgerueststandortbildbildupl.withStorage(funnel.storage)
+    await hausortgangbildbildupload.withStorage(funnel.storage)
+    await haussparrenansichtbildbilduplo.withStorage(funnel.storage)
+    await hausziegelbildbildupload.withStorage(funnel.storage)
+    await hausdeckmasslaenge.withStorage(funnel.storage)
+    await hausdeckmassbreite.withStorage(funnel.storage)
+    await hausersatzsiegel.withStorage(funnel.storage)
   }
-} else {
-  window.location.assign("/felix/shs/funnel/qualifizierung/")
 }
 
 

@@ -1,5 +1,10 @@
 import { DivField } from "../../js/DivField.js"
 
+document.querySelectorAll("img[class*='logo']").forEach(img => {
+  img.src = "/felix/shs/img/shslogo.png"
+  img.alt = "SHS Express Logo"
+})
+
 const zumloginbutton = new DivField("div[class*='zumloginbutton']")
 .withClickEventListener(() => window.location.assign("/home/"))
 

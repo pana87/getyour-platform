@@ -1,3 +1,5 @@
+import { Helper } from "./Helper.js"
+
 export class TextField {
 
   withChangeEventListener(callback) {
@@ -7,11 +9,10 @@ export class TextField {
 
   withType(callback) {
     if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => {
-      input.fromSessionStorage = (name) => {
-        const value = JSON.parse(window.sessionStorage.getItem(name))[this.className]
+      input.fromStorage = (name) => {
+        const value = JSON.parse(window.localStorage.getItem(name)).value[this.className]
         if (value !== undefined) input.value = value
       }
-
       callback(input)
     })
     return this
@@ -25,31 +26,22 @@ export class TextField {
   }
 
   async withStorage(name) {
-    this.storageName = name
-    const value = await this.withValidValue()
-    if (!this.#isEmpty(value)) {
-      this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
-      this.storage[this.className] = value
-      window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
+    try {
+      this.storageName = name
+      const value = await this.withValidValue()
+      if (!this.#isEmpty(value)) {
+        const storage = JSON.parse(window.localStorage.getItem(this.storageName))
+        storage.value[this.className] = value
+        window.localStorage.setItem(this.storageName, JSON.stringify(storage))
+      }
+    } catch (error) {
+      console.error(error)
     }
     return this
   }
 
-  #setValidStyle(input) {
-    input.style.border = "2px solid #00c853"
-    input.style.borderRadius = "3px"
-    return input
-  }
-
-  #setNotValidStyle(input) {
-    input.style.border = "2px solid #d50000"
-    input.style.borderRadius = "3px"
-    return input
-  }
-
   withUrlValue() {
-    const inputs = document.body.querySelectorAll(this.inputSelector)
-    inputs.forEach(input => input.value = encodeURIComponent(input.value).replace(/%20/g, "-"))
+    document.body.querySelectorAll(this.inputSelector).forEach(input => input.value = encodeURIComponent(input.value).replace(/%20/g, "-"))
     return this
   }
 
@@ -63,14 +55,14 @@ export class TextField {
       document.querySelectorAll(this.inputSelector).forEach(input => {
         if (this.#isRequired(input)) {
           if (input.checkValidity()) {
-            this.#setValidStyle(input)
+            Helper.setValidStyle(input)
             return resolve(input.value)
           }
-          this.#setNotValidStyle(input)
+          Helper.setNotValidStyle(input)
           console.error(`class='${this.className}' - required valid value`)
           return
         }
-        this.#setValidStyle(input)
+        Helper.setValidStyle(input)
         return resolve(input.value)
       })
     })
@@ -84,7 +76,8 @@ export class TextField {
   constructor(fieldSelector) {
     this.fieldSelector = fieldSelector
     this.className = this.fieldSelector.split("'")[1]
-    this.inputSelector = `input[name='${this.className}']`
+    this.inputSelector = `input[id='${this.className}']`
+    this.type = "text"
 
     const divs = document.querySelectorAll(this.fieldSelector)
     if (divs.length > 0) {
@@ -96,10 +89,11 @@ export class TextField {
         input.name = this.className
         input.id = this.className
 
+
         div.append(input)
       })
       return
     }
-    console.error("FIELD_NOT_FOUND")
+    console.warn(`class='${this.className}' - field not found`)
   }
 }

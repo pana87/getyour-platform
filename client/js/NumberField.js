@@ -1,3 +1,5 @@
+import { Helper } from "./Helper.js"
+
 export class NumberField {
 
   withChangeEventListener(callback) {
@@ -7,8 +9,8 @@ export class NumberField {
 
   withType(callback) {
     document.querySelectorAll(this.inputSelector).forEach(input => {
-      input.fromSessionStorage = (name) => {
-        const value = JSON.parse(window.sessionStorage.getItem(name))[this.className]
+      input.fromStorage = (name) => {
+        const value = JSON.parse(window.localStorage.getItem(name)).value[this.className]
         if (value !== undefined) input.value = value
       }
       callback(input)
@@ -24,36 +26,18 @@ export class NumberField {
   }
 
   async withStorage(name) {
-    this.storageName = name
-    const value = await this.withValidValue()
-    if (!this.#isEmpty(value)) {
-      this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
-      this.storage[this.className] = value
-      window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
+    try {
+      this.storageName = name
+      const value = await this.withValidValue()
+      if (!this.#isEmpty(value)) {
+        const storage = JSON.parse(window.localStorage.getItem(this.storageName))
+        storage.value[this.className] = value
+        window.localStorage.setItem(this.storageName, JSON.stringify(storage))
+      }
+    } catch (error) {
+      console.error(error)
     }
     return this
-  }
-
-  #setNoStyle(input) {
-    input.removeAttribute("style")
-    return input
-  }
-
-  withNoStyle() {
-    document.querySelectorAll(this.inputSelector).forEach(input => this.#setNoStyle(input))
-    return this
-  }
-
-  #setValidStyle(input) {
-    input.style.border = "2px solid #00c853"
-    input.style.borderRadius = "3px"
-    return input
-  }
-
-  #setNotValidStyle(input) {
-    input.style.border = "2px solid #d50000"
-    input.style.borderRadius = "3px"
-    return input
   }
 
   #isRequired(input) {
@@ -66,14 +50,14 @@ export class NumberField {
       document.querySelectorAll(this.inputSelector).forEach(input => {
         if (this.#isRequired(input)) {
           if (input.checkValidity()) {
-            this.#setValidStyle(input)
+            Helper.setValidStyle(input)
             return resolve(input.value)
           }
-          this.#setNotValidStyle(input)
+          Helper.setNotValidStyle(input)
           console.error(`class='${this.className}' - required valid value`)
           return
         }
-        this.#setValidStyle(input)
+        Helper.setValidStyle(input)
         return resolve(input.value)
       })
     })
@@ -88,6 +72,7 @@ export class NumberField {
     this.fieldSelector = fieldSelector
     this.className = this.fieldSelector.split("'")[1]
     this.inputSelector = `input[id='${this.className}']`
+    this.type = "number"
 
     const divs = document.querySelectorAll(this.fieldSelector)
     if (divs.length > 0) {

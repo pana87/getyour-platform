@@ -1,7 +1,6 @@
 const express = require('express')
 const cors = require("cors")
 const AuthServer = require('../lib/AuthServer.js')
-const Notification = require('../lib/Notification.js')
 const app = express()
 const crypto = require("node:crypto")
 const { User } = require('../lib/domain/User.js')
@@ -27,176 +26,117 @@ app.use(cors({
 }))
 app.use(cookieParser())
 
-app.post("/request/user/view/", Request.verifyId, Request.verifySession, async (req, res) => {
-  const {user} = await User.find(it => it.id === req.user.id)
+// app.post("/request/verify/user/",
+//   Request.requireBody,
+//   Request.requireUrl,
+//   Request.requireLocalStorageId,
+//   Request.registerVerifiedUser,
+//   async (req, res) => {
+//     return res.sendStatus(404)
+//   }
+// )
 
-  if (user.email.endsWith("@get-your.de") && req.user.roles.length === 0) return res.send({
-    status: 200,
-    message: "PLATFORM_DEVELOPER_USER_ROLE_MISSING",
-    view: "/user/register/platform-developer/",
-  })
-  if (user.email.endsWith("@get-your.de") && req.user.roles[0] === UserRole.PLATFORM_DEVELOPER) return res.send({
-    status: 200,
-    message: "REDIRECT_TO_PLATFORM_DEVELOPER_VIEW",
-    view: `/${user.name}/`,
-  })
-  if (req.user.roles[0] === UserRole.OPERATOR) return res.send({
-    status: 200,
-    message: "REDIRECT_TO_OPERATOR_VIEW",
-    view: `/felix/shs/checkliste/${req.user.id}`,
-  })
-  if (req.user.roles.length === 0) return res.send({
-    status: 200,
-    message: "USER_ROLE_MISSING",
-    view: "/user/entries/",
-  })
-  return res.send({
-    status: 500,
-    message: "USER_VIEW_REQUEST_FAILED",
-  })
-})
+app.post("/request/register/session/",
+  // Request.requireBody,
+  // Request.requireUrl,
+  Request.requireLocalStorageId,
+  Request.requireVerifiedUser,
+  async (req, res) => {
+    try {
+      const {localStorageId, name} = req.body
+      const {user} = await Helper.find(user => user.id === localStorageId)
+      if (Helper.objectIsEmpty(user)) return res.sendStatus(404)
+      const salt = Helper.generateRandomBytes(32)
+      if (Helper.arrayIsEmpty(salt)) return res.sendStatus(404)
 
-app.post("/request/session/token/", Request.verifyId, async (req, res) => {
-  try {
-    const {id} = req.body
-    const {user} = await User.find(it => it.id === id)
-    const salt = Helper.generateRandomBytes(32)
-    const jwtToken = JWTToken.sign({
-      roles: user.roles,
-      id: id,
-    }).jwtToken
-    const saltDigest = Helper.digest(JSON.stringify(salt))
-    const jwtTokenDigest = Helper.digest(jwtToken)
-    const sessionToken = Helper.digest(JSON.stringify({
-      id,
-      pin: userPin,
-      salt: saltDigest,
-      jwt: jwtTokenDigest,
-    }))
+      if (name === "onlogin") {
+        if (Helper.arrayIsEmpty(user.roles)) return res.send({redirectPath: "/user/entries/"})
+      }
 
-    if (
-      !Helper.stringIsEmpty(id) &&
-      !Helper.objectIsEmpty(user) &&
-      !Helper.arrayIsEmpty(salt) &&
-      !Helper.stringIsEmpty(jwtToken) &&
-      !Helper.stringIsEmpty(saltDigest) &&
-      !Helper.stringIsEmpty(jwtTokenDigest) &&
-      !Helper.stringIsEmpty(sessionToken)
-      ) {
-      const storeSessionRx = await User.registerSession({
-        id,
-        pin: userPin,
+      if (Helper.stringIsEmpty(user.id)) return res.sendStatus(404)
+      const jwtToken = JWTToken.sign({
+        roles: user.roles,
+        id: user.id,
+      }).jwtToken
+      if (Helper.stringIsEmpty(jwtToken)) return res.sendStatus(404)
+      const saltDigest = Helper.digest(JSON.stringify(salt))
+      if (Helper.stringIsEmpty(saltDigest)) return res.sendStatus(404)
+      const jwtTokenDigest = Helper.digest(jwtToken)
+      if (Helper.stringIsEmpty(jwtTokenDigest)) return res.sendStatus(404)
+      const sessionToken = Helper.digest(JSON.stringify({
+        id: user.id,
+        pin: randomPin,
         salt: saltDigest,
         jwt: jwtTokenDigest,
+      }))
+      if (Helper.stringIsEmpty(sessionToken)) return res.sendStatus(404)
+      req.session = {}
+      req.session.id = user.id
+      req.session.pin = randomPin
+      req.session.salt = saltDigest
+      req.session.jwt = jwtTokenDigest
+      const storeSessionRx = await Request.registerSession(req)
+      if (storeSessionRx.status !== 200) return res.sendStatus(404)
+      res.cookie("jwtToken", jwtToken, {
+        maxAge: sessionLength,
+        httpOnly: true,
+        sameSite: "lax",
       })
-      if (storeSessionRx.status === 200) {
-        res.cookie("jwtToken", jwtToken, {
-          maxAge: sessionLength,
-          httpOnly: true,
-          sameSite: "lax",
-        })
-        res.cookie("sessionToken", sessionToken, {
-          maxAge: sessionLength,
-          httpOnly: true,
-          sameSite: "lax",
-        })
-
-        return res.send({
-          status: 200,
-          message: "SESSION_TOKEN_REQUEST_SUCCEED",
-        })
-      }
+      res.cookie("sessionToken", sessionToken, {
+        maxAge: sessionLength,
+        httpOnly: true,
+        sameSite: "lax",
+      })
+      return res.send({status: storeSessionRx.status, statusText: storeSessionRx.statusText})
+    } catch (error) {
+      console.error(error)
     }
-  } catch (error) {
-    console.error(error)
+    return res.sendStatus(404)
   }
-  return res.send({
-    status: 500,
-    message: "SESSION_TOKEN_REQUEST_FAILED",
-  })
-})
+)
 
-app.post("/request/get/id/", async (req, res) => {
-  const {id} = req.body
-  if (id !== undefined) {
-    const {user} = await User.find((user) => user.id === Helper.digest(JSON.stringify({email: id, verified: user.verified})))
-    if (user !== undefined) {
-      if (user.verified === true) {
-        return res.send({
-          status: 200,
-          message: "GET_ID_REQUEST_SUCCEED",
-          id: user.id,
-        })
-      }
-    }
-  }
-  return res.send({
-    status: 500,
-    message: "GET_ID_REQUEST_FAILED",
-  })
-})
-
-app.post("/request/verify/id/", async (req, res) => {
+// app.post("/request/verify/id/", Request.requireBody, Request.requireLocalStorageId, User.verify, async (req, res) => {
+//   return res.sendStatus(404)
+// })
+let randomPin
+app.post("/request/verify/pin/",
+// Request.requireBody,
+// Request.requireUrl,
+// Request.requireUserPin,
+async (req, res) => {
   try {
-    const verifyIdRx = await User.verify(req.body)
-    if (verifyIdRx.status === 200) {
-      return res.send({
-        status: 200,
-        message: "VERIFY_ID_REQUEST_SUCCEED",
-      })
-    }
+    const {userPin} = req.body
+    if (Helper.stringIsEmpty(userPin)) throw new Error("user pin is empty")
+
+    Helper.verifyPin(userPin, randomPin)
+    return res.sendStatus(200)
   } catch (error) {
     console.error(error)
   }
-  return res.send({
-    status: 500,
-    message: "VERIFY_ID_REQUEST_FAILED",
-  })
+  return res.sendStatus(404)
 })
 
-app.post("/request/verify/pin/", async (req, res) => {
-  const { id, pin } = req.body
-  if (
-    pin === userPin &&
-    pin !== undefined &&
-    userPin !== undefined &&
-    id !== undefined
-    ) {
-    return res.send({
-      status: 200,
-      message: "VERIFY_PIN_REQUEST_SUCCEED",
-    })
-  }
-  return res.send({
-    status: 500,
-    message: "VERIFY_PIN_REQUEST_FAILED",
-  })
-})
-
-let userPin
-app.post("/request/send/email/with/pin/", async (req, res) => {
-  const { email } = req.body
-  if (email !== undefined) {
-    userPin = Helper.digest(crypto.randomBytes(32))
-    setTimeout(() => userPin = undefined, 2 * 60000)
-    const sendEmailRx = await Helper.sendEmailFromDroid({
+app.post("/request/send/email/with/pin/",
+// Request.requireBody,
+// Request.requireUrl,
+// Request.requireEmail,
+async (req, res) => {
+  try {
+    const {email} = req.body
+    if (Helper.stringIsEmpty(email)) throw new Error("email is empty")
+    randomPin = Helper.digest(crypto.randomBytes(32))
+    setTimeout(() => randomPin = undefined, 2 * 60000)
+    await Helper.sendEmailFromDroid({
       from: "<droid@get-your.de>",
       to: email,
       subject: "[getyour plattform] Aus Sicherheitsgründen, bestätige diesen PIN",
-      html: /*html*/`<div>PIN: ${userPin}</div>`
+      html: /*html*/`<div>PIN: ${randomPin}</div>`
     })
-
-    if (sendEmailRx.status === 200) {
-      return res.send({
-        status: 200,
-        message: "SEND_EMAIL_WITH_PIN_REQUEST_SUCCEED",
-      })
-    }
+    return res.sendStatus(200)
+  } catch (error) {
+    console.error(error)
   }
-  return res.send({
-    status: 500,
-    message: "SEND_EMAIL_WITH_PIN_REQUEST_FAILED",
-  })
+  return res.sendStatus(404)
 })
 
 app.post("/request/jwt/token/", async (req, res) => {
@@ -336,4 +276,4 @@ app.post("/public-key/credential/creation/options/", async (req, res) => {
   })
 })
 
-app.listen(authLocation.port, () => Notification.warn(`auth listening on ${authLocation.origin}`))
+app.listen(authLocation.port, () => console.log(`[getyour] auth listening on ${authLocation.origin}`))

@@ -1,248 +1,89 @@
 import { CBORDecoder } from "./CBORDecoder.js"
-import { EndPoints } from "./EndPoints.js"
 import { Helper } from "./Helper.js"
 const NOT_VALID_AUTHENTICATOR = "Der Authenticator auf deinem Gerentspricht nicht den Sicherheitsstandards."
 const REGISTRATION_ABORTED_DUE_TO_SECURITY_ISSUES = "Aus Sicherheitsgründen musste die Registrierung abgebrochen werden. Bitte kontaktiere den Support unter: 'datenschutz@get-your.de'"
 
 export class Request {
 
-  // set data
-  static async register({object, pathname, callback}) {
-    const localStorageId = this.localStorageId()
+  // middleware
+  static middleware(options) {
     return new Promise((resolve, reject) => {
+      if (Helper.objectIsEmpty(options)) return reject(new Error(`expected options, found '${options}'`))
+      if (Helper.stringIsEmpty(options.url)) return reject(new Error(`expected url, found '${options.url}'`))
       const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__DB_LOCATION__}${pathname}`)
+      xhr.open("POST", options.url)
+      xhr.setRequestHeader("Accept", "application/json")
+      xhr.setRequestHeader("Content-Type", "application/json")
+      xhr.overrideMimeType("text/html")
+      xhr.withCredentials = true
+      xhr.onload = () => resolve(xhr)
+      xhr.send(JSON.stringify(options))
+    })
+  }
+
+  // sequence
+  static async sequence(options) {
+    return new Promise((resolve, reject) => {
+      if (Helper.objectIsEmpty(options)) return reject(new Error(`expected options, found '${options}'`))
+      if (Helper.stringIsEmpty(options.url)) return reject(new Error(`expected url, found '${options.url}'`))
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", options.url)
       xhr.setRequestHeader("Accept", "application/json")
       xhr.setRequestHeader("Content-Type", "application/json")
       xhr.overrideMimeType("text/html")
       xhr.withCredentials = true
       xhr.onload = () => {
         try {
-          const response = JSON.parse(xhr.response)
-          // callback(response)
-          return resolve({
-            status: response.status,
-            message: response.message,
-          })
+          if (xhr.status === 200) return resolve(xhr)
         } catch (error) {
           console.error(error)
         }
+        reject(xhr)
       }
-      xhr.send(JSON.stringify({localStorageId, object}))
+      xhr.send(JSON.stringify(options))
     })
   }
 
-  static checklistUrlId() {
-    return window.location.pathname.split("/")[4]
-  }
+  // sequence
+  // static async verify(options) {
+  //   return new Promise((resolve, reject) => {
+  //     if (options === undefined) return reject(new Error(`expected options, found '${options}'`))
+  //     if (options.path === undefined) return reject(new Error(`expected path, found '${options.path}'`))
+  //     const xhr = new XMLHttpRequest()
+  //     xhr.open("POST", `${window.__AUTH_LOCATION__}${options.path}`)
+  //     xhr.setRequestHeader("Accept", "application/json")
+  //     xhr.setRequestHeader("Content-Type", "application/json")
+  //     xhr.overrideMimeType("text/html")
+  //     xhr.withCredentials = true
+  //     xhr.onload = () => {
+  //       try {
+  //         if (xhr.status === 200) return resolve(xhr)
+  //       } catch (error) {
+  //         console.error(error)
+  //       }
+  //       reject(xhr)
+  //     }
+  //     xhr.send(JSON.stringify(options))
+  //   })
+  // }
 
-  // get data
-  static database({path}, callback) {
-    const urlId = this.checklistUrlId()
-    const localStorageId = this.localStorageId()
-
-    const xhr = new XMLHttpRequest()
-    xhr.open("POST", `${window.__DB_LOCATION__}${path}`)
-    xhr.setRequestHeader("Accept", "application/json")
-    xhr.setRequestHeader("Content-Type", "application/json")
-    xhr.overrideMimeType("text/html")
-    xhr.withCredentials = true
-    xhr.onload = () => {
-      try {
-        callback(JSON.parse(xhr.response))
-      } catch (error) {
-        console.error(error)
-        window.location.assign("/home/")
-      }
-    }
-    xhr.send(JSON.stringify({ urlId, localStorageId }))
-  }
-
-  static async withVerifiedEmail(address, callback) {
-    try {
-      const sendEmailWithPinRx = await this.sendEmailWithPin(address)
-      if (sendEmailWithPinRx.status === 200) {
-        const verifyPinRx = await this.verifyPin(address)
-        if (verifyPinRx.status === 200) {
-          await this.registerId(address)
-          const verifyIdRx = await this.verifyId(address)
-          if (verifyIdRx.status === 200) {
-            const getIdRx = await this.getId(address)
-            if (getIdRx.status === 200) {
-              callback()
-            }
-          }
-        }
-      }
-    } catch (error) {
-      console.error(error)
-    }
-    return {
-      status: 500,
-      message: "VERIFY_EMAIL_FAILED"
-    }
-  }
-
-  static registerId(id) {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__DB_LOCATION__}/request/register/id/`)
-      xhr.setRequestHeader("Accept", "application/json")
-      xhr.setRequestHeader("Content-Type", "application/json")
-      xhr.overrideMimeType("text/html")
-      xhr.onload = () => {
-        const response = JSON.parse(xhr.response)
-        console.info(response)
-        return resolve({
-          status: response.status,
-          message: response.message,
-        })
-      }
-      xhr.send(JSON.stringify({ id }))
-    })
-  }
-
-  static getId(id) {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__AUTH_LOCATION__}/request/get/id/`)
-      xhr.setRequestHeader("Accept", "application/json")
-      xhr.setRequestHeader("Content-Type", "application/json")
-      xhr.overrideMimeType("text/html")
-      xhr.onload = () => {
-        const response = JSON.parse(xhr.response)
-        console.info(response)
-        if (response.status === 200) window.localStorage.setItem("id", response.id)
-        return resolve({
-          status: response.status,
-          message: response.message,
-        })
-      }
-      xhr.send(JSON.stringify({ id }))
-    })
-  }
-
-  static verifyId(id) {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__AUTH_LOCATION__}/request/verify/id/`)
-      xhr.setRequestHeader("Accept", "application/json")
-      xhr.setRequestHeader("Content-Type", "application/json")
-      xhr.overrideMimeType("text/html")
-      xhr.onload = () => {
-        const response = JSON.parse(xhr.response)
-        console.info(response)
-        return resolve({
-          status: response.status,
-          message: response.message,
-        })
-      }
-      xhr.send(JSON.stringify({ id }))
-    })
-  }
-
-  static sendEmailWithPin(email) {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__AUTH_LOCATION__}/request/send/email/with/pin/`)
-      xhr.setRequestHeader("Accept", "application/json")
-      xhr.setRequestHeader("Content-Type", "application/json")
-      xhr.overrideMimeType("text/html")
-      xhr.onload = async () => {
-        const response = JSON.parse(xhr.response)
-        console.info(response)
-        return resolve({
-          status: response.status,
-          message: response.message,
-        })
-      }
-      xhr.send(JSON.stringify({ email }))
-    })
-  }
-
-  static async registerOperator(operator) {
-    const id = this.localStorageId()
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__DB_LOCATION__}/request/register/operator/`)
-      xhr.setRequestHeader("Accept", "application/json")
-      xhr.setRequestHeader("Content-Type", "application/json")
-      xhr.overrideMimeType("text/html")
-      xhr.onload = () => {
-        console.log(xhr);
-        try {
-          const response = JSON.parse(xhr.response)
-          return resolve({
-            status: response.status,
-            message: response.message,
-          })
-        } catch (error) {
-          console.error(error)
-        }
-      }
-      xhr.send(JSON.stringify({id, operator}))
-    })
-  }
-
-  static async sessionToken() {
-    const id = this.userId()
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__AUTH_LOCATION__}/request/session/token/`)
-      xhr.setRequestHeader("Accept", "application/json")
-      xhr.setRequestHeader("Content-Type", "application/json")
-      xhr.withCredentials = true // FOR COOKIES
-      xhr.overrideMimeType("text/html")
-      xhr.onload = () => {
-        const response = JSON.parse(xhr.response)
-        console.info(response)
-        return resolve({
-          status: response.status,
-          message: response.message,
-        })
-      }
-      xhr.send(JSON.stringify({id}))
-    })
+  static async withVerifiedEmail(email, callback) {
+    await this.sequence({email, url: `${window.__AUTH_LOCATION__}/request/send/email/with/pin/`})
+    const userPin = prompt(`Es wurde eine PIN an deine E-Mail gesendet.\n\nBestätige deine PIN um fortzufahren.`)
+    await this.sequence({userPin, url: `${window.__AUTH_LOCATION__}/request/verify/pin/`})
+    const id = await Helper.digest(JSON.stringify({email: email, verified: true}))
+    window.localStorage.setItem("localStorageId", id)
+    callback()
   }
 
   static localStorageId() {
     try {
-      const id = window.localStorage.getItem("id")
-      if (id !== null) return id
+      const localStorageId = window.localStorage.getItem("localStorageId")
+      if (localStorageId !== null) return localStorageId
     } catch (error) {
       console.error(error)
     }
     return undefined
-  }
-
-  static userId() {
-    try {
-      const id = window.localStorage.getItem("id")
-      if (id !== null) return id
-    } catch (error) {
-      console.error(error)
-    }
-    return undefined
-  }
-
-  static verifyPin(email) {
-    const pin = prompt(`Es wurde eine PIN an die E-Mail: '${email}' gesendet.\n\nBestätige deine PIN um fortzufahren.`)
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open("POST", `${window.__AUTH_LOCATION__}/request/verify/pin/`)
-      xhr.setRequestHeader("Accept", "application/json")
-      xhr.setRequestHeader("Content-Type", "application/json")
-      xhr.overrideMimeType("text/html")
-      xhr.onload = () => {
-        const response = JSON.parse(xhr.response)
-        console.info(response)
-        return resolve({
-          status: response.status,
-          message: response.message,
-        })
-      }
-      xhr.send(JSON.stringify({ id: email, pin }))
-    })
   }
 
   static sendFile(file) {
@@ -617,7 +458,7 @@ export class Request {
       const token = window.sessionStorage.getItem("token")
       if (!token) {
         alert("Kein Token vorhanden. Bitte einloggen!")
-        window.location.assign(EndPoints.LOGIN)
+        // window.location.assign(EndPoints.LOGIN)
         return
       }
 
