@@ -1,6 +1,6 @@
 export class DivField {
 
-  withDiv(callback) {
+  withType(callback) {
     if (callback !== undefined) document.querySelectorAll(this.fieldSelector).forEach(div => callback(div))
     return this
   }
@@ -40,6 +40,7 @@ export class DivField {
   constructor(fieldSelector) {
     this.fieldSelector = fieldSelector
     this.className = this.fieldSelector.split("'")[1]
+    this.type = "div"
     const divs = document.querySelectorAll(this.fieldSelector)
     if (divs.length > 0) return
     console.warn(`class='${this.className}' - field not found`)

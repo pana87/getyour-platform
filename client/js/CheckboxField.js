@@ -1,3 +1,5 @@
+import { Helper } from "./Helper.js"
+
 export class CheckboxField {
 
   withChangeEventListener(callback) {
@@ -12,27 +14,13 @@ export class CheckboxField {
 
   withType(callback) {
     if (callback !== undefined) document.querySelectorAll(this.checkboxSelector).forEach(checkbox => {
-      checkbox.fromSessionStorage = (name) => {
-        const value = JSON.parse(window.sessionStorage.getItem(name))[this.className]
-        if (value !== undefined) {
-          checkbox.checked = value
-        }
+      checkbox.fromStorage = (name) => {
+        const value = JSON.parse(window.localStorage.getItem(name)).value[this.className]
+        if (value !== undefined) checkbox.checked = value
       }
       callback(checkbox)
     })
     return this
-  }
-
-  #setValidStyle(box) {
-    box.style.outline = "2px solid #00c853"
-    // box.style.borderRadius = "3px"
-    return box
-  }
-
-  #setNotValidStyle(box) {
-    box.style.outline = "2px solid #d50000"
-    // box.style.borderRadius = "3px"
-    return box
   }
 
   #isRequired(box) {
@@ -40,19 +28,19 @@ export class CheckboxField {
     return false
   }
 
-  withValidValue(callback) {
+  withValidValue() {
     return new Promise((resolve, reject) => {
       document.querySelectorAll(this.checkboxSelector).forEach(box => {
         if (this.#isRequired(box)) {
           if (box.checked) {
-            this.#setValidStyle(box)
+            Helper.setValidStyle(box)
             return resolve(box.checked)
           }
-          this.#setNotValidStyle(box)
+          Helper.setNotValidStyle(box)
           console.error(`class='${this.className}' - required valid value`)
           return
         }
-        this.#setValidStyle(box)
+        Helper.setValidStyle(box)
         return resolve(box.checked)
       })
     })
@@ -65,13 +53,16 @@ export class CheckboxField {
   }
 
   async withStorage(name) {
-    this.storageName = name
-    const value = await this.withValidValue()
-    // console.log(value)
-    if (!this.#isEmpty(value)) {
-      this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
-      this.storage[this.className] = value
-      window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
+    try {
+      this.storageName = name
+      const value = await this.withValidValue()
+      if (!this.#isEmpty(value)) {
+        const storage = JSON.parse(window.localStorage.getItem(this.storageName))
+        storage.value[this.className] = value
+        window.localStorage.setItem(this.storageName, JSON.stringify(storage))
+      }
+    } catch (error) {
+      console.error(error)
     }
     return this
   }
@@ -79,7 +70,8 @@ export class CheckboxField {
   constructor(fieldSelector) {
     this.fieldSelector = fieldSelector
     this.className = this.fieldSelector.split("'")[1]
-    this.checkboxSelector = `input[name='${this.className}']`
+    this.checkboxSelector = `input[id='${this.className}']`
+    this.type = "checkbox"
 
     const divs = document.body.querySelectorAll(this.fieldSelector)
     if (divs.length > 0) {
@@ -95,6 +87,6 @@ export class CheckboxField {
       })
       return
     }
-    console.error("FIELD_NOT_FOUND")
+    console.warn(`class='${this.className}' - field not found`)
   }
 }

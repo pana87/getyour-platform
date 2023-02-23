@@ -5,16 +5,18 @@ import { PasswordField } from "../../../../js/PasswordField.js"
 import { Helper } from "../../../../js/Helper.js"
 import { Request } from "../../../../js/Request.js"
 
-const SHS_FUNNEL_STORAGE_NAME = "shsFunnel"
-const NEXT_PATHNAME = `/felix/shs/checkliste/${Request.localStorageId()}`
-
-if (window.sessionStorage.getItem("shsFunnel") !== null) {
-
+const funnel = JSON.parse(window.localStorage.getItem("shsFunnel"))
+const offer = JSON.parse(window.localStorage.getItem("bestprimeOffer"))
+if (funnel === null) {
+  window.location.assign("/felix/shs/funnel/qualifizierung/")
+} else if (offer === null) {
+  window.location.assign("/felix/shs/hersteller/")
+} else {
   const registrierenvorname = new TextField("div[class*='registrierenvorname']")
-    .withType((input) => {
-      input.placeholder = "Max"
-      input.required = true
-    })
+  .withType((input) => {
+    input.placeholder = "Max"
+    input.required = true
+  })
 
   const registrierennachname = new TextField("div[class*='registrierennachname']")
   .withType((input) => {
@@ -51,6 +53,7 @@ if (window.sessionStorage.getItem("shsFunnel") !== null) {
   .withType((input) => {
     input.placeholder = "max.mustermann@web.de"
     input.required = true
+    input.fromStorage("email")
   })
 
   const registrierenpasswortfestlegen = new PasswordField("div[class*='registrierenpasswortfestlegen']")
@@ -80,14 +83,13 @@ if (window.sessionStorage.getItem("shsFunnel") !== null) {
   ]
 
   fields.forEach(async field => {
-    field.withType(type => type.fromSessionStorage(SHS_FUNNEL_STORAGE_NAME))
-    field.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    field.withInputEventListener(() => field.withStorage(SHS_FUNNEL_STORAGE_NAME))
+    field.withType(type => type.fromStorage(funnel.storage))
+    field.withStorage(funnel.storage)
+    field.withInputEventListener(() => field.withStorage(funnel.storage))
   })
 
   const jetztzurappbutton = new DivField("div[class*='jetztzurappbutton']")
     .withOverlayClickEventListener(async (event) => await saveAndProceed(event))
-
 
   const impressum = new DivField("div[class*='impressum']")
     .withClickEventListener(() => window.location.assign("/felix/shs/impressum/"))
@@ -95,37 +97,85 @@ if (window.sessionStorage.getItem("shsFunnel") !== null) {
   const datenschutz = new DivField("div[class*='datenschutz']")
     .withClickEventListener(() => window.location.assign("/felix/shs/datenschutz/"))
 
-
   async function saveAndProceed(event) {
 
+    const email = await registrierenemail.withValidValue()
     const password = await registrierenpasswortfestlegen.withValidValue()
     const confirmPassword = await registrierenpasswortbestaetige.withValidValue()
     const passwordHash = await Helper.digest(password)
     const confirmPasswordHash = await Helper.digest(confirmPassword)
 
-    if (passwordHash === confirmPasswordHash) {
+    if (passwordHash !== confirmPasswordHash) {
+      registrierenpasswortbestaetige.withType(input => Helper.setNotValidStyle(input))
+    } else {
       event.addOverlay()
-      const shsFunnel = JSON.parse(window.sessionStorage.getItem("shsFunnel"))
-      if (shsFunnel !== null) {
-        const offers = JSON.parse(window.sessionStorage.getItem("offers"))
-        if (offers !== null) {
-          const email = await registrierenemail.withValidValue()
-          await Request.withVerifiedEmail(email, async() => {
-            const registerRx = await Request.register({
-              object: {shsFunnel, offers},
-              pathname: "/request/register/operator/",
-            })
-            if (registerRx.status === 200) {
-              await Request.sessionToken()
-              window.location.assign(NEXT_PATHNAME)
-              return
-            }
-          })
-        } else return window.location.assign("/felix/shs/hersteller/")
-      } else return window.location.assign("/felix/shs/funnel/qualifizierung/")
+      const funnelStorage = JSON.parse(window.localStorage.getItem(funnel.storage))
+      const offerStorage = JSON.parse(window.localStorage.getItem(offer.storage))
+      await Request.withVerifiedEmail(email, async() => {
+        const localStorageId = Request.localStorageId()
+
+        const registerEmail = {}
+        registerEmail.url = window.__DB_LOCATION__ + "/"
+        registerEmail.type = "id"
+        registerEmail.method = "post"
+        registerEmail.security = "open"
+        registerEmail.name = "onoperator"
+        registerEmail.email = email
+        registerEmail.localStorageId = localStorageId
+        await Request.sequence(registerEmail)
+
+        const verifyUser = {}
+        verifyUser.url = window.__DB_LOCATION__ + "/"
+        verifyUser.type = "verify"
+        verifyUser.method = "put"
+        verifyUser.security = "open"
+        verifyUser.name = "onoperator"
+        verifyUser.localStorageId = localStorageId
+        await Request.sequence(verifyUser)
+
+        const registerOperator = {}
+        registerOperator.url = window.__DB_LOCATION__ + "/"
+        registerOperator.type = "role"
+        registerOperator.method = "post"
+        registerOperator.security = "open"
+        registerOperator.name = "onoperator"
+        registerOperator.localStorageId = localStorageId
+        await Request.sequence(registerOperator)
+
+        const registerSession = {}
+        registerSession.url = window.__AUTH_LOCATION__ + "/request/register/session/"
+        registerSession.type = "session"
+        registerSession.method = "put"
+        registerSession.security = "open"
+        registerSession.name = "onoperator"
+        registerSession.localStorageId = localStorageId
+        await Request.sequence(registerSession)
+
+        const registerFunnel = {}
+        registerFunnel.url = window.__DB_LOCATION__ + "/"
+        registerFunnel.type = "funnel"
+        registerFunnel.method = "post"
+        registerFunnel.security = "closed"
+        registerFunnel.name = "shs"
+        registerFunnel.localStorageId = localStorageId
+        registerFunnel.funnel = funnelStorage
+        await Request.sequence(registerFunnel)
+
+        const registerOffer = {}
+        registerOffer.url = window.__DB_LOCATION__ + "/"
+        registerOffer.type = "offer"
+        registerOffer.method = "post"
+        registerOffer.security = "closed"
+        registerOffer.name = "bestprime"
+        registerOffer.localStorageId = localStorageId
+        registerOffer.offer = offerStorage
+        registerOffer.funnel = funnelStorage
+        await Request.sequence(registerOffer)
+
+        alert("Speichern erfolgreich..")
+        window.location.assign(`/felix/shs/checkliste/${localStorageId}`)
+        event.removeOverlay()
+      })
     }
-    event.removeOverlay()
   }
-} else {
-  window.location.assign("/felix/shs/funnel/qualifizierung/")
 }

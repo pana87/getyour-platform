@@ -1,3 +1,5 @@
+import { Helper } from "./Helper.js"
+
 export class TextAreaField {
 
   withChangeEventListener(callback) {
@@ -7,11 +9,10 @@ export class TextAreaField {
 
   withType(callback) {
     if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => {
-      input.fromSessionStorage = (name) => {
-        const value = JSON.parse(window.sessionStorage.getItem(name))[this.className]
+      input.fromStorage = (name) => {
+        const value = JSON.parse(window.localStorage.getItem(name)).value[this.className]
         if (value !== undefined) input.value = value
       }
-
       callback(input)
     })
     return this
@@ -25,30 +26,18 @@ export class TextAreaField {
   }
 
   async withStorage(name) {
-    this.storageName = name
-    const value = await this.withValidValue()
-    if (!this.#isEmpty(value)) {
-      this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
-      this.storage[this.className] = value
-      window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
+    try {
+      this.storageName = name
+      const value = await this.withValidValue()
+      if (!this.#isEmpty(value)) {
+        const storage = JSON.parse(window.localStorage.getItem(this.storageName))
+        storage.value[this.className] = value
+        window.localStorage.setItem(this.storageName, JSON.stringify(storage))
+      }
+    } catch (error) {
+      console.error(error)
     }
     return this
-  }
-
-  #setValidStyle(input) {
-    input.style.border = "2px solid #00c853"
-    input.style.borderRadius = "3px"
-    input.style.width = "100%"
-    input.style.height = "100%"
-    return input
-  }
-
-  #setNotValidStyle(input) {
-    input.style.border = "2px solid #d50000"
-    input.style.borderRadius = "3px"
-    input.style.width = "100%"
-    input.style.height = "100%"
-    return input
   }
 
   #isRequired(input) {
@@ -61,14 +50,14 @@ export class TextAreaField {
       document.querySelectorAll(this.inputSelector).forEach(input => {
         if (this.#isRequired(input)) {
           if (input.checkValidity()) {
-            this.#setValidStyle(input)
+            Helper.setValidStyle(input)
             return resolve(input.value)
           }
-          this.#setNotValidStyle(input)
+          Helper.setNotValidStyle(input)
           console.error(`class='${this.className}' - required valid value`)
           return
         }
-        this.#setValidStyle(input)
+        Helper.setValidStyle(input)
         return resolve(input.value)
       })
     })
@@ -82,7 +71,8 @@ export class TextAreaField {
   constructor(fieldSelector) {
     this.fieldSelector = fieldSelector
     this.className = this.fieldSelector.split("'")[1]
-    this.inputSelector = `textarea[name='${this.className}']`
+    this.inputSelector = `textarea[id='${this.className}']`
+    this.type = "textarea"
 
     const divs = document.querySelectorAll(this.fieldSelector)
     if (divs.length > 0) {
@@ -97,6 +87,6 @@ export class TextAreaField {
       })
       return
     }
-    console.error(`class='${this.className}' - not found`)
+    console.warn(`class='${this.className}' - field not found`)
   }
 }

@@ -4,11 +4,7 @@ export class PasswordField {
 
   withType(callback) {
     if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => {
-      input.fromSessionStorage = (name) => {
-        const value = JSON.parse(window.sessionStorage.getItem(name))[this.className]
-        // if (value !== undefined) input.required = false
-      }
-
+      input.fromStorage = (name) => {}
       callback(input)
     })
     return this
@@ -22,27 +18,19 @@ export class PasswordField {
   }
 
   async withStorage(name) {
-    this.storageName = name
-    const value = await this.withValidValue()
-    if (!this.#isEmpty(value)) {
-      const hash = await Helper.digest(value)
-      this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
-      this.storage[this.className] = hash
-      window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
+    try {
+      this.storageName = name
+      const value = await this.withValidValue()
+      if (!this.#isEmpty(value)) {
+        const hash = await Helper.digest(value)
+        const storage = JSON.parse(window.localStorage.getItem(this.storageName))
+        storage.value[this.className] = hash
+        window.localStorage.setItem(this.storageName, JSON.stringify(storage))
+      }
+    } catch (error) {
+      console.error(error)
     }
     return this
-  }
-
-  #setValidStyle(input) {
-    input.style.border = "2px solid #00c853"
-    input.style.borderRadius = "3px"
-    return input
-  }
-
-  #setNotValidStyle(input) {
-    input.style.border = "2px solid #d50000"
-    input.style.borderRadius = "3px"
-    return input
   }
 
   #isValid(input) {
@@ -60,14 +48,14 @@ export class PasswordField {
       document.querySelectorAll(this.inputSelector).forEach(input => {
         if (this.#isRequired(input)) {
           if (this.#isValid(input)) {
-            this.#setValidStyle(input)
+            Helper.setValidStyle(input)
             return resolve(input.value)
           }
-          this.#setNotValidStyle(input)
+          Helper.setNotValidStyle(input)
           console.error(`class='${this.className}' - required valid value`)
           return
         }
-        this.#setValidStyle(input)
+        Helper.setValidStyle(input)
         return resolve(input.value)
       })
     })
@@ -82,6 +70,7 @@ export class PasswordField {
     this.fieldSelector = fieldSelector
     this.className = this.fieldSelector.split("'")[1]
     this.inputSelector = `input[id='${this.className}']`
+    this.type = "password"
 
     const divs = document.querySelectorAll(this.fieldSelector)
     if (divs.length > 0) {

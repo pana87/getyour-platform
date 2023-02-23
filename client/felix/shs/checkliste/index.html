@@ -1186,7 +1186,7 @@
         <div class="ihr-termin-ist">Ihr Termin ist am:</div>
         <b class="b1">—</b>
       </div>
-      <div class="zumkundenprofil">Birgit Homfeld</div>
+      <div class="zumkundenprofil">Login</div>
       <div class="rechteck03">
         <div class="rechtecknummer2"></div>
         <div class="zahl3">3</div>
@@ -1194,45 +1194,59 @@
     </div>
 
   <script type="module">
+
     import { Request } from "../../../../js/Request.js"
     import { DivField } from "../../../../js/DivField.js"
 
     const urlId = window.location.pathname.split("/")[4]
     const localStorageId = Request.localStorageId()
 
-    document.querySelectorAll("div[class*='rechteck']").forEach((div, index) => {
-      div.style.backgroundColor = "#c6c6c6"
-      div.style.borderRadius = "var(--br-lg) 0 0 var(--br-lg)"
-    })
+    const getChecklist = {}
+    getChecklist.url = window.__DB_LOCATION__ + "/"
+    getChecklist.method = "get"
+    getChecklist.security = "closed"
+    getChecklist.type = "checklist"
+    getChecklist.name = "shs"
+    getChecklist.localStorageId = localStorageId
+    getChecklist.urlId = urlId
+    const res = await Request.middleware(getChecklist)
 
-    const xhr = new XMLHttpRequest()
-    xhr.open("POST", `${window.__DB_LOCATION__}/request/user/checklist/`)
-    xhr.setRequestHeader("Accept", "application/json")
-    xhr.setRequestHeader("Content-Type", "application/json")
-    xhr.overrideMimeType("text/html")
-    xhr.withCredentials = true
-    xhr.onload = () => {
-      try {
-        const {id, firstName, lastName} = JSON.parse(xhr.response)
+    if (res.status !== 200) {
+      window.location.assign("/home/")
+    } else {
+      const checklist = JSON.parse(res.response)
 
-        const nameField = new DivField("div[class*='zumkundenprofil']")
-        .withDiv(div => div.innerHTML = `${firstName} ${lastName}`)
+      document.querySelectorAll("img[class*='logo-icon']").forEach(img => {
+        img.src = "/felix/shs/checkliste/public/logo@2x.png"
+        img.alt = "SHS Express Logo"
+      })
 
-        const firstButtonField = new DivField("div[class*='angebotsuebersichtbutton']")
-        .withClickEventListener(() => {
-          window.location.assign(`/felix/shs/checkliste/${id}/01/`)
-        })
+      document.querySelectorAll("div[class*='rechteck']").forEach((div, index) => {
+        div.style.backgroundColor = "#c6c6c6"
+        div.style.borderRadius = "var(--br-lg) 0 0 var(--br-lg)"
+      })
 
-        // if first checklist item was saved
-        // mark it as green
-        // then open next checklist item
+      const nameField = new DivField("div[class*='zumkundenprofil']")
+      .withType(div => {
+        div.innerHTML = `${checklist.firstName} ${checklist.lastName}`
+        div.style.cursor = "pointer"
+        div.addEventListener("click", () => window.location.assign("/felix/shs/funnel/abfrage-haus/"))
+      })
 
-      } catch (error) {
-        console.error(error)
-        window.location.assign("/home/")
+      const firstButtonField = new DivField("div[class*='angebotsuebersichtbutton']")
+      .withClickEventListener(() => {
+        if (checklist.state >= 0) {
+          window.location.assign(checklist.items[0].path)
+        }
+      })
+
+      // checklist.state = 3 // numbers not standard -n bug
+      for (let i = 1; i <= checklist.state; i++) {
+        document.querySelectorAll(`div[class*='rechtecknummer0${i}']`).forEach(field => field.style.backgroundColor = "green")
       }
     }
-    xhr.send(JSON.stringify({ urlId, localStorageId }))
+
+
 
   </script>
 

@@ -1,35 +1,46 @@
 const express = require('express')
 const {HtmlParser} = require('../config/HtmlParser.js')
-const Notification = require('../lib/Notification.js')
 const cookieParser = require('cookie-parser')
-const { clientLocation, authLocation, databaseLocation } = require('../config/ServerLocation.js')
+const { clientLocation } = require('../config/ServerLocation.js')
 const { CSSParser } = require('../config/CSSParser.js')
-const Storage = require('../lib/Storage.js')
 const { Helper } = require('../lib/Helper.js')
 const { User } = require('../lib/domain/User.js')
 const { Request } = require('../lib/Request.js')
-const path = require("node:path")
+const { UserRole } = require('../lib/domain/UserRole.js')
 
-Storage.configureClient()
+Helper.configureClientStorage()
 new HtmlParser(clientLocation.relativePath)
 new CSSParser()
 
 const app = express()
 app.use(cookieParser())
 
-app.get("/felix/shs/checkliste/:id/01/", async(req, res) => {
-  return res.send(Helper.readFileSyncToString("../client/felix/shs/checkliste/01/index.html"))
-})
+app.get("/felix/shs/checkliste/:id/1/print.html",
+  Request.requireJwtToken,
+  Request.verifySession,
+  Request.requireRoles([UserRole.OPERATOR]),
+  async(req, res) => {
+    return res.send(Helper.readFileSyncToString("../client/felix/shs/checkliste/1/print.html"))
+  }
+)
+
+app.get("/felix/shs/checkliste/:id/1/",
+  // Request.requireCookies,
+  // no options get request
+  Request.requireJwtToken,
+  Request.verifySession,
+  // Request.verifyUrlId,
+  Request.requireRoles([UserRole.OPERATOR]),
+  async(req, res) => {
+    return res.send(Helper.readFileSyncToString("../client/felix/shs/checkliste/1/index.html"))
+  }
+)
 
 app.get("/felix/shs/checkliste/:id/", async(req, res) => {
   return res.send(Helper.readFileSyncToString("../client/felix/shs/checkliste/index.html"))
 })
 
-// app.get("/user/platform/magnet/checklist/:id/", async(req, res) => {
-//   return res.send(Helper.readFileSyncToString("../client/user/platform/magnet/checklist/index.html"))
-// })
-
-app.get("/user/register/platform-developer/", Request.verifySession, (req, res) => {
+app.get("/user/register/platform-developer/", Request.requireSessionToken, (req, res) => {
   res.send(Helper.readFileSyncToString("../client/user/register/platform-developer/index.html"))
 })
 
@@ -42,7 +53,7 @@ app.get("/user/platform/funnel/sign/", (req, res) => {
   return res.sendStatus(404)
 })
 
-app.get("/user/entries/", Request.verifySession, (req, res) => {
+app.get("/user/entries/", (req, res) => {
   // if (req.userError !== undefined) return res.redirect("/home/")
   return res.send(Helper.readFileSyncToString("../client/user/entries/index.html"))
 })
@@ -68,5 +79,4 @@ app.get("/:username/", async (req, res) => {
 })
 
 app.use(express.static(clientLocation.absolutePath))
-// app.use(express.static(path.join(__dirname, "../client/user/platform/magnet/checklist/")))
-app.listen(clientLocation.port, () => Notification.warn(`client listening on ${clientLocation.origin}`))
+app.listen(clientLocation.port, () => console.log(`[getyour] client listening on ${clientLocation.origin}`))

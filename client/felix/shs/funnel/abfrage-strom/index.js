@@ -3,24 +3,35 @@ import { TextField } from "../../../../js/TextField.js"
 import { NumberField } from "../../../../js/NumberField.js"
 import { FileField } from "../../../../js/FileField.js"
 import { DivField } from "../../../../js/DivField.js"
+import { Helper } from "../../../../js/Helper.js"
 
-const SHS_FUNNEL_STORAGE_NAME = "shsFunnel"
-const NEXT_PATHNAME = "/felix/shs/funnel/abfrage-technisches/"
-
-
-if (window.sessionStorage.getItem("shsFunnel") !== null) {
-
+const funnel = JSON.parse(window.localStorage.getItem("shsFunnel"))
+if (funnel === null) {
+  window.location.assign("/felix/shs/funnel/qualifizierung/")
+} else {
   const clickzumhausknopf = new DivField("div[class*='clickzumhausknopf']")
-  .withClickEventListener(async() => await saveAndProceed("/felix/shs/funnel/abfrage-haus/"))
+  .withClickEventListener(async() => {
+    await saveToStorage()
+    window.location.assign(funnel.paths[1])
+  })
 
   const clickzurheizungknopf = new DivField("div[class*='clickzurheizungknopf']")
-    .withClickEventListener(async() => await saveAndProceed("/felix/shs/funnel/abfrage-heizung/"))
+    .withClickEventListener(async() => {
+      await saveToStorage()
+      window.location.assign(funnel.paths[2])
+    })
 
   const clickzumzaehlerknopf = new DivField("div[class*='clickzumzaehlerknopf']")
-    .withClickEventListener(async() => await saveAndProceed("/felix/shs/funnel/abfrage-strom/"))
+    .withClickEventListener(async() => {
+      await saveToStorage()
+      window.location.assign(funnel.paths[3])
+    })
 
   const clicktechnischesknopf = new DivField("div[class*='clicktechnischesknopf']")
-    .withClickEventListener(async() => await saveAndProceed("/felix/shs/funnel/abfrage-technisches/"))
+    .withClickEventListener(async() => {
+      await saveToStorage()
+      window.location.assign(funnel.paths[4])
+    })
 
 
   const stromversorger = new TextField("div[class*='stromversorger']")
@@ -76,7 +87,7 @@ if (window.sessionStorage.getItem("shsFunnel") !== null) {
   const stromhauptzaehlernummer = new TextField("div[class*='stromhauptzaehlernummer']")
   .withType((input) => {
     input.placeholder = "44600637"
-    const q7 = JSON.parse(window.sessionStorage.getItem("shsFunnel")).q7
+    const q7 = funnel.value.q7
     if (q7 === 0) {
       input.required = true
     }
@@ -139,7 +150,7 @@ if (window.sessionStorage.getItem("shsFunnel") !== null) {
   const stromzaehlerschrankbildupload = new FileField("div[class*='stromzaehlerschrankbildupload']")
     .withType((input) => {
       input.accept = "image/*"
-      const q7 = JSON.parse(window.sessionStorage.getItem("shsFunnel")).q7
+      const q7 = funnel.value.q7
       if (q7 === 0) {
         input.required = true
       }
@@ -149,7 +160,7 @@ if (window.sessionStorage.getItem("shsFunnel") !== null) {
     .withType((input) => {
       input.accept = "image/*"
       input.multiple = true
-      const q7 = JSON.parse(window.sessionStorage.getItem("shsFunnel")).q7
+      const q7 = funnel.value.q7
       if (q7 === 0) {
         input.required = true
       }
@@ -176,14 +187,16 @@ if (window.sessionStorage.getItem("shsFunnel") !== null) {
   ]
 
   fields.forEach(async field => {
-    field.withType(type => type.fromSessionStorage(SHS_FUNNEL_STORAGE_NAME))
-    field.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    field.withInputEventListener(() => field.withStorage(SHS_FUNNEL_STORAGE_NAME))
+    field.withType(type => type.fromStorage(funnel.storage))
+    field.withStorage(funnel.storage)
+    field.withInputEventListener(() => field.withStorage(funnel.storage))
   })
 
   const speichernundweiterrrbutton = new DivField("div[class*='speichernundweiterrrbutton']")
-    .withClickEventListener(async () => await saveAndProceed(NEXT_PATHNAME))
-
+    .withClickEventListener(async () => {
+      await saveToStorage()
+      Helper.nextFunnel(funnel.paths)
+    })
 
   const impressum = new DivField("div[class*='impressum']")
     .withClickEventListener(() => window.location.assign("/felix/shs/impressum/"))
@@ -191,28 +204,23 @@ if (window.sessionStorage.getItem("shsFunnel") !== null) {
   const datenschutz = new DivField("div[class*='datenschutz']")
     .withClickEventListener(() => window.location.assign("/felix/shs/datenschutz/"))
 
-
-  async function saveAndProceed(pathname) {
-    await stromversorger.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromzaehlerschrankverbaut.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromplatzzaehlerschrank.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromhauptzaehleranzahl.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromunterzaehlernotwendig.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromwievieleneuezaehler.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromhauptzaehlernummer.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromnebenzaehlernummer.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromszaehlerkonzeptzusammen.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromjahresverbrauch.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromnebenzaehlerfunktion.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromarbeitspreis.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromgrundpreis.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromarbeitspreiswaerme.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromagrundpreiswaerme.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromzaehlerschrankbildupload.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await stromallezaehlerbildupload.withStorage(SHS_FUNNEL_STORAGE_NAME)
-
-    window.location.assign(pathname)
+  async function saveToStorage() {
+    await stromversorger.withStorage(funnel.storage)
+    await stromzaehlerschrankverbaut.withStorage(funnel.storage)
+    await stromplatzzaehlerschrank.withStorage(funnel.storage)
+    await stromhauptzaehleranzahl.withStorage(funnel.storage)
+    await stromunterzaehlernotwendig.withStorage(funnel.storage)
+    await stromwievieleneuezaehler.withStorage(funnel.storage)
+    await stromhauptzaehlernummer.withStorage(funnel.storage)
+    await stromnebenzaehlernummer.withStorage(funnel.storage)
+    await stromszaehlerkonzeptzusammen.withStorage(funnel.storage)
+    await stromjahresverbrauch.withStorage(funnel.storage)
+    await stromnebenzaehlerfunktion.withStorage(funnel.storage)
+    await stromarbeitspreis.withStorage(funnel.storage)
+    await stromgrundpreis.withStorage(funnel.storage)
+    await stromarbeitspreiswaerme.withStorage(funnel.storage)
+    await stromagrundpreiswaerme.withStorage(funnel.storage)
+    await stromzaehlerschrankbildupload.withStorage(funnel.storage)
+    await stromallezaehlerbildupload.withStorage(funnel.storage)
   }
-} else {
-  window.location.assign("/felix/shs/funnel/qualifizierung/")
 }

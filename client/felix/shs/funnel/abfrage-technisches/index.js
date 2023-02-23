@@ -1,25 +1,37 @@
-import { CheckboxField } from "../../../../js/CheckBoxField.js"
+import { CheckboxField } from "../../../../js/CheckboxField.js"
 import { DivField } from "../../../../js/DivField.js"
 import { FileField } from "../../../../js/FileField.js"
+import { Helper } from "../../../../js/Helper.js"
 import { SelectionField } from "../../../../js/SelectionField.js"
 import { TextAreaField } from "../../../../js/TextAreaField.js"
 
-const SHS_FUNNEL_STORAGE_NAME = "shsFunnel"
-const NEXT_PATHNAME = "/felix/shs/hersteller/"
-const START_FUNNEL_PATHNAME = "/felix/shs/funnel/qualifizierung/"
-
-if (window.sessionStorage.getItem("shsFunnel") !== null) {
+const funnel = JSON.parse(window.localStorage.getItem("shsFunnel"))
+if (funnel === null) {
+  window.location.assign("/felix/shs/funnel/qualifizierung/")
+} else {
   const clickzumhausknopf = new DivField("div[class*='clickzumhausknopf']")
-    .withClickEventListener(async() => await saveAndProceed("/felix/shs/funnel/abfrage-haus/"))
+    .withClickEventListener(async() => {
+      await savtToStorage()
+      window.location.assign(funnel.paths[1])
+    })
 
   const clickzurheizungknopf = new DivField("div[class*='clickzurheizungknopf']")
-    .withClickEventListener(async() => await saveAndProceed("/felix/shs/funnel/abfrage-heizung/"))
+    .withClickEventListener(async() => {
+      await savtToStorage()
+      window.location.assign(funnel.paths[2])
+    })
 
   const clickzumzaehlerknopf = new DivField("div[class*='clickzumzaehlerknopf']")
-    .withClickEventListener(async() => await saveAndProceed("/felix/shs/funnel/abfrage-strom/"))
+    .withClickEventListener(async() => {
+      await savtToStorage()
+      window.location.assign(funnel.paths[3])
+    })
 
   const clicktechnischesknopf = new DivField("div[class*='clicktechnischesknopf']")
-    .withClickEventListener(async() => await saveAndProceed("/felix/shs/funnel/abfrage-technisches/"))
+    .withClickEventListener(async() => {
+      await savtToStorage()
+      window.location.assign(funnel.paths[4])
+    })
 
   const technischeswlan = new SelectionField("div[class*='technischeswlan']")
     .withOptions(["Ja", "Nein"])
@@ -52,6 +64,8 @@ if (window.sessionStorage.getItem("shsFunnel") !== null) {
   const zusatzinfosinput = new TextAreaField("div[class*='zusatzinfosinput']")
   .withType((input) => {
     input.placeholder = "Ich habe einen Wintergarten, der bei der Montage abgedeckt werden soll.."
+    input.style.width = "90%"
+    input.style.height = "300px"
   })
 
   const fields = [
@@ -66,13 +80,16 @@ if (window.sessionStorage.getItem("shsFunnel") !== null) {
   ]
 
   fields.forEach(async field => {
-    field.withType(type => type.fromSessionStorage(SHS_FUNNEL_STORAGE_NAME))
-    field.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    field.withInputEventListener(() => field.withStorage(SHS_FUNNEL_STORAGE_NAME))
+    field.withType(type => type.fromStorage(funnel.storage))
+    field.withStorage(funnel.storage)
+    field.withInputEventListener(() => field.withStorage(funnel.storage))
   })
 
   const angeboterhaltenbutton = new DivField("div[class*='angeboterhaltenbutton']")
-    .withClickEventListener(async () => await saveAndProceed(NEXT_PATHNAME))
+    .withClickEventListener(async () => {
+      await savtToStorage()
+      Helper.nextFunnel(funnel.paths)
+    })
 
   const impressum = new DivField("div[class*='impressum']")
     .withClickEventListener(() => window.location.assign("/felix/shs/impressum/"))
@@ -80,22 +97,16 @@ if (window.sessionStorage.getItem("shsFunnel") !== null) {
   const datenschutz = new DivField("div[class*='datenschutz']")
     .withClickEventListener(() => window.location.assign("/felix/shs/datenschutz/"))
 
-  async function saveAndProceed(pathname) {
-
-    await technischeswlan.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await technischeserdkabel.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await technischespotentialausgleich.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await technischeshakbildupload.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await technischesanzahlhaks.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await technischeshakstandort.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await technischeshakfreicheckbox.withStorage(SHS_FUNNEL_STORAGE_NAME)
-    await zusatzinfosinput.withStorage(SHS_FUNNEL_STORAGE_NAME)
-
-    window.location.assign(pathname)
-
+  async function savtToStorage() {
+    await technischeswlan.withStorage(funnel.storage)
+    await technischeserdkabel.withStorage(funnel.storage)
+    await technischespotentialausgleich.withStorage(funnel.storage)
+    await technischeshakbildupload.withStorage(funnel.storage)
+    await technischesanzahlhaks.withStorage(funnel.storage)
+    await technischeshakstandort.withStorage(funnel.storage)
+    await technischeshakfreicheckbox.withStorage(funnel.storage)
+    await zusatzinfosinput.withStorage(funnel.storage)
   }
-} else {
-  window.location.assign(START_FUNNEL_PATHNAME)
 }
 
 

@@ -1,3 +1,5 @@
+import { Helper } from "./Helper.js"
+
 export class SelectionField {
 
   withChangeEventListener(callback) {
@@ -8,18 +10,6 @@ export class SelectionField {
   withRequired(index) {
     this.requiredIndex = index
     return this
-  }
-
-  #setValidStyle(select) {
-    select.style.border = "2px solid #00c853"
-    select.style.borderRadius = "3px"
-    return select
-  }
-
-  #setNotValidStyle(select) {
-    select.style.border = "2px solid #d50000"
-    select.style.borderRadius = "3px"
-    return select
   }
 
   #isRequired(select) {
@@ -40,15 +30,16 @@ export class SelectionField {
         // required path
         if (this.#isRequired(select)) {
           if (optionsSelected.includes(select.options[this.requiredIndex])) {
-            this.#setValidStyle(select)
+            Helper.setValidStyle(select)
             return resolve(optionsSelected)
           }
-          this.#setNotValidStyle(select)
+          Helper.setNotValidStyle(select)
+
           console.error(`class='${this.className}' - required valid value`)
           return
         }
         // standard path
-        this.#setValidStyle(select)
+        Helper.setValidStyle(select)
         return resolve(optionsSelected)
       })
     })
@@ -66,24 +57,25 @@ export class SelectionField {
   }
 
   async withStorage(name) {
-    this.storageName = name
-    const options = await this.withValidValue()
-    // console.log(options)
-    if (!this.#isEmpty(options)) {
-      const map = options.map(option => option.value)
-      // console.log(map)
-      this.storage = JSON.parse(window.sessionStorage.getItem(this.storageName)) || {}
-      this.storage[this.className] = map
-      window.sessionStorage.setItem(this.storageName, JSON.stringify(this.storage))
-      return this
+    try {
+      this.storageName = name
+      const options = await this.withValidValue()
+      if (!this.#isEmpty(options)) {
+        const map = options.map(option => option.value)
+        const storage = JSON.parse(window.localStorage.getItem(this.storageName))
+        storage.value[this.className] = map
+        window.localStorage.setItem(this.storageName, JSON.stringify(storage))
+      }
+    } catch (error) {
+      console.error(error)
     }
     return this
   }
 
   withType(callback) {
     if (callback !== undefined) document.querySelectorAll(this.selectSelector).forEach(select => {
-      select.fromSessionStorage = (name) => {
-        const options = JSON.parse(window.sessionStorage.getItem(name))[this.className]
+      select.fromStorage = (name) => {
+        const options = JSON.parse(window.localStorage.getItem(name)).value[this.className]
         if (options !== undefined) {
           for (let i = 0; i < select.options.length; i++) {
             select.options[i].selected = false
@@ -124,6 +116,7 @@ export class SelectionField {
     this.className = this.fieldSelector.split("'")[1]
     this.selectSelector = `select[id='${this.className}']`
     this.options = []
+    this.type = "select"
 
     const divs = document.body.querySelectorAll(this.fieldSelector)
     if (divs.length > 0) {
