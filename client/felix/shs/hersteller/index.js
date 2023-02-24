@@ -16,7 +16,7 @@ if (funnel === null) {
     .withClickEventListener(() => window.location.assign("/felix/shs/funnel/abfrage-haus/"))
 
   const getOffer = {}
-  getOffer.url = window.__DB_LOCATION__ + "/"
+  getOffer.url = "/db/v1/"
   getOffer.method = "get"
   getOffer.security = "open"
   getOffer.type = "offer"

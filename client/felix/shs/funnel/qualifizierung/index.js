@@ -3,7 +3,7 @@ import { Helper } from "../../../../js/Helper.js"
 import { Request } from "../../../../js/Request.js"
 
 const getFunnel = {}
-getFunnel.url = window.__DB_LOCATION__ + "/"
+getFunnel.url = "/db/v1/"
 getFunnel.method = "get"
 getFunnel.security = "open"
 getFunnel.type = "funnel"

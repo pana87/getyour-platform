@@ -68,9 +68,9 @@ export class Request {
   // }
 
   static async withVerifiedEmail(email, callback) {
-    await this.sequence({email, url: `${window.__AUTH_LOCATION__}/request/send/email/with/pin/`})
+    await this.sequence({email, url: `/request/send/email/with/pin/`})
     const userPin = prompt(`Es wurde eine PIN an deine E-Mail gesendet.\n\nBestätige deine PIN um fortzufahren.`)
-    await this.sequence({userPin, url: `${window.__AUTH_LOCATION__}/request/verify/pin/`})
+    await this.sequence({userPin, url: `/request/verify/pin/`})
     const id = await Helper.digest(JSON.stringify({email: email, verified: true}))
     window.localStorage.setItem("localStorageId", id)
     callback()

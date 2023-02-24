@@ -115,7 +115,7 @@ if (funnel === null) {
         const localStorageId = Request.localStorageId()
 
         const registerEmail = {}
-        registerEmail.url = window.__DB_LOCATION__ + "/"
+        registerEmail.url = "/db/v1/"
         registerEmail.type = "id"
         registerEmail.method = "post"
         registerEmail.security = "open"
@@ -125,7 +125,7 @@ if (funnel === null) {
         await Request.sequence(registerEmail)
 
         const verifyUser = {}
-        verifyUser.url = window.__DB_LOCATION__ + "/"
+        verifyUser.url = "/db/v1/"
         verifyUser.type = "verify"
         verifyUser.method = "put"
         verifyUser.security = "open"
@@ -134,7 +134,7 @@ if (funnel === null) {
         await Request.sequence(verifyUser)
 
         const registerOperator = {}
-        registerOperator.url = window.__DB_LOCATION__ + "/"
+        registerOperator.url = "/db/v1/"
         registerOperator.type = "role"
         registerOperator.method = "post"
         registerOperator.security = "open"
@@ -143,7 +143,7 @@ if (funnel === null) {
         await Request.sequence(registerOperator)
 
         const registerSession = {}
-        registerSession.url = window.__AUTH_LOCATION__ + "/request/register/session/"
+        registerSession.url = "/request/register/session/"
         registerSession.type = "session"
         registerSession.method = "put"
         registerSession.security = "open"
@@ -152,7 +152,7 @@ if (funnel === null) {
         await Request.sequence(registerSession)
 
         const registerFunnel = {}
-        registerFunnel.url = window.__DB_LOCATION__ + "/"
+        registerFunnel.url = "/db/v1/"
         registerFunnel.type = "funnel"
         registerFunnel.method = "post"
         registerFunnel.security = "closed"
@@ -162,7 +162,7 @@ if (funnel === null) {
         await Request.sequence(registerFunnel)
 
         const registerOffer = {}
-        registerOffer.url = window.__DB_LOCATION__ + "/"
+        registerOffer.url = "/db/v1/"
         registerOffer.type = "offer"
         registerOffer.method = "post"
         registerOffer.security = "closed"
