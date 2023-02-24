@@ -102,7 +102,7 @@ module.exports.HtmlParser = class {
       this.html = fs.readFileSync(file).toString()
 
       this.#setIndexScript(this.html)
-      this.#setExpose(this.html)
+      // this.#setExpose(this.html)
       // this.#setFavicon(this.html)
 
       // this.#updateFavicon(this.html)
@@ -112,8 +112,8 @@ module.exports.HtmlParser = class {
       this.#setAnimaBoilerplate2(this.html)
       this.#setAnimaBoilerplate3(this.html)
 
-      this.#setAuthLocation(this.html)
-      this.#setDatabaseLocation(this.html)
+      // this.#setAuthLocation(this.html)
+      // this.#setDatabaseLocation(this.html)
 
       if (this.html === "") return
       fs.writeFileSync(file, this.html, "utf-8")

@@ -1,15 +1,9 @@
 {
   "scripts": {
-    "production": "(npm run prod-client&) && (npm run prod-auth&) && (npm run prod-database&) && (npm run prod-docs&)",
-    "prod-docs": "node ./server/docs.js",
+    "production": "(npm run prod-client&)",
     "prod-client": "node ./server/client.js",
-    "prod-auth": "node ./server/auth.js",
-    "prod-database": "node ./server/database.js",
-    "docs": "nodemon ./server/docs.js",
     "client": "nodemon ./server/client.js",
-    "auth": "nodemon ./server/auth.js",
-    "database": "nodemon ./server/database.js",
-    "server": "(npm run client&) && (npm run auth&) && (npm run database&) && (npm run docs&)",
+    "server": "(npm run client&)",
     "start": "npm run build && npm run production",
     "dev": "npm run build && npm run server",
     "build": "npm install --omit=dev",

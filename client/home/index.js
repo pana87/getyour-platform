@@ -29,7 +29,7 @@ const loginbutton = new DivField("div[class*='loginbutton']")
     const localStorageId = Request.localStorageId()
 
     const registerEmail = {}
-    registerEmail.url = window.__DB_LOCATION__ + "/"
+    registerEmail.url = "/db/v1/"
     registerEmail.type = "id"
     registerEmail.method = "post"
     registerEmail.security = "open"
@@ -39,7 +39,7 @@ const loginbutton = new DivField("div[class*='loginbutton']")
     await Request.sequence(registerEmail)
 
     const verifyUser = {}
-    verifyUser.url = window.__DB_LOCATION__ + "/"
+    verifyUser.url = "/db/v1/"
     verifyUser.method = "put"
     verifyUser.security = "open"
     verifyUser.type = "verify"
@@ -48,7 +48,7 @@ const loginbutton = new DivField("div[class*='loginbutton']")
     await Request.sequence(verifyUser)
 
     const registerSession = {}
-    registerSession.url = window.__AUTH_LOCATION__ + "/request/register/session/"
+    registerSession.url = "/request/register/session/"
     registerSession.method = "put"
     registerSession.security = "open"
     registerSession.type = "session"

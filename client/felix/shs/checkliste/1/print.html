@@ -166,7 +166,7 @@
     const urlId = window.location.pathname.split("/")[4]
 
     const getOffer = {}
-    getOffer.url = window.__DB_LOCATION__ + "/"
+    getOffer.url = "/db/v1/"
     getOffer.type = "offer"
     getOffer.name = "bestprime"
     getOffer.localStorageId = localStorageId
@@ -323,12 +323,6 @@
 
     window.print()
 
-  </script>
-
-  <script id="__EXPOSE__">
-    window.__AUTH_LOCATION__="http://localhost:10003"
-    window.__DB_LOCATION__="http://localhost:10001"
-    document.getElementById("__EXPOSE__").remove()
   </script>
 </body>
 

@@ -1669,7 +1669,7 @@ body {
     const urlId = window.location.pathname.split("/")[4]
 
     const getOffer = {}
-    getOffer.url = window.__DB_LOCATION__ + "/"
+    getOffer.url = "/db/v1/"
     getOffer.type = "offer"
     getOffer.name = "bestprime"
     getOffer.localStorageId = localStorageId
@@ -1828,7 +1828,7 @@ body {
       event.addOverlay()
 
       const options = {}
-      options.url = window.__DB_LOCATION__ + "/"
+      options.url = "/db/v1/"
       options.method = "get"
       options.security = "closed"
       options.type = "checklist"
@@ -1848,7 +1848,7 @@ body {
           const localStorageId = Request.localStorageId()
 
           const updateOffer = {}
-          updateOffer.url = window.__DB_LOCATION__ + "/"
+          updateOffer.url = "/db/v1/"
           updateOffer.method = "put"
           updateOffer.security = "closed"
           updateOffer.type = "offer"
@@ -1859,7 +1859,7 @@ body {
           await Request.sequence(updateOffer)
 
           const registerChecklist = {}
-          registerChecklist.url = window.__DB_LOCATION__ + "/"
+          registerChecklist.url = "/db/v1/"
           registerChecklist.method = "put"
           registerChecklist.security = "closed"
           registerChecklist.type = "checklist"
@@ -1869,6 +1869,7 @@ body {
           registerChecklist.checklist = checklist
           await Request.sequence(registerChecklist)
 
+          alert("Speichern erfolgreich..")
           window.location.assign(`/felix/shs/checkliste/${Request.localStorageId()}/`)
           event.removeOverlay()
         })
@@ -1880,12 +1881,6 @@ body {
     const datenschutz = new DivField("div[class*='datenschutz']")
     .withClickEventListener(() => window.location.assign("/felix/shs/datenschutz/"))
 
-  </script>
-
-  <script id="__EXPOSE__">
-    window.__AUTH_LOCATION__="http://localhost:10003"
-    window.__DB_LOCATION__="http://localhost:10001"
-    document.getElementById("__EXPOSE__").remove()
   </script>
 </body>
 
