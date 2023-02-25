@@ -1215,11 +1215,16 @@
       window.location.assign("/home/")
     } else {
       const checklist = JSON.parse(res.response)
+      // console.log(checklist);
 
       document.querySelectorAll("img[class*='logo-icon']").forEach(img => {
-        img.src = "/felix/shs/checkliste/public/logo@2x.png"
-        img.alt = "SHS Express Logo"
+      img.src = `/felix/shs/img/shslogo.png`
+      img.alt = "SHS Energie Express Logo"
+      img.style.cursor = "pointer"
+      img.addEventListener("click", () => {
+        window.location.assign("/felix/shs/")
       })
+    })
 
       document.querySelectorAll("div[class*='rechteck']").forEach((div, index) => {
         div.style.backgroundColor = "#c6c6c6"
@@ -1233,12 +1238,96 @@
         div.addEventListener("click", () => window.location.assign("/felix/shs/funnel/abfrage-haus/"))
       })
 
-      const firstButtonField = new DivField("div[class*='angebotsuebersichtbutton']")
-      .withClickEventListener(() => {
-        if (checklist.state >= 0) {
+      if (checklist.state >= 0) {
+        const firstButtonField = new DivField("div[class*='angebotsuebersichtbutton']")
+        .withClickEventListener(() => {
           window.location.assign(checklist.items[0].path)
-        }
-      })
+        })
+      }
+      if (checklist.state >= 1) {
+        const angebothochladenbutton = new DivField("div[class*='angebothochladenbutton']")
+        .withClickEventListener(() => {
+          window.location.assign(checklist.items[1].path)
+        })
+      }
+      if (checklist.state >= 2) {
+        const baugobutton = new DivField("div[class*='baugobutton']")
+        .withClickEventListener(() => {
+          window.location.assign(checklist.items[2].path)
+        })
+      }
+      if (checklist.state >= 3) {
+        const projektvorbereitungbutton = new DivField("div[class*='projektvorbereitungbutton']")
+        .withClickEventListener(() => {
+          window.location.assign(checklist.items[3].path)
+        })
+      }
+      if (checklist.state >= 4) {
+        const warenlieferungbutton = new DivField("div[class*='warenlieferungbutton']")
+        .withClickEventListener(() => {
+          window.location.assign(checklist.items[4].path)
+        })
+      }
+      if (checklist.state >= 5) {
+        const dcnansprechpartnerbutton = new DivField("div[class*='dcnansprechpartnerbutton']")
+        .withClickEventListener(() => {
+          window.location.assign(checklist.items[5].path)
+        })
+      }
+      if (checklist.state >= 6) {
+        const dcterminbuchenbutton = new DivField("div[class*='dcterminbuchenbutton']")
+        .withClickEventListener(() => {
+          window.location.assign(checklist.items[6].path)
+        })
+      }
+      if (checklist.state >= 7) {
+        const abnahmebutton = new DivField("div[class*='abnahmebutton']")
+        .withClickEventListener(() => {
+          window.location.assign(checklist.items[7].path)
+        })
+      }
+      if (checklist.state >= 8) {
+        const acansprechpartnerbutton = new DivField("div[class*='acansprechpartnerbutton']")
+        .withClickEventListener(() => {
+          window.location.assign(checklist.items[8].path)
+        })
+      }
+      if (checklist.state >= 9) {
+        const acterminbuchenbutton = new DivField("div[class*='acterminbuchenbutton']")
+        .withClickEventListener(() => {
+          window.location.assign(checklist.items[9].path)
+        })
+      }
+      if (checklist.state >= 10) {
+        const abnahmeachochladenbutton = new DivField("div[class*='abnahmeachochladenbutton']")
+        .withClickEventListener(() => {
+          window.location.assign(checklist.items[10].path)
+        })
+      }
+      if (checklist.state >= 11) {
+        const wpansprechpartnerbutton = new DivField("div[class*='wpansprechpartnerbutton']")
+        .withClickEventListener(() => {
+          window.location.assign(checklist.items[11].path)
+        })
+      }
+      if (checklist.state >= 12) {
+        const wpterminbuchenbutton = new DivField("div[class*='wpterminbuchenbutton']")
+        .withClickEventListener(() => {
+          window.location.assign(checklist.items[12].path)
+        })
+      }
+      if (checklist.state >= 13) {
+        const wpabnahmehochladenbutton = new DivField("div[class*='wpabnahmehochladenbutton']")
+        .withClickEventListener(() => {
+          window.location.assign(checklist.items[13].path)
+        })
+      }
+      if (checklist.state >= 14) {
+        const zurempfehlungsseitebutton = new DivField("div[class*='zurempfehlungsseitebutton']")
+        .withClickEventListener(() => {
+          window.location.assign(checklist.items[14].path)
+        })
+      }
 
       // checklist.state = 3 // numbers not standard -n bug
       for (let i = 1; i <= checklist.state; i++) {

@@ -12,6 +12,19 @@ if (funnel === null) {
 } else if (offer === null) {
   window.location.assign("/felix/shs/hersteller/")
 } else {
+
+  document.querySelectorAll("img[class*='logo-icon']").forEach(img => {
+    img.src = `/felix/shs/img/shslogo.png`
+    img.alt = "SHS Energie Express Logo"
+    img.style.cursor = "pointer"
+    img.addEventListener("click", async() => {
+      const res = await Helper.redirectOperatorToChecklist()
+      if (res.status === 200) {
+        window.location.assign(`/felix/shs/checkliste/${res.response}/`)
+      }
+    })
+  })
+
   const registrierenvorname = new TextField("div[class*='registrierenvorname']")
   .withType((input) => {
     input.placeholder = "Max"
