@@ -1,23 +1,21 @@
 import { Helper } from "./Helper.js"
 
-export class EmailField {
+export class TelField {
 
   withLabel(name) {
     if (name !== undefined) {
       this.withLabelName = name
-      document.querySelectorAll(this.fieldSelector).forEach(field => this.#setEmail(field))
+      document.querySelectorAll(this.fieldSelector).forEach(field => this.#setTel(field))
     }
     return this
   }
 
+  onChange(callback) {
+    if (callback !== undefined) document.body.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("change", (event) => callback(event)))
+    return this
+  }
+
   fromStorage(name) {
-    if (name === this.type) {
-      document.querySelectorAll(this.inputSelector).forEach(input => {
-        const value = window.localStorage.getItem(name)
-        if (value !== null) input.value = value
-      })
-      return this
-    }
     if (name === "shsFunnel") {
       document.querySelectorAll(this.inputSelector).forEach(input => {
         const shsFunnel = Helper.getFunnel(name)
@@ -26,62 +24,34 @@ export class EmailField {
       })
       return this
     }
+    const value = JSON.parse(window.localStorage.getItem(name)).value[this.className]
+    if (value !== undefined) input.value = value
     return this
   }
 
   withType(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => {
-      input.fromStorage = (name) => {
-        if (name === this.type) {
-          const value = JSON.parse(window.localStorage.getItem(name))
-          if (value !== undefined) input.value = value
-        }
-        if (name === "shsFunnel") {
-          const value = JSON.parse(window.localStorage.getItem(name)).value[this.className]
-          if (value !== undefined) input.value = value
-        }
-      }
-
-      callback(input)
-    })
+    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => callback(input))
     return this
   }
-
-  // #isEmpty(value) {
-  //   return value === undefined ||
-  //     value === "" ||
-  //     value.replace(/\s/g, "") === "" ||
-  //     value === null
-  // }
 
   async withStorage(name) {
     this.withStorageName = name
     const value = await this.withValidValue()
     if (!Helper.stringIsEmpty(value)) {
-
-      if (name === "email") {
-        window.localStorage.setItem(this.withStorageName, value)
-        return this
-      }
-
-      if (name === "shsFunnel") {
-        Helper.setFunnel({
-          name: this.withStorageName,
-          key: this.className,
-          value: value
-        })
-        return this
-        // const storage = JSON.parse(window.localStorage.getItem(this.storageName))
-        // storage.value[this.className] = value
-        // window.localStorage.setItem(this.storageName, JSON.stringify(storage))
-      }
+      Helper.setFunnel({
+        name: this.withStorageName,
+        key: this.className,
+        value: value
+      })
+      // const storage = JSON.parse(window.localStorage.getItem(this.storageName))
+      // storage.value[this.className] = value
+      // window.localStorage.setItem(this.storageName, JSON.stringify(storage))
     }
-    return this
     // try {
     // } catch (error) {
     //   console.error(error)
     // }
-    // return new Error(`class='${this.className}' - storage failed`)
+    return this
   }
 
   #isRequired(input) {
@@ -107,18 +77,11 @@ export class EmailField {
     })
   }
 
-  onInput(callback) {
-    if (callback !== undefined) document.body.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("input", (event) => callback(event)))
-    return this
-  }
-
-  #setEmail(field) {
+  #setTel(field) {
     field.innerHTML = ""
 
-    // const emailField = Helper.createField("email")
     const container = document.createElement("div")
     container.style.position = "relative"
-    // container.style.height = "144px"
     container.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
     container.style.borderRadius = "13px"
     container.style.border = "0.3px solid black"
@@ -138,19 +101,21 @@ export class EmailField {
     label.setAttribute("for", this.className)
 
     const input = document.createElement("input")
+    input.type = this.type
     input.name = this.className
     input.id = this.className
-    input.type = this.type
-
     input.style.margin = "21px 89px 21px 34px"
     input.style.fontSize = "21px"
     input.style.maxWidth = "300px"
 
-
     container.append(label, input)
 
     field.append(container)
+  }
 
+  onInput(callback) {
+    if (callback !== undefined) document.body.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("input", (event) => callback(event)))
+    return this
   }
 
   constructor(className) {
@@ -159,10 +124,10 @@ export class EmailField {
       this.className = className
       this.fieldSelector = `[class='${this.className}']`
       this.inputSelector = `input[id='${this.className}']`
-      this.type = "email"
+      this.type = "tel"
       const fields = document.querySelectorAll(this.fieldSelector)
       if (fields.length <= 0) throw new Error(`field '${this.className}' not found`)
-      fields.forEach(field => this.#setEmail(field))
+      fields.forEach(field => this.#setTel(field))
     } catch (error) {
       console.error(error);
     }

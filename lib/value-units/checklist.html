@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+
+    <style>
+      body {
+        margin: 0;
+        line-height: 1.2;
+        font-family: sans-serif;
+      }
+    </style>
+
+  </head>
+  <body>
+
+    <header></header>
+
+    <h1 class="title">Essentielles zum Anlagenaufbau</h1>
+
+    <div class="info"></div>
+
+    <div class="checklist"></div>
+
+    <footer></footer>
+
+
+
+  <script type="module">
+
+    import { HeaderField } from "../../../../js/HeaderField.js"
+    import { Helper } from "../../../../js/Helper.js"
+    import { Request } from "../../../../js/Request.js"
+    import { DivField } from "../../../../js/DivField.js"
+    import { ChecklistField } from "../../../../js/ChecklistField.js"
+
+
+
+    const header = new HeaderField()
+    .withImage(img => {
+      img.src = "/felix/shs/img/shslogo.png"
+      img.alt = "SHS Express Logo"
+      img.addEventListener("click", async() => await Helper.redirectOperatorToChecklist())
+    })
+
+
+    document.querySelectorAll(".title").forEach(title => {
+      title.style.margin = "144px 8px 21px 8px"
+      title.style.fontWeight = "normal"
+    })
+
+
+    const urlId = window.location.pathname.split("/")[4]
+    const localStorageId = Request.localStorageId()
+
+    const getChecklist = {}
+    getChecklist.url = "/consumer/v1/"
+    getChecklist.consumer = "operator"
+    getChecklist.method = "get"
+    getChecklist.name = "shs"
+    getChecklist.type = "checklist"
+    getChecklist.security = "closed"
+    getChecklist.localStorageId = localStorageId
+    getChecklist.urlId = urlId
+    const res = await Request.middleware(getChecklist)
+    console.log(res);
+
+    // if (res.status !== 200) {
+    //   window.location.assign("/home/")
+    //   throw new Error(`could not find ${getChecklist.name} ${getChecklist.type}`)
+    // }
+
+
+    const checklist = JSON.parse(res.response)
+    console.log(checklist);
+
+    const checklistField = new ChecklistField("checklist")
+    .withChecklist(checklist)
+
+
+  </script>
+</body>
+
+
+</html>

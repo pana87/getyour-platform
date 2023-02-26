@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHS Angebot Digital unterschreiben</title>
+  <style>
+    body {
+      margin: 0;
+      line-height: 1.2;
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <header></header>
+  <div class="title"></div>
+  <div class="sign-canvas"></div>
+  <div class="sign-button"></div>
+  <div class="info"></div>
+  <footer></footer>
+
+  <script type="module">
+    import { CanvasField } from "../../../../../js/CanvasField.js"
+    import { Request } from "../../../../../js/Request.js"
+    import { Helper } from "../../../../../js/Helper.js"
+    import { HeaderField } from "../../../../../js/HeaderField.js"
+    import { DivField } from "../../../../../js/DivField.js"
+
+    const localStorageId = Request.localStorageId()
+    const urlId = window.location.pathname.split("/")[4]
+
+    const getOffer = {}
+    getOffer.url = "/consumer/v1/"
+    getOffer.consumer = "operator"
+    getOffer.method = "get"
+    getOffer.type = "offer"
+    getOffer.security = "closed"
+    getOffer.localStorageId = localStorageId
+    getOffer.urlId = urlId
+    const res = await Request.middleware(getOffer)
+    // console.log(res.status);
+
+    if (res.status !== 200) {
+      window.location.assign("/felix/shs/match-maker/shs-hersteller-vergleich/")
+      throw new Error("offer not found")
+    }
+
+    const offer = JSON.parse(res.response)
+    // console.log(offer);
+
+    const header = new HeaderField()
+    .withImage(img => {
+      img.src = "../../../public/shslogo.png"
+      img.alt = "SHS Express Logo"
+      img.style.cursor = "pointer"
+      img.style.width = "144px"
+      img.addEventListener("click", () => window.history.back())
+    })
+    .withType(header => {
+      header.style.position = "fixed"
+      header.style.top = "0"
+      header.style.left = "0"
+      header.style.zIndex = "1"
+      header.style.backgroundColor = "white"
+    })
+    .build()
+
+    const title = new DivField("title")
+    .withType(div => {
+      const title = document.createElement("h1")
+      title.style.margin = "144px 34px 34px 34px"
+      title.style.fontWeight = "normal"
+      title.innerHTML = "Ihre digitale Unterschrift"
+      div.append(title)
+    })
+
+
+    const signField = new CanvasField("sign-canvas")
+    .with({withLabel: label => label.innerHTML = "Hier unterschreiben:"})
+    .withDrawable()
+
+
+
+    const signButton = new DivField("sign-button")
+    .withType(button => {
+
+      button.innerHTML = "Unterschrift abschicken"
+      button.style.margin = "21px 34px"
+      button.style.height = "55px"
+      button.style.backgroundColor = "#f7aa20"
+      button.style.borderRadius = "13px"
+      button.style.display = "flex"
+      button.style.justifyContent = "center"
+      button.style.alignItems = "center"
+      button.style.fontSize = "21px"
+      button.style.cursor = "pointer"
+      button.addEventListener("mouseover", () => button.style.backgroundColor = "#f19d08")
+      button.addEventListener("mouseout", () => button.style.backgroundColor = "#f7aa20")
+
+      button.addEventListener("click", async() => {
+
+        Helper.addOverlay()
+        Helper.setWaitCursor()
+        try {
+          const email = window.localStorage.getItem("email")
+
+
+
+          // return
+          await Request.withVerifiedEmail(email, async() => {
+
+            const registerOffer = {}
+            registerOffer.url = "/consumer/v1/"
+            registerOffer.consumer = "operator"
+            registerOffer.method = "register"
+            registerOffer.type = "offer"
+            registerOffer.security = "closed"
+            registerOffer.urlId = urlId
+            registerOffer.localStorageId = localStorageId
+            registerOffer.offer = offer
+            registerOffer.offer.value.eSign = {}
+            const canvas = document.querySelector(signField.canvasSelector)//.forEach(canvas => {
+            const file = await Helper.canvasToFile(canvas)
+            registerOffer.offer.value.eSign.name = `${offer.producer.name}-${Date.now()}.eSign`
+            registerOffer.offer.value.eSign.createdAt = file.createdAt
+            registerOffer.offer.value.eSign.type = file.type
+            registerOffer.offer.value.eSign.size = file.size
+            registerOffer.offer.value.eSign.dataURL = file.dataURL
+            // console.log(registerOffer);
+            await Request.sequence(registerOffer)
+            // console.log(JSON.parse(res.response))
+            // return
+            const getChecklist = {}
+            getChecklist.url = "/consumer/v1/"
+            getChecklist.consumer = "operator"
+            getChecklist.method = "get"
+            getChecklist.type = "checklist"
+            getChecklist.security = "closed"
+            getChecklist.urlId = urlId
+            getChecklist.localStorageId = localStorageId
+            const res = await Request.middleware(getChecklist)
+
+            const checklist = JSON.parse(res.response)
+            // console.log(checklist);
+
+            if (checklist.state === 1) {
+              checklist.state = checklist.state + 1
+            }
+
+            const registerChecklist = {}
+            registerChecklist.url = "/consumer/v1/"
+            registerChecklist.consumer = "operator"
+            registerChecklist.method = "register"
+            registerChecklist.type = "checklist"
+            registerChecklist.security = "closed"
+            registerChecklist.localStorageId = localStorageId
+            registerChecklist.urlId = urlId
+            registerChecklist.checklist = checklist
+            await Request.sequence(registerChecklist)
+
+            alert("Speichern erfolgreich..")
+            await Helper.redirectOperatorToChecklist()
+            // Helper.removeOverlay()
+            // Helper.setDauf
+          })
+        } catch (error) {
+          console.error(error)
+          Helper.setNotAllowedCursor()
+        }
+      })
+
+
+    })
+
+
+    Helper.createSHSFooter()
+
+  </script>
+</body>
+</html>

@@ -1,3 +1,5 @@
+import { Helper } from "./Helper.js"
+
 export class AnchorField {
 
 
@@ -9,20 +11,27 @@ export class AnchorField {
     return this
   }
 
-  constructor(fieldSelector) {
-    this.fieldSelector = fieldSelector
-    this.className = this.fieldSelector.split("'")[1]
-    this.anchorSelector = `a[id='${this.className}']`
-    const divs = document.querySelectorAll(this.fieldSelector)
-    if (divs.length > 0) {
-      divs.forEach(div => {
-        div.innerHTML = ""
-        const a = document.createElement("a")
-        a.id = this.className
-        div.append(a)
-      })
-      return
+  #setAnchor(field) {
+    field.innerHTML = ""
+
+    const a = document.createElement("a")
+    a.id = this.className
+
+    field.append(a)
+  }
+
+  constructor(className) {
+    try {
+      if (Helper.stringIsEmpty(className)) throw new Error("class name is empty")
+      this.className = className
+      this.fieldSelector = `[class='${this.className}']`
+      this.anchorSelector = `a[id='${this.className}']`
+      this.type = "anchor"
+      const fields = document.querySelectorAll(this.fieldSelector)
+      if (fields.length <= 0) throw new Error(`field '${this.className}' not found`)
+      fields.forEach(field => this.#setAnchor(field))
+    } catch (error) {
+      console.error(error);
     }
-    console.warn(`class='${this.className}' - field not found`)
   }
 }

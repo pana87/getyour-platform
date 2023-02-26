@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getyour Plattform Nutzervereinbarung</title>
+  <style>
+    body {
+      margin: 0;
+      line-height: 1.2;
+      font-family: sans-serif;
+    }
+    h2 {
+      font-weight: normal;
+      font-size: 21px;
+    }
+  </style>
+</head>
+<body>
+  <header></header>
+
+  <h1 class="title"></h1>
+
+  <div class="text-1"></div>
+
+  <h2 class="sub-title-2"></h2>
+  <div class="text-2"></div>
+
+  <h2 class="sub-title-3"></h2>
+  <div class="text-3"></div>
+
+  <h2 class="sub-title-4"></h2>
+  <div class="text-4"></div>
+
+  <h2 class="sub-title-5"></h2>
+  <div class="text-5"></div>
+
+  <h2 class="sub-title-6"></h2>
+  <div class="text-6"></div>
+
+  <h2 class="sub-title-7"></h2>
+  <div class="text-7"></div>
+
+  <h2 class="sub-title-8"></h2>
+  <div class="text-8"></div>
+
+  <h2 class="sub-title-9"></h2>
+  <div class="text-9"></div>
+
+  <h2 class="sub-title-10"></h2>
+  <div class="text-10"></div>
+
+  <h2 class="sub-title-11"></h2>
+  <div class="text-11"></div>
+
+  <h2 class="sub-title-12"></h2>
+  <div class="text-12"></div>
+
+  <h2 class="sub-title-13"></h2>
+  <div class="text-13"></div>
+
+  <h2 class="sub-title-14"></h2>
+  <div class="text-14"></div>
+
+  <h2 class="sub-title-15"></h2>
+  <div class="text-15"></div>
+
+  <h2 class="sub-title-16"></h2>
+  <div class="text-16"></div>
+
+  <h2 class="sub-title-17"></h2>
+  <div class="text-17"></div>
+
+  <h2 class="sub-title-18"></h2>
+  <div class="text-18"></div>
+
+
+  <footer></footer>
+
+  <script type="module">
+    import {HeaderField} from "../../../../js/HeaderField.js"
+    import {Field} from "../../../../js/Field.js"
+    import {Helper} from "../../../../js/Helper.js"
+    import {FooterField} from "../../../../js/FooterField.js"
+
+    const header = new HeaderField()
+    .withImage(img => {
+      img.src = "../public/getyour-logo.svg"
+      img.alt = "Getyour Plattform Logo"
+      img.style.cursor = "pointer"
+      img.style.width = "89px"
+      img.addEventListener("click", () => window.location.assign("/home/"))
+    })
+    .withType(header => {
+      header.style.position = "fixed"
+      header.style.top = "0"
+      header.style.left = "0"
+      header.style.zIndex = "1"
+      header.style.background = "white"
+    })
+    .build()
+
+
+    const title = new Field(".title")
+    .withType(div => {
+      div.innerHTML = "Nutzervereinbarung"
+      div.style.fontWeight = "normal"
+      div.style.margin = "144px 34px"
+    })
+
+    const text1 = new Field(".text-1")
+    .withType(div => {
+      div.style.fontWeight = "normal"
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Vielen Dank, dass du die getyour plattform, ihre Produkte, Dienste und Funktionen nutzt (nachfolgend „Dienste“).</p>
+        <p>getyour plattform hat es sich zur Aufgabe gemacht Plattformentwickler mit Branchenexperten auf eine Art und Weise zu vernetzen, so dass der Nutzen für alle beteiligten aus der spezifischen Branche, im optimalen Fall, ständig wächst. Unsere Dienste spezialisieren sich dabei auf die Erstellung von Plattformen und ermöglichen es dir als Nutzer, höhere Marktanteile aus deiner Branche zu erzielen.</p>
+        <p>Bitte lies dir diese Vereinbarung sorgfältig durch und vergewissere dich, dass du sie verstanden hast. Wenn du einen Teil dieser Vereinbarung nicht verstehst oder akzeptierst, solltest du die Dienste nicht nutzen.</p>
+      `
+    })
+
+    const subTitle2 = new Field(".sub-title-2")
+    .withType(div => {
+      div.innerHTML = "Dienste"
+      div.style.fontWeight = "normal"
+      div.style.margin = "21px 34px"
+    })
+    const text2 = new Field(".text-2")
+    .withType(div => {
+      div.style.fontWeight = "normal"
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Die Dienste von getyour plattform ermöglichen es dir, eine breite Pallete an Tools, Funktionen und Interaktionen zu benutzen, um deine eigene Plattform auf der Infrastruktur von getyour plattform zu errichten. Du bekommst Zugang zu anderen Plattformentwickler und Branchenexperten und kannst dich mit ihnen vernetzen und austauschen. Zusätzlich erhälst Zugang zu anderen Plattformen, die auf der getyour plattform errichtet wurden.</p>
+      `
+    })
+
+    const subTitle3 = new Field(".sub-title-3")
+    .withType(div => {
+      div.innerHTML = "Dienstanbieter"
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+    })
+    const text3 = new Field(".text-3")
+    .withType(div => {
+      div.style.fontWeight = "normal"
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Inhaltlich Verantwortlicher gemäß § 55 Abs. 2 RStV</p>
+        <p>
+          <b>Panagiotis Tsivelekidis</b><br>
+          Staigerbacher Str. 188<br>
+          70184 Stuttgart<br>
+          Deutschland<br>
+        </p>
+        <a href="mailto:datenschutz@get-your.de">datenschutz@get-your.de</a>
+        <p>Bei Fragen zum Datenschutz oder zu dieser Webseite, kontaktiere uns bitte unter der angegebenen E-Mail Adresse.</p>
+        <p>Du schließt einen Vertrag mit getyour plattform ab (nachfolgend “getyour plattform”, “wir”, “uns”, “unser” oder “unsere”)</p>
+      `
+    })
+
+    const subTitle4 = new Field(".sub-title-4")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = "Nutzer"
+      div.style.fontWeight = "normal"
+    })
+    const text4 = new Field(".text-4")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+      div.innerHTML = /*html*/`
+        <p>Durch die Registrierung wirst du Mitglied von getyour plattform. Wenn du dich nicht registrierst, kannst du als Besucher auf bestimmte Funktionen zugreifen.</p>
+        <p>Dieser Vertrag gilt für Mitglieder und Besucher (nachfolgend “Nutzer”).</p>
+        <p>Wenn du unter 18 Jahre alt bist, musst du die Erlaubnis deiner Eltern oder deines Erziehungsberechtigten einholen, um den Dienst zu nutzen.</p>
+        <p>Wenn du ein Elternteil oder Erziehungsberechtigter eines Nutzers unter 18 Jahren bist und deinem Kind die Nutzung des Dienstes gestattest, musst du dich an die Bedingungen dieser Vereinbarung halten und bist für die Handlungen deines Kindes im Rahmen des Dienstes verantwortlich.</p>
+        <p>Wenn du den Dienst im Namen eines Unternehmens oder einer juristischen Person nutzt, bestätigst du, dass du berechtigt bist, im Namen dieser Organisation zu handeln, und dass diese juristische Person diese Vereinbarung akzeptiert.</p>
+      `
+    })
+
+    const subTitle5 = new Field(".sub-title-5")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = "Allgemeines"
+      div.style.fontWeight = "normal"
+    })
+    const text5 = new Field(".text-5")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+      div.innerHTML = /*html*/`
+        <p>Wenn ein für diese Vereinbarung zuständiges Gericht feststellt, dass ein Teil der Vereinbarung nicht durchsetzbar ist, vereinbaren wir und du, dass das Gericht die Bedingungen so ändern kann, dass der andere Teil der Vereinbarung durchsetzbar wird. Wenn das Gericht dazu nicht in der Lage ist, vereinbaren beide Parteien, das Gericht zu ersuchen, den nicht durchsetzbaren Teil zu entfernen und den Rest dieser Vereinbarung weiterhin durchzusetzen.</p>
+        <p>Unser Versäumnis, eine Verletzung dieser Vereinbarung zu beheben, bedeutet nicht, dass wir auf unser Recht zur Durchsetzung dieser Vereinbarung verzichtet haben. Du darfst diese Vereinbarung (oder deine Mitgliedschaft oder die Nutzung eines Dienstes) nicht ohne unsere Zustimmung an eine andere Person abtreten.</p>
+      `
+    })
+
+    const subTitle6 = new Field(".sub-title-6")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = "Änderungen"
+      div.style.fontWeight = "normal"
+    })
+    const text6 = new Field(".text-6")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+      div.innerHTML = /*html*/`
+        <p>Wir behalten uns das Recht vor, diese Vereinbarung und unsere Datenschutzrichtlinien zu ändern. Wenn wir wesentliche Änderungen vornehmen, werden wir dich über unsere Dienste benachrichtigen oder dir anderweitig die Möglichkeit geben, die Änderungen zu überprüfen, bevor sie in Kraft treten. Wir stimmen zu, dass Änderungen nicht rückwirkend vorgenommen werden können. Wenn du Änderungen nicht zustimmst, kannst du dein Konto schließen. Die Fortsetzung der Nutzung unserer Dienste, nachdem wir Änderungen an diesen Bedingungen veröffentlicht oder dich über solche Änderungen informiert haben, bedeutet, dass du den Bedingungen in ihrer jeweils gültigen Fassung zustimmst.</p>
+      `
+    })
+
+    const subTitle7 = new Field(".sub-title-7")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = "Vertragsgegenstand"
+      div.style.fontWeight = "normal"
+    })
+    const text7 = new Field(".text-7")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Durch die Nutzung unserer Dienste stimmst du allen Bedingungen zu. Die Nutzung unserer Dienste wird durch die Nutzervereinbarung und unsere Datenschutzrichtlinien geregelt. Sie beschreiben, wie wir deine personenbezogenen Daten erheben, verwenden, weitergeben und speichern.</p>
+        <p>Wenn du dich bei getyour plattform registrierst, indem du auf „Registrieren“ oder ähnliches klickst, erklärst du dich damit einverstanden, einen rechtsverbindlichen Vertrag mit getyour plattform einzugehen. Das gilt auch für die Nutzung unserer Dienste im Namen deines Unternehmens. Wenn du dieser Vereinbarung nicht zustimmen möchtest, klicke bitte nicht auf „Registrieren“ oder ähnliches. Wenn du diese Vereinbarung kündigen möchtest, kannst du dein Konto schließen und den Zugriff auf unserer Dienste jederzeit einstellen.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle8 = new Field(".sub-title-8")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = "Konto"
+      div.style.fontWeight = "normal"
+    })
+    const text8 = new Field(".text-8")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Mitglied ist Kontoinhaber. Du stimmst zu, dass du ein sicheres Passwort wählst und es vertraulich behandelst. Du teilst dein Konto nicht mit anderen und du hälst dich an das Gesetz, der Nutzervereinbarung von getyour plattform und die Community-Richtlinien. Du bist für alle Handlungen verantwortlich, die unter deinem Benutzerkonto vorgenommen werden, es sei denn, du hast dein Konto gelöscht oder einen Verstoß gemeldet.</p>
+        <p>Für Beziehungen zwischen dir und anderen Parteien (einschließlich deines Arbeitgebers oder teilhabende Geschäftsführer oder ähnliches) gilt dein Konto als dein Konto. Wenn der Dienst von einer anderen Partei für die Nutzung erworben wurde (z. B. eine Arbeitslizenz), hat die für den Dienst zahlende Partei nicht das Recht, den Zugriff und die Nutzung der Dienste zu kontrollieren, auch wenn es sich um kostenpflichtige Dienste handelt.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle9 = new Field(".sub-title-9")
+    .withType(div => {
+      div.innerHTML = "Zahlung"
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+    })
+    const text9 = new Field(".text-9")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Wenn du unsere zahlungspflichtige Dienste (nachfolgend „zahlungspflichtige Dienste“) erwirbst, stimmst du den Bedingungen für zahlungspflichtige Dienste zu und erklärst dich damit einverstanden, uns diese Gebühren und anfallenden Steuern zu zahlen. Bei Nichtzahlung dieser Gebühren wird die Bereitstellung der zahlungspflichtige Dienste beendet. Du stimmst auch Folgendem zu:</p>
+        <p>Wir können deine Zahlungsmethode verwenden (z. B. Kreditkarte), auch wenn sie abgelaufen ist, um eine Unterbrechung unseres Dienstes zu vermeiden. Die Zahlungsmethode wird auch zum Bezahlen anderer Dienste verwendet, die du möglicherweise in Zukunft erwirbst.</p>
+        <p>Wenn du einen zahlungspflichtigen Dienst erwirbst, wird deine Zahlungsmethode automatisch bei Vollendung der Interaktion (z. B. Bereitstellung von Daten aus dem selbsterstellten Funnel), mit den für diesen Zeitraum geltenden Gebühren und Steuern belastet.</p>
+        <p>Wir berechnen, die von dir zu zahlenden Steuern, basierend auf den Zahlungsinformationen, die du uns zum Zeitpunkt des Kaufs zur Verfügung gestellt hast.</p>
+        <p>Du kannst eine Kopie deiner Rechnung in den Kontoeinstellungen abrufen.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle10 = new Field(".sub-title-10")
+    .withType(div => {
+      div.innerHTML = "Mitteilungen"
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+    })
+    const text10 = new Field(".text-10")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Du stimmst zu, dass wir dir Mitteilungen über den Dienst oder über die von dir angegebenen Kontaktinformationen (z. B. E-Mail Adresse, Handynummer, Postanschrift)  senden dürfen. Du stimmst zu, deine Kontaktinformationen zu aktualisieren sobald sich eine Veränderung ergeben hat.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle11 = new Field(".sub-title-11")
+    .withType(div => {
+      div.innerHTML = "Sichtbarkeit"
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+    })
+    const text11 = new Field(".text-11")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Unser Dienst ermöglicht es dir, Informationen, Inhalte, Logos, Texte, Bilder, Designs, Quellcode oder ähnliche persönliche oder unternehmensspezifische Daten (nachfolgend “Inhalt” oder “Inhalte”) auf verschiedene Art und Weise bereitzustellen (z. B. über dein Profil). Inhalte, die du zur Verfügung stellst, können für Mitglieder, Besucher oder andere Dritte (einschließlich außerhalb des Dienstes) sichtbar sein. Die Entscheidungen darüber, wer welche Inhalte sehen kann, liegt ganz allein bei dir (z. B. Sichtbar für alle, Sichtbar nur für Mitglieder oder Sichtbar nur für mich). Du kannst die Sichtbarkeit, für jeden Dienst, unter den Diensteinstellungen bearbeiten.</p>
+        <p>Wir sind nicht verpflichtet, Inhalte auf unseren Diensten bereitzustellen und können Inhalte ohne Vorankündigung entfernen.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle12 = new Field(".sub-title-12")
+    .withType(div => {
+      div.innerHTML = "Lizenz"
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+    })
+    const text12 = new Field(".text-12")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Du bist Eigentümer der Inhalte, die du an den Dienst übermittelst und gewährst uns und unseren verbundenen Unternehmen die folgende nicht ausschließliche Lizenz:</p>
+        <p>Das Recht, Inhalte, die du über unsere Dienste und Dienste von Drittanbietern bereitstellst, zu verwenden, zu kopieren, zu verarbeiten, zu speichern, zu verteilen und zu veröffentlichen ohne dass deine Zustimmung oder weitere Benachrichtigung erforderlich sind. Dieses Recht ist wie folgt beschränkt:</p>
+        <p>Du kannst diese Lizenz für bestimmte Inhalte kündigen, indem Du diese Inhalte aus dem Dienst entfernst oder dein Konto kündigst.</p>
+        <p>Wir werden deine Inhalte ohne deine ausdrückliche Zustimmung nicht in der Werbung für Produkte und Dienstleistungen Dritter veröffentlichen. Wir behalten uns jedoch das Recht vor, mit deinen Inhalten zu werben, ohne dich oder Dritte dafür zu entschädigen. Gemäß der Datenschutzrichtlinie können deine Aktivitäten angezeigt und in Werbung einbezogen werden. Wenn du eine Funktion des Dienstes nutzt, werden wir je nach deinen Vorlieben deinen Namen oder dein Foto erwähnen, um diese Funktion in unserem Dienst zu bewerben.</p>
+        <p>Wir werden deine Zustimmung einholen, wenn wir anderen das Recht einräumen möchten, deine Inhalte außerhalb unserer Dienste zu veröffentlichen.</p>
+        <p>Wir können deine Inhalte bearbeiten und Formatierungsänderungen vornehmen (z. B. die Größe oder den Dateityp ändern), aber wir ändern nicht die Bedeutung deines Inhalts.</p>
+        <p>Da du Eigentümer deiner Inhalte bist und wir nicht ausschließliche Rechte an diesen Inhalten haben, kannst du diese Inhalte mit anderen teilen.</p>
+        <p>Du stimmst zu, dass wir auf alle von dir Inhalten gemäß den Bestimmungen der Datenschutzrichtlinie und deinen Entscheidungen zugreifen, diese verwenden und speichern dürfen.</p>
+        <p>Du stimmst zu, nur Inhalte bereitzustellen, die nicht gegen das Gesetz oder die Rechte (einschließlich geistiger Eigentumsrechte) anderer verstoßen. Du stimmst auch zu, dass die Informationen in deinem Profil korrekt sind.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle13 = new Field(".sub-title-13")
+    .withType(div => {
+      div.innerHTML = "Verfügbarkeit der Dienste"
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+    })
+    const text13 = new Field(".text-13")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Wir behalten uns das Recht vor, Teile unserer Dienste zu verändern, auszusetzen oder einzustellen. Wir behalten uns auch das Recht vor, unsere geltenden Preise in der Zukunft im gesetzlich zulässigen Umfang mit angemessener Ankündigung zu ändern.</p>
+        <p>Wir sind nicht verpflichtet, deine Inhalte zu speichern oder anzuzeigen. getyour plattform ist kein Hosting-Dienst. Du stimmst zu, dass wir nicht verpflichtet sind, dir eine Kopie, Speicherung oder Archivierung von Inhalten bereitzustellen, es sei denn, dies ist gesetzlich vorgeschrieben und in Übereinstimmung mit unserer Datenschutzrichtlinie.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle14 = new Field(".sub-title-14")
+    .withType(div => {
+      div.innerHTML = "Einschränkungen"
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+    })
+    const text14 = new Field(".text-14")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Wir behalten uns das Recht vor, die Nutzung des Dienstes einzuschränken, einschließlich der Möglichkeit, andere Mitglieder zu kontaktieren. Wir behalten uns das Recht vor, dein Konto einzuschränken, auszusetzen oder zu kündigen, wenn du gegen diese Vereinbarung oder das Gesetz verstößt oder den Dienst missbrauchst (z. B. Verstoß gegen die Community-Richtlinien).</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle15 = new Field(".sub-title-15")
+    .withType(div => {
+      div.innerHTML = "Business Intelligence"
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+    })
+    const text15 = new Field(".text-15")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Wir verwenden die Inhalte, die du und andere Mitglieder bereitstellen, um Empfehlungen zu Mitgliedern, Inhalten und Funktionen zu geben, die du möglicherweise nützlich findest.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle16 = new Field(".sub-title-16")
+    .withType(div => {
+      div.innerHTML = "Haftungsausschluss"
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+    })
+    const text16 = new Field(".text-16")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Inhalte zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
+        <p>Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Inhalten nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.</p>
+        <p>Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar.</p>
+        <p>Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.</p>
+        <p>Im gesetzlich zulässigen Ausmass schließen wir jegliche Haftung für entgangene Gewinne oder Geschäftschancen, Rufschädigung (z. B. Anstössige Inhalte), Verlust von Daten oder jegliche Neben- oder Folgeschäden oder Strafschadensersatz in Verbindung mit diesem Vertrag aus.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle17 = new Field(".sub-title-17")
+    .withType(div => {
+      div.innerHTML = "Beendigung"
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+    })
+    const text17 = new Field(".text-17")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Sowohl du als auch getyour plattform können diese Vereinbarung jederzeit durch Benachrichtigung der anderen Partei kündigen. Nach der Kündigung verlierst du dein Recht, auf den Dienst zuzugreifen oder ihn zu nutzen. Nach Ablauf des Vertrages gelten weiterhin folgende Bestimmungen:</p>
+        <p>Wir behalten uns das Recht vor, dein Feedback zu verwenden und offenzulegen.</p>
+        <p>Jeder Betrag, den eine Partei der anderen vor der Kündigung schuldet und der nach der Kündigung geschuldet bleibt.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle18 = new Field(".sub-title-18")
+    .withType(div => {
+      div.innerHTML = "Urheberrecht"
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+    })
+    const text18 = new Field(".text-18")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Die durch die Dienstanbieter erstellten Inhalte unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet.</p>
+        <p>Soweit die Inhalte nicht von uns erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Solltest du trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir dich um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.</p>
+        <p>Wir halten alle geistigen Eigentumsrechte an dem Dienst. Marken und Logos, die in Verbindung mit den Diensten verwendet werden, sind Marken ihrer jeweiligen Eigentümer.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const footer = new FooterField()
+    .withType(footer => {
+      footer.style.backgroundColor = "#781717"
+      footer.style.padding = "21px 34px"
+      footer.style.marginTop = "144px"
+      footer.style.color = "#d1d1d1"
+
+      const impressum = document.createElement("div")
+      impressum.innerHTML = "IMPRESSUM"
+      impressum.style.cursor = "pointer"
+      impressum.style.padding = "13px"
+      impressum.addEventListener("click", () => window.location.assign("/impressum/"))
+      footer.append(impressum)
+
+      const dsgvo = document.createElement("div")
+      dsgvo.innerHTML = "DATENSCHUTZ"
+      dsgvo.style.cursor = "pointer"
+      dsgvo.style.padding = "13px"
+      dsgvo.addEventListener("click", () => window.location.assign("/datenschutz/"))
+      footer.append(dsgvo)
+
+      const userAgreement = document.createElement("div")
+      userAgreement.innerHTML = "NUTZERVEREINBARUNG"
+      userAgreement.style.cursor = "pointer"
+      userAgreement.style.padding = "13px"
+      userAgreement.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
+      footer.append(userAgreement)
+    })
+
+  </script>
+</body>
+</html>

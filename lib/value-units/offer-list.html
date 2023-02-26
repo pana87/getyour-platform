@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+
+    <style>
+
+      body {
+        margin: 0;
+        line-height: 1.2;
+        font-family: sans-serif;
+        background-color: #ebebeb;
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+
+
+
+    <header></header>
+
+    <h1 class="title">Angebotsübersicht</h1>
+
+    <div class="change-data"></div>
+
+    <div class="offers"></div>
+
+    <footer></footer>
+
+
+
+    <script type="module">
+      import { DivField } from "../../../js/DivField.js"
+      import { Helper } from "../../../js/Helper.js"
+      import { Request } from "../../../js/Request.js"
+      import { HeaderField } from "../../../js/HeaderField.js"
+      import { OfferField } from "../../../js/OfferField.js"
+      import { FooterField } from "../../../js/FooterField.js"
+
+      // require storage function
+      const funnel = JSON.parse(window.localStorage.getItem("shsFunnel"))
+      if (funnel === null) {
+        window.location.assign("/felix/shs/funnel/qualifizierung/")
+        throw new Error("funnel storage required")
+      }
+
+      const header = new HeaderField()
+      .withImage(img => {
+        img.src = "img/shslogo.png"
+        img.alt = "SHS Express Logo"
+        img.addEventListener("click", async() => await Helper.redirectOperatorToChecklist())
+      })
+
+      document.querySelectorAll(".title").forEach(title => {
+        title.style.margin = "144px 8px 21px 8px"
+        title.style.fontWeight = "normal"
+      })
+
+      const changeData = new DivField("div[class*='change-data']")
+      .withType(div => {
+        div.innerHTML = "Hier können Sie Ihre Angaben ändern"
+        div.style.height = "144px"
+        div.style.backgroundColor = "#c1d5cb"
+        div.style.margin = "8px"
+        div.style.padding = "8px"
+        div.style.borderRadius = "13px"
+        div.style.display = "flex"
+        div.style.justifyContent = "center"
+        div.style.alignItems = "center"
+        div.style.fontSize = "21px"
+        div.style.textDecoration = "underline"
+        div.style.cursor = "pointer"
+        div.addEventListener("click", () => window.location.assign("/felix/shs/funnel/abfrage-haus/"))
+      })
+
+
+
+      const getOffer = {}
+      getOffer.url = "/db/v1/"
+      getOffer.consumer = "operator"
+      getOffer.method = "get"
+      getOffer.type = "offer"
+      getOffer.security = "open"
+      getOffer.funnel = funnel
+      const res = await Request.middleware(getOffer)
+
+      if (res.status !== 200) {
+        document.querySelectorAll("div[class*='herstelleritem']").forEach(div => div.remove())
+        throw new Error("offers not found")
+      }
+
+
+      const offers = JSON.parse(res.response)
+      console.log(offers);
+
+
+      const offerField = new OfferField("offers")
+      .withOffers(offers)
+
+      const footer = new FooterField()
+
+
+    </script>
+
+
+  </body>
+</html>

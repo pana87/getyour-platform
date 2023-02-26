@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+
+    <style>
+
+      body {
+        margin: 0;
+        line-height: 1.2;
+        font-family: sans-serif;
+        background-color: #ebebeb;
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+
+
+
+    <header></header>
+
+    <h1 class="title"></h1>
+
+    <div class="info"></div>
+
+    <div class="offer-list"></div>
+
+    <footer></footer>
+
+
+
+    <script type="module">
+      import { DivField } from "../../../../js/DivField.js"
+      import { Field } from "../../../../js/Field.js"
+      import { Helper } from "../../../../js/Helper.js"
+      import { Request } from "../../../../js/Request.js"
+      import { HeaderField } from "../../../../js/HeaderField.js"
+      import { InfoField } from "../../../../js/InfoField.js"
+      import { FooterField } from "../../../../js/FooterField.js"
+
+      const funnel = Helper.getFunnelByStorageName("shsFunnel")
+      if (funnel === undefined) {
+        window.location.assign("/felix/shs/funnel/qualifizierung/")
+        throw new Error("funnel not found")
+      }
+
+      const header = new HeaderField()
+      .withImage(img => {
+        img.src = "../../public/shslogo.png"
+        img.alt = "SHS Express Logo"
+        img.style.width = "144px"
+        img.style.cursor = "pointer"
+        img.addEventListener("click", async() => await Helper.redirectOperatorToChecklist())
+      })
+      .withType(header => {
+        header.style.position = "fixed"
+        header.style.top = "0"
+        header.style.left = "0"
+        header.style.backgroundColor = "white"
+      })
+      .build()
+
+      document.querySelectorAll(".title").forEach(title => {
+        title.innerHTML = "Angebotsübersicht"
+        title.style.margin = "144px 34px 34px 34px"
+        title.style.fontWeight = "normal"
+      })
+
+      const infoField = new InfoField("info")
+      .withSuccess("Hier können Sie Ihre Angaben ändern")
+      .withType(info => {
+        info.style.cursor = "pointer"
+        info.style.textDecoration = "underline"
+        info.style.fontSize = "21px"
+        info.addEventListener("click", () => window.location.assign("/felix/shs/funnel/abfrage-haus/"))
+      })
+      .build()
+
+
+      const getOffer = {}
+      getOffer.url = "/consumer/v1/"
+      getOffer.consumer = "operator"
+      getOffer.method = "get"
+      getOffer.type = "offer"
+      getOffer.security = "open"
+      getOffer.funnel = funnel
+      const res = await Request.middleware(getOffer)
+      // console.log(res);
+      // Helper.requestFailed(res)
+
+      if (res.status !== 200) {
+        document.querySelectorAll("div[class*='herstelleritem']").forEach(div => div.remove())
+        throw new Error("offers not found")
+      }
+
+
+      const offers = JSON.parse(res.response)
+      // console.log(offers);
+      // set offer
+
+      const offerList = new Field(".offer-list")
+      .withType(div => {
+        for (let i = 0; i < offers.length; i++) {
+
+          const offer = document.createElement("div")
+          offer.style.backgroundColor = "white"
+          offer.style.borderRadius = "13px"
+          offer.style.margin = "34px"
+          offer.style.padding = "34px"
+          offer.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+
+          const alignLogo = document.createElement("div")
+          alignLogo.style.display = "flex"
+          alignLogo.style.justifyContent = "flex-end"
+
+          const logo = document.createElement("img")
+          logo.src = offers[i].image.src
+          logo.alt = offers[i].image.alt
+          logo.style.width = "55vw"
+          logo.style.maxWidth = "377px"
+          // logo.style.padding = "21px"
+
+          alignLogo.append(logo)
+
+          offer.append(alignLogo)
+
+          const company = document.createElement("div")
+          company.innerHTML = offers[i].producer.company
+          company.style.margin = "21px 0"
+          // Helper.resizeFontSize(company, "21px")
+          company.style.fontSize = "21px"
+
+          offer.append(company)
+
+          const website = document.createElement("div")
+          website.style.display = "flex"
+          website.style.alignItems = "center"
+          // website.style.padding = "21px"
+
+          const websiteIcon = document.createElement("img")
+          websiteIcon.src = "/felix/shs/hersteller/public/website-icon.svg"
+          websiteIcon.alt = "Website Icon"
+
+          const websiteText = document.createElement("a")
+          websiteText.innerHTML = "Website"
+          websiteText.href = offers[i].producer.website
+          websiteText.target = "_blank"
+          websiteText.style.textDecoration = "underline"
+          websiteText.style.margin = "8px"
+          websiteText.style.cursor = "pointer"
+
+          website.append(websiteIcon, websiteText)
+
+          offer.append(website)
+
+
+          const product = document.createElement("div")
+          product.innerHTML = offers[i].producer.product
+          product.style.marginTop = "34px"
+          product.style.fontSize = "21px"
+
+
+          offer.append(product)
+
+
+          const description = document.createElement("div")
+          description.innerHTML = offers[i].producer.description
+          description.style.marginTop = "13px"
+
+          offer.append(description)
+
+
+          const alignContainer = document.createElement("div")
+          alignContainer.style.display = "flex"
+          alignContainer.style.justifyContent = "flex-end"
+
+          const priceContainer = document.createElement("div")
+          priceContainer.style.width = "300px"
+          priceContainer.style.marginTop = "21px"
+
+          const priceTitle = document.createElement("div")
+          priceTitle.innerHTML = "Preisübersicht"
+          priceTitle.style.fontSize = "21px"
+          priceTitle.style.margin = "21px 0"
+
+
+          priceContainer.append(priceTitle)
+
+          const netContainer = document.createElement("div")
+          netContainer.style.display = "flex"
+          netContainer.style.justifyContent = "space-between"
+          netContainer.style.margin = "13px 0"
+
+          const priceNetTitle = document.createElement("div")
+          priceNetTitle.innerHTML = "Nettobetrag"
+
+          const priceNetAmount = document.createElement("div")
+          priceNetAmount.innerHTML = `${offers[i].grossAmount.toFixed(2).replace(".", ",")} €`
+
+          netContainer.append(priceNetTitle, priceNetAmount)
+
+          priceContainer.append(netContainer)
+
+
+
+          const vatContainer = document.createElement("div")
+          vatContainer.style.display = "flex"
+          vatContainer.style.justifyContent = "space-between"
+          vatContainer.style.margin = "13px 0"
+
+
+          const priceVatTitle = document.createElement("div")
+          priceVatTitle.innerHTML = `USt. ${(offers[i].vat * 100).toFixed(2).replace(".", ",")} %`
+
+          const priceVatAmount = document.createElement("div")
+          priceVatAmount.innerHTML = `${(offers[i].grossAmount * 0.19).toFixed(2).replace(".", ",")} €`
+
+          vatContainer.append(priceVatTitle, priceVatAmount)
+
+          priceContainer.append(vatContainer)
+
+          const line = document.createElement("hr")
+
+          priceContainer.append(line)
+
+
+          const grossContainer = document.createElement("div")
+          grossContainer.style.display = "flex"
+          grossContainer.style.justifyContent = "space-between"
+          grossContainer.style.margin = "21px 0"
+
+          const priceGrossTitle = document.createElement("div")
+          priceGrossTitle.innerHTML = "Gesamt"
+
+          const priceGrossAmount = document.createElement("div")
+          priceGrossAmount.innerHTML = `${(offers[i].grossAmount * 1.19).toFixed(2).replace(".", ",")} €`
+
+          grossContainer.append(priceGrossTitle, priceGrossAmount)
+
+          priceContainer.append(grossContainer)
+
+
+          const button = document.createElement("div")
+          button.innerHTML = "Weiter zum Angebot"
+          button.style.marginTop = "34px"
+          button.style.height = "55px"
+          button.style.backgroundColor = "#f7aa20"
+          button.style.borderRadius = "13px"
+          button.style.display = "flex"
+          button.style.justifyContent = "center"
+          button.style.alignItems = "center"
+          // button.style.fontSize = "21px"
+          button.style.cursor = "pointer"
+          button.addEventListener("mouseover", () => button.style.backgroundColor = "#f19d08")
+          button.addEventListener("mouseout", () => button.style.backgroundColor = "#f7aa20")
+
+          button.addEventListener("click", () => {
+
+            for (let i = 0; i < offers.length; i++) {
+              offers[i].value.selected = false
+            }
+
+            offers[i].value.selected = true
+            window.localStorage.setItem("offers", JSON.stringify(offers))
+            window.location.assign("/felix/shs/funnel/abfrage-persoenliches/")
+          })
+
+
+
+
+          priceContainer.append(button)
+
+
+          alignContainer.append(priceContainer)
+
+          offer.append(alignContainer)
+
+          div.append(offer)
+        }
+      })
+      // const offerField = new OfferField("offers")
+      // .withOffers(offers)
+      // .buildOffers()
+
+      Helper.createSHSFooter()
+
+
+    </script>
+
+
+  </body>
+</html>

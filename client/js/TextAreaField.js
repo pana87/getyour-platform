@@ -2,37 +2,51 @@ import { Helper } from "./Helper.js"
 
 export class TextAreaField {
 
-  withChangeEventListener(callback) {
+  withLabel(name) {
+    if (name !== undefined) {
+      this.withLabelName = name
+      document.querySelectorAll(this.fieldSelector).forEach(field => this.#setTextArea(field))
+    }
+    return this
+  }
+
+  onChange(callback) {
     if (callback !== undefined) document.body.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("change", (event) => callback(event)))
     return this
   }
 
-  withType(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => {
-      input.fromStorage = (name) => {
-        const value = JSON.parse(window.localStorage.getItem(name)).value[this.className]
+  fromStorage(name) {
+    if (name === "shsFunnel") {
+      document.querySelectorAll(this.inputSelector).forEach(input => {
+        const shsFunnel = Helper.getFunnelByStorageName(name)
+        const value = shsFunnel.value[this.className]
         if (value !== undefined) input.value = value
-      }
-      callback(input)
-    })
+      })
+      return this
+    }
+    const value = JSON.parse(window.localStorage.getItem(name))
+    if (value !== undefined) input.value = value
     return this
   }
 
-  #isEmpty(value) {
-    return value === undefined ||
-      value === "" ||
-      value.replace(/\s/g, "") === "" ||
-      value === null
+  withType(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => callback(input))
+    return this
   }
 
   async withStorage(name) {
     try {
-      this.storageName = name
+      this.withStorageName = name
       const value = await this.withValidValue()
-      if (!this.#isEmpty(value)) {
-        const storage = JSON.parse(window.localStorage.getItem(this.storageName))
-        storage.value[this.className] = value
-        window.localStorage.setItem(this.storageName, JSON.stringify(storage))
+      if (!Helper.stringIsEmpty(value)) {
+        Helper.setFunnel({
+          name: this.withStorageName,
+          key: this.className,
+          value: value
+        })
+        // const storage = JSON.parse(window.localStorage.getItem(this.storageName))
+        // storage.value[this.className] = value
+        // window.localStorage.setItem(this.storageName, JSON.stringify(storage))
       }
     } catch (error) {
       console.error(error)
@@ -54,7 +68,7 @@ export class TextAreaField {
             return resolve(input.value)
           }
           Helper.setNotValidStyle(input)
-          console.error(`class='${this.className}' - required valid value`)
+          console.error(`field '${this.className}' is required`)
           return
         }
         Helper.setValidStyle(input)
@@ -63,30 +77,58 @@ export class TextAreaField {
     })
   }
 
-  withInputEventListener(callback) {
+  onInput(callback) {
     if (callback !== undefined) document.body.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("input", (event) => callback(event)))
     return this
   }
 
-  constructor(fieldSelector) {
-    this.fieldSelector = fieldSelector
-    this.className = this.fieldSelector.split("'")[1]
-    this.inputSelector = `textarea[id='${this.className}']`
-    this.type = "textarea"
+  #setTextArea(field) {
+    field.innerHTML = ""
 
-    const divs = document.querySelectorAll(this.fieldSelector)
-    if (divs.length > 0) {
-      divs.forEach(div => {
-        div.innerHTML = ""
+    const container = document.createElement("div")
+    container.style.position = "relative"
+    container.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+    container.style.borderRadius = "13px"
+    container.style.border = "0.3px solid black"
+    container.style.display = "flex"
+    container.style.flexDirection = "column"
+    container.style.margin = "34px"
+    container.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+    container.style.justifyContent = "center"
 
-        const textarea = document.createElement("textarea")
-        textarea.name = this.className
-        textarea.id = this.className
-
-        div.append(textarea)
-      })
-      return
+    const label = document.createElement("label")
+    if (this.withLabelName !== undefined) {
+      label.innerHTML = this.withLabelName
     }
-    console.warn(`class='${this.className}' - field not found`)
+    label.style.color = "#707070"
+    label.style.fontSize = "21px"
+    label.style.margin = "21px 34px 0 34px"
+    label.setAttribute("for", this.className)
+
+    const input = document.createElement("textarea")
+    input.name = this.className
+    input.id = this.className
+    input.style.margin = "21px 89px 21px 34px"
+    input.style.fontSize = "21px"
+
+    container.append(label, input)
+
+    field.append(container)
+
+  }
+
+  constructor(className) {
+    try {
+      if (Helper.stringIsEmpty(className)) throw new Error("class name is empty")
+      this.className = className
+      this.fieldSelector = `[class='${this.className}']`
+      this.inputSelector = `textarea[id='${this.className}']`
+      this.type = "textarea"
+      const fields = document.querySelectorAll(this.fieldSelector)
+      if (fields.length <= 0) throw new Error(`field '${this.className}' not found`)
+      fields.forEach(field => this.#setTextArea(field))
+    } catch (error) {
+      console.error(error);
+    }
   }
 }

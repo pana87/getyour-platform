@@ -5,7 +5,6 @@ const REGISTRATION_ABORTED_DUE_TO_SECURITY_ISSUES = "Aus Sicherheitsgründen mus
 
 export class Request {
 
-  // middleware
   static middleware(options) {
     return new Promise((resolve, reject) => {
       if (Helper.objectIsEmpty(options)) return reject(new Error(`expected options, found '${options}'`))
@@ -21,7 +20,6 @@ export class Request {
     })
   }
 
-  // sequence
   static async sequence(options) {
     return new Promise((resolve, reject) => {
       if (Helper.objectIsEmpty(options)) return reject(new Error(`expected options, found '${options}'`))
@@ -44,32 +42,9 @@ export class Request {
     })
   }
 
-  // sequence
-  // static async verify(options) {
-  //   return new Promise((resolve, reject) => {
-  //     if (options === undefined) return reject(new Error(`expected options, found '${options}'`))
-  //     if (options.path === undefined) return reject(new Error(`expected path, found '${options.path}'`))
-  //     const xhr = new XMLHttpRequest()
-  //     xhr.open("POST", `${window.__AUTH_LOCATION__}${options.path}`)
-  //     xhr.setRequestHeader("Accept", "application/json")
-  //     xhr.setRequestHeader("Content-Type", "application/json")
-  //     xhr.overrideMimeType("text/html")
-  //     xhr.withCredentials = true
-  //     xhr.onload = () => {
-  //       try {
-  //         if (xhr.status === 200) return resolve(xhr)
-  //       } catch (error) {
-  //         console.error(error)
-  //       }
-  //       reject(xhr)
-  //     }
-  //     xhr.send(JSON.stringify(options))
-  //   })
-  // }
-
   static async withVerifiedEmail(email, callback) {
     await this.sequence({email, url: `/request/send/email/with/pin/`})
-    const userPin = prompt(`Es wurde eine PIN an deine E-Mail gesendet.\n\nBestätige deine PIN um fortzufahren.`)
+    const userPin = prompt(`Es wurde eine PIN an deine E-Mail Adresse gesendet.\n\nBestätige deine PIN um fortzufahren.`)
     await this.sequence({userPin, url: `/request/verify/pin/`})
     const id = await Helper.digest(JSON.stringify({email: email, verified: true}))
     window.localStorage.setItem("localStorageId", id)
@@ -111,24 +86,6 @@ export class Request {
           blob: reader.result
         }))
       })
-    })
-  }
-
-  static component(pathname) {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.open("GET", `${window.__COMPONENTS_LOCATION__.origin}${pathname}`)
-      xhr.onload = () => {
-        if (xhr.status !== 200) return resolve({ status: 500, message: "REQUEST_COMPONENT_FAILED" })
-
-        return resolve({
-          status: 200,
-          message: "REQUEST_COMPONENT_SUCCESS",
-          html: xhr.responseText,
-        })
-      }
-
-      xhr.send()
     })
   }
 
