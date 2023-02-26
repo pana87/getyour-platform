@@ -21,6 +21,17 @@ const app = express()
 app.use(cookieParser())
 app.use(express.json({limit: "50mb"}))
 
+app.get("/felix/shs/checkliste/:id/:item/",
+  // Request.requireCookies,
+  // no options get request
+  Request.requireJwtToken,
+  Request.verifySession,
+  // Request.verifyUrlId,
+  Request.requireRoles([UserRole.OPERATOR]),
+  async(req, res) => {
+    return res.send(Helper.readFileSyncToString("../client/felix/shs/checkliste/1/index.html"))
+  }
+)
 
 app.get("/felix/shs/checkliste/:id/1/print.html",
   Request.requireJwtToken,
@@ -128,6 +139,7 @@ app.post("/db/v1/",
   // Request.requireChecklist,
   Request.registerChecklist,
 
+  Request.requireRedirect,
 
   async(req, res) => {
     return res.sendStatus(404)

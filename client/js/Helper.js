@@ -1,4 +1,19 @@
+import {Request} from "./Request.js"
+
 export class Helper {
+
+  static async redirectOperatorToChecklist() {
+    const redirectOperator = {}
+    redirectOperator.url = "/db/v1/"
+    redirectOperator.type = "redirect"
+    redirectOperator.name = "operator"
+    redirectOperator.method = "get"
+    redirectOperator.security = "closed"
+    redirectOperator.localStorageId = Request.localStorageId()
+    const res = await Request.middleware(redirectOperator)
+    return res
+  }
+
 
   static postForm(path, params) {
     const method = 'post'

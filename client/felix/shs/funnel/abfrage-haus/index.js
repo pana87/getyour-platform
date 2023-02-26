@@ -10,6 +10,21 @@ const funnel = JSON.parse(window.localStorage.getItem("shsFunnel"))
 if (funnel === null) {
   window.location.assign("/felix/shs/funnel/qualifizierung/")
 } else {
+
+  document.querySelectorAll("img[class*='logo-icon']").forEach(img => {
+    img.src = `/felix/shs/img/shslogo.png`
+    img.alt = "SHS Energie Express Logo"
+    img.style.cursor = "pointer"
+    img.addEventListener("click", async() => {
+      const res = await Helper.redirectOperatorToChecklist()
+      if (res.status === 200) {
+        window.location.assign(`/felix/shs/checkliste/${res.response}/`)
+      }
+    })
+  })
+
+
+
   const clickzumhausknopf = new DivField("div[class*='clickzumhausknopf']")
     .withClickEventListener(async() => {
       await saveToStorage()

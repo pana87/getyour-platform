@@ -9,6 +9,7 @@
     "build": "npm install --omit=dev",
     "close": "killall -9 node",
     "rm-branches": "git branch | grep -v 'main' | xargs git branch -D",
+    "expand-git-post-buffer": "git config --global http.postBuffer 157286400",
     "test": "jest"
   },
   "devDependencies": {

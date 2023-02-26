@@ -1,3 +1,4 @@
+import { Helper } from "../js/Helper.js"
 import { DivField } from "./../js/DivField.js"
 import { EmailField } from "./../js/EmailField.js"
 import { Request } from "./../js/Request.js"
@@ -55,6 +56,13 @@ const loginbutton = new DivField("div[class*='loginbutton']")
     registerSession.name = "onlogin"
     registerSession.localStorageId = localStorageId
     const res = await Request.middleware(registerSession)
+
+    const redirect = await Helper.redirectOperatorToChecklist()
+    if (redirect.status === 200) {
+      window.location.assign(`/felix/shs/checkliste/${redirect.response}/`)
+      return
+    }
+
     const {redirectPath} = JSON.parse(res.response)
     if (redirectPath !== undefined) return window.location.assign(redirectPath)
     window.history.back()
