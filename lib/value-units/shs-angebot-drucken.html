@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+<!--
+  <style>
+    .kundeninfo {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      font-weight: bold;
+    }
+    .row {
+      display: flex;
+    }
+    .price {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    .price > * {
+      display: flex;
+    }
+  </style>
+ -->
+
+  <style>
+    body {
+      margin: 0;
+      line-height: 1.2;
+    }
+  </style>
+  </head>
+  <body>
+
+    <header></header>
+
+    <div class="producer-logo"></div>
+
+    <div class="offer-producer"></div>
+    <div class="offer-consumer"></div>
+    <div class="title"></div>
+    <div class="offer-meta"></div>
+    <div class="sub-title"></div>
+    <div class="offer-options"></div>
+    <div class="message"></div>
+    <div class="price"></div>
+    <div class="sign"></div>
+    <div class="note"></div>
+
+    <script type="module">
+
+      import {HeaderField} from "../../../../../js/HeaderField.js"
+      import {Request} from "../../../../../js/Request.js"
+      import {Field} from "../../../../../js/Field.js"
+      import {Helper} from "../../../../../js/Helper.js"
+
+      const localStorageId = Request.localStorageId()
+      const urlId = window.location.pathname.split("/")[4]
+
+      const getOffer = {}
+      getOffer.url = "/consumer/v1/"
+      getOffer.consumer = "operator"
+      getOffer.method = "get"
+      getOffer.type = "offer"
+      getOffer.security = "closed"
+      getOffer.localStorageId = localStorageId
+      getOffer.urlId = urlId
+      const res = await Request.middleware(getOffer)
+
+      if (res.status !== 200) {
+        window.location.assign("/felix/shs/match-maker/shs-hersteller-vergleich/")
+        throw new Error("offer not found")
+      }
+
+      const offer = JSON.parse(res.response)
+      // console.log(offer);
+
+      const header = new Field("header")
+      .withType(header => {
+        const img = document.createElement("img")
+        img.src = "../../../public/shslogo.png"
+        img.alt = "SHS Express Logo"
+        img.style.width = "144px"
+        img.style.cursor = "pointer"
+        img.addEventListener("click", () => window.history.back())
+        header.append(img)
+      })
+
+
+      const producerLogo = new Field(".producer-logo")
+      .withType(div => {
+        div.style.display = "flex"
+        div.style.justifyContent = "flex-end"
+
+        const img = document.createElement("img")
+        img.src = offer.image.src
+        img.alt = offer.image.alt
+        img.style.width = "50vw"
+        img.style.maxWidth = "377px"
+
+        div.append(img)
+      })
+
+      const offerProducer = new Field(".offer-producer")
+      .withType(div => {
+        const from = document.createElement("div")
+        from.innerHTML = "Von:"
+
+        const producerCompany = document.createElement("div")
+        producerCompany.innerHTML = offer.producer.company
+        producerCompany.style.fontWeight = "bold"
+
+        const producerSector = document.createElement("div")
+        producerSector.innerHTML = offer.producer.sector
+
+        const producerLocation = document.createElement("div")
+        producerLocation.innerHTML = `${offer.producer.street} ${offer.producer.houseNumber} • ${offer.producer.zip} • ${offer.producer.city}`
+
+        div.append(from, producerCompany, producerSector, producerLocation)
+      })
+
+      const offerConsumer = new Field(".offer-consumer")
+      .withType(div => {
+        div.style.textAlign = "right"
+
+        const to = document.createElement("div")
+        to.innerHTML = "An:"
+
+        const ownerName = document.createElement("div")
+        ownerName.innerHTML = `${offer.to.firstname} ${offer.to.lastname}`
+        ownerName.style.fontWeight = "bold"
+
+        const ownerStreet = document.createElement("div")
+        ownerStreet.innerHTML = offer.to.street
+
+        const ownerZip = document.createElement("div")
+        ownerZip.innerHTML = offer.to.zip
+
+        div.append(to, ownerName, ownerStreet, ownerZip)
+      })
+
+      const offerTitle = new Field(".title")
+      .withType(div => {
+        const title = document.createElement("h1")
+        title.style.margin = "21px 0"
+        title.innerHTML = "Angebot"
+        div.append(title)
+
+      })
+
+
+      const offerMeta = new Field(".offer-meta")
+      .withType(div => {
+        div.style.margin = "21px 0"
+        const offerId = document.createElement("div")
+        offerId.innerHTML = `<b style="margin-right: 21px;">Angebotsnummer:</b> ${offer.id}`
+
+        const offerCreateAt = document.createElement("div")
+        offerCreateAt.innerHTML = `<b style="margin-right: 36px;">Angebotsdatum:</b> ${Helper.millisToDateString(offer.createdAt)}`
+
+        const offerExpiresAt = document.createElement("div")
+        offerExpiresAt.innerHTML = `<b style="margin-right: 77px;">Gültig bis:</b> ${Helper.millisToDateString(offer.expiresAt)}`
+
+        const ownerId = document.createElement("div")
+        ownerId.innerHTML = `<b style="margin-right: 29px;">Kundennummer:</b> ${Helper.substring(offer.owner.id, 13)}`
+
+        div.append(offerId, offerCreateAt, offerExpiresAt, ownerId)
+      })
+
+      const offerSubTitle = new Field(".sub-title")
+      .withType(div => {
+        const title = document.createElement("p")
+        title.innerHTML = "Unsere digitale Analyse hat folgendes Energiekonzept für Sie ergeben:"
+        div.append(title)
+      })
+
+
+      const offerOptions = new Field(".offer-options")
+      .withType(div => {
+
+        const tableHeader = document.createElement("div")
+        tableHeader.style.display = "flex"
+        tableHeader.style.justifyContent = "space-between"
+
+        const tableTitle = document.createElement("p")
+        tableTitle.innerHTML = "Beschreibung"
+        tableTitle.style.fontWeight = "bold"
+        const tableAmount = document.createElement("p")
+        tableAmount.innerHTML = "Nettobetrag"
+        tableAmount.style.fontWeight = "bold"
+        tableHeader.append(tableTitle, tableAmount)
+
+        const offerContainer = document.createElement("div")
+        offerContainer.append(tableHeader)
+
+        for (let i = 0; i < offer.options.length; i++) {
+          const itemContainer = document.createElement("div")
+
+          const item = document.createElement("div")
+          item.style.position = "relative"
+          item.style.display = "flex"
+          item.style.justifyContent = "space-between"
+
+          const amountTitleDiv = document.createElement("div")
+          amountTitleDiv.style.display = "flex"
+          amountTitleDiv.style.alignItems = "center"
+
+
+          const amount = document.createElement("div")
+          amount.innerHTML = `${offer.options[i].amount}x`
+          amount.style.marginRight = "8px"
+
+          const title = document.createElement("div")
+          title.innerHTML = offer.options[i].title
+          amountTitleDiv.append(amount, title)
+          item.append(amountTitleDiv)
+
+          const priceInputDiv = document.createElement("div")
+          priceInputDiv.style.display = "flex"
+          priceInputDiv.style.justifyContent = "flex-end"
+          priceInputDiv.style.alignItems = "center"
+
+          const price = document.createElement("div")
+          price.innerHTML = `${offer.options[i].price.toFixed(2)}€`
+
+          const input = document.createElement("input")
+          input.type = "checkbox"
+          input.checked = offer.options[i].selected
+          input.style.width = "21px"
+          input.style.height = "21px"
+          input.style.margin = "0 0 3px 13px"
+          input.disabled = true
+
+          priceInputDiv.append(price, input)
+          item.append(priceInputDiv)
+          itemContainer.append(item)
+          offerContainer.append(itemContainer)
+        }
+        div.append(offerContainer)
+      })
+
+
+
+      const message = new Field(".message")
+      .withType(div => {
+        const message = document.createElement("div")
+        // message.style.margin = "55px 0"
+        message.innerHTML = /*html*/`
+        <p>Sehr geehrte/r Kundin/Kunde,</p>
+          <p>
+            wir sind Ihnen schon jetzt für Ihr Vertrauen und Ihr Interesse an
+            unserem BPE-Solar Hybrid System, zur Erzielung einer autarken
+            Energierevolution, dankbar. Mit der BPE-Hybrid-Energie-Lösung
+            profitieren Sie von kostenloser Umweltwärme und einem
+            unvergleichlichen Heizkomfort in Bezug auf Ihr Auftragsobjekt.
+            Unsere innovative Wärmepumpe ermöglicht es, in kälteren Perioden als
+            Heizsystem und an heißen Tagen als Kühlgerät zu wirken.
+          </p>
+          <p>
+            Es handelt sich hierbei lediglich um ein Angebot. Wollen Sie das
+            Angebot annehmen, entsteht erst ein Vertrag, nachdem der Bauleiter
+            die Anfrage zu Ihrer Sicherheit geprüft hat.
+          </p>
+        `
+        div.append(message)
+
+      })
+
+
+
+
+
+      const note = new Field(".note")
+      .withType(div => {
+        const message = document.createElement("div")
+        message.style.margin = "21px 0"
+        message.innerHTML = /*html*/`
+          <p>Bitte beachten:</p>
+          <p>
+            Befindet sich die Stellfläche des Gerüsts auf einem öffentlichen
+            Gehweg, muss der Kunde die Genehmigung vorerst bei der Stadt
+            beantragen. Bei einer Freileitung muss der Kunde die Isolierung der
+            Stromführung zur Freileitung beim Netzbetreiber vor der Installation
+            beantragen. Wenn das Gebäude Denkmal- oder Ensemblegeschützt ist,
+            muss der Kunde den Bau eines Energiesystems vorerst bei der Stadt
+            beantragen. Existiert kein W-Lan Signal in der Nähe des
+            Stromspeichers, muss der Kunde eine Internetverbindung ermöglichen.
+            Befindet sich vor Ort kein Hausanschlusskasten (HAK), muss der Kunde
+            diesen vorerst von einer Fachfirma installieren lassen. Bei mehr als
+            3 Stromzählern muss der Kunde ein, von diesem Angebot unabhängiges,
+            zusätzliches Angebot für ein individuelles Zählerkonzept anfragen.
+            Besitzt der Kunde keine Ersatzziegel ist es seine Aufgabe, diese zu
+            besorgen. Will der Kunde die Module nicht auf dem Haus anbringen, in
+            dem der Speicher ist, müssen die Erdarbeiten im Vorfeld vom Kunden
+            erledigt werden.
+          </p>
+        `
+        div.append(message)
+
+      })
+
+      const priceField = new Field(".price")
+      .withType(div => {
+
+        const price = Helper.sumSelectedPrice(offer.options)
+
+        const alignContainer = document.createElement("div")
+        alignContainer.style.display = "flex"
+        alignContainer.style.justifyContent = "flex-end"
+
+        const priceContainer = document.createElement("div")
+        priceContainer.style.width = "300px"
+        // priceContainer.style.margin = "34px 0"
+
+        const priceTitle = document.createElement("div")
+        priceTitle.innerHTML = "Preisübersicht"
+        priceTitle.style.fontSize = "21px"
+        priceTitle.style.margin = "21px 0"
+
+
+        priceContainer.append(priceTitle)
+
+        const netContainer = document.createElement("div")
+        netContainer.style.display = "flex"
+        netContainer.style.justifyContent = "space-between"
+        netContainer.style.margin = "13px 0"
+
+        const priceNetTitle = document.createElement("div")
+        priceNetTitle.innerHTML = "Nettobetrag"
+
+        const priceNetAmount = document.createElement("div")
+        priceNetAmount.classList.add("net-price")
+        priceNetAmount.innerHTML = `${price.toFixed(2).replace(".", ",")} €`
+
+        netContainer.append(priceNetTitle, priceNetAmount)
+
+        priceContainer.append(netContainer)
+
+
+
+        const vatContainer = document.createElement("div")
+        vatContainer.style.display = "flex"
+        vatContainer.style.justifyContent = "space-between"
+        vatContainer.style.margin = "13px 0"
+
+
+        const priceVatTitle = document.createElement("div")
+        priceVatTitle.innerHTML = `USt. ${(offer.vat * 100).toFixed(2).replace(".", ",")} %`
+
+        const priceVatAmount = document.createElement("div")
+        priceVatAmount.classList.add("vat-price")
+        priceVatAmount.innerHTML = `${(price * offer.vat).toFixed(2).replace(".", ",")} €`
+
+        vatContainer.append(priceVatTitle, priceVatAmount)
+
+        priceContainer.append(vatContainer)
+
+        const line = document.createElement("hr")
+
+        priceContainer.append(line)
+
+
+        const grossContainer = document.createElement("div")
+        grossContainer.style.display = "flex"
+        grossContainer.style.justifyContent = "space-between"
+        grossContainer.style.margin = "21px 0"
+
+        const priceGrossTitle = document.createElement("div")
+        priceGrossTitle.innerHTML = "Gesamt"
+
+        const priceGrossAmount = document.createElement("div")
+        priceGrossAmount.classList.add("gross-price")
+        priceGrossAmount.innerHTML = `${(price + (price * offer.vat)).toFixed(2).replace(".", ",")} €`
+
+        grossContainer.append(priceGrossTitle, priceGrossAmount)
+        priceContainer.append(grossContainer)
+        alignContainer.append(priceContainer)
+        div.append(alignContainer)
+      })
+
+      const signField = new Field(".sign")
+      .withType(div => {
+        div.innerHTML = /*html*/`
+          <p>..........................................................................</p>
+          <p>Unterschrift ${offer.to.firstname} ${offer.to.lastname}</p>
+        `
+      })
+
+      window.print()
+
+    </script>
+
+</body>
+
+
+</html>

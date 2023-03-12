@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+    <title>Plattform Login</title>
+
+    <style>
+      body {
+        margin: 0;
+        line-height: 1.2;
+        font-family: sans-serif;
+      }
+    </style>
+
+  </head>
+  <body>
+
+    <header></header>
+
+    <h1 class="title"></h1>
+
+    <div class="email"></div>
+
+    <div class="login-button"></div>
+
+    <div class="info"></div>
+
+    <footer></footer>
+
+  <script type="module">
+    import { HeaderField } from "./../js/HeaderField.js"
+    import { Helper } from "../js/Helper.js"
+    import { DivField } from "./../js/DivField.js"
+    import { EmailField } from "./../js/EmailField.js"
+    import { Request } from "./../js/Request.js"
+    import { InfoField } from "./../js/InfoField.js"
+    import { FooterField } from "./../js/FooterField.js"
+
+    const headerField = new HeaderField()
+    .withType(header => {
+      header.style.backgroundColor = "white"
+      header.style.position = "fixed"
+      header.style.top = "0"
+      header.style.left = "0"
+      header.style.zIndex = "1"
+
+    })
+    .withImage(img => {
+      img.style.width = "89px"
+      img.src = "../public/getyour-logo.svg"
+      img.alt = "Getyour Plattform Logo"
+      img.style.cursor = "pointer"
+      img.addEventListener("click", () => window.history.back())
+    })
+    .build()
+
+    document.querySelectorAll(".title").forEach(title => {
+      title.innerHTML = "Login"
+      title.style.margin = "144px 34px 34px 34px"
+      title.style.fontWeight = "normal"
+    })
+
+    const emailField = new EmailField("email")
+    .withLabel("E-Mail Adresse")
+    .withType((input) => {
+      input.placeholder = "meine@email.de"
+      input.required = true
+    })
+    .onInput(() => emailField.withStorage("email"))
+    emailField.fromStorage("email")
+    emailField.withValidValue()
+
+    const loginbutton = new DivField("login-button")
+    .withType(div => {
+      div.innerHTML = "Login"
+      div.style.backgroundColor = "#c02221"
+      div.style.cursor = "pointer"
+      div.style.fontSize = "21px"
+      div.style.borderRadius = "13px"
+      div.style.margin = "13px 34px"
+      div.style.display = "flex"
+      div.style.justifyContent = "center"
+      div.style.alignItems = "center"
+      div.style.height = "89px"
+      div.addEventListener("mouseover", () => div.style.backgroundColor = "#f19d08")
+      div.addEventListener("mouseout", () => div.style.backgroundColor = "#c02221")
+    })
+    .onClick(async (event) => {
+      const email = await emailField.withValidValue()
+      // Helper.loginUser(email)
+      Helper.addOverlay()
+      Helper.setWaitCursor()
+
+      try {
+        await Request.withVerifiedEmail(email, async () => {
+          const localStorageId = Request.localStorageId()
+
+          const registerEmail = {}
+          registerEmail.url = "/consumer/v1/"
+          registerEmail.method = "register"
+          registerEmail.type = "email"
+          registerEmail.security = "open"
+          // registerEmail.name = "onlogin"
+          registerEmail.localStorageId = localStorageId
+          registerEmail.email = email
+          await Request.sequence(registerEmail)
+
+          const verifyUser = {}
+          verifyUser.url = "/consumer/v1/"
+          verifyUser.method = "verify"
+          verifyUser.type = "email"
+          verifyUser.security = "open"
+          // verifyUser.name = "onlogin"
+          verifyUser.localStorageId = localStorageId
+          await Request.sequence(verifyUser)
+
+          // console.log(document.referrer);
+          // console.log(document.referrer.split("/"));
+          // console.log(document.referrer);
+          // let referrer = ""
+          // if (document.referrer !== "") {
+          //   referrer = new URL(document.referrer)
+          // }
+          // console.log(url);
+          const registerSession = {}
+          registerSession.url = "/request/register/session/"
+          registerSession.consumer = "operator"
+          registerSession.method = "register"
+          registerSession.type = "session"
+          registerSession.security = "open"
+          registerSession.name = "onlogin"
+          if (document.referrer !== "") {
+            registerSession.referrer = new URL(document.referrer)
+          }
+          registerSession.localStorageId = localStorageId
+          const res = await Request.middleware(registerSession)
+          // console.log(res)
+
+          // if (res.status === 200) window.localStorage.setItem("email", email)
+          // custom redirect codes >= 900
+          if (res.status === 901) return window.location.assign("/plattform/zugang/")
+          // if (res.status === 200 || 900) return window.history.back()
+          if (res.status === 200) return window.history.back()
+          Helper.removeOverlay()
+        })
+      } catch (error) {
+        console.error(error)
+      }
+      Helper.setNotAllowedCursor()
+
+    })
+
+    const infoField = new InfoField("info")
+    .withSuccess(/*html*/`
+      <div>Unser Login Prozess ist intuitiv gestaltet und erfordert nur wenige Klicks. Sie müssen lediglich Ihre E-Mail Adresse eingeben, um sich einzuloggen. Wir möchten, dass Sie den Login Prozess als einfach und stressfrei erleben. <a href="mailto:datenschutz@get-your.de">Wenn Sie Probleme haben oder Hilfe benötigen, stehen wir Ihnen jederzeit zur Verfügung, um Ihnen schnell und effektiv weiter zu helfen.</a></div>
+      <div style="margin-top: 13px;">Die Plattform von getyour soll ein sicheres und vertrauenswürdiges Umfeld bieten, damit Sie sich auf Ihre Daten verlassen können.</div>
+    `)
+    .build()
+
+    const footerField = new FooterField()
+    .withType(footer => {
+      footer.style.backgroundColor = "#781717"
+      footer.style.padding = "21px 34px"
+      footer.style.marginTop = "144px"
+      footer.style.color = "#d1d1d1"
+
+      const impressum = document.createElement("div")
+      impressum.innerHTML = "IMPRESSUM"
+      impressum.style.cursor = "pointer"
+      impressum.style.padding = "13px"
+      impressum.addEventListener("click", () => window.location.assign("/impressum/"))
+      footer.append(impressum)
+
+      const dsgvo = document.createElement("div")
+      dsgvo.innerHTML = "DATENSCHUTZ"
+      dsgvo.style.cursor = "pointer"
+      dsgvo.style.padding = "13px"
+      dsgvo.addEventListener("click", () => window.location.assign("/datenschutz/"))
+      footer.append(dsgvo)
+
+      const userAgreement = document.createElement("div")
+      userAgreement.innerHTML = "NUTZERVEREINBARUNG"
+      userAgreement.style.cursor = "pointer"
+      userAgreement.style.padding = "13px"
+      userAgreement.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
+      footer.append(userAgreement)
+    })
+
+
+  </script>
+</body>
+
+
+</html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -29,13 +29,13 @@
 
 
   <script type="module">
-    import {HeaderField} from "../../../js/HeaderField.js"
-    import {Field} from "../../../js/Field.js"
-    import {Helper} from "../../../js/Helper.js"
+    import {HeaderField} from "../../../../js/HeaderField.js"
+    import {Field} from "../../../../js/Field.js"
+    import {Helper} from "../../../../js/Helper.js"
 
     const header = new HeaderField()
     .withImage(img => {
-      img.src = "../public/shslogo.png"
+      img.src = "../../public/shslogo.png"
       img.alt = "SHS Express Logo"
       img.style.cursor = "pointer"
       img.style.width = "144px"
@@ -51,7 +51,7 @@
     .build()
 
 
-    const title = new Field("title")
+    const title = new Field(".title")
     .withType(div => {
       div.innerHTML = "Impressum"
       // div.style.fontSize = "21px"
@@ -59,12 +59,12 @@
       div.style.margin = "144px 34px"
     })
 
-    const impressum = new Field("impressum")
+    const impressum = new Field(".impressum")
     .withType(div => {
       div.style.margin = "21px 34px"
       div.innerHTML = /*html*/`
         <p>
-          <h2>Inhaltlich Verantwortlicher gemäß § 55 Abs. 2 RStV</h2><br /><br />Felix Steck<br />Niedernhaller
+          <h2>Inhaltlich Verantwortlicher gemäß § 55 Abs. 2 RStV</h2><br /><br /><b>Felix Steck</b><br />Niedernhaller
           Straße 7a <br />74679 Weißbach <br />Deutschland<br /><br /><a href="mailto:datenschutz@get-your.de">datenschutz@get-your.de</a><br /><br />Bei Fragen zum
           Datenschutz oder zu dieser Webseite, kontaktiere uns bitte unter der angegebenen E-Mail Adresse.<br /><br /><h2>Haftung
           für Inhalte</h2><br /><br />Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten

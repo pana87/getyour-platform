@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+
+
+    <style>
+      body {
+        margin: 0;
+        line-height: 1.2;
+        font-family: sans-serif;
+      }
+    </style>
+
+
+  </head>
+  <body>
+    <header></header>
+
+    <div class="title"></div>
+
+    <div class="lead-info"></div>
+    <div class="lead-funnel"></div>
+    <div class="lead-button"></div>
+
+    <hr style="margin: 21px 34px;">
+
+    <div class="sign-warning"></div>
+
+    <div class="print-offer-button"></div>
+
+    <div class="price"></div>
+
+
+    <footer></footer>
+
+  <script type="module">
+
+    import {Request} from "../../../../../js/Request.js"
+    import {DivField} from "../../../../../js/DivField.js"
+    import {Field} from "../../../../../js/Field.js"
+    import {FileField} from "../../../../../js/FileField.js"
+    import {HeaderField} from "../../../../../js/HeaderField.js"
+    import {Helper} from "../../../../../js/Helper.js"
+    import {InfoField} from "../../../../../js/InfoField.js"
+    import {FunnelField} from "../../../../../js/FunnelField.js"
+
+    const localStorageId = Request.localStorageId()
+    const urlId = window.location.pathname.split("/")[4]
+
+    const getOffer = {}
+    getOffer.url = "/consumer/v1/"
+    getOffer.consumer = "operator"
+    getOffer.method = "get"
+    getOffer.type = "offer"
+    getOffer.security = "closed"
+    getOffer.localStorageId = localStorageId
+    getOffer.urlId = urlId
+    const res = await Request.middleware(getOffer)
+    // console.log(res.status);
+
+    if (res.status !== 200) {
+      window.location.assign("/felix/shs/match-maker/shs-hersteller-vergleich/")
+      throw new Error("offer not found")
+    }
+
+    const offer = JSON.parse(res.response)
+    // console.log(offer);
+
+    const header = new HeaderField()
+    .withImage(img => {
+      img.src = "../../../public/shslogo.png"
+      img.alt = "SHS Express Logo"
+      img.style.cursor = "pointer"
+      img.style.width = "144px"
+      img.addEventListener("click", async() => await Helper.redirectOperatorToChecklist())
+    })
+    .withType(header => {
+      header.style.position = "fixed"
+      header.style.top = "0"
+      header.style.left = "0"
+      header.style.zIndex = "1"
+      header.style.backgroundColor = "white"
+    })
+    .build()
+
+
+    const title = new DivField("title")
+    .withType(div => {
+      const title = document.createElement("h1")
+      title.style.margin = "144px 34px 34px 34px"
+      title.style.fontWeight = "normal"
+      title.innerHTML = "Angebot hochladen"
+      div.append(title)
+    })
+
+    const leadInfo = new InfoField("lead-info")
+    .withSuccess(/*html*/`
+    <p>Offene Fragen?</p>
+    <p>Kontaktieren Sie einen Fachexperten:</p>
+    `)
+    .withType(info => info.style.fontSize = "21px")
+    .build()
+
+
+
+    const leadFunnel = new FunnelField("lead-funnel")
+    .withFields([
+      {class: "contactType", type: "select", withLabel: "Kontaktaufnahme:", withOptions: ["Telefon", "E-Mail", "Webcall", "Persönlich"], onInput: onContactTypeInput},
+      {class: "phone", type: "tel", withLabel: "Telefonnummer:", withType: telOption, onInput: telOnInput},
+      {class: "date", type: "date", withLabel: "Datum auswählen:"},
+    ])
+    .buildFields()
+
+
+
+    function telOnInput(event) {
+      leadFunnel.phone.withValidValue()
+    }
+
+    function telOption(input) {
+      input.placeholder = "+491764321567"
+      input.required = true
+      input.pattern = "\\+49\\d{6,}"
+      // input.pattern = "^\\+49\\s?\\d+(\\s\\d{6,})*$"
+      // console.log(leadFunnel.phone);
+    }
+
+    function onContactTypeInput(event) {
+      // console.log(leadFunnel.phone);
+      // console.log(event.target.value);
+      if (event.target.value !== "Telefon") {
+        document.querySelectorAll(leadFunnel.phone.inputSelector).forEach(input => {
+          input.disabled = true
+          input.required = false
+          leadFunnel.checkValidity()
+        })
+      }
+      if (event.target.value === "Telefon") {
+        document.querySelectorAll(leadFunnel.phone.inputSelector).forEach(input => {
+          input.disabled = false
+          input.required = true
+          leadFunnel.checkValidity()
+        })
+      }
+    }
+
+    // leadFunnel.checkValidity()
+    const leadButton = new Field(".lead-button")
+    .withType(div => {
+      div.innerHTML = "Kontakt anfordern"
+      div.style.margin = "34px"
+      div.style.height = "55px"
+      div.style.backgroundColor = "rgb(247, 170, 32)"
+      div.style.borderRadius = "13px"
+      div.style.display = "flex"
+      div.style.justifyContent = "center"
+      div.style.alignItems = "center"
+      div.style.fontSize = "21px"
+      // div.style.maxWidth = "233px"
+      // div.style.color = "white"
+      div.style.cursor = "pointer"
+      div.addEventListener("mouseover", () => div.style.backgroundColor = "rgb(237, 160, 22)")
+      div.addEventListener("mouseout", () => div.style.backgroundColor = "rgb(247, 170, 32)")
+      div.addEventListener("click", async() => {
+        await leadFunnel.checkValidity()
+
+        const contactType = await leadFunnel.contactType.withValidValue()
+        const phone = await leadFunnel.phone.withValidValue()
+        const date = await leadFunnel.date.withValidValue()
+        // console.log(contactType[0].value);
+        // console.log(phone);
+        // console.log(date);
+
+        Helper.addOverlay()
+        Helper.setWaitCursor()
+        const registerLead = {}
+        registerLead.url = "/consumer/v1/"
+        registerLead.consumer = "operator"
+        registerLead.method = "register"
+        registerLead.type = "lead"
+        registerLead.security = "closed"
+        registerLead.contactType = contactType[0].value
+        registerLead.phone = phone
+        registerLead.date = date
+        registerLead.urlId = urlId
+        registerLead.localStorageId = localStorageId
+        await Request.sequence(registerLead)
+        alert("Ihre Anfrage wurde erfolgreich weitergeleitet.\n\nSobald Ihr neuer persönlicher Ansprechpartner Ihren Terminvorschlag bestätigt, erhalten Sie eine Benachrichtigung per E-Mail.")
+        Helper.setDefaultCursor()
+        Helper.removeOverlay()
+      })
+    })
+
+
+    // function
+
+    const signWarning = new InfoField("sign-warning")
+    .withType(info => info.style.fontSize = "21px")
+    .withWarning(/*html*/`
+      <p>Unterschreiben Sie Ihre Dokumente sicher und bequem online mit unserer eSignatur-Lösung, oder laden Sie ihr bereits unterschriebenes Angebot hoch.</p>
+      <p>Schützen Sie Ihre Daten und sparen Sie Zeit mit SHS.</p>
+    `)
+    .build()
+
+
+    const printOfferButton = new Field(".print-offer-button")
+    .withType(div => {
+      div.innerHTML = "Angebot drucken"
+      div.style.margin = "34px"
+      div.style.height = "55px"
+      div.style.backgroundColor = "#be090a"
+      div.style.borderRadius = "13px"
+      div.style.display = "flex"
+      div.style.justifyContent = "center"
+      div.style.alignItems = "center"
+      div.style.fontSize = "21px"
+      div.style.maxWidth = "233px"
+      div.style.color = "white"
+      div.style.cursor = "pointer"
+      div.addEventListener("mouseover", () => div.style.backgroundColor = "rgb(180, 9, 10)")
+      div.addEventListener("mouseout", () => div.style.backgroundColor = "#be090a")
+      div.addEventListener("click", () => window.location.assign(`/felix/shs/checklist/${urlId}/print/`))
+    })
+
+
+    const priceField = new DivField("price")
+    .withType(div => {
+
+      const price = Helper.sumSelectedPrice(offer.options)
+
+      const alignContainer = document.createElement("div")
+      alignContainer.style.display = "flex"
+      alignContainer.style.justifyContent = "flex-end"
+
+      const priceContainer = document.createElement("div")
+      priceContainer.style.width = "300px"
+      priceContainer.style.margin = "34px"
+
+      const priceTitle = document.createElement("div")
+      priceTitle.innerHTML = "Preisübersicht"
+      priceTitle.style.fontSize = "21px"
+      priceTitle.style.margin = "21px 0"
+
+
+      priceContainer.append(priceTitle)
+
+      const netContainer = document.createElement("div")
+      netContainer.style.display = "flex"
+      netContainer.style.justifyContent = "space-between"
+      netContainer.style.margin = "13px 0"
+
+      const priceNetTitle = document.createElement("div")
+      priceNetTitle.innerHTML = "Nettobetrag"
+
+      const priceNetAmount = document.createElement("div")
+      priceNetAmount.classList.add("net-price")
+      priceNetAmount.innerHTML = `${price.toFixed(2).replace(".", ",")} €`
+
+      netContainer.append(priceNetTitle, priceNetAmount)
+
+      priceContainer.append(netContainer)
+
+
+
+      const vatContainer = document.createElement("div")
+      vatContainer.style.display = "flex"
+      vatContainer.style.justifyContent = "space-between"
+      vatContainer.style.margin = "13px 0"
+
+
+      const priceVatTitle = document.createElement("div")
+      priceVatTitle.innerHTML = `USt. ${(offer.vat * 100).toFixed(2).replace(".", ",")} %`
+
+      const priceVatAmount = document.createElement("div")
+      priceVatAmount.classList.add("vat-price")
+      priceVatAmount.innerHTML = `${(price * offer.vat).toFixed(2).replace(".", ",")} €`
+
+      vatContainer.append(priceVatTitle, priceVatAmount)
+
+      priceContainer.append(vatContainer)
+
+      const line = document.createElement("hr")
+
+      priceContainer.append(line)
+
+
+      const grossContainer = document.createElement("div")
+      grossContainer.style.display = "flex"
+      grossContainer.style.justifyContent = "space-between"
+      grossContainer.style.margin = "21px 0"
+
+      const priceGrossTitle = document.createElement("div")
+      priceGrossTitle.innerHTML = "Gesamt"
+
+      const priceGrossAmount = document.createElement("div")
+      priceGrossAmount.classList.add("gross-price")
+      priceGrossAmount.innerHTML = `${(price + (price * offer.vat)).toFixed(2).replace(".", ",")} €`
+
+      grossContainer.append(priceGrossTitle, priceGrossAmount)
+
+      priceContainer.append(grossContainer)
+
+
+
+      const upload = document.createElement("div")
+      const fileField = new FileField("upload-file")
+      .with({
+        withElement: upload,
+        withField: div => div.style.margin = 0,
+        withInput: input => {
+          input.accept = "application/pdf"
+          input.addEventListener("input", () => fileField.withValidValue())
+        },
+        withLabel: label => label.innerHTML = "Angebot hochladen"
+      })
+
+            // .withField(div => div.style.margin = 0)
+      // .withLabel(label => label.innerHTML = "Angebot hochladen")
+      // .withType(input => input.accept = "application/pdf")
+
+
+      // .build()
+      // .withLabel("Angebot hochladen")
+      // .withField(div => {
+      //   div.style.margin = 0
+      // })
+      // .withType(input => {
+      //   input.accept = "application/pdf"
+      // })
+      // .build()
+      // console.log(fileField);
+
+
+
+      const button = document.createElement("div")
+      button.innerHTML = "Angebot senden"
+      button.style.marginTop = "34px"
+      button.style.height = "55px"
+      button.style.backgroundColor = "#f7aa20"
+      button.style.borderRadius = "13px"
+      button.style.display = "flex"
+      button.style.justifyContent = "center"
+      button.style.alignItems = "center"
+      button.style.fontSize = "21px"
+      button.style.cursor = "pointer"
+      button.addEventListener("mouseover", () => button.style.backgroundColor = "#f19d08")
+      button.addEventListener("mouseout", () => button.style.backgroundColor = "#f7aa20")
+
+      button.addEventListener("click", async() => {
+
+        // console.log(fileField);
+        fileField.withType(input => {
+          // console.log(input.files);
+          // console.log(input.files[0]);
+
+          if (input.files[0] === undefined) {
+            input.required = true
+            fileField.withValidValue()
+            input.required = false
+            return
+          }
+
+
+
+
+
+
+          // from here with email verification
+          // how to save file standard make helper
+          const fileReader = new FileReader()
+          fileReader.onload = async(event) => {
+            console.log(event);
+
+            Helper.addOverlay()
+            Helper.setWaitCursor()
+            const email = window.localStorage.getItem("email")
+            try {
+
+              await Request.withVerifiedEmail(email, async() => {
+
+                const registerOffer = {}
+                registerOffer.url = "/consumer/v1/"
+                registerOffer.consumer = "operator"
+                registerOffer.method = "register"
+                registerOffer.type = "offer"
+                registerOffer.security = "closed"
+                registerOffer.urlId = urlId
+                registerOffer.localStorageId = localStorageId
+                registerOffer.offer = offer
+                registerOffer.offer.value.file = {}
+                registerOffer.offer.value.file.name = `${offer.producer.name}-${Date.now()}.pdf`
+                registerOffer.offer.value.file.createdAt = Date.now()
+                registerOffer.offer.value.file.type = input.files[0].type
+                registerOffer.offer.value.file.size = input.files[0].size
+                registerOffer.offer.value.file.dataURL = event.target.result
+                // const res = await Request.middleware(registerOffer)
+                await Request.sequence(registerOffer)
+                // console.log(JSON.parse(res.response))
+
+                const getChecklist = {}
+                getChecklist.url = "/consumer/v1/"
+                getChecklist.consumer = "operator"
+                getChecklist.method = "get"
+                getChecklist.type = "checklist"
+                getChecklist.security = "closed"
+                getChecklist.urlId = urlId
+                getChecklist.localStorageId = localStorageId
+                const res = await Request.middleware(getChecklist)
+
+                const checklist = JSON.parse(res.response)
+                // console.log(checklist);
+
+                if (checklist.state === 1) {
+                  checklist.state = checklist.state + 1
+                }
+
+                const registerChecklist = {}
+                registerChecklist.url = "/consumer/v1/"
+                registerChecklist.consumer = "operator"
+                registerChecklist.method = "register"
+                registerChecklist.type = "checklist"
+                registerChecklist.security = "closed"
+                registerChecklist.localStorageId = localStorageId
+                registerChecklist.urlId = urlId
+                registerChecklist.checklist = checklist
+                await Request.sequence(registerChecklist)
+
+                alert("Speichern erfolgreich..")
+                await Helper.redirectOperatorToChecklist()
+                // Helper.removeOverlay()
+                // Helper.setDauf
+              })
+            } catch (error) {
+              console.error(error)
+              Helper.setNotAllowedCursor()
+            }
+
+
+            // console.log(registerOffer);
+
+            // show pdf
+            // const iframe = document.createElement("iframe")
+            // iframe.src = res.response
+            // document.body.append(iframe)
+          }
+          fileReader.readAsDataURL(input.files[0])
+
+        })
+
+        // console.log("hi");
+
+
+
+
+        // Helper.addOverlay()
+        // Helper.setWaitCursor()
+
+        // const getChecklist = {}
+        // getChecklist.url = "/consumer/v1/"
+        // getChecklist.consumer = "operator"
+        // getChecklist.method = "get"
+        // getChecklist.type = "checklist"
+        // getChecklist.security = "closed"
+        // // getChecklist.name = "shs"
+        // getChecklist.localStorageId = localStorageId
+        // getChecklist.urlId = urlId
+        // const res = await Request.middleware(getChecklist)
+
+        // if (res.status === 200) {
+        //   const checklist = JSON.parse(res.response)
+        //   if (checklist.state === 0) {
+        //     checklist.state = checklist.state + 1
+        //   }
+
+        //   const email = await Helper.getItem("email")
+        //   // const email = window.localStorage.getItem("email")
+
+        //   try {
+        //     await Request.withVerifiedEmail(email, async() => {
+        //       const localStorageId = Request.localStorageId()
+
+        //       const updateOffer = {}
+        //       updateOffer.url = "/consumer/v1/"
+        //       updateOffer.consumer = "operator"
+        //       updateOffer.method = "put"
+        //       updateOffer.type = "offer"
+        //       updateOffer.security = "closed"
+        //       // updateOffer.name = "bestprime"
+        //       updateOffer.offer = offer
+        //       updateOffer.localStorageId = localStorageId
+        //       updateOffer.urlId = urlId
+        //       await Request.sequence(updateOffer)
+
+        //       const registerChecklist = {}
+        //       registerChecklist.url = "/consumer/v1/"
+        //       registerChecklist.consumer = "operator"
+        //       registerChecklist.method = "put"
+        //       registerChecklist.type = "checklist"
+        //       registerChecklist.security = "closed"
+        //       // registerChecklist.name = "shs"
+        //       registerChecklist.localStorageId = localStorageId
+        //       registerChecklist.urlId = urlId
+        //       registerChecklist.checklist = checklist
+        //       await Request.sequence(registerChecklist)
+
+        //       alert("Speichern erfolgreich..")
+        //       Helper.redirectOperatorToChecklist()
+        //       // window.location.assign(`/felix/shs/checkliste/${Request.localStorageId()}/`)
+        //       Helper.removeOverlay()
+        //     })
+
+        //   } catch (error) {
+        //     console.error(error)
+        //   }
+        //   Helper.setNotAllowedCursor()
+        // }
+
+
+        // for (let i = 0; i < offers.length; i++) {
+        //   offer.value.selected = false
+        // }
+
+        // offer.value.selected = true
+        // window.localStorage.setItem("offers", JSON.stringify(offers))
+        // window.location.assign("/felix/shs/funnel/abfrage-persoenliches/")
+      })
+
+
+
+      const eSignButton = document.createElement("div")
+      eSignButton.innerHTML = "Digital unterschreiben"
+      // eSignButton.style.marginTop = "34px"
+      eSignButton.style.height = "55px"
+      eSignButton.style.backgroundColor = "rgb(0, 200, 83)"
+      eSignButton.style.borderRadius = "13px"
+      eSignButton.style.display = "flex"
+      eSignButton.style.justifyContent = "center"
+      eSignButton.style.alignItems = "center"
+      eSignButton.style.fontSize = "21px"
+      eSignButton.style.cursor = "pointer"
+      eSignButton.addEventListener("mouseover", () => eSignButton.style.backgroundColor = "rgb(0, 190, 83)")
+      eSignButton.addEventListener("mouseout", () => eSignButton.style.backgroundColor = "rgb(0, 200, 83)")
+      eSignButton.addEventListener("click", () => {
+        // eSignButton.style.backgroundColor = "rgb(0, 200, 83)"
+
+        window.location.assign(`/felix/shs/checklist/${urlId}/sign/`)
+
+      })
+
+
+      const or = document.createElement("div")
+      or.style.textAlign = "center"
+      or.style.margin = "21px 0"
+      or.innerHTML = "oder"
+
+
+
+      priceContainer.append(upload, button, or, eSignButton)
+
+      // fileField.withType(input => {
+      //   input.style.margin = "0"
+      //   input.accept = "application/pdf"
+      // })
+
+      alignContainer.append(priceContainer)
+
+      div.append(alignContainer)
+
+      // fileField
+      // .withField(div => div.style.margin = 0)
+      // .withLabel(label => label.innerHTML = "Angebot hochladen")
+      // .withType(input => input.accept = "application/pdf")
+
+      // fileField.build()
+    })
+
+
+
+    // render price
+    // const price = Helper.sumSelectedPrice(offer.options)
+    // const herstellerbruttobeitrag = new DivField("div[class*='herstellerbruttobeitrag']")
+    // .withType(div => div.innerHTML = `${price.toFixed(2).replace(".", ",")} €`)
+
+
+    // rabatt feature
+    // const discount = new DivField("div[class*='rabatt-2000']")
+    // .withType(div => div.innerHTML = `Rabatt ${(offer.discount * 100).toFixed(2).replace(".", ",")}%`)
+    // const herstellerrabatt = new DivField("div[class*='herstellerrabatt']")
+    // .withType(div => div.innerHTML = `${(price * offer.discount).toFixed(2).replace(".", ",")} €`)
+    // const herstellernettobeitrag = new DivField("div[class*='herstellernettobeitrag']")
+    // .withType(div => div.innerHTML = `${(price - price * offer.discount).toFixed(2).replace(".", ",")} €`)
+
+
+    // const ust = new DivField("div[class*='ust-1900']")
+    // .withType(div => div.innerHTML = `USt. ${(offer.vat * 100).toFixed(2).replace(".", ",")}%`)
+
+
+
+    // const herstellerust = new DivField("div[class*='herstellerust']")
+    // .withType(div => div.innerHTML = `${(price * offer.vat).toFixed(2).replace(".", ",")} €`)
+
+
+
+    // const herstellergesamtpreis = new DivField("div[class*='herstellergesamtpreis']")
+    // .withType(div => div.innerHTML = `${((price - price * offer.discount) + (price * offer.vat)).toFixed(2).replace(".", ",")} €`)
+
+
+    // const zumabschlussbutton = new DivField("div[class*='zumabschlussbutton']")
+    // .withOverlayClickEventListener(async (event) => {
+    //   event.addOverlay()
+    //   event.setWaitCursor()
+
+    //   const options = {}
+    //   options.url = "/db/v1/"
+    //   options.method = "get"
+    //   options.security = "closed"
+    //   options.type = "checklist"
+    //   options.name = "shs"
+    //   options.localStorageId = localStorageId
+    //   options.urlId = urlId
+    //   const res = await Request.middleware(options)
+
+    //   if (res.status === 200) {
+    //     const checklist = JSON.parse(res.response)
+    //     if (checklist.state === 0) {
+    //       checklist.state = checklist.state + 1
+    //     }
+
+    //     const email = JSON.parse(window.localStorage.getItem("shsFunnel")).value.registrierenemail
+
+    //     try {
+    //       await Request.withVerifiedEmail(email, async() => {
+    //         const localStorageId = Request.localStorageId()
+
+    //         const updateOffer = {}
+    //         updateOffer.url = "/db/v1/"
+    //         updateOffer.method = "put"
+    //         updateOffer.security = "closed"
+    //         updateOffer.type = "offer"
+    //         updateOffer.name = "bestprime"
+    //         updateOffer.offer = offer
+    //         updateOffer.localStorageId = localStorageId
+    //         updateOffer.urlId = urlId
+    //         await Request.sequence(updateOffer)
+
+    //         const registerChecklist = {}
+    //         registerChecklist.url = "/db/v1/"
+    //         registerChecklist.method = "put"
+    //         registerChecklist.security = "closed"
+    //         registerChecklist.type = "checklist"
+    //         registerChecklist.name = "shs"
+    //         registerChecklist.localStorageId = localStorageId
+    //         registerChecklist.urlId = urlId
+    //         registerChecklist.checklist = checklist
+    //         await Request.sequence(registerChecklist)
+
+    //         alert("Speichern erfolgreich..")
+    //         window.location.assign(`/felix/shs/checkliste/${Request.localStorageId()}/`)
+    //         event.removeOverlay()
+    //       })
+
+    //     } catch (error) {
+    //       console.error(error)
+    //     }
+    //     event.setNotAllowedCursor()
+    //   }
+    // })
+
+    Helper.createSHSFooter()
+
+    // const impressum = new DivField("div[class*='impressum']")
+    // .withClickEventListener(() => window.location.assign("/felix/shs/impressum/"))
+    // const datenschutz = new DivField("div[class*='datenschutz']")
+    // .withClickEventListener(() => window.location.assign("/felix/shs/datenschutz/"))
+
+  </script>
+</body>
+
+
+</html>

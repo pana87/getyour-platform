@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+
+    <style>
+      body {
+        margin: 0;
+        line-height: 1.2;
+        font-family: sans-serif;
+      }
+    </style>
+
+  </head>
+  <body>
+
+    <header></header>
+
+    <h1 class="title"></h1>
+
+    <div class="info"></div>
+
+    <div class="checklist"></div>
+
+    <footer></footer>
+
+
+
+  <script type="module">
+
+    import { HeaderField } from "../../../../js/HeaderField.js"
+    import { Helper } from "../../../../js/Helper.js"
+    import { Request } from "../../../../js/Request.js"
+    import { DivField } from "../../../../js/DivField.js"
+    import { InfoField } from "../../../../js/InfoField.js"
+    import { ChecklistField } from "../../../../js/ChecklistField.js"
+
+
+    const urlId = window.location.pathname.split("/")[4]
+    const localStorageId = Request.localStorageId()
+
+    const getChecklist = {}
+    getChecklist.url = "/consumer/v1/"
+    getChecklist.consumer = "operator"
+    getChecklist.method = "get"
+    getChecklist.type = "checklist"
+    getChecklist.security = "closed"
+    getChecklist.localStorageId = localStorageId
+    getChecklist.urlId = urlId
+    const res = await Request.middleware(getChecklist)
+    // console.log(res);
+
+    // console.log(checklist);
+
+    if (res.status !== 200) {
+      window.location.assign("/home/")
+      throw new Error(`${getChecklist.type} not found`)
+    }
+
+    const checklist = JSON.parse(res.response)
+
+    const headerField = new HeaderField()
+    .withImage(img => {
+      img.src = "../../public/shslogo.png"
+      img.alt = "SHS Express Logo"
+      img.style.cursor = "pointer"
+      img.style.width = "144px"
+      img.addEventListener("click", () => window.location.assign("/felix/shs/"))
+    })
+    .withType(header => {
+      header.style.position = "fixed"
+      header.style.top = "0"
+      header.style.left = "0"
+      header.style.zIndex = "1"
+      header.style.backgroundColor = "white"
+    })
+    .withProfile(profile => {
+      profile.innerHTML = checklist.owner.name
+      profile.style.fontSize = "21px"
+      profile.style.fontWeight = "bold"
+      profile.addEventListener("click", () => window.location.assign("/felix/shs/funnel/abfrage-haus/"))
+    })
+    .build()
+
+    document.querySelectorAll(".title").forEach(title => {
+      title.innerHTML = "Essentielles zum Anlagenaufbau"
+      title.style.margin = "144px 34px 34px 34px"
+      title.style.fontWeight = "normal"
+    })
+
+
+    const infoField = new InfoField("info")
+    .withSuccess("Bitte befolgen Sie diese Schritte, um den einwandfreien Aufbau ihres Energiesystems vorzubereiten.")
+    .withType(info => {
+      info.style.fontSize = "21px"
+    })
+
+
+
+    const checklistField = new ChecklistField("checklist")
+    .withChecklist(checklist)
+    .build()
+
+
+    Helper.createSHSFooter()
+
+
+  </script>
+</body>
+
+
+</html>

@@ -1176,6 +1176,9 @@ body {
 
   </head>
   <body>
+    <header></header>
+    <div class="offer"></div>
+<!--
     <div class="bpe-angebot">
       <div class="gruppe-1999">
         <b class="gltig-bis">Gültig bis:</b>
@@ -1658,30 +1661,38 @@ body {
         <div class="k93232">K93232</div>
       </div>
     </div>
-
+ -->
   <script type="module">
 
     import {Request} from "../../../../../js/Request.js"
     import {DivField} from "../../../../../js/DivField.js"
+    import {HeaderField} from "../../../../../js/HeaderField.js"
+    import {OfferField} from "../../../../../js/OfferField.js"
     import {Helper} from "../../../../../js/Helper.js"
 
     const localStorageId = Request.localStorageId()
     const urlId = window.location.pathname.split("/")[4]
 
     const getOffer = {}
-    getOffer.url = "/db/v1/"
+    getOffer.url = "/consumer/v1/" // consumer/v1 // consumer endpoint
+    getOffer.consumer = "operator"
+    getOffer.method = "get"
     getOffer.type = "offer"
-    getOffer.name = "bestprime"
+    getOffer.security = "closed"
     getOffer.localStorageId = localStorageId
     getOffer.urlId = urlId
-    getOffer.method = "get"
-    getOffer.security = "closed"
     const res = await Request.middleware(getOffer)
 
-    if (res.status !== 200) window.location.assign("/home/")
+    if (res.status !== 200) window.location.assign("/felix/shs/hersteller/")
 
     const offer = JSON.parse(res.response)
     console.log(offer);
+
+    const header = new HeaderField()
+    .withOffer(offer)
+
+    const offerField = new OfferField("offer")
+    .withOffer(offer)
 
     const created_at = Helper.millisToDateString(offer.created_at)
     const expires_at = Helper.millisToDateString(offer.expires_at)
@@ -1693,6 +1704,7 @@ body {
       img.addEventListener("click", async() => {
         const res = await Helper.redirectOperatorToChecklist()
         if (res.status === 200) {
+          console.log(res.response);
           window.location.assign(`/felix/shs/checkliste/${res.response}/`)
         }
       })

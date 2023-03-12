@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getyour Plattform Datenschutz Richtlinien</title>
+  <style>
+    body {
+      margin: 0;
+      line-height: 1.2;
+      font-family: sans-serif;
+    }
+    h2 {
+      font-weight: normal;
+      font-size: 21px;
+    }
+  </style>
+</head>
+<body>
+  <header></header>
+
+  <h1 class="title"></h1>
+
+  <h2 class="sub-title-1"></h2>
+  <div class="text-1"></div>
+
+  <h2 class="sub-title-2"></h2>
+  <div class="text-2"></div>
+
+  <h2 class="sub-title-3"></h2>
+  <div class="text-3"></div>
+
+  <h2 class="sub-title-4"></h2>
+  <div class="text-4"></div>
+
+  <h2 class="sub-title-5"></h2>
+  <div class="text-5"></div>
+
+  <h2 class="sub-title-6"></h2>
+  <div class="text-6"></div>
+
+  <h2 class="sub-title-7"></h2>
+  <div class="text-7"></div>
+
+  <h2 class="sub-title-8"></h2>
+  <div class="text-8"></div>
+
+  <h2 class="sub-title-9"></h2>
+  <div class="text-9"></div>
+
+  <h2 class="sub-title-10"></h2>
+  <div class="text-10"></div>
+
+
+
+  <footer></footer>
+
+  <script type="module">
+    import {HeaderField} from "../../../../js/HeaderField.js"
+    import {Field} from "../../../../js/Field.js"
+    import {Helper} from "../../../../js/Helper.js"
+    import {FooterField} from "../../../../js/FooterField.js"
+
+    const header = new HeaderField()
+    .withImage(img => {
+      img.src = "../public/getyour-logo.svg"
+      img.alt = "Getyour Plattform Logo"
+      img.style.cursor = "pointer"
+      img.style.width = "89px"
+      img.addEventListener("click", () => window.location.assign("/home/"))
+    })
+    .withType(header => {
+      header.style.position = "fixed"
+      header.style.top = "0"
+      header.style.left = "0"
+      header.style.zIndex = "1"
+      header.style.background = "white"
+    })
+    .build()
+
+
+    const title = new Field(".title")
+    .withType(div => {
+      div.innerHTML = "Datenschutz Richtlinien"
+      div.style.fontWeight = "normal"
+      div.style.margin = "144px 34px"
+    })
+
+    const subTitle1 = new Field(".sub-title-1")
+    .withType(div => {
+      div.innerHTML = "Geltungsbereich"
+      div.style.fontWeight = "normal"
+      div.style.margin = "21px 34px"
+    })
+    const text1 = new Field(".text-1")
+    .withType(div => {
+      div.style.fontWeight = "normal"
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Diese Datenschutz-Richtilinien sollen dich als Nutzer gemäß Bundesdatenschutzgesetz und Telemediengesetz über die Art, den Umfang und den Zweck der Erhebung und Verwendung personenbezogener Daten durch uns informieren.</p>
+        <p>Wir nehmen deinen Datenschutz sehr ernst und behandeln deine personenbezogenen Daten vertraulich und entsprechend der gesetzlichen Vorschriften.</p>
+        <p>Bedenke, dass die Datenübertragung im Internet grundsätzlich mit Sicherheitslücken bedacht sein kann. Ein vollumfänglicher Schutz vor dem Zugriff durch Fremde ist nicht realisierbar.</p>
+      `
+    })
+
+    const subTitle2 = new Field(".sub-title-2")
+    .withType(div => {
+      div.innerHTML = "Zugriffsdaten"
+      div.style.fontWeight = "normal"
+      div.style.margin = "21px 34px"
+    })
+    const text2 = new Field(".text-2")
+    .withType(div => {
+      div.style.fontWeight = "normal"
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Wir erheben Daten über Zugriffe auf unsere Dienste und speichern diese als ab. Folgende Daten werden so protokolliert:</p>
+        <p>
+          - Besuchter Dienst<br>
+          - Uhrzeit zum Zeitpunkt des Zugriffes<br>
+          - Menge der gesendeten Daten in Byte<br>
+          - Quelle/Verweis, von wo du auf den Dienst gelangst<br>
+          - Verwendeter Browser<br>
+          - Verwendetes Betriebssystem<br>
+          - Verwendete IP-Adresse<br>
+        </p>
+        <p>Die erhobenen Daten dienen lediglich statistischen Auswertungen und zur Verbesserung unserer Dienste. Wir behalten uns allerdings vor, die Inhalte nachträglich zu überprüfen, sollten konkrete Anhaltspunkte auf eine rechtswidrige Nutzung hinweisen.</p>
+      `
+    })
+
+    const subTitle3 = new Field(".sub-title-3")
+    .withType(div => {
+      div.innerHTML = "Cookies"
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+    })
+    const text3 = new Field(".text-3")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+      div.innerHTML = /*html*/`
+        <p>Diese Website verwendet Cookies. Dabei handelt es sich um kleine Textdateien, welche auf deinem Endgerät gespeichert werden. Dein Browser greift auf diese Dateien zu. Durch den Einsatz von Cookies erhöht sich die Benutzerfreundlichkeit und Sicherheit unserer Dienste.</p>
+        <p>Gängige Browser bieten die Einstellungsoption, Cookies nicht zuzulassen. Hinweis: Es ist nicht gewährleistet, dass du auf alle Funktionen ohne Einschränkungen zugreifen kannst, wenn du entsprechende Einstellungen vornimmst.</p>
+      `
+    })
+
+    const subTitle4 = new Field(".sub-title-4")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = "Umgang mit personenbezogenen Daten"
+      div.style.fontWeight = "normal"
+    })
+    const text4 = new Field(".text-4")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+      div.innerHTML = /*html*/`
+        <p>Wir erheben, nutzen und geben deine personenbezogenen Daten nur dann weiter, wenn dies im gesetzlichen Rahmen erlaubt ist oder du in die Datenerhebung einwilligst.</p>
+        <p>Als personenbezogene Daten gelten sämtliche Informationen, welche dazu dienen, deine Person zu bestimmen und welche zu dir zurückverfolgt werden können – also beispielsweise dein Name, deine E-Mail-Adresse und Telefonnummer.</p>
+      `
+    })
+
+    const subTitle5 = new Field(".sub-title-5")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = "Konto"
+      div.style.fontWeight = "normal"
+    })
+    const text5 = new Field(".text-5")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+      div.innerHTML = /*html*/`
+        <p>Wir übernehmen keine Haftung für Passwortmissbrauch, sofern dieser nicht von uns selbst verursacht wurde.</p>
+      `
+    })
+
+    const subTitle6 = new Field(".sub-title-6")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = "Mitgliedschaft"
+      div.style.fontWeight = "normal"
+    })
+    const text6 = new Field(".text-6")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+      div.innerHTML = /*html*/`
+        <p>Sämtliche Daten, welche im Rahmen einer Mitgliedschaft eingegeben werden, werden gespeichert. Dazu gehören:</p>
+        <p>
+          - Name, Vorname<br>
+          - Adresse<br>
+          - Zahlungsmethode<br>
+          - E-Mail-Adresse<br>
+        </p>
+        <p>Sowie die Aufbewahrung deiner Daten nicht mehr erforderlich oder gesetzlich geboten ist, werden diese gelöscht.</p>
+      `
+    })
+
+    const subTitle7 = new Field(".sub-title-7")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = "Umgang mit Kontaktdaten"
+      div.style.fontWeight = "normal"
+    })
+    const text7 = new Field(".text-7")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Nimmst du mit uns, durch unseren Dienst, Verbindung auf, werden deine Angaben gespeichert, damit auf diese zur Bearbeitung und Beantwortung deiner Anfrage zurückgegriffen werden kann. Ohne deine Einwilligung werden diese Daten nicht an Dritte weitergegeben.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle8 = new Field(".sub-title-8")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = "Newsletter"
+      div.style.fontWeight = "normal"
+    })
+    const text8 = new Field(".text-8")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Wir bieten dir einen Newsletter an, in welchem du über aktuelle Geschehnisse und Angebote informiert wirst. Möchten du den Newsletter abonnieren, musst Sie eine gültige E-Mail-Adresse angeben.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle9 = new Field(".sub-title-9")
+    .withType(div => {
+      div.innerHTML = "Rechte des Nutzers: Auskunft, Berichtigung und Löschung "
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+    })
+    const text9 = new Field(".text-9")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Du als Nutzer erhälst, auf Antrag, kostenlose Auskunft darüber, welche personenbezogenen Daten über dich gespeichert wurden. Sofern dein Wunsch nicht mit einer gesetzlichen Pflicht zur Aufbewahrung von Daten (z. B. Vorratsdatenspeicherung) kollidiert, hast du ein Anrecht auf Berichtigung falscher Daten und auf die Sperrung oder Löschung deiner personenbezogenen Daten.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle10 = new Field(".sub-title-10")
+    .withType(div => {
+      div.innerHTML = "Weitere Informationen findest du hier:"
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+    })
+    const text10 = new Field(".text-10")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <a href="https://www.gesetze-im-internet.de/tmg/" target="_blank" style="color: inherit;">Telemediengesetz (TMG)</a><br>
+        <a href="https://www.gesetze-im-internet.de/bdsg_2018/" target="_blank" style="color: inherit;">Bundesdatenschutzgesetz (BDSG)</a><br>
+        <a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:32016L0680" target="_blank" style="color: inherit;">EU Datenschutz Grundverordnung (DGSVO)</a><br>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+
+    const footer = new FooterField()
+    .withType(footer => {
+      footer.style.backgroundColor = "#781717"
+      footer.style.padding = "21px 34px"
+      footer.style.marginTop = "144px"
+      footer.style.color = "#d1d1d1"
+
+      const impressum = document.createElement("div")
+      impressum.innerHTML = "IMPRESSUM"
+      impressum.style.cursor = "pointer"
+      impressum.style.padding = "13px"
+      impressum.addEventListener("click", () => window.location.assign("/impressum/"))
+      footer.append(impressum)
+
+      const dsgvo = document.createElement("div")
+      dsgvo.innerHTML = "DATENSCHUTZ"
+      dsgvo.style.cursor = "pointer"
+      dsgvo.style.padding = "13px"
+      dsgvo.addEventListener("click", () => window.location.assign("/datenschutz/"))
+      footer.append(dsgvo)
+
+      const userAgreement = document.createElement("div")
+      userAgreement.innerHTML = "NUTZERVEREINBARUNG"
+      userAgreement.style.cursor = "pointer"
+      userAgreement.style.padding = "13px"
+      userAgreement.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
+      footer.append(userAgreement)
+    })
+
+  </script>
+</body>
+</html>
