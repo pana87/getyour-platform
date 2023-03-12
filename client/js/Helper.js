@@ -1,7 +1,133 @@
-import {Request} from "./Request.js"
-import {FooterField} from "./FooterField.js"
+import {Request} from "/js/Request.js"
+import {FooterField} from "/js/FooterField.js"
 
 export class Helper {
+
+  static popupInfo({withImage, withText, withEvent}) {
+    const popup = document.createElement("div")
+    popup.style.height = "100vh"
+    popup.style.width = "100%"
+    popup.style.zIndex = "2"
+    popup.style.position = "fixed"
+    popup.style.top = "0"
+    popup.style.left = "0"
+    popup.style.background = "white"
+    popup.style.display = "flex"
+    popup.style.flexDirection = "column"
+    popup.style.justifyContent = "space-between"
+    popup.style.overflowY = "scroll"
+    popup.style.opacity = 0
+
+    const header = document.createElement("div")
+    header.style.background = "rgb(0, 135, 0)"
+    header.style.display = "flex"
+    header.style.alignItems = "center"
+    header.style.padding = "34px"
+
+    const infoIcon = document.createElement("img")
+    infoIcon.src = "../../../../public/info-white.svg"
+    infoIcon.alt = "Info"
+
+    const infoTitle = document.createElement("div")
+    infoTitle.innerHTML = "Wissenswertes"
+    infoTitle.style.fontSize = "21px"
+    infoTitle.style.margin = "21px"
+    infoTitle.style.color = "rgb(234, 234, 234)"
+    header.append(infoIcon, infoTitle)
+    popup.append(header)
+
+    const imageContainer = document.createElement("div")
+    imageContainer.style.display = "flex"
+    imageContainer.style.justifyContent = "center"
+    imageContainer.style.margin = "34px"
+
+    if (withImage !== undefined) {
+      const image = document.createElement("img")
+      withImage(image)
+      imageContainer.append(image)
+    }
+    popup.append(imageContainer)
+
+    const textContainer = document.createElement("div")
+    textContainer.style.margin = "34px"
+
+    if (withText !== undefined) {
+      const text = document.createElement("p")
+      withText(text)
+      textContainer.append(text)
+    }
+    popup.append(textContainer)
+
+    const buttonContainer = document.createElement("div")
+    buttonContainer.style.display = "flex"
+    buttonContainer.style.justifyContent = "space-between"
+    buttonContainer.style.margin = "34px"
+
+    const helpfulButton = document.createElement("div")
+    helpfulButton.innerHTML = "👍"
+    helpfulButton.style.background = "rgb(45,201,55)"
+    helpfulButton.style.display = "flex"
+    helpfulButton.style.justifyContent = "center"
+    helpfulButton.style.alignItems = "center"
+    helpfulButton.style.height = "55px"
+    helpfulButton.style.width = "89px"
+    helpfulButton.style.color = "white"
+    helpfulButton.style.borderRadius = "8px"
+    helpfulButton.style.fontSize = "21px"
+    helpfulButton.style.cursor = "pointer"
+    helpfulButton.addEventListener("click", () => popup.remove())
+
+    const notHelpfulButton = document.createElement("div")
+    notHelpfulButton.innerHTML = "👎"
+    notHelpfulButton.style.display = "flex"
+    notHelpfulButton.style.justifyContent = "center"
+    notHelpfulButton.style.alignItems = "center"
+    notHelpfulButton.style.width = "89px"
+    notHelpfulButton.style.height = "55px"
+    notHelpfulButton.style.background = "rgb(204,50,50)"
+    notHelpfulButton.style.borderRadius = "8px"
+    notHelpfulButton.style.fontSize = "21px"
+    notHelpfulButton.style.cursor = "pointer"
+    notHelpfulButton.addEventListener("click", () => popup.remove())
+
+    buttonContainer.append(notHelpfulButton, helpfulButton)
+    popup.append(buttonContainer)
+
+    document.body.append(popup)
+
+    const animation = popup.animate([
+      { opacity: 0, transform: 'translateY(13px)' },
+      { opacity: 1, transform: 'translateY(0)' },
+    ], {
+      duration: 344,
+      easing: 'ease-in-out',
+      fill: "forwards"
+    })
+  }
+
+  static startTimer({duration, display}) {
+
+    var timer = duration, minutes, seconds
+    const interval = setInterval(function () {
+        minutes = parseInt(timer / 60, 10)
+        seconds = parseInt(timer % 60, 10)
+
+        minutes = minutes < 10 ? "0" + minutes : minutes
+        seconds = seconds < 10 ? "0" + seconds : seconds
+
+        display.textContent = minutes + ":" + seconds
+        display.style.display = "flex"
+        display.style.color = "red"
+        if (--timer < 0) {
+          display.textContent = "pin abgelaufen"
+          clearInterval(interval)
+          // timer = "pin expired";
+          // timer = 0;
+          // timer = duration;
+        }
+    }, 1000)
+    return interval
+  }
 
   static canvasToFile(canvas) {
     return new Promise((resolve, reject) => {
@@ -21,112 +147,63 @@ export class Helper {
     })
   }
 
-  // static requestFailed(response) {
-  //   if (response.status !== 200) {
-  //     const confirm = window.confirm(`Es tut uns leid, aber es ist ein Fehler aufgetreten. Wenn dieser Fehler weiterhin auftritt, bitten wir Sie, uns zu kontaktieren.\n\nWir möchten sicherstellen, dass unsere Dienste reibungslos funktionieren und Ihr Feedback ist uns dabei sehr wichtig.\n\nMöchten Sie uns kontaktieren?`)
-  //     if (confirm === true) window.location.href = "mailto:datenschutz@get-your.de"
-  //     throw new Error("request failed")
-  //   }
-  // }
+  static setOffer(offer) {
+    if (offer !== undefined) {
+      const offers = JSON.parse(window.localStorage.getItem("offers")) || []
 
-  // static setArrayToLocalStorage(arrayName, {name, key, value, object}) {
-  //   const array = JSON.parse(window.localStorage.getItem(arrayName)) || []
-  //   // if (funnels === null) window.localStorage.setItem("funnels", JSON.stringify([]))
-  //   // funnels = JSON.parse(window.localStorage.getItem("funnels"))
+      if (offers.length === 0) {
+        offers.push(offer)
+        window.localStorage.setItem("offers", JSON.stringify(offers))
+      }
 
-  //   if (array.length === 0) {
-  //     if (object !== undefined) {
-  //       array.push(object)
-  //       window.localStorage.setItem(arrayName, JSON.stringify(array))
-  //     }
-  //   } else {
-  //     if (name !== undefined) {
-  //       for (let i = 0; i < array.length; i++) {
-  //         if (array[i].storage === name) {
-  //           if (key !== undefined && value !== undefined) {
-  //             if (array[i].value === undefined) array[i].value = {}
-  //             array[i].value[key] = value
-  //             window.localStorage.setItem(arrayName, JSON.stringify(array))
-  //           }
-  //         }
-  //         // else throw new Error(`funnel '${name}' not found in localstorage`)
-  //       }
-  //     }
-  //   }
-  //   // if (funnels !== null) {
-  //   // }
-  // }
+      for (let i = 0; i < offers.length; i++) {
+        if (offers[i].storage === offer.storage) {
+          offers[i] = offer
+          window.localStorage.setItem("offers", JSON.stringify(offers))
+        }
+      }
+    }
+  }
 
-  static setFunnel({name, key, value, funnel}) {
-    const funnels = JSON.parse(window.localStorage.getItem("funnels")) || []
-    // if (funnels === null) window.localStorage.setItem("funnels", JSON.stringify([]))
-    // funnels = JSON.parse(window.localStorage.getItem("funnels"))
+  static setFunnel(funnel) {
+    if (funnel !== undefined) {
+      const funnels = JSON.parse(window.localStorage.getItem("funnels")) || []
 
-    if (funnels.length === 0) {
-      if (funnel !== undefined) {
+      if (funnels.length === 0) {
         funnels.push(funnel)
         window.localStorage.setItem("funnels", JSON.stringify(funnels))
       }
-    } else {
-      if (name !== undefined) {
-        for (let i = 0; i < funnels.length; i++) {
-          if (funnels[i].storage === name) {
-            if (key !== undefined && value !== undefined) {
-              if (funnels[i].value === undefined) funnels[i].value = {}
-              funnels[i].value[key] = value
-              window.localStorage.setItem("funnels", JSON.stringify(funnels))
-            }
-          }
-          // else throw new Error(`funnel '${name}' not found in localstorage`)
+
+      for (let i = 0; i < funnels.length; i++) {
+        if (funnels[i].storage === funnel.storage) {
+          funnels[i] = funnel
+          window.localStorage.setItem("funnels", JSON.stringify(funnels))
         }
       }
     }
-    // if (funnels !== null) {
-    // }
   }
 
-  static getSelectedOffer() {
-    try {
+  static findOffer(predicate) {
+    if (predicate !== undefined) {
       const offers = JSON.parse(window.localStorage.getItem("offers"))
       for (let i = 0; i < offers.length; i++) {
-        if (offers[i].value.selected === true) {
+        if (predicate(offers[i])) {
           return offers[i]
         }
       }
-    } catch (error) {
-      window.location.assign("/felix/shs/match-maker/hersteller-vergleich/")
-      throw new Error(error)
     }
   }
 
-  static getFunnelByStorageName(name) {
-    try {
-      if (this.stringIsEmpty(name)) throw new Error("storage name is empty")
-      const funnels = JSON.parse(window.localStorage.getItem("funnels"))
-      // console.log(funnels);
+  static findFunnel(predicate) {
+    if (predicate !== undefined) {
+      const funnels = JSON.parse(window.localStorage.getItem("funnels")) || []
       for (let i = 0; i < funnels.length; i++) {
-        if (funnels[i].storage === name) {
+        if (predicate(funnels[i])) {
           return funnels[i]
         }
       }
-    } catch (error) {
-      window.location.assign("/felix/shs/funnel/qualifizierung/")
-      throw new Error(error)
     }
   }
-
-  // static resizeFontSize(element, newFontSize) {
-  //   const styles = window.getComputedStyle(element);
-  //   const initialFontSize = styles.getPropertyValue("font-size")
-
-  //   const fontSize = window.innerWidth > 768 ? newFontSize : initialFontSize;
-  //   element.style.fontSize = fontSize;
-
-  //   window.addEventListener("resize", () => {
-  //     const fontSize = window.innerWidth > 768 ? newFontSize : initialFontSize;
-  //     element.style.fontSize = fontSize;
-  //   })
-  // }
 
   static createSHSFooter() {
     return new FooterField()
@@ -159,59 +236,6 @@ export class Helper {
     })
   }
 
-  // static onWindowLoaded(callback) {
-  //   if (callback !== undefined) window.addEventListener("load", (event) => callback(event))
-  //   return this
-  // }
-
-  // static async loginUser(email) {
-  //   this.addOverlay()
-  //   this.setWaitCursor()
-
-  //   try {
-  //     await Request.withVerifiedEmail(email, async () => {
-  //       const localStorageId = Request.localStorageId()
-
-  //       const registerEmail = {}
-  //       registerEmail.url = "/consumer/v1/"
-  //       registerEmail.type = "id"
-  //       registerEmail.method = "post"
-  //       registerEmail.security = "open"
-  //       registerEmail.name = "onlogin"
-  //       registerEmail.localStorageId = localStorageId
-  //       registerEmail.email = email
-  //       await Request.sequence(registerEmail)
-
-  //       const verifyUser = {}
-  //       verifyUser.url = "/consumer/v1/"
-  //       verifyUser.method = "put"
-  //       verifyUser.security = "open"
-  //       verifyUser.type = "verify"
-  //       verifyUser.name = "onlogin"
-  //       verifyUser.localStorageId = localStorageId
-  //       await Request.sequence(verifyUser)
-
-  //       const registerSession = {}
-  //       registerSession.url = "/request/register/session/"
-  //       registerSession.method = "put"
-  //       registerSession.security = "open"
-  //       registerSession.type = "session"
-  //       registerSession.name = "onlogin"
-  //       registerSession.localStorageId = localStorageId
-  //       const res = await Request.middleware(registerSession)
-  //       // console.log(res)
-
-  //       // custom redirect codes >= 900
-  //       if (res.status === 900) window.location.assign("/plattform/zugang/")
-  //       if (res.status === 200) window.history.back()
-  //       this.removeOverlay()
-  //     })
-  //   } catch (error) {
-  //     console.error(error)
-  //   }
-  //   this.setNotAllowedCursor()
-  // }
-
   static setDefaultCursor() {document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "default")}
   static setWaitCursor() {document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "wait")}
   static setNotAllowedCursor() {document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "not-allowed")}
@@ -226,62 +250,25 @@ export class Helper {
     overlay.style.position = "fixed"
     overlay.style.top = "0"
     overlay.style.left = "0"
-    overlay.style.opacity = "0.6"
+    overlay.style.opacity = "0.9"
     overlay.style.zIndex = "10"
     document.body.append(overlay)
+    return overlay
   }
 
-  static async getItem(type) {
-    const get = {}
-    get.url = "/consumer/v1/"
-    // get.consumer = "operator"
-    get.method = "get"
-    // get.name = name
-    get.type = type
-    get.security = "closed"
-    get.localStorageId = Request.localStorageId()
-    const res = await Request.middleware(get)
-    if (res.status === 200) return res.response
-    if (res.status !== 200) return window.location.assign("/home/")
+  static async redirectUser(event) {
+    const redirectUser = {}
+    redirectUser.url = "/consumer/v1/"
+    redirectUser.method = "redirect"
+    redirectUser.type = "user"
+    redirectUser.event = event
+    redirectUser.security = "open"
+    redirectUser.referrer = document.referrer
+    redirectUser.location = window.location.href
+    redirectUser.localStorageId = Request.localStorageId()
+    const res = await Request.middleware(redirectUser)
+    if (res.status === 200) return window.location.assign(res.response)
   }
-
-  static async redirectOperatorToChecklist() {
-    const redirectOperator = {}
-    redirectOperator.url = "/consumer/v1/"
-    redirectOperator.consumer = "operator"
-    redirectOperator.method = "redirect"
-    redirectOperator.name = "shs"
-    redirectOperator.type = "checklist"
-    redirectOperator.security = "closed"
-    redirectOperator.localStorageId = Request.localStorageId()
-    const res = await Request.middleware(redirectOperator)
-    if (res.status === 200) window.location.assign(`/felix/shs/checklist/${res.response}/`)
-    else window.location.assign("/home/")
-  }
-
-
-  static postForm(path, params) {
-    const method = 'post'
-
-    var form = document.createElement('form')
-    form.setAttribute('method', method)
-    form.setAttribute('action', path)
-
-    for (var key in params) {
-        if (params.hasOwnProperty(key)) {
-            var hiddenField = document.createElement('input')
-            hiddenField.setAttribute('type', 'hidden')
-            hiddenField.setAttribute('name', key)
-            hiddenField.setAttribute('value', params[key])
-
-            form.appendChild(hiddenField)
-        }
-    }
-
-    document.body.appendChild(form)
-    form.submit()
-  }
-  // postForm('mysite.com/form', {arg1: 'value1', arg2: 'value2'});
 
   static millisToDateString(milliseconds) {
     const date = new Date(milliseconds)
@@ -290,21 +277,6 @@ export class Helper {
     const year = date.getFullYear().toString()
     return `${day}.${month}.${year}`
   }
-
-  // static previousFunnel(pathList) {
-  //   const index = pathList.indexOf(window.location.pathname)
-  //   if (index !== -1 && index < pathList.length - 1) {
-  //     window.location.assign(pathList[index - 1])
-  //   }
-  // }
-
-
-  // static nextFunnel(pathList) {
-  //   const index = pathList.indexOf(window.location.pathname)
-  //   if (index !== -1 && index < pathList.length - 1) {
-  //     window.location.assign(pathList[index + 1])
-  //   }
-  // }
 
   static setNotValidStyle(element) {
     element.style.border = "2px solid #d50000"
@@ -390,7 +362,6 @@ export class Helper {
     Array.isArray(array)
   }
 
-
   static objectExist(object) {
     return typeof object === "object" &&
     object !== undefined &&
@@ -451,37 +422,6 @@ export class Helper {
     .replace(/-$/g, "")
   }
 
-  // static async digestUserEmail() {
-  //   const message = JSON.stringify(window.sessionStorage.getItem("email"))
-  //   const digest = await this.digest(message)
-  //   return digest
-  // }
-
-  // static async digestSessionStorage() {
-  //   const message = JSON.stringify(window.sessionStorage)
-  //   const digest = await this.digest(message)
-  //   return digest
-  // }
-
-  // static fileToDataUrl(file) {
-  //   try {
-  //     const reader = new FileReader()
-  //     reader.readAsDataURL(file)
-  //     reader.addEventListener("loadend", () => {
-  //       return {
-  //         status: 200,
-  //         message: "FILE_TO_DATA_URL_SUCCESS",
-  //         dataUrl: reader.result,
-  //       }
-  //     })
-  //   } catch (error) {
-  //     return {
-  //       status: 500,
-  //       message: "FILE_TO_DATA_URL_ABORT",
-  //     }
-  //   }
-  // }
-
   static isJson(string) {
     try {
       JSON.parse(string)
@@ -511,26 +451,5 @@ export class Helper {
     const fileBuffer = await file.arrayBuffer()
     return Array.from(new Uint8Array(fileBuffer))
   }
-
-  // static fileToDataUrl(file) {
-  //   return new Promise((resolve, reject) => {
-  //     if (file) {
-  //       const reader = new FileReader()
-  //       reader.readAsDataURL(file)
-  //       reader.addEventListener("loadend", (event) => {
-  //         return resolve({
-  //           status: 200,
-  //           message: "FILE_TO_DATA_URL_SUCCESS",
-  //           dataUrl: reader.result
-  //         })
-  //       })
-  //     } else {
-  //       return reject({
-  //         status: 500,
-  //         message: "FILE_TO_DATA_URL_ABORT",
-  //       })
-  //     }
-  //   })
-  // }
 
 }

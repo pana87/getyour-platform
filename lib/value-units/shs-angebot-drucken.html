@@ -3,27 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, width=device-width" />
-<!--
-  <style>
-    .kundeninfo {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      font-weight: bold;
-    }
-    .row {
-      display: flex;
-    }
-    .price {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-    }
-    .price > * {
-      display: flex;
-    }
-  </style>
- -->
+
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>SHS Angebot Drucken</title>
+
 
   <style>
     body {
@@ -34,7 +17,7 @@
   </head>
   <body>
 
-    <header></header>
+    <div class="header"></div>
 
     <div class="producer-logo"></div>
 
@@ -44,43 +27,42 @@
     <div class="offer-meta"></div>
     <div class="sub-title"></div>
     <div class="offer-options"></div>
-    <div class="message"></div>
+    <div class="producer-message"></div>
     <div class="price"></div>
     <div class="sign"></div>
     <div class="note"></div>
 
     <script type="module">
 
-      import {HeaderField} from "../../../../../js/HeaderField.js"
-      import {Request} from "../../../../../js/Request.js"
-      import {Field} from "../../../../../js/Field.js"
-      import {Helper} from "../../../../../js/Helper.js"
+      import {HeaderField} from "/js/HeaderField.js"
+      import {Request} from "/js/Request.js"
+      import {DivField} from "/js/DivField.js"
+      import {Helper} from "/js/Helper.js"
 
       const localStorageId = Request.localStorageId()
       const urlId = window.location.pathname.split("/")[4]
 
       const getOffer = {}
       getOffer.url = "/consumer/v1/"
-      getOffer.consumer = "operator"
       getOffer.method = "get"
-      getOffer.type = "offer"
+      getOffer.type = "offers"
       getOffer.security = "closed"
       getOffer.localStorageId = localStorageId
       getOffer.urlId = urlId
       const res = await Request.middleware(getOffer)
 
       if (res.status !== 200) {
-        window.location.assign("/felix/shs/match-maker/shs-hersteller-vergleich/")
+        window.location.assign("/felix/shs/match-maker/hersteller-vergleich/")
         throw new Error("offer not found")
       }
 
       const offer = JSON.parse(res.response)
       // console.log(offer);
 
-      const header = new Field("header")
+      const header = new DivField("header")
       .withType(header => {
         const img = document.createElement("img")
-        img.src = "../../../public/shslogo.png"
+        img.src = "/felix/shs/public/shslogo.png"
         img.alt = "SHS Express Logo"
         img.style.width = "144px"
         img.style.cursor = "pointer"
@@ -89,21 +71,21 @@
       })
 
 
-      const producerLogo = new Field(".producer-logo")
+      const producerLogo = new DivField("producer-logo")
       .withType(div => {
         div.style.display = "flex"
         div.style.justifyContent = "flex-end"
 
         const img = document.createElement("img")
-        img.src = offer.image.src
-        img.alt = offer.image.alt
+        img.src = "/felix/shs/public/bestprimelogo.png"
+        img.alt = "Bestprime Logo"
         img.style.width = "50vw"
         img.style.maxWidth = "377px"
 
         div.append(img)
       })
 
-      const offerProducer = new Field(".offer-producer")
+      const offerProducer = new DivField("offer-producer")
       .withType(div => {
         const from = document.createElement("div")
         from.innerHTML = "Von:"
@@ -121,7 +103,7 @@
         div.append(from, producerCompany, producerSector, producerLocation)
       })
 
-      const offerConsumer = new Field(".offer-consumer")
+      const offerConsumer = new DivField("offer-consumer")
       .withType(div => {
         div.style.textAlign = "right"
 
@@ -129,19 +111,19 @@
         to.innerHTML = "An:"
 
         const ownerName = document.createElement("div")
-        ownerName.innerHTML = `${offer.to.firstname} ${offer.to.lastname}`
+        ownerName.innerHTML = `${offer.owner.firstname} ${offer.owner.lastname}`
         ownerName.style.fontWeight = "bold"
 
         const ownerStreet = document.createElement("div")
-        ownerStreet.innerHTML = offer.to.street
+        ownerStreet.innerHTML = offer.owner.street
 
         const ownerZip = document.createElement("div")
-        ownerZip.innerHTML = offer.to.zip
+        ownerZip.innerHTML = offer.owner.zip
 
         div.append(to, ownerName, ownerStreet, ownerZip)
       })
 
-      const offerTitle = new Field(".title")
+      const offerTitle = new DivField("title")
       .withType(div => {
         const title = document.createElement("h1")
         title.style.margin = "21px 0"
@@ -151,7 +133,7 @@
       })
 
 
-      const offerMeta = new Field(".offer-meta")
+      const offerMeta = new DivField("offer-meta")
       .withType(div => {
         div.style.margin = "21px 0"
         const offerId = document.createElement("div")
@@ -169,16 +151,22 @@
         div.append(offerId, offerCreateAt, offerExpiresAt, ownerId)
       })
 
-      const offerSubTitle = new Field(".sub-title")
+      const offerSubTitle = new DivField("sub-title")
       .withType(div => {
-        const title = document.createElement("p")
-        title.innerHTML = "Unsere digitale Analyse hat folgendes Energiekonzept für Sie ergeben:"
-        div.append(title)
+        div.style.margin = "34px 0"
+
+        const offerMessage = document.createElement("p")
+        offerMessage.innerHTML = "Es handelt sich hierbei lediglich um ein Angebot. Wollen Sie das Angebot annehmen, entsteht erst ein Vertrag, nachdem unser Bauleiter die Anfrage zu Ihrer Sicherheit geprüft hat."
+        div.append(offerMessage)
+
       })
 
 
-      const offerOptions = new Field(".offer-options")
+      const offerOptions = new DivField("offer-options")
       .withType(div => {
+        const title = document.createElement("div")
+        title.innerHTML = "Unsere digitale Analyse hat folgendes Energiekonzept für Sie ergeben:"
+        div.append(title)
 
         const tableHeader = document.createElement("div")
         tableHeader.style.display = "flex"
@@ -242,66 +230,26 @@
       })
 
 
-
-      const message = new Field(".message")
+      const producerMessage = new DivField("producer-message")
       .withType(div => {
-        const message = document.createElement("div")
-        // message.style.margin = "55px 0"
-        message.innerHTML = /*html*/`
-        <p>Sehr geehrte/r Kundin/Kunde,</p>
-          <p>
-            wir sind Ihnen schon jetzt für Ihr Vertrauen und Ihr Interesse an
-            unserem BPE-Solar Hybrid System, zur Erzielung einer autarken
-            Energierevolution, dankbar. Mit der BPE-Hybrid-Energie-Lösung
-            profitieren Sie von kostenloser Umweltwärme und einem
-            unvergleichlichen Heizkomfort in Bezug auf Ihr Auftragsobjekt.
-            Unsere innovative Wärmepumpe ermöglicht es, in kälteren Perioden als
-            Heizsystem und an heißen Tagen als Kühlgerät zu wirken.
-          </p>
-          <p>
-            Es handelt sich hierbei lediglich um ein Angebot. Wollen Sie das
-            Angebot annehmen, entsteht erst ein Vertrag, nachdem der Bauleiter
-            die Anfrage zu Ihrer Sicherheit geprüft hat.
-          </p>
-        `
-        div.append(message)
-
+        const producerMessage = document.createElement("p")
+        producerMessage.style.margin = "34px 0"
+        producerMessage.innerHTML = offer.producer.message
+        div.append(producerMessage)
       })
 
-
-
-
-
-      const note = new Field(".note")
+      const note = new DivField("note")
       .withType(div => {
         const message = document.createElement("div")
         message.style.margin = "21px 0"
         message.innerHTML = /*html*/`
-          <p>Bitte beachten:</p>
-          <p>
-            Befindet sich die Stellfläche des Gerüsts auf einem öffentlichen
-            Gehweg, muss der Kunde die Genehmigung vorerst bei der Stadt
-            beantragen. Bei einer Freileitung muss der Kunde die Isolierung der
-            Stromführung zur Freileitung beim Netzbetreiber vor der Installation
-            beantragen. Wenn das Gebäude Denkmal- oder Ensemblegeschützt ist,
-            muss der Kunde den Bau eines Energiesystems vorerst bei der Stadt
-            beantragen. Existiert kein W-Lan Signal in der Nähe des
-            Stromspeichers, muss der Kunde eine Internetverbindung ermöglichen.
-            Befindet sich vor Ort kein Hausanschlusskasten (HAK), muss der Kunde
-            diesen vorerst von einer Fachfirma installieren lassen. Bei mehr als
-            3 Stromzählern muss der Kunde ein, von diesem Angebot unabhängiges,
-            zusätzliches Angebot für ein individuelles Zählerkonzept anfragen.
-            Besitzt der Kunde keine Ersatzziegel ist es seine Aufgabe, diese zu
-            besorgen. Will der Kunde die Module nicht auf dem Haus anbringen, in
-            dem der Speicher ist, müssen die Erdarbeiten im Vorfeld vom Kunden
-            erledigt werden.
-          </p>
+          <p style="font-weight: bold; font-size: 21px;">Bitte beachten:</p>
+          <p>${offer.producer.note}</p>
         `
         div.append(message)
-
       })
 
-      const priceField = new Field(".price")
+      const priceField = new DivField("price")
       .withType(div => {
 
         const price = Helper.sumSelectedPrice(offer.options)
@@ -312,7 +260,6 @@
 
         const priceContainer = document.createElement("div")
         priceContainer.style.width = "300px"
-        // priceContainer.style.margin = "34px 0"
 
         const priceTitle = document.createElement("div")
         priceTitle.innerHTML = "Preisübersicht"
@@ -380,11 +327,11 @@
         div.append(alignContainer)
       })
 
-      const signField = new Field(".sign")
+      const signField = new DivField("sign")
       .withType(div => {
         div.innerHTML = /*html*/`
           <p>..........................................................................</p>
-          <p>Unterschrift ${offer.to.firstname} ${offer.to.lastname}</p>
+          <p>Unterschrift ${offer.owner.firstname} ${offer.owner.lastname}</p>
         `
       })
 

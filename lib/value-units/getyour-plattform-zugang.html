@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plattform Zugänge</title>
+
+
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>Getyour Plattform Zugänge</title>
 
     <style>
       body {
@@ -31,10 +34,10 @@
     <footer></footer>
 
     <script type="module">
-      import { HeaderField } from "../../js/HeaderField.js"
-      import { InfoField } from "../../js/InfoField.js"
-      import { AnchorField } from "../../js/AnchorField.js"
-      import { FooterField } from "../../js/FooterField.js"
+      import { HeaderField } from "/js/HeaderField.js"
+      import { InfoField } from "/js/InfoField.js"
+      import { DivField } from "/js/DivField.js"
+      import { FooterField } from "/js/FooterField.js"
 
       const headerField = new HeaderField()
       .withType(header => {
@@ -42,7 +45,7 @@
       })
       .withImage(img => {
         img.style.width = "89px"
-        img.src = "../../public/getyour-logo.svg"
+        img.src = "/public/getyour-logo.svg"
         img.alt = "Getyour Plattform Logo"
       })
       .build()
@@ -57,11 +60,13 @@
       .withWarning("Du musst dich registrieren, um die Plattform benutzen zu können. Bitte wähle einer der folgenden Zugänge.")
 
 
-      new AnchorField("operator-entry")
-      .withType((a) => {
+      new DivField("operator-entry")
+      .withType(div => {
+        const a = document.createElement("a")
         a.innerHTML = "Anlagenbetreiber"
         a.style.margin = "34px"
         a.href = "/felix/shs/funnel/qualifizierung/"
+        div.append(a)
       })
 
       const footerField = new FooterField()

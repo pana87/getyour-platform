@@ -3,8 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, width=device-width" />
-    <title>SHS Funnel</title>
 
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>SHS Funnel Abfrage Haus</title>
 
     <style>
       body {
@@ -21,35 +22,106 @@
 
     <header></header>
 
+
     <h1 class="house-title"></h1>
-    <div class="house-funnel"></div>
+
+    <div class="hausBaujahr"></div>
+    <div class="hausUmbau"></div>
+    <div class="hausEtage"></div>
+    <div class="hausFlaeche"></div>
+    <div class="hausKabelfuehrungDC"></div>
+    <div class="hausVerkabelungDC"></div>
+    <div class="hausAussenfasadeGedaemmt"></div>
+    <div class="hausDenkmal"></div>
+    <div class="hausEnergieVorhanden"></div>
+    <div class="hausEnergieSystemEntsorgen"></div>
+    <div class="hausLager"></div>
+    <div class="hausDacheindeckung"></div>
+    <div class="hausUKUeberstand"></div>
+    <div class="hausAnderesHausAbstand"></div>
+    <div class="hausEntlueftungsrohre"></div>
+    <div class="hausBlitzschutzanlage"></div>
+    <div class="hausDachaufbauten"></div>
+
 
     <h2 class="rafter-spacing-title"></h2>
-    <div class="rafter-spacing-funnel"></div>
+
+    <div class="hausAbstandSparren"></div>
+    <div class="hausSparrenBreite"></div>
+    <div class="hausSparrenHoehe"></div>
+    <div class="hausMaterialSparren"></div>
+
 
     <h2 class="scaffold-title"></h2>
-    <div class="scaffold-funnel"></div>
+
+    <div class="hausGeruestOeffentlich"></div>
+    <div class="hausGeruestSelbstGestellt"></div>
+    <div class="hausVerankerung"></div>
+    <div class="hausGeruestAufstellungNord"></div>
+    <div class="hausGeruestAufstellungSued"></div>
+    <div class="hausGeruestAufstellungOst"></div>
+    <div class="hausGeruestAufstellungWest"></div>
+
 
     <h2 class="building-dimensions-title"></h2>
-    <div class="building-dimensions-funnel"></div>
+
+    <div class="hausBreite"></div>
+    <div class="hausLaenge"></div>
+    <div class="hausGeruestAnzahl"></div>
+    <div class="hausGesamtGeruestFlaeche"></div>
+
 
     <h2 class="flatroof-title"></h2>
-    <div class="flatroof-funnel"></div>
+
+    <div class="hausAttikaVorhanden"></div>
+    <div class="hausAttikaBreite"></div>
+    <div class="hausAttikaHoehe"></div>
+    <div class="hausGradzahlFlachdach"></div>
+    <div class="hausFlachdachNeigungBekannt"></div>
+
 
     <h2 class="alignment-flatroof-title"></h2>
-    <div class="alignment-flatroof-funnel"></div>
+
+    <div class="hausFlachdachNordAusrichtung"></div>
+    <div class="hausFlachdachOstAusrichtung"></div>
+    <div class="hausFlachdachSuedAusrichtung"></div>
+    <div class="hausFlachdachWestAusrichtung"></div>
+
 
     <h2 class="trapezoid-roof-title"></h2>
-    <div class="trapezoid-roof-funnel"></div>
+
+    <div class="hausAluStaerke"></div>
+    <div class="hausStahlStaerke"></div>
+    <div class="hausIstIcopal"></div>
+
 
     <h2 class="house-dimensions-title"></h2>
-    <div class="house-dimensions-funnel"></div>
+
+    <div class="hausTraufhoehe"></div>
+    <div class="hausDachBreite"></div>
+    <div class="hausDachLaenge"></div>
+    <div class="hausFirstHoehe"></div>
+    <div class="hausDachAusrichtung"></div>
+    <div class="hausDachneigung"></div>
+
 
     <h2 class="upload-title"></h2>
-    <div class="upload-funnel"></div>
+
+    <div class="hausFrontBild"></div>
+    <div class="hausSuedAnsichtBild"></div>
+    <div class="hausGeruestStandortBild"></div>
+    <div class="hausOrtgangBild"></div>
+    <div class="hausSparrenAnsichtBild"></div>
+
 
     <h2 class="brick-title"></h2>
-    <div class="brick-funnel"></div>
+
+    <div class="hausZiegelBild"></div>
+    <div class="hausDeckmassLaenge"></div>
+    <div class="hausDeckmassBreite"></div>
+    <div class="hausErsatzZiegel"></div>
+
+
 
     <div class="save-and-proceed-button"></div>
 
@@ -57,28 +129,29 @@
 
 
     <script type="module">
-      import { HeaderField } from "../../../../js/HeaderField.js"
-      import { FunnelField } from "../../../../js/FunnelField.js"
-      import { CheckboxField } from "../../../../js/CheckboxField.js"
-      import { DivField } from "../../../../js/DivField.js"
-      import { FileField } from "../../../../js/FileField.js"
-      import { Helper } from "../../../../js/Helper.js"
-      import { NumberField } from "../../../../js/NumberField.js"
-      import { SelectionField } from "../../../../js/SelectionField.js"
+      import { HeaderField } from "/js/HeaderField.js"
+      import { CheckboxField } from "/js/CheckboxField.js"
+      import { DivField } from "/js/DivField.js"
+      import { FileField } from "/js/FileField.js"
+      import { Helper } from "/js/Helper.js"
+      import { NumberField } from "/js/NumberField.js"
+      import { SelectionField } from "/js/SelectionField.js"
+      import { Request } from "/js/Request.js"
 
-      const funnel = Helper.getFunnelByStorageName("shsFunnel")
-      // if (funnel === undefined) {
-      //   window.location.assign("/felix/shs/funnel/qualifizierung/")
-      //   throw new Error("funnel not found")
-      // }
+      const funnel = Helper.findFunnel(funnel => funnel.owner.id === Request.localStorageId())
+      if (funnel === undefined) {
+        window.location.assign("/felix/shs/funnel/qualifizierung/")
+        throw new Error("funnel not found")
+      }
+
 
       const headerField = new HeaderField()
       .withImage(img => {
-        img.src = "../../public/shslogo.png"
+        img.src = "/felix/shs/public/shslogo.png"
         img.alt = "SHS Express Logo"
         img.style.cursor = "pointer"
         img.style.width = "144px"
-        img.addEventListener("click", async() => await Helper.redirectOperatorToChecklist())
+        img.addEventListener("click", async() => await Helper.redirectUser())
       })
       .withType(header => {
         header.style.position = "fixed"
@@ -86,6 +159,7 @@
         header.style.left = "0"
         header.style.zIndex = "1"
         header.style.backgroundColor = "white"
+        header.style.width = "100%"
       })
       .withNavigation([
         {active: true, name: "Haus", onclick: async() => await checkAndProceed(funnel.path.house)},
@@ -103,84 +177,489 @@
       })
 
 
-      const houseFunnel = new FunnelField("house-funnel")
-      .withFields([
-        {class: "hausBaujahr",                  type: "number", withLabel: "Baujahr", withType: hausBaujahr},
-        {class: "hausUmbau",                    type: "number", withLabel: "Letzte Renovierung oder Umbau", withType: hausUmbau},
-        {class: "hausEtage",                    type: "select", withLabel: "Bewohnte Etagen", withOptions: ["Keller", "Erdgeschoss", "1. Obergeschoss", "Dachgeschoss", "Andere"]},
-        {class: "hausFlaeche",                  type: "number", withLabel: "Wohnfläche (qm)", withType: hausFlaeche},
-        {class: "hausKabelfuehrungDC",          type: "select", withLabel: "DC-Kabelführung durch Dachhaut möglich", withOptions: ["Nein", "Ja"]},
-        {class: "hausVerkabelungDC",            type: "select", withLabel: "DC-Kabelführung an Außenfassade möglich", withOptions: ["Nein", "Ja"]},
-        {class: "hausAussenfasadeGedaemmt",     type: "select", withLabel: "Ist die Außenfassade gedämmt", withOptions: ["Nein", "Ja"]},
-        {class: "hausDenkmal",                  type: "select", withLabel: "Einschränkungen durch Denkmal- oder Ensembleschutz", withOptions: ["Nein", "Ja"]},
-        {class: "hausEnergieVorhanden",         type: "select", withLabel: "Energiesystem vorhanden", withOptions: ["Nein", "Ja, ich habe schon eine Photovoltaikanlage", "Ja, ich habe schon eine Wärmepumpe", "Ja, ich habe schon eine Solarthermie", "Ja, ich habe schon ein Stromspeicher"], withType: selectIsMultiple, onChange: hausEnergieVorhandenOnChange, onWindowLoaded: hausEnergieVorhandenOnDomContentLoaded},
-        {class: "hausEnergieSystemEntsorgen",   type: "select", withLabel: "Soll das alte Energiesystem von uns entsorgt werden", withOptions: ["Nein", "Ja"]},
-        {class: "hausLager",                    type: "select", withLabel: "Lagermöglichkeit vorhanden", withOptions: ["Ja", "Nein", "Nicht bei mir zu Hause"]},
-        {class: "hausDacheindeckung",           type: "select", withLabel: "Die Dacheindeckung ist..", withOptions: ["gelegt", "geschraubt", "geklebt", "gebohrt"], withType: q6is4},
-        {class: "hausUKUeberstand",             type: "select", withLabel: "Die Arten der Ausführung für die UK sind mir bekannt", withOptions: ["Nein", "Ja"], withRequired: 1},
-        {class: "hausAnderesHausAbstand",       type: "select", withLabel: "Mir sind die Vorgaben der Landesbauordnung hinsichtlich Nachbargrundstück bekannt", withOptions: ["Nein", "Ja"], withType: q7not0, withRequired: 1},
-        {class: "hausEntlueftungsrohre",        type: "select", withLabel: "Be-/ Entlüftungsrohre vorhanden", withOptions: ["Nein", "Ja"]},
-        {class: "hausBlitzschutzanlage",        type: "select", withLabel: "Blitzschutzanlage vorhanden", withOptions: ["Nein", "Ja"]},
-        {class: "hausBesonderheiten",           type: "select", withLabel: "Sind “Dachaufbauten” angebracht", withOptions: ["Nein", "SAT Antennen", "Blitzableiter", "Schneefanggitter", "Dachfenster", "Dachgauben", "Freileitung", "Andere"]},
-      ])
 
-
-      function hausBaujahr(input) {
-        input.min = "1800"
-        input.max = "2100"
-        input.placeholder = "1922"
-        input.required = true
-      }
-
-      function hausUmbau(input) {
-        input.min = "1800"
-        input.max = "2100"
-        input.placeholder = "1962"
-        input.required = true
-      }
-
-      function hausFlaeche(input) {
-        input.min = "0"
-        input.max = "10000"
-        input.placeholder = "in qm"
-        input.required = true
-      }
-
-      function hausEnergieVorhandenOnDomContentLoaded(event) {
-        document.querySelectorAll("select[id='hausEnergieVorhanden']").forEach(select => {
-          if (select.value === "Nein") document.querySelectorAll("select[id='hausEnergieSystemEntsorgen']").forEach(select => select.disabled = true)
+      const hausBaujahr = new NumberField("hausBaujahr")
+      .withLabel(label => label.innerHTML = "Baujahr")
+      .withType(number => {
+        number.placeholder = "1922"
+        number.required = true
+      })
+      .onInfoClick((event) => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Das Baujahr eines Hauses kann den Monteuren Aufschluss darüber geben, welche Materialien und Technologien bei der Konstruktion verwendet wurden. Dazu gehören Dinge wie die Dämmung, die Bauweise und die Art der Fenster. Das kann sich darauf auswirken, welche Art von Energiesystem am besten geeignet ist. Zum Beispiel kann ein älteres Haus möglicherweise nicht genug Dämmung haben, um eine Wärmepumpe effektiv zu nutzen. In diesem Fall könnte eine Solarthermie eine bessere Option sein."
+          }
         })
-      }
+      })
+      .onInput(async() => {
+        hausBaujahr.withStorage(value => {
+          funnel.value[hausBaujahr.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausBaujahr.withStorage(value => {
+        funnel.value[hausBaujahr.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function selectIsMultiple(select) {
-        select.multiple = true
-      }
 
-      function hausEnergieVorhandenOnChange(event) {
+      const hausUmbau = new NumberField("hausUmbau")
+      .withLabel(label => label.innerHTML = "Letzte Renovierung oder Umbau")
+      .withType(number => {
+        number.placeholder = "1962"
+        number.required = true
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Den Zeitpunkt des letzten Umbaus eines Hauses ist wichtig zu wissen, weil es Aufschluss darüber gibt, welche Änderungen an der Struktur des Hauses vorgenommen wurden. Insbesondere wenn es um Energiesysteme geht, kann eine Änderung der Struktur des Hauses die Art und Weise beeinflussen, wie die Systeme funktionieren. Zum Beispiel kann die Installation neuer Fenster die Wärmeverteilung des Hauses beeinflussen, was Auswirkungen auf die Effektivität einer Wärmepumpe hat."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausUmbau.withStorage(value => {
+          funnel.value[hausUmbau.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausUmbau.withStorage(value => {
+        funnel.value[hausUmbau.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const hausEtage = new SelectionField("hausEtage")
+      .withLabel(label => label.innerHTML = "Bewohnte Etagen")
+      .withOptions(["Keller", "Erdgeschoss", "1. Obergeschoss", "Dachgeschoss", "Andere"])
+      .withType(select => select.multiple = true)
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Die bewohnte Etage eines Hauses gibt an, auf welcher Ebene des Hauses die Bewohner leben. Dies ist wichtig, weil die Wärmeabgabe in verschiedenen Stockwerken des Hauses unterschiedlich sein kann. Wenn die Bewohner hauptsächlich im Erdgeschoss leben, kann eine Solarthermieanlage für die Warmwasserversorgung eine bessere Option sein als eine Wärmepumpe. Wenn sich jedoch die meisten Bewohner in den oberen Stockwerken aufhalten, kann eine Wärmepumpe für die Heizung des Hauses effektiver sein."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausEtage.withStorage(options => {
+          funnel.value[hausEtage.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausEtage.withStorage(options => {
+        funnel.value[hausEtage.name] = options
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausFlaeche = new NumberField("hausFlaeche")
+      .withLabel(label => label.innerHTML = "Wohnfläche (qm)")
+      .withType(number => {
+        number.min = "0"
+        number.placeholder = "in qm"
+        number.required = true
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Die gesamte Wohnfläche eines Hauses gibt an, wie groß das Haus ist und wie viel Energie benötigt wird, um es zu beheizen und zu kühlen. Die Größe des Hauses bestimmt auch, wie viele Photovoltaikpaneele installiert werden müssen, um den Energiebedarf zu decken."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausFlaeche.withStorage(value => {
+          funnel.value[hausFlaeche.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausFlaeche.withStorage(value => {
+        funnel.value[hausFlaeche.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausKabelfuehrungDC = new SelectionField("hausKabelfuehrungDC")
+      .withLabel(label => label.innerHTML = "DC-Kabelführung durch Dachhaut möglich")
+      .withOptions(["Nein", "Ja"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn Sie ein Energiesystem wie Photovoltaik mit Speicher, Wärmepumpen und Solarthermie installieren möchten, müssen Sie möglicherweise ein Kabel durch die Dachhaut führen, um das System mit dem Stromnetz des Hauses zu verbinden. Bei der Installation gibt es verschiedene Faktoren, die berücksichtigt werden müssen, wie die Art des Dachs, die Dicke der Dachhaut und ob es bereits Öffnungen für Kabel gibt."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausKabelfuehrungDC.withStorage(options => {
+          funnel.value[hausKabelfuehrungDC.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausKabelfuehrungDC.withStorage(options => {
+        funnel.value[hausKabelfuehrungDC.name] = options
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausVerkabelungDC = new SelectionField("hausVerkabelungDC")
+      .withLabel(label => label.innerHTML = "DC-Kabelführung an Außenfassade möglich")
+      .withOptions(["Nein", "Ja"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "In der Regel müssen bei der Installation von Solaranlagen oder Wärmepumpen Kabel und Leitungen verlegt werden, um die verschiedenen Komponenten miteinander zu verbinden. Oftmals ist es notwendig, diese Kabel an der Außenfassade des Gebäudes entlang zu führen, um den kürzesten und einfachsten Weg zur Stromversorgung oder Wärmeübertragung zu gewährleisten. Es gibt jedoch bestimmte Faktoren, die berücksichtigt werden müssen, um sicherzustellen, dass das Kabel sicher an der Außenfassade des Gebäudes befestigt werden kann. Dazu gehört die Art und der Zustand der Außenfassade, sowie lokale Vorschriften und Bestimmungen."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausVerkabelungDC.withStorage(options => {
+          funnel.value[hausVerkabelungDC.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausVerkabelungDC.withStorage(options => {
+        funnel.value[hausVerkabelungDC.name] = options
+        Helper.setFunnel(funnel)
+      })
+
+
+      const hausAussenfasadeGedaemmt = new SelectionField("hausAussenfasadeGedaemmt")
+      .withLabel(label => label.innerHTML = "Ist die Außenfassade gedämmt")
+      .withOptions(["Nein", "Ja"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn eine Außenfassade nicht gedämmt ist, kann dies zu einem höheren Energieverbrauch und höheren Energiekosten führen, da Wärme im Winter schneller entweichen kann und das Gebäude im Sommer schneller aufheizt. Bei einem gut gedämmten Gebäude könnte beispielsweise eine kleinere Heizungs- oder Klimaanlage ausreichen, um den gewünschten Komfort zu erreichen, während bei einem nicht gedämmten Gebäude größere oder zusätzliche Geräte benötigt werden könnten, um den gleichen Effekt zu erzielen."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausAussenfasadeGedaemmt.withStorage(options => {
+          funnel.value[hausAussenfasadeGedaemmt.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausAussenfasadeGedaemmt.withStorage(options => {
+        funnel.value[hausAussenfasadeGedaemmt.name] = options
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausDenkmal = new SelectionField("hausDenkmal")
+      .withLabel(label => label.innerHTML = "Einschränkungen durch Denkmal- oder Ensembleschutz")
+      .withOptions(["Nein", "Ja"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn Ihr Haus unter Denkmal- oder Ensembleschutz steht, gibt es möglicherweise Einschränkungen bei der Gestaltung und den Arbeiten am Gebäude. Dies kann auch die Installation von Energiesystemen betreffen. In einigen Fällen müssen die geplanten Arbeiten von einem Denkmalpfleger genehmigt werden. Dies kann bedeuten, dass das geplante Energiesystem spezielle Anforderungen erfüllen muss oder dass die Installation nur an bestimmten Stellen erlaubt ist."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausDenkmal.withStorage(options => {
+          funnel.value[hausDenkmal.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausDenkmal.withStorage(options => {
+        funnel.value[hausDenkmal.name] = options
+        Helper.setFunnel(funnel)
+      })
+
+
+      const hausEnergieVorhanden = new SelectionField("hausEnergieVorhanden")
+      .withLabel(label => label.innerHTML = "Energiesystem vorhanden")
+      .withType(select => select.multiple = true)
+      .withOptions(["Nein", "Ja, ich habe schon eine Photovoltaikanlage", "Ja, ich habe schon eine Wärmepumpe", "Ja, ich habe schon eine Solarthermie", "Ja, ich habe schon ein Stromspeicher"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn bereits ein Energiesystem installiert ist, müssen wir sicherstellen, dass das Stromnetz genügend Kapazität hat, um das neue Energiesystem hinzuzufügen. Es ist auch wichtig zu überprüfen, ob das vorhandene Energiesystem mit dem neuen Energiesystem kompatibel ist. In einigen Fällen ist es möglich, verschiedene Energiesysteme zu kombinieren, aber in anderen Fällen müssen sie getrennt arbeiten. Wenn das vorhandene Energiesystem ersetzt wird, müssen wir es entfernen, bevor das neue System installiert werden kann."
+          }
+        })
+      })
+      .onWindowLoad(event => {
+        document.querySelectorAll("select[class='hausEnergieVorhanden']").forEach(select => {
+          if (select.value === "Nein") document.querySelectorAll("select[class='hausEnergieSystemEntsorgen']").forEach(select => select.disabled = true)
+        })
+      })
+      .onChange(event => {
         if (event.target.value === "Nein") {
-          document.querySelectorAll("select[id='hausEnergieSystemEntsorgen']").forEach(select => select.disabled = true)
+          document.querySelectorAll("select[class='hausEnergieSystemEntsorgen']").forEach(select => select.disabled = true)
         }
         if (event.target.value !== "Nein") {
-          document.querySelectorAll("select[id='hausEnergieSystemEntsorgen']").forEach(select => select.disabled = false)
+          document.querySelectorAll("select[class='hausEnergieSystemEntsorgen']").forEach(select => select.disabled = false)
         }
-      }
+      })
+      .onInput(async() => {
+        hausEnergieVorhanden.withStorage(options => {
+          funnel.value[hausEnergieVorhanden.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausEnergieVorhanden.withStorage(options => {
+        funnel.value[hausEnergieVorhanden.name] = options
+        Helper.setFunnel(funnel)
+      })
 
-      function q6is4(select) {
+
+
+
+
+      const hausEnergieSystemEntsorgen = new SelectionField("hausEnergieSystemEntsorgen")
+      .withLabel(label => label.innerHTML = "Soll das alte Energiesystem von uns entsorgt werden")
+      .withOptions(["Nein", "Ja"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn das alte System entfernt werden muss, müssen wir sicherstellen, dass dies sicher und umweltgerecht geschieht. Wir müssen auch sicherstellen, dass alle notwendigen Schritte eingeleitet werden, um das alte System abzuschalten."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausEnergieSystemEntsorgen.withStorage(options => {
+          funnel.value[hausEnergieSystemEntsorgen.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausEnergieSystemEntsorgen.withStorage(options => {
+        funnel.value[hausEnergieSystemEntsorgen.name] = options
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausLager = new SelectionField("hausLager")
+      .withLabel(label => label.innerHTML = "Lagermöglichkeit vorhanden")
+      .withOptions(["Ja", "Nein", "Nicht bei mir zu Hause"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Eine Lagermöglichkeit ist notwendig, um die verschiedenen Komponenten des Systems während der Installation zwischenzulagern. Sie wissen genau, wann die Komponenten geliefert werden und können sicherstellen, dass sie vor Ort sind, wenn sie benötigt werden."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausLager.withStorage(options => {
+          funnel.value[hausLager.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausLager.withStorage(options => {
+        funnel.value[hausLager.name] = options
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausDacheindeckung = new SelectionField("hausDacheindeckung")
+      .withLabel(label => label.innerHTML = "Die Dacheindeckung ist..")
+      .withOptions(["gelegt", "geschraubt", "geklebt", "gebohrt"])
+      .withType(select => {
         select.disabled = true
         const q6 = funnel.value.q6
         if (q6 === 4) {
           select.disabled = false
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Einige Montagesysteme erfordern spezielle Befestigungen, die möglicherweise nicht mit allen Arten von Dachziegeln kompatibel sind. Es ist auch wichtig zu berücksichtigen, dass einige Befestigungsmethoden die Dachhaut beschädigen können. Wenn die Ziegel gemauert oder geklebt sind, kann es schwieriger sein, das Energiesystem sicher zu befestigen, ohne die Dachhaut zu beschädigen."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausDacheindeckung.withStorage(options => {
+          funnel.value[hausDacheindeckung.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausDacheindeckung.withStorage(options => {
+        funnel.value[hausDacheindeckung.name] = options
+        Helper.setFunnel(funnel)
+      })
 
-      function q7not0(select) {
+
+      const hausUKUeberstand = new SelectionField("hausUKUeberstand")
+      .withLabel(label => label.innerHTML = "Die Arten der Ausführung für die UK sind mir bekannt")
+      .withOptions(["Nein", "Ja"])
+      .withRequired(1)
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/ausfuehrunguk.svg"
+            img.alt = "Unterkonstruktion Ausführung"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn die Unterkonstruktion beispielsweise aus Holz besteht, muss sichergestellt werden, dass es stabil genug ist, um das Gewicht der Energiesysteme zu tragen. Auch die Befestigungsmethoden müssen entsprechend ausgewählt werden. Bei einer Stahlbetonkonstruktion sind andere Befestigungsmethoden erforderlich als bei einer Holzkonstruktion."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausUKUeberstand.withStorage(options => {
+          funnel.value[hausUKUeberstand.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausUKUeberstand.withStorage(options => {
+        funnel.value[hausUKUeberstand.name] = options
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausAnderesHausAbstand = new SelectionField("hausAnderesHausAbstand")
+      .withLabel(label => label.innerHTML = "Mir sind die Vorgaben der Landesbauordnung hinsichtlich Nachbargrundstück bekannt")
+      .withOptions(["Nein", "Ja"])
+      .withRequired(1)
+      .withType(select => {
         const q7 = funnel.value.q7
         if (q7 !== 0) {
           select.disabled = true
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Die Landesbauordnung regelt in Deutschland die Vorschriften für den Bau von Gebäuden und Anlagen. Diese Vorschriften umfassen auch Regelungen zum Schutz der Nachbarschaft und des öffentlichen Raums. Wenn das geplante System in der Nähe der Grundstücksgrenze des Nachbarn installiert wird, müssen die Abstandsflächen und Grenzabstände eingehalten werden, um mögliche Konflikte zu vermeiden. Mehr Informationen finden Sie bei ihrer Landesbauordnung."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausAnderesHausAbstand.withStorage(options => {
+          funnel.value[hausAnderesHausAbstand.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausAnderesHausAbstand.withStorage(options => {
+        funnel.value[hausAnderesHausAbstand.name] = options
+        Helper.setFunnel(funnel)
+      })
 
-      houseFunnel.withStorage(funnel.storage).buildFields()
+
+
+      const hausEntlueftungsrohre = new SelectionField("hausEntlueftungsrohre")
+      .withLabel(label => label.innerHTML = "Be-/ Entlüftungsrohre vorhanden")
+      .withOptions(["Nein", "Ja"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn Be- und Entlüftungsrohre vorhanden sind, muss der Bauprofi diese in seine Planung einbeziehen und möglicherweise entsprechende Anpassungen vornehmen."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausEntlueftungsrohre.withStorage(options => {
+          funnel.value[hausEntlueftungsrohre.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausEntlueftungsrohre.withStorage(options => {
+        funnel.value[hausEntlueftungsrohre.name] = options
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausBlitzschutzanlage = new SelectionField("hausBlitzschutzanlage")
+      .withLabel(label => label.innerHTML = "Blitzschutzanlage vorhanden")
+      .withOptions(["Nein", "Ja"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn das Gebäude eine Blitzschutzanlage hat, müssen wir bei der Installation des Energiesystems sicherstellen, dass wir keine Komponenten in der Nähe der Ableitungen oder des Blitzschutzsystems platzieren, da dies zu Störungen oder Schäden führen kann. Es kann auch erforderlich sein, zusätzliche Schutzmaßnahmen zu ergreifen, um das Energiesystem vor Überspannungsschäden zu schützen."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausBlitzschutzanlage.withStorage(options => {
+          funnel.value[hausBlitzschutzanlage.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausBlitzschutzanlage.withStorage(options => {
+        funnel.value[hausBlitzschutzanlage.name] = options
+        Helper.setFunnel(funnel)
+      })
+
+
+      const hausDachaufbauten = new SelectionField("hausDachaufbauten")
+      .withLabel(label => label.innerHTML = "Sind “Dachaufbauten” angebracht")
+      .withType(select => select.multiple = true)
+      .withOptions(["Nein", "SAT Antennen", "Blitzableiter", "Schneefanggitter", "Dachfenster", "Dachgauben", "Freileitung", "Andere"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Um eine akkurate Planung und Platzierung von Energiesystemen zu gewährleisten und sicherzustellen,ist es wichtig zu wissen, ob Dachaufbauten wie Schneefanggitter oder Satellitenschüsseln vorhanden sind, sodass alle Komponenten optimal und sicher funktionieren können."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausDachaufbauten.withStorage(options => {
+          funnel.value[hausDachaufbauten.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausDachaufbauten.withStorage(options => {
+        funnel.value[hausDachaufbauten.name] = options
+        Helper.setFunnel(funnel)
+      })
 
 
 
@@ -190,34 +669,157 @@
         title.style.fontWeight = "normal"
       })
 
-      const rafterSpacingFunnel = new FunnelField("rafter-spacing-funnel")
-      .withFields([
-        {class: "hausAbstandSparren",                  type: "number", withLabel: "Abstand (a) in cm", withType: q5is2orQ5is4},
-        {class: "hausSparrenBreite",                  type: "number", withLabel: "Breite (b) in cm", withType: q5is2orQ5is4},
-        {class: "hausSparrenHoehe",                  type: "number", withLabel: "Höhe (c) in cm", withType: q5is2orQ5is4},
-        {class: "hausMaterialSparren",                  type: "select", withLabel: "Material der Sparren", withType: q5is2orQ5is4Select, withOptions: ["Holz", "Metall", "Sonstiges"]},
-      ])
 
-
-      function q5is2orQ5is4(input) {
-        input.min = 0
-        input.max = 100
-        input.placeholder = "in cm"
-        input.required = true
+      const hausAbstandSparren = new NumberField("hausAbstandSparren")
+      .withLabel(label => label.innerHTML = "Abstand (a) in cm")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in cm"
+        number.required = true
         const q5 = funnel.value.q5
         if (q5 === 2 || q5 === 4) {
-          input.disabled = true
+          number.disabled = true
+          number.required = false
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/sparrenabstand.svg"
+            img.alt = "Sparrenabstand"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Der Sparrenabstand bezieht sich auf den Abstand zwischen den Dachsparren, die das Dach des Hauses tragen. Dieser Abstand kann je nach Haus unterschiedlich sein und kann sich auf die Größe und Anordnung der Solarpanels, des Speichers und anderer Komponenten des Energiesystems auswirken. Wenn der Sparrenabstand zu groß ist, kann dies bedeuten, dass weniger Solarpanels auf dem Dach installiert werden können oder dass größere Panels benötigt werden, um die gleiche Menge an Energie zu erzeugen. Wenn der Sparrenabstand zu klein ist, kann dies die Installation von Solarmodulen und anderen Komponenten erschweren oder sogar verhindern."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausAbstandSparren.withStorage(value => {
+          funnel.value[hausAbstandSparren.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausAbstandSparren.withStorage(value => {
+        funnel.value[hausAbstandSparren.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function q5is2orQ5is4Select(select) {
+
+      const hausSparrenBreite = new NumberField("hausSparrenBreite")
+      .withLabel(label => label.innerHTML = "Breite (b) in cm")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in cm"
+        number.required = true
+        const q5 = funnel.value.q5
+        if (q5 === 2 || q5 === 4) {
+          number.disabled = true
+          number.required = false
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/sparrenabstand.svg"
+            img.alt = "Sparrenabstand"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Der Sparrenabstand bezieht sich auf den Abstand zwischen den Dachsparren, die das Dach des Hauses tragen. Dieser Abstand kann je nach Haus unterschiedlich sein und kann sich auf die Größe und Anordnung der Solarpanels, des Speichers und anderer Komponenten des Energiesystems auswirken. Wenn der Sparrenabstand zu groß ist, kann dies bedeuten, dass weniger Solarpanels auf dem Dach installiert werden können oder dass größere Panels benötigt werden, um die gleiche Menge an Energie zu erzeugen. Wenn der Sparrenabstand zu klein ist, kann dies die Installation von Solarmodulen und anderen Komponenten erschweren oder sogar verhindern."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausSparrenBreite.withStorage(value => {
+          funnel.value[hausSparrenBreite.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausSparrenBreite.withStorage(value => {
+        funnel.value[hausSparrenBreite.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const hausSparrenHoehe = new NumberField("hausSparrenHoehe")
+      .withLabel(label => label.innerHTML = "Höhe (c) in cm")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in cm"
+        number.required = true
+        const q5 = funnel.value.q5
+        if (q5 === 2 || q5 === 4) {
+          number.disabled = true
+          number.required = false
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/sparrenabstand.svg"
+            img.alt = "Sparrenabstand"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Der Sparrenabstand bezieht sich auf den Abstand zwischen den Dachsparren, die das Dach des Hauses tragen. Dieser Abstand kann je nach Haus unterschiedlich sein und kann sich auf die Größe und Anordnung der Solarpanels, des Speichers und anderer Komponenten des Energiesystems auswirken. Wenn der Sparrenabstand zu groß ist, kann dies bedeuten, dass weniger Solarpanels auf dem Dach installiert werden können oder dass größere Panels benötigt werden, um die gleiche Menge an Energie zu erzeugen. Wenn der Sparrenabstand zu klein ist, kann dies die Installation von Solarmodulen und anderen Komponenten erschweren oder sogar verhindern."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausSparrenHoehe.withStorage(value => {
+          funnel.value[hausSparrenHoehe.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausSparrenHoehe.withStorage(value => {
+        funnel.value[hausSparrenHoehe.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausMaterialSparren = new SelectionField("hausMaterialSparren")
+      .withLabel(label => label.innerHTML = "Material der Sparren")
+      .withType(select => {
         const q5 = funnel.value.q5
         if (q5 === 2 || q5 === 4) {
           select.disabled = true
         }
-      }
-
-      rafterSpacingFunnel.withStorage(funnel.storage).buildFields()
+      })
+      .withOptions(["Holz", "Metall", "Sonstiges"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Die Anforderungen an die Befestigung von Photovoltaikanlagen auf Holzdächern können unterschiedlich sein, je nachdem, ob die Sparren aus Vollholz oder Sperrholz bestehen. Außerdem können bestimmte Materialien wie Stahl oder Beton zusätzliche Verstärkungen erfordern, um das zusätzliche Gewicht des Energiesystems tragen zu können."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausMaterialSparren.withStorage(options => {
+          funnel.value[hausMaterialSparren.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausMaterialSparren.withStorage(options => {
+        funnel.value[hausMaterialSparren.name] = options
+        Helper.setFunnel(funnel)
+      })
 
 
 
@@ -228,23 +830,182 @@
         title.style.fontWeight = "normal"
       })
 
-      const scaffoldFunnel = new FunnelField("scaffold-funnel")
-      .withFields([
-        {class: "hausGeruestOeffentlich", type: "select", withLabel: "Material der Sparren", withOptions: ["Nein", "Ja"]},
-        {class: "hausGeruestSelbstGestellt", type: "select", withLabel: "Material der Sparren", withOptions: ["Nein", "Ja"]},
-        {class: "hausVerankerung", type: "checkbox", withLabel: "Mir ist bekannt, dass ab einer Traufhöhe von vier Metern eine Verankerung notwendig sein könnte", withType: checkboxRequired, afterCheckbox: "Ja, das ist mir bekannt."},
-        {class: "hausGeruestAufstellungNord", type: "checkbox", withLabel: "Aufstellung", afterCheckbox: "Nordausrichtung"},
-        {class: "hausGeruestAufstellungSued", type: "checkbox", withLabel: "Aufstellung", afterCheckbox: "Südausrichtung"},
-        {class: "hausGeruestAufstellungOst", type: "checkbox", withLabel: "Aufstellung", afterCheckbox: "Ostausrichtung"},
-        {class: "hausGeruestAufstellungWest", type: "checkbox", withLabel: "Aufstellung", afterCheckbox: "Westausrichtung"},
-      ])
 
-      scaffoldFunnel.withStorage(funnel.storage).buildFields()
+      const hausGeruestOeffentlich = new SelectionField("hausGeruestOeffentlich")
+      .withLabel(label => label.innerHTML = "Muss das Gerüst auf öffentlichen Gehweg gestellt werden")
+      .withOptions(["Nein", "Ja"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn das Gerüst auf öffentlichem Grund, beispielsweise auf einem Gehweg oder einer Straße, aufgestellt werden soll, muss dies bei der Planung des Energiesystems berücksichtigt werden. Hierbei gibt es verschiedene rechtliche Vorschriften, die einzuhalten sind, und eventuell müssen Genehmigungen beantragt werden."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausGeruestOeffentlich.withStorage(options => {
+          funnel.value[hausGeruestOeffentlich.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausGeruestOeffentlich.withStorage(options => {
+        funnel.value[hausGeruestOeffentlich.name] = options
+        Helper.setFunnel(funnel)
+      })
 
 
-      function checkboxRequired(checkbox) {
-        checkbox.required = true
-      }
+
+      const hausGeruestSelbstGestellt = new SelectionField("hausGeruestSelbstGestellt")
+      .withLabel(label => label.innerHTML = "Das Montageteam stellt das Gerüst")
+      .withOptions(["Nein", "Ja"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn der Kunde das Gerüst selbst stellt, müssen der Zeitpunkt und die Art des Gerüsts berücksichtigt werden. Das Gerüst muss sicher sein und den Anforderungen der Arbeitssicherheit entsprechen. Außerdem muss das Gerüst möglicherweise entfernt werden, bevor das Energiesystem installiert werden kann. Daher ist es wichtig, frühzeitig zu klären, wer für das Gerüst verantwortlich ist und welche Auswirkungen dies auf die Planung des Energiesystems hat."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausGeruestSelbstGestellt.withStorage(options => {
+          funnel.value[hausGeruestSelbstGestellt.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausGeruestSelbstGestellt.withStorage(options => {
+        funnel.value[hausGeruestSelbstGestellt.name] = options
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausVerankerung = new CheckboxField("hausVerankerung")
+      .withLabel(label => label.innerHTML = "Mir ist bekannt, dass ab einer Traufhöhe von vier Metern eine Verankerung notwendig sein könnte")
+      .withType(checkbox => checkbox.required = true)
+      .withAfterCheckbox(after => after.innerHTML = "Ja, das ist mir bekannt.")
+      .onInput(async() => {
+        hausVerankerung.withStorage(value => {
+          funnel.value[hausVerankerung.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausVerankerung.withStorage(value => {
+        funnel.value[hausVerankerung.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausGeruestAufstellungNord = new CheckboxField("hausGeruestAufstellungNord")
+      .withLabel(label => label.innerHTML = "Aufstellung")
+      .withAfterCheckbox(after => after.innerHTML = "Nordausrichtung")
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/aufstellunggeruestnord.svg"
+            img.alt = "Gerüstaufstellung Norden"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          }
+        })
+      })
+      .onInput(async() => {
+        hausGeruestAufstellungNord.withStorage(value => {
+          funnel.value[hausGeruestAufstellungNord.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausGeruestAufstellungNord.withStorage(value => {
+        funnel.value[hausGeruestAufstellungNord.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausGeruestAufstellungSued = new CheckboxField("hausGeruestAufstellungSued")
+      .withLabel(label => label.innerHTML = "Aufstellung")
+      .withAfterCheckbox(after => after.innerHTML = "Südausrichtung")
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/aufstellunggeruestsued.svg"
+            img.alt = "Gerüstaufstellung Süden"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          }
+        })
+      })
+      .onInput(async() => {
+        hausGeruestAufstellungSued.withStorage(value => {
+          funnel.value[hausGeruestAufstellungSued.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausGeruestAufstellungSued.withStorage(value => {
+        funnel.value[hausGeruestAufstellungSued.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausGeruestAufstellungOst = new CheckboxField("hausGeruestAufstellungOst")
+      .withLabel(label => label.innerHTML = "Aufstellung")
+      .withAfterCheckbox(after => after.innerHTML = "Ostausrichtung")
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/aufstellunggeruestostwest.svg"
+            img.alt = "Gerüstaufstellung Osten"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          }
+        })
+      })
+      .onInput(async() => {
+        hausGeruestAufstellungOst.withStorage(value => {
+          funnel.value[hausGeruestAufstellungOst.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausGeruestAufstellungOst.withStorage(value => {
+        funnel.value[hausGeruestAufstellungOst.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausGeruestAufstellungWest = new CheckboxField("hausGeruestAufstellungWest")
+      .withLabel(label => label.innerHTML = "Aufstellung")
+      .withAfterCheckbox(after => after.innerHTML = "Westausrichtung")
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/aufstellunggeruestostwest.svg"
+            img.alt = "Gerüstaufstellung Westen"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          }
+        })
+      })
+      .onInput(async() => {
+        hausGeruestAufstellungWest.withStorage(value => {
+          funnel.value[hausGeruestAufstellungWest.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausGeruestAufstellungWest.withStorage(value => {
+        funnel.value[hausGeruestAufstellungWest.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
 
@@ -254,38 +1015,130 @@
         title.style.fontWeight = "normal"
       })
 
-
-      const buildingDimensionsFunnel = new FunnelField("building-dimensions-funnel")
-      .withFields([
-        {class: "hausBreite", type: "number", withLabel: "Breite (a+b) in Meter", withType: inMeter},
-        {class: "hausLaenge", type: "number", withLabel: "Länge (a+b) in Meter", withType: inMeter},
-        {class: "hausGeruestAnzahl", type: "number", withLabel: "Gerüstanzahl", withType: hausGeruestAnzahlRequired},
-        {class: "hausGesamtGeruestFlaeche", type: "number", withLabel: "Gesamtgerüstfläche (Länge x Höhe) in Quadratmeter", withType: inSquareMeter},
-
-      ])
-
-      function inMeter(number) {
+      const hausBreite = new NumberField("hausBreite")
+      .withLabel(label => label.innerHTML = "Breite (a+b) in Meter")
+      .withType(number => {
         number.min = 0
-        number.max = 100
         number.placeholder = "in m"
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/breitedeshauses.svg"
+            img.alt = "Breite des Hauses"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Die Größe des Hauses beeinflusst die Größe des benötigten Energiesystems. Je größer das Haus, desto mehr Energie wird benötigt, um es zu beheizen, zu kühlen und mit Strom zu versorgen."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausBreite.withStorage(value => {
+          funnel.value[hausBreite.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausBreite.withStorage(value => {
+        funnel.value[hausBreite.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function hausGeruestAnzahlRequired(number) {
+
+
+      const hausLaenge = new NumberField("hausLaenge")
+      .withLabel(label => label.innerHTML = "Länge (a+b) in Meter")
+      .withType(number => {
         number.min = 0
-        number.max = 100
+        number.placeholder = "in m"
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/breitedeshauses.svg"
+            img.alt = "Länge des Hauses"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Die Größe des Hauses beeinflusst die Größe des benötigten Energiesystems. Je größer das Haus, desto mehr Energie wird benötigt, um es zu beheizen, zu kühlen und mit Strom zu versorgen."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausLaenge.withStorage(value => {
+          funnel.value[hausLaenge.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausLaenge.withStorage(value => {
+        funnel.value[hausLaenge.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const hausGeruestAnzahl = new NumberField("hausGeruestAnzahl")
+      .withLabel(label => label.innerHTML = "Gerüstanzahl")
+      .withType(number => {
+        number.min = 0
         number.placeholder = "1"
         number.required = true
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wie viel Gerüste werden für den Aufbau des Energiesystems benötigt. Üblich ist ein Gerüst für jede Dachseite, auf der ein Modul geplant ist."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausGeruestAnzahl.withStorage(value => {
+          funnel.value[hausGeruestAnzahl.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausGeruestAnzahl.withStorage(value => {
+        funnel.value[hausGeruestAnzahl.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function inSquareMeter(number) {
+
+      const hausGesamtGeruestFlaeche = new NumberField("hausGesamtGeruestFlaeche")
+      .withLabel(label => label.innerHTML = "Gesamtgerüstfläche (Länge x Höhe) in Quadratmeter")
+      .withType(number => {
         number.min = 0
-        number.max = 100
         number.placeholder = "in m^2"
-      }
-
-      buildingDimensionsFunnel.withStorage(funnel.storage).buildFields()
-
-
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Die Größe dieses Gerüsts hängt von der Größe des Dachs und der Größe der Energiesysteme ab, die Sie installieren möchten."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausGesamtGeruestFlaeche.withStorage(value => {
+          funnel.value[hausGesamtGeruestFlaeche.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausGesamtGeruestFlaeche.withStorage(value => {
+        funnel.value[hausGesamtGeruestFlaeche.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
 
@@ -296,57 +1149,172 @@
       })
 
 
-      const flatRoofFunnel = new FunnelField("flatroof-funnel")
-      .withFields([
-        {class: "hausAttikaVorhanden", type: "select", withLabel: "Attika vorhanden", withType: hausAttika, withOptions: ["Nein", "Ja"]},
-        {class: "hausAttikaBreite", type: "number", withLabel: "Breite (a) in cm", withType: hausAttikaInCm},
-        {class: "hausAttikaHoehe", type: "number", withLabel: "Höhe (b) in cm", withType: hausAttikaInCm},
-        {class: "hausGradzahlFlachdach", type: "number", withLabel: "Gradzahl Flachdach in Meter", withType: hausAttikaInMeter},
-        {class: "hausFlachdachNeigungBekannt", type: "checkbox", withLabel: "Mir ist bekannt dass, bei einem Flachdach mit einer Neigung von mehr als 4 Grad eine Aufständerung mit Ballastierung nicht möglich ist. Daher ist nur eine Befestigung mit Dachdurchdringung möglich.", withType: q5is2orQ5is4Checkbox, afterCheckbox: "Ja, das ist mir bekannt."},
-      ])
-
-      function hausAttika(select) {
+      const hausAttikaVorhanden = new SelectionField("hausAttikaVorhanden")
+      .withLabel(label => label.innerHTML = "Attika vorhanden")
+      .withOptions(["Nein", "Ja"])
+      .withType(select => {
         select.disabled = true
         const q5 = funnel.value.q5
         if (q5 === 2 || q5 === 4) {
           select.disabled = false
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn eine Attika vorhanden ist, hat das Dach eine höhere Absturzsicherung und das Anbringen von Solarpaneelen oder anderen Geräten wird einfacher. Wenn keine Attika vorhanden ist, müssen spezielle Sicherheitsvorkehrungen getroffen werden, um Abstürze zu verhindern. Dies kann den Einsatz von zusätzlichen Halterungen oder Barrieren erfordern, um sicherzustellen, dass das System sicher installiert wird."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausAttikaVorhanden.withStorage(options => {
+          funnel.value[hausAttikaVorhanden.name] = options
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausAttikaVorhanden.withStorage(options => {
+        funnel.value[hausAttikaVorhanden.name] = options
+        Helper.setFunnel(funnel)
+      })
 
-      function hausAttikaInCm(input) {
-        input.min = 0
-        input.max = 100
-        input.placeholder = "in cm"
-        input.disabled = true
+
+      const hausAttikaBreite = new NumberField("hausAttikaBreite")
+      .withLabel(label => label.innerHTML = "Breite (a) in cm")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in cm"
+        number.disabled = true
         const q5 = funnel.value.q5
         if (q5 === 2 || q5 === 4) {
-          input.required = true
-          input.disabled = false
+          number.required = true
+          number.disabled = false
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/attikaflachdach.svg"
+            img.alt = "Attika Flachdach"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn die Attika zu schmal ist, kann es sein, dass die Solarmodule nicht auf das Dach passen oder dass die Solarmodule nicht in ausreichendem Abstand von der Attika installiert werden können. Das kann dazu führen, dass die Solarmodule nicht optimal positioniert werden können, um genug Sonnenlicht zu bekommen und somit weniger Energie produzieren."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausAttikaBreite.withStorage(value => {
+          funnel.value[hausAttikaBreite.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausAttikaBreite.withStorage(value => {
+        funnel.value[hausAttikaBreite.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function hausAttikaInMeter(input) {
-        input.min = 0
-        input.max = 100
-        input.placeholder = "in m"
-        input.disabled = true
+
+
+      const hausAttikaHoehe = new NumberField("hausAttikaHoehe")
+      .withLabel(label => label.innerHTML = "Höhe (b) in cm")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in cm"
+        number.disabled = true
         const q5 = funnel.value.q5
         if (q5 === 2 || q5 === 4) {
-          input.required = true
-          input.disabled = false
+          number.required = true
+          number.disabled = false
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn die Attika zu schmal ist, kann es sein, dass die Solarmodule nicht auf das Dach passen oder dass die Solarmodule nicht in ausreichendem Abstand von der Attika installiert werden können. Das kann dazu führen, dass die Solarmodule nicht optimal positioniert werden können, um genug Sonnenlicht zu bekommen und somit weniger Energie produzieren."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausAttikaHoehe.withStorage(value => {
+          funnel.value[hausAttikaHoehe.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausAttikaHoehe.withStorage(value => {
+        funnel.value[hausAttikaHoehe.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function q5is2orQ5is4Checkbox(box) {
-        box.disabled = true
+
+
+      const hausGradzahlFlachdach = new NumberField("hausGradzahlFlachdach")
+      .withLabel(label => label.innerHTML = "Gradzahl Flachdach in Meter")
+      .withType(number => {
+        number.min = 0
+        number.max = 100
+        number.placeholder = "in m"
+        number.disabled = true
         const q5 = funnel.value.q5
         if (q5 === 2 || q5 === 4) {
-          box.required = true
-          box.disabled = false
+          number.required = true
+          number.disabled = false
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn das Dach sehr flach ist, könnte es auch notwendig sein, spezielle Halterungen oder Schienen zu verwenden, um die Paneele in einem optimalen Winkel zur Sonne zu positionieren."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausGradzahlFlachdach.withStorage(value => {
+          funnel.value[hausGradzahlFlachdach.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausGradzahlFlachdach.withStorage(value => {
+        funnel.value[hausGradzahlFlachdach.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      flatRoofFunnel.withStorage(funnel.storage).buildFields()
+
+
+      const hausFlachdachNeigungBekannt = new CheckboxField("hausFlachdachNeigungBekannt")
+      .withLabel(label => label.innerHTML = "Mir ist bekannt dass, bei einem Flachdach mit einer Neigung von mehr als 4 Grad eine Aufständerung mit Ballastierung nicht möglich ist. Daher ist nur eine Befestigung mit Dachdurchdringung möglich.")
+      .withAfterCheckbox(after => after.innerHTML = "Ja, das ist mir bekannt.")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q5 = funnel.value.q5
+        if (q5 === 2 || q5 === 4) {
+          checkbox.required = true
+          checkbox.disabled = false
+        }
+      })
+      .onInput(async() => {
+        hausFlachdachNeigungBekannt.withStorage(value => {
+          funnel.value[hausFlachdachNeigungBekannt.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausFlachdachNeigungBekannt.withStorage(value => {
+        funnel.value[hausFlachdachNeigungBekannt.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
 
@@ -356,28 +1324,144 @@
         title.style.fontWeight = "normal"
       })
 
-
-      const alignmentFlatRoofFunnel = new FunnelField("alignment-flatroof-funnel")
-      .withFields([
-        {class: "hausFlachdachNordAusrichtung", type: "checkbox", withLabel: "Nordseite", withType: q5is2orQ5is4BoxDisabled, onChange: exceptNord},
-        {class: "hausFlachdachOstAusrichtung", type: "checkbox", withLabel: "Ostseite", withType: q5is2orQ5is4BoxDisabled, onChange: exceptOst},
-        {class: "hausFlachdachSuedAusrichtung", type: "checkbox", withLabel: "Südseite", withType: q5is2orQ5is4BoxDisabled, onChange: exceptSued},
-        {class: "hausFlachdachWestAusrichtung", type: "checkbox", withLabel: "Westseite", withType: q5is2orQ5is4BoxDisabled, onChange: exceptWest},
-      ])
-
-
-      function q5is2orQ5is4BoxDisabled(box) {
-        box.disabled = true
+      const hausFlachdachNordAusrichtung = new CheckboxField("hausFlachdachNordAusrichtung")
+      .withLabel(label => label.innerHTML = "Nordseite")
+      .withType(checkbox => {
+        checkbox.disabled = true
         const q5 = funnel.value.q5
         if (q5 === 2 || q5 === 4) {
-          box.disabled = false
+          checkbox.disabled = false
         }
-      }
+      })
+      .onChange(exceptNord)
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/ausrichtungflachdachnordost.svg"
+            img.alt = "Flachdachausrichtung Norden"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+        })
+      })
+      .onInput(async() => {
+        hausFlachdachNordAusrichtung.withStorage(value => {
+          funnel.value[hausFlachdachNordAusrichtung.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausFlachdachNordAusrichtung.withStorage(value => {
+        funnel.value[hausFlachdachNordAusrichtung.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      const nordCheckbox = "input[id='hausFlachdachNordAusrichtung']"
-      const ostCheckbox = "input[id='hausFlachdachOstAusrichtung']"
-      const suedCheckbox = "input[id='hausFlachdachSuedAusrichtung']"
-      const westCheckbox = "input[id='hausFlachdachWestAusrichtung']"
+
+      const hausFlachdachOstAusrichtung = new CheckboxField("hausFlachdachOstAusrichtung")
+      .withLabel(label => label.innerHTML = "Ostseite")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q5 = funnel.value.q5
+        if (q5 === 2 || q5 === 4) {
+          checkbox.disabled = false
+        }
+      })
+      .onChange(exceptOst)
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/ausrichtungflachdachnordost.svg"
+            img.alt = "Flachdachausrichtung Osten"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+        })
+      })
+      .onInput(async() => {
+        hausFlachdachOstAusrichtung.withStorage(value => {
+          funnel.value[hausFlachdachOstAusrichtung.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausFlachdachOstAusrichtung.withStorage(value => {
+        funnel.value[hausFlachdachOstAusrichtung.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausFlachdachSuedAusrichtung = new CheckboxField("hausFlachdachSuedAusrichtung")
+      .withLabel(label => label.innerHTML = "Südseite")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q5 = funnel.value.q5
+        if (q5 === 2 || q5 === 4) {
+          checkbox.disabled = false
+        }
+      })
+      .onChange(exceptSued)
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/ausrichtungflachdachsuedwest.svg"
+            img.alt = "Flachdachausrichtung Süden"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+        })
+      })
+      .onInput(async() => {
+        hausFlachdachSuedAusrichtung.withStorage(value => {
+          funnel.value[hausFlachdachSuedAusrichtung.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausFlachdachSuedAusrichtung.withStorage(value => {
+        funnel.value[hausFlachdachSuedAusrichtung.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausFlachdachWestAusrichtung = new CheckboxField("hausFlachdachWestAusrichtung")
+      .withLabel(label => label.innerHTML = "Westseite")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q5 = funnel.value.q5
+        if (q5 === 2 || q5 === 4) {
+          checkbox.disabled = false
+        }
+      })
+      .onChange(exceptWest)
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/ausrichtungflachdachsuedwest.svg"
+            img.alt = "Flachdachausrichtung Westen"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+        })
+      })
+      .onInput(async() => {
+        hausFlachdachWestAusrichtung.withStorage(value => {
+          funnel.value[hausFlachdachWestAusrichtung.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausFlachdachWestAusrichtung.withStorage(value => {
+        funnel.value[hausFlachdachWestAusrichtung.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const nordCheckbox = "input[class='hausFlachdachNordAusrichtung']"
+      const ostCheckbox = "input[class='hausFlachdachOstAusrichtung']"
+      const suedCheckbox = "input[class='hausFlachdachSuedAusrichtung']"
+      const westCheckbox = "input[class='hausFlachdachWestAusrichtung']"
 
       function exceptNord(event) {
         if (event.target.checked) {
@@ -412,10 +1496,6 @@
       }
 
 
-      alignmentFlatRoofFunnel.withStorage(funnel.storage).buildFields()
-
-
-
 
       document.querySelectorAll(".trapezoid-roof-title").forEach(title => {
         title.innerHTML = "Trapezdach"
@@ -424,38 +1504,99 @@
       })
 
 
-      const trapezoidRoofFunnel = new FunnelField("trapezoid-roof-funnel")
-      .withFields([
-        {class: "hausAluStaerke", type: "number", withLabel: "Stärke meines Aluminiumdaches", withType: staerkeInMm},
-        {class: "hausStahlStaerke", type: "number", withLabel: "Stärke meines Stahldaches", withType: staerkeInMm},
-        {class: "isIcopal", type: "checkbox", withLabel: "Wenn Dacheindeckung vom Hersteller “Icopal”, dann nicht baubar.", withType: icopalCheck, afterCheckbox: "Ja, das ist mir bekannt."},
-      ])
-
-
-      function staerkeInMm(input) {
-        input.min = 0
-        input.max = 100
-        input.placeholder = "in mm"
-        input.disabled = true
+      const hausAluStaerke = new NumberField("hausAluStaerke")
+      .withLabel(label => label.innerHTML = "Stärke meines Aluminiumdaches")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in mm"
+        number.disabled = true
         const q5 = funnel.value.q5
         const q6 = funnel.value.q6
         if (q5 === 2 && (q6 === 1 || q6 === 2)) {
-          input.disabled = false
+          number.disabled = false
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Trapezdächer aus Aluminium sind aufgrund ihrer Langlebigkeit und Witterungsbeständigkeit eine beliebte Wahl. Es ist jedoch wichtig zu wissen, wie stark das Dach ist, da dies Auswirkungen auf die Montage der Photovoltaikanlage und die Verankerung der Befestigungssysteme haben kann. Wenn das Dach nicht stark genug ist, kann es beschädigt werden oder es kann zu Problemen kommen, wenn wir die Solarpaneele anbringen."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausAluStaerke.withStorage(value => {
+          funnel.value[hausAluStaerke.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausAluStaerke.withStorage(value => {
+        funnel.value[hausAluStaerke.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function icopalCheck(box) {
-        box.disabled = true
+
+      const hausStahlStaerke = new NumberField("hausStahlStaerke")
+      .withLabel(label => label.innerHTML = "Stärke meines Stahldaches")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in mm"
+        number.disabled = true
         const q5 = funnel.value.q5
         const q6 = funnel.value.q6
         if (q5 === 2 && (q6 === 1 || q6 === 2)) {
-          box.disabled = false
-          box.required = true
+          number.disabled = false
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Es ist sehr wichtig, die Stärke des Trapezdachs zu kennen, bevor man mit der Planung und Installation des Energiesystems beginnt, um sicherzustellen, dass das Dach stabil genug ist, um die Anlagen zu tragen."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausStahlStaerke.withStorage(value => {
+          funnel.value[hausStahlStaerke.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausStahlStaerke.withStorage(value => {
+        funnel.value[hausStahlStaerke.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
-      trapezoidRoofFunnel.withStorage(funnel.storage).buildFields()
+
+      const hausIstIcopal = new CheckboxField("hausIstIcopal")
+      .withLabel(label => label.innerHTML = "Wenn Dacheindeckung vom Hersteller “Icopal”, dann nicht baubar.")
+      .withAfterCheckbox(after => after.innerHTML = "Ja, das ist mir bekannt.")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q5 = funnel.value.q5
+        const q6 = funnel.value.q6
+        if (q5 === 2 && (q6 === 1 || q6 === 2)) {
+          checkbox.disabled = false
+          checkbox.required = true
+        }
+      })
+      .onInput(async() => {
+        hausIstIcopal.withStorage(value => {
+          funnel.value[hausIstIcopal.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausIstIcopal.withStorage(value => {
+        funnel.value[hausIstIcopal.name] = value
+        Helper.setFunnel(funnel)
+      })
+
 
       document.querySelectorAll(".house-dimensions-title").forEach(title => {
         title.innerHTML = "Hausmaße"
@@ -464,50 +1605,235 @@
       })
 
 
-      const houseDimensionsFunnel = new FunnelField("house-dimensions-funnel")
-      .withFields([
-        {class: "hausTraufhoehe", type: "number", withLabel: "Traufhöhe in Meter", withType: q5isNot2inMeter},
-        {class: "hausDachBreite", type: "number", withLabel: "Dachbreite in Meter", withType: q5isNot2inMeter},
-        {class: "hausDachLaenge", type: "number", withLabel: "Dachlänge in Meter", withType: q5isNot2inMeter},
-        {class: "hausFirstHoehe", type: "number", withLabel: "Firsthöhe in Meter", withType: q5isNot2inMeter},
-        {class: "hausDachAusrichtung", type: "select", withLabel: "Dachausrichtung", withType: q5isNot2SelectDisabled, withOptions: ["Süd", "Nord", "Nord-Ost", "Ost", "Süd-Ost", "Süd-West", "West", "Nord-West"]},
-        {class: "hausFirstHoehe", type: "number", withLabel: "Dachneigung in Grad", withType: hausDachNeigung},
-      ])
-
-      function q5isNot2inMeter(input) {
-        input.min = 0
-        input.max = 100
-        input.placeholder = "in m"
-        input.disabled = true
+      const hausTraufhoehe = new NumberField("hausTraufhoehe")
+      .withLabel(label => label.innerHTML = "Traufhöhe in Meter")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in m"
+        number.disabled = true
         const q5 = funnel.value.q5
         if (q5 !== 2) {
-          input.disabled = false
-          input.required = true
+          number.disabled = false
+          number.required = true
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/hausmasse.svg"
+            img.alt = "Hausmaße Traufhöhe"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Nur wenn man die genauen Maße des Hauses kennt, ist es möglich ein System zu entwerfen, das optimal auf Ihre Bedürfnisse abgestimmt ist und das volle Potenzial der verfügbaren Sonnenenergie ausschöpft."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausTraufhoehe.withStorage(value => {
+          funnel.value[hausTraufhoehe.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausTraufhoehe.withStorage(value => {
+        funnel.value[hausTraufhoehe.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function q5isNot2SelectDisabled(select) {
+
+      const hausDachBreite = new NumberField("hausDachBreite")
+      .withLabel(label => label.innerHTML = "Dachbreite in Meter")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in m"
+        number.disabled = true
+        const q5 = funnel.value.q5
+        if (q5 !== 2) {
+          number.disabled = false
+          number.required = true
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/hausmasse.svg"
+            img.alt = "Hausmaße Dachbreite"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Nur wenn man die genauen Maße des Hauses kennt, ist es möglich ein System zu entwerfen, das optimal auf Ihre Bedürfnisse abgestimmt ist und das volle Potenzial der verfügbaren Sonnenenergie ausschöpft."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausDachBreite.withStorage(value => {
+          funnel.value[hausDachBreite.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausDachBreite.withStorage(value => {
+        funnel.value[hausDachBreite.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausDachLaenge = new NumberField("hausDachLaenge")
+      .withLabel(label => label.innerHTML = "Dachlänge in Meter")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in m"
+        number.disabled = true
+        const q5 = funnel.value.q5
+        if (q5 !== 2) {
+          number.disabled = false
+          number.required = true
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/hausmasse.svg"
+            img.alt = "Hausmaße Dachlänge"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Nur wenn man die genauen Maße des Hauses kennt, ist es möglich ein System zu entwerfen, das optimal auf Ihre Bedürfnisse abgestimmt ist und das volle Potenzial der verfügbaren Sonnenenergie ausschöpft."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausDachLaenge.withStorage(value => {
+          funnel.value[hausDachLaenge.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausDachLaenge.withStorage(value => {
+        funnel.value[hausDachLaenge.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const hausFirstHoehe = new NumberField("hausFirstHoehe")
+      .withLabel(label => label.innerHTML = "Firsthöhe in Meter")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in m"
+        number.disabled = true
+        const q5 = funnel.value.q5
+        if (q5 !== 2) {
+          number.disabled = false
+          number.required = true
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/hausmasse.svg"
+            img.alt = "Hausmaße Firsthöhe"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Nur wenn man die genauen Maße des Hauses kennt, ist es möglich ein System zu entwerfen, das optimal auf Ihre Bedürfnisse abgestimmt ist und das volle Potenzial der verfügbaren Sonnenenergie ausschöpft."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausFirstHoehe.withStorage(value => {
+          funnel.value[hausFirstHoehe.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausFirstHoehe.withStorage(value => {
+        funnel.value[hausFirstHoehe.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausDachAusrichtung = new SelectionField("hausDachAusrichtung")
+      .withLabel(label => label.innerHTML = "Dachausrichtung")
+      .withOptions(["Süd", "Nord", "Nord-Ost", "Ost", "Süd-Ost", "Süd-West", "West", "Nord-West"])
+      .withType(select => {
         select.disabled = true
         const q5 = funnel.value.q5
         if (q5 !== 2) {
           select.disabled = false
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Die genaue Ausrichtung deines Dachs kann auch beeinflussen, wie viele Panels du benötigst, um genügend Energie für dein Zuhause zu erzeugen. Wenn dein Dach beispielsweise nach Osten oder Westen ausgerichtet ist, wirst du möglicherweise mehr Panels benötigen, um die gleiche Menge an Energie zu erzeugen, als wenn dein Dach in Richtung Süden ausgerichtet wäre."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausDachAusrichtung.withStorage(value => {
+          funnel.value[hausDachAusrichtung.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausDachAusrichtung.withStorage(value => {
+        funnel.value[hausDachAusrichtung.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function hausDachNeigung(input) {
-        input.min = 0
-        input.max = 100
-        input.placeholder = "in Grad"
-        input.disabled = true
+
+
+      const hausDachneigung = new NumberField("hausDachneigung")
+      .withLabel(label => label.innerHTML = "Dachneigung in Grad")
+      .withType(number => {
+        number.min = -360
+        number.max = 360
+        number.placeholder = "in Grad"
+        number.disabled = true
         const q5 = funnel.value.q5
         if (q5 !== 2) {
-          input.disabled = false
-          input.required = true
+          number.disabled = false
+          number.required = true
         }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Die Gradzahl gibt uns Auskunft darüber, wie steil das Dach ist. Warum ist das wichtig? Es ist wichtig, weil die meisten Solarmodule und Solarthermie- Kollektoren in einem bestimmten Winkel montiert werden müssen, um die maximale Sonnenenergie zu erhalten. Wenn das Dach zu flach ist, kann es sein, dass das Modul oder der Kollektor nicht in der optimalen Position montiert werden kann. Wenn das Dach zu steil ist, kann es schwierig oder gefährlich sein, die Solarmodule oder Solarthermie-Kollektoren zu montieren. Zusätzlich gibt die Gradzahl uns auch einen Hinweis auf die Windlast, die das Dach aushalten muss. Wenn das Dach sehr flach ist, ist es anfälliger für Windkräfte, was Auswirkungen auf die Größe und Art des Montagesystems haben kann."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausDachneigung.withStorage(value => {
+          funnel.value[hausDachneigung.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausDachneigung.withStorage(value => {
+        funnel.value[hausDachneigung.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      }
-
-      houseDimensionsFunnel.withStorage(funnel.storage).buildFields()
 
 
       document.querySelectorAll(".upload-title").forEach(title => {
@@ -517,49 +1843,176 @@
       })
 
 
-      const uploadFunnel = new FunnelField("upload-funnel")
-      .withFields([
-        {class: "hausFrontBild", type: "file", withLabel: label => label.innerHTML = "Frontansicht", withType: q5isNot2UploadRequired},
-        {class: "hausSuedAnsichtBild", type: "file", withLabel: label => label.innerHTML = "Südansicht", withType: q5isNot2Upload},
-        {class: "hausGeruestStandortBild", type: "file", withLabel: label => label.innerHTML = "Gerüststandort", withType: q5isNot2MultipleRequired},
-        {class: "hausOrtgangBild", type: "file", withLabel: label => label.innerHTML = "Ortgang", withType: q5isNot2UploadRequired},
-        {class: "hausSparrenAnsichtBild", type: "file", withLabel: label => label.innerHTML = "Sparrenansicht", withType: q5isNot2UploadRequired},
-      ])
-
-
-      function q5isNot2UploadRequired(input) {
-        input.disabled = true
+      const hausFrontBild = new FileField("hausFrontBild")
+      .withLabel(label => label.innerHTML = "Frontansicht")
+      .withType(file => {
+        file.disabled = true
         const q5 = funnel.value.q5
         if (q5 !== 2) {
-          input.disabled = false
-          input.accept = "image/*"
-          input.required = true
+          file.disabled = false
+          file.accept = "image/*"
+          file.required = true
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/frontansicht.svg"
+            img.alt = "Haus Frontansicht"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+        })
+      })
+      .onInput(async() => {
+        hausFrontBild.withStorage(value => {
+          funnel.value[hausFrontBild.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausFrontBild.withStorage(value => {
+        funnel.value[hausFrontBild.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function q5isNot2Upload(input) {
-        input.disabled = true
+
+
+      const hausSuedAnsichtBild = new FileField("hausSuedAnsichtBild")
+      .withLabel(label => label.innerHTML = "Südansicht")
+      .withType(file => {
+        file.disabled = true
         const q5 = funnel.value.q5
         if (q5 !== 2) {
-          input.disabled = false
-          input.accept = "image/*"
+          file.disabled = false
+          file.accept = "image/*"
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/suedansicht.svg"
+            img.alt = "Haus Südansicht"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+        })
+      })
+      .onInput(async() => {
+        hausSuedAnsichtBild.withStorage(value => {
+          funnel.value[hausSuedAnsichtBild.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausSuedAnsichtBild.withStorage(value => {
+        funnel.value[hausSuedAnsichtBild.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function q5isNot2MultipleRequired(input) {
-        input.disabled = true
+
+      const hausGeruestStandortBild = new FileField("hausGeruestStandortBild")
+      .withLabel(label => label.innerHTML = "Gerüststandort")
+      .withType(file => {
+        file.disabled = true
         const q5 = funnel.value.q5
         if (q5 !== 2) {
-          input.disabled = false
-          input.accept = "image/*"
-          input.required = true
-          input.multiple = true
+          file.disabled = false
+          file.accept = "image/*"
+          file.required = true
+          file.multiple = true
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/geruesttandort.svg"
+            img.alt = "Haus Gerüststandort"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+        })
+      })
+      .onInput(async() => {
+        hausGeruestStandortBild.withStorage(value => {
+          funnel.value[hausGeruestStandortBild.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausGeruestStandortBild.withStorage(value => {
+        funnel.value[hausGeruestStandortBild.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      uploadFunnel.withStorage(funnel.storage).buildFields()
+
+      const hausOrtgangBild = new FileField("hausOrtgangBild")
+      .withLabel(label => label.innerHTML = "Ortgang")
+      .withType(file => {
+        file.disabled = true
+        const q5 = funnel.value.q5
+        if (q5 !== 2) {
+          file.disabled = false
+          file.accept = "image/*"
+          file.required = true
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/ortgang.svg"
+            img.alt = "Haus Ortgang"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+        })
+      })
+      .onInput(async() => {
+        hausOrtgangBild.withStorage(value => {
+          funnel.value[hausOrtgangBild.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausOrtgangBild.withStorage(value => {
+        funnel.value[hausOrtgangBild.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
+
+      const hausSparrenAnsichtBild = new FileField("hausSparrenAnsichtBild")
+      .withLabel(label => label.innerHTML = "Sparrenansicht")
+      .withType(file => {
+        file.disabled = true
+        const q5 = funnel.value.q5
+        if (q5 !== 2) {
+          file.disabled = false
+          file.accept = "image/*"
+          file.required = true
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/sparrenansicht.svg"
+            img.alt = "Haus Sparrenansicht"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+        })
+      })
+      .onInput(async() => {
+        hausSparrenAnsichtBild.withStorage(value => {
+          funnel.value[hausSparrenAnsichtBild.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausSparrenAnsichtBild.withStorage(value => {
+        funnel.value[hausSparrenAnsichtBild.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
 
@@ -569,23 +2022,186 @@
         title.style.fontWeight = "normal"
       })
 
+      const hausZiegelBild = new FileField("hausZiegelBild")
+      .withLabel(label => label.innerHTML = "Bild des Ziegels")
+      .withType(file => {
+        file.disabled = true
+        const q5 = funnel.value.q5
+        if (q5 !== 2) {
+          file.disabled = false
+          file.accept = "image/*"
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withImage: (img) => {
+            img.src = "/felix/shs/public/ziegelbild.svg"
+            img.alt = "Haus Ziegel"
+            img.style.width = "100%"
+            img.style.maxWidth = "344px"
+          },
+        })
+      })
+      .onInput(async() => {
+        hausZiegelBild.withStorage(value => {
+          funnel.value[hausZiegelBild.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausZiegelBild.withStorage(value => {
+        funnel.value[hausZiegelBild.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      const brickFunnel = new FunnelField("brick-funnel")
-      .withFields([
-        {class: "hausZiegelBild", type: "file", withLabel: label => label.innerHTML = "Bild des Ziegels", withType: q5isNot2Upload},
-        {class: "hausDeckmassLaenge", type: "number", withLabel: "Ziegeldeckmaß Länge in mm", withType: brickInMm},
-        {class: "hausDeckmassBreite", type: "number", withLabel: "Ziegeldeckmaß Breite in mm", withType: brickInMm},
-        {class: "hausErsatzZiegel", type: "select", withLabel: "Ersatzziegel vorhanden", withOptions: ["Nein", "Ja"]},
-      ])
 
-      function brickInMm(input) {
-        input.min = "0"
-        input.max = "100"
-        input.placeholder = "in mm"
-        input.required = true
-      }
 
-      brickFunnel.withStorage(funnel.storage).buildFields()
+      const hausDeckmassLaenge = new NumberField("hausDeckmassLaenge")
+      .withLabel(label => label.innerHTML = "Ziegeldeckmaß Länge in mm")
+      .withType(number => {
+        number.min = "0"
+        number.placeholder = "in mm"
+        number.required = true
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Mit dem Ziegeldeckmaß kann das Layout der Solarpaneele optimieren werden, um sicherzustellen, dass du die bestmögliche Leistung erzielst. Wenn die Paneele beispielsweise nicht richtig positioniert sind, können Schatten von Bäumen oder anderen Gebäuden die Leistung beeinträchtigen. Außerdem ermöglicht das Wissen um das Ziegeldeckmaß die genaue Berechnung der Anzahl der benötigten Solarpaneele. So wird vermieden, dass zu viele oder zu wenige Panels installiert werden und das System entweder überdimensioniert oder unterdimensioniert ist."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausDeckmassLaenge.withStorage(value => {
+          funnel.value[hausDeckmassLaenge.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausDeckmassLaenge.withStorage(value => {
+        funnel.value[hausDeckmassLaenge.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const hausDeckmassBreite = new NumberField("hausDeckmassBreite")
+      .withLabel(label => label.innerHTML = "Ziegeldeckmaß Breite in mm")
+      .withType(number => {
+        number.min = "0"
+        number.placeholder = "in mm"
+        number.required = true
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Mit dem Ziegeldeckmaß kann das Layout der Solarpaneele optimieren werden, um sicherzustellen, dass du die bestmögliche Leistung erzielst. Wenn die Paneele beispielsweise nicht richtig positioniert sind, können Schatten von Bäumen oder anderen Gebäuden die Leistung beeinträchtigen. Außerdem ermöglicht das Wissen um das Ziegeldeckmaß die genaue Berechnung der Anzahl der benötigten Solarpaneele. So wird vermieden, dass zu viele oder zu wenige Panels installiert werden und das System entweder überdimensioniert oder unterdimensioniert ist."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausDeckmassBreite.withStorage(value => {
+          funnel.value[hausDeckmassBreite.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausDeckmassBreite.withStorage(value => {
+        funnel.value[hausDeckmassBreite.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const hausErsatzZiegel = new SelectionField("hausErsatzZiegel")
+      .withLabel(label => label.innerHTML = "Ersatzziegel vorhanden")
+      .withOptions(["Nein", "Ja"])
+      .withRequired(1)
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Manchmal müssen beim Installieren von Solarpanelen oder anderen Energiesystemen auf dem Dach einige Ziegel entfernt werden, um die Kabel durchzuführen oder andere Anpassungen vorzunehmen. Wenn das Montageteam diese Ziegel ohne Ersatz entfernt und das Dachsystem nicht mehr perfekt abgedichtet werden kann, kann dies zu Wassereintritt und Schäden am Dach führen. Daher ist es wichtig zu wissen, ob der Kunde noch Ersatzziegel hat, damit im Falle von Beschädigungen oder Fehlern während der Installation schnell und effektiv repariert werden kann."
+          }
+        })
+      })
+      .onInput(async() => {
+        hausErsatzZiegel.withStorage(value => {
+          funnel.value[hausErsatzZiegel.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      hausErsatzZiegel.withStorage(value => {
+        funnel.value[hausErsatzZiegel.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const fields = [
+        hausBaujahr,
+        hausUmbau,
+        hausEtage,
+        hausFlaeche,
+        hausKabelfuehrungDC,
+        hausVerkabelungDC,
+        hausAussenfasadeGedaemmt,
+        hausDenkmal,
+        hausEnergieVorhanden,
+        hausEnergieSystemEntsorgen,
+        hausLager,
+        hausDacheindeckung,
+        hausUKUeberstand,
+        hausAnderesHausAbstand,
+        hausEntlueftungsrohre,
+        hausBlitzschutzanlage,
+        hausDachaufbauten,
+        hausAbstandSparren,
+        hausSparrenBreite,
+        hausSparrenHoehe,
+        hausMaterialSparren,
+        hausGeruestOeffentlich,
+        hausGeruestSelbstGestellt,
+        hausVerankerung,
+        hausGeruestAufstellungNord,
+        hausGeruestAufstellungSued,
+        hausGeruestAufstellungOst,
+        hausGeruestAufstellungWest,
+        hausBreite,
+        hausLaenge,
+        hausGeruestAnzahl,
+        hausGesamtGeruestFlaeche,
+        hausAttikaVorhanden,
+        hausAttikaBreite,
+        hausAttikaHoehe,
+        hausGradzahlFlachdach,
+        hausFlachdachNeigungBekannt,
+        hausFlachdachNordAusrichtung,
+        hausFlachdachOstAusrichtung,
+        hausFlachdachSuedAusrichtung,
+        hausFlachdachWestAusrichtung,
+        hausAluStaerke,
+        hausStahlStaerke,
+        hausIstIcopal,
+        hausTraufhoehe,
+        hausDachBreite,
+        hausDachLaenge,
+        hausFirstHoehe,
+        hausDachAusrichtung,
+        hausDachneigung,
+        hausFrontBild,
+        hausSuedAnsichtBild,
+        hausGeruestStandortBild,
+        hausOrtgangBild,
+        hausSparrenAnsichtBild,
+        hausZiegelBild,
+        hausDeckmassLaenge,
+        hausDeckmassBreite,
+        hausErsatzZiegel,
+      ]
 
 
       const speichernundweiterbutton = new DivField("save-and-proceed-button")
@@ -607,17 +2223,9 @@
       Helper.createSHSFooter()
 
       async function checkAndProceed(path) {
-        await houseFunnel.checkValidity()
-        await rafterSpacingFunnel.checkValidity()
-        await scaffoldFunnel.checkValidity()
-        await buildingDimensionsFunnel.checkValidity()
-        await flatRoofFunnel.checkValidity()
-        await alignmentFlatRoofFunnel.checkValidity()
-        await trapezoidRoofFunnel.checkValidity()
-        await houseDimensionsFunnel.checkValidity()
-        await uploadFunnel.checkValidity()
-        await brickFunnel.checkValidity()
-
+        for (let i = 0; i < fields.length; i++) {
+          await fields[i].withValidValue()
+        }
         window.location.assign(path)
       }
 

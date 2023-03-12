@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="454" height="383" viewBox="0 0 454 383">
+  <defs>
+    <clipPath id="clip-sparrenabstand">
+      <rect width="454" height="383"/>
+    </clipPath>
+  </defs>
+  <g id="sparrenabstand" clip-path="url(#clip-sparrenabstand)">
+    <g id="Gruppe_1901" data-name="Gruppe 1901" transform="translate(-689 -2409)">
+      <ellipse id="Ellipse_96" data-name="Ellipse 96" cx="178.5" cy="175.5" rx="178.5" ry="175.5" transform="translate(738 2425)" fill="#e1e1e1"/>
+      <g id="Gruppe_1779" data-name="Gruppe 1779" transform="translate(0 609)">
+        <path id="Pfad_791" data-name="Pfad 791" d="M18765.76-18490.4v75.377h46.344l40.553-99.008v-55.148l-40.553,78.779Z" transform="translate(-17954 20484)" fill="#9e7c59"/>
+        <path id="Pfad_792" data-name="Pfad 792" d="M18811.252-18569.178H18852l-40.744,79.3h-46.65Z" transform="translate(-17952.842 20484)" fill="#ba956f"/>
+      </g>
+      <g id="Gruppe_1780" data-name="Gruppe 1780" transform="translate(136.482 609)">
+        <path id="Pfad_791-2" data-name="Pfad 791" d="M18765.76-18490.4v75.377h46.344l40.553-99.008v-55.148l-40.553,78.779Z" transform="translate(-17954 20484)" fill="#9e7c59"/>
+        <path id="Pfad_792-2" data-name="Pfad 792" d="M18811.252-18569.178H18852l-40.744,79.3h-46.65Z" transform="translate(-17952.842 20484)" fill="#ba956f"/>
+      </g>
+      <line id="Linie_139" data-name="Linie 139" y2="72" transform="translate(798.5 2605.5)" fill="none" stroke="#000" stroke-width="1"/>
+      <line id="Linie_140" data-name="Linie 140" x2="12" transform="translate(792.5 2606.5)" fill="none" stroke="#000" stroke-width="1"/>
+      <line id="Linie_141" data-name="Linie 141" x2="12" transform="translate(792.5 2677.5)" fill="none" stroke="#000" stroke-width="1"/>
+      <text id="c_" data-name="c)" transform="translate(778.5 2647)" fill="#161616" font-size="18" font-family="FormaDJRMicro-Regular, Forma DJR Micro"><tspan x="0" y="0">c)</tspan></text>
+      <text id="b_" data-name="b)" transform="translate(827 2710.5)" fill="#161616" font-size="18" font-family="FormaDJRMicro-Regular, Forma DJR Micro"><tspan x="0" y="0">b)</tspan></text>
+      <text id="a_" data-name="a)" transform="translate(901.193 2668.5)" fill="#161616" font-size="18" font-family="FormaDJRMicro-Regular, Forma DJR Micro"><tspan x="0" y="0">a)</tspan></text>
+      <line id="Linie_142" data-name="Linie 142" x2="46" transform="translate(811.5 2689.5)" fill="none" stroke="#000" stroke-width="1"/>
+      <line id="Linie_147" data-name="Linie 147" x2="59.477" transform="translate(878.955 2647.5)" fill="none" stroke="#000" stroke-width="1"/>
+      <line id="Linie_143" data-name="Linie 143" y2="10" transform="translate(856.5 2684.5)" fill="none" stroke="#000" stroke-width="1"/>
+      <line id="Linie_145" data-name="Linie 145" y2="10" transform="translate(937.139 2642.5)" fill="none" stroke="#000" stroke-width="1"/>
+      <line id="Linie_144" data-name="Linie 144" y2="10" transform="translate(811.5 2684.5)" fill="none" stroke="#000" stroke-width="1"/>
+      <line id="Linie_146" data-name="Linie 146" y2="10" transform="translate(878.955 2642.5)" fill="none" stroke="#000" stroke-width="1"/>
+    </g>
+  </g>
+</svg>

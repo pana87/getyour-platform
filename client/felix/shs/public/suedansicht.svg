@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="435" height="309" viewBox="0 0 435 309">
+  <defs>
+    <clipPath id="clip-suedansicht">
+      <rect width="435" height="309"/>
+    </clipPath>
+  </defs>
+  <g id="suedansicht" clip-path="url(#clip-suedansicht)">
+    <g id="Gruppe_1494" data-name="Gruppe 1494" transform="translate(43 39.046)">
+      <path id="Pfad_54" data-name="Pfad 54" d="M19067.764-16419.365l-81.012,95.96v5.064l201.322-27.67,76.592-91.138,59.143,124.729h12.943l-64.437-147.364Z" transform="translate(-18986.752 16459.783)" fill="rgba(247,170,32,0.63)" opacity="0.973"/>
+      <path id="Pfad_51" data-name="Pfad 51" d="M19016.4-16307.112v93.551l183.928,4.906v-126.222Z" transform="translate(-18988.535 16440.602)" fill="#e8b964" opacity="0.973"/>
+      <path id="Pfad_52" data-name="Pfad 52" d="M19214.41-16345.77l1.207-1.353,76.143-81.843,58.828,115.41v87.565h-135.625l-.553-119.744" transform="translate(-19018.162 16457.932)" fill="#fac973" opacity="0.973"/>
+      <path id="Pfad_67" data-name="Pfad 67" d="M19052.471-16284.049l26.637-2v33.584h-26.637Z" transform="translate(-18993.9 16440.262)" fill="#fff"/>
+      <path id="Pfad_68" data-name="Pfad 68" d="M19106.889-16288.832l30.822-2.2,1.365,77.684h-32.187Z" transform="translate(-18999.916 16437.967)" fill="#fff"/>
+      <path id="Pfad_69" data-name="Pfad 69" d="M19106.889-16288.744l30.822-2.291,1.365,80.646h-32.187Z" transform="translate(-18967.857 16435.004)" fill="#fff"/>
+      <path id="Pfad_70" data-name="Pfad 70" d="M19278.543-16285.548l22.455,1.888v69.75h-22.455Z" transform="translate(-19018.301 16437.637)" fill="#fff"/>
+      <path id="Pfad_71" data-name="Pfad 71" d="M19279.721-16379.432v36.365l21.156,3.138v-33.129Z" transform="translate(-19018.377 16450.635)" fill="#fff"/>
+    </g>
+  </g>
+</svg>

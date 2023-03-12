@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="435" height="361" viewBox="0 0 435 361">
+  <defs>
+    <clipPath id="clip-hausanschlusskasten">
+      <rect width="435" height="361"/>
+    </clipPath>
+  </defs>
+  <g id="hausanschlusskasten" clip-path="url(#clip-hausanschlusskasten)">
+    <g id="Gruppe_1672" data-name="Gruppe 1672" transform="translate(-881.635 -1685)">
+      <path id="Pfad_698" data-name="Pfad 698" d="M21936.783-12580.021l91.441-3.447,1.594,143.025-87.271,1.43Z" transform="translate(-20886 14367.345)" fill="#77747b"/>
+      <path id="Pfad_699" data-name="Pfad 699" d="M21969.42-12438.923v6.394h35.611v-7.271Z" transform="translate(-20886 14366.766)" fill="#747178"/>
+      <path id="Pfad_700" data-name="Pfad 700" d="M21996.588-12432.084v91.2s-12.977,5.052-21.318-1.35c-1.068-.82-1.338-29.412-1.684-44.621.242-22.824-1.076-46.251-1.076-46.251h24.078Z" transform="translate(-20883.324 14367.346)" fill="#554d4d"/>
+      <path id="Pfad_701" data-name="Pfad 701" d="M21982.629-12580.5l4.061-.4v5.765h-2.754l-.365,10.661-2.488-.952.842-15.077Z" transform="translate(-20886 14367.345)" fill="#2a2623"/>
+      <path id="Pfad_702" data-name="Pfad 702" d="M22028.639-12556.482s10.707-16.226,9.941-28.043a14.617,14.617,0,0,0-3.014-6.88c-2.164-2.669-7.584,7.5-7.584,7.5Z" transform="translate(-20886.301 14367.345)" fill="#5e5c5e"/>
+      <path id="Pfad_703" data-name="Pfad 703" d="M22034.393-12591.856h-40.061l-57.514,11.852,90.793-3.284Z" transform="translate(-20886 14367.345)" fill="#4a423f"/>
+      <ellipse id="Ellipse_49" data-name="Ellipse 49" cx="4" cy="1.5" rx="4" ry="1.5" transform="translate(1114 1780.345)" fill="#231b17"/>
+      <path id="Pfad_704" data-name="Pfad 704" d="M21957.611-12662.331s29.395,9.249,29.318,14.68,1.221,34.708,5.623,41.6,13.645,8.8,12.91,12.517-1.818,7.542-1.818,7.542" transform="translate(-20886 14367.345)" fill="none" stroke="#231b17" stroke-width="2"/>
+      <ellipse id="Ellipse_50" data-name="Ellipse 50" cx="5" cy="2" rx="5" ry="2" transform="translate(1094 1780.345)" fill="#5f5348"/>
+      <path id="Pfad_705" data-name="Pfad 705" d="M21933.447-12661.03h26.352s19.494,10.253,20.217,22.773,1.889,51.53,1.889,51.53h5.426l-1.748-54.843s-13.6-23.188-23.016-23.147-29.615,0-29.615,0Z" transform="translate(-20886 14368.571)" fill="#5f5348"/>
+    </g>
+  </g>
+</svg>

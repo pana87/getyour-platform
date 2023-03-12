@@ -7,7 +7,7 @@
     "start": "npm run build && npm run production",
     "dev": "npm run build && npm run server",
     "build": "npm install --omit=dev",
-    "close": "killall -9 node",
+    "close": "killall -9 node && rm -rf node_modules",
     "rm-branches": "git branch | grep -v 'main' | xargs git branch -D",
     "expand-git-post-buffer": "git config --global http.postBuffer 157286400",
     "test": "jest"

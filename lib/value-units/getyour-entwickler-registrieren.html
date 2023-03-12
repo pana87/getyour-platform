@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>Getyour Plattform Entwickler registrieren</title>
+
+    <style>
+      body {
+        margin: 0;
+        line-height: 1.2;
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+
+    <header></header>
+
+    <h1 class="title"></h1>
+
+    <div class="info"></div>
+
+    <div class="username"></div>
+
+    <div class="button"></div>
+
+    <footer></footer>
+
+    <script type="module">
+      import { HeaderField } from "/js/HeaderField.js"
+      import { InfoField } from "/js/InfoField.js"
+      import { FooterField } from "/js/FooterField.js"
+      import { TextField } from "/js/TextField.js"
+      import { DivField } from "/js/DivField.js"
+      import { Helper } from "/js/Helper.js"
+      import { Request } from "/js/Request.js"
+
+      const headerField = new HeaderField()
+      .withType(header => {
+        header.style.backgroundColor = "white"
+      })
+      .withImage(img => {
+        img.style.width = "89px"
+        img.src = "/public/getyour-logo.svg"
+        img.alt = "Getyour Plattform Logo"
+      })
+      .build()
+
+      document.querySelectorAll(".title").forEach(title => {
+        title.innerHTML = "Als Plattformentwickler registrieren"
+        title.style.margin = "34px"
+        title.style.fontWeight = "normal"
+      })
+
+      const usernameField = new TextField("username")
+      .withLabel("Nutzername:")
+      .withType(input => {
+        input.placeholder = "huansolo"
+        // input.pattern = /[a-z]{3, 13}/
+        input.pattern = "[a-z]{3,8}"
+        // input.minlength = "3"
+        input.required = true
+      })
+      .onInput(async() => {
+        const username = await usernameField.withValidValue()
+        document.querySelector("#url-preview").innerHTML = `https://get-your.de/${username}`
+        usernameField.withValidValue()
+      })
+      usernameField.withValidValue()
+
+      const infoField = new InfoField("info")
+      .withWarning(/*html*/`
+        <p>Der Pfad als Plattformentwickler beginnt immer mit deinem Namen. Dieser Name wird in der URL für alle erreichbar sein. Aus dem Grund sind <b>mindestens 3</b> Kleinbuchstaben und <b>maximal 8</b> Kleinbuchstaben aus dem deutschen Alphabet erlaubt: <b>[a-z]</b></p>
+        <p id="url-preview">https://get-your.de/</p>
+      `)
+      .build()
+
+      const loginbutton = new DivField("button")
+      .withType(div => {
+        div.innerHTML = "Name speichern"
+        div.style.backgroundColor = "#c02221"
+        div.style.cursor = "pointer"
+        div.style.fontSize = "21px"
+        div.style.borderRadius = "13px"
+        div.style.margin = "13px 34px"
+        div.style.display = "flex"
+        div.style.justifyContent = "center"
+        div.style.alignItems = "center"
+        div.style.height = "89px"
+        div.addEventListener("mouseover", () => div.style.backgroundColor = "#f19d08")
+        div.addEventListener("mouseout", () => div.style.backgroundColor = "#c02221")
+      })
+      .onClick(async (event) => {
+        const username = await usernameField.withValidValue()
+        console.log(username);
+        const email = Request.email()
+        const localStorageId = Request.localStorageId()
+
+        // first verify that name does not exist before requesting the email
+        const verifyName = {}
+        verifyName.url = "/producer/v1/"
+        verifyName.method = "verify"
+        verifyName.type = "name"
+        verifyName.security = "closed"
+        verifyName.localStorageId = localStorageId
+        verifyName.email = email
+        verifyName.name = username
+        const res = await Request.middleware(verifyName)
+
+        if (res.status === 200) {
+          alert("Dieser Nutzername existiert bereits.")
+          Helper.setNotValidStyle(document.querySelector(usernameField.inputSelector))
+          // Helper.removeOverlay()
+          return
+        }
+
+        Helper.addOverlay()
+        Helper.setWaitCursor()
+        try {
+          await Request.withVerifiedEmail(email, async () => {
+
+            const registerName = {}
+            registerName.url = "/producer/v1/"
+            registerName.method = "register"
+            registerName.type = "name"
+            registerName.security = "closed"
+            registerName.name = username
+            registerName.localStorageId = localStorageId
+            registerName.email = email
+            await Request.sequence(registerName)
+
+
+            alert("Speichern erfolgreich..")
+            Helper.redirectUser()
+
+          })
+        } catch (error) {
+          console.error(error)
+        }
+        Helper.setNotAllowedCursor()
+
+      })
+
+      const footerField = new FooterField()
+      .withType(footer => {
+        footer.style.backgroundColor = "#781717"
+        footer.style.padding = "21px 34px"
+        footer.style.marginTop = "144px"
+        footer.style.color = "#d1d1d1"
+
+        const impressum = document.createElement("div")
+        impressum.innerHTML = "IMPRESSUM"
+        impressum.style.cursor = "pointer"
+        impressum.style.padding = "13px"
+        impressum.addEventListener("click", () => window.location.assign("/impressum/"))
+        footer.append(impressum)
+
+        const dsgvo = document.createElement("div")
+        dsgvo.innerHTML = "DATENSCHUTZ"
+        dsgvo.style.cursor = "pointer"
+        dsgvo.style.padding = "13px"
+        dsgvo.addEventListener("click", () => window.location.assign("/datenschutz/"))
+        footer.append(dsgvo)
+
+        const userAgreement = document.createElement("div")
+        userAgreement.innerHTML = "NUTZERVEREINBARUNG"
+        userAgreement.style.cursor = "pointer"
+        userAgreement.style.padding = "13px"
+        userAgreement.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
+        footer.append(userAgreement)
+      })
+
+
+    </script>
+</body>
+
+</html>

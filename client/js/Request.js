@@ -20,7 +20,7 @@ export class Request {
     })
   }
 
-  static async sequence(options) {
+  static sequence(options) {
     return new Promise((resolve, reject) => {
       if (Helper.objectIsEmpty(options)) return reject(new Error(`expected options, found '${options}'`))
       if (Helper.stringIsEmpty(options.url)) return reject(new Error(`expected url, found '${options.url}'`))
@@ -42,23 +42,58 @@ export class Request {
     })
   }
 
-  static async withVerifiedEmail(email, callback) {
-    await this.sequence({email, url: `/request/send/email/with/pin/`})
-    const userPin = prompt(`Es wurde eine PIN an deine E-Mail Adresse gesendet.\n\nBestätige deine PIN um fortzufahren.`)
-    await this.sequence({userPin, url: `/request/verify/pin/`})
-    const id = await Helper.digest(JSON.stringify({email: email, verified: true}))
-    window.localStorage.setItem("localStorageId", id)
-    callback()
+  static async verifyEmail(email) {
+    const overlay = Helper.addOverlay()
+    const interval = Helper.startTimer({duration: 2 * 60, display: overlay})
+    Helper.setWaitCursor()
+    try {
+      await this.sequence({email, url: `/request/send/email/with/pin/`})
+      const userPin = prompt(`Es wurde eine PIN an deine E-Mail Adresse gesendet.\n\nBestätige deine PIN um fortzufahren.`)
+      await this.sequence({userPin, url: `/request/verify/pin/`})
+      const id = await Helper.digest(JSON.stringify({email: email, verified: true}))
+      window.localStorage.setItem("localStorageId", id)
+      window.localStorage.setItem("email", email)
+      overlay.textContent = "pin ok"
+      clearInterval(interval)
+    } catch (error) {
+      overlay.textContent = "pin fehler"
+      clearInterval(interval)
+      Helper.setNotAllowedCursor()
+      throw new Error(error)
+    }
+  }
+
+  // static async withVerifiedEmail(email, callback) {
+  //   const overlay = Helper.addOverlay()
+  //   const interval = Helper.startTimer({duration: 2 * 60, display: overlay})
+  //   Helper.setWaitCursor()
+  //   try {
+  //     await this.sequence({email, url: `/request/send/email/with/pin/`})
+  //     const userPin = prompt(`Es wurde eine PIN an deine E-Mail Adresse gesendet.\n\nBestätige deine PIN um fortzufahren.`)
+  //     await this.sequence({userPin, url: `/request/verify/pin/`})
+  //     const id = await Helper.digest(JSON.stringify({email: email, verified: true}))
+  //     window.localStorage.setItem("localStorageId", id)
+  //     window.localStorage.setItem("email", email)
+  //     callback()
+  //   } catch (error) {
+  //     console.log("hi");
+  //     Helper.setNotAllowedCursor()
+  //     clearInterval(interval)
+  //     overlay.textContent = "pin fehler"
+  //     throw new Error(error)
+  //   }
+  // }
+
+  static email() {
+    const email = window.localStorage.getItem("email")
+    if (email !== null) return email
+    else window.location.assign("/home/")
   }
 
   static localStorageId() {
-    try {
-      const localStorageId = window.localStorage.getItem("localStorageId")
-      if (localStorageId !== null) return localStorageId
-    } catch (error) {
-      console.error(error)
-    }
-    return undefined
+    const localStorageId = window.localStorage.getItem("localStorageId")
+    if (localStorageId !== null) return localStorageId
+    else window.location.assign("/home/")
   }
 
   static sendFile(file) {

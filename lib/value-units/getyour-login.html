@@ -3,7 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, width=device-width" />
-    <title>Plattform Login</title>
+
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>Getyour Plattform Login</title>
 
     <style>
       body {
@@ -29,17 +31,18 @@
     <footer></footer>
 
   <script type="module">
-    import { HeaderField } from "./../js/HeaderField.js"
-    import { Helper } from "../js/Helper.js"
-    import { DivField } from "./../js/DivField.js"
-    import { EmailField } from "./../js/EmailField.js"
-    import { Request } from "./../js/Request.js"
-    import { InfoField } from "./../js/InfoField.js"
-    import { FooterField } from "./../js/FooterField.js"
+    import { HeaderField } from "/js/HeaderField.js"
+    import { Helper } from "/js/Helper.js"
+    import { DivField } from "/js/DivField.js"
+    import { EmailField } from "/js/EmailField.js"
+    import { Request } from "/js/Request.js"
+    import { InfoField } from "/js/InfoField.js"
+    import { FooterField } from "/js/FooterField.js"
 
     const headerField = new HeaderField()
     .withType(header => {
       header.style.backgroundColor = "white"
+      header.style.width = "100%"
       header.style.position = "fixed"
       header.style.top = "0"
       header.style.left = "0"
@@ -48,7 +51,7 @@
     })
     .withImage(img => {
       img.style.width = "89px"
-      img.src = "../public/getyour-logo.svg"
+      img.src = "/public/getyour-logo.svg"
       img.alt = "Getyour Plattform Logo"
       img.style.cursor = "pointer"
       img.addEventListener("click", () => window.history.back())
@@ -62,14 +65,20 @@
     })
 
     const emailField = new EmailField("email")
-    .withLabel("E-Mail Adresse")
+    .withLabel(label => label.innerHTML = "E-Mail Adresse")
     .withType((input) => {
       input.placeholder = "meine@email.de"
       input.required = true
     })
-    .onInput(() => emailField.withStorage("email"))
-    emailField.fromStorage("email")
-    emailField.withValidValue()
+    .onInput(async() => {
+      emailField.withStorage(value => {
+        window.localStorage.setItem(emailField.name, value)
+      })
+    })
+    .fromStorage((name) => window.localStorage.getItem(name))
+    emailField.withStorage(value => {
+      window.localStorage.setItem(emailField.name, value)
+    })
 
     const loginbutton = new DivField("login-button")
     .withType(div => {
@@ -88,67 +97,39 @@
     })
     .onClick(async (event) => {
       const email = await emailField.withValidValue()
-      // Helper.loginUser(email)
-      Helper.addOverlay()
-      Helper.setWaitCursor()
+      await Request.verifyEmail(email)
 
-      try {
-        await Request.withVerifiedEmail(email, async () => {
-          const localStorageId = Request.localStorageId()
 
-          const registerEmail = {}
-          registerEmail.url = "/consumer/v1/"
-          registerEmail.method = "register"
-          registerEmail.type = "email"
-          registerEmail.security = "open"
-          // registerEmail.name = "onlogin"
-          registerEmail.localStorageId = localStorageId
-          registerEmail.email = email
-          await Request.sequence(registerEmail)
 
-          const verifyUser = {}
-          verifyUser.url = "/consumer/v1/"
-          verifyUser.method = "verify"
-          verifyUser.type = "email"
-          verifyUser.security = "open"
-          // verifyUser.name = "onlogin"
-          verifyUser.localStorageId = localStorageId
-          await Request.sequence(verifyUser)
+      const localStorageId = Request.localStorageId()
 
-          // console.log(document.referrer);
-          // console.log(document.referrer.split("/"));
-          // console.log(document.referrer);
-          // let referrer = ""
-          // if (document.referrer !== "") {
-          //   referrer = new URL(document.referrer)
-          // }
-          // console.log(url);
-          const registerSession = {}
-          registerSession.url = "/request/register/session/"
-          registerSession.consumer = "operator"
-          registerSession.method = "register"
-          registerSession.type = "session"
-          registerSession.security = "open"
-          registerSession.name = "onlogin"
-          if (document.referrer !== "") {
-            registerSession.referrer = new URL(document.referrer)
-          }
-          registerSession.localStorageId = localStorageId
-          const res = await Request.middleware(registerSession)
-          // console.log(res)
+      const registerEmail = {}
+      registerEmail.url = "/consumer/v1/"
+      registerEmail.method = "register"
+      registerEmail.type = "email"
+      registerEmail.security = "open"
+      registerEmail.localStorageId = localStorageId
+      registerEmail.email = email
+      await Request.sequence(registerEmail)
 
-          // if (res.status === 200) window.localStorage.setItem("email", email)
-          // custom redirect codes >= 900
-          if (res.status === 901) return window.location.assign("/plattform/zugang/")
-          // if (res.status === 200 || 900) return window.history.back()
-          if (res.status === 200) return window.history.back()
-          Helper.removeOverlay()
-        })
-      } catch (error) {
-        console.error(error)
-      }
-      Helper.setNotAllowedCursor()
+      const registerVerified = {}
+      registerVerified.url = "/consumer/v1/"
+      registerVerified.method = "register"
+      registerVerified.type = "verified"
+      registerVerified.security = "open"
+      registerVerified.localStorageId = localStorageId
+      await Request.sequence(registerVerified)
 
+      const registerSession = {}
+      registerSession.url = "/request/register/session/"
+      registerSession.method = "register"
+      registerSession.type = "session"
+      registerSession.event = "onlogin"
+      registerSession.security = "open"
+      registerSession.localStorageId = localStorageId
+      await Request.sequence(registerSession)
+
+      await Helper.redirectUser("onlogin")
     })
 
     const infoField = new InfoField("info")

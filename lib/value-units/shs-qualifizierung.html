@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHS Qualifizierung</title>
+
+
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>SHS Anlagenbetreiber Qualifizierung</title>
+
   </head>
-  <body style="margin: 0; background: #ebebeb; font-family: sans-serif; background-image: url('img/qualifizierung-bg.png'); background-repeat: no-repeat; background-size: cover;">
+  <body style="margin: 0; background: #ebebeb; font-family: sans-serif; background-image: url('/felix/shs/public/qualifizierung-bg.png'); background-repeat: no-repeat; background-size: cover;">
 
     <header></header>
 
@@ -17,16 +21,43 @@
     <footer></footer>
 
     <script type="module">
-      import { HeaderField } from "../../../../js/HeaderField.js"
-      import { InfoField } from "../../../../js/InfoField.js"
-      import { FunnelField } from "../../../../js/FunnelField.js"
-      import { Helper } from "../../../../js/Helper.js"
-      import { Request } from "../../../../js/Request.js"
-      import { FooterField } from "../../../../js/FooterField.js"
+      import { HeaderField } from "/js/HeaderField.js"
+      import { InfoField } from "/js/InfoField.js"
+      import { FunnelField } from "/js/FunnelField.js"
+      import { Helper } from "/js/Helper.js"
+      import { Request } from "/js/Request.js"
+      import { DivField } from "/js/DivField.js"
+
+      const getFunnel = {}
+      getFunnel.url = "/consumer/v1/"
+      getFunnel.method = "get"
+      getFunnel.name = "shs"
+      getFunnel.type = "funnel"
+      getFunnel.security = "open"
+      getFunnel.localStorageId = Request.localStorageId()
+      const res = await Request.middleware(getFunnel)
+
+      if (res.status !== 200) {
+        window.location.assign("/home/")
+        throw new Error("get funnel failed")
+      }
+
+      const shsFunnel = Helper.findFunnel(funnel => funnel.owner.id === Request.localStorageId())
+      if (shsFunnel !== undefined) {
+        if (shsFunnel.value !== undefined) {
+          if (shsFunnel.questionIndex >= shsFunnel.questions.length - 1) {
+            window.location.assign(shsFunnel.path.house)
+            throw new Error("funnel exist")
+          }
+        }
+      }
+
+      const funnel = JSON.parse(res.response)
+      Helper.setFunnel(funnel)
 
       const headerField = new HeaderField()
       .withImage(img => {
-        img.src = "../../public/shslogo.png"
+        img.src = "/felix/shs/public/shslogo.png"
         img.alt = "SHS Express Logo"
         img.style.cursor = "pointer"
         img.style.width = "144px"
@@ -37,6 +68,7 @@
         header.style.top = "0"
         header.style.left = "0"
         header.style.backgroundColor = "white"
+        header.style.width = "100%"
       })
       .build()
 
@@ -51,45 +83,30 @@
         info.style.margin = "144px 34px 34px 34px"
       })
 
-      const getFunnel = {}
-      getFunnel.url = "/consumer/v1/"
-      getFunnel.consumer = "operator"
-      getFunnel.method = "get"
-      getFunnel.name = "shs"
-      getFunnel.type = "funnel"
-      getFunnel.security = "open"
-      const res = await Request.middleware(getFunnel)
-
-      // Helper.requestFailed(res)
-      if (res.status !== 200) {
-        // const confirm = window.confirm(`Es tut uns leid, aber es ist ein Fehler aufgetreten. Wenn dieser Fehler weiterhin auftritt, bitten wir Sie, uns zu kontaktieren.\n\nWir möchten sicherstellen, dass unsere Dienste reibungslos funktionieren und Ihr Feedback ist uns dabei sehr wichtig.\n\nMöchten Sie uns kontaktieren?`)
-        // if (confirm === true) window.location.href = "mailto:datenschutz@get-your.de"
-        throw new Error("funnel not found")
-      }
-      const funnel = JSON.parse(res.response)
-      Helper.setFunnel({funnel})
-
-      const shsFunnel = Helper.getFunnelByStorageName(funnel.storage)
-      if (shsFunnel.value !== undefined) {
-        window.location.assign(shsFunnel.path.house)
-        throw new Error("funnel exist")
-      }
-
-
 
       const funnelField = new FunnelField("funnel-placeholder")
       .withFunnel(funnel)
-      .withUnloadEventListener()
+      .onWindowUnload(() => {
+        if (shsFunnel.questionIndex <= (shsFunnel.questions.length - 1)) {
+          const funnels = JSON.parse(window.localStorage.getItem("funnels"))
+          if (funnels !== null) {
+            const newFunnels = funnels.filter(it => it.storage !== this.funnel.storage)
+            window.localStorage.setItem("funnels", JSON.stringify(newFunnels))
+          }
+        }
+      })
       .withClickOnAnswerEventListener((questionIndex, answerIndex) => {
 
         if (questionIndex === 0 && answerIndex === 1) {
-          const confirm = window.confirm("Möchten Sie stattdessen einen persönlichen Ansprechpartner kontaktieren?")
-          if (confirm === true) return window.location.assign("/felix/shs/match-maker/experte-kontaktieren/")
+          // const confirm = window.confirm("Möchten Sie stattdessen einen persönlichen Ansprechpartner kontaktieren?")
+          // if (confirm === true) return window.location.assign("/felix/shs/match-maker/experte-kontaktieren/")
           window.location.assign("/felix/shs/")
           return
         }
 
         if (questionIndex === 1 && answerIndex === 1) {
+          // const confirm = window.confirm("Im Moment bieten wir diese Option nicht an. Möchten Sie stattdessen einen persönlichen Ansprechpartner kontaktieren?")
+          // if (confirm === true) return window.location.assign("/felix/shs/match-maker/experte-kontaktieren/")
           window.location.assign("/felix/shs/")
           return
         }
@@ -118,36 +135,11 @@
         funnel.questionIndex = funnel.questionIndex + 1
         funnelField.withFunnel(funnel)
       })
-      .withFunnelCompleted(() => window.location.assign(funnel.path.house))
-
-      const footerField = new FooterField()
-      .withType(footer => {
-        footer.style.textAlign = "center"
-        footer.style.backgroundColor = "#60a182"
-        footer.style.padding = "21px 34px"
-        footer.style.marginTop = "144px"
-
-        const impressum = document.createElement("div")
-        impressum.innerHTML = "Impressum"
-        impressum.style.cursor = "pointer"
-        impressum.style.padding = "13px"
-        impressum.addEventListener("click", () => window.location.assign("/felix/shs/impressum/"))
-        footer.append(impressum)
-
-        const dsgvo = document.createElement("div")
-        dsgvo.innerHTML = "Datenschutz"
-        dsgvo.style.cursor = "pointer"
-        dsgvo.style.padding = "13px"
-        dsgvo.addEventListener("click", () => window.location.assign("/felix/shs/datenschutz/"))
-        footer.append(dsgvo)
-
-        const userAgreement = document.createElement("div")
-        userAgreement.innerHTML = "Nutzervereinbarung"
-        userAgreement.style.cursor = "pointer"
-        userAgreement.style.padding = "13px"
-        userAgreement.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
-        footer.append(userAgreement)
+      .withFunnelCompleted(async() => {
+        window.location.assign(funnel.path.house)
       })
+
+      Helper.createSHSFooter()
 
     </script>
 

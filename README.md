@@ -8,7 +8,11 @@ Additionally, the use of the code is subject to [specific usage agreements](http
 
 # Standards
 
-## Database
+## Icons and logos
+
+Only svg.
+
+## Data
 
 Only add or multiply. Never substract, delete or divide.
 
@@ -49,7 +53,7 @@ Documents are HTML documents.
 
 ## Fields
 
-Fields are `div` elements (placeholder elements) in the document with a class name. The syntax for the class name `'my-class-name'` is mandatory at the moment. Under the hood, the constructor will query the document using the [querySelectorAll method](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll) and append a text input for each field found in the document.
+Fields are `div` elements (placeholder elements) in the document with a class name. Under the hood, the constructor will query the document using the [querySelectorAll method](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll) and append a text input for each field found in the document.
 
 ```html
 <head>
@@ -58,7 +62,7 @@ Fields are `div` elements (placeholder elements) in the document with a class na
 <body>
   <div class="my-class-name"></div>
   <script>
-    const myTextField = new TextField("div[class*='my-class-name']")
+    const myTextField = new TextField("my-class-name")
     .withType(input => {
       input.placeholder = "My new text field"
     })

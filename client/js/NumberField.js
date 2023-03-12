@@ -1,12 +1,28 @@
-import { Helper } from "./Helper.js"
+import { Helper } from "/js/Helper.js"
 
 export class NumberField {
 
-  withLabel(name) {
-    if (name !== undefined) {
-      this.withLabelName = name
-      document.querySelectorAll(this.fieldSelector).forEach(field => this.#setNumber(field))
-    }
+  withField(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.fieldSelector).forEach(field => callback(field))
+    return this
+  }
+
+  withLabel(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.labelSelector).forEach(label => callback(label))
+    return this
+  }
+
+  withType(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => callback(input))
+    return this
+  }
+
+  onInfoClick(callback) {
+    if (callback !== undefined) document.querySelectorAll(`.label-container-${this.name}`).forEach(info => {
+      info.style.cursor = "pointer"
+      info.childNodes.forEach(child => child.style.cursor = "pointer")
+      info.addEventListener("click", callback)
+    })
     return this
   }
 
@@ -15,61 +31,23 @@ export class NumberField {
     return this
   }
 
-  fromStorage(name) {
-    // console.log(name);
-    if (name === "shsFunnel") {
-      document.querySelectorAll(this.inputSelector).forEach(input => {
-      // input.value = 2001
-        const shsFunnel = Helper.getFunnelByStorageName(name)
-        const value = shsFunnel.value[this.className]
-
-        // console.log(shsFunnel);
-        // console.log(shsFunnel.value);
-        // console.log(shsFunnel.value[this.className]);
-
-        // console.log(input);
-        // input.value = shsFunnel.value[this.className]
-        if (value !== undefined) input.value = shsFunnel.value[this.className]
-
-        // Helper.getFunnel(name, (shsFunnel) => {
-        //   const value = shsFunnel.value[this.className]
-        //   console.log(value);
-        //   // input.value = value
-        //   if (value !== undefined) input.value = value
-        // })
-      })
-      return this
-    }
-    const value = JSON.parse(window.localStorage.getItem(name))
-    if (value !== undefined) input.value = value
+  onInput(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("input", (event) => callback(event)))
     return this
   }
 
-  withType(callback) {
-    document.querySelectorAll(this.inputSelector).forEach(input => callback(input))
+  fromStorage(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => {
+      if (callback(this.name) !== undefined) input.value = callback(this.name)
+    })
     return this
   }
 
-  async withStorage(name) {
-    this.withStorageName = name
-    const value = await this.withValidValue()
-    if (!Helper.numberIsEmpty(value)) {
-      Helper.setFunnel({
-        name: this.withStorageName,
-        key: this.className,
-        value: value
-      })
-
-
-
-      // const storage = JSON.parse(window.localStorage.getItem(this.withStorageName))
-      // storage.value[this.className] = value
-      // window.localStorage.setItem(this.withStorageName, JSON.stringify(storage))
+  async withStorage(callback) {
+    if (callback !== undefined) {
+      const value = await this.withValidValue()
+      if (!Helper.numberIsEmpty(value)) callback(value)
     }
-    // try {
-    // } catch (error) {
-    //   console.error(error)
-    // }
     return this
   }
 
@@ -87,7 +65,7 @@ export class NumberField {
             return resolve(input.value)
           }
           Helper.setNotValidStyle(input)
-          console.error(`field '${this.className}' is required`)
+          console.error(`field '${this.name}' is required`)
           return
         }
         Helper.setValidStyle(input)
@@ -96,62 +74,58 @@ export class NumberField {
     })
   }
 
-  onInput(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("input", (event) => callback(event)))
-    return this
-  }
-
   #setNumber(field) {
     field.innerHTML = ""
+    field.classList.add(this.name)
+    field.style.position = "relative"
+    field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+    field.style.borderRadius = "13px"
+    field.style.border = "0.3px solid black"
+    field.style.display = "flex"
+    field.style.flexDirection = "column"
+    field.style.margin = "34px"
+    field.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+    field.style.justifyContent = "center"
 
-    const container = document.createElement("div")
-    container.style.position = "relative"
-    // container.style.height = "144px"
-    container.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-    container.style.borderRadius = "13px"
-    container.style.border = "0.3px solid black"
-    container.style.display = "flex"
-    container.style.flexDirection = "column"
-    container.style.margin = "34px"
-    container.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-    container.style.justifyContent = "center"
+    const labelContainer = document.createElement("div")
+    labelContainer.classList.add(`label-container-${this.name}`)
+    labelContainer.style.display = "flex"
+    labelContainer.style.alignItems = "center"
+    labelContainer.style.margin = "21px 89px 0 34px"
+
+    const info = document.createElement("img")
+    info.src = "/public/info-gray.svg"
+    info.alt = "Info"
+    info.style.width = "34px"
+    info.style.marginRight = "21px"
+    labelContainer.append(info)
 
     const label = document.createElement("label")
-    if (this.withLabelName !== undefined) {
-      label.innerHTML = this.withLabelName
-    }
+    label.classList.add(this.name)
     label.style.color = "#707070"
     label.style.fontSize = "21px"
-    label.style.margin = "21px 34px 0 34px"
-    label.setAttribute("for", this.className)
+    labelContainer.append(label)
+    field.append(labelContainer)
 
     const input = document.createElement("input")
+    input.classList.add(this.name)
     input.type = this.type
-    input.name = this.className
-    input.id = this.className
-
     input.style.margin = "21px 89px 21px 34px"
     input.style.fontSize = "21px"
     input.style.maxWidth = "300px"
-
-
-    container.append(label, input)
-
-    field.append(container)
+    field.append(input)
   }
 
-  constructor(className) {
-    try {
-      if (Helper.stringIsEmpty(className)) throw new Error("class name is empty")
-      this.className = className
-      this.fieldSelector = `[class='${this.className}']`
-      this.inputSelector = `input[id='${this.className}']`
-      this.type = "number"
-      const fields = document.querySelectorAll(this.fieldSelector)
-      if (fields.length <= 0) throw new Error(`field '${this.className}' not found`)
-      fields.forEach(field => this.#setNumber(field))
-    } catch (error) {
-      console.error(error);
+  constructor(name) {
+    if (Helper.stringIsEmpty(name)) throw new Error("name is empty")
+    this.name = name
+    this.fieldSelector = `div[class='${this.name}']`
+    this.inputSelector = `input[class='${this.name}']`
+    this.labelSelector = `label[class='${this.name}']`
+    this.type = "number"
+    this.fields = Array.from(document.querySelectorAll(this.fieldSelector))
+    for (let i = 0; i < this.fields.length; i++) {
+      this.#setNumber(this.fields[i])
     }
   }
 }

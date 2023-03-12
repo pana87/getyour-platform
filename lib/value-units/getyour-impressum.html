@@ -4,54 +4,53 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="shortcut icon" href="/public/getyour-logo.svg" />
   <title>Getyour Plattform Impressum</title>
+
   <style>
     body {
       margin: 0;
       line-height: 1.2;
       font-family: sans-serif;
     }
-    h2 {
-      font-weight: normal;
-      font-size: 21px;
-    }
   </style>
 </head>
 <body>
   <header></header>
 
-  <h1 class="title"></h1>
+  <div class="title"></div>
 
-  <h2 class="sub-title-1"></h2>
+  <div class="sub-title-1"></div>
   <div class="text-1"></div>
 
-  <h2 class="sub-title-2"></h2>
+  <div class="sub-title-2"></div>
   <div class="text-2"></div>
 
-  <h2 class="sub-title-3"></h2>
+  <div class="sub-title-3"></div>
   <div class="text-3"></div>
 
-  <h2 class="sub-title-4"></h2>
+  <div class="sub-title-4"></div>
   <div class="text-4"></div>
 
-  <h2 class="sub-title-5"></h2>
+  <div class="sub-title-5"></div>
   <div class="text-5"></div>
 
   <footer></footer>
 
   <script type="module">
-    import {HeaderField} from "../../../../js/HeaderField.js"
-    import {Field} from "../../../../js/Field.js"
-    import {Helper} from "../../../../js/Helper.js"
-    import {FooterField} from "../../../../js/FooterField.js"
+    import {HeaderField} from "/js/HeaderField.js"
+    import {DivField} from "/js/DivField.js"
+    import {Helper} from "/js/Helper.js"
+    import {FooterField} from "/js/FooterField.js"
 
     const header = new HeaderField()
     .withImage(img => {
-      img.src = "../public/getyour-logo.svg"
+      img.src = "/public/getyour-logo.svg"
       img.alt = "Getyour Plattform Logo"
       img.style.cursor = "pointer"
       img.style.width = "89px"
-      img.addEventListener("click", () => window.location.assign("/home/"))
+      img.addEventListener("click", () => window.history.back())
     })
     .withType(header => {
       header.style.position = "fixed"
@@ -59,25 +58,30 @@
       header.style.left = "0"
       header.style.zIndex = "1"
       header.style.background = "white"
+      header.style.width = "100%"
     })
     .build()
 
 
 
-    const title = new Field(".title")
+    const title = new DivField("title")
     .withType(div => {
-      div.innerHTML = "Impressum"
-      div.style.fontWeight = "normal"
-      div.style.margin = "144px 34px"
+      const title = document.createElement("h1")
+      title.innerHTML = "Impressum"
+      title.style.fontWeight = "normal"
+      title.style.margin = "144px 34px"
+      div.append(title)
     })
 
-    const subTitle1 = new Field(".sub-title-1")
+    const subTitle1 = new DivField("sub-title-1")
     .withType(div => {
-      div.innerHTML = "Inhaltlich Verantwortlicher gemäß § 55 Abs. 2 RStV"
-      div.style.fontWeight = "normal"
-      div.style.margin = "21px 34px"
+      const subTitle = document.createElement("h2")
+      subTitle.innerHTML = "Inhaltlich Verantwortlicher gemäß § 55 Abs. 2 RStV"
+      subTitle.style.fontWeight = "normal"
+      subTitle.style.margin = "21px 34px"
+      div.append(subTitle)
     })
-    const text1 = new Field(".text-1")
+    const text1 = new DivField("text-1")
     .withType(div => {
       div.style.fontWeight = "normal"
       div.style.margin = "21px 34px"
@@ -93,13 +97,15 @@
       `
     })
 
-    const subTitle2 = new Field(".sub-title-2")
+    const subTitle2 = new DivField("sub-title-2")
     .withType(div => {
-      div.innerHTML = "Haftung für Inhalte"
-      div.style.fontWeight = "normal"
-      div.style.margin = "21px 34px"
+      const subTitle = document.createElement("h2")
+      subTitle.innerHTML = "Haftung für Inhalte"
+      subTitle.style.fontWeight = "normal"
+      subTitle.style.margin = "21px 34px"
+      div.append(subTitle)
     })
-    const text2 = new Field(".text-2")
+    const text2 = new DivField("text-2")
     .withType(div => {
       div.style.fontWeight = "normal"
       div.style.margin = "21px 34px"
@@ -109,13 +115,15 @@
       `
     })
 
-    const subTitle3 = new Field(".sub-title-3")
+    const subTitle3 = new DivField("sub-title-3")
     .withType(div => {
-      div.innerHTML = "Haftung für Links"
-      div.style.margin = "21px 34px"
-      div.style.fontWeight = "normal"
+      const subTitle = document.createElement("h2")
+      subTitle.innerHTML = "Haftung für Links"
+      subTitle.style.margin = "21px 34px"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
     })
-    const text3 = new Field(".text-3")
+    const text3 = new DivField("text-3")
     .withType(div => {
       div.style.margin = "21px 34px"
       div.style.fontWeight = "normal"
@@ -125,13 +133,15 @@
       `
     })
 
-    const subTitle4 = new Field(".sub-title-4")
+    const subTitle4 = new DivField("sub-title-4")
     .withType(div => {
-      div.style.margin = "21px 34px"
-      div.innerHTML = "Urheberrecht"
-      div.style.fontWeight = "normal"
+      const subTitle = document.createElement("h2")
+      subTitle.style.margin = "21px 34px"
+      subTitle.innerHTML = "Urheberrecht"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
     })
-    const text4 = new Field(".text-4")
+    const text4 = new DivField("text-4")
     .withType(div => {
       div.style.margin = "21px 34px"
       div.style.fontWeight = "normal"
@@ -141,13 +151,15 @@
       `
     })
 
-    const subTitle5 = new Field(".sub-title-5")
+    const subTitle5 = new DivField("sub-title-5")
     .withType(div => {
-      div.style.margin = "21px 34px"
-      div.innerHTML = "Online Streitbeilegung"
-      div.style.fontWeight = "normal"
+      const subTitle = document.createElement("h2")
+      subTitle.style.margin = "21px 34px"
+      subTitle.innerHTML = "Online Streitbeilegung"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
     })
-    const text5 = new Field(".text-5")
+    const text5 = new DivField("text-5")
     .withType(div => {
       div.style.margin = "21px 34px"
       div.style.fontWeight = "normal"

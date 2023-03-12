@@ -1,13 +1,28 @@
-import { Helper } from "./Helper.js"
+import { Helper } from "/js/Helper.js"
 
 export class CanvasField {
+
+  withField(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.fieldSelector).forEach(field => callback(field))
+    return this
+  }
+
+  withLabel(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.labelSelector).forEach(label => callback(label))
+    return this
+  }
+
+  withType(callback) {
+    if(callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(canvas => callback(canvas))
+    return this
+  }
 
   #startDrawing(event) {
     event.preventDefault()
 
     this.isDrawing = true
 
-    document.querySelectorAll(this.canvasSelector).forEach(canvas => {
+    document.querySelectorAll(this.inputSelector).forEach(canvas => {
       const context = canvas.getContext('2d');
       context.lineWidth = 1;
       context.lineJoin = 'round';
@@ -29,8 +44,10 @@ export class CanvasField {
   #drawLine(event) {
     event.preventDefault()
 
+
+
     if (this.isDrawing === false) return
-    document.querySelectorAll(this.canvasSelector).forEach(canvas => {
+    document.querySelectorAll(this.inputSelector).forEach(canvas => {
       const context = canvas.getContext('2d');
       context.lineWidth = 1;
       context.lineJoin = 'round';
@@ -46,6 +63,8 @@ export class CanvasField {
 
       context.lineTo(scaledX, scaledY);
       context.stroke();
+
+      this.isEmpty = false
     })
   }
 
@@ -53,22 +72,8 @@ export class CanvasField {
     this.isDrawing = false
   }
 
-  withType(callback) {
-    if(callback !== undefined) document.querySelectorAll(this.canvasSelector).forEach(canvas => callback(canvas))
-    return this
-  }
-
-  with({withElement, withField, withCanvas, withLabel}) {
-    if (withElement !== undefined) this.fields.push(withElement)
-    if (withField !== undefined) this.withFieldCallback = withField
-    if (withCanvas !== undefined) this.withCanvasCallback = withCanvas
-    if (withLabel !== undefined) this.withLabelCallback = withLabel
-    this.#setFields()
-    return this
-  }
-
   withDrawable() {
-    document.querySelectorAll(this.canvasSelector).forEach(canvas => {
+    document.querySelectorAll(this.inputSelector).forEach(canvas => {
       this.isDrawing = false;
       canvas.addEventListener('mousedown', (event) => this.#startDrawing(event))
       canvas.addEventListener('mousemove', (event) => this.#drawLine(event))
@@ -78,52 +83,55 @@ export class CanvasField {
     return this
   }
 
+  #setCanvas(field) {
+    field.innerHTML = ""
+    field.classList.add(this.name)
+    field.style.position = "relative"
+    field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+    field.style.borderRadius = "13px"
+    field.style.border = "0.3px solid black"
+    field.style.display = "flex"
+    field.style.flexDirection = "column"
+    field.style.margin = "34px"
+    field.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+    field.style.justifyContent = "center"
 
-  #setFields() {
+    const labelContainer = document.createElement("div")
+    labelContainer.classList.add(`label-container-${this.name}`)
+    labelContainer.style.display = "flex"
+    labelContainer.style.alignItems = "center"
+    labelContainer.style.margin = "21px 89px 0 34px"
 
-    for (let i = 0; i < this.fields.length; i++) {
-      this.fields[i].innerHTML = ""
-      this.fields[i].classList.add(this.name)
-      this.fields[i].style.position = "relative"
-      this.fields[i].style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-      this.fields[i].style.borderRadius = "13px"
-      this.fields[i].style.border = "0.3px solid black"
-      this.fields[i].style.display = "flex"
-      this.fields[i].style.flexDirection = "column"
-      this.fields[i].style.margin = "34px"
-      this.fields[i].style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-      this.fields[i].style.justifyContent = "center"
-      this.fields[i].style.cursor = "pointer"
+    const info = document.createElement("img")
+    info.src = "/public/info-gray.svg"
+    info.alt = "Info"
+    info.style.width = "34px"
+    info.style.marginRight = "21px"
+    labelContainer.append(info)
 
+    const label = document.createElement("label")
+    label.classList.add(this.name)
+    label.style.color = "#707070"
+    label.style.fontSize = "21px"
+    labelContainer.append(label)
+    field.append(labelContainer)
 
-      const canvas = document.createElement("canvas")
-      canvas.classList.add(this.name)
-      canvas.style.width = "100%"
-
-      if (this.withLabelCallback !== undefined) {
-        const label = document.createElement("label")
-        label.classList.add(this.name)
-        label.style.color = "#707070"
-        label.style.fontSize = "21px"
-        label.style.margin = "21px 34px"
-        this.withLabelCallback(label)
-
-        label.append(canvas)
-        this.fields[i].append(label)
-      }
-      if (this.withCanvasCallback !== undefined) this.withCanvasCallback(canvas)
-      if (this.withFieldCallback !== undefined) this.withFieldCallback(this.fields[i])
-    }
+    const canvas = document.createElement("canvas")
+    canvas.classList.add(this.name)
+    canvas.style.width = "100%"
+    field.append(canvas)
   }
 
   constructor(name) {
     if (Helper.stringIsEmpty(name)) throw new Error("class name is empty")
     this.name = name
     this.fieldSelector = `div[class='${this.name}']`
-    this.canvasSelector = `canvas[class='${this.name}']`
-    this.type = "canvas"
+    this.inputSelector = `canvas[class='${this.name}']`
     this.labelSelector = `label[class='${this.name}']`
+    this.type = "canvas"
     this.fields = Array.from(document.querySelectorAll(this.fieldSelector))
-    this.#setFields()
+    for (let i = 0; i < this.fields.length; i++) {
+      this.#setCanvas(this.fields[i])
+    }
   }
 }
