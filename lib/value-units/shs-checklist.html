@@ -4,6 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, width=device-width" />
 
+
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>SHS Checkliste Übersicht</title>
+
+
+
     <style>
       body {
         margin: 0;
@@ -29,12 +35,11 @@
 
   <script type="module">
 
-    import { HeaderField } from "../../../../js/HeaderField.js"
-    import { Helper } from "../../../../js/Helper.js"
-    import { Request } from "../../../../js/Request.js"
-    import { DivField } from "../../../../js/DivField.js"
-    import { InfoField } from "../../../../js/InfoField.js"
-    import { ChecklistField } from "../../../../js/ChecklistField.js"
+    import { HeaderField } from "/js/HeaderField.js"
+    import { Helper } from "/js/Helper.js"
+    import { Request } from "/js/Request.js"
+    import { DivField } from "/js/DivField.js"
+    import { InfoField } from "/js/InfoField.js"
 
 
     const urlId = window.location.pathname.split("/")[4]
@@ -42,16 +47,12 @@
 
     const getChecklist = {}
     getChecklist.url = "/consumer/v1/"
-    getChecklist.consumer = "operator"
     getChecklist.method = "get"
     getChecklist.type = "checklist"
     getChecklist.security = "closed"
     getChecklist.localStorageId = localStorageId
     getChecklist.urlId = urlId
     const res = await Request.middleware(getChecklist)
-    // console.log(res);
-
-    // console.log(checklist);
 
     if (res.status !== 200) {
       window.location.assign("/home/")
@@ -62,7 +63,7 @@
 
     const headerField = new HeaderField()
     .withImage(img => {
-      img.src = "../../public/shslogo.png"
+      img.src = "/felix/shs/public/shslogo.png"
       img.alt = "SHS Express Logo"
       img.style.cursor = "pointer"
       img.style.width = "144px"
@@ -74,12 +75,13 @@
       header.style.left = "0"
       header.style.zIndex = "1"
       header.style.backgroundColor = "white"
+      header.style.width = "100%"
     })
     .withProfile(profile => {
       profile.innerHTML = checklist.owner.name
       profile.style.fontSize = "21px"
       profile.style.fontWeight = "bold"
-      profile.addEventListener("click", () => window.location.assign("/felix/shs/funnel/abfrage-haus/"))
+      profile.addEventListener("click", () => window.location.assign("/felix/shs/match-maker/hersteller-vergleich/"))
     })
     .build()
 
@@ -97,10 +99,108 @@
     })
 
 
+    const checklistField = new DivField("checklist")
+    .withType(div => {
+      div.innerHTML = ""
 
-    const checklistField = new ChecklistField("checklist")
-    .withChecklist(checklist)
-    .build()
+      for (let i = 0; i < checklist.items.length; i++) {
+
+        const item = document.createElement("div")
+        item.classList.add("checklist-item")
+        item.style.margin = "34px"
+
+        const itemHeader = document.createElement("div")
+        itemHeader.classList.add("item-header")
+        itemHeader.style.display = "flex"
+        itemHeader.style.borderTopRightRadius = "21px"
+        itemHeader.style.borderTopLeftRadius = "21px"
+        itemHeader.style.borderBottomLeftRadius = "21px"
+        itemHeader.style.backgroundColor = "#d1d0d0"
+
+        const itemState = document.createElement("div")
+        itemState.classList.add("item-state")
+        itemState.style.display = "flex"
+        itemState.style.justifyContent = "center"
+        itemState.style.alignItems = "center"
+        itemState.style.width = "89px"
+        itemState.style.height = "89px"
+        itemState.style.backgroundColor = "#c6c6c6"
+        itemState.style.fontSize = "34px"
+
+        if (checklist.state >= i + 1) {
+          itemState.style.backgroundColor = "#006f39"
+          itemState.style.color = "#ffffff"
+        }
+        itemState.style.borderTopLeftRadius = "21px"
+        itemState.style.borderBottomLeftRadius = "21px"
+
+        const itemIndex = document.createElement("div")
+        itemIndex.classList.add("item-index")
+        itemIndex.innerHTML = i + 1
+
+        itemState.append(itemIndex)
+
+
+        const itemTitle = document.createElement("div")
+        itemTitle.classList.add("item-title")
+        itemTitle.style.alignSelf = "center"
+        itemTitle.style.marginLeft = "13px"
+        itemTitle.innerHTML = checklist.items[i].title
+        itemTitle.style.fontSize = "21px"
+
+        itemHeader.append(itemState, itemTitle)
+        item.append(itemHeader)
+
+
+        const itemBody = document.createElement("div")
+        itemBody.classList.add("item-body")
+        itemBody.style.marginLeft = "8%"
+        itemBody.style.backgroundColor = "#dbdbdb"
+        itemBody.style.borderBottomRightRadius = "21px"
+        itemBody.style.borderBottomLeftRadius = "21px"
+        itemBody.style.padding = "21px"
+        itemBody.style.display = "flex"
+        itemBody.style.flexDirection = "column"
+        itemBody.style.boxShadow = "0 3px 5px rgba(0, 0, 0, 0.13)"
+
+        const itemDescription = document.createElement("div")
+        itemDescription.classList.add("item-description")
+        itemDescription.innerHTML = checklist.items[i].description
+        itemDescription.style.marginBottom = "34px"
+
+        itemBody.append(itemDescription)
+
+        if (checklist.items[i].path !== undefined) {
+          const itemButton = document.createElement("div")
+          itemButton.classList.add("item-button")
+          itemButton.innerHTML = "Zur Übersicht"
+          itemButton.style.borderRadius = "13px"
+          itemButton.style.width = "233px"
+          itemButton.style.height = "55px"
+          itemButton.style.display = "flex"
+          itemButton.style.justifyContent = "center"
+          itemButton.style.alignItems = "center"
+          itemButton.style.alignSelf = "flex-end"
+          itemButton.style.backgroundColor = "#f7aa20"
+          itemButton.style.fontSize = "21px"
+          itemButton.style.margin = "8px"
+          itemButton.style.cursor = "not-allowed"
+          if (checklist.state >= i) {
+            itemButton.style.cursor = "pointer"
+            if (i >= 2) {
+              itemButton.addEventListener("click", () => alert("Bald verfügbar."))
+            } else {
+              itemButton.addEventListener("click", () => window.location.assign(checklist.items[i].path))
+            }
+          }
+          itemBody.append(itemButton)
+        }
+        item.append(itemBody)
+        div.append(item)
+
+
+      }
+    })
 
 
     Helper.createSHSFooter()

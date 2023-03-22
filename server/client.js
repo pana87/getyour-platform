@@ -1,98 +1,39 @@
 const express = require('express')
-const {HtmlParser} = require('../config/HtmlParser.js')
 const cookieParser = require('cookie-parser')
 const { clientLocation, docsLocation } = require('../config/ServerLocation.js')
-const { CSSParser } = require('../config/CSSParser.js')
 const { Helper } = require('../lib/Helper.js')
 const { User } = require('../lib/User.js')
 const { Request } = require('../lib/Request.js')
 const { UserRole } = require('../lib/UserRole.js')
 const crypto = require("node:crypto")
 const jwt = require('jsonwebtoken')
-// const sessionLength = 5 * 60000
-const sessionLength = 120 * 60000
+const nano = require("nano")(process.env.COUCHDB_LOCATION)
 
 
 Helper.configureClientStorage()
-// new HtmlParser(docsLocation.relativePath)
-// new HtmlParser(clientLocation.relativePath)
-// new CSSParser()
+
 
 const app = express()
 app.use(cookieParser())
 app.use(express.json({limit: "50mb"}))
+app.use(Helper.removeCookies)
+
+
+// static first
 app.use("/docs/", express.static(docsLocation.absolutePath))
 app.use(express.static(clientLocation.absolutePath))
 
 
-// app.get("/felix/shs/hersteller/", async(req, res) => {
-//   // user/platform/app/
-//   // die app heißt hersteller-matching
-//   return res.send(Helper.readFileSyncToString("../lib/value-units/offer-list.html"))
-//   // return res.send(Helper.readFileSyncToString("../client/felix/shs/hersteller/index.html"))
-// })
 
-// app.get("/felix/shs/funnel/abfrage-technisches/1", async(req, res) => {
-//   return res.send(Helper.readFileSyncToString("../client/felix/shs/funnel/abfrage-technisches/index.html"))
-//   // if (req.params.name === "qualifizierung") return res.send(Helper.readFileSyncToString(`../lib/value-units/funnel/shs-${req.params.name}.html`))
-//   // if (req.params.name === "abfrage-haus") return res.send(Helper.readFileSyncToString(`../lib/value-units/funnel/shs-${req.params.name}.html`))
-//   // if (req.params.name === "abfrage-heizung") return res.send(Helper.readFileSyncToString(`../lib/value-units/funnel/shs-${req.params.name}.html`))
-//   // if (req.params.name === "abfrage-strom") return res.send(Helper.readFileSyncToString(`../lib/value-units/funnel/shs-${req.params.name}.html`))
-//   // if (req.params.name === "abfrage-technisches") return res.send(Helper.readFileSyncToString(`../lib/value-units/funnel/shs-${req.params.name}.html`))
-//   // if (req.params.name === "abfrage-persoenliches") return res.send(Helper.readFileSyncToString(`../lib/value-units/funnel/shs-${req.params.name}.html`))
-//   // try {
-//   // } catch (error) {
-//   //   Helper.logError(error, req)
-//   // }
-//   // return res.redirect("/felix/shs/")
-// })
 
-// app.get("/:username/", async (req, res) => {
-//   try {
-//     // before jwt
-//     if (req.params.username === "home") return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-login.html"))
-//     // if (req.params.username === "home") return res.send(Helper.readFileSyncToString("./../client/home/index.html"))
-//     if (req.params.username === "impressum") return res.send(Helper.readFileSyncToString("./../lib/value-units/getyourindex.html"))
-//     if (req.params.username === "datenschutz") return res.send(Helper.readFileSyncToString("./../client/datenschutz/index.html"))
-//     if (req.params.username === "nutzervereinbarung") return res.send(Helper.readFileSyncToString("./../client/nutzervereinbarung/index.html"))
-//     // const {user} = await User.find(it => it.name === req.params.username)
-//     // if (user === undefined) return res.sendStatus(404)
-//     // const userRole = user.roles
-//     // const userName = Helper.capitalizeFirstLetter(req.params.username)
-//     // const platformList = "<p>test</p>"
 
-//     // const html = Helper.renderContentFeed(req.params.username)
 
-//     const html = Helper.readFileSyncToString("../lib/value-units/profile-doc-by-username.html")
-//     // console.log(html);
-//     return res.send(html)
-
-//   } catch (error) {
-//     console.error(error)
-//   }
-//   return res.sendStatus(404)
-// })
-app.get("/:user/", async (req, res, next) => {
-  try {
-    if (req.params.user === "home") return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-login.html"))
-    if (req.params.user === "impressum") return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-impressum.html"))
-    if (req.params.user === "datenschutz") return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-datenschutz.html"))
-    if (req.params.user === "nutzervereinbarung") return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-nutzervereinbarung.html"))
-    return next()
-  } catch (error) {
-    Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
+app.get("/cookies/entfernen/", (req, res) => {
+  Object.keys(req.cookies).forEach((cookieName) => {
+    res.clearCookie(cookieName)
+  })
+  return res.sendStatus(200)
 })
-
-
-// app.get("/:user/:platform/:type/:name/", async(req, res, next) => {
-//   // if (req.params.username === "impressum") return res.send(Helper.readFileSyncToString("./../lib/value-units/getyourindex.html"))
-//   // if (req.params.username === "datenschutz") return res.send(Helper.readFileSyncToString("./../client/datenschutz/index.html"))
-//   // if (req.params.username === "nutzervereinbarung") return res.send(Helper.readFileSyncToString("./../client/nutzervereinbarung/index.html"))
-//   return next()
-// })
-
 
 app.get("/felix/shs/:type/:name/", async(req, res, next) => {
   try {
@@ -111,7 +52,7 @@ app.get("/felix/shs/:type/:name/", async(req, res, next) => {
     // console.log(req.params.name);
     if (req.params.type === "match-maker") {
       // console.log("hi");
-      if (req.params.name === "experte-kontaktieren") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.name}.html`))
+      // if (req.params.name === "experte-kontaktieren") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.name}.html`))
       if (req.params.name === "hersteller-vergleich") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.name}.html`))
 
     }
@@ -134,6 +75,7 @@ app.get("/felix/shs/checklist/:urlId/",
   Request.requireJwtToken,
   Request.verifySession,
   Request.requireRoles([UserRole.OPERATOR]),
+  Request.verifyId,
 async(req, res) => {
   // send value unit by valid urlId verifyUrlId(req.params.urlId)
   // console.log(req.params.itemIndex);
@@ -146,6 +88,7 @@ app.get("/felix/shs/checklist/:urlId/print/",
   Request.requireJwtToken,
   Request.verifySession,
   Request.requireRoles([UserRole.OPERATOR]),
+  Request.verifyId,
   (req, res) => {
     return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-drucken.html"))
     // return res.send(Helper.readFileSyncToString("../client/felix/shs/checkliste/1/print.html"))
@@ -156,6 +99,7 @@ app.get("/felix/shs/checklist/:urlId/sign/",
   Request.requireJwtToken,
   Request.verifySession,
   Request.requireRoles([UserRole.OPERATOR]),
+  Request.verifyId,
   (req, res) => {
   // console.log("hi");
   // const html = Helper.readFileSyncToString("../client/user/platform/funnel/sign/index.html")
@@ -170,6 +114,7 @@ app.get("/felix/shs/checklist/:urlId/:itemIndex/",
   Request.requireJwtToken,
   Request.verifySession,
   Request.requireRoles([UserRole.OPERATOR]),
+  Request.verifyId,
 async(req, res) => {
   // for (let i = 0; i < array.length; i++) {
   //   const element = array[i];
@@ -207,9 +152,19 @@ async(req, res) => {
 //   // return next()
 // })
 
+app.get("/pana/getyour/entwickler-registrieren/",
+// if value.security = closed
+  Request.requireJwtToken,
+  Request.verifySession,
+  Request.requireRoles([UserRole.PLATFORM_DEVELOPER]),
+  Request.verifyId,
+async(req, res) => {
+  return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-entwickler-registrieren.html"))
+})
 
 
-app.get("/plattform/zugang/", async(req, res) => {
+app.get("/pana/getyour/zugang/", async(req, res) => {
+  // if value.security = open
   return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-plattform-zugang.html"))
 })
 
@@ -231,12 +186,12 @@ app.get("/plattform/zugang/", async(req, res) => {
 // because express root is not serving any css or js files
 app.get("/", (req, res) => res.redirect("/home/"))
 
-app.get("/user/platform/funnel/sign/", (req, res) => {
-  console.log("hi");
-  const html = Helper.readFileSyncToString("../client/user/platform/funnel/sign/index.html")
-  if (html !== undefined) return res.send(html)
-  return res.sendStatus(404)
-})
+// app.get("/user/platform/funnel/sign/", (req, res) => {
+//   console.log("hi");
+//   const html = Helper.readFileSyncToString("../client/user/platform/funnel/sign/index.html")
+//   if (html !== undefined) return res.send(html)
+//   return res.sendStatus(404)
+// })
 
 // app.get("/user/entries/", (req, res) => {
 //   // if (req.userError !== undefined) return res.redirect("/home/")
@@ -248,15 +203,44 @@ app.get("/cookies/anzeigen/", async (req, res) => {
 })
 
 
+app.post("/producer/v1/",
+
+  // security level closed
+  Request.requireJwtToken,
+  Request.verifySession,
+  Request.verifyId,
+
+
+  // interactions
+  Request.verifyName,
+  Request.registerName,
+
+async(req, res) => {
+  return res.sendStatus(404)
+})
+
+
 
 app.post("/consumer/v1/",
   // session
   // Request.requireCookies,
 
 
-  // with options
+  // security level open
+
+
+
+  // security level closed
   Request.requireJwtToken,
   Request.verifySession,
+
+
+  Request.registerEmail,
+  Request.registerVerified,
+
+
+  // open closed
+  Request.verifyId,
 
   // options
   // Request.requireBody,
@@ -266,24 +250,23 @@ app.post("/consumer/v1/",
   // Request.requireType,
   // Request.requireName,
 
+  Request.redirectUser,
+  // Request.requireRedirect,
   // identification
   // Request.requireEmail,
   // Request.requireLocalStorageId,
-  Request.registerEmail,
-  Request.verifyEmail,
+  // Request.getEmail,
 
   // Request.requireVerifiedUser,
-
   // authorization
-  Request.verifyId,
-
   Request.registerRole,
+
   // methods
   Request.getFunnel,
   // Request.requireFunnel,
   Request.registerFunnel,
 
-  Request.getOffer,
+  Request.getOffers,
   // Request.requireOffer,
   Request.registerOffer,
 
@@ -291,8 +274,6 @@ app.post("/consumer/v1/",
   // Request.requireChecklist,
   Request.registerChecklist,
 
-  Request.requireRedirect,
-  Request.getEmail,
 
   Request.registerLead,
 
@@ -301,80 +282,61 @@ app.post("/consumer/v1/",
   }
 )
 
-
 app.post("/request/register/session/",
-  // Request.requireBody,
-  // Request.requireUrl,
-  Request.requireLocalStorageId,
-  Request.requireVerifiedUser,
+  Request.verifyId,
+
   async (req, res) => {
     try {
-      const {localStorageId, name, referrer} = req.body
-      const {user} = await Helper.find(user => user.id === localStorageId)
-      if (Helper.objectIsEmpty(user)) return res.sendStatus(404)
-      const salt = Helper.generateRandomBytes(32)
-      if (Helper.arrayIsEmpty(salt)) return res.sendStatus(404)
+      const {localStorageId, event} = req.body
+      const {doc, user} = await Helper.findUser(user => user.id === localStorageId)
+      if (Helper.objectIsEmpty(user)) throw new Error("user is empty")
+      if (Helper.stringIsEmpty(user.id)) throw new Error("user id is empty")
 
-      if (name === "onlogin") {
-        // redirect by referrer
-        // 901 - platform entries
-        // if (referrer !== "") {}
-        if (referrer !== undefined) {
-          // console.log(referrer.pathname);
-          if (referrer.pathname === "/felix/shs/") return res.sendStatus(901)
-        }
-        // if (referrer.pathname === "") return res.sendStatus(901)
-        // if (referrer.pathname === "/felix/shs/funnel/abfrage-haus/") return res.sendStatus(900)
-        // if (referrer.pathname === "/felix/shs/match-maker/experte-kontaktieren/") return res.sendStatus(900)
-        // if (referrer.pathname === "/felix/shs/match-maker/experte-kontaktieren/") return res.sendStatus(900)
-        // if (referrer.pathname === "/felix/shs/match-maker/experte-kontaktieren/") return res.sendStatus(900)
-        // if (referrer.pathname === "/felix/shs/match-maker/experte-kontaktieren/") return res.sendStatus(900)
-        // console.log(user);
-        // redirect to shs qualification
-        // if (user.funnels === undefined) return res.sendStatus(903)
-        // if (Helper.arrayIsEmpty(user.roles)) {
-        //   return res.sendStatus(902)
-        // }
+      if (event === "onlogin") {
+        if (Helper.arrayIsEmpty(user.roles)) return res.sendStatus(200)
       }
+      if (Helper.arrayIsEmpty(user.roles)) throw new Error("user roles is empty")
 
-      if (Helper.stringIsEmpty(user.id)) return res.sendStatus(404)
-
-
-
-
-
-      // const jwtToken = JWTToken.sign({
-      //   roles: user.roles,
-      //   id: user.id,
-      // }).jwtToken
-
-
+      const salt = Helper.generateRandomBytes(32)
+      if (Helper.arrayIsEmpty(salt)) throw new Error("salt is empty")
       const jwtToken = jwt.sign({
         roles: user.roles,
         id: user.id,
       }, process.env.JWT_SECRET, { expiresIn: '2h' })
-
-
-
-      if (Helper.stringIsEmpty(jwtToken)) return res.sendStatus(404)
+      if (Helper.stringIsEmpty(jwtToken)) throw new Error("jwt token is empty")
       const saltDigest = Helper.digest(JSON.stringify(salt))
-      if (Helper.stringIsEmpty(saltDigest)) return res.sendStatus(404)
+      if (Helper.stringIsEmpty(saltDigest)) throw new Error("salt digest is empty")
       const jwtTokenDigest = Helper.digest(jwtToken)
-      if (Helper.stringIsEmpty(jwtTokenDigest)) return res.sendStatus(404)
+      if (Helper.stringIsEmpty(jwtTokenDigest)) throw new Error("jwt token digest is empty")
       const sessionToken = Helper.digest(JSON.stringify({
         id: user.id,
         pin: randomPin,
         salt: saltDigest,
         jwt: jwtTokenDigest,
       }))
-      if (Helper.stringIsEmpty(sessionToken)) return res.sendStatus(404)
-      req.session = {}
-      req.session.id = user.id
-      req.session.pin = randomPin
-      req.session.salt = saltDigest
-      req.session.jwt = jwtTokenDigest
-      const storeSessionRx = await Request.registerSession(req)
-      if (storeSessionRx.status !== 200) return res.sendStatus(404)
+      if (Helper.stringIsEmpty(sessionToken)) throw new Error("session token is empty")
+
+
+
+      if (user.session === undefined) {
+        user.session = {}
+        user.session.createdAt = Date.now()
+        user.session.pin = randomPin
+        user.session.salt = saltDigest
+        user.session.jwt = jwtTokenDigest
+        user.session.counter = 1
+      } else {
+        user.session.session = {}
+        user.session.createdAt = Date.now()
+        user.session.pin = randomPin
+        user.session.salt = saltDigest
+        user.session.jwt = jwtTokenDigest
+        user.session.counter = user.session.counter + 1
+      }
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
+
+
+      const sessionLength = 120 * 60000
       res.cookie("jwtToken", jwtToken, {
         maxAge: sessionLength,
         httpOnly: true,
@@ -385,7 +347,7 @@ app.post("/request/register/session/",
         httpOnly: true,
         sameSite: "lax",
       })
-      return res.send({status: storeSessionRx.status, statusText: storeSessionRx.statusText})
+      return res.sendStatus(200)
     } catch (error) {
       Helper.logError(error, req)
     }
@@ -393,12 +355,14 @@ app.post("/request/register/session/",
   }
 )
 
-let randomPin
 app.post("/request/verify/pin/",
 async (req, res) => {
   try {
     const {userPin} = req.body
-    Helper.verifyPin(userPin, randomPin)
+    if (Helper.stringIsEmpty(userPin)) throw new Error("user pin is empty")
+    if (Helper.stringIsEmpty(randomPin)) throw new Error("random pin is empty")
+    if (userPin !== randomPin) throw new Error("user pin is not valid")
+    if (expiredTimeMs < Date.now()) throw new Error("user pin expired")
     return res.sendStatus(200)
   } catch (error) {
     Helper.logError(error, req)
@@ -406,13 +370,16 @@ async (req, res) => {
   return res.sendStatus(404)
 })
 
+let expiredTimeMs
+let randomPin
 app.post("/request/send/email/with/pin/",
 async (req, res) => {
   try {
     const {email} = req.body
     if (Helper.stringIsEmpty(email)) throw new Error("email is empty")
     randomPin = Helper.digest(crypto.randomBytes(32))
-    setTimeout(() => randomPin = undefined, 5 * 60000)
+    expiredTimeMs = Date.now() + (2 * 60 * 1000)
+
     await Helper.sendEmailFromDroid({
       from: "<droid@get-your.de>",
       to: email,
@@ -421,7 +388,7 @@ async (req, res) => {
         <p>PIN: ${randomPin}</p>
         <p>Sollten Sie gerade nicht versucht haben sich unter https://get-your.de anzumelden, dann erhalten Sie diese E-Mail, weil jemand anderes versucht hat sich mit Ihrer E-Mail Adresse anzumelden. In dem Fall löschen Sie die E-Mail mit der PIN und <span style="color: #d50000; font-weight: bold;">geben Sie die PIN auf keinen Fall weiter.</span></p>
         <p>Wenn Sie Ihre PIN mit anderen teilen, besteht die Gefahr, dass unbefugte Personen Zugang zu Ihrem Konto erhalten und Ihre Sicherheit gefährden. Daher ist es wichtig, Ihre PIN vertraulich zu behandeln und sicherzustellen, dass Sie sie nur selbst verwenden.</p>
-        <p>Sollte eine andere E-Mail Adresse als "<a href="#" style="text-decoration: none; color: inherit; cursor: default;">droid&#64;get-your&#46;de</a>" als Absender erscheinen, dann versucht jemand sich als vertrauenswürdiger Absender auszugeben. Klicken Sie in dem Fall auf keine Links, antworten Sie nicht dem Absender und kontaktieren Sie uns sofort unter datenschutz@get-your.de</p>
+        <p>Sollte eine andere E-Mail Adresse als <a href="#" style="text-decoration: none; color: #d50000; font-weight: bold; cursor: default;">droid&#64;get-your&#46;de</a> als Absender erscheinen, dann versucht jemand sich als vertrauenswürdiger Absender auszugeben. Klicken Sie in dem Fall auf keine Links, antworten Sie nicht dem Absender und kontaktieren Sie uns sofort unter datenschutz@get-your.de</p>
       `
     })
     return res.sendStatus(200)
@@ -430,22 +397,6 @@ async (req, res) => {
   }
   return res.sendStatus(404)
 })
-
-// app.post("/request/jwt/token/", async (req, res) => {
-//   const requestJwtTokenRx = JWTToken.sign(req.body)
-//   if (requestJwtTokenRx.status !== 200) {
-//     return res.send({
-//       status: 500,
-//       message: "JWT_SIGN_FAILED"
-//     })
-//   }
-
-//   return res.send({
-//     status: 200,
-//     message: "JWT_SIGN_SUCCESS",
-//     token: requestJwtTokenRx.token,
-//   })
-// })
 
 app.post("/user/authentication/verification/", async (req, res) => {
   req.body.expectedUserChallenge = userChallenge
@@ -566,6 +517,30 @@ app.post("/public-key/credential/creation/options/", async (req, res) => {
     status: 302,
     message: "ALREADY_REGISTERED",
   })
+})
+
+
+
+app.get("/:username/", async (req, res, next) => {
+  try {
+    if (req.params.username === "home") return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-login.html"))
+    if (req.params.username === "impressum") return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-impressum.html"))
+    if (req.params.username === "datenschutz") return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-datenschutz.html"))
+    if (req.params.username === "nutzervereinbarung") return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-nutzervereinbarung.html"))
+
+
+    const {user} = await Helper.findUser(user => user.name === req.params.username)
+    console.log(user);
+
+    // TODO
+
+
+
+    return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-profile-page.html"))
+  } catch (error) {
+    Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
 })
 
 

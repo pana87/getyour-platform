@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="435" height="361" viewBox="0 0 435 361">
+  <defs>
+    <clipPath id="clip-freileitungunderdkabel">
+      <rect width="435" height="361"/>
+    </clipPath>
+  </defs>
+  <g id="freileitungunderdkabel" clip-path="url(#clip-freileitungunderdkabel)">
+    <g id="Gruppe_1557" data-name="Gruppe 1557" transform="translate(-1155.793 -474)">
+      <g id="Rechteck_244" data-name="Rechteck 244" transform="translate(1193.237 624.008)" fill="#faca76" stroke="#f7aa20" stroke-width="1">
+        <rect width="132.723" height="99.272" stroke="none"/>
+        <rect x="0.5" y="0.5" width="131.723" height="98.272" fill="none"/>
+      </g>
+      <g id="Polygon_38" data-name="Polygon 38" transform="translate(1190 540.922)" fill="#facb76">
+        <path d="M 138.1074981689453 80.428466796875 L 1.089473843574524 80.428466796875 L 69.59848022460938 0.7668148279190063 L 138.1074981689453 80.428466796875 Z" stroke="none"/>
+        <path d="M 69.59848022460938 1.533638000488281 L 2.178924560546875 79.928466796875 L 137.0180206298828 79.928466796875 L 69.59848022460938 1.533638000488281 M 69.59848022460938 -7.62939453125e-06 L 139.1969604492188 80.928466796875 L -1.52587890625e-05 80.928466796875 L 69.59848022460938 -7.62939453125e-06 Z" stroke="none" fill="#f7aa20"/>
+      </g>
+      <line id="Linie_82" data-name="Linie 82" x2="45.245" y2="54.294" transform="translate(1278.551 553.289)" fill="none" stroke="#006f39" stroke-linecap="round" stroke-width="1.4"/>
+      <path id="Pfad_68" data-name="Pfad 68" d="M19129.268-16291.039h-21.432l-.947,41.373h22.379Z" transform="translate(-17856.561 16967.906)" fill="#ebebeb"/>
+      <path id="Pfad_570" data-name="Pfad 570" d="M22130.029-12447.957v27.073l25.564,14.416" transform="translate(-20828.855 13154.019)" fill="none" stroke="#000" stroke-width="2" stroke-dasharray="5"/>
+      <g id="Rechteck_245" data-name="Rechteck 245" transform="translate(1329.197 735.15)" fill="none" stroke="#f7aa20" stroke-width="2">
+        <rect width="49.636" height="66.901" stroke="none"/>
+        <rect x="1" y="1" width="47.636" height="64.901" fill="none"/>
+      </g>
+      <text id="HAK" transform="translate(1336.75 776.047)" fill="#161616" font-size="17" font-family="FormaDJRMicro-Regular, Forma DJR Micro"><tspan x="0" y="0">HAK</tspan></text>
+      <line id="Linie_83" data-name="Linie 83" x2="101.668" transform="translate(1380.214 768.601)" fill="none" stroke="#000" stroke-width="2" stroke-dasharray="5"/>
+      <g id="Ellipse_38" data-name="Ellipse 38" transform="translate(1482.055 730.834)" fill="none" stroke="#f7aa20" stroke-width="2">
+        <circle cx="37.767" cy="37.767" r="37.767" stroke="none"/>
+        <circle cx="37.767" cy="37.767" r="36.767" fill="none"/>
+      </g>
+      <text id="Erdkabel" transform="translate(1402.453 760.551)" fill="#161616" font-size="14" font-family="FormaDJRMicro-Regular, Forma DJR Micro"><tspan x="0" y="0">Erdkabel</tspan></text>
+      <text id="Freileitung" transform="translate(1283.068 545.44)" fill="#161616" font-size="14" font-family="FormaDJRMicro-Regular, Forma DJR Micro"><tspan x="0" y="0">Freileitung</tspan></text>
+      <g id="Layer_2" data-name="Layer 2" transform="translate(1533.824 750.358) rotate(90)">
+        <path id="Pfad_571" data-name="Pfad 571" d="M36.014,11.2A11.2,11.2,0,0,0,25.2,2.8H16.8V0H11.2V5.6H0v5.6H11.2v5.6H0v5.6H11.2V28h5.6V25.2h8.4a11.2,11.2,0,0,0,10.81-8.4h20V11.2Z" transform="translate(0)" fill="#f7aa20"/>
+      </g>
+      <line id="Linie_84" data-name="Linie 84" y1="151.066" transform="translate(1450.762 504.902)" fill="none" stroke="#f7aa20" stroke-width="3"/>
+      <line id="Linie_85" data-name="Linie 85" x2="100.351" transform="translate(1400.587 520.009)" fill="none" stroke="#f7aa20" stroke-width="1"/>
+      <line id="Linie_86" data-name="Linie 86" y1="10.79" transform="translate(1486.371 509.219)" fill="none" stroke="#f7aa20" stroke-width="1"/>
+      <line id="Linie_87" data-name="Linie 87" y1="10.79" transform="translate(1415.154 509.219)" fill="none" stroke="#f7aa20" stroke-width="1"/>
+      <line id="Linie_88" data-name="Linie 88" x2="8.632" transform="translate(1482.055 512.456)" fill="none" stroke="#f7aa20" stroke-width="0.4"/>
+      <line id="Linie_91" data-name="Linie 91" x2="8.632" transform="translate(1410.838 512.456)" fill="none" stroke="#f7aa20" stroke-width="0.4"/>
+      <line id="Linie_89" data-name="Linie 89" x2="8.632" transform="translate(1482.055 514.614)" fill="none" stroke="#f7aa20" stroke-width="0.4"/>
+      <line id="Linie_90" data-name="Linie 90" x2="8.632" transform="translate(1410.838 514.614)" fill="none" stroke="#f7aa20" stroke-width="0.4"/>
+      <path id="Pfad_572" data-name="Pfad 572" d="M22433.193-12646.3s102.648,8.481,110.773-29.979" transform="translate(-21057.598 13196.292)" fill="none" stroke="#f7aa20" stroke-width="1"/>
+      <path id="Pfad_573" data-name="Pfad 573" d="M22433.773-12647.977s39.324-5.755,38.641-28.668" transform="translate(-21057.27 13196.654)" fill="none" stroke="#f7aa20" stroke-width="1"/>
+      <path id="Pfad_574" data-name="Pfad 574" d="M22091.5-12589.538h116" transform="translate(-20831.902 13142.827)" fill="none" stroke="#000" stroke-width="2" stroke-dasharray="5"/>
+    </g>
+  </g>
+</svg>

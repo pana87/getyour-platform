@@ -4,52 +4,51 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="shortcut icon" href="/public/getyour-logo.svg" />
   <title>Getyour Plattform Datenschutz Richtlinien</title>
+
   <style>
     body {
       margin: 0;
       line-height: 1.2;
       font-family: sans-serif;
     }
-    h2 {
-      font-weight: normal;
-      font-size: 21px;
-    }
   </style>
 </head>
 <body>
   <header></header>
 
-  <h1 class="title"></h1>
+  <div class="title"></div>
 
-  <h2 class="sub-title-1"></h2>
+  <div class="sub-title-1"></div>
   <div class="text-1"></div>
 
-  <h2 class="sub-title-2"></h2>
+  <div class="sub-title-2"></div>
   <div class="text-2"></div>
 
-  <h2 class="sub-title-3"></h2>
+  <div class="sub-title-3"></div>
   <div class="text-3"></div>
 
-  <h2 class="sub-title-4"></h2>
+  <div class="sub-title-4"></div>
   <div class="text-4"></div>
 
-  <h2 class="sub-title-5"></h2>
+  <div class="sub-title-5"></div>
   <div class="text-5"></div>
 
-  <h2 class="sub-title-6"></h2>
+  <div class="sub-title-6"></div>
   <div class="text-6"></div>
 
-  <h2 class="sub-title-7"></h2>
+  <div class="sub-title-7"></div>
   <div class="text-7"></div>
 
-  <h2 class="sub-title-8"></h2>
+  <div class="sub-title-8"></div>
   <div class="text-8"></div>
 
-  <h2 class="sub-title-9"></h2>
+  <div class="sub-title-9"></div>
   <div class="text-9"></div>
 
-  <h2 class="sub-title-10"></h2>
+  <div class="sub-title-10"></div>
   <div class="text-10"></div>
 
 
@@ -57,43 +56,48 @@
   <footer></footer>
 
   <script type="module">
-    import {HeaderField} from "../../../../js/HeaderField.js"
-    import {Field} from "../../../../js/Field.js"
-    import {Helper} from "../../../../js/Helper.js"
-    import {FooterField} from "../../../../js/FooterField.js"
+    import {HeaderField} from "/js/HeaderField.js"
+    import {DivField} from "/js/DivField.js"
+    import {Helper} from "/js/Helper.js"
+    import {FooterField} from "/js/FooterField.js"
 
     const header = new HeaderField()
     .withImage(img => {
-      img.src = "../public/getyour-logo.svg"
+      img.src = "/public/getyour-logo.svg"
       img.alt = "Getyour Plattform Logo"
       img.style.cursor = "pointer"
       img.style.width = "89px"
-      img.addEventListener("click", () => window.location.assign("/home/"))
+      img.addEventListener("click", () => window.history.back())
     })
     .withType(header => {
       header.style.position = "fixed"
       header.style.top = "0"
       header.style.left = "0"
       header.style.zIndex = "1"
+      header.style.width = "100%"
       header.style.background = "white"
     })
     .build()
 
 
-    const title = new Field(".title")
+    const title = new DivField("title")
     .withType(div => {
-      div.innerHTML = "Datenschutz Richtlinien"
-      div.style.fontWeight = "normal"
-      div.style.margin = "144px 34px"
+      const title = document.createElement("h1")
+      title.innerHTML = "Datenschutz Richtlinien"
+      title.style.fontWeight = "normal"
+      title.style.margin = "144px 34px"
+      div.append(title)
     })
 
-    const subTitle1 = new Field(".sub-title-1")
+    const subTitle1 = new DivField("sub-title-1")
     .withType(div => {
-      div.innerHTML = "Geltungsbereich"
-      div.style.fontWeight = "normal"
-      div.style.margin = "21px 34px"
+      const subTitle = document.createElement("h2")
+      subTitle.innerHTML = "Geltungsbereich"
+      subTitle.style.fontWeight = "normal"
+      subTitle.style.margin = "21px 34px"
+      div.append(subTitle)
     })
-    const text1 = new Field(".text-1")
+    const text1 = new DivField("text-1")
     .withType(div => {
       div.style.fontWeight = "normal"
       div.style.margin = "21px 34px"
@@ -104,13 +108,15 @@
       `
     })
 
-    const subTitle2 = new Field(".sub-title-2")
+    const subTitle2 = new DivField("sub-title-2")
     .withType(div => {
-      div.innerHTML = "Zugriffsdaten"
-      div.style.fontWeight = "normal"
-      div.style.margin = "21px 34px"
+      const subTitle = document.createElement("h2")
+      subTitle.innerHTML = "Zugriffsdaten"
+      subTitle.style.fontWeight = "normal"
+      subTitle.style.margin = "21px 34px"
+      div.append(subTitle)
     })
-    const text2 = new Field(".text-2")
+    const text2 = new DivField("text-2")
     .withType(div => {
       div.style.fontWeight = "normal"
       div.style.margin = "21px 34px"
@@ -129,13 +135,15 @@
       `
     })
 
-    const subTitle3 = new Field(".sub-title-3")
+    const subTitle3 = new DivField("sub-title-3")
     .withType(div => {
-      div.innerHTML = "Cookies"
-      div.style.margin = "21px 34px"
-      div.style.fontWeight = "normal"
+      const subTitle = document.createElement("h2")
+      subTitle.innerHTML = "Cookies"
+      subTitle.style.margin = "21px 34px"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
     })
-    const text3 = new Field(".text-3")
+    const text3 = new DivField("text-3")
     .withType(div => {
       div.style.margin = "21px 34px"
       div.style.fontWeight = "normal"
@@ -145,13 +153,15 @@
       `
     })
 
-    const subTitle4 = new Field(".sub-title-4")
+    const subTitle4 = new DivField("sub-title-4")
     .withType(div => {
-      div.style.margin = "21px 34px"
-      div.innerHTML = "Umgang mit personenbezogenen Daten"
-      div.style.fontWeight = "normal"
+      const subTitle = document.createElement("h2")
+      subTitle.style.margin = "21px 34px"
+      subTitle.innerHTML = "Umgang mit personenbezogenen Daten"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
     })
-    const text4 = new Field(".text-4")
+    const text4 = new DivField("text-4")
     .withType(div => {
       div.style.margin = "21px 34px"
       div.style.fontWeight = "normal"
@@ -161,13 +171,15 @@
       `
     })
 
-    const subTitle5 = new Field(".sub-title-5")
+    const subTitle5 = new DivField("sub-title-5")
     .withType(div => {
-      div.style.margin = "21px 34px"
-      div.innerHTML = "Konto"
-      div.style.fontWeight = "normal"
+      const subTitle = document.createElement("h2")
+      subTitle.style.margin = "21px 34px"
+      subTitle.innerHTML = "Konto"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
     })
-    const text5 = new Field(".text-5")
+    const text5 = new DivField("text-5")
     .withType(div => {
       div.style.margin = "21px 34px"
       div.style.fontWeight = "normal"
@@ -176,13 +188,15 @@
       `
     })
 
-    const subTitle6 = new Field(".sub-title-6")
+    const subTitle6 = new DivField("sub-title-6")
     .withType(div => {
-      div.style.margin = "21px 34px"
-      div.innerHTML = "Mitgliedschaft"
-      div.style.fontWeight = "normal"
+      const subTitle = document.createElement("h2")
+      subTitle.style.margin = "21px 34px"
+      subTitle.innerHTML = "Mitgliedschaft"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
     })
-    const text6 = new Field(".text-6")
+    const text6 = new DivField("text-6")
     .withType(div => {
       div.style.margin = "21px 34px"
       div.style.fontWeight = "normal"
@@ -198,13 +212,15 @@
       `
     })
 
-    const subTitle7 = new Field(".sub-title-7")
+    const subTitle7 = new DivField("sub-title-7")
     .withType(div => {
-      div.style.margin = "21px 34px"
-      div.innerHTML = "Umgang mit Kontaktdaten"
-      div.style.fontWeight = "normal"
+      const subTitle = document.createElement("h2")
+      subTitle.style.margin = "21px 34px"
+      subTitle.innerHTML = "Umgang mit Kontaktdaten"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
     })
-    const text7 = new Field(".text-7")
+    const text7 = new DivField("text-7")
     .withType(div => {
       div.style.margin = "21px 34px"
       div.innerHTML = /*html*/`
@@ -213,13 +229,15 @@
       div.style.fontWeight = "normal"
     })
 
-    const subTitle8 = new Field(".sub-title-8")
+    const subTitle8 = new DivField("sub-title-8")
     .withType(div => {
-      div.style.margin = "21px 34px"
-      div.innerHTML = "Newsletter"
-      div.style.fontWeight = "normal"
+      const subTitle = document.createElement("h2")
+      subTitle.style.margin = "21px 34px"
+      subTitle.innerHTML = "Newsletter"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
     })
-    const text8 = new Field(".text-8")
+    const text8 = new DivField("text-8")
     .withType(div => {
       div.style.margin = "21px 34px"
       div.innerHTML = /*html*/`
@@ -228,13 +246,15 @@
       div.style.fontWeight = "normal"
     })
 
-    const subTitle9 = new Field(".sub-title-9")
+    const subTitle9 = new DivField("sub-title-9")
     .withType(div => {
-      div.innerHTML = "Rechte des Nutzers: Auskunft, Berichtigung und Löschung "
-      div.style.margin = "21px 34px"
-      div.style.fontWeight = "normal"
+      const subTitle = document.createElement("h2")
+      subTitle.innerHTML = "Rechte des Nutzers: Auskunft, Berichtigung und Löschung "
+      subTitle.style.margin = "21px 34px"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
     })
-    const text9 = new Field(".text-9")
+    const text9 = new DivField("text-9")
     .withType(div => {
       div.style.margin = "21px 34px"
       div.innerHTML = /*html*/`
@@ -243,13 +263,15 @@
       div.style.fontWeight = "normal"
     })
 
-    const subTitle10 = new Field(".sub-title-10")
+    const subTitle10 = new DivField("sub-title-10")
     .withType(div => {
-      div.innerHTML = "Weitere Informationen findest du hier:"
-      div.style.margin = "21px 34px"
-      div.style.fontWeight = "normal"
+      const subTitle = document.createElement("h2")
+      subTitle.innerHTML = "Weitere Informationen findest du hier:"
+      subTitle.style.margin = "21px 34px"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
     })
-    const text10 = new Field(".text-10")
+    const text10 = new DivField("text-10")
     .withType(div => {
       div.style.margin = "21px 34px"
       div.innerHTML = /*html*/`

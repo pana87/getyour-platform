@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="249" height="266" viewBox="0 0 249 266">
+  <defs>
+    <clipPath id="clip-aufstellunggeruestostwest">
+      <rect width="249" height="266"/>
+    </clipPath>
+  </defs>
+  <g id="aufstellunggeruestostwest" clip-path="url(#clip-aufstellunggeruestostwest)">
+    <g id="Gruppe_1909" data-name="Gruppe 1909" transform="translate(-303.492 -6496)">
+      <g id="Gruppe_1912" data-name="Gruppe 1912">
+        <rect id="Rechteck_479" data-name="Rechteck 479" width="140" height="100" transform="translate(357.991 6621)" fill="#e8ba68"/>
+        <g id="Gruppe_1777" data-name="Gruppe 1777" transform="translate(329.991 6625)">
+          <line id="Linie_115" data-name="Linie 115" y2="96" fill="none" stroke="#000" stroke-width="1"/>
+          <line id="Linie_116" data-name="Linie 116" y2="96" transform="translate(22)" fill="none" stroke="#000" stroke-width="1"/>
+          <line id="Linie_117" data-name="Linie 117" x2="22" transform="translate(0 7)" fill="none" stroke="#000" stroke-width="1"/>
+          <line id="Linie_118" data-name="Linie 118" x2="22" transform="translate(0 44)" fill="none" stroke="#000" stroke-width="1"/>
+          <line id="Linie_119" data-name="Linie 119" x2="22" transform="translate(0 85)" fill="none" stroke="#000" stroke-width="1"/>
+        </g>
+        <g id="Gruppe_1778" data-name="Gruppe 1778" transform="translate(503.991 6625)">
+          <line id="Linie_120" data-name="Linie 120" y2="96" fill="none" stroke="#000" stroke-width="1"/>
+          <line id="Linie_123" data-name="Linie 123" y2="96" transform="translate(22)" fill="none" stroke="#000" stroke-width="1"/>
+          <line id="Linie_121" data-name="Linie 121" x2="22" transform="translate(0 7)" fill="none" stroke="#000" stroke-width="1"/>
+          <line id="Linie_122" data-name="Linie 122" x2="22" transform="translate(0 44)" fill="none" stroke="#000" stroke-width="1"/>
+          <line id="Linie_124" data-name="Linie 124" x2="22" transform="translate(0 85)" fill="none" stroke="#000" stroke-width="1"/>
+        </g>
+      </g>
+      <g id="Gruppe_1911" data-name="Gruppe 1911">
+        <path id="Pfad_800" data-name="Pfad 800" d="M74,0l74,84H0Z" transform="translate(353.991 6537)" fill="#facb76"/>
+        <text id="Ost" transform="translate(349.991 6580)" fill="#161616" font-size="18" font-family="FormaDJRMicro-Regular, Forma DJR Micro"><tspan x="0" y="0">Ost</tspan></text>
+        <text id="West" transform="translate(474.991 6580)" fill="#161616" font-size="18" font-family="FormaDJRMicro-Regular, Forma DJR Micro"><tspan x="0" y="0">West</tspan></text>
+      </g>
+    </g>
+  </g>
+</svg>

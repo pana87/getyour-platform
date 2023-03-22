@@ -5,13 +5,18 @@
 
 
     <meta name="viewport" content="width=1920, maximum-scale=1.0" />
-    <link rel="shortcut icon" type="image/png" href="http://localhost:10002/img/favicon.png" />
     <meta name="og:type" content="website" />
     <meta name="twitter:card" content="photo" />
     <link rel="stylesheet" type="text/css" href="css/homeview.css" />
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <link rel="stylesheet" type="text/css" href="css/styleguide.css" />
     <link rel="stylesheet" type="text/css" href="css/globals.css" />
+
+
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>SHS Startseite</title>
+
+
   </head>
   <body style="margin: 0; background: #ebebeb">
     <input type="hidden" id="anPageName" name="page" value="homeview" />
@@ -2120,14 +2125,18 @@
     </script>
 
   <script type="module">
-    import { DivField } from "../../js/DivField.js"
-    import { Helper } from "../../js/Helper.js"
+    import { DivField } from "/js/DivField.js"
+    import { Helper } from "/js/Helper.js"
+
+    document.querySelectorAll("div[class*='gruppe-5-']").forEach(div => {
+      div.style.zIndex = "100"
+    })
 
     document.querySelectorAll("img[class*='logo']").forEach(img => {
       img.src = "/felix/shs/public/shslogo.png"
       img.alt = "SHS Express Logo"
       img.style.cursor = "pointer"
-      img.addEventListener("click", async() => await Helper.redirectOperatorToChecklist())
+      img.addEventListener("click", async() => await Helper.redirectUser())
     })
 
     document.querySelectorAll("div[class*='zumloginbutton']").forEach(div => {

@@ -3,7 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, width=device-width" />
-    <title>SHS Funnel</title>
+
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>SHS Funnel Abfrage Strom</title>
 
 
     <style>
@@ -22,10 +24,28 @@
     <header></header>
 
     <h1 class="power-system-title"></h1>
-    <div class="power-system-funnel"></div>
+    <div class="stromVersorger"></div>
+    <div class="stromZaehlerschrankVerbaut"></div>
+    <div class="stromPlatzZaehlerSchrank"></div>
+    <div class="stromHauptzaehlerAnzahl"></div>
+    <div class="stromUnterzaehlerNotwendig"></div>
+    <div class="stromWievieleNeueZaehler"></div>
+    <div class="stromHauptzaehlerNummer"></div>
+    <div class="stromNebenzaehlerNummer"></div>
+    <div class="stromZaehlerKonzeptZusammen"></div>
+    <div class="stromJahresverbrauch"></div>
+    <div class="stromNebenzaehlerFunktion"></div>
+    <div class="stromArbeitspreis"></div>
+    <div class="stromGrundpreis"></div>
+    <div class="stromArbeitspreisWaerme"></div>
+    <div class="stromaGrundpreisWaerme"></div>
+
 
     <h2 class="picture-upload-title"></h2>
-    <div class="picture-upload-funnel"></div>
+    <div class="stromZaehlerschrankBild"></div>
+    <div class="stromTypenBezeichnungBild"></div>
+    <div class="stromAllezaehlerBild"></div>
+
 
     <div class="save-and-proceed-button"></div>
 
@@ -33,29 +53,29 @@
 
 
     <script type="module">
-      import { HeaderField } from "../../../../js/HeaderField.js"
-      import { FunnelField } from "../../../../js/FunnelField.js"
-      import { CheckboxField } from "../../../../js/CheckboxField.js"
-      import { DivField } from "../../../../js/DivField.js"
-      import { FileField } from "../../../../js/FileField.js"
-      import { Helper } from "../../../../js/Helper.js"
-      import { NumberField } from "../../../../js/NumberField.js"
-      import { SelectionField } from "../../../../js/SelectionField.js"
+      import { HeaderField } from "/js/HeaderField.js"
+      import { DivField } from "/js/DivField.js"
+      import { FileField } from "/js/FileField.js"
+      import { Helper } from "/js/Helper.js"
+      import { NumberField } from "/js/NumberField.js"
+      import { SelectionField } from "/js/SelectionField.js"
+      import { TextField } from "/js/TextField.js"
+      import { Request } from "/js/Request.js"
 
+      const funnel = Helper.findFunnel(funnel => funnel.owner.id === Request.localStorageId())
+      if (funnel === undefined) {
+        window.location.assign("/felix/shs/funnel/qualifizierung/")
+        throw new Error("funnel not found")
+      }
 
-      const funnel = Helper.getFunnelByStorageName("shsFunnel")
-      // if (funnel === undefined) {
-      //   window.location.assign("/felix/shs/funnel/qualifizierung/")
-      //   throw new Error("funnel not found")
-      // }
 
       const headerField = new HeaderField()
       .withImage(img => {
-        img.src = "../../public/shslogo.png"
+        img.src = "/felix/shs/public/shslogo.png"
         img.alt = "SHS Express Logo"
         img.style.cursor = "pointer"
         img.style.width = "144px"
-        img.addEventListener("click", async() => await Helper.redirectOperatorToChecklist())
+        img.addEventListener("click", async() => await Helper.redirectUser())
       })
       .withType(header => {
         header.style.position = "fixed"
@@ -63,6 +83,7 @@
         header.style.left = "0"
         header.style.zIndex = "1"
         header.style.backgroundColor = "white"
+        header.style.width = "100%"
       })
       .withNavigation([
         {active: true, name: "Haus", onclick: async() => await checkAndProceed(funnel.path.house)},
@@ -79,142 +100,429 @@
       })
 
 
-      const powerSystemFunnel = new FunnelField("power-system-funnel")
-      .withFields([
-        {class: "stromVersorger", type: "text", withLabel: "Aktueller Stromversorger", withType: stromVersorgerOptions},
-        {class: "stromZaehlerschrankVerbaut", type: "select", withLabel: "Geeigneter Zählerschrank verbaut", onWindowLoad: stromZaehlerschrankVerbautOnWindowLoad, onChange: stromZaehlerschrankVerbautOnChange, withOptions: ["Nein", "Ja"]},
-        {class: "stromPlatzZaehlerSchrank", type: "select", withLabel: "Platz für zusätzlichen, neuen Zählerschrank (600x1100mm) vorhanden", withOptions: ["Nein", "Ja"], withRequired: 1},
-        {class: "stromHauptzaehlerAnzahl", type: "select", withLabel: "Anzahl der Stromzähler", withOptions: ["1", "2", "3", "mehr"]},
-        {class: "stromUnterzaehlerNotwendig", type: "select", withLabel: "Zusätzlicher Unter-/Zwischenzähler notwendig", withOptions: ["Nein", "Ja"], onWindowLoad: stromUnterzaehlerNotwendigOnWindowLoad, onChange: stromUnterzaehlerNotwendigOnChange},
-        {class: "stromWievieleNeueZaehler", type: "select", withLabel: "Wie viele zusätzliche Zähler", withOptions: ["1", "2", "3"]},
-        {class: "stromHauptzaehlerNummer", type: "text", withLabel: "Zählernummer Hauptzähler", withType: hauptZahlerOption},
-        {class: "stromNebenzaehlerNummer", type: "text", withLabel: "Zählernummer Nebenzähler", withType: nebenZahlerOption},
-        {class: "stromZaehlerKonzeptZusammen", type: "select", withLabel: "Sollen alle Stromzähler auf einen Stromzähler zusammengelegt werden", withOptions: ["Nein", "Ja", "E-Auto", "Wärmepumpe", "Pool", "Durchlauferhitzer", "Nachtspeicherheizung", "Sonstige"], withType: (select) => select.multiple = true},
-        {class: "stromJahresverbrauch", type: "number", withLabel: "Jahresstromverbrauch Hauptzähler in kWh", withType: numberInKwh},
-        {class: "stromNebenzaehlerFunktion", type: "number", withLabel: "2. Stromzähler, Zweck und Jahresstromverbrauch in kWh", withType: numberInKwh},
-        {class: "stromArbeitspreis", type: "number", withLabel: "Arbeitspreis brutto Cent/kWh", withType: numberInCent},
-        {class: "stromGrundpreis", type: "number", withLabel: "Grundpreis brutto/Jahr in Euro", withType: numberInEuro},
-        {class: "stromArbeitspreisWaerme", type: "number", withLabel: "Wärmestrom Arbeitspreis brutto Cent/kWh", withType: numberInCent},
-        {class: "stromaGrundpreisWaerme", type: "number", withLabel: "Wärmestrom Grundpreis brutto/Jahr in Euro", withType: numberInEuro},
-      ])
+      const stromVersorger = new TextField("stromVersorger")
+      .withLabel(label => label.innerHTML = "Aktueller Stromversorger")
+      .withType(text => text.placeholder = "zb Netze - BW..")
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn man die Stromquelle und -kosten des Kunden nicht berücksichtigt, kann dies zu einer falschen Planung des Energiesystems führen. Zum Beispiel kann es sein, dass der Kunde mehr Strom erzeugt als er tatsächlich verbraucht, was zu einem Rückfluss von Strom ins Netz führt. In diesem Fall könnte es passieren, dass der Netzbetreiber den Überschussstrom abnimmt, aber nur zu einem niedrigeren Tarif als der Kunde für den Strom zahlt. Das bedeutet, dass der Kunde Geld verliert, anstatt Geld zu sparen. Auf der anderen Seite könnte es auch sein, dass der Kunde mehr Strom verbraucht als erzeugt und deshalb immer noch auf den Stromversorger angewiesen ist. In diesem Fall könnte es passieren, dass der Kunde höhere Stromrechnungen hat als erwartet, weil das Energiesystem nicht ausreichend dimensioniert ist."
+          }
+        })
+      })
+      .onInput(async() => {
+        stromVersorger.withStorage(value => {
+          funnel.value[stromVersorger.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromVersorger.withStorage(value => {
+        funnel.value[stromVersorger.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function numberInEuro(input) {
-        input.min = 0
-        input.max = 1000000
-        input.placeholder = "in euro"
-      }
 
-      function numberInCent(input) {
-        input.min = 0
-        input.max = 1000000
-        input.placeholder = "in cent"
-      }
+      const stromZaehlerschrankVerbaut = new SelectionField("stromZaehlerschrankVerbaut")
+      .withLabel(label => label.innerHTML = "Geeigneter Zählerschrank verbaut")
+      .withOptions(["Nein", "Ja"])
+      .onWindowLoad(async event => {
+        const options = await stromZaehlerschrankVerbaut.withValidValue()
+        if (options[0].value === "Ja") {
+          document.querySelectorAll(stromPlatzZaehlerSchrank.selectSelector).forEach(select => select.disabled = true)
+        }
+      })
+      .onChange(event => {
+        if (event.target.value === "Ja") {
+          document.querySelectorAll(stromPlatzZaehlerSchrank.selectSelector).forEach(select => select.disabled = true)
+          stromPlatzZaehlerSchrank.withRequired(undefined)
+          stromPlatzZaehlerSchrank.withValidValue()
+        } else {
+          document.querySelectorAll(stromPlatzZaehlerSchrank.selectSelector).forEach(select => select.disabled = false)
+          stromPlatzZaehlerSchrank.withRequired(1)
+          stromPlatzZaehlerSchrank.withValidValue()
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Der Zählerschrank ist ein wichtiger Teil des elektrischen Systems und muss den Anforderungen des Energiesystems entsprechen. Wenn ein geeigneter Zählerschrank nicht vorhanden ist, kann dies zu Problemen bei der Installation des Energiesystems führen. Zum Beispiel könnte es sein, dass der Zählerschrank nicht genügend Platz für weitere Sicherungen oder zusätzliche Stromzähler bietet. Wenn dies der Fall ist, muss der Zählerschrank möglicherweise ersetzt oder erweitert werden, um Platz für das Energiesystem zu schaffen."
+          }
+        })
+      })
+      .onInput(async() => {
+        stromZaehlerschrankVerbaut.withStorage(value => {
+          funnel.value[stromZaehlerschrankVerbaut.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromZaehlerschrankVerbaut.withStorage(value => {
+        funnel.value[stromZaehlerschrankVerbaut.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function numberInKwh(input) {
-        input.min = 0
-        input.max = 1000000
-        input.placeholder = "in kWh"
-      }
 
-      function nebenZahlerOption(input) {
-        input.placeholder = "33104800"
-      }
+      const stromPlatzZaehlerSchrank = new SelectionField("stromPlatzZaehlerSchrank")
+      .withLabel(label => label.innerHTML = "Platz für zusätzlichen, neuen Zählerschrank (600x1100mm) vorhanden")
+      .withOptions(["Nein", "Ja"])
+      .withRequired(1)
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Der Zählerschrank ist ein wichtiger Teil des elektrischen Systems und muss den Anforderungen des Energiesystems entsprechen. Wenn ein geeigneter Zählerschrank nicht vorhanden ist, kann dies zu Problemen bei der Installation des Energiesystems führen. Zum Beispiel könnte es sein, dass der Zählerschrank nicht genügend Platz für weitere Sicherungen oder zusätzliche Stromzähler bietet. Wenn dies der Fall ist, muss der Zählerschrank möglicherweise ersetzt oder erweitert werden, um Platz für das Energiesystem zu schaffen."
+          }
+        })
+      })
+      .onInput(async() => {
+        stromPlatzZaehlerSchrank.withStorage(value => {
+          funnel.value[stromPlatzZaehlerSchrank.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromPlatzZaehlerSchrank.withStorage(value => {
+        funnel.value[stromPlatzZaehlerSchrank.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function hauptZahlerOption(input) {
-        input.placeholder = "44600637"
+
+      const stromHauptzaehlerAnzahl = new SelectionField("stromHauptzaehlerAnzahl")
+      .withLabel(label => label.innerHTML = "Anzahl der Stromzähler")
+      .withOptions(["1", "2", "3", "mehr"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn es mehrere Stromzähler im Zählerschrank gibt, kann dies bedeuten, dass das Haus oder Gebäude über mehrere Stromkreise verfügt. Jeder Stromkreis hat seine eigenen Anforderungen und Kapazitäten, die bei der Planung des Energiesystems berücksichtigt werden müssen. Zum Beispiel benötigt eine Wärmepumpe möglicherweise einen eigenen Stromkreis, um sicherzustellen, dass sie genügend Strom bekommt, um effizient zu arbeiten. Darüber hinaus kann die Kenntnis der Anzahl der Stromzähler im Zählerschrank auch dabei helfen, den Energieverbrauch des Hauses oder Gebäudes besser zu verstehen. Dies kann wiederum dazu beitragen, das Energiesystem so zu planen, dass es den Bedürfnissen des Hauses oder Gebäudes entspricht und dabei den Energieverbrauch senkt."
+          }
+        })
+      })
+      .onInput(async() => {
+        stromHauptzaehlerAnzahl.withStorage(value => {
+          funnel.value[stromHauptzaehlerAnzahl.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromHauptzaehlerAnzahl.withStorage(value => {
+        funnel.value[stromHauptzaehlerAnzahl.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const stromWievieleNeueZaehler = new SelectionField("stromWievieleNeueZaehler")
+      .withLabel(label => label.innerHTML = "Wie viele zusätzliche Zähler")
+      .withOptions(["1", "2", "3"])
+      .onInput(async() => {
+        stromWievieleNeueZaehler.withStorage(value => {
+          funnel.value[stromWievieleNeueZaehler.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromWievieleNeueZaehler.withStorage(value => {
+        funnel.value[stromWievieleNeueZaehler.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+
+      const stromUnterzaehlerNotwendig = new SelectionField("stromUnterzaehlerNotwendig")
+      .withLabel(label => label.innerHTML = "Zusätzlicher Unter-/Zwischenzähler notwendig")
+      .withOptions(["Nein", "Ja"])
+      .onWindowLoad(async event => {
+        const options = await stromUnterzaehlerNotwendig.withValidValue()
+        if (options[0].value === "Nein") {
+          document.querySelectorAll(stromWievieleNeueZaehler.selectSelector).forEach(select => select.disabled = true)
+        } else {
+          document.querySelectorAll(stromWievieleNeueZaehler.selectSelector).forEach(select => select.disabled = false)
+        }
+      })
+      .onChange(event => {
+        if (event.target.value === "Ja") {
+          document.querySelectorAll(stromWievieleNeueZaehler.selectSelector).forEach(select => select.disabled = false)
+        } else {
+          document.querySelectorAll(stromWievieleNeueZaehler.selectSelector).forEach(select => select.disabled = true)
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Ein Zwischenzähler ist ein zusätzlicher Stromzähler, der zwischen dem Hauptstromzähler und dem elektrischen System installiert wird, um den Stromverbrauch bestimmter Geräte oder Systeme zu messen. Wenn das Energiesystem, das Sie planen und bauen, eine Wärmepumpe, eine Photovoltaikanlage mit Speicher oder eine Solarthermieanlage enthält, müssen Sie möglicherweise einen Zwischenzähler installieren, um den Stromverbrauch dieser Geräte separat zu messen. Die Messung des Stromverbrauchs von Geräten wie Wärmepumpen ist wichtig, um sicherzustellen, dass das Energiesystem effizient arbeitet und nicht überlastet wird. Wenn die Wärmepumpe zum Beispiel zu viel Strom verbraucht, kann dies zu einer Überlastung des Stromnetzes führen, was zu Störungen und Ausfällen führen kann. Durch die Installation eines Zwischenzählers können Sie den Stromverbrauch der Wärmepumpe oder anderen Geräte separat messen und kontrollieren, um sicherzustellen, dass das Energiesystem effizient und sicher arbeitet. Darüber hinaus kann die Installation eines Zwischenzählers auch dabei helfen, den Energieverbrauch des Hauses oder Gebäudes besser zu verstehen. Dies kann dazu beitragen, den Energieverbrauch zu senken, indem ineffiziente Geräte oder Systeme identifiziert und ersetzt werden."
+          }
+        })
+      })
+      .onInput(async() => {
+        stromUnterzaehlerNotwendig.withStorage(value => {
+          funnel.value[stromUnterzaehlerNotwendig.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromUnterzaehlerNotwendig.withStorage(value => {
+        funnel.value[stromUnterzaehlerNotwendig.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const stromHauptzaehlerNummer = new TextField("stromHauptzaehlerNummer")
+      .withLabel(label => label.innerHTML = "Zählernummer Hauptzähler")
+      .withType(text => {
+        text.placeholder = "44600637"
         const q7 = funnel.value.q7
         if (q7 === 0) {
-          input.required = true
+          text.required = true
         }
-      }
-
-
-      const stromZaehlerschrankVerbautField = "[class='stromZaehlerschrankVerbaut']"
-      const stromPlatzZaehlerschrankField = "[class='stromPlatzZaehlerSchrank']"
-
-      const stromUnterzaehlerNotwendigField = "[class='stromUnterzaehlerNotwendig']"
-      const stromWievieleNeueZaehlerField = "[class='stromWievieleNeueZaehler']"
-
-
-      function stromVersorgerOptions(input) {
-        input.placeholder = "zb Netze - BW.."
-      }
-
-      function stromUnterzaehlerNotwendigOnChange(event) {
-        if (event.target.value === "Ja") {
-          document.querySelectorAll(stromWievieleNeueZaehlerField).forEach(otherField => {
-            otherField.withType(otherSelect => {
-              otherSelect.disabled = false
-            })
-          })
-        } else {
-          document.querySelectorAll(stromWievieleNeueZaehlerField).forEach(otherField => {
-            otherField.withType(otherSelect => {
-              otherSelect.disabled = true
-            })
-          })
-        }
-      }
-
-
-      function stromUnterzaehlerNotwendigOnWindowLoad(event) {
-        document.querySelectorAll(stromUnterzaehlerNotwendigField).forEach(field => {
-          field.withType(select => {
-            if (select.value === "Nein") {
-              document.querySelectorAll(stromWievieleNeueZaehlerField).forEach(otherField => {
-                otherField.withType(otherSelect => {
-                  otherSelect.disabled = true
-                })
-              })
-            }
-          })
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Der Hauptzähler ist der Stromzähler, der den Gesamtstromverbrauch des Hauses oder Gebäudes misst. Wenn Sie ein neues Energiesystem installieren, müssen Sie die Zählernummer des Hauptzählers kennen, um sicherzustellen, dass das System korrekt konfiguriert wird und mit dem Stromnetz verbunden ist. Die Zählernummer ist eine eindeutige Kennung, die dem Hauptzähler zugewiesen wird. Es handelt sich in der Regel um eine Kombination aus Buchstaben und Zahlen, die auf dem Zähler selbst oder auf der Stromrechnung zu finden ist."
+          }
         })
-      }
-
-      function stromZaehlerschrankVerbautOnWindowLoad(event) {
-        document.querySelectorAll(stromZaehlerschrankVerbautField).forEach(field => {
-          field.withType(select => {
-            if (select.value === "Ja") {
-              document.querySelectorAll(stromPlatzZaehlerschrankField).forEach(otherField => {
-                otherField.withType(otherSelect => {
-                  otherSelect.disabled = true
-                })
-              })
-            }
-          })
+      })
+      .onInput(async() => {
+        stromHauptzaehlerNummer.withStorage(value => {
+          funnel.value[stromHauptzaehlerNummer.name] = value
+          Helper.setFunnel(funnel)
         })
-      }
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromHauptzaehlerNummer.withStorage(value => {
+        funnel.value[stromHauptzaehlerNummer.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function stromZaehlerschrankVerbautOnChange(event) {
-        document.querySelectorAll(stromZaehlerschrankVerbautField).forEach(field => {
-          field.withType(select => {
-            if (select.value === "Ja") {
-              document.querySelectorAll(stromPlatzZaehlerschrankField).forEach(otherField => {
-                otherField.withType(otherSelect => {
-                  otherSelect.disabled = true
-                  otherField.withRequired(undefined)
-                  otherField.withValidValue()
-                })
-              })
-            } else {
-              document.querySelectorAll(stromPlatzZaehlerschrankField).forEach(otherField => {
-                otherField.withType(otherSelect => {
-                  otherSelect.disabled = false
-                  otherField.withRequired(1)
-                  otherField.withValidValue()
-                })
-              })
-            }
-          })
+
+      const stromNebenzaehlerNummer = new TextField("stromNebenzaehlerNummer")
+      .withLabel(label => label.innerHTML = "Zählernummer Nebenzähler")
+      .withType(text => text.placeholder = "33104800")
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Ein Nebenzähler ist ein zusätzlicher Stromzähler, der häufig verwendet wird, um den Stromverbrauch von speziellen Stromkreisen oder Geräten in einem Gebäude zu messen. Zum Beispiel kann ein Nebenzähler den Stromverbrauch von Elektroautos, Wärmepumpen oder Heizsystemen messen. Wenn Sie ein neues Energiesystem installieren, müssen Sie die Zählernummer des Nebenzählers kennen, um sicherzustellen, dass das System korrekt konfiguriert wird und mit dem richtigen Nebenzähler verbunden ist. Die Zählernummer ist eine eindeutige Kennung, die dem Nebenzähler zugewiesen wird. Es handelt sich in der Regel um eine Kombination aus Buchstaben und Zahlen, die auf dem Zähler selbst oder auf der Stromrechnung zu finden ist."
+          }
         })
-      }
+      })
+      .onInput(async() => {
+        stromNebenzaehlerNummer.withStorage(value => {
+          funnel.value[stromNebenzaehlerNummer.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromNebenzaehlerNummer.withStorage(value => {
+        funnel.value[stromNebenzaehlerNummer.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      powerSystemFunnel.withStorage(funnel.storage).buildFields()
+
+      const stromZaehlerKonzeptZusammen = new SelectionField("stromZaehlerKonzeptZusammen")
+      .withLabel(label => label.innerHTML = "Sollen alle Stromzähler auf einen Stromzähler zusammengelegt werden")
+      .withOptions(["Nein", "Ja", "E-Auto", "Wärmepumpe", "Pool", "Durchlauferhitzer", "Nachtspeicherheizung", "Sonstige"])
+      .withType(select => select.multiple = true)
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn mehrere Stromzähler in einem Gebäude vorhanden sind, kann es manchmal vorkommen, dass sie nicht alle gleichzeitig arbeiten oder auf verschiedene Energiequellen zugreifen. In diesem Fall kann es sinnvoll sein, alle Stromzähler auf einen einzigen Zähler zusammenzulegen, um den Energiefluss im Gebäude besser zu steuern und den Stromverbrauch zu optimieren. Wenn Sie ein neues Energiesystem installieren, müssen Sie daher wissen, ob alle Stromzähler auf einen Zähler zusammengelegt werden sollen oder nicht. Dies kann sich auf die Konfiguration des Energiesystems auswirken und beeinflussen, wie es installiert und angeschlossen wird. Wenn alle Stromzähler auf einen Zähler zusammengelegt werden sollen, müssen Sie sicherstellen, dass das Energiesystem entsprechend konfiguriert ist und alle Geräte korrekt angeschlossen sind. Wenn die Geräte auf verschiedene Stromkreise verteilt sind, müssen Sie möglicherweise zusätzliche Schaltungen oder Verkabelungen hinzufügen, um sicherzustellen, dass das System ordnungsgemäß funktioniert"
+          }
+        })
+      })
+      .onInput(async() => {
+        stromZaehlerKonzeptZusammen.withStorage(value => {
+          funnel.value[stromZaehlerKonzeptZusammen.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromZaehlerKonzeptZusammen.withStorage(value => {
+        funnel.value[stromZaehlerKonzeptZusammen.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
+      const stromJahresverbrauch = new NumberField("stromJahresverbrauch")
+      .withLabel(label => label.innerHTML = "Jahresstromverbrauch Hauptzähler in kWh")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in kWh"
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Dieser Wert gibt an, wie viel Strom Sie innerhalb eines Jahres benötigen. Sie können diesen Wert anhand der Stromrechnungen ermitteln oder eine Schätzung anhand der Größe des Hauses, der Anzahl der Bewohner und der Art der elektrischen Geräte vornehmen. Wenn Sie den Jahresstromverbrauch nicht berücksichtigen, können Sie ein System entwerfen, das entweder zu viel oder zu wenig Energie erzeugt, was zu zusätzlichen Kosten oder einer unzureichenden Energieversorgung führen kann."
+          }
+        })
+      })
+      .onInput(async() => {
+        stromJahresverbrauch.withStorage(value => {
+          funnel.value[stromJahresverbrauch.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromJahresverbrauch.withStorage(value => {
+        funnel.value[stromJahresverbrauch.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
+      const stromNebenzaehlerFunktion = new NumberField("stromNebenzaehlerFunktion")
+      .withLabel(label => label.innerHTML = "2. Stromzähler, Zweck und Jahresstromverbrauch in kWh")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in kWh"
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Dieser Wert gibt an, wie viel Strom Sie innerhalb eines Jahres benötigen. Sie können diesen Wert anhand der Stromrechnungen ermitteln oder eine Schätzung anhand der Größe des Hauses, der Anzahl der Bewohner und der Art der elektrischen Geräte vornehmen. Wenn Sie den Jahresstromverbrauch nicht berücksichtigen, können Sie ein System entwerfen, das entweder zu viel oder zu wenig Energie erzeugt, was zu zusätzlichen Kosten oder einer unzureichenden Energieversorgung führen kann."
+          }
+        })
+      })
+      .onInput(async() => {
+        stromNebenzaehlerFunktion.withStorage(value => {
+          funnel.value[stromNebenzaehlerFunktion.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromNebenzaehlerFunktion.withStorage(value => {
+        funnel.value[stromNebenzaehlerFunktion.name] = value
+        Helper.setFunnel(funnel)
+      })
 
+
+      const stromArbeitspreis = new NumberField("stromArbeitspreis")
+      .withLabel(label => label.innerHTML = "Arbeitspreis brutto Cent/kWh")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in cent"
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Es ist wichtig, den Jahresstrompreis bei der Planung des Energiesystems zu berücksichtigen, da dies sicherstellt, dass das System nicht nur den Bedarf des Kunden deckt, sondern auch kosteneffizient ist. Wenn Sie den Jahresstrompreis nicht berücksichtigen, können Sie ein System entwerfen, das unnötig teuer ist und zu höheren Stromkosten führen kann."
+          }
+        })
+      })
+      .onInput(async() => {
+        stromArbeitspreis.withStorage(value => {
+          funnel.value[stromArbeitspreis.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromArbeitspreis.withStorage(value => {
+        funnel.value[stromArbeitspreis.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const stromGrundpreis = new NumberField("stromGrundpreis")
+      .withLabel(label => label.innerHTML = "Grundpreis brutto/Jahr in Euro")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in euro"
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Es ist wichtig, den Jahresstrompreis bei der Planung des Energiesystems zu berücksichtigen, da dies sicherstellt, dass das System nicht nur den Bedarf des Kunden deckt, sondern auch kosteneffizient ist. Wenn Sie den Jahresstrompreis nicht berücksichtigen, können Sie ein System entwerfen, das unnötig teuer ist und zu höheren Stromkosten führen kann."
+          }
+        })
+      })
+      .onInput(async() => {
+        stromGrundpreis.withStorage(value => {
+          funnel.value[stromGrundpreis.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromGrundpreis.withStorage(value => {
+        funnel.value[stromGrundpreis.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const stromArbeitspreisWaerme = new NumberField("stromArbeitspreisWaerme")
+      .withLabel(label => label.innerHTML = "Wärmestrom Arbeitspreis brutto Cent/kWh")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in cent"
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Es ist wichtig, den Wärmestrompreis bei der Planung des Energiesystems zu berücksichtigen, da dies sicherstellt, dass das System nicht nur den Bedarf des Kunden deckt, sondern auch kosteneffizient ist. Wenn Sie den Wärmestrompreis nicht berücksichtigen, können Sie ein System entwerfen, das unnötig teuer ist und zu höheren Kosten führen kann."
+          }
+        })
+      })
+      .onInput(async() => {
+        stromArbeitspreisWaerme.withStorage(value => {
+          funnel.value[stromArbeitspreisWaerme.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromArbeitspreisWaerme.withStorage(value => {
+        funnel.value[stromArbeitspreisWaerme.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const stromaGrundpreisWaerme = new NumberField("stromaGrundpreisWaerme")
+      .withLabel(label => label.innerHTML = "Wärmestrom Grundpreis brutto/Jahr in Euro")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in euro"
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Es ist wichtig, den Wärmestrompreis bei der Planung des Energiesystems zu berücksichtigen, da dies sicherstellt, dass das System nicht nur den Bedarf des Kunden deckt, sondern auch kosteneffizient ist. Wenn Sie den Wärmestrompreis nicht berücksichtigen, können Sie ein System entwerfen, das unnötig teuer ist und zu höheren Kosten führen kann."
+          }
+        })
+      })
+      .onInput(async() => {
+        stromaGrundpreisWaerme.withStorage(value => {
+          funnel.value[stromaGrundpreisWaerme.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromaGrundpreisWaerme.withStorage(value => {
+        funnel.value[stromaGrundpreisWaerme.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
       document.querySelectorAll(".picture-upload-title").forEach(title => {
@@ -224,35 +532,90 @@
       })
 
 
-      const pictureUploadFunnel = new FunnelField("picture-upload-funnel")
-      .withFields([
-        {class: "stromZaehlerschrankBild", type: "file", withLabel: label => label.innerHTML = "Kompletter Zählerschrank (gesamtes Innenleben)", withType: q7is0File},
-        {class: "stromTypenBezeichnungBild", type: "file", withLabel: label => label.innerHTML = "Typenbezeichnung", withType: q7is0File},
-        {class: "stromAllezaehlerBild", type: "file", withLabel: label => label.innerHTML = "Alle Zähler (Die Zählernummer sollte klar und deutlich lesbar sein)", withType: q7is0FileMultiple},
-      ])
 
-
-      function q7is0File(input) {
-        input.accept = "image/*"
+      const stromZaehlerschrankBild = new FileField("stromZaehlerschrankBild")
+      .withLabel(label => label.innerHTML = "Kompletter Zählerschrank")
+      .withType(file => {
+        file.accept = "image/*"
         const q7 = funnel.value.q7
         if (q7 === 0) {
-          input.required = true
+          file.required = true
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Gesamtes Innenleben"
+          }
+        })
+      })
+      .onInput(async() => {
+        stromZaehlerschrankBild.withStorage(value => {
+          funnel.value[stromZaehlerschrankBild.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromZaehlerschrankBild.withStorage(value => {
+        funnel.value[stromZaehlerschrankBild.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function q7is0FileMultiple(input) {
-        input.accept = "image/*"
-        input.multiple = true
+
+      const stromTypenBezeichnungBild = new FileField("stromTypenBezeichnungBild")
+      .withLabel(label => label.innerHTML = "Typenbezeichnung")
+      .withType(file => {
+        file.accept = "image/*"
         const q7 = funnel.value.q7
         if (q7 === 0) {
-          input.required = true
+          file.required = true
         }
-      }
+      })
+      .onInput(async() => {
+        stromTypenBezeichnungBild.withStorage(value => {
+          funnel.value[stromTypenBezeichnungBild.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromTypenBezeichnungBild.withStorage(value => {
+        funnel.value[stromTypenBezeichnungBild.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      pictureUploadFunnel.withStorage(funnel.storage).buildFields()
 
-
-
+      const stromAllezaehlerBild = new FileField("stromAllezaehlerBild")
+      .withLabel(label => label.innerHTML = "Alle Zähler")
+      .withType(file => {
+        file.accept = "image/*"
+        file.multiple = true
+        const q7 = funnel.value.q7
+        if (q7 === 0) {
+          file.required = true
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Die Zählernummer sollte klar und deutlich lesbar sein"
+          }
+        })
+      })
+      .onInput(async() => {
+        stromAllezaehlerBild.withStorage(value => {
+          funnel.value[stromAllezaehlerBild.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      stromAllezaehlerBild.withStorage(value => {
+        funnel.value[stromAllezaehlerBild.name] = value
+        Helper.setFunnel(funnel)
+      })
 
       const speichernundweiterbutton = new DivField("save-and-proceed-button")
       .withType(div => {
@@ -274,9 +637,35 @@
 
       Helper.createSHSFooter()
 
+
+
+      const fields = [
+        stromVersorger,
+        stromZaehlerschrankVerbaut,
+        stromPlatzZaehlerSchrank,
+        stromHauptzaehlerAnzahl,
+        stromUnterzaehlerNotwendig,
+        stromWievieleNeueZaehler,
+        stromHauptzaehlerNummer,
+        stromNebenzaehlerNummer,
+        stromZaehlerKonzeptZusammen,
+        stromJahresverbrauch,
+        stromNebenzaehlerFunktion,
+        stromArbeitspreis,
+        stromGrundpreis,
+        stromArbeitspreisWaerme,
+        stromaGrundpreisWaerme,
+        stromZaehlerschrankBild,
+        stromTypenBezeichnungBild,
+        stromAllezaehlerBild,
+      ]
+
+
+
       async function checkAndProceed(path) {
-        await powerSystemFunnel.checkValidity()
-        await pictureUploadFunnel.checkValidity()
+        for (let i = 0; i < fields.length; i++) {
+          await fields[i].withValidValue()
+        }
 
         window.location.assign(path)
       }

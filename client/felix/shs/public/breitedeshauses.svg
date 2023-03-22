@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="408" height="511" viewBox="0 0 408 511">
+  <defs>
+    <clipPath id="clip-breitedeshauses">
+      <rect width="408" height="511"/>
+    </clipPath>
+  </defs>
+  <g id="breitedeshauses" clip-path="url(#clip-breitedeshauses)">
+    <g id="Gruppe_1910" data-name="Gruppe 1910" transform="translate(-819.875 -7280.986)">
+      <text id="Länge_a_" data-name="Länge (a)" transform="translate(854.002 7594.56) rotate(-90)" fill="#161616" font-size="17" font-family="FormaDJRMicro-Regular, Forma DJR Micro"><tspan x="0" y="15">Länge (a)</tspan></text>
+      <text id="Länge_b_" data-name="Länge (b)" transform="translate(1166.746 7594.56) rotate(-90)" fill="#161616" font-size="17" font-family="FormaDJRMicro-Regular, Forma DJR Micro"><tspan x="0" y="15">Länge (b)</tspan></text>
+      <text id="Breite_b_" data-name="Breite (b)" transform="translate(977.06 7742.666)" fill="#161616" font-size="17" font-family="FormaDJRMicro-Regular, Forma DJR Micro"><tspan x="0" y="15">Breite (b)</tspan></text>
+      <text id="Breite_a_" data-name="Breite (a)" transform="translate(983.75 7308.316)" fill="#161616" font-size="17" font-family="FormaDJRMicro-Regular, Forma DJR Micro"><tspan x="0" y="15">Breite (a)</tspan></text>
+      <path id="Pfad_782" data-name="Pfad 782" d="M19099.824-17985.68l125.945,98.1-7.477,138.43,119.752,102.047h-238.221Z" transform="translate(-18195.059 25355.662)" fill="#e8ba68"/>
+      <path id="Pfad_783" data-name="Pfad 783" d="M0,0,120.611,100.6V242.247l117.611,96.328H0Z" transform="translate(1142.985 7708.555) rotate(180)" fill="#facb76"/>
+      <path id="Pfad_784" data-name="Pfad 784" d="M19397.5-15097.447V-14759" transform="translate(-18507.281 22467.559)" fill="none" stroke="#000" stroke-width="2"/>
+      <path id="Pfad_785" data-name="Pfad 785" d="M19397.5-15097.447V-14759" transform="translate(-18239.969 22467.559)" fill="none" stroke="#000" stroke-width="2"/>
+      <path id="Pfad_786" data-name="Pfad 786" d="M0,0V238.222" transform="translate(1142.99 7352.92) rotate(90)" fill="none" stroke="#000" stroke-width="2"/>
+      <path id="Pfad_787" data-name="Pfad 787" d="M0,0V238.222" transform="translate(1142.99 7725.61) rotate(90)" fill="none" stroke="#000" stroke-width="2"/>
+    </g>
+  </g>
+</svg>

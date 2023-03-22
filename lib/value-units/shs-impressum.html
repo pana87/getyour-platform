@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+  <link rel="shortcut icon" href="/public/getyour-logo.svg" />
   <title>SHS Impressum</title>
+
   <style>
     body {
       margin: 0;
@@ -29,17 +34,17 @@
 
 
   <script type="module">
-    import {HeaderField} from "../../../../js/HeaderField.js"
-    import {Field} from "../../../../js/Field.js"
-    import {Helper} from "../../../../js/Helper.js"
+    import {HeaderField} from "/js/HeaderField.js"
+    import {Field} from "/js/Field.js"
+    import {Helper} from "/js/Helper.js"
 
     const header = new HeaderField()
     .withImage(img => {
-      img.src = "../../public/shslogo.png"
+      img.src = "/felix/shs/public/shslogo.png"
       img.alt = "SHS Express Logo"
       img.style.cursor = "pointer"
       img.style.width = "144px"
-      img.addEventListener("click", () => window.location.assign("/felix/shs/"))
+      img.addEventListener("click", () => window.history.back())
     })
     .withType(header => {
       header.style.position = "fixed"
@@ -47,6 +52,7 @@
       header.style.left = "0"
       header.style.zIndex = "1"
       header.style.background = "white"
+      header.style.width = "100%"
     })
     .build()
 

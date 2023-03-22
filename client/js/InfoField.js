@@ -10,7 +10,7 @@ export class InfoField {
   //         if (value !== undefined) input.value = value
   //       }
   //       if (name === "shsFunnel") {
-  //         const value = JSON.parse(window.localStorage.getItem(name)).value[this.className]
+  //         const value = JSON.parse(window.localStorage.getItem(name)).value[this.name]
   //         if (value !== undefined) input.value = value
   //       }
   //     }
@@ -40,7 +40,7 @@ export class InfoField {
 
   //       if (name === "shsFunnel") {
   //         const storage = JSON.parse(window.localStorage.getItem(this.storageName))
-  //         storage.value[this.className] = value
+  //         storage.value[this.name] = value
   //         window.localStorage.setItem(this.storageName, JSON.stringify(storage))
   //       }
 
@@ -49,7 +49,7 @@ export class InfoField {
   //   } catch (error) {
   //     console.error(error)
   //   }
-  //   return new Error(`class='${this.className}' - storage failed`)
+  //   return new Error(`class='${this.name}' - storage failed`)
   // }
 
   // #isRequired(input) {
@@ -66,7 +66,7 @@ export class InfoField {
   //           return resolve(input.value)
   //         }
   //         Helper.setNotValidStyle(input)
-  //         console.error(`field '${this.className}' is required`)
+  //         console.error(`field '${this.name}' is required`)
   //         return
   //       }
   //       Helper.setValidStyle(input)
@@ -200,15 +200,15 @@ export class InfoField {
     // field.append(container)
   }
 
-  constructor(className) {
+  constructor(name) {
     try {
-      if (Helper.stringIsEmpty(className)) throw new Error("class name is empty")
-      this.className = className
-      this.fieldSelector = `div[class='${this.className}']`
+      if (Helper.stringIsEmpty(name)) throw new Error("class name is empty")
+      this.name = name
+      this.fieldSelector = `div[class='${this.name}']`
       this.type = "info"
       const fields = document.querySelectorAll(this.fieldSelector)
       this.fields = Array.from(document.querySelectorAll(this.fieldSelector))
-      if (fields.length <= 0) throw new Error(`field '${this.className}' not found`)
+      if (fields.length <= 0) throw new Error(`field '${this.name}' not found`)
     } catch (error) {
       console.error(error);
     }

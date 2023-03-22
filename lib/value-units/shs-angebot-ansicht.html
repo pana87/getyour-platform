@@ -4,6 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, width=device-width" />
 
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>SHS Checkliste Angebot prüfen</title>
+
+
 
     <style>
       body {
@@ -47,24 +51,22 @@
 
   <script type="module">
 
-    import {Request} from "../../../../../js/Request.js"
-    import {DivField} from "../../../../../js/DivField.js"
-    import {HeaderField} from "../../../../../js/HeaderField.js"
-    import {Helper} from "../../../../../js/Helper.js"
+    import {Request} from "/js/Request.js"
+    import {DivField} from "/js/DivField.js"
+    import {HeaderField} from "/js/HeaderField.js"
+    import {Helper} from "/js/Helper.js"
 
     const localStorageId = Request.localStorageId()
     const urlId = window.location.pathname.split("/")[4]
 
     const getOffer = {}
     getOffer.url = "/consumer/v1/"
-    getOffer.consumer = "operator"
     getOffer.method = "get"
-    getOffer.type = "offer"
+    getOffer.type = "offers"
     getOffer.security = "closed"
     getOffer.localStorageId = localStorageId
     getOffer.urlId = urlId
     const res = await Request.middleware(getOffer)
-    // console.log(res.status);
 
     if (res.status !== 200) {
       window.location.assign("/felix/shs/match-maker/hersteller-vergleich/")
@@ -72,48 +74,42 @@
     }
 
     const offer = JSON.parse(res.response)
-    // console.log(offer);
 
     const header = new HeaderField()
     .withImage(img => {
-      img.src = "../../../public/shslogo.png"
+      img.src = "/felix/shs/public/shslogo.png"
       img.alt = "SHS Express Logo"
       img.style.width = "144px"
       img.style.cursor = "pointer"
-      img.addEventListener("click", async() => await Helper.redirectOperatorToChecklist())
+      img.addEventListener("click", () => window.history.back())
     })
     .withType(header => {
       header.style.position = "fixed"
       header.style.top = "0"
       header.style.left = "0"
       header.style.zIndex = "1"
+      header.style.width = "100%"
       header.style.backgroundColor = "white"
     })
     .build()
-    // .withOffer(offer)
 
     const producerLogo = new DivField("producer-logo")
     .withType(div => {
-      // const imageContainer = document.createElement("div")
       div.style.display = "flex"
       div.style.justifyContent = "flex-end"
       div.style.margin = "144px 34px 34px 34px"
-      // offerImage.style.display = "flex"
 
       const img = document.createElement("img")
-      img.src = offer.image.src
-      img.alt = offer.image.alt
+      img.src = "/felix/shs/public/bestprimelogo.png"
+      img.alt = "Bestprime Logo"
       img.style.width = "50vw"
       img.style.maxWidth = "377px"
 
       div.append(img)
-      // field.append(imageContainer)
-
     })
 
     const offerProducer = new DivField("offer-producer")
     .withType(div => {
-      // const div = document.createElement("div")
       div.style.margin = "34px"
       div.style.fontSize = "21px"
 
@@ -131,50 +127,30 @@
       producerLocation.innerHTML = `${offer.producer.street} ${offer.producer.houseNumber} • ${offer.producer.zip} • ${offer.producer.city}`
 
       div.append(from, producerCompany, producerSector, producerLocation)
-      // div.append(div)
-
     })
 
     const offerMeta = new DivField("offer-meta")
     .withType(div => {
-
-      // const metaContainer = document.createElement("div")
       div.style.margin = "89px 34px"
       div.style.fontSize = "21px"
-      // metaContainer.style.display = "flex"
-      // metaContainer.style.flexDirection = "column"
-
-
 
       const offerId = document.createElement("p")
       offerId.innerHTML = `<b style="margin-right: 21px;">Angebotsnummer:</b> ${offer.id}`
-      // offerId.style.margin = "8px 0"
 
       const offerCreateAt = document.createElement("p")
       offerCreateAt.innerHTML = `<b style="margin-right: 43px;">Angebotsdatum:</b> ${Helper.millisToDateString(offer.createdAt)}`
-      // offerCreateAt.style.margin = "8px 0"
-
 
       const offerExpiresAt = document.createElement("p")
       offerExpiresAt.innerHTML = `<b style="margin-right: 106px;">Gültig bis:</b> ${Helper.millisToDateString(offer.expiresAt)}`
-      // offerExpiresAt.style.margin = "8px 0"
 
-      // offerId.innerHTML = `<b>Angebotsnummer:</b>   ${offer.id}`
       const ownerId = document.createElement("p")
       ownerId.innerHTML = `<b style="margin-right: 40px;">Kundennummer:</b> ${Helper.substring(offer.owner.id, 13)}`
-      // ownerId.style.margin = "8px 0"
-      // ownerId.style.alignSelf = "flex-end"
 
       div.append(offerId, offerCreateAt, offerExpiresAt, ownerId)
-      // field.append(metaContainer)
-
-
-
     })
 
     const offerConsumer = new DivField("offer-consumer")
     .withType(div => {
-      // const ownerContainer = document.createElement("div")
       div.style.margin = "89px 34px"
       div.style.fontSize = "21px"
       div.style.textAlign = "right"
@@ -182,24 +158,17 @@
       const to = document.createElement("p")
       to.innerHTML = "An:"
 
-
-      // ownerContainer.style.display = "flex"
-      // ownerContainer.style.flexDirection = "column"
-      // ownerContainer.style.alignItems = "flex-end"
-
       const ownerName = document.createElement("p")
-      ownerName.innerHTML = `${offer.to.firstname} ${offer.to.lastname}`
+      ownerName.innerHTML = `${offer.owner.firstname} ${offer.owner.lastname}`
       ownerName.style.fontWeight = "bold"
 
       const ownerStreet = document.createElement("p")
-      ownerStreet.innerHTML = offer.to.street
+      ownerStreet.innerHTML = offer.owner.street
 
       const ownerZip = document.createElement("p")
-      ownerZip.innerHTML = offer.to.zip
+      ownerZip.innerHTML = offer.owner.zip
 
       div.append(to, ownerName, ownerStreet, ownerZip)
-      // field.append(ownerContainer)
-
     })
 
     const offerTitle = new DivField("offer-title")
@@ -213,15 +182,14 @@
 
     const producerMessage = new DivField("producer-message")
     .withType(div => {
-      const producerMessage = document.createElement("p")
-      producerMessage.style.margin = "21px 34px"
-      // producerMessage.style.fontSize = "21px"
-      producerMessage.innerHTML = offer.producer.message
-      div.append(producerMessage)
-
+      div.style.margin = "21px 34px"
+      div.style.fontSize = "21px"
+      div.innerHTML = /*html*/`
+        <p>Sehr geehrte/r Kundin/Kunde,</p>
+        <p>${offer.producer.message}</p>
+        <p>Unsere digitale Analyse hat folgendes Energiekonzept für Sie ergeben:</p>
+      `
     })
-
-
 
     const offerOptions = new DivField("offer-options")
     .withType(div => {
@@ -230,8 +198,6 @@
       tableHeader.style.display = "flex"
       tableHeader.style.justifyContent = "space-between"
       tableHeader.style.backgroundColor = "#ddddde"
-      // tableHeader.style.fontSize = "21px"
-      // tableHeader.style.color = "black"
 
       const tableTitle = document.createElement("p")
       tableTitle.innerHTML = "Beschreibung"
@@ -241,103 +207,53 @@
       tableAmount.innerHTML = "Nettobetrag"
       tableAmount.style.margin = "21px 34px 21px 0px"
       tableAmount.style.fontWeight = "bold"
-
-
-
       tableHeader.append(tableTitle, tableAmount)
-
-
 
       const offerContainer = document.createElement("div")
       offerContainer.style.margin = "34px 0"
-
       offerContainer.append(tableHeader)
 
       for (let i = 0; i < offer.options.length; i++) {
         const itemContainer = document.createElement("div")
-        // itemContainer.classList.add(`option-${i}`)
-        // itemContainer.style.margin = "0 34px"
 
-        // itemContainer.style.position = "relative"
-        // itemContainer.style.height = "60px"
         if (i % 2) itemContainer.style.backgroundColor = "#e7e7e8"
-
 
         const item = document.createElement("div")
         item.style.position = "relative"
         item.style.margin = "0 34px"
         item.style.fontSize = "21px"
-        // item.style.height = "34px"
         item.style.display = "flex"
         item.style.flexDirection = "column"
-        // item.style.justifyContent = "space-between"
-        // item.style.alignItems = "center"
-
 
         const amountTitleDiv = document.createElement("div")
         amountTitleDiv.style.display = "flex"
         amountTitleDiv.style.alignItems = "center"
         amountTitleDiv.style.margin = "13px 0"
 
-
         const amount = document.createElement("div")
-        // amount.classList.add(`amount`)
         amount.innerHTML = `${offer.options[i].amount}x`
-        // amount.style.justifySelf = "flex-start"
-        // amount.style.position = "absolute"
-        // amount.style.top = "0"
-        // amount.style.left = "0"
         amount.style.marginRight = "8px"
 
-        // item.append(amount)
-
         const title = document.createElement("div")
-        // title.classList.add(`gy-title`)
-        // const substring =
-        // const substring = Helper.substring(offer.options[i].title, 21)
         title.innerHTML = offer.options[i].title
-        // title.title = offer.options[i].title
-        // title.style.alignSelf = "flex-start"
         amountTitleDiv.append(amount, title)
-        // title.style.position = "absolute"
-        // title.style.top = "0"
-        // title.style.left = "8%"
         item.append(amountTitleDiv)
-
 
         const priceInputDiv = document.createElement("div")
         priceInputDiv.style.display = "flex"
         priceInputDiv.style.justifyContent = "flex-end"
         priceInputDiv.style.alignItems = "center"
-        // priceInputDiv.style.height = "55px"
         priceInputDiv.style.margin = "13px 0"
 
-
-
         const price = document.createElement("div")
-        // price.classList.add(`price`)
         price.innerHTML = `${offer.options[i].price.toFixed(2)}€`
-        // price.style.position = "absolute"
-        // price.style.top = "0"
-        // price.style.right = "8%"
-        // price.style.height = "34px"
-        // price.style.display = "flex"
-        // price.style.justifyContent = "center"
-        // price.style.alignItems = "center"
-        // item.append(price)
 
         const input = document.createElement("input")
         input.type = "checkbox"
-        // input.classList.add(`checkbox`)
         input.checked = offer.options[i].selected
         input.style.width = "21px"
         input.style.height = "21px"
-        // input.style.position = "absolute"
-        // input.style.top = "0"
-        // input.style.margin = "0"
         input.style.margin = "0 0 3px 13px"
-        // input.style.bottom = "auto"
-        // input.style.right = "0"
         input.addEventListener("input", (event) => {
           offer.options[i].selected = event.target.checked
 
@@ -346,71 +262,27 @@
           document.querySelector(".net-price").innerHTML = `${price.toFixed(2).replace(".", ",")} €`
           document.querySelector(".vat-price").innerHTML = `${(price * offer.vat).toFixed(2).replace(".", ",")} €`
           document.querySelector(".gross-price").innerHTML = `${(price + (price * offer.vat)).toFixed(2).replace(".", ",")} €`
-
-          // console.log(offer);
-
-          // this.withOptionSelectedCallback(event)
-          // console.log("from class", offer);
-
-          // // render price
-          // const price = Helper.sumSelectedPrice(offer.options)
-          // herstellerbruttobeitrag.withType(div => div.innerHTML = `${price.toFixed(2).replace(".", ",")} €`)
-          // herstellerrabatt.withType(div => div.innerHTML = `${(price * offer.discount).toFixed(2).replace(".", ",")} €`)
-          // herstellernettobeitrag.withType(div => div.innerHTML = `${(price - price * offer.discount).toFixed(2).replace(".", ",")} €`)
-          // herstellerust.withType(div => div.innerHTML = `${(price * offer.vat).toFixed(2).replace(".", ",")} €`)
-          // herstellergesamtpreis.withType(div => div.innerHTML = `${((price - price * offer.discount) + (price * offer.vat)).toFixed(2).replace(".", ",")} €`)
-
         })
-
 
         priceInputDiv.append(price, input)
         item.append(priceInputDiv)
-
 
         itemContainer.append(item)
         offerContainer.append(itemContainer)
       }
       div.append(offerContainer)
-
-
     })
-
-
-
-
-    // const offerField = new OfferField("offer")
-    // .withOffer(offer)
-    // .withOptionSelected(() => {
-    //   // option.se
-
-    //   // render price
-    //   const price = Helper.sumSelectedPrice(offer.options)
-
-    //   document.querySelector(".net-price").innerHTML = `${price.toFixed(2).replace(".", ",")} €`
-    //   document.querySelector(".vat-price").innerHTML = `${(price * offer.vat).toFixed(2).replace(".", ",")} €`
-    //   document.querySelector(".gross-price").innerHTML = `${((price - price * offer.discount) + (price * offer.vat)).toFixed(2).replace(".", ",")} €`
-
-
-
-    //   // herstellerbruttobeitrag.withType(div => div.innerHTML = `${price.toFixed(2).replace(".", ",")} €`)
-    //   // herstellerrabatt.withType(div => div.innerHTML = `${(price * offer.discount).toFixed(2).replace(".", ",")} €`)
-    //   // herstellernettobeitrag.withType(div => div.innerHTML = `${(price - price * offer.discount).toFixed(2).replace(".", ",")} €`)
-    //   // herstellerust.withType(div => div.innerHTML = `${(price * offer.vat).toFixed(2).replace(".", ",")} €`)
-    //   // herstellergesamtpreis.withType(div => div.innerHTML = `${((price - price * offer.discount) + (price * offer.vat)).toFixed(2).replace(".", ",")} €`)
-
-    //   // console.log("from html", offer);
-    // })
-    // .buildOffer()
-
-
-
 
     const noteField = new DivField("note")
-    .withType(note => {
-      note.innerHTML = `<span style="font-size: 21px;">Bitte beachten:</span><br><br>${offer.producer.note}`
-      note.style.margin = "21px 34px"
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.style.fontSize = "21px"
+      div.innerHTML = /*html*/`
+        <p style="font-size: 21px; font-weight: bold;">Bitte beachten:</p>
+        <p>${offer.producer.note}</p>
+        <p>Es handelt sich hierbei lediglich um ein Angebot. Wollen Sie das Angebot annehmen, entsteht erst ein Vertrag, nachdem der Bauleiter die Anfrage zu Ihrer Sicherheit geprüft hat.</p>
+      `
     })
-
 
     const agb = new DivField("agb")
     .withType(div => {
@@ -420,7 +292,7 @@
       container.style.alignItems = "center"
 
       const img = document.createElement("img")
-      img.src = "/felix/shs/checkliste/1/public/pdf.svg"
+      img.src = "/felix/shs/public/pdf.svg"
       img.alt = "AGBs"
       img.style.marginRight = "13px"
 
@@ -433,7 +305,7 @@
     })
     .onClick(() => {
       const a = document.createElement("a")
-      a.href = `/felix/shs/hersteller/public/${offer.producer.terms}`
+      a.href = `/felix/shs/public/${offer.producer.terms}`
       a.download = offer.producer.terms
       a.dispatchEvent(new MouseEvent('click'))
     })
@@ -446,7 +318,7 @@
       container.style.alignItems = "center"
 
       const img = document.createElement("img")
-      img.src = "/felix/shs/checkliste/1/public/pdf.svg"
+      img.src = "/felix/shs/public/pdf.svg"
       img.alt = "Info"
       img.style.marginRight = "13px"
 
@@ -459,7 +331,7 @@
     })
     .onClick(() => {
       const a = document.createElement("a")
-      a.href = `/felix/shs/hersteller/public/${offer.producer.productInfo}`
+      a.href = `/felix/shs/public/${offer.producer.productInfo}`
       a.download = offer.producer.productInfo
       a.dispatchEvent(new MouseEvent('click'))
     })
@@ -472,7 +344,7 @@
       container.style.alignItems = "center"
 
       const img = document.createElement("img")
-      img.src = "/felix/shs/checkliste/1/public/pdf.svg"
+      img.src = "/felix/shs/public/pdf.svg"
       img.alt = "Info"
       img.style.marginRight = "13px"
 
@@ -485,13 +357,10 @@
     })
     .onClick(() => {
       const a = document.createElement("a")
-      a.href = `/felix/shs/hersteller/public/${offer.producer.companyInfo}`
+      a.href = `/felix/shs/public/${offer.producer.companyInfo}`
       a.download = offer.producer.companyInfo
       a.dispatchEvent(new MouseEvent('click'))
     })
-
-
-
 
     const priceField = new DivField("price")
     .withType(div => {
@@ -511,7 +380,6 @@
       priceTitle.style.fontSize = "21px"
       priceTitle.style.margin = "21px 0"
 
-
       priceContainer.append(priceTitle)
 
       const netContainer = document.createElement("div")
@@ -530,13 +398,10 @@
 
       priceContainer.append(netContainer)
 
-
-
       const vatContainer = document.createElement("div")
       vatContainer.style.display = "flex"
       vatContainer.style.justifyContent = "space-between"
       vatContainer.style.margin = "13px 0"
-
 
       const priceVatTitle = document.createElement("div")
       priceVatTitle.innerHTML = `USt. ${(offer.vat * 100).toFixed(2).replace(".", ",")} %`
@@ -550,9 +415,7 @@
       priceContainer.append(vatContainer)
 
       const line = document.createElement("hr")
-
       priceContainer.append(line)
-
 
       const grossContainer = document.createElement("div")
       grossContainer.style.display = "flex"
@@ -570,7 +433,6 @@
 
       priceContainer.append(grossContainer)
 
-
       const button = document.createElement("div")
       button.innerHTML = "Angebot speichern"
       button.style.marginTop = "34px"
@@ -587,190 +449,54 @@
 
       button.addEventListener("click", async() => {
 
-
-        Helper.addOverlay()
-        Helper.setWaitCursor()
-
         const getChecklist = {}
         getChecklist.url = "/consumer/v1/"
-        getChecklist.consumer = "operator"
         getChecklist.method = "get"
         getChecklist.type = "checklist"
         getChecklist.security = "closed"
-        // getChecklist.name = "shs"
         getChecklist.localStorageId = localStorageId
         getChecklist.urlId = urlId
         const res = await Request.middleware(getChecklist)
 
         if (res.status === 200) {
-
-          // const email = window.localStorage.getItem("email")
-
-          try {
-            const checklist = JSON.parse(res.response)
-            if (checklist.state === 0) {
-              checklist.state = checklist.state + 1
-            }
-            const email = await Helper.getItem("email")
-            await Request.withVerifiedEmail(email, async() => {
-              const localStorageId = Request.localStorageId()
-
-              const registerOffer = {}
-              registerOffer.url = "/consumer/v1/"
-              registerOffer.consumer = "operator"
-              registerOffer.method = "register"
-              registerOffer.type = "offer"
-              registerOffer.security = "closed"
-              // updateOffer.name = "bestprime"
-              registerOffer.offer = offer
-              registerOffer.localStorageId = localStorageId
-              registerOffer.urlId = urlId
-              await Request.sequence(registerOffer)
-
-              const registerChecklist = {}
-              registerChecklist.url = "/consumer/v1/"
-              registerChecklist.consumer = "operator"
-              registerChecklist.method = "register"
-              registerChecklist.type = "checklist"
-              registerChecklist.security = "closed"
-              // registerChecklist.name = "shs"
-              registerChecklist.localStorageId = localStorageId
-              registerChecklist.urlId = urlId
-              registerChecklist.checklist = checklist
-              await Request.sequence(registerChecklist)
-
-              alert("Speichern erfolgreich..")
-              Helper.redirectOperatorToChecklist()
-              // window.location.assign(`/felix/shs/checkliste/${Request.localStorageId()}/`)
-              Helper.removeOverlay()
-            })
-
-          } catch (error) {
-            console.error(error)
+          const checklist = JSON.parse(res.response)
+          if (checklist.state === 0) {
+            checklist.state = checklist.state + 1
           }
-          Helper.setNotAllowedCursor()
+          const email = Request.email()
+
+          await Request.verifyEmail(email)
+
+          const registerOffer = {}
+          registerOffer.url = "/consumer/v1/"
+          registerOffer.method = "register"
+          registerOffer.type = "offer"
+          registerOffer.security = "closed"
+          registerOffer.offer = offer
+          registerOffer.localStorageId = localStorageId
+          await Request.sequence(registerOffer)
+
+          const registerChecklist = {}
+          registerChecklist.url = "/consumer/v1/"
+          registerChecklist.method = "register"
+          registerChecklist.type = "checklist"
+          registerChecklist.security = "closed"
+          registerChecklist.localStorageId = localStorageId
+          registerChecklist.checklist = checklist
+          await Request.sequence(registerChecklist)
+
+          alert("Speichern erfolgreich..")
+          return window.location.assign(`/felix/shs/checklist/${urlId}/`)
         }
-
-
-        // for (let i = 0; i < offers.length; i++) {
-        //   offer.value.selected = false
-        // }
-
-        // offer.value.selected = true
-        // window.localStorage.setItem("offers", JSON.stringify(offers))
-        // window.location.assign("/felix/shs/funnel/abfrage-persoenliches/")
       })
 
-
-
-
       priceContainer.append(button)
-
-
       alignContainer.append(priceContainer)
-
       div.append(alignContainer)
-
     })
 
 
-
-    // render price
-    // const price = Helper.sumSelectedPrice(offer.options)
-    // const herstellerbruttobeitrag = new DivField("div[class*='herstellerbruttobeitrag']")
-    // .withType(div => div.innerHTML = `${price.toFixed(2).replace(".", ",")} €`)
-
-
-    // rabatt feature
-    // const discount = new DivField("div[class*='rabatt-2000']")
-    // .withType(div => div.innerHTML = `Rabatt ${(offer.discount * 100).toFixed(2).replace(".", ",")}%`)
-    // const herstellerrabatt = new DivField("div[class*='herstellerrabatt']")
-    // .withType(div => div.innerHTML = `${(price * offer.discount).toFixed(2).replace(".", ",")} €`)
-    // const herstellernettobeitrag = new DivField("div[class*='herstellernettobeitrag']")
-    // .withType(div => div.innerHTML = `${(price - price * offer.discount).toFixed(2).replace(".", ",")} €`)
-
-
-    // const ust = new DivField("div[class*='ust-1900']")
-    // .withType(div => div.innerHTML = `USt. ${(offer.vat * 100).toFixed(2).replace(".", ",")}%`)
-
-
-
-    // const herstellerust = new DivField("div[class*='herstellerust']")
-    // .withType(div => div.innerHTML = `${(price * offer.vat).toFixed(2).replace(".", ",")} €`)
-
-
-
-    // const herstellergesamtpreis = new DivField("div[class*='herstellergesamtpreis']")
-    // .withType(div => div.innerHTML = `${((price - price * offer.discount) + (price * offer.vat)).toFixed(2).replace(".", ",")} €`)
-
-
-    // const zumabschlussbutton = new DivField("div[class*='zumabschlussbutton']")
-    // .withOverlayClickEventListener(async (event) => {
-    //   event.addOverlay()
-    //   event.setWaitCursor()
-
-    //   const options = {}
-    //   options.url = "/db/v1/"
-    //   options.method = "get"
-    //   options.security = "closed"
-    //   options.type = "checklist"
-    //   options.name = "shs"
-    //   options.localStorageId = localStorageId
-    //   options.urlId = urlId
-    //   const res = await Request.middleware(options)
-
-    //   if (res.status === 200) {
-    //     const checklist = JSON.parse(res.response)
-    //     if (checklist.state === 0) {
-    //       checklist.state = checklist.state + 1
-    //     }
-
-    //     const email = JSON.parse(window.localStorage.getItem("shsFunnel")).value.registrierenemail
-
-    //     try {
-    //       await Request.withVerifiedEmail(email, async() => {
-    //         const localStorageId = Request.localStorageId()
-
-    //         const updateOffer = {}
-    //         updateOffer.url = "/db/v1/"
-    //         updateOffer.method = "put"
-    //         updateOffer.security = "closed"
-    //         updateOffer.type = "offer"
-    //         updateOffer.name = "bestprime"
-    //         updateOffer.offer = offer
-    //         updateOffer.localStorageId = localStorageId
-    //         updateOffer.urlId = urlId
-    //         await Request.sequence(updateOffer)
-
-    //         const registerChecklist = {}
-    //         registerChecklist.url = "/db/v1/"
-    //         registerChecklist.method = "put"
-    //         registerChecklist.security = "closed"
-    //         registerChecklist.type = "checklist"
-    //         registerChecklist.name = "shs"
-    //         registerChecklist.localStorageId = localStorageId
-    //         registerChecklist.urlId = urlId
-    //         registerChecklist.checklist = checklist
-    //         await Request.sequence(registerChecklist)
-
-    //         alert("Speichern erfolgreich..")
-    //         window.location.assign(`/felix/shs/checkliste/${Request.localStorageId()}/`)
-    //         event.removeOverlay()
-    //       })
-
-    //     } catch (error) {
-    //       console.error(error)
-    //     }
-    //     event.setNotAllowedCursor()
-    //   }
-    // })
-
     Helper.createSHSFooter()
-
-    // const impressum = new DivField("div[class*='impressum']")
-    // .withClickEventListener(() => window.location.assign("/felix/shs/impressum/"))
-    // const datenschutz = new DivField("div[class*='datenschutz']")
-    // .withClickEventListener(() => window.location.assign("/felix/shs/datenschutz/"))
 
   </script>
 </body>

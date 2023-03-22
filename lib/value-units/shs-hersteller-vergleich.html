@@ -4,6 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, width=device-width" />
 
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>SHS Hersteller Vergleich</title>
+
     <style>
 
       body {
@@ -34,15 +37,14 @@
 
 
     <script type="module">
-      import { DivField } from "../../../../js/DivField.js"
-      import { Field } from "../../../../js/Field.js"
-      import { Helper } from "../../../../js/Helper.js"
-      import { Request } from "../../../../js/Request.js"
-      import { HeaderField } from "../../../../js/HeaderField.js"
-      import { InfoField } from "../../../../js/InfoField.js"
-      import { FooterField } from "../../../../js/FooterField.js"
+      import { DivField } from "/js/DivField.js"
+      import { Helper } from "/js/Helper.js"
+      import { Request } from "/js/Request.js"
+      import { HeaderField } from "/js/HeaderField.js"
+      import { InfoField } from "/js/InfoField.js"
 
-      const funnel = Helper.getFunnelByStorageName("shsFunnel")
+
+      const funnel = Helper.findFunnel(funnel => funnel.owner.id === Request.localStorageId())
       if (funnel === undefined) {
         window.location.assign("/felix/shs/funnel/qualifizierung/")
         throw new Error("funnel not found")
@@ -50,16 +52,17 @@
 
       const header = new HeaderField()
       .withImage(img => {
-        img.src = "../../public/shslogo.png"
+        img.src = "/felix/shs/public/shslogo.png"
         img.alt = "SHS Express Logo"
         img.style.width = "144px"
         img.style.cursor = "pointer"
-        img.addEventListener("click", async() => await Helper.redirectOperatorToChecklist())
+        img.addEventListener("click", async() => await Helper.redirectUser())
       })
       .withType(header => {
         header.style.position = "fixed"
         header.style.top = "0"
         header.style.left = "0"
+        header.style.width = "100%"
         header.style.backgroundColor = "white"
       })
       .build()
@@ -83,14 +86,13 @@
 
       const getOffer = {}
       getOffer.url = "/consumer/v1/"
-      getOffer.consumer = "operator"
       getOffer.method = "get"
-      getOffer.type = "offer"
+      getOffer.type = "offers"
       getOffer.security = "open"
       getOffer.funnel = funnel
+      getOffer.localStorageId = Request.localStorageId()
       const res = await Request.middleware(getOffer)
-      // console.log(res);
-      // Helper.requestFailed(res)
+
 
       if (res.status !== 200) {
         document.querySelectorAll("div[class*='herstelleritem']").forEach(div => div.remove())
@@ -99,12 +101,11 @@
 
 
       const offers = JSON.parse(res.response)
-      // console.log(offers);
-      // set offer
 
-      const offerList = new Field(".offer-list")
+      const offerList = new DivField("offer-list")
       .withType(div => {
         for (let i = 0; i < offers.length; i++) {
+          // console.log(offers[i]);
 
           const offer = document.createElement("div")
           offer.style.backgroundColor = "white"
@@ -118,11 +119,10 @@
           alignLogo.style.justifyContent = "flex-end"
 
           const logo = document.createElement("img")
-          logo.src = offers[i].image.src
-          logo.alt = offers[i].image.alt
+          logo.src = "/felix/shs/public/bestprimelogo.png"
+          logo.alt = "Bestprime Logo"
           logo.style.width = "55vw"
           logo.style.maxWidth = "377px"
-          // logo.style.padding = "21px"
 
           alignLogo.append(logo)
 
@@ -131,7 +131,6 @@
           const company = document.createElement("div")
           company.innerHTML = offers[i].producer.company
           company.style.margin = "21px 0"
-          // Helper.resizeFontSize(company, "21px")
           company.style.fontSize = "21px"
 
           offer.append(company)
@@ -139,10 +138,9 @@
           const website = document.createElement("div")
           website.style.display = "flex"
           website.style.alignItems = "center"
-          // website.style.padding = "21px"
 
           const websiteIcon = document.createElement("img")
-          websiteIcon.src = "/felix/shs/hersteller/public/website-icon.svg"
+          websiteIcon.src = "/felix/shs/public/website-icon.svg"
           websiteIcon.alt = "Website Icon"
 
           const websiteText = document.createElement("a")
@@ -253,7 +251,6 @@
           button.style.display = "flex"
           button.style.justifyContent = "center"
           button.style.alignItems = "center"
-          // button.style.fontSize = "21px"
           button.style.cursor = "pointer"
           button.addEventListener("mouseover", () => button.style.backgroundColor = "#f19d08")
           button.addEventListener("mouseout", () => button.style.backgroundColor = "#f7aa20")
@@ -269,22 +266,13 @@
             window.location.assign("/felix/shs/funnel/abfrage-persoenliches/")
           })
 
-
-
-
           priceContainer.append(button)
-
-
           alignContainer.append(priceContainer)
-
           offer.append(alignContainer)
-
           div.append(offer)
         }
       })
-      // const offerField = new OfferField("offers")
-      // .withOffers(offers)
-      // .buildOffers()
+
 
       Helper.createSHSFooter()
 

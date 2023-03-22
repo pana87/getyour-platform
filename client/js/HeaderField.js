@@ -30,7 +30,7 @@ export class HeaderField {
   #setHeader(header) {
     header.innerHTML = ""
 
-    header.style.width = "100%"
+    // header.style.width = "100%"
     // header.style.height = "89px"
     header.style.display = "flex"
     header.style.justifyContent = "space-between"

@@ -3,7 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, width=device-width" />
-    <title>SHS Funnel</title>
+
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>SHS Funnel Abfrage Heizung</title>
 
 
     <style>
@@ -22,22 +24,37 @@
     <header></header>
 
     <h1 class="heating-title"></h1>
-    <div class="heating-funnel"></div>
+    <div class="heizungWomitHeizen"></div>
+    <div class="heizungWieHeizen"></div>
+    <div class="heizungVorlauf"></div>
+    <div class="heizungWarm"></div>
+    <div class="heizungKosten"></div>
 
-    <h2 class="heat-pump-title"></h2>
-    <div class="heat-pump-funnel"></div>
 
-    <h2 class="water-storage-title"></h2>
-    <div class="water-storage-funnel"></div>
+    <h2 class="location-title"></h2>
+    <div class="heizungWaermePumpeBild"></div>
+    <div class="heizungWasserSpeicherBild"></div>
+    <div class="heizungStromSpeicherBild"></div>
+    <div class="heizungBetriebsTemperaturBekannt"></div>
+    <div class="heizungEintrittZehnMeter"></div>
+    <div class="heizungGleichesGebaeude"></div>
+    <div class="heizungGleicherRaum"></div>
+    <div class="heizungMehrAlsZwanzigMeter"></div>
 
-    <h2 class="power-storage-title"></h2>
-    <div class="power-storage-funnel"></div>
 
     <h2 class="planning-title"></h2>
-    <div class="planning-funnel"></div>
+    <div class="heizungSpeicherKellerEtage"></div>
+    <div class="heizungSpeicherErsteEtage"></div>
+    <div class="heizungSpeicherZweiteEtage"></div>
+    <div class="heizungSpeicherDritteEtage"></div>
+
 
     <h2 class="meter-cabinet-title"></h2>
-    <div class="meter-cabinet-funnel"></div>
+    <div class="heizungZaehlerKellerEtage"></div>
+    <div class="heizungZaehlerErsteEtage"></div>
+    <div class="heizungZaehlerZweiteEtage"></div>
+    <div class="heizungZaehlerDritteEtage"></div>
+
 
     <div class="save-and-proceed-button"></div>
 
@@ -45,35 +62,37 @@
 
 
     <script type="module">
-      import { HeaderField } from "../../../../js/HeaderField.js"
-      import { FunnelField } from "../../../../js/FunnelField.js"
-      import { CheckboxField } from "../../../../js/CheckboxField.js"
-      import { DivField } from "../../../../js/DivField.js"
-      import { FileField } from "../../../../js/FileField.js"
-      import { Helper } from "../../../../js/Helper.js"
-      import { NumberField } from "../../../../js/NumberField.js"
-      import { SelectionField } from "../../../../js/SelectionField.js"
+      import { HeaderField } from "/js/HeaderField.js"
+      import { CheckboxField } from "/js/CheckboxField.js"
+      import { DivField } from "/js/DivField.js"
+      import { FileField } from "/js/FileField.js"
+      import { Helper } from "/js/Helper.js"
+      import { NumberField } from "/js/NumberField.js"
+      import { SelectionField } from "/js/SelectionField.js"
+      import { Request } from "/js/Request.js"
 
 
-      const funnel = Helper.getFunnelByStorageName("shsFunnel")
-      // if (funnel === undefined) {
-      //   window.location.assign("/felix/shs/funnel/qualifizierung/")
-      //   throw new Error("funnel not found")
-      // }
+      const funnel = Helper.findFunnel(funnel => funnel.owner.id === Request.localStorageId())
+      if (funnel === undefined) {
+        window.location.assign("/felix/shs/funnel/qualifizierung/")
+        throw new Error("funnel not found")
+      }
+
 
       const headerField = new HeaderField()
       .withImage(img => {
-        img.src = "../../public/shslogo.png"
+        img.src = "/felix/shs/public/shslogo.png"
         img.alt = "SHS Express Logo"
         img.style.cursor = "pointer"
         img.style.width = "144px"
-        img.addEventListener("click", async() => await Helper.redirectOperatorToChecklist())
+        img.addEventListener("click", async() => await Helper.redirectUser())
       })
       .withType(header => {
         header.style.position = "fixed"
         header.style.top = "0"
         header.style.left = "0"
         header.style.zIndex = "1"
+        header.style.width = "100%"
         header.style.backgroundColor = "white"
       })
       .withNavigation([
@@ -90,114 +109,285 @@
         title.style.fontWeight = "normal"
       })
 
+      const heizungWomitHeizen = new SelectionField("heizungWomitHeizen")
+      .withLabel(label => label.innerHTML = "Womit heizen Sie aktuell")
+      .withOptions(["Erdgas", "Heizöl", "Wärmepumpe", "Holz/Kohle", "Pellets", "Flüssiggas", "Strom", "Andere"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn wir wissen, wie der Kunde derzeit heizt, können wir die Leistung der neuen Heizung oder Wärmepumpe anpassen. Wenn der Kunde beispielsweise derzeit eine Ölheizung verwendet, benötigt er möglicherweise eine leistungsstärkere Wärmepumpe als jemand, der mit einer elektrischen Heizung heizt."
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungWomitHeizen.withStorage(value => {
+          funnel.value[heizungWomitHeizen.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungWomitHeizen.withStorage(value => {
+        funnel.value[heizungWomitHeizen.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      const heatingFunnel = new FunnelField("heating-funnel")
-      .withFields([
-        {class: "heizungWomitHeizen", type: "select", withLabel: "Womit heizen Sie aktuell", withOptions: ["Erdgas", "Heizöl", "Wärmepumpe", "Holz/Kohle", "Pellets", "Flüssiggas", "Strom", "Andere"]},
-        {class: "heizungWieHeizen", type: "select", withLabel: "Wie heizen Sie", withType: q9is0SelectDisabled, withOptions: ["Radiatoren/Konvektoren", "Flachheizkörper", "Fußboden-/Wandheizung", "Andere"]},
-        {class: "heizungVorlauf", type: "number", withLabel: "Vorlauftemperatur ihrer Heizung (min)", withType: q9is0numberInGrad},
-        {class: "heizungWarm", type: "select", withLabel: "Wie wird Warmwasser erzeugt", withOptions: ["Zentral über Heizung", "Separat (z.B. Durchlauferhitzer)", "Solarthermie", "Andere"]},
-        {class: "heizungKosten", type: "number", withLabel: "Jährliche Heizkosten in EUR", withType: heizungKostenInput},
-      ])
 
 
-      function q9is0SelectDisabled(select) {
+      const heizungWieHeizen = new SelectionField("heizungWieHeizen")
+      .withLabel(label => label.innerHTML = "Wie heizen Sie")
+      .withOptions(["Radiatoren/Konvektoren", "Flachheizkörper", "Fußboden-/Wandheizung", "Andere"])
+      .withType(select => {
         select.disabled = true
         const q9 = funnel.value.q9
         if (q9 === 0) {
           select.disabled = false
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Falls der Kunde bereits eine bestehende Heizung hat, die in gutem Zustand ist, können wir möglicherweise das vorhandene Heizsystem mit dem neuen Energiesystem kombinieren, um die Effizienz zu maximieren und die Kosten zu senken. Durch die Verwendung eines Energiesystems, das auf die spezifischen Bedürfnisse des Kunden zugeschnitten ist, können wir möglicherweise die Heizkosten senken und dem Kunden langfristig Einsparungen bringen."
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungWieHeizen.withStorage(value => {
+          funnel.value[heizungWieHeizen.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungWieHeizen.withStorage(value => {
+        funnel.value[heizungWieHeizen.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function q9is0numberInGrad(input) {
-        input.disabled = true
+
+      const heizungVorlauf = new NumberField("heizungVorlauf")
+      .withLabel(label => label.innerHTML = "Vorlauftemperatur ihrer Heizung (min)")
+      .withType(number => {
+        number.disabled = true
         const q9 = funnel.value.q9
         if (q9 === 0) {
-          input.disabled = false
-          input.min = "0"
-          input.max = "1000"
-          input.placeholder = "in Grad"
-          input.required = true
+          number.disabled = false
+          number.placeholder = "in Grad"
+          number.required = true
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Eine Wärmepumpe muss genügend Heizleistung liefern, um das Haus bei jeder Außentemperatur zu heizen, die in der Region üblich ist. Wenn die Vorlauftemperatur zu hoch ist, benötigt die Wärmepumpe mehr Energie, um diese Temperatur zu erreichen, was zu einem höheren Energieverbrauch führen kann. Wenn die Vorlauftemperatur zu niedrig ist, kann die Heizleistung der Wärmepumpe nicht ausreichen, um das Haus bei kaltem Wetter zu heizen."
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungVorlauf.withStorage(value => {
+          funnel.value[heizungVorlauf.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungVorlauf.withStorage(value => {
+        funnel.value[heizungVorlauf.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function heizungKostenInput(input) {
-        input.min = 0
-        input.max = 1000000
-        input.placeholder = "in Euro"
-      }
-
-      heatingFunnel.withStorage(funnel.storage).buildFields()
 
 
+      const heizungWarm = new SelectionField("heizungWarm")
+      .withLabel(label => label.innerHTML = "Wie wird Warmwasser erzeugt")
+      .withOptions(["Zentral über Heizung", "Separat (z.B. Durchlauferhitzer)", "Solarthermie", "Andere"])
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Es gibt verschiedene Möglichkeiten, Warmwasser zu erzeugen, wie beispielsweise durch einen Boiler, eine Gastherme oder eine Solarthermieanlage. Jede dieser Methoden hat unterschiedliche Anforderungen an das Energiesystem und beeinflusst den Strom- oder Energiebedarf des Hauses. Wenn wir wissen, wie Warmwasser erzeugt wird, können wir das Energiesystem so planen, dass es optimal auf die Bedürfnisse des Hauses abgestimmt ist. Auf diese Weise kann eine höhere Effizienz des Systems erreicht werden, was langfristig auch zu Einsparungen bei den Energiekosten führen kann."
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungWarm.withStorage(value => {
+          funnel.value[heizungWarm.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungWarm.withStorage(value => {
+        funnel.value[heizungWarm.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      document.querySelectorAll(".heat-pump-title").forEach(title => {
-        title.innerHTML = "Aufstellungsort Wärmepumpe"
+
+      const heizungKosten = new NumberField("heizungKosten")
+      .withLabel(label => label.innerHTML = "Jährliche Heizkosten in EUR")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in Euro"
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Indem man weiß, wie viel Geld der Kunde jedes Jahr für Heizung und Warmwasser ausgibt, kann man besser einschätzen, wie viel Energie das neue System erzeugen und speichern muss, um die Heizkosten des Kunden zu reduzieren. Wenn zum Beispiel die jährlichen Heizkosten des Kunden sehr hoch sind, kann es sinnvoll sein, ein größeres System zu installieren, um eine höhere Energieeinsparung zu erzielen. Darüber hinaus kann das Wissen um die jährlichen Heizkosten auch helfen, die Amortisationszeit des neuen Systems zu berechnen. Wenn das neue System dazu beitragen kann, die Heizkosten des Kunden signifikant zu reduzieren, wird es schneller rentabel und der Kunde spart langfristig Geld."
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungKosten.withStorage(value => {
+          funnel.value[heizungKosten.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungKosten.withStorage(value => {
+        funnel.value[heizungKosten.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      document.querySelectorAll(".location-title").forEach(title => {
+        title.innerHTML = "Aufstellungsort"
         title.style.margin = "144px 34px 34px 34px"
         title.style.fontWeight = "normal"
       })
 
-      const heatPumpFunnel = new FunnelField("heat-pump-funnel")
-      .withFields([
-        {class: "heizungWaermePumpeBild", type: "file", withLabel: label => label.innerHTML = "Die Wärmepumpe wird im Außenbereich aufgestellt", withType: q9is0FileRequired},
-      ])
 
-      function q9is0FileRequired(input) {
-        input.disabled = true
+      const heizungWaermePumpeBild = new FileField("heizungWaermePumpeBild")
+      .withLabel(label => label.innerHTML = "Wärmepumpe")
+      .withType(file => {
+        file.disabled = true
         const q9 = funnel.value.q9
         if (q9 === 0) {
-          input.disabled = false
-          input.required = true
-          input.accept = "image/*"
+          file.disabled = false
+          file.required = true
+          file.accept = "image/*"
         }
-      }
-
-      heatPumpFunnel.withStorage(funnel.storage).buildFields()
-
-
-
-
-      document.querySelectorAll(".water-storage-title").forEach(title => {
-        title.innerHTML = "Aufstellungsort Wasserspeicher"
-        title.style.margin = "144px 34px 34px 34px"
-        title.style.fontWeight = "normal"
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Die Wärmepumpe wird im Außenbereich aufgestellt. Sollte kein Betonfundament/Streifen vorhanden sein müssen mit 500€ Mehrkosten gerechnet werden"
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungWaermePumpeBild.withStorage(value => {
+          funnel.value[heizungWaermePumpeBild.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungWaermePumpeBild.withStorage(value => {
+        funnel.value[heizungWaermePumpeBild.name] = value
+        Helper.setFunnel(funnel)
       })
 
-      const waterStorageFunnel = new FunnelField("water-storage-funnel")
-      .withFields([
-        {class: "heizungWasserSpeicherBild", type: "file", withLabel: label => label.innerHTML = "Eventuell Ort des vorhandenen Warmwasserspeichers", withType: q9is0FileRequired},
-      ])
 
-      waterStorageFunnel.withStorage(funnel.storage).buildFields()
-
-
-      document.querySelectorAll(".power-storage-title").forEach(title => {
-        title.innerHTML = "Aufstellungsort Stromspeicher"
-        title.style.margin = "144px 34px 34px 34px"
-        title.style.fontWeight = "normal"
+      const heizungWasserSpeicherBild = new FileField("heizungWasserSpeicherBild")
+      .withLabel(label => label.innerHTML = "Wasserspeicher")
+      .withType(file => {
+        file.disabled = true
+        const q9 = funnel.value.q9
+        if (q9 === 0) {
+          file.disabled = false
+          file.required = true
+          file.accept = "image/*"
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Eventuell Ort des vorhandenen Warmwasserspeichers"
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungWasserSpeicherBild.withStorage(value => {
+          funnel.value[heizungWasserSpeicherBild.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungWasserSpeicherBild.withStorage(value => {
+        funnel.value[heizungWasserSpeicherBild.name] = value
+        Helper.setFunnel(funnel)
       })
 
-      const powerStorageFunnel = new FunnelField("power-storage-funnel")
-      .withFields([
-        {class: "heizungStromSpeicherBild", type: "file", withLabel: label => label.innerHTML = "In der Nähe des Zählerschranks, höchstens 1 Etage unterschied", withType: q9is0FileRequired},
-        {class: "heizungBetriebsTemperaturBekannt", type: "checkbox", withLabel: "Mir ist bekannt, dass die Betriebstemperatur des Speichers bei +5 bis 40 Grad liegt", afterCheckbox: "Ja, das ist mir bekannt.", withType: q8is0Required},
-        {class: "heizungEintrittZehnMeter", type: "select", withLabel: "Beträgt die DC-Kabelführung von Hausantritt bis Speicher mehr als 10", withType: q7is0orQ8is0orQ9is0Disabled, withOptions: ["Nein", "Ja"]},
-        {class: "heizungGleichesGebaeude", type: "select", withLabel: "Befinden sich die Module auf dem Haus, in dem der Speicher ist", withType: q7is0orQ8is0orQ9is0Disabled, withOptions: ["Ja", "Nein"]},
-        {class: "heizungGleicherRaum", type: "select", withLabel: "Kann Speicher und WR Raum vom Zählerschrank montiert werden", withType: q7is0orq8is0DisabledSelect, withOptions: ["Ja", "Nein, 1 - 2 Räume entfernt", "Nein, mehr als 2 Räume entfernt"]},
-        {class: "heizungMehrAlsZwanzigMeter", type: "select", withLabel: "Kabel vom Speicher bis Zähler mehr als 20m", withType: q7is0orq8is0DisabledSelect, withOptions: ["Nein", "20-30m", "30-40m", "40-50m", "mehr als 50m"]},
-      ])
 
-      function q7is0orq8is0DisabledSelect(select) {
-        select.disabled = true
-        const q7 = funnel.value.q7
+
+      const heizungStromSpeicherBild = new FileField("heizungStromSpeicherBild")
+      .withLabel(label => label.innerHTML = "Stromspeicher")
+      .withType(file => {
+        file.disabled = true
+        const q9 = funnel.value.q9
+        if (q9 === 0) {
+          file.disabled = false
+          file.required = true
+          file.accept = "image/*"
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "In der Nähe des Zählerschranks, höchstens 1 Etage unterschied"
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungStromSpeicherBild.withStorage(value => {
+          funnel.value[heizungStromSpeicherBild.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungStromSpeicherBild.withStorage(value => {
+        funnel.value[heizungStromSpeicherBild.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const heizungBetriebsTemperaturBekannt = new CheckboxField("heizungBetriebsTemperaturBekannt")
+      .withLabel(label => label.innerHTML = "Mir ist bekannt, dass die Raumtemperatur beim Speicherort bei +5 bis 40 Grad liegt")
+      .withAfterCheckbox(after => after.innerHTML = "Ja, das ist mir bekannt.")
+      .withType(checkbox => {
+        checkbox.disabled = true
         const q8 = funnel.value.q8
-        if (q7 === 0 || q8 === 0) {
-          select.disabled = false
+        if (q8 === 0) {
+          checkbox.disabled = false
+          checkbox.required = true
         }
-      }
+      })
+      .onInput(async() => {
+        heizungBetriebsTemperaturBekannt.withStorage(value => {
+          funnel.value[heizungBetriebsTemperaturBekannt.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungBetriebsTemperaturBekannt.withStorage(value => {
+        funnel.value[heizungBetriebsTemperaturBekannt.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-
-      function q7is0orQ8is0orQ9is0Disabled(select) {
+      const heizungEintrittZehnMeter = new SelectionField("heizungEintrittZehnMeter")
+      .withLabel(label => label.innerHTML = "Beträgt die DC-Kabelführung von Hausantritt bis Speicher mehr als 10")
+      .withOptions(["Nein", "Ja"])
+      .withType(select => {
         select.disabled = true
         const q7 = funnel.value.q7
         const q8 = funnel.value.q8
@@ -205,18 +395,128 @@
         if (q7 === 0 || q8 === 0 || q9 === 0) {
           select.disabled = false
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn die Kabellänge mehr als 10 Meter beträgt, müssen wir möglicherweise größere Kabelquerschnitte verwenden, um sicherzustellen, dass genügend Energie zum Speicher gelangen kann. Dies kann sich auch auf die Kosten für die Installation auswirken."
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungEintrittZehnMeter.withStorage(value => {
+          funnel.value[heizungEintrittZehnMeter.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungEintrittZehnMeter.withStorage(value => {
+        funnel.value[heizungEintrittZehnMeter.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      function q8is0Required(box) {
-        box.disabled = true
+
+
+      const heizungGleichesGebaeude = new SelectionField("heizungGleichesGebaeude")
+      .withLabel(label => label.innerHTML = "Befinden sich die Module auf dem Haus, in dem der Speicher ist")
+      .withOptions(["Ja", "Nein"])
+      .withType(select => {
+        select.disabled = true
+        const q7 = funnel.value.q7
         const q8 = funnel.value.q8
-        if (q8 === 0) {
-          box.disabled = false
-          box.required = true
+        const q9 = funnel.value.q9
+        if (q7 === 0 || q8 === 0 || q9 === 0) {
+          select.disabled = false
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn die Module auf einem anderen Dach installiert werden, kann dies höheren Kosten führen, da der Kunde eventuell zusätzliche Erdarbeiten im Vorab vornehmen muss."
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungGleichesGebaeude.withStorage(value => {
+          funnel.value[heizungGleichesGebaeude.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungGleichesGebaeude.withStorage(value => {
+        funnel.value[heizungGleichesGebaeude.name] = value
+        Helper.setFunnel(funnel)
+      })
 
-      powerStorageFunnel.withStorage(funnel.storage).buildFields()
+
+      const heizungGleicherRaum = new SelectionField("heizungGleicherRaum")
+      .withLabel(label => label.innerHTML = "Kann Speicher und WR im Raum vom Zählerschrank montiert werden")
+      .withOptions(["Ja", "Nein, 1 - 2 Räume entfernt", "Nein, mehr als 2 Räume entfernt"])
+      .withType(select => {
+        select.disabled = true
+        const q7 = funnel.value.q7
+        const q8 = funnel.value.q8
+        if (q7 === 0 || q8 === 0) {
+          select.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Der Wechselrichter muss in der Nähe des Zählerschrankes installiert werden, damit der Strom, der von der Photovoltaikanlage erzeugt wird, ins Stromnetz eingespeist werden kann. Wenn der Speicher und Wechselrichter nicht im gleichen Raum wie der Zählerschrank montiert werden können, müssen zusätzliche Kabel verlegt werden, um den Wechselrichter mit dem Zählerschrank zu verbinden. Dies kann zusätzliche Kosten verursachen und die Installationszeit verlängern."
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungGleicherRaum.withStorage(value => {
+          funnel.value[heizungGleicherRaum.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungGleicherRaum.withStorage(value => {
+        funnel.value[heizungGleicherRaum.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const heizungMehrAlsZwanzigMeter = new SelectionField("heizungMehrAlsZwanzigMeter")
+      .withLabel(label => label.innerHTML = "Kabellänge vom Speicher bis Zähler mehr als 20m")
+      .withOptions(["Nein", "20-30m", "30-40m", "40-50m", "mehr als 50m"])
+      .withType(select => {
+        select.disabled = true
+        const q7 = funnel.value.q7
+        const q8 = funnel.value.q8
+        if (q7 === 0 || q8 === 0) {
+          select.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "Wenn die Kabellänge die 10 Meter überschreitet, kann dies höheren Kosten führen, da das Montageteam Extrakabel installieren muss."
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungMehrAlsZwanzigMeter.withStorage(value => {
+          funnel.value[heizungMehrAlsZwanzigMeter.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungMehrAlsZwanzigMeter.withStorage(value => {
+        funnel.value[heizungMehrAlsZwanzigMeter.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
       document.querySelectorAll(".planning-title").forEach(title => {
@@ -225,26 +525,133 @@
         title.style.fontWeight = "normal"
       })
 
-      const planningFunnel = new FunnelField("planning-funnel")
-      .withFields([
-        {class: "heizungSpeicherKellerEtage", type: "checkbox", withLabel: "Keller", withType: q7is0orq8is0Disabled},
-        {class: "heizungSpeicherErsteEtage", type: "checkbox", withLabel: "Erdgeschoss", withType: q7is0orq8is0Disabled},
-        {class: "heizungSpeicherZweiteEtage", type: "checkbox", withLabel: "2. Etage", withType: q7is0orq8is0Disabled},
-        {class: "heizungSpeicherDritteEtage", type: "checkbox", withLabel: "3. Etage", withType: q7is0orq8is0Disabled},
-      ])
 
-
-      function q7is0orq8is0Disabled(box) {
-        box.disabled = true
+      const heizungSpeicherKellerEtage = new CheckboxField("heizungSpeicherKellerEtage")
+      .withLabel(label => label.innerHTML = "Keller")
+      .withType(checkbox => {
+        checkbox.disabled = true
         const q7 = funnel.value.q7
         const q8 = funnel.value.q8
         if (q7 === 0 || q8 === 0) {
-          box.disabled = false
+          checkbox.disabled = false
         }
-      }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "In welcher Etage befindet sich ihr geplanter Speicher-/Wechselrichterstandort?"
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungSpeicherKellerEtage.withStorage(value => {
+          funnel.value[heizungSpeicherKellerEtage.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungSpeicherKellerEtage.withStorage(value => {
+        funnel.value[heizungSpeicherKellerEtage.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
-      planningFunnel.withStorage(funnel.storage).buildFields()
+      const heizungSpeicherErsteEtage = new CheckboxField("heizungSpeicherErsteEtage")
+      .withLabel(label => label.innerHTML = "Erdgeschoss")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.value.q7
+        const q8 = funnel.value.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "In welcher Etage befindet sich ihr geplanter Speicher-/Wechselrichterstandort?"
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungSpeicherErsteEtage.withStorage(value => {
+          funnel.value[heizungSpeicherErsteEtage.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungSpeicherErsteEtage.withStorage(value => {
+        funnel.value[heizungSpeicherErsteEtage.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const heizungSpeicherZweiteEtage = new CheckboxField("heizungSpeicherZweiteEtage")
+      .withLabel(label => label.innerHTML = "2. Etage")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.value.q7
+        const q8 = funnel.value.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "In welcher Etage befindet sich ihr geplanter Speicher-/Wechselrichterstandort?"
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungSpeicherZweiteEtage.withStorage(value => {
+          funnel.value[heizungSpeicherZweiteEtage.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungSpeicherZweiteEtage.withStorage(value => {
+        funnel.value[heizungSpeicherZweiteEtage.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const heizungSpeicherDritteEtage = new CheckboxField("heizungSpeicherDritteEtage")
+      .withLabel(label => label.innerHTML = "3. Etage")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.value.q7
+        const q8 = funnel.value.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "In welcher Etage befindet sich ihr geplanter Speicher-/Wechselrichterstandort?"
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungSpeicherDritteEtage.withStorage(value => {
+          funnel.value[heizungSpeicherDritteEtage.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungSpeicherDritteEtage.withStorage(value => {
+        funnel.value[heizungSpeicherDritteEtage.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
 
@@ -254,20 +661,158 @@
         title.style.fontWeight = "normal"
       })
 
-      const meterCabinetFunnel = new FunnelField("meter-cabinet-funnel")
-      .withFields([
-        {class: "heizungZaehlerKellerEtage", type: "checkbox", withLabel: "Keller", withType: q7is0orq8is0Disabled},
-        {class: "heizungZaehlerErsteEtage", type: "checkbox", withLabel: "Erdgeschoss", withType: q7is0orq8is0Disabled},
-        {class: "heizungZaehlerZweiteEtage", type: "checkbox", withLabel: "2. Etage", withType: q7is0orq8is0Disabled},
-        {class: "heizungZaehlerDritteEtage", type: "checkbox", withLabel: "3. Etage", withType: q7is0orq8is0Disabled},
-      ])
+
+      const heizungZaehlerKellerEtage = new CheckboxField("heizungZaehlerKellerEtage")
+      .withLabel(label => label.innerHTML = "Keller")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.value.q7
+        const q8 = funnel.value.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "In welcher Etage befindet sich ihr Zählerschrank?"
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungZaehlerKellerEtage.withStorage(value => {
+          funnel.value[heizungZaehlerKellerEtage.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungZaehlerKellerEtage.withStorage(value => {
+        funnel.value[heizungZaehlerKellerEtage.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
-      meterCabinetFunnel.withStorage(funnel.storage).buildFields()
+      const heizungZaehlerErsteEtage = new CheckboxField("heizungZaehlerErsteEtage")
+      .withLabel(label => label.innerHTML = "Erdgeschoss")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.value.q7
+        const q8 = funnel.value.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "In welcher Etage befindet sich ihr Zählerschrank?"
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungZaehlerErsteEtage.withStorage(value => {
+          funnel.value[heizungZaehlerErsteEtage.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungZaehlerErsteEtage.withStorage(value => {
+        funnel.value[heizungZaehlerErsteEtage.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
+      const heizungZaehlerZweiteEtage = new CheckboxField("heizungZaehlerZweiteEtage")
+      .withLabel(label => label.innerHTML = "2. Etage")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.value.q7
+        const q8 = funnel.value.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "In welcher Etage befindet sich ihr Zählerschrank?"
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungZaehlerZweiteEtage.withStorage(value => {
+          funnel.value[heizungZaehlerZweiteEtage.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungZaehlerZweiteEtage.withStorage(value => {
+        funnel.value[heizungZaehlerZweiteEtage.name] = value
+        Helper.setFunnel(funnel)
+      })
 
 
+      const heizungZaehlerDritteEtage = new CheckboxField("heizungZaehlerDritteEtage")
+      .withLabel(label => label.innerHTML = "3. Etage")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.value.q7
+        const q8 = funnel.value.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+        Helper.popupInfo({
+          withText: (p) => {
+            p.style.fontSize = "21px"
+            p.style.lineHeight = "1.4"
+            p.innerHTML = "In welcher Etage befindet sich ihr Zählerschrank?"
+          }
+        })
+      })
+      .onInput(async() => {
+        heizungZaehlerDritteEtage.withStorage(value => {
+          funnel.value[heizungZaehlerDritteEtage.name] = value
+          Helper.setFunnel(funnel)
+        })
+      })
+      .fromStorage((name) => funnel.value[name])
+      heizungZaehlerDritteEtage.withStorage(value => {
+        funnel.value[heizungZaehlerDritteEtage.name] = value
+        Helper.setFunnel(funnel)
+      })
+
+
+      const fields = [
+        heizungWomitHeizen,
+        heizungWieHeizen,
+        heizungVorlauf,
+        heizungWarm,
+        heizungKosten,
+        heizungWaermePumpeBild,
+        heizungWasserSpeicherBild,
+        heizungStromSpeicherBild,
+        heizungBetriebsTemperaturBekannt,
+        heizungEintrittZehnMeter,
+        heizungGleichesGebaeude,
+        heizungGleicherRaum,
+        heizungMehrAlsZwanzigMeter,
+        heizungSpeicherKellerEtage,
+        heizungSpeicherErsteEtage,
+        heizungSpeicherZweiteEtage,
+        heizungSpeicherDritteEtage,
+        heizungZaehlerKellerEtage,
+        heizungZaehlerErsteEtage,
+        heizungZaehlerZweiteEtage,
+        heizungZaehlerDritteEtage,
+      ]
 
 
 
@@ -292,12 +837,9 @@
       Helper.createSHSFooter()
 
       async function checkAndProceed(path) {
-        await heatingFunnel.checkValidity()
-        await heatPumpFunnel.checkValidity()
-        await waterStorageFunnel.checkValidity()
-        await powerStorageFunnel.checkValidity()
-        await planningFunnel.checkValidity()
-        await meterCabinetFunnel.checkValidity()
+        for (let i = 0; i < fields.length; i++) {
+          await fields[i].withValidValue()
+        }
 
         window.location.assign(path)
       }
