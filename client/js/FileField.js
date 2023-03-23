@@ -156,7 +156,7 @@ export class FileField {
     input.classList.add(this.name)
     input.type = this.type
     input.style.margin = "21px 89px 21px 34px"
-    input.style.maxWidth = "300px"
+    // input.style.maxWidth = "300px"
     field.append(input)
   }
 

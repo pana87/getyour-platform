@@ -2135,6 +2135,7 @@
     document.querySelectorAll("img[class*='logo']").forEach(img => {
       img.src = "/felix/shs/public/shslogo.png"
       img.alt = "SHS Express Logo"
+      img.style.zIndex = "100"
       img.style.cursor = "pointer"
       img.addEventListener("click", async() => await Helper.redirectUser())
     })
