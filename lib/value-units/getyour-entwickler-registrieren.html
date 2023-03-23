@@ -57,12 +57,10 @@
       })
 
       const usernameField = new TextField("username")
-      .withLabel("Nutzername:")
+      .withLabel(label => label.innerHTML = "Nutzername:")
       .withType(input => {
         input.placeholder = "huansolo"
-        // input.pattern = /[a-z]{3, 13}/
         input.pattern = "[a-z]{3,8}"
-        // input.minlength = "3"
         input.required = true
       })
       .onInput(async() => {
@@ -96,7 +94,6 @@
       })
       .onClick(async (event) => {
         const username = await usernameField.withValidValue()
-        console.log(username);
         const email = Request.email()
         const localStorageId = Request.localStorageId()
 
@@ -114,34 +111,26 @@
         if (res.status === 200) {
           alert("Dieser Nutzername existiert bereits.")
           Helper.setNotValidStyle(document.querySelector(usernameField.inputSelector))
-          // Helper.removeOverlay()
           return
         }
 
-        Helper.addOverlay()
-        Helper.setWaitCursor()
-        try {
-          await Request.withVerifiedEmail(email, async () => {
 
-            const registerName = {}
-            registerName.url = "/producer/v1/"
-            registerName.method = "register"
-            registerName.type = "name"
-            registerName.security = "closed"
-            registerName.name = username
-            registerName.localStorageId = localStorageId
-            registerName.email = email
-            await Request.sequence(registerName)
+        await Request.verifyEmail(email)
+
+        const registerName = {}
+        registerName.url = "/producer/v1/"
+        registerName.method = "register"
+        registerName.type = "name"
+        registerName.security = "closed"
+        registerName.name = username
+        registerName.localStorageId = localStorageId
+        registerName.email = email
+        await Request.sequence(registerName)
 
 
-            alert("Speichern erfolgreich..")
-            Helper.redirectUser()
+        alert("Speichern erfolgreich..")
+        Helper.redirectUser()
 
-          })
-        } catch (error) {
-          console.error(error)
-        }
-        Helper.setNotAllowedCursor()
 
       })
 

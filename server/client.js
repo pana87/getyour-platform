@@ -26,7 +26,9 @@ app.use(express.static(clientLocation.absolutePath))
 
 
 
-
+app.get("/cookies/anzeigen/", async (req, res) => {
+  return res.send(req.cookies)
+})
 
 app.get("/cookies/entfernen/", (req, res) => {
   Object.keys(req.cookies).forEach((cookieName) => {
@@ -169,38 +171,9 @@ app.get("/pana/getyour/zugang/", async(req, res) => {
 })
 
 
-// app.get("/felix/shs/hersteller/", async(req, res) => {
-//   // user/platform/app/
-//   // die app heißt hersteller-matching
-//   return res.send(Helper.readFileSyncToString("../lib/value-units/offer-list.html"))
-//   // return res.send(Helper.readFileSyncToString("../client/felix/shs/hersteller/index.html"))
-// })
-
-
-
-
-// app.get("/user/register/platform-developer/", Request.requireSessionToken, (req, res) => {
-//   res.send(Helper.readFileSyncToString("../client/user/register/platform-developer/index.html"))
-// })
-
 // because express root is not serving any css or js files
 app.get("/", (req, res) => res.redirect("/home/"))
 
-// app.get("/user/platform/funnel/sign/", (req, res) => {
-//   console.log("hi");
-//   const html = Helper.readFileSyncToString("../client/user/platform/funnel/sign/index.html")
-//   if (html !== undefined) return res.send(html)
-//   return res.sendStatus(404)
-// })
-
-// app.get("/user/entries/", (req, res) => {
-//   // if (req.userError !== undefined) return res.redirect("/home/")
-//   return res.send(Helper.readFileSyncToString("../client/user/entries/index.html"))
-// })
-
-app.get("/cookies/anzeigen/", async (req, res) => {
-  return res.send(req.cookies)
-})
 
 
 app.post("/producer/v1/",
