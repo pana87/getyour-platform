@@ -112,7 +112,7 @@ export class DateField {
     input.type = this.type
     input.style.margin = "21px 89px 21px 34px"
     input.style.fontSize = "21px"
-    input.style.maxWidth = "300px"
+    // input.style.maxWidth = "300px"
     field.append(input)
   }
 

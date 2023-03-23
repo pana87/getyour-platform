@@ -170,7 +170,7 @@ export class SelectionField {
     select.classList.add(this.name)
     select.style.margin = "21px 89px 21px 34px"
     select.style.fontSize = "21px"
-    select.style.maxWidth = "300px"
+    // select.style.maxWidth = "300px"
     field.append(select)
   }
 

@@ -73,7 +73,11 @@
 
 
       const funnel = Helper.findFunnel(funnel => funnel.owner.id === Request.localStorageId())
-      if (funnel === undefined) {
+      if (
+        funnel === undefined ||
+        funnel.value === undefined ||
+        funnel.questionIndex < funnel.questions.length - 1
+        ) {
         window.location.assign("/felix/shs/funnel/qualifizierung/")
         throw new Error("funnel not found")
       }
