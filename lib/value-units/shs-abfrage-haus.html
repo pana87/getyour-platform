@@ -1854,7 +1854,7 @@
         const q5 = funnel.value.q5
         if (q5 !== 2) {
           file.disabled = false
-          file.accept = "image/*"
+          file.accept = "image/jpeg, image/png"
           file.required = true
         }
       })
@@ -1868,16 +1868,100 @@
           },
         })
       })
-      .onInput(async() => {
-        hausFrontBild.withStorage(value => {
-          funnel.value[hausFrontBild.name] = value
-          Helper.setFunnel(funnel)
+      .onInput(() => {
+        hausFrontBild.withStorage(async value => {
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(hausFrontBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(hausFrontBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(hausFrontBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel.value[hausFrontBild.name] = array
+            Helper.setFunnel(funnel)
+          }
         })
       })
       .fromStorage((name) => funnel.value[name])
-      hausFrontBild.withStorage(value => {
-        funnel.value[hausFrontBild.name] = value
-        Helper.setFunnel(funnel)
+      hausFrontBild.withStorage(async value => {
+
+
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(hausFrontBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(hausFrontBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(hausFrontBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel.value[hausFrontBild.name] = array
+          Helper.setFunnel(funnel)
+        }
       })
 
 
@@ -1889,7 +1973,7 @@
         const q5 = funnel.value.q5
         if (q5 !== 2) {
           file.disabled = false
-          file.accept = "image/*"
+          file.accept = "image/jpeg, image/png"
         }
       })
       .onInfoClick(() => {
@@ -1902,16 +1986,100 @@
           },
         })
       })
-      .onInput(async() => {
-        hausSuedAnsichtBild.withStorage(value => {
-          funnel.value[hausSuedAnsichtBild.name] = value
-          Helper.setFunnel(funnel)
+      .onInput(() => {
+        hausSuedAnsichtBild.withStorage(async value => {
+
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(hausSuedAnsichtBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(hausSuedAnsichtBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(hausSuedAnsichtBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel.value[hausSuedAnsichtBild.name] = array
+            Helper.setFunnel(funnel)
+          }
         })
       })
       .fromStorage((name) => funnel.value[name])
-      hausSuedAnsichtBild.withStorage(value => {
-        funnel.value[hausSuedAnsichtBild.name] = value
-        Helper.setFunnel(funnel)
+      hausSuedAnsichtBild.withStorage(async value => {
+
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(hausSuedAnsichtBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(hausSuedAnsichtBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(hausSuedAnsichtBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel.value[hausSuedAnsichtBild.name] = array
+          Helper.setFunnel(funnel)
+        }
       })
 
 
@@ -1922,7 +2090,7 @@
         const q5 = funnel.value.q5
         if (q5 !== 2) {
           file.disabled = false
-          file.accept = "image/*"
+          file.accept = "image/jpeg, image/png"
           file.required = true
           file.multiple = true
         }
@@ -1937,16 +2105,99 @@
           },
         })
       })
-      .onInput(async() => {
-        hausGeruestStandortBild.withStorage(value => {
-          funnel.value[hausGeruestStandortBild.name] = value
-          Helper.setFunnel(funnel)
+      .onInput(() => {
+        hausGeruestStandortBild.withStorage(async value => {
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(hausGeruestStandortBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(hausGeruestStandortBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(hausGeruestStandortBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel.value[hausGeruestStandortBild.name] = array
+            Helper.setFunnel(funnel)
+          }
         })
       })
       .fromStorage((name) => funnel.value[name])
-      hausGeruestStandortBild.withStorage(value => {
-        funnel.value[hausGeruestStandortBild.name] = value
-        Helper.setFunnel(funnel)
+      hausGeruestStandortBild.withStorage(async value => {
+
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(hausGeruestStandortBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(hausGeruestStandortBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(hausGeruestStandortBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel.value[hausGeruestStandortBild.name] = array
+          Helper.setFunnel(funnel)
+        }
       })
 
 
@@ -1957,7 +2208,7 @@
         const q5 = funnel.value.q5
         if (q5 !== 2) {
           file.disabled = false
-          file.accept = "image/*"
+          file.accept = "image/jpeg, image/png"
           file.required = true
         }
       })
@@ -1971,16 +2222,102 @@
           },
         })
       })
-      .onInput(async() => {
-        hausOrtgangBild.withStorage(value => {
-          funnel.value[hausOrtgangBild.name] = value
-          Helper.setFunnel(funnel)
+      .onInput(() => {
+        hausOrtgangBild.withStorage(async value => {
+
+
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(hausOrtgangBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(hausOrtgangBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(hausOrtgangBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel.value[hausOrtgangBild.name] = array
+            Helper.setFunnel(funnel)
+          }
         })
       })
       .fromStorage((name) => funnel.value[name])
-      hausOrtgangBild.withStorage(value => {
-        funnel.value[hausOrtgangBild.name] = value
-        Helper.setFunnel(funnel)
+      hausOrtgangBild.withStorage(async value => {
+
+
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(hausOrtgangBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(hausOrtgangBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(hausOrtgangBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel.value[hausOrtgangBild.name] = array
+          Helper.setFunnel(funnel)
+        }
       })
 
 
@@ -1992,7 +2329,7 @@
         const q5 = funnel.value.q5
         if (q5 !== 2) {
           file.disabled = false
-          file.accept = "image/*"
+          file.accept = "image/jpeg, image/png"
           file.required = true
         }
       })
@@ -2006,16 +2343,100 @@
           },
         })
       })
-      .onInput(async() => {
-        hausSparrenAnsichtBild.withStorage(value => {
-          funnel.value[hausSparrenAnsichtBild.name] = value
-          Helper.setFunnel(funnel)
+      .onInput(() => {
+        hausSparrenAnsichtBild.withStorage(async value => {
+
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(hausSparrenAnsichtBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(hausSparrenAnsichtBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(hausSparrenAnsichtBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel.value[hausSparrenAnsichtBild.name] = array
+            Helper.setFunnel(funnel)
+          }
         })
       })
       .fromStorage((name) => funnel.value[name])
-      hausSparrenAnsichtBild.withStorage(value => {
-        funnel.value[hausSparrenAnsichtBild.name] = value
-        Helper.setFunnel(funnel)
+      hausSparrenAnsichtBild.withStorage(async value => {
+
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(hausSparrenAnsichtBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(hausSparrenAnsichtBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(hausSparrenAnsichtBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel.value[hausSparrenAnsichtBild.name] = array
+          Helper.setFunnel(funnel)
+        }
       })
 
 
@@ -2033,7 +2454,8 @@
         const q5 = funnel.value.q5
         if (q5 !== 2) {
           file.disabled = false
-          file.accept = "image/*"
+          file.required = true
+          file.accept = "image/jpeg, image/png"
         }
       })
       .onInfoClick(() => {
@@ -2046,16 +2468,100 @@
           },
         })
       })
-      .onInput(async() => {
-        hausZiegelBild.withStorage(value => {
-          funnel.value[hausZiegelBild.name] = value
-          Helper.setFunnel(funnel)
+      .onInput(() => {
+        hausZiegelBild.withStorage(async value => {
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(hausZiegelBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(hausZiegelBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(hausZiegelBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel.value[hausZiegelBild.name] = array
+            Helper.setFunnel(funnel)
+          }
         })
       })
       .fromStorage((name) => funnel.value[name])
-      hausZiegelBild.withStorage(value => {
-        funnel.value[hausZiegelBild.name] = value
-        Helper.setFunnel(funnel)
+      hausZiegelBild.withStorage(async value => {
+
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(hausZiegelBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(hausZiegelBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(hausZiegelBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel.value[hausZiegelBild.name] = array
+          Helper.setFunnel(funnel)
+        }
+
       })
 
 

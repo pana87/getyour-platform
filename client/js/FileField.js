@@ -45,7 +45,6 @@ export class FileField {
     return this
   }
 
-
   #isEmpty(value) {
     return value === undefined ||
       value.length <= 0 ||
@@ -55,24 +54,10 @@ export class FileField {
   async withStorage(callback) {
     if (callback !== undefined) {
       const files = await this.withValidValue()
-      if (!this.#isEmpty(files)) {
-        let array = []
-        for (let i = 0; i < files.length; i++) {
-          const dataUrl = await this.#setFileAsDataUrl(files[i])
-          array.push({
-            name: files[i].name,
-            type: files[i].type,
-            size: files[i].size,
-            lastModified: files[i].lastModified,
-            dataUrl: dataUrl,
-          })
-        }
-        callback(array)
-      }
+      if (!this.#isEmpty(files)) callback(files)
     }
     return this
   }
-
 
   #isRequired(input) {
     if (input.required === true) return true
@@ -96,28 +81,6 @@ export class FileField {
       })
     })
   }
-
-  #setFileAsDataUrl(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.addEventListener("loadend", () => {
-        const canvas = document.createElement("canvas")
-        const ctx = canvas.getContext("2d")
-        const image = document.createElement("img")
-        image.src = reader.result
-        image.onload = () => {
-          const width = 300
-          const height = 300 * image.height / image.width
-          canvas.width = width
-          canvas.height = height
-          ctx.drawImage(image, 0, 0, width, height)
-          return resolve(canvas.toDataURL(file.type))
-        }
-      })
-    })
-  }
-
 
   #setFields(field) {
     field.innerHTML = ""

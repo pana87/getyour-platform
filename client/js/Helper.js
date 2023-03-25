@@ -3,6 +3,73 @@ import {FooterField} from "/js/FooterField.js"
 
 export class Helper {
 
+  static calculateDataUrlSize(dataUrl) {
+    var base64Marker = ';base64,'
+    var dataSize
+
+    if (dataUrl.indexOf(base64Marker) === -1) {
+      dataSize = dataUrl.length - dataUrl.indexOf(':') - 1
+    } else {
+      dataSize = (dataUrl.length - dataUrl.indexOf(base64Marker) - base64Marker.length) * 0.75
+    }
+
+    return dataSize
+  }
+
+  static convertImageFileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.addEventListener("loadend", () => {
+        const canvas = document.createElement("canvas")
+        const ctx = canvas.getContext("2d")
+        const image = document.createElement("img")
+        image.src = reader.result
+        image.onload = () => {
+          const width = 300
+          const height = 300 * image.height / image.width
+          canvas.width = width
+          canvas.height = height
+          ctx.drawImage(image, 0, 0, width, height)
+          return resolve(canvas.toDataURL(file.type))
+        }
+      })
+    })
+  }
+
+  static verifyFileMimeTypes(file, types) {
+    return new Promise((resolve, reject) => {
+      try {
+        let allowed = false
+        for (let i = 0; i < types.length; i++) {
+          if (file.type === types[i]) {
+            return resolve()
+          }
+        }
+        if (allowed === false) throw new Error("file type not allowed")
+      } catch (error) {
+        reject(error)
+      }
+    })
+  }
+
+  static verifyFileExtension(file, extensions) {
+    return new Promise((resolve, reject) => {
+      try {
+        const fileExtension = file.name.split('.').pop()
+        let allowed = false
+        for (let i = 0; i < extensions.length; i++) {
+          if (fileExtension === extensions[i]) {
+            return resolve()
+          }
+        }
+        if (allowed === false) throw new Error("file extension not allowed")
+      } catch (error) {
+        reject(error)
+      }
+    })
+  }
+
   static popupInfo({withImage, withText, withEvent}) {
     const popup = document.createElement("div")
     popup.style.height = "100vh"
