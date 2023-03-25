@@ -320,7 +320,7 @@
 
       button.addEventListener("click", async() => {
 
-        fileField.withType(input => {
+        fileField.withType(async input => {
 
           if (input.files[0] === undefined) {
             input.required = true
@@ -329,8 +329,35 @@
             return
           }
 
+          const allowedMimeTypes = ["application/pdf"]
+          const allowedExtensions = ["pdf"]
+          for (let i = 0; i < input.files.length; i++) {
+            await Helper.verifyFileMimeTypes(input.files[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(input)
+              throw error
+            })
+
+            await Helper.verifyFileExtension(input.files[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(input)
+              throw error
+            })
+          }
+
+
           const fileReader = new FileReader()
           fileReader.onload = async(event) => {
+
+
+            const dataUrlSize = Helper.calculateDataUrlSize(event.target.result)
+            if (dataUrlSize > 5 * 1024 * 1024) {
+              alert("PDF ist zu groß.")
+              Helper.setNotValidStyle(input)
+              throw new Error("pdf too large")
+            }
 
             const email = Request.email()
             await Request.verifyEmail(email)
@@ -346,7 +373,7 @@
             registerOffer.offer.value.file.name = `${offer.producer.name}-${Date.now()}.pdf`
             registerOffer.offer.value.file.createdAt = Date.now()
             registerOffer.offer.value.file.type = input.files[0].type
-            registerOffer.offer.value.file.size = input.files[0].size
+            registerOffer.offer.value.file.size = dataUrlSize
             registerOffer.offer.value.file.dataURL = event.target.result
             await Request.sequence(registerOffer)
 
@@ -415,7 +442,36 @@
       .withField(field => field.style.margin = "0")
       .withType(file => {
         file.accept = "application/pdf"
-        file.addEventListener("input", () => fileField.withValidValue())
+      })
+      .onInput(async (event) => {
+        const files = await fileField.withValidValue()
+
+        const allowedMimeTypes = ["application/pdf"]
+        const allowedExtensions = ["pdf"]
+        for (let i = 0; i < files.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(files[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(event.target)
+            throw error
+          })
+
+          await Helper.verifyFileExtension(files[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(event.target)
+            throw error
+          })
+
+          if (files[i].size > 5 * 1024 * 1024) {
+            alert("PDF ist zu groß.")
+            Helper.setNotValidStyle(event.target)
+            throw new Error("pdf too large")
+          }
+
+        }
       })
     })
 

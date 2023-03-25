@@ -182,7 +182,7 @@
       const technischesHakBild = new FileField("technischesHakBild")
       .withLabel(label => label.innerHTML = "Hausanschlusskasten")
       .withType(file => {
-        file.accept = "image/*"
+        file.accept = "image/jpeg, image/png"
         file.required = true
       })
       .onInfoClick(() => {
@@ -195,16 +195,101 @@
           },
         })
       })
-      .onInput(async() => {
-        technischesHakBild.withStorage(value => {
-          funnel.value[technischesHakBild.name] = value
-          Helper.setFunnel(funnel)
+      .onInput(() => {
+        technischesHakBild.withStorage(async value => {
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(technischesHakBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(technischesHakBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(technischesHakBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel.value[technischesHakBild.name] = array
+            Helper.setFunnel(funnel)
+          }
+
         })
       })
       .fromStorage((name) => funnel.value[name])
-      technischesHakBild.withStorage(value => {
-        funnel.value[technischesHakBild.name] = value
-        Helper.setFunnel(funnel)
+      technischesHakBild.withStorage(async value => {
+
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(technischesHakBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(technischesHakBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(technischesHakBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel.value[technischesHakBild.name] = array
+          Helper.setFunnel(funnel)
+        }
+
       })
 
 

@@ -540,7 +540,7 @@
       const stromZaehlerschrankBild = new FileField("stromZaehlerschrankBild")
       .withLabel(label => label.innerHTML = "Kompletter Zählerschrank")
       .withType(file => {
-        file.accept = "image/*"
+        file.accept = "image/jpeg, image/png"
         const q7 = funnel.value.q7
         if (q7 === 0) {
           file.required = true
@@ -555,45 +555,216 @@
           }
         })
       })
-      .onInput(async() => {
-        stromZaehlerschrankBild.withStorage(value => {
-          funnel.value[stromZaehlerschrankBild.name] = value
-          Helper.setFunnel(funnel)
+      .onInput(() => {
+        stromZaehlerschrankBild.withStorage(async value => {
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(stromZaehlerschrankBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(stromZaehlerschrankBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(stromZaehlerschrankBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel.value[stromZaehlerschrankBild.name] = array
+            Helper.setFunnel(funnel)
+          }
+
         })
       })
       .fromStorage((name) => funnel.value[name])
-      stromZaehlerschrankBild.withStorage(value => {
-        funnel.value[stromZaehlerschrankBild.name] = value
-        Helper.setFunnel(funnel)
+      stromZaehlerschrankBild.withStorage(async value => {
+
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(stromZaehlerschrankBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(stromZaehlerschrankBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(stromZaehlerschrankBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel.value[stromZaehlerschrankBild.name] = array
+          Helper.setFunnel(funnel)
+        }
+
       })
 
 
       const stromTypenBezeichnungBild = new FileField("stromTypenBezeichnungBild")
       .withLabel(label => label.innerHTML = "Typenbezeichnung")
       .withType(file => {
-        file.accept = "image/*"
+        file.accept = "image/jpeg, image/png"
         const q7 = funnel.value.q7
         if (q7 === 0) {
           file.required = true
         }
       })
-      .onInput(async() => {
-        stromTypenBezeichnungBild.withStorage(value => {
-          funnel.value[stromTypenBezeichnungBild.name] = value
-          Helper.setFunnel(funnel)
+      .onInput(() => {
+        stromTypenBezeichnungBild.withStorage(async value => {
+
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(stromTypenBezeichnungBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(stromTypenBezeichnungBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(stromTypenBezeichnungBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel.value[stromTypenBezeichnungBild.name] = array
+            Helper.setFunnel(funnel)
+          }
+
         })
       })
       .fromStorage((name) => funnel.value[name])
-      stromTypenBezeichnungBild.withStorage(value => {
-        funnel.value[stromTypenBezeichnungBild.name] = value
-        Helper.setFunnel(funnel)
+      stromTypenBezeichnungBild.withStorage(async value => {
+
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(stromTypenBezeichnungBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(stromTypenBezeichnungBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(stromTypenBezeichnungBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel.value[stromTypenBezeichnungBild.name] = array
+          Helper.setFunnel(funnel)
+        }
+
       })
 
 
       const stromAllezaehlerBild = new FileField("stromAllezaehlerBild")
       .withLabel(label => label.innerHTML = "Alle Zähler")
       .withType(file => {
-        file.accept = "image/*"
+        file.accept = "image/jpeg, image/png"
         file.multiple = true
         const q7 = funnel.value.q7
         if (q7 === 0) {
@@ -609,16 +780,102 @@
           }
         })
       })
-      .onInput(async() => {
-        stromAllezaehlerBild.withStorage(value => {
-          funnel.value[stromAllezaehlerBild.name] = value
-          Helper.setFunnel(funnel)
+      .onInput(() => {
+        stromAllezaehlerBild.withStorage(async value => {
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(stromAllezaehlerBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(stromAllezaehlerBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(stromAllezaehlerBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel.value[stromAllezaehlerBild.name] = array
+            Helper.setFunnel(funnel)
+          }
+
         })
       })
       .fromStorage((name) => funnel.value[name])
-      stromAllezaehlerBild.withStorage(value => {
-        funnel.value[stromAllezaehlerBild.name] = value
-        Helper.setFunnel(funnel)
+      stromAllezaehlerBild.withStorage(async value => {
+
+
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(stromAllezaehlerBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(stromAllezaehlerBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(stromAllezaehlerBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel.value[stromAllezaehlerBild.name] = array
+          Helper.setFunnel(funnel)
+        }
+
       })
 
       const speichernundweiterbutton = new DivField("save-and-proceed-button")
