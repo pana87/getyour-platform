@@ -9,8 +9,10 @@ const crypto = require("node:crypto")
 const jwt = require('jsonwebtoken')
 const nano = require("nano")(process.env.COUCHDB_LOCATION)
 
-
-Helper.configureClientStorage()
+const database = "getyour"
+Helper.createDatabase(database)
+Helper.createUsers(database)
+Helper.createLogs(database)
 
 
 const app = express()
@@ -18,12 +20,44 @@ app.use(cookieParser())
 app.use(express.json({limit: "50mb"}))
 app.use(Helper.removeCookies)
 
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+  res.setHeader('Pragma', 'no-cache')
+  res.setHeader('Expires', '0')
+  next()
+})
 
 // static first
 app.use("/docs/", express.static(docsLocation.absolutePath))
 app.use(express.static(clientLocation.absolutePath))
 
 
+app.get("/logs/:type/",
+  Request.requireJwtToken,
+  Request.verifySession,
+  Request.verifyRoles([UserRole.PLATFORM_DEVELOPER]),
+  Request.verifyId,
+async (req, res) => {
+
+  if (req.params.type === "error") {
+    const doc = await nano.db.use("getyour").get("logs")
+    const errors = []
+    for (let i = 0; i < doc.logs.length; i++) {
+      if (doc.logs[i].type === req.params.type) {
+        errors.push(doc.logs[i])
+      }
+    }
+    return res.send(errors)
+  }
+
+  if (req.params.type === "user") {
+    const doc = await nano.db.use("getyour").get("users")
+    return res.send(doc.users)
+  }
+
+
+  return res.sendStatus(404)
+})
 
 
 app.get("/cookies/anzeigen/", async (req, res) => {
@@ -288,7 +322,6 @@ app.post("/request/register/session/",
         jwt: jwtTokenDigest,
       }))
       if (Helper.stringIsEmpty(sessionToken)) throw new Error("session token is empty")
-
 
 
       if (user.session === undefined) {

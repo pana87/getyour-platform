@@ -138,7 +138,7 @@
     .withType(tel => {
       tel.placeholder = "+491764321567"
       tel.required = true
-      tel.pattern = "\\+49\\d{6,}"
+      tel.pattern = "\\+49\\d{6,}|\\+41\\d{6,}|\\+43\\d{6,}"
     })
     .onInput(() => phoneField.withValidValue())
     phoneField.withValidValue()

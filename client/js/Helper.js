@@ -175,6 +175,7 @@ export class Helper {
   static startTimer({duration, display}) {
 
     var timer = duration, minutes, seconds
+    const timerDiv = document.createElement("div")
     const interval = setInterval(function () {
         minutes = parseInt(timer / 60, 10)
         seconds = parseInt(timer % 60, 10)
@@ -182,17 +183,18 @@ export class Helper {
         minutes = minutes < 10 ? "0" + minutes : minutes
         seconds = seconds < 10 ? "0" + seconds : seconds
 
-        display.textContent = minutes + ":" + seconds
-        display.style.display = "flex"
-        display.style.color = "red"
+        timerDiv.textContent = minutes + ":" + seconds
+        timerDiv.style.display = "flex"
+        timerDiv.style.color = "red"
+
         if (--timer < 0) {
-          display.textContent = "pin abgelaufen"
+          timerDiv.textContent = "pin abgelaufen"
           clearInterval(interval)
-          // timer = "pin expired";
-          // timer = 0;
-          // timer = duration;
         }
+
     }, 1000)
+
+    display.append(timerDiv)
     return interval
   }
 
@@ -314,11 +316,20 @@ export class Helper {
     overlay.style.width = "100vw"
     overlay.style.height = "100vh"
     overlay.style.backgroundColor = "black"
+    overlay.style.display = "flex"
+    overlay.style.justifyContent = "center"
+    overlay.style.alignItems = "center"
     overlay.style.position = "fixed"
     overlay.style.top = "0"
     overlay.style.left = "0"
     overlay.style.opacity = "0.9"
     overlay.style.zIndex = "10"
+
+    const loadingImage = document.createElement("img")
+    loadingImage.src = "/public/load-animation.svg"
+    loadingImage.alt = "Bitte warten.."
+    overlay.append(loadingImage)
+
     document.body.append(overlay)
     return overlay
   }
