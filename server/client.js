@@ -2,7 +2,6 @@ const express = require('express')
 const cookieParser = require('cookie-parser')
 const { clientLocation, docsLocation } = require('../config/ServerLocation.js')
 const { Helper } = require('../lib/Helper.js')
-const { User } = require('../lib/User.js')
 const { Request } = require('../lib/Request.js')
 const { UserRole } = require('../lib/UserRole.js')
 const crypto = require("node:crypto")
@@ -71,125 +70,73 @@ app.get("/cookies/entfernen/", (req, res) => {
   return res.sendStatus(200)
 })
 
-app.get("/felix/shs/:type/:name/", async(req, res, next) => {
+app.get("/felix/shs/:path/", async(req, res, next) => {
   try {
-    if (req.params.type === "compliance") {
-      if (req.params.name === "impressum") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.name}.html`))
-    }
 
-    // if (req.params.username === "impressum") return res.send(Helper.readFileSyncToString("./../lib/value-units/getyourindex.html"))
-    // if (req.params.username === "datenschutz") return res.send(Helper.readFileSyncToString("./../client/datenschutz/index.html"))
-    // if (req.params.username === "nutzervereinbarung") return res.send(Helper.readFileSyncToString("./../client/nutzervereinbarung/index.html"))
+    if (req.params.path === "impressum") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
+    if (req.params.path === "hersteller-vergleich") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
 
-    // if (req.params.type === "checklist") {
-    //   // if (req.params.id === "")
-    // }
-    // console.log(req.params.type);
-    // console.log(req.params.name);
-    if (req.params.type === "match-maker") {
-      // console.log("hi");
-      // if (req.params.name === "experte-kontaktieren") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.name}.html`))
-      if (req.params.name === "hersteller-vergleich") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.name}.html`))
+    if (req.params.path === "qualifizierung") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
+    if (req.params.path === "abfrage-haus") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
+    if (req.params.path === "abfrage-heizung") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
+    if (req.params.path === "abfrage-strom") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
+    if (req.params.path === "abfrage-technisches") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
+    if (req.params.path === "abfrage-persoenliches") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
 
-    }
-    if (req.params.type === "funnel") {
-      if (req.params.name === "qualifizierung") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.name}.html`))
-      if (req.params.name === "abfrage-haus") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.name}.html`))
-      if (req.params.name === "abfrage-heizung") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.name}.html`))
-      if (req.params.name === "abfrage-strom") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.name}.html`))
-      if (req.params.name === "abfrage-technisches") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.name}.html`))
-      if (req.params.name === "abfrage-persoenliches") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.name}.html`))
-    }
+    return next()
   } catch (error) {
-    Helper.logError(error, req)
+    await Helper.logError(error, req)
   }
-  // return res.redirect("/felix/shs/")
-  return next()
+  return res.sendStatus(404)
 })
 
-app.get("/felix/shs/checklist/:urlId/",
+app.get("/felix/shs/:urlId/",
   Request.requireJwtToken,
   Request.verifySession,
   Request.requireRoles([UserRole.OPERATOR]),
   Request.verifyId,
 async(req, res) => {
-  // send value unit by valid urlId verifyUrlId(req.params.urlId)
-  // console.log(req.params.itemIndex);
   return res.send(Helper.readFileSyncToString("../lib/value-units/shs-checklist.html"))
-  // return res.send(Helper.readFileSyncToString("../lib/value-units/checklist.html"))
-  // return res.send(Helper.readFileSyncToString("../client/felix/shs/checkliste/index.html"))
 })
 
-app.get("/felix/shs/checklist/:urlId/print/",
+app.get("/felix/shs/:urlId/print/",
   Request.requireJwtToken,
   Request.verifySession,
   Request.requireRoles([UserRole.OPERATOR]),
   Request.verifyId,
-  (req, res) => {
-    return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-drucken.html"))
-    // return res.send(Helper.readFileSyncToString("../client/felix/shs/checkliste/1/print.html"))
-  }
-)
+(req, res) => {
+  return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-drucken.html"))
+})
 
-app.get("/felix/shs/checklist/:urlId/sign/",
+app.get("/felix/shs/:urlId/sign/",
   Request.requireJwtToken,
   Request.verifySession,
   Request.requireRoles([UserRole.OPERATOR]),
   Request.verifyId,
-  (req, res) => {
-  // console.log("hi");
-  // const html = Helper.readFileSyncToString("../client/user/platform/funnel/sign/index.html")
-  // if (html !== undefined) return res.send(html)
-  // return res.sendStatus(404)
+(req, res) => {
   return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-digital-unterschreiben.html"))
 })
 
 
 
-app.get("/felix/shs/checklist/:urlId/:itemIndex/",
+app.get("/felix/shs/:urlId/:itemIndex/",
   Request.requireJwtToken,
   Request.verifySession,
   Request.requireRoles([UserRole.OPERATOR]),
   Request.verifyId,
 async(req, res) => {
-  // for (let i = 0; i < array.length; i++) {
-  //   const element = array[i];
 
-  // }
-  // console.log(req.params.itemIndex);
-  // console.log("hi");
-  // console.log(typeof req.params.itemIndex);
   if (req.params.itemIndex === "0") {
     return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-ansicht.html"))
   }
   if (req.params.itemIndex === "1") {
     return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-hochladen.html"))
   }
-  // return res.send(Helper.readFileSyncToString("../client/felix/shs/checkliste/1/index.html"))
-  // return next()
-  // return res.sendStatus(404)
+
+  return res.sendStatus(404)
 })
 
-// app.get("/felix/shs/:valueUnit/:name/", async(req, res, next) => {
-//   return res.send("hi")
-//   // try {
-//   //   if (req.params.valueUnit === "funnel") {
-//   //     if (req.params.name === "qualifizierung") return res.send(Helper.readFileSyncToString(`../lib/value-units/funnel/shs-${req.params.name}.html`))
-//   //     if (req.params.name === "abfrage-haus") return res.send(Helper.readFileSyncToString(`../lib/value-units/funnel/shs-${req.params.name}.html`))
-//   //     if (req.params.name === "abfrage-heizung") return res.send(Helper.readFileSyncToString(`../lib/value-units/funnel/shs-${req.params.name}.html`))
-//   //     if (req.params.name === "abfrage-strom") return res.send(Helper.readFileSyncToString(`../lib/value-units/funnel/shs-${req.params.name}.html`))
-//   //     if (req.params.name === "abfrage-technisches") return res.send(Helper.readFileSyncToString(`../lib/value-units/funnel/shs-${req.params.name}.html`))
-//   //     if (req.params.name === "abfrage-persoenliches") return res.send(Helper.readFileSyncToString(`../lib/value-units/funnel/shs-${req.params.name}.html`))
-//   //   }
-//   // } catch (error) {
-//   //   Helper.logError(error, req)
-//   // }
-//   // // return res.redirect("/felix/shs/")
-//   // return next()
-// })
-
 app.get("/pana/getyour/entwickler-registrieren/",
-// if value.security = closed
   Request.requireJwtToken,
   Request.verifySession,
   Request.requireRoles([UserRole.PLATFORM_DEVELOPER]),
@@ -209,85 +156,59 @@ app.get("/pana/getyour/zugang/", async(req, res) => {
 app.get("/", (req, res) => res.redirect("/home/"))
 
 
-
 app.post("/producer/v1/",
 
   // security level closed
   Request.requireJwtToken,
   Request.verifySession,
   Request.verifyId,
+  Request.verifyRoles([UserRole.PLATFORM_DEVELOPER]),
+
 
 
   // interactions
   Request.verifyName,
   Request.registerName,
 
+  Request.getPlatforms,
+
+
+  Request.render,
 async(req, res) => {
   return res.sendStatus(404)
 })
 
-
-
-app.post("/consumer/v1/",
-  // session
-  // Request.requireCookies,
-
-
-  // security level open
-
-
-
-  // security level closed
-  Request.requireJwtToken,
-  Request.verifySession,
-
-
+app.post("/consumer/open/",
+  Request.verifyId,
   Request.registerEmail,
   Request.registerVerified,
-
-
-  // open closed
-  Request.verifyId,
-
-  // options
-  // Request.requireBody,
-  // Request.requireUrl,
-  // Request.requireMethod,
-  // Request.requireSecurity,
-  // Request.requireType,
-  // Request.requireName,
-
   Request.redirectUser,
-  // Request.requireRedirect,
-  // identification
-  // Request.requireEmail,
-  // Request.requireLocalStorageId,
-  // Request.getEmail,
-
-  // Request.requireVerifiedUser,
-  // authorization
-  Request.registerRole,
-
-  // methods
   Request.getFunnel,
-  // Request.requireFunnel,
+  Request.createOffer,
+  Request.getPlatforms,
+  Request.registerRole,
+async(req, res) => {
+  return res.sendStatus(404)
+})
+
+app.post(`/consumer/${UserRole.OPERATOR}/closed/`,
+
+  Request.requireJwtToken,
+  Request.verifySession,
+  Request.verifyId,
+  Request.verifyRoles([UserRole.OPERATOR]),
+
   Request.registerFunnel,
-
-  Request.getOffers,
-  // Request.requireOffer,
   Request.registerOffer,
-
-  Request.getChecklist,
-  // Request.requireChecklist,
   Request.registerChecklist,
-
-
   Request.registerLead,
 
-  async(req, res) => {
-    return res.sendStatus(404)
-  }
-)
+  Request.getChecklist,
+  Request.getOffer,
+async(req, res) => {
+  return res.sendStatus(404)
+})
+
 
 app.post("/request/register/session/",
   Request.verifyId,
@@ -355,7 +276,7 @@ app.post("/request/register/session/",
       })
       return res.sendStatus(200)
     } catch (error) {
-      Helper.logError(error, req)
+      await Helper.logError(error, req)
     }
     return res.sendStatus(404)
   }
@@ -404,144 +325,48 @@ async (req, res) => {
   return res.sendStatus(404)
 })
 
-app.post("/user/authentication/verification/", async (req, res) => {
-  req.body.expectedUserChallenge = userChallenge
-  const verifyAssertionRx = await AuthServer.verifyAssertion(req.body)
-  if (verifyAssertionRx.status !== 200) {
-    return res.send({
-      status: 500,
-      message: "VERIFY_ASSERTION_FAILED",
-    })
-  }
-  console.log(verifyAssertionRx);
 
-  return res.send({
-    status: 200,
-    message: "AUTHENTICATION_VERIFIED"
-  })
-})
-
-app.post("/public-key/credential/request/options/", async (req, res) => {
-  const {email} = req.body
-  if (!email) {
-    return res.send({
-      status: 500,
-      message: "INVALID_EMAIL"
-    })
-  }
-
-  const getUserByEmailRx = await User.getByEmail(req.body)
-  if (getUserByEmailRx.status === 404) {
-    return res.send({
-      status: 500,
-      message: "USER_NOT_FOUND"
-    })
-  }
-
-  // 1.) https://w3c.github.io/webauthn/#sctn-verifying-assertion
-  const {credentialRecord} = getUserRx.user
-  const options = {
-    publicKey: {
-      challenge: userChallenge,
-      rpId: clientLocation.hostname,
-      allowCredentials: [{
-        id: credentialRecord.id,
-        type: "public-key",
-      }],
-      userVerification: "required",
-    }
-  }
-
-  return res.send({
-    status: 200,
-    message: "BEGIN_LOGIN_EVENT",
-    publicKeyCredentialRequestOptions: options,
-  })
-})
-
-app.post("/user/registration/verification/", async (req, res) => {
-  req.body.userChallenge = userChallenge
-  req.body.userHandle = userHandle
-  req.body.pubKeyCredParams = pubKeyCredParams
-
-  const verifyAttestationRx = await AuthServer.verifyAttestation(req.body)
-  if (verifyAttestationRx.status !== 200) {
-    return res.send({
-      status: 500,
-      message: "REGISTRATION_ABORTED_DUE_TO_SECURITY_ISSUES"
-    })
-  }
-
-  return res.send({
-    status: 200,
-    message: "USER_REGISTRATION_VERIFICATION_SUCCESS"
-  })
-})
-
-app.post("/public-key/credential/creation/options/", async (req, res) => {
-  const {email} = req.body
-  if (!email) {
-    return res.send({
-      status: 500,
-      message: "NOT_A_USER"
-    })
-  }
-
-  const getUserByEmailRx = await User.getByEmail(req.body)
-  if (getUserByEmailRx.status === 404) {
-    return res.send({
-      status: 500,
-      message: "USER_NOT_FOUND"
-    })
-  }
-
-  // 1.) https://w3c.github.io/webauthn/#sctn-registering-a-new-credential
-  const options = {
-    publicKey: {
-      rp: {
-        name: "getyour platform",
-        id: clientLocation.hostname,
-      },
-      user: {
-        name: email.value.split("@")[0],
-        id: userHandle,
-        displayName: email.value.split("@")[0]
-      },
-      pubKeyCredParams: pubKeyCredParams,
-      challenge: userChallenge,
-    }
-  }
-  if (getUserByEmailRx.status === 404) {
-    return res.send({
-      status: 200,
-      message: "BEGIN_REGISTRATION_EVENT",
-      options: options
-    })
-  }
-
-  return res.send({
-    status: 302,
-    message: "ALREADY_REGISTERED",
-  })
-})
-
-
-
-app.get("/:username/", async (req, res, next) => {
+app.get("/home/", async (req, res, next) => {
   try {
-    if (req.params.username === "home") return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-login.html"))
-    if (req.params.username === "impressum") return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-impressum.html"))
-    if (req.params.username === "datenschutz") return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-datenschutz.html"))
-    if (req.params.username === "nutzervereinbarung") return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-nutzervereinbarung.html"))
+    return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-login.html"))
+  } catch (error) {
+    Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
+})
 
+app.get("/impressum/", async (req, res, next) => {
+  try {
+    return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-impressum.html"))
+  } catch (error) {
+    Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
+})
 
+app.get("/datenschutz/", async (req, res, next) => {
+  try {
+    return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-datenschutz.html"))
+  } catch (error) {
+    Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
+})
+
+app.get("/nutzervereinbarung/", async (req, res, next) => {
+  try {
+    return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-nutzervereinbarung.html"))
+  } catch (error) {
+    Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
+})
+
+app.get("/:username/",
+async (req, res, next) => {
+  try {
     const {user} = await Helper.findUser(user => user.name === req.params.username)
-    console.log(user);
-
-    // TODO
-
-
-
+    if (Helper.stringIsEmpty(user.name)) throw new Error("user name is empty")
     return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-profile-page.html"))
   } catch (error) {
     Helper.logError(error, req)
@@ -550,7 +375,4 @@ app.get("/:username/", async (req, res, next) => {
 })
 
 
-
-// app.use(express.static(docsLocation.absolutePath))
-// app.use(express.static(clientLocation.absolutePath))
 app.listen(clientLocation.port, () => console.log(`[getyour] client listening on ${clientLocation.origin}`))

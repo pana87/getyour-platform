@@ -1,7 +1,7 @@
 import { Request } from "./Request.js"
 import { SHSChecklistItem } from "../felix/shs/technician/checklist-item/SHSChecklistItem.js"
 import { SHSFunnelQuestionList } from "../felix/shs/angebot/funnel/view/SHSFunnelQuestionList.js"
-import { SHSFunnelStart } from "../felix/shs/funnel/start/SHSFunnelStart.js"
+import { SHSFunnelStart } from "../felix/shs/start/SHSFunnelStart.js"
 
 const pathToPNGFavicon = `${window.__PLATFORM_LOCATION__.origin}/img/favicon.png`
 const pathToICOFavicon = `${window.__PLATFORM_LOCATION__.origin}/img/favicon.ico`

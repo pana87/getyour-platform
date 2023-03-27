@@ -29,31 +29,36 @@
       import { DivField } from "/js/DivField.js"
 
       const getFunnel = {}
-      getFunnel.url = "/consumer/v1/"
+      getFunnel.url = "/consumer/open/"
       getFunnel.method = "get"
       getFunnel.name = "shs"
       getFunnel.type = "funnel"
-      getFunnel.security = "open"
-      getFunnel.localStorageId = Request.localStorageId()
+      getFunnel.email = await Request.email()
+      getFunnel.localStorageId = await Request.localStorageId()
       const res = await Request.middleware(getFunnel)
 
       if (res.status !== 200) {
+        alert("Leider können wir Ihnen im Moment kein Angebot machen. Bitte melden Sie sich nochmal an und versuchen es erneut. Sollten Sie weiterhin kein Angebot erhalten, bitte kontaktieren Sie uns unter 'datenschutz@get-your.de'")
         window.location.assign("/home/")
         throw new Error("get funnel failed")
       }
 
-      const shsFunnel = Helper.findFunnel(funnel => funnel.owner.id === Request.localStorageId())
-      if (shsFunnel !== undefined) {
+      const funnel = JSON.parse(res.response)
+
+      const shsFunnel = JSON.parse(window.localStorage.getItem("shsFunnel"))
+      if (shsFunnel !== null) {
         if (shsFunnel.value !== undefined) {
           if (shsFunnel.questionIndex >= shsFunnel.questions.length - 1) {
-            window.location.assign(shsFunnel.path.house)
-            throw new Error("funnel exist")
-          }
+            const confirm = window.confirm("Wenn Sie fortfahren, werden Ihre lokalen Daten gelöscht.\n\nWollen Sie fortfahren?")
+            if (confirm === true) {
+              window.localStorage.removeItem("shsFunnel")
+            } else {
+              window.location.assign("/felix/shs/abfrage-haus/")
+              throw new Error("funnel exist")
+            }
+          } else window.localStorage.removeItem("shsFunnel")
         }
       }
-
-      const funnel = JSON.parse(res.response)
-      Helper.setFunnel(funnel)
 
       const headerField = new HeaderField()
       .withImage(img => {
@@ -61,7 +66,7 @@
         img.alt = "SHS Express Logo"
         img.style.cursor = "pointer"
         img.style.width = "144px"
-        img.addEventListener("click", async() => window.location.reload())
+        img.addEventListener("click", () => window.location.reload())
       })
       .withType(header => {
         header.style.position = "fixed"
@@ -86,27 +91,14 @@
 
       const funnelField = new FunnelField("funnel-placeholder")
       .withFunnel(funnel)
-      .onWindowUnload(() => {
-        if (shsFunnel.questionIndex <= (shsFunnel.questions.length - 1)) {
-          const funnels = JSON.parse(window.localStorage.getItem("funnels"))
-          if (funnels !== null) {
-            const newFunnels = funnels.filter(it => it.storage !== this.funnel.storage)
-            window.localStorage.setItem("funnels", JSON.stringify(newFunnels))
-          }
-        }
-      })
       .withClickOnAnswerEventListener((questionIndex, answerIndex) => {
 
         if (questionIndex === 0 && answerIndex === 1) {
-          // const confirm = window.confirm("Möchten Sie stattdessen einen persönlichen Ansprechpartner kontaktieren?")
-          // if (confirm === true) return window.location.assign("/felix/shs/match-maker/experte-kontaktieren/")
           window.location.assign("/felix/shs/")
           return
         }
 
         if (questionIndex === 1 && answerIndex === 1) {
-          // const confirm = window.confirm("Im Moment bieten wir diese Option nicht an. Möchten Sie stattdessen einen persönlichen Ansprechpartner kontaktieren?")
-          // if (confirm === true) return window.location.assign("/felix/shs/match-maker/experte-kontaktieren/")
           window.location.assign("/felix/shs/")
           return
         }
@@ -117,7 +109,7 @@
         }
 
         if (questionIndex === 10 && answerIndex === 1) {
-          const shsFunnel = Helper.getFunnel(funnel.storage)
+          const shsFunnel = JSON.parse(window.localStorage.getItem("shsFunnel"))
           const q7 = shsFunnel.value.q7
           const q8 = shsFunnel.value.q8
           const q9 = shsFunnel.value.q9
@@ -135,9 +127,7 @@
         funnel.questionIndex = funnel.questionIndex + 1
         funnelField.withFunnel(funnel)
       })
-      .withFunnelCompleted(async() => {
-        window.location.assign(funnel.path.house)
-      })
+      .withFunnelCompleted(() => window.location.assign("/felix/shs/abfrage-haus/"))
 
       Helper.createSHSFooter()
 

@@ -54,20 +54,19 @@
       import { EmailField } from "/js/EmailField.js"
       import { Request } from "/js/Request.js"
 
-
-      const funnel = Helper.findFunnel(funnel => funnel.owner.id === Request.localStorageId())
+      const funnel = JSON.parse(window.localStorage.getItem("shsFunnel"))
       if (
-        funnel === undefined ||
+        funnel === null ||
         funnel.value === undefined ||
         funnel.questionIndex < funnel.questions.length - 1
         ) {
-        window.location.assign("/felix/shs/funnel/qualifizierung/")
+        window.location.assign("/felix/shs/qualifizierung/")
         throw new Error("funnel not found")
       }
 
-      const offer = Helper.findOffer(offer => offer.value.selected === true)
+      const offer = Helper.findOffer(offer => offer.selected === true)
       if (offer === undefined) {
-        window.location.assign("/felix/shs/match-maker/hersteller-vergleich/")
+        window.location.assign("/felix/shs/hersteller-vergleich/")
         throw new Error("offer not found")
       }
 
@@ -77,7 +76,7 @@
         img.alt = "SHS Express Logo"
         img.style.cursor = "pointer"
         img.style.width = "144px"
-        img.addEventListener("click", async() => await Helper.redirectUser())
+        img.addEventListener("click", () => window.history.back())
       })
       .withType(header => {
         header.style.position = "fixed"
@@ -110,7 +109,7 @@
       .onInput(async() => {
         firstname.withStorage(value => {
           funnel.owner[firstname.name] = value
-          Helper.setFunnel(funnel)
+          window.localStorage.setItem("shsFunnel", JSON.stringify(funnel))
           offer.owner[firstname.name] = value
           Helper.setOffer(offer)
         })
@@ -118,7 +117,7 @@
       .fromStorage((name) => funnel.owner[name])
       firstname.withStorage(value => {
         funnel.owner[firstname.name] = value
-        Helper.setFunnel(funnel)
+        window.localStorage.setItem("shsFunnel", JSON.stringify(funnel))
         offer.owner[firstname.name] = value
         Helper.setOffer(offer)
       })
@@ -133,7 +132,7 @@
       .onInput(async() => {
         lastname.withStorage(value => {
           funnel.owner[lastname.name] = value
-          Helper.setFunnel(funnel)
+          window.localStorage.setItem("shsFunnel", JSON.stringify(funnel))
           offer.owner[lastname.name] = value
           Helper.setOffer(offer)
         })
@@ -141,7 +140,7 @@
       .fromStorage((name) => funnel.owner[name])
       lastname.withStorage(value => {
         funnel.owner[lastname.name] = value
-        Helper.setFunnel(funnel)
+        window.localStorage.setItem("shsFunnel", JSON.stringify(funnel))
         offer.owner[lastname.name] = value
         Helper.setOffer(offer)
       })
@@ -156,7 +155,7 @@
       .onInput(async() => {
         street.withStorage(value => {
           funnel.owner[street.name] = value
-          Helper.setFunnel(funnel)
+          window.localStorage.setItem("shsFunnel", JSON.stringify(funnel))
           offer.owner[street.name] = value
           Helper.setOffer(offer)
         })
@@ -164,7 +163,7 @@
       .fromStorage((name) => funnel.owner[name])
       street.withStorage(value => {
         funnel.owner[street.name] = value
-        Helper.setFunnel(funnel)
+        window.localStorage.setItem("shsFunnel", JSON.stringify(funnel))
         offer.owner[street.name] = value
         Helper.setOffer(offer)
       })
@@ -181,7 +180,7 @@
       .onInput(async() => {
         zip.withStorage(value => {
           funnel.owner[zip.name] = value
-          Helper.setFunnel(funnel)
+          window.localStorage.setItem("shsFunnel", JSON.stringify(funnel))
           offer.owner[zip.name] = value
           Helper.setOffer(offer)
         })
@@ -189,7 +188,7 @@
       .fromStorage((name) => funnel.owner[name])
       zip.withStorage(value => {
         funnel.owner[zip.name] = value
-        Helper.setFunnel(funnel)
+        window.localStorage.setItem("shsFunnel", JSON.stringify(funnel))
         offer.owner[zip.name] = value
         Helper.setOffer(offer)
       })
@@ -202,7 +201,7 @@
       .onInput(async() => {
         state.withStorage(options => {
           funnel.owner[state.name] = options[0]
-          Helper.setFunnel(funnel)
+          window.localStorage.setItem("shsFunnel", JSON.stringify(funnel))
           offer.owner[state.name] = options[0]
           Helper.setOffer(offer)
         })
@@ -210,7 +209,7 @@
       .fromStorage((name) => funnel.owner[name])
       state.withStorage(options => {
         funnel.owner[state.name] = options[0]
-        Helper.setFunnel(funnel)
+        window.localStorage.setItem("shsFunnel", JSON.stringify(funnel))
         offer.owner[state.name] = options[0]
         Helper.setOffer(offer)
       })
@@ -224,7 +223,7 @@
       .onInput(async() => {
         country.withStorage(options => {
           funnel.owner[country.name] = options[0]
-          Helper.setFunnel(funnel)
+          window.localStorage.setItem("shsFunnel", JSON.stringify(funnel))
           offer.owner[country.name] = options[0]
           Helper.setOffer(offer)
         })
@@ -232,7 +231,7 @@
       .fromStorage((name) => funnel.owner[name])
       country.withStorage(options => {
         funnel.owner[country.name] = options[0]
-        Helper.setFunnel(funnel)
+        window.localStorage.setItem("shsFunnel", JSON.stringify(funnel))
         offer.owner[country.name] = options[0]
         Helper.setOffer(offer)
       })
@@ -327,76 +326,76 @@
           confirmPasswordField.withType(input => Helper.setNotValidStyle(input))
         } else {
 
-          const funnel = Helper.findFunnel(funnel => funnel.owner.id === Request.localStorageId())
-          const offer = Helper.findOffer(offer => offer.value.selected === true)
-
-          await Request.verifyEmail(email)
+          const funnel = JSON.parse(window.localStorage.getItem("shsFunnel"))
+          const offer = Helper.findOffer(offer => offer.selected === true)
 
 
-          const localStorageId = Request.localStorageId()
+          await Request.withVerifiedEmail(email, async () => {
+            const registerEmail = {}
+            registerEmail.url = "/consumer/open/"
+            registerEmail.method = "register"
+            registerEmail.type = "email"
+            registerEmail.email = email
+            registerEmail.localStorageId = await Request.localStorageId()
+            await Request.sequence(registerEmail)
 
-          const registerEmail = {}
-          registerEmail.url = "/consumer/v1/"
-          registerEmail.method = "register"
-          registerEmail.type = "email"
-          registerEmail.security = "open"
-          registerEmail.email = email
-          registerEmail.localStorageId = localStorageId
-          await Request.sequence(registerEmail)
+            const registerVerified = {}
+            registerVerified.url = "/consumer/open/"
+            registerVerified.method = "register"
+            registerVerified.type = "verified"
+            registerVerified.email = email
+            registerVerified.localStorageId = await Request.localStorageId()
+            await Request.sequence(registerVerified)
 
-          const registerVerified = {}
-          registerVerified.url = "/consumer/v1/"
-          registerVerified.method = "register"
-          registerVerified.type = "verified"
-          registerVerified.security = "open"
-          registerVerified.localStorageId = localStorageId
-          await Request.sequence(registerVerified)
+            const registerOperator = {}
+            registerOperator.url = "/consumer/open/"
+            registerOperator.method = "register"
+            registerOperator.type = "role"
+            registerOperator.consumer = "operator"
+            registerOperator.email = email
+            registerOperator.localStorageId = await Request.localStorageId()
+            await Request.sequence(registerOperator)
 
-          const registerOperator = {}
-          registerOperator.url = "/consumer/v1/"
-          registerOperator.method = "register"
-          registerOperator.type = "role"
-          registerOperator.name = "operator"
-          registerOperator.security = "open"
-          registerOperator.localStorageId = localStorageId
-          await Request.sequence(registerOperator)
+            const registerSession = {}
+            registerSession.url = "/request/register/session/"
+            registerSession.method = "register"
+            registerSession.type = "session"
+            registerSession.email = email
+            registerSession.localStorageId = await Request.localStorageId()
+            await Request.sequence(registerSession)
 
-          const registerSession = {}
-          registerSession.url = "/request/register/session/"
-          registerSession.method = "register"
-          registerSession.type = "session"
-          registerSession.security = "open"
-          registerSession.localStorageId = localStorageId
-          await Request.sequence(registerSession)
+            const registerFunnel = {}
+            registerFunnel.url = `/consumer/1/closed/`
+            registerFunnel.method = "register"
+            registerFunnel.type = "funnel"
+            registerFunnel.email = email
+            registerFunnel.localStorageId = await Request.localStorageId()
+            funnel.selected = true
+            registerFunnel.funnel = funnel
+            await Request.sequence(registerFunnel)
 
-          const registerFunnel = {}
-          registerFunnel.url = "/consumer/v1/"
-          registerFunnel.method = "register"
-          registerFunnel.type = "funnel"
-          registerFunnel.security = "closed"
-          registerFunnel.localStorageId = localStorageId
-          registerFunnel.funnel = funnel
-          await Request.sequence(registerFunnel)
+            const registerOffer = {}
+            registerOffer.url = `/consumer/1/closed/`
+            registerOffer.method = "register"
+            registerOffer.type = "offer"
+            registerOffer.email = email
+            registerOffer.localStorageId = await Request.localStorageId()
+            registerOffer.offer = offer
+            await Request.sequence(registerOffer)
 
-          const registerOffer = {}
-          registerOffer.url = "/consumer/v1/"
-          registerOffer.method = "register"
-          registerOffer.type = "offer"
-          registerOffer.security = "closed"
-          registerOffer.localStorageId = localStorageId
-          registerOffer.offer = offer
-          await Request.sequence(registerOffer)
+            const registerChecklist = {}
+            registerChecklist.url = `/consumer/1/closed/`
+            registerChecklist.method = "register"
+            registerChecklist.type = "checklist"
+            registerChecklist.email = email
+            registerChecklist.localStorageId = await Request.localStorageId()
+            await Request.sequence(registerChecklist)
 
-          const registerChecklist = {}
-          registerChecklist.url = "/consumer/v1/"
-          registerChecklist.method = "register"
-          registerChecklist.type = "checklist"
-          registerChecklist.security = "closed"
-          registerChecklist.localStorageId = localStorageId
-          await Request.sequence(registerChecklist)
+            alert("Speichern erfolgreich..")
+            window.location.assign(`/felix/shs/${await Request.localStorageId()}/`)
 
-          alert("Speichern erfolgreich..")
-          window.location.assign(`/felix/shs/checklist/${localStorageId}/`)
+          })
+
         }
       }
 
@@ -416,7 +415,7 @@
         }
         state.withStorage(options => {
           funnel.owner[state.name] = options[0]
-          Helper.setFunnel(funnel)
+          window.localStorage.setItem("shsFunnel", JSON.stringify(funnel))
         })
       }
 

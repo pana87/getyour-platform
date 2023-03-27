@@ -2,6 +2,11 @@ import { Helper } from "/js/Helper.js"
 
 export class NumberField {
 
+  withIcon(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.iconSelector).forEach(icon => callback(icon))
+    return this
+  }
+
   withField(callback) {
     if (callback !== undefined) document.querySelectorAll(this.fieldSelector).forEach(field => callback(field))
     return this
@@ -94,6 +99,7 @@ export class NumberField {
     labelContainer.style.margin = "21px 89px 0 34px"
 
     const info = document.createElement("img")
+    info.classList.add(this.name)
     info.src = "/public/info-gray.svg"
     info.alt = "Info"
     info.style.width = "34px"
@@ -112,7 +118,6 @@ export class NumberField {
     input.type = this.type
     input.style.margin = "21px 89px 21px 34px"
     input.style.fontSize = "21px"
-    // input.style.maxWidth = "300px"
     field.append(input)
   }
 
@@ -122,6 +127,7 @@ export class NumberField {
     this.fieldSelector = `div[class='${this.name}']`
     this.inputSelector = `input[class='${this.name}']`
     this.labelSelector = `label[class='${this.name}']`
+    this.iconSelector = `img[class='${this.name}']`
     this.type = "number"
     this.fields = Array.from(document.querySelectorAll(this.fieldSelector))
     for (let i = 0; i < this.fields.length; i++) {

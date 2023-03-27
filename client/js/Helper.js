@@ -70,6 +70,38 @@ export class Helper {
     })
   }
 
+  static popup(callback) {
+    if (callback !== undefined) {
+      const popup = document.createElement("div")
+      popup.style.height = "100vh"
+      popup.style.width = "100%"
+      popup.style.zIndex = "2"
+      popup.style.position = "fixed"
+      popup.style.top = "0"
+      popup.style.left = "0"
+      popup.style.background = "white"
+      popup.style.display = "flex"
+      popup.style.flexDirection = "column"
+      popup.style.justifyContent = "space-between"
+      popup.style.overflowY = "scroll"
+      popup.style.opacity = 0
+
+      callback(popup)
+
+      document.body.append(popup)
+
+      const animation = popup.animate([
+        { opacity: 0, transform: 'translateY(13px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ], {
+        duration: 344,
+        easing: 'ease-in-out',
+        fill: "forwards"
+      })
+      return popup
+    }
+  }
+
   static popupInfo({withImage, withText, withEvent}) {
     const popup = document.createElement("div")
     popup.style.height = "100vh"
@@ -177,21 +209,18 @@ export class Helper {
     var timer = duration, minutes, seconds
     const timerDiv = document.createElement("div")
     const interval = setInterval(function () {
-        minutes = parseInt(timer / 60, 10)
-        seconds = parseInt(timer % 60, 10)
+      minutes = parseInt(timer / 60, 10)
+      seconds = parseInt(timer % 60, 10)
 
-        minutes = minutes < 10 ? "0" + minutes : minutes
-        seconds = seconds < 10 ? "0" + seconds : seconds
+      minutes = minutes < 10 ? "0" + minutes : minutes
+      seconds = seconds < 10 ? "0" + seconds : seconds
 
-        timerDiv.textContent = minutes + ":" + seconds
-        timerDiv.style.display = "flex"
-        timerDiv.style.color = "red"
+      timerDiv.textContent = minutes + ":" + seconds
 
-        if (--timer < 0) {
-          timerDiv.textContent = "pin abgelaufen"
-          clearInterval(interval)
-        }
-
+      if (--timer < 0) {
+        timerDiv.textContent = "pin abgelaufen"
+        clearInterval(interval)
+      }
     }, 1000)
 
     display.append(timerDiv)
@@ -286,7 +315,7 @@ export class Helper {
       impressum.innerHTML = "Impressum"
       impressum.style.cursor = "pointer"
       impressum.style.padding = "13px"
-      impressum.addEventListener("click", () => window.location.assign("/felix/shs/compliance/impressum/"))
+      impressum.addEventListener("click", () => window.location.assign("/felix/shs/impressum/"))
       footer.append(impressum)
 
       const dsgvo = document.createElement("div")
@@ -324,6 +353,7 @@ export class Helper {
     overlay.style.left = "0"
     overlay.style.opacity = "0.9"
     overlay.style.zIndex = "10"
+    overlay.style.color = "red"
 
     const loadingImage = document.createElement("img")
     loadingImage.src = "/public/load-animation.svg"
@@ -336,16 +366,17 @@ export class Helper {
 
   static async redirectUser(event) {
     const redirectUser = {}
-    redirectUser.url = "/consumer/v1/"
+    redirectUser.url = "/consumer/open/"
     redirectUser.method = "redirect"
     redirectUser.type = "user"
     redirectUser.event = event
-    redirectUser.security = "open"
     redirectUser.referrer = document.referrer
     redirectUser.location = window.location.href
-    redirectUser.localStorageId = Request.localStorageId()
+    redirectUser.email = await Request.email()
+    redirectUser.localStorageId = await Request.localStorageId()
     const res = await Request.middleware(redirectUser)
     if (res.status === 200) return window.location.assign(res.response)
+    else return window.history.back()
   }
 
   static millisToDateString(milliseconds) {

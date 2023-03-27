@@ -42,21 +42,18 @@
     import { InfoField } from "/js/InfoField.js"
 
 
-    const urlId = window.location.pathname.split("/")[4]
-    const localStorageId = Request.localStorageId()
-
     const getChecklist = {}
-    getChecklist.url = "/consumer/v1/"
+    getChecklist.url = `/consumer/1/closed/`
     getChecklist.method = "get"
     getChecklist.type = "checklist"
-    getChecklist.security = "closed"
-    getChecklist.localStorageId = localStorageId
-    getChecklist.urlId = urlId
+    getChecklist.email = await Request.email()
+    getChecklist.localStorageId = await Request.localStorageId()
+    getChecklist.urlId = window.location.pathname.split("/")[3]
     const res = await Request.middleware(getChecklist)
 
     if (res.status !== 200) {
       window.location.assign("/home/")
-      throw new Error(`${getChecklist.type} not found`)
+      throw new Error(`checklist not found`)
     }
 
     const checklist = JSON.parse(res.response)
@@ -81,7 +78,7 @@
       profile.innerHTML = checklist.owner.name
       profile.style.fontSize = "21px"
       profile.style.fontWeight = "bold"
-      profile.addEventListener("click", () => window.location.assign("/felix/shs/match-maker/hersteller-vergleich/"))
+      profile.addEventListener("click", () => window.location.assign("/felix/shs/hersteller-vergleich/"))
     })
     .build()
 

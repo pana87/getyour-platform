@@ -89,7 +89,8 @@ export class FunnelField {
         // save to storage
         if (this.funnel.value === undefined) this.funnel.value = {}
         this.funnel.value[`q${this.funnel.questionIndex}`] = index
-        Helper.setFunnel(this.funnel)
+        // Helper.setFunnel(this.funnel)
+        window.localStorage.setItem(this.funnel.storage, JSON.stringify(this.funnel))
 
         if (this.clickOnAnswer !== undefined) {
           this.clickOnAnswer(this.funnel.questionIndex, index)
