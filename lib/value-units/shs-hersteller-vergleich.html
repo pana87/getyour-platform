@@ -44,13 +44,13 @@
       import { InfoField } from "/js/InfoField.js"
 
 
-      const funnel = Helper.findFunnel(funnel => funnel.owner.id === Request.localStorageId())
+      const funnel = JSON.parse(window.localStorage.getItem("shsFunnel"))
       if (
-        funnel === undefined ||
+        funnel === null ||
         funnel.value === undefined ||
         funnel.questionIndex < funnel.questions.length - 1
         ) {
-        window.location.assign("/felix/shs/funnel/qualifizierung/")
+        window.location.assign("/felix/shs/qualifizierung/")
         throw new Error("funnel not found")
       }
 
@@ -60,7 +60,7 @@
         img.alt = "SHS Express Logo"
         img.style.width = "144px"
         img.style.cursor = "pointer"
-        img.addEventListener("click", async() => await Helper.redirectUser())
+        img.addEventListener("click", () => window.history.back())
       })
       .withType(header => {
         header.style.position = "fixed"
@@ -83,33 +83,34 @@
         info.style.cursor = "pointer"
         info.style.textDecoration = "underline"
         info.style.fontSize = "21px"
-        info.addEventListener("click", () => window.location.assign("/felix/shs/funnel/abfrage-haus/"))
+        info.addEventListener("click", () => window.location.assign("/felix/shs/abfrage-haus/"))
       })
       .build()
 
 
-      const getOffer = {}
-      getOffer.url = "/consumer/v1/"
-      getOffer.method = "get"
-      getOffer.type = "offers"
-      getOffer.security = "open"
-      getOffer.funnel = funnel
-      getOffer.localStorageId = Request.localStorageId()
-      const res = await Request.middleware(getOffer)
+      const createOffer = {}
+      createOffer.url = "/consumer/open/"
+      createOffer.method = "create"
+      createOffer.type = "offer"
+      createOffer.name = "bestprime"
+      createOffer.funnel = funnel
+      createOffer.email = await Request.email()
+      createOffer.localStorageId = await Request.localStorageId()
+      const res = await Request.middleware(createOffer)
 
 
       if (res.status !== 200) {
         document.querySelectorAll("div[class*='herstelleritem']").forEach(div => div.remove())
-        throw new Error("offers not found")
+        throw new Error("offer not found")
       }
 
-
-      const offers = JSON.parse(res.response)
+      const offers = []
+      const offer = JSON.parse(res.response)
+      offers.push(offer)
 
       const offerList = new DivField("offer-list")
       .withType(div => {
         for (let i = 0; i < offers.length; i++) {
-          // console.log(offers[i]);
 
           const offer = document.createElement("div")
           offer.style.backgroundColor = "white"
@@ -262,12 +263,12 @@
           button.addEventListener("click", () => {
 
             for (let i = 0; i < offers.length; i++) {
-              offers[i].value.selected = false
+              offers[i].selected = false
             }
 
-            offers[i].value.selected = true
+            offers[i].selected = true
             window.localStorage.setItem("offers", JSON.stringify(offers))
-            window.location.assign("/felix/shs/funnel/abfrage-persoenliches/")
+            window.location.assign("/felix/shs/abfrage-persoenliches/")
           })
 
           priceContainer.append(button)

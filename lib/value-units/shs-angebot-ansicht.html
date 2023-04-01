@@ -56,20 +56,18 @@
     import {HeaderField} from "/js/HeaderField.js"
     import {Helper} from "/js/Helper.js"
 
-    const localStorageId = Request.localStorageId()
-    const urlId = window.location.pathname.split("/")[4]
+    const urlId = window.location.pathname.split("/")[3]
 
     const getOffer = {}
-    getOffer.url = "/consumer/v1/"
+    getOffer.url = "/consumer/1/closed/"
     getOffer.method = "get"
-    getOffer.type = "offers"
-    getOffer.security = "closed"
-    getOffer.localStorageId = localStorageId
-    getOffer.urlId = urlId
+    getOffer.type = "offer"
+    getOffer.email = await Request.email()
+    getOffer.localStorageId = await Request.localStorageId()
     const res = await Request.middleware(getOffer)
 
     if (res.status !== 200) {
-      window.location.assign("/felix/shs/match-maker/hersteller-vergleich/")
+      window.location.assign("/felix/shs/hersteller-vergleich/")
       throw new Error("offer not found")
     }
 
@@ -450,11 +448,11 @@
       button.addEventListener("click", async() => {
 
         const getChecklist = {}
-        getChecklist.url = "/consumer/v1/"
+        getChecklist.url = "/consumer/1/closed/"
         getChecklist.method = "get"
         getChecklist.type = "checklist"
-        getChecklist.security = "closed"
-        getChecklist.localStorageId = localStorageId
+        getChecklist.email = await Request.email()
+        getChecklist.localStorageId = await Request.localStorageId()
         getChecklist.urlId = urlId
         const res = await Request.middleware(getChecklist)
 
@@ -463,30 +461,31 @@
           if (checklist.state === 0) {
             checklist.state = checklist.state + 1
           }
-          const email = Request.email()
+          const email = await Request.email()
 
-          await Request.verifyEmail(email)
+          await Request.withVerifiedEmail(email, async () => {
+            const registerOffer = {}
+            registerOffer.url = "/consumer/1/closed/"
+            registerOffer.method = "register"
+            registerOffer.type = "offer"
+            registerOffer.offer = offer
+            registerOffer.email = email
+            registerOffer.localStorageId = await Request.localStorageId()
+            await Request.sequence(registerOffer)
 
-          const registerOffer = {}
-          registerOffer.url = "/consumer/v1/"
-          registerOffer.method = "register"
-          registerOffer.type = "offer"
-          registerOffer.security = "closed"
-          registerOffer.offer = offer
-          registerOffer.localStorageId = localStorageId
-          await Request.sequence(registerOffer)
+            const registerChecklist = {}
+            registerChecklist.url = "/consumer/1/closed/"
+            registerChecklist.method = "register"
+            registerChecklist.type = "checklist"
+            registerChecklist.email = email
+            registerChecklist.localStorageId = await Request.localStorageId()
+            registerChecklist.checklist = checklist
+            await Request.sequence(registerChecklist)
 
-          const registerChecklist = {}
-          registerChecklist.url = "/consumer/v1/"
-          registerChecklist.method = "register"
-          registerChecklist.type = "checklist"
-          registerChecklist.security = "closed"
-          registerChecklist.localStorageId = localStorageId
-          registerChecklist.checklist = checklist
-          await Request.sequence(registerChecklist)
+            alert("Speichern erfolgreich..")
+            return window.location.assign(`/felix/shs/${urlId}/`)
+          })
 
-          alert("Speichern erfolgreich..")
-          return window.location.assign(`/felix/shs/checklist/${urlId}/`)
         }
       })
 

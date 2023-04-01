@@ -2127,6 +2127,7 @@
   <script type="module">
     import { DivField } from "/js/DivField.js"
     import { Helper } from "/js/Helper.js"
+    import { Request } from "/js/Request.js"
 
     document.querySelectorAll("div[class*='gruppe-5-']").forEach(div => {
       div.style.zIndex = "100"
@@ -2137,29 +2138,27 @@
       img.alt = "SHS Express Logo"
       img.style.zIndex = "100"
       img.style.cursor = "pointer"
-      img.addEventListener("click", async() => await Helper.redirectUser())
+      img.addEventListener("click", async() => {
+        const localStorageId = await Request.localStorageId()
+        window.location.assign(`/felix/shs/${localStorageId}`)
+      })
     })
 
     document.querySelectorAll("div[class*='zumloginbutton']").forEach(div => {
       div.addEventListener("click", () => window.location.assign("/home/"))
     })
-    // .withClickEventListener(() => window.location.assign("/home/"))
 
     document.querySelectorAll("div[class*='angeboterstellenbutton']").forEach(div => {
-      div.addEventListener("click", () => window.location.assign("/felix/shs/funnel/qualifizierung/"))
+      div.addEventListener("click", () => window.location.assign("/felix/shs/qualifizierung/"))
     })
-    // .withClickEventListener(() => window.location.assign("/felix/shs/funnel/qualifizierung/"))
 
     document.querySelectorAll("div[class*='impressumgobutton']").forEach(div => {
-      div.addEventListener("click", () => window.location.assign("/felix/shs/compliance/impressum/"))
+      div.addEventListener("click", () => window.location.assign("/felix/shs/impressum/"))
     })
-    // .withClickEventListener(() => window.location.assign("/felix/shs/impressum/"))
 
     document.querySelectorAll("div[class*='datenschutzgobutton']").forEach(div => {
       div.addEventListener("click", () => window.location.assign("/datenschutz/"))
     })
-    // .withClickEventListener(() => window.location.assign("/felix/shs/datenschutz/"))
-
 
 
   </script>

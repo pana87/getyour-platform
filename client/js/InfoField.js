@@ -152,7 +152,7 @@ export class InfoField {
       // with click listeneer
       // field.style.textDecoration = "underline"
       // field.style.cursor = "pointer"
-      // field.addEventListener("click", () => window.location.assign("/felix/shs/funnel/abfrage-haus/"))
+      // field.addEventListener("click", () => window.location.assign("/felix/shs/abfrage-haus/"))
 
       // field.append(container)
       if (this.withFieldCallback !== undefined) this.withFieldCallback(this.fields[i])
@@ -195,7 +195,7 @@ export class InfoField {
     // with click listeneer
     // field.style.textDecoration = "underline"
     // field.style.cursor = "pointer"
-    // field.addEventListener("click", () => window.location.assign("/felix/shs/funnel/abfrage-haus/"))
+    // field.addEventListener("click", () => window.location.assign("/felix/shs/abfrage-haus/"))
 
     // field.append(container)
   }

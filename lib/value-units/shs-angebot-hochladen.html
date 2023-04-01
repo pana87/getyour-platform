@@ -55,20 +55,18 @@
     import {DateField} from "/js/DateField.js"
     import {TelField} from "/js/TelField.js"
 
-    const localStorageId = Request.localStorageId()
-    const urlId = window.location.pathname.split("/")[4]
+    const urlId = window.location.pathname.split("/")[3]
 
     const getOffer = {}
-    getOffer.url = "/consumer/v1/"
+    getOffer.url = "/consumer/1/closed/"
     getOffer.method = "get"
-    getOffer.type = "offers"
-    getOffer.security = "closed"
-    getOffer.localStorageId = localStorageId
-    getOffer.urlId = urlId
+    getOffer.type = "offer"
+    getOffer.email = await Request.email()
+    getOffer.localStorageId = await Request.localStorageId()
     const res = await Request.middleware(getOffer)
 
     if (res.status !== 200) {
-      window.location.assign("/felix/shs/match-maker/hersteller-vergleich/")
+      window.location.assign("/felix/shs/hersteller-vergleich/")
       throw new Error("offer not found")
     }
 
@@ -177,14 +175,14 @@
         Helper.addOverlay()
         Helper.setWaitCursor()
         const registerLead = {}
-        registerLead.url = "/consumer/v1/"
+        registerLead.url = "/consumer/1/closed/"
         registerLead.method = "register"
         registerLead.type = "lead"
-        registerLead.security = "closed"
         registerLead.contactType = contactType[0].value
         registerLead.phone = phone
         registerLead.date = date
-        registerLead.localStorageId = localStorageId
+        registerLead.email = await Request.email()
+        registerLead.localStorageId = await Request.localStorageId()
         await Request.sequence(registerLead)
         alert("Ihre Anfrage wurde erfolgreich weitergeleitet.\n\nSobald Ihr neuer persönlicher Ansprechpartner Ihren Terminvorschlag bestätigt, erhalten Sie eine Benachrichtigung per E-Mail.")
         Helper.setDefaultCursor()
@@ -218,7 +216,7 @@
       div.style.cursor = "pointer"
       div.addEventListener("mouseover", () => div.style.backgroundColor = "rgb(180, 9, 10)")
       div.addEventListener("mouseout", () => div.style.backgroundColor = "#be090a")
-      div.addEventListener("click", () => window.location.assign(`/felix/shs/checklist/${urlId}/print/`))
+      div.addEventListener("click", () => window.location.assign(`/felix/shs/${urlId}/print/`))
     })
 
 
@@ -359,50 +357,52 @@
               throw new Error("pdf too large")
             }
 
-            const email = Request.email()
-            await Request.verifyEmail(email)
+            const email = await Request.email()
 
-            const registerOffer = {}
-            registerOffer.url = "/consumer/v1/"
-            registerOffer.method = "register"
-            registerOffer.type = "offer"
-            registerOffer.security = "closed"
-            registerOffer.localStorageId = localStorageId
-            registerOffer.offer = offer
-            registerOffer.offer.value.file = {}
-            registerOffer.offer.value.file.name = `${offer.producer.name}-${Date.now()}.pdf`
-            registerOffer.offer.value.file.createdAt = Date.now()
-            registerOffer.offer.value.file.type = input.files[0].type
-            registerOffer.offer.value.file.size = dataUrlSize
-            registerOffer.offer.value.file.dataURL = event.target.result
-            await Request.sequence(registerOffer)
+            await Request.withVerifiedEmail(email, async () => {
+              const registerOffer = {}
+              registerOffer.url = "/consumer/1/closed/"
+              registerOffer.method = "register"
+              registerOffer.type = "offer"
+              registerOffer.email = email
+              registerOffer.localStorageId = await Request.localStorageId()
+              registerOffer.offer = offer
+              registerOffer.offer.value.file = {}
+              registerOffer.offer.value.file.name = `${offer.producer.name}-${Date.now()}.pdf`
+              registerOffer.offer.value.file.createdAt = Date.now()
+              registerOffer.offer.value.file.type = input.files[0].type
+              registerOffer.offer.value.file.size = dataUrlSize
+              registerOffer.offer.value.file.dataURL = event.target.result
+              await Request.sequence(registerOffer)
 
-            const getChecklist = {}
-            getChecklist.url = "/consumer/v1/"
-            getChecklist.method = "get"
-            getChecklist.type = "checklist"
-            getChecklist.security = "closed"
-            getChecklist.urlId = urlId
-            getChecklist.localStorageId = localStorageId
-            const res = await Request.middleware(getChecklist)
+              const getChecklist = {}
+              getChecklist.url = "/consumer/1/closed/"
+              getChecklist.method = "get"
+              getChecklist.type = "checklist"
+              getChecklist.urlId = urlId
+              getChecklist.email = email
+              getChecklist.localStorageId = await Request.localStorageId()
+              const res = await Request.middleware(getChecklist)
 
-            const checklist = JSON.parse(res.response)
+              const checklist = JSON.parse(res.response)
 
-            if (checklist.state === 1) {
-              checklist.state = checklist.state + 1
-            }
+              if (checklist.state === 1) {
+                checklist.state = checklist.state + 1
+              }
 
-            const registerChecklist = {}
-            registerChecklist.url = "/consumer/v1/"
-            registerChecklist.method = "register"
-            registerChecklist.type = "checklist"
-            registerChecklist.security = "closed"
-            registerChecklist.localStorageId = localStorageId
-            registerChecklist.checklist = checklist
-            await Request.sequence(registerChecklist)
+              const registerChecklist = {}
+              registerChecklist.url = "/consumer/1/closed/"
+              registerChecklist.method = "register"
+              registerChecklist.type = "checklist"
+              registerChecklist.email = email
+              registerChecklist.localStorageId = await Request.localStorageId()
+              registerChecklist.checklist = checklist
+              await Request.sequence(registerChecklist)
 
-            alert("Speichern erfolgreich..")
-            return window.location.assign(`/felix/shs/checklist/${urlId}/`)
+              alert("Speichern erfolgreich..")
+              return window.location.assign(`/felix/shs/${urlId}/`)
+            })
+
           }
           fileReader.readAsDataURL(input.files[0])
 
@@ -430,7 +430,7 @@
       eSignButton.style.cursor = "pointer"
       eSignButton.addEventListener("mouseover", () => eSignButton.style.backgroundColor = "rgb(0, 190, 83)")
       eSignButton.addEventListener("mouseout", () => eSignButton.style.backgroundColor = "rgb(0, 200, 83)")
-      eSignButton.addEventListener("click", () => window.location.assign(`/felix/shs/checklist/${urlId}/sign/`))
+      eSignButton.addEventListener("click", () => window.location.assign(`/felix/shs/${urlId}/sign/`))
       priceContainer.append(eSignButton)
 
 

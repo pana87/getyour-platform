@@ -23,6 +23,7 @@
     <h1 class="title"></h1>
 
     <div class="email"></div>
+    <div class="dsgvo"></div>
 
     <div class="login-button"></div>
 
@@ -34,6 +35,7 @@
     import { HeaderField } from "/js/HeaderField.js"
     import { Helper } from "/js/Helper.js"
     import { DivField } from "/js/DivField.js"
+    import { CheckboxField } from "/js/CheckboxField.js"
     import { EmailField } from "/js/EmailField.js"
     import { Request } from "/js/Request.js"
     import { InfoField } from "/js/InfoField.js"
@@ -80,9 +82,28 @@
       window.localStorage.setItem(emailField.name, value)
     })
 
+    const dsgvoField = new CheckboxField("dsgvo")
+    .withLabel(label => label.innerHTML = /*html*/`
+      <div style="font-size: 13px;">Ich habe die <a href="/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>
+    `)
+    .withType((input) => {
+      input.required = true
+    })
+    .onInput(async() => {
+      dsgvoField.withStorage(value => {
+        window.localStorage.setItem(dsgvoField.name, value)
+      })
+    })
+    .fromStorage((name) => window.localStorage.getItem(name))
+    dsgvoField.withStorage(value => {
+      window.localStorage.setItem(dsgvoField.name, value)
+    })
+
+
+
     const loginbutton = new DivField("login-button")
     .withType(div => {
-      div.innerHTML = "Login"
+      div.innerHTML = "Anmelden"
       div.style.backgroundColor = "#c02221"
       div.style.cursor = "pointer"
       div.style.fontSize = "21px"
@@ -97,39 +118,40 @@
     })
     .onClick(async (event) => {
       const email = await emailField.withValidValue()
-      await Request.verifyEmail(email)
+      const dsgvo = await dsgvoField.withValidValue()
+
+      // await Request.verifyEmail(email)
+
+      await Request.withVerifiedEmail(email, async () => {
 
 
+        const registerEmail = {}
+        registerEmail.url = "/consumer/open/"
+        registerEmail.method = "register"
+        registerEmail.type = "email"
+        registerEmail.localStorageId = await Request.localStorageId()
+        registerEmail.email = email
+        await Request.sequence(registerEmail)
 
-      const localStorageId = Request.localStorageId()
+        const registerVerified = {}
+        registerVerified.url = "/consumer/open/"
+        registerVerified.method = "register"
+        registerVerified.type = "verified"
+        registerVerified.email = email
+        registerVerified.localStorageId = await Request.localStorageId()
+        await Request.sequence(registerVerified)
 
-      const registerEmail = {}
-      registerEmail.url = "/consumer/v1/"
-      registerEmail.method = "register"
-      registerEmail.type = "email"
-      registerEmail.security = "open"
-      registerEmail.localStorageId = localStorageId
-      registerEmail.email = email
-      await Request.sequence(registerEmail)
+        const registerSession = {}
+        registerSession.url = "/request/register/session/"
+        registerSession.method = "register"
+        registerSession.type = "session"
+        registerSession.event = "onlogin"
+        registerSession.email = email
+        registerSession.localStorageId = await Request.localStorageId()
+        await Request.sequence(registerSession)
 
-      const registerVerified = {}
-      registerVerified.url = "/consumer/v1/"
-      registerVerified.method = "register"
-      registerVerified.type = "verified"
-      registerVerified.security = "open"
-      registerVerified.localStorageId = localStorageId
-      await Request.sequence(registerVerified)
-
-      const registerSession = {}
-      registerSession.url = "/request/register/session/"
-      registerSession.method = "register"
-      registerSession.type = "session"
-      registerSession.event = "onlogin"
-      registerSession.security = "open"
-      registerSession.localStorageId = localStorageId
-      await Request.sequence(registerSession)
-
-      await Helper.redirectUser("onlogin")
+        await Helper.redirectUser("onlogin")
+      })
     })
 
     const infoField = new InfoField("info")

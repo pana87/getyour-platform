@@ -2,6 +2,11 @@ import { Helper } from "/js/Helper.js"
 
 export class CheckboxField {
 
+  withIcon(callback) {
+    if (callback !== undefined) document.querySelectorAll(this.iconSelector).forEach(icon => callback(icon))
+    return this
+  }
+
   withField(callback) {
     if (callback !== undefined) document.querySelectorAll(this.fieldSelector).forEach(field => callback(field))
     return this
@@ -100,6 +105,7 @@ export class CheckboxField {
     labelContainer.style.margin = "21px 89px 0 34px"
 
     const info = document.createElement("img")
+    info.classList.add(this.name)
     info.src = "/public/info-gray.svg"
     info.alt = "Info"
     info.style.width = "34px"
@@ -139,6 +145,7 @@ export class CheckboxField {
     this.fieldSelector = `div[class='${this.name}']`
     this.inputSelector = `input[class='${this.name}']`
     this.labelSelector = `label[class='${this.name}']`
+    this.iconSelector = `img[class='${this.name}']`
     this.type = "checkbox"
     this.fields = Array.from(document.querySelectorAll(this.fieldSelector))
     for (let i = 0; i < this.fields.length; i++) {
