@@ -37,37 +37,53 @@ app.get("/logs/:type/",
   Request.verifyRoles([UserRole.PLATFORM_DEVELOPER]),
   Request.verifyId,
 async (req, res) => {
+  try {
 
-  if (req.params.type === "error") {
-    const doc = await nano.db.use("getyour").get("logs")
-    const errors = []
-    for (let i = 0; i < doc.logs.length; i++) {
-      if (doc.logs[i].type === req.params.type) {
-        errors.push(doc.logs[i])
+    if (req.params.type === "error") {
+      const doc = await nano.db.use("getyour").get("logs")
+      const errors = []
+      for (let i = 0; i < doc.logs.length; i++) {
+        if (doc.logs[i].type === req.params.type) {
+          errors.push(doc.logs[i])
+        }
       }
+      return res.send(errors)
     }
-    return res.send(errors)
-  }
 
-  if (req.params.type === "user") {
-    const doc = await nano.db.use("getyour").get("users")
-    return res.send(doc.users)
-  }
+    if (req.params.type === "user") {
+      const doc = await nano.db.use("getyour").get("users")
+      return res.send(doc.users)
+    }
 
+  } catch (error) {
+    await Helper.logError(error, req)
+  }
 
   return res.sendStatus(404)
 })
 
 
 app.get("/cookies/anzeigen/", async (req, res) => {
-  return res.send(req.cookies)
+  try {
+    return res.send(req.cookies)
+
+  } catch (error) {
+    await Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
 })
 
-app.get("/cookies/entfernen/", (req, res) => {
-  Object.keys(req.cookies).forEach((cookieName) => {
-    res.clearCookie(cookieName)
-  })
-  return res.sendStatus(200)
+app.get("/cookies/entfernen/", async (req, res) => {
+  try {
+    Object.keys(req.cookies).forEach((cookieName) => {
+      res.clearCookie(cookieName)
+    })
+    return res.sendStatus(200)
+
+  } catch (error) {
+    await Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
 })
 
 app.get("/felix/shs/:path/", async(req, res, next) => {
@@ -96,7 +112,13 @@ app.get("/felix/shs/:urlId/",
   Request.requireRoles([UserRole.OPERATOR]),
   Request.verifyId,
 async(req, res) => {
-  return res.send(Helper.readFileSyncToString("../lib/value-units/shs-checklist.html"))
+  try {
+    return res.send(Helper.readFileSyncToString("../lib/value-units/shs-checklist.html"))
+
+  } catch (error) {
+    await Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
 })
 
 app.get("/felix/shs/:urlId/print/",
@@ -104,8 +126,14 @@ app.get("/felix/shs/:urlId/print/",
   Request.verifySession,
   Request.requireRoles([UserRole.OPERATOR]),
   Request.verifyId,
-(req, res) => {
-  return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-drucken.html"))
+async (req, res) => {
+  try {
+    return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-drucken.html"))
+
+  } catch (error) {
+    await Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
 })
 
 app.get("/felix/shs/:urlId/sign/",
@@ -113,8 +141,14 @@ app.get("/felix/shs/:urlId/sign/",
   Request.verifySession,
   Request.requireRoles([UserRole.OPERATOR]),
   Request.verifyId,
-(req, res) => {
-  return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-digital-unterschreiben.html"))
+async (req, res) => {
+  try {
+    return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-digital-unterschreiben.html"))
+
+  } catch (error) {
+    await Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
 })
 
 
@@ -126,14 +160,19 @@ app.get("/felix/shs/:urlId/:itemIndex/",
   Request.verifyId,
 async(req, res) => {
 
-  if (req.params.itemIndex === "0") {
-    return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-ansicht.html"))
-  }
-  if (req.params.itemIndex === "1") {
-    return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-hochladen.html"))
-  }
+  try {
+    if (req.params.itemIndex === "0") {
+      return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-ansicht.html"))
+    }
+    if (req.params.itemIndex === "1") {
+      return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-hochladen.html"))
+    }
 
+  } catch (error) {
+    await Helper.logError(error, req)
+  }
   return res.sendStatus(404)
+
 })
 
 app.get("/pana/getyour/entwickler-registrieren/",
@@ -142,13 +181,26 @@ app.get("/pana/getyour/entwickler-registrieren/",
   Request.requireRoles([UserRole.PLATFORM_DEVELOPER]),
   Request.verifyId,
 async(req, res) => {
-  return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-entwickler-registrieren.html"))
+  try {
+    return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-entwickler-registrieren.html"))
+
+  } catch (error) {
+    await Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
 })
 
 
 app.get("/pana/getyour/zugang/", async(req, res) => {
-  // if value.security = open
-  return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-plattform-zugang.html"))
+
+  try {
+    return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-plattform-zugang.html"))
+
+  } catch (error) {
+    await Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
+
 })
 
 
@@ -166,12 +218,16 @@ app.post("/producer/v1/",
 
 
 
+
+
+
+
   // interactions
   Request.verifyName,
   Request.registerName,
 
   Request.getPlatforms,
-
+  Request.getErrors,
 
   Request.render,
 async(req, res) => {
@@ -213,74 +269,73 @@ async(req, res) => {
 app.post("/request/register/session/",
   Request.verifyId,
 
-  async (req, res) => {
-    try {
-      const {localStorageId, event} = req.body
-      const {doc, user} = await Helper.findUser(user => user.id === localStorageId)
-      if (Helper.objectIsEmpty(user)) throw new Error("user is empty")
-      if (Helper.stringIsEmpty(user.id)) throw new Error("user id is empty")
+async (req, res) => {
+  try {
+    const {localStorageId, event} = req.body
+    const {doc, user} = await Helper.findUser(user => user.id === localStorageId)
+    if (Helper.objectIsEmpty(user)) throw new Error("user is empty")
+    if (Helper.stringIsEmpty(user.id)) throw new Error("user id is empty")
 
-      if (event === "onlogin") {
-        if (Helper.arrayIsEmpty(user.roles)) return res.sendStatus(200)
-      }
-      if (Helper.arrayIsEmpty(user.roles)) throw new Error("user roles is empty")
-
-      const salt = Helper.generateRandomBytes(32)
-      if (Helper.arrayIsEmpty(salt)) throw new Error("salt is empty")
-      const jwtToken = jwt.sign({
-        roles: user.roles,
-        id: user.id,
-      }, process.env.JWT_SECRET, { expiresIn: '2h' })
-      if (Helper.stringIsEmpty(jwtToken)) throw new Error("jwt token is empty")
-      const saltDigest = Helper.digest(JSON.stringify(salt))
-      if (Helper.stringIsEmpty(saltDigest)) throw new Error("salt digest is empty")
-      const jwtTokenDigest = Helper.digest(jwtToken)
-      if (Helper.stringIsEmpty(jwtTokenDigest)) throw new Error("jwt token digest is empty")
-      const sessionToken = Helper.digest(JSON.stringify({
-        id: user.id,
-        pin: randomPin,
-        salt: saltDigest,
-        jwt: jwtTokenDigest,
-      }))
-      if (Helper.stringIsEmpty(sessionToken)) throw new Error("session token is empty")
-
-
-      if (user.session === undefined) {
-        user.session = {}
-        user.session.createdAt = Date.now()
-        user.session.pin = randomPin
-        user.session.salt = saltDigest
-        user.session.jwt = jwtTokenDigest
-        user.session.counter = 1
-      } else {
-        user.session.session = {}
-        user.session.createdAt = Date.now()
-        user.session.pin = randomPin
-        user.session.salt = saltDigest
-        user.session.jwt = jwtTokenDigest
-        user.session.counter = user.session.counter + 1
-      }
-      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
-
-
-      const sessionLength = 120 * 60000
-      res.cookie("jwtToken", jwtToken, {
-        maxAge: sessionLength,
-        httpOnly: true,
-        sameSite: "lax",
-      })
-      res.cookie("sessionToken", sessionToken, {
-        maxAge: sessionLength,
-        httpOnly: true,
-        sameSite: "lax",
-      })
-      return res.sendStatus(200)
-    } catch (error) {
-      await Helper.logError(error, req)
+    if (event === "onlogin") {
+      if (Helper.arrayIsEmpty(user.roles)) return res.sendStatus(200)
     }
-    return res.sendStatus(404)
+    if (Helper.arrayIsEmpty(user.roles)) throw new Error("user roles is empty")
+
+    const salt = Helper.generateRandomBytes(32)
+    if (Helper.arrayIsEmpty(salt)) throw new Error("salt is empty")
+    const jwtToken = jwt.sign({
+      roles: user.roles,
+      id: user.id,
+    }, process.env.JWT_SECRET, { expiresIn: '2h' })
+    if (Helper.stringIsEmpty(jwtToken)) throw new Error("jwt token is empty")
+    const saltDigest = Helper.digest(JSON.stringify(salt))
+    if (Helper.stringIsEmpty(saltDigest)) throw new Error("salt digest is empty")
+    const jwtTokenDigest = Helper.digest(jwtToken)
+    if (Helper.stringIsEmpty(jwtTokenDigest)) throw new Error("jwt token digest is empty")
+    const sessionToken = Helper.digest(JSON.stringify({
+      id: user.id,
+      pin: randomPin,
+      salt: saltDigest,
+      jwt: jwtTokenDigest,
+    }))
+    if (Helper.stringIsEmpty(sessionToken)) throw new Error("session token is empty")
+
+
+    if (user.session === undefined) {
+      user.session = {}
+      user.session.createdAt = Date.now()
+      user.session.pin = randomPin
+      user.session.salt = saltDigest
+      user.session.jwt = jwtTokenDigest
+      user.session.counter = 1
+    } else {
+      user.session.session = {}
+      user.session.createdAt = Date.now()
+      user.session.pin = randomPin
+      user.session.salt = saltDigest
+      user.session.jwt = jwtTokenDigest
+      user.session.counter = user.session.counter + 1
+    }
+    await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
+
+
+    const sessionLength = 120 * 60000
+    res.cookie("jwtToken", jwtToken, {
+      maxAge: sessionLength,
+      httpOnly: true,
+      sameSite: "lax",
+    })
+    res.cookie("sessionToken", sessionToken, {
+      maxAge: sessionLength,
+      httpOnly: true,
+      sameSite: "lax",
+    })
+    return res.sendStatus(200)
+  } catch (error) {
+    await Helper.logError(error, req)
   }
-)
+  return res.sendStatus(404)
+})
 
 app.post("/request/verify/pin/",
 async (req, res) => {
@@ -292,7 +347,7 @@ async (req, res) => {
     if (expiredTimeMs < Date.now()) throw new Error("user pin expired")
     return res.sendStatus(200)
   } catch (error) {
-    Helper.logError(error, req)
+    await Helper.logError(error, req)
   }
   return res.sendStatus(404)
 })
@@ -320,7 +375,7 @@ async (req, res) => {
     })
     return res.sendStatus(200)
   } catch (error) {
-    Helper.logError(error, req)
+    await Helper.logError(error, req)
   }
   return res.sendStatus(404)
 })
@@ -330,7 +385,7 @@ app.get("/home/", async (req, res, next) => {
   try {
     return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-login.html"))
   } catch (error) {
-    Helper.logError(error, req)
+    await Helper.logError(error, req)
   }
   return res.sendStatus(404)
 })
@@ -339,7 +394,7 @@ app.get("/impressum/", async (req, res, next) => {
   try {
     return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-impressum.html"))
   } catch (error) {
-    Helper.logError(error, req)
+    await Helper.logError(error, req)
   }
   return res.sendStatus(404)
 })
@@ -348,7 +403,7 @@ app.get("/datenschutz/", async (req, res, next) => {
   try {
     return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-datenschutz.html"))
   } catch (error) {
-    Helper.logError(error, req)
+    await Helper.logError(error, req)
   }
   return res.sendStatus(404)
 })
@@ -357,7 +412,7 @@ app.get("/nutzervereinbarung/", async (req, res, next) => {
   try {
     return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-nutzervereinbarung.html"))
   } catch (error) {
-    Helper.logError(error, req)
+    await Helper.logError(error, req)
   }
   return res.sendStatus(404)
 })
@@ -369,7 +424,7 @@ async (req, res, next) => {
     if (Helper.stringIsEmpty(user.name)) throw new Error("user name is empty")
     return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-profile-page.html"))
   } catch (error) {
-    Helper.logError(error, req)
+    await Helper.logError(error, req)
   }
   return res.sendStatus(404)
 })

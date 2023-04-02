@@ -75,15 +75,15 @@ export class Helper {
       const popup = document.createElement("div")
       popup.style.height = "100vh"
       popup.style.width = "100%"
-      popup.style.zIndex = "2"
+      popup.style.zIndex = "1"
       popup.style.position = "fixed"
       popup.style.top = "0"
       popup.style.left = "0"
       popup.style.background = "white"
       popup.style.display = "flex"
       popup.style.flexDirection = "column"
-      popup.style.justifyContent = "space-between"
-      popup.style.overflowY = "scroll"
+      // popup.style.justifyContent = "space-between"
+      // popup.style.overflowY = "scroll"
       popup.style.opacity = 0
 
       callback(popup)
