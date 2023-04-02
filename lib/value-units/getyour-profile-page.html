@@ -204,23 +204,17 @@
                   overlay.append(header)
 
 
-
-                  /// get error logs and create list from it
-
+                  // lazy loading errors provide offset and limit
                   const getErrors = {}
                   getErrors.url = "/producer/v1/"
                   getErrors.method = "get"
                   getErrors.type = "error"
                   getErrors.email = await Request.email()
                   getErrors.localStorageId = await Request.localStorageId()
-                  // console.log(getErrors.localStorageId);
                   const res = await Request.middleware(getErrors)
-
-                  // console.log(res);
 
                   if (res.status === 200) {
                     const errors = JSON.parse(res.response)
-                    // console.log(errors);
 
                     const buttons = document.createElement("div")
                     buttons.style.overflowY = "scroll"
@@ -233,7 +227,6 @@
                       const button = document.createElement("div")
                       button.style.display = "flex"
                       button.style.flexWrap = "wrap"
-                      // button.style.justifyContent = "space-between"
                       button.style.alignItems = "center"
                       button.style.margin = "21px 34px"
                       button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
@@ -242,13 +235,10 @@
                       button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
                       button.style.cursor = "pointer"
                       button.addEventListener("click", () => {
-                        // console.log("hi");
-
 
                         const popup = Helper.popup(overlay => {
-                          // overlay.innerHTML = ""
-                          const header = document.createElement("div")
 
+                          const header = document.createElement("div")
                           header.style.position = "fixed"
                           header.style.bottom = "0"
                           header.style.left = "0"
@@ -302,14 +292,16 @@
                         `
                       }
                       button.append(message)
-
                       buttons.append(button)
-
-
                     }
-
                     overlay.append(buttons)
                   }
+                  // lazy loading errors
+
+
+
+
+
 
                 })
               })
@@ -344,7 +336,7 @@
               button.style.cursor = "pointer"
               button.addEventListener("click", () => {
                 // new overlay ???
-                const popup = Helper.popup(overlay => {
+                const popup = Helper.popup(async overlay => {
                   const header = document.createElement("div")
                   header.style.position = "fixed"
                   header.style.bottom = "0"
@@ -369,6 +361,124 @@
                   title.style.fontSize = "21px"
                   header.append(title)
                   overlay.append(header)
+
+
+                  const getUsers = {}
+                  getUsers.url = "/producer/v1/"
+                  getUsers.method = "get"
+                  getUsers.type = "user"
+                  getUsers.email = await Request.email()
+                  getUsers.localStorageId = await Request.localStorageId()
+                  const res = await Request.middleware(getUsers)
+
+                  // if (res.status === 200) {
+                  //   // const html = Helper.jsonToHtml(JSON.parse(res.response))
+                  //   // console.log(html);
+                  //   // overlay.append(html)
+                  //   const response = JSON.parse(res.response)
+                  //   console.log(response);
+                  //   // Helper.jsonToHtml(response, overlay)
+                  //   // overlay.append(Helper.jsonToHtml(response))
+                  // }
+
+                  if (res.status === 200) {
+                    const users = JSON.parse(res.response)
+
+                    const buttons = document.createElement("div")
+                    buttons.style.overflowY = "scroll"
+                    buttons.style.paddingBottom = "144px"
+
+                    for (let i = 0; i < users.length; i++) {
+                      const user = users[i]
+
+
+                      const button = document.createElement("div")
+                      button.style.display = "flex"
+                      button.style.flexWrap = "wrap"
+                      button.style.alignItems = "center"
+                      button.style.margin = "21px 34px"
+                      button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                      button.style.borderRadius = "13px"
+                      button.style.border = "0.3px solid black"
+                      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                      button.style.cursor = "pointer"
+                      button.addEventListener("click", () => {
+
+                        const popup = Helper.popup(overlay => {
+
+                          const header = document.createElement("div")
+                          header.style.position = "fixed"
+                          header.style.bottom = "0"
+                          header.style.left = "0"
+                          header.style.width = "100%"
+                          header.style.display = "flex"
+                          header.style.justifyContent = "flex-start"
+                          header.style.alignItems = "center"
+                          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                          header.style.background = "white"
+                          header.style.cursor = "pointer"
+                          header.addEventListener("click", () => overlay.remove())
+
+                          const logo = document.createElement("img")
+                          logo.src = "/public/getyour-logo.svg"
+                          logo.alt = "Getyour Popup"
+                          logo.style.margin = "34px"
+                          header.append(logo)
+                          const title = document.createElement("div")
+                          title.innerHTML = user.email
+                          title.style.fontWeight = "bold"
+                          title.style.fontSize = "21px"
+                          header.append(title)
+                          overlay.append(header)
+
+                          const keys = document.createElement("div")
+                          // keys.style.display = "flex"
+                          keys.style.padding = "21px 34px"
+                          keys.style.overflow = "auto"
+
+                          // const keyContainer = document.createElement("div")
+                          // keyContainer.style.margin = "13px 34px"
+
+                          for (let i = 0; i < user.keys.length; i++) {
+                            // const key = user.keys[i]
+
+                            const key = document.createElement("p")
+                            // console.log(key);
+                            key.innerHTML = user.keys[i]
+                            keys.append(key)
+                          }
+
+                          // keys.innerHTML = user.keys
+                          overlay.append(keys)
+
+
+                        })
+                      })
+
+                      // const icon = document.createElement("img")
+                      // icon.style.margin = "13px 34px"
+                      // icon.style.width = "34px"
+                      // icon.src = "/public/error.svg"
+                      // icon.alt = "Fehlerliste"
+                      // button.append(icon)
+
+                      const message = document.createElement("div")
+                      message.style.margin = "13px 34px"
+                      message.innerHTML = /*html*/`
+                        <div>Email: <b>${user.email}</b></div>
+                        <div>Verified: <b>${user.verified}</b></div>
+                        <div>Rollen: <b>${user.roles.join(", ")}</b></div>
+                        <div>Anmeldeversuche: <b>${user.sessionCounter}</b></div>
+                        <div>Registriert am: <b>${Helper.millisToDateString(user.createdAt)}</b></div>
+                      `
+                      button.append(message)
+                      buttons.append(button)
+                    }
+                    overlay.append(buttons)
+                  }
+
+
+
 
                 })
               })
@@ -559,7 +669,7 @@
               c11.543-0.705,24.29-8.628,32.735-21.633C512.148,265.935,514.072,251.322,509.814,240.836z"/>
           </g>
 
-          <text x="256" y="320" text-anchor="middle" alignment-baseline="middle" font-size="233" font-weight="bold">0</text>
+          <text x="256" y="256" text-anchor="middle" alignment-baseline="middle" font-size="233" font-weight="bold">0</text>
           </svg>
 
 
