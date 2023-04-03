@@ -22,21 +22,6 @@ function _testing() {
 }
 _testing()
 
-// function _allowUser() {
-//   console.log("hia");
-//   const requestWithJwtVerificationRx = Request.withJwtVerfication("/secured/with/jwt/token/")
-//   console.log(requestWithJwtVerificationRx);
-// }
-// _allowUser()
-// function stringToUint(string) {
-//   var string = btoa(unescape(encodeURIComponent(string))),
-//       charList = string.split(''),
-//       uintArray = [];
-//   for (var i = 0; i < charList.length; i++) {
-//       uintArray.push(charList[i].charCodeAt(0));
-//   }
-//   return new Uint8Array(uintArray);
-// }
 
 // function uintToString(uintArray) {
 //   var encodedString = String.fromCharCode.apply(null, uintArray),

@@ -3,6 +3,62 @@ import {FooterField} from "/js/FooterField.js"
 
 export class Helper {
 
+  // static jsonToHtml(json, element) {
+  //   const div = document.createElement('div');
+  //   div.style.fontFamily = 'sans-serif';
+  //   div.style.fontSize = '14px';
+  //   div.style.lineHeight = '1.5em';
+  //   div.style.color = '#333';
+  //   div.style.padding = '20px';
+  //   div.style.border = '1px solid #ccc';
+  //   div.style.borderRadius = '5px';
+
+  //   for (const key in json) {
+  //     if (json.hasOwnProperty(key)) {
+  //       let value = json[key];
+  //       const childDiv = document.createElement('div');
+  //       const strong = document.createElement('strong');
+  //       strong.innerText = `${key}: `;
+  //       childDiv.appendChild(strong);
+
+  //       if (typeof value === 'object') {
+  //         value = this.jsonToHtml(value);
+  //       }
+
+  //       const span = document.createElement('span');
+  //       span.innerText = value;
+  //       childDiv.appendChild(span);
+  //       div.appendChild(childDiv);
+  //     }
+  //   }
+
+  //   // return div.outerHTML;
+  //   console.log(element);
+  //   element.append(div)
+  // }
+
+
+  // static jsonToHtml(json) {
+  //   let html = '';
+
+  //   for (const key in json) {
+  //     if (json.hasOwnProperty(key)) {
+  //       let value = json[key];
+
+  //       // If the value is an object, recursively call jsonToHtml
+  //       if (typeof value === 'object') {
+  //         value = this.jsonToHtml(value);
+  //       }
+
+  //       html += `<div><strong>${key}:</strong> ${value}</div>`;
+  //     }
+  //   }
+
+  //   html = `<div style="font-family: sans-serif; font-size: 14px; line-height: 1.5em; color: #333; padding: 20px; border: 1px solid #ccc; border-radius: 5px;">${html}</div>`;
+
+  //   return html;
+  // }
+
   static calculateDataUrlSize(dataUrl) {
     var base64Marker = ';base64,'
     var dataSize
@@ -72,25 +128,23 @@ export class Helper {
 
   static popup(callback) {
     if (callback !== undefined) {
-      const popup = document.createElement("div")
-      popup.style.height = "100vh"
-      popup.style.width = "100%"
-      popup.style.zIndex = "1"
-      popup.style.position = "fixed"
-      popup.style.top = "0"
-      popup.style.left = "0"
-      popup.style.background = "white"
-      popup.style.display = "flex"
-      popup.style.flexDirection = "column"
-      // popup.style.justifyContent = "space-between"
-      // popup.style.overflowY = "scroll"
-      popup.style.opacity = 0
+      const overlay = document.createElement("div")
+      overlay.style.height = "100vh"
+      overlay.style.width = "100%"
+      overlay.style.zIndex = "1"
+      overlay.style.position = "fixed"
+      overlay.style.top = "0"
+      overlay.style.left = "0"
+      overlay.style.background = "white"
+      overlay.style.display = "flex"
+      overlay.style.flexDirection = "column"
+      overlay.style.opacity = 0
 
-      callback(popup)
+      callback(overlay)
 
-      document.body.append(popup)
+      document.body.append(overlay)
 
-      const animation = popup.animate([
+      const animation = overlay.animate([
         { opacity: 0, transform: 'translateY(13px)' },
         { opacity: 1, transform: 'translateY(0)' },
       ], {
@@ -98,7 +152,10 @@ export class Helper {
         easing: 'ease-in-out',
         fill: "forwards"
       })
-      return popup
+
+      window.scrollTo(0, 1)
+
+      return overlay
     }
   }
 

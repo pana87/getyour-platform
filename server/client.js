@@ -32,10 +32,10 @@ app.use(express.static(clientLocation.absolutePath))
 
 
 app.get("/logs/:type/",
-  Request.requireJwtToken,
+  Request.verifyJwtToken,
   Request.verifySession,
   Request.verifyRoles([UserRole.PLATFORM_DEVELOPER]),
-  Request.verifyId,
+  Request.verifyJwtId,
 async (req, res) => {
   try {
 
@@ -107,10 +107,11 @@ app.get("/felix/shs/:path/", async(req, res, next) => {
 })
 
 app.get("/felix/shs/:urlId/",
-  Request.requireJwtToken,
+  Request.verifyJwtToken,
   Request.verifySession,
-  Request.requireRoles([UserRole.OPERATOR]),
-  Request.verifyId,
+  Request.verifyRoles([UserRole.OPERATOR]),
+  Request.verifyJwtId,
+  Request.verifyUrlId,
 async(req, res) => {
   try {
     return res.send(Helper.readFileSyncToString("../lib/value-units/shs-checklist.html"))
@@ -122,10 +123,11 @@ async(req, res) => {
 })
 
 app.get("/felix/shs/:urlId/print/",
-  Request.requireJwtToken,
+  Request.verifyJwtToken,
   Request.verifySession,
-  Request.requireRoles([UserRole.OPERATOR]),
-  Request.verifyId,
+  Request.verifyRoles([UserRole.OPERATOR]),
+  Request.verifyJwtId,
+  Request.verifyUrlId,
 async (req, res) => {
   try {
     return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-drucken.html"))
@@ -137,10 +139,12 @@ async (req, res) => {
 })
 
 app.get("/felix/shs/:urlId/sign/",
-  Request.requireJwtToken,
+  Request.verifyJwtToken,
   Request.verifySession,
-  Request.requireRoles([UserRole.OPERATOR]),
-  Request.verifyId,
+  Request.verifyRoles([UserRole.OPERATOR]),
+  Request.verifyJwtId,
+  Request.verifyUrlId,
+
 async (req, res) => {
   try {
     return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-digital-unterschreiben.html"))
@@ -154,10 +158,12 @@ async (req, res) => {
 
 
 app.get("/felix/shs/:urlId/:itemIndex/",
-  Request.requireJwtToken,
+  Request.verifyJwtToken,
   Request.verifySession,
-  Request.requireRoles([UserRole.OPERATOR]),
-  Request.verifyId,
+  Request.verifyRoles([UserRole.OPERATOR]),
+  Request.verifyJwtId,
+  Request.verifyUrlId,
+
 async(req, res) => {
 
   try {
@@ -176,10 +182,10 @@ async(req, res) => {
 })
 
 app.get("/pana/getyour/entwickler-registrieren/",
-  Request.requireJwtToken,
+  Request.verifyJwtToken,
   Request.verifySession,
-  Request.requireRoles([UserRole.PLATFORM_DEVELOPER]),
-  Request.verifyId,
+  Request.verifyRoles([UserRole.PLATFORM_DEVELOPER]),
+  Request.verifyJwtId,
 async(req, res) => {
   try {
     return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-entwickler-registrieren.html"))
@@ -211,12 +217,11 @@ app.get("/", (req, res) => res.redirect("/home/"))
 app.post("/producer/v1/",
 
   // security level closed
-  Request.requireJwtToken,
+  Request.verifyJwtToken,
   Request.verifySession,
-  Request.verifyId,
+  Request.verifyClosedPostRequest,
   Request.verifyRoles([UserRole.PLATFORM_DEVELOPER]),
-
-
+  Request.verifyProducerEmail,
 
 
 
@@ -226,8 +231,9 @@ app.post("/producer/v1/",
   Request.verifyName,
   Request.registerName,
 
-  Request.getPlatforms,
+  // Request.getPlatforms,
   Request.getErrors,
+  Request.getUsers,
 
   Request.render,
 async(req, res) => {
@@ -235,7 +241,8 @@ async(req, res) => {
 })
 
 app.post("/consumer/open/",
-  Request.verifyId,
+  // Request.verifyOpenRegistration,
+  Request.verifyOpenPostRequest,
   Request.registerEmail,
   Request.registerVerified,
   Request.redirectUser,
@@ -249,9 +256,10 @@ async(req, res) => {
 
 app.post(`/consumer/${UserRole.OPERATOR}/closed/`,
 
-  Request.requireJwtToken,
+  Request.verifyJwtToken,
   Request.verifySession,
-  Request.verifyId,
+  Request.verifyJwtId,
+  Request.verifyClosedPostRequest,
   Request.verifyRoles([UserRole.OPERATOR]),
 
   Request.registerFunnel,
@@ -267,8 +275,7 @@ async(req, res) => {
 
 
 app.post("/request/register/session/",
-  Request.verifyId,
-
+  Request.verifyOpenPostRequest,
 async (req, res) => {
   try {
     const {localStorageId, event} = req.body

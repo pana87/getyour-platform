@@ -685,19 +685,112 @@
       .withOptions(["Nein", "Ja"])
       .withRequired(1)
       .onInfoClick(() => {
-        Helper.popupInfo({
-          withImage: (img) => {
-            img.src = "/felix/shs/public/ausfuehrunguk.svg"
-            img.alt = "Unterkonstruktion Ausführung"
-            img.style.width = "100%"
-            img.style.maxWidth = "344px"
-          },
-          withText: (p) => {
-            p.style.fontSize = "21px"
-            p.style.lineHeight = "1.4"
-            p.innerHTML = "Wenn die Unterkonstruktion beispielsweise aus Holz besteht, muss sichergestellt werden, dass es stabil genug ist, um das Gewicht der Energiesysteme zu tragen. Auch die Befestigungsmethoden müssen entsprechend ausgewählt werden. Bei einer Stahlbetonkonstruktion sind andere Befestigungsmethoden erforderlich als bei einer Holzkonstruktion."
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.background = "rgb(0, 135, 0)"
+          header.style.display = "flex"
+          header.style.alignItems = "center"
+          header.style.padding = "34px"
+
+          const infoIcon = document.createElement("img")
+          infoIcon.src = "/public/info-white.svg"
+          infoIcon.alt = "Info"
+
+          const infoTitle = document.createElement("div")
+          infoTitle.innerHTML = "Wissenswertes"
+          infoTitle.style.fontSize = "21px"
+          infoTitle.style.margin = "21px"
+          infoTitle.style.color = "rgb(234, 234, 234)"
+
+          header.append(infoIcon, infoTitle)
+          overlay.append(header)
+
+
+          const imageContainer = document.createElement("div")
+          imageContainer.style.display = "flex"
+          imageContainer.style.flexWrap = "wrap"
+          imageContainer.style.justifyContent = "center"
+          imageContainer.style.margin = "34px"
+
+          {
+            const image = document.createElement("img")
+            image.src = "/felix/shs/public/ausfuehrunguk.svg"
+            image.alt = "Unterkonstruktion Ausführung"
+            image.style.width = "100%"
+            image.style.maxWidth = "344px"
+            imageContainer.append(image)
+            overlay.append(imageContainer)
           }
+
+          {
+            const image = document.createElement("img")
+            image.src = "/felix/shs/public/ausfuehrungukzweite.svg"
+            image.alt = "Unterkonstruktion Ausführung"
+            image.style.width = "100%"
+            image.style.maxWidth = "344px"
+            imageContainer.append(image)
+            overlay.append(imageContainer)
+          }
+
+          const textContainer = document.createElement("div")
+          textContainer.style.margin = "34px"
+
+          const text = document.createElement("p")
+          text.style.fontSize = "21px"
+          text.style.lineHeight = "1.4"
+          text.innerHTML = "Wenn die Unterkonstruktion beispielsweise aus Holz besteht, muss sichergestellt werden, dass es stabil genug ist, um das Gewicht der Energiesysteme zu tragen. Auch die Befestigungsmethoden müssen entsprechend ausgewählt werden. Bei einer Stahlbetonkonstruktion sind andere Befestigungsmethoden erforderlich als bei einer Holzkonstruktion."
+          textContainer.append(text)
+          overlay.append(textContainer)
+
+
+          const buttonContainer = document.createElement("div")
+          buttonContainer.style.display = "flex"
+          buttonContainer.style.justifyContent = "space-between"
+          buttonContainer.style.margin = "34px"
+
+          const helpfulButton = document.createElement("div")
+          helpfulButton.innerHTML = "👍"
+          helpfulButton.style.background = "rgb(45,201,55)"
+          helpfulButton.style.display = "flex"
+          helpfulButton.style.justifyContent = "center"
+          helpfulButton.style.alignItems = "center"
+          helpfulButton.style.height = "55px"
+          helpfulButton.style.width = "89px"
+          helpfulButton.style.color = "white"
+          helpfulButton.style.borderRadius = "8px"
+          helpfulButton.style.fontSize = "21px"
+          helpfulButton.style.cursor = "pointer"
+          helpfulButton.addEventListener("click", () => overlay.remove())
+
+          const notHelpfulButton = document.createElement("div")
+          notHelpfulButton.innerHTML = "👎"
+          notHelpfulButton.style.display = "flex"
+          notHelpfulButton.style.justifyContent = "center"
+          notHelpfulButton.style.alignItems = "center"
+          notHelpfulButton.style.width = "89px"
+          notHelpfulButton.style.height = "55px"
+          notHelpfulButton.style.background = "rgb(204,50,50)"
+          notHelpfulButton.style.borderRadius = "8px"
+          notHelpfulButton.style.fontSize = "21px"
+          notHelpfulButton.style.cursor = "pointer"
+          notHelpfulButton.addEventListener("click", () => overlay.remove())
+
+          buttonContainer.append(notHelpfulButton, helpfulButton)
+
+
+
+          overlay.append(buttonContainer)
+          overlay.style.overflow = "auto"
+
+
         })
+
+
+
       })
       .onInput(async() => {
         hausUKUeberstand.withStorage(options => {
