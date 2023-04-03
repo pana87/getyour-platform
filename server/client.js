@@ -234,6 +234,7 @@ app.post("/producer/v1/",
   // Request.getPlatforms,
   Request.getErrors,
   Request.getUsers,
+  Request.deleteUser,
 
   Request.render,
 async(req, res) => {

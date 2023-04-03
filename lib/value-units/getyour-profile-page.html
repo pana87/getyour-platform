@@ -401,8 +401,38 @@
                       button.style.borderRadius = "13px"
                       button.style.border = "0.3px solid black"
                       button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                      button.style.cursor = "pointer"
-                      button.addEventListener("click", () => {
+
+                      const icon = document.createElement("img")
+                      icon.style.margin = "13px 34px"
+                      icon.style.width = "34px"
+                      icon.src = "/public/delete.svg"
+                      icon.alt = "Löschen"
+                      icon.style.cursor = "pointer"
+                      icon.addEventListener("click", async () => {
+                        const deleteUser = {}
+                        deleteUser.url = "/producer/v1/"
+                        deleteUser.method = "delete"
+                        deleteUser.type = "user"
+                        deleteUser.emailToDelete = user.email
+                        deleteUser.email = await Request.email()
+                        deleteUser.localStorageId = await Request.localStorageId()
+                        const res = await Request.middleware(deleteUser)
+
+                        if (res.status === 200) button.remove()
+                      })
+                      button.append(icon)
+
+                      const message = document.createElement("div")
+                      message.style.margin = "13px 34px"
+                      message.innerHTML = /*html*/`
+                        <div>Email: <b>${user.email}</b></div>
+                        <div>Verified: <b>${user.verified}</b></div>
+                        <div>Rollen: <b>${user.roles.join(", ")}</b></div>
+                        <div>Anmeldeversuche: <b>${user.sessionCounter}</b></div>
+                        <div>Registriert am: <b>${Helper.millisToDateString(user.createdAt)}</b></div>
+                      `
+                      message.style.cursor = "pointer"
+                      message.addEventListener("click", () => {
 
                         const popup = Helper.popup(overlay => {
 
@@ -433,7 +463,7 @@
 
                           const keys = document.createElement("div")
                           // keys.style.display = "flex"
-                          keys.style.padding = "21px 34px"
+                          keys.style.padding = "21px 34px 144px 34px"
                           keys.style.overflow = "auto"
 
                           // const keyContainer = document.createElement("div")
@@ -455,22 +485,6 @@
                         })
                       })
 
-                      // const icon = document.createElement("img")
-                      // icon.style.margin = "13px 34px"
-                      // icon.style.width = "34px"
-                      // icon.src = "/public/error.svg"
-                      // icon.alt = "Fehlerliste"
-                      // button.append(icon)
-
-                      const message = document.createElement("div")
-                      message.style.margin = "13px 34px"
-                      message.innerHTML = /*html*/`
-                        <div>Email: <b>${user.email}</b></div>
-                        <div>Verified: <b>${user.verified}</b></div>
-                        <div>Rollen: <b>${user.roles.join(", ")}</b></div>
-                        <div>Anmeldeversuche: <b>${user.sessionCounter}</b></div>
-                        <div>Registriert am: <b>${Helper.millisToDateString(user.createdAt)}</b></div>
-                      `
                       button.append(message)
                       buttons.append(button)
                     }
