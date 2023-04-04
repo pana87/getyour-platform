@@ -427,7 +427,7 @@ export class Helper {
     redirectUser.method = "redirect"
     redirectUser.type = "user"
     redirectUser.event = event
-    redirectUser.referrer = document.referrer
+    redirectUser.referer = document.referrer
     redirectUser.location = window.location.href
     redirectUser.email = await Request.email()
     redirectUser.localStorageId = await Request.localStorageId()

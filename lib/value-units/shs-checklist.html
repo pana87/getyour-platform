@@ -47,6 +47,7 @@
     getChecklist.method = "get"
     getChecklist.type = "checklist"
     getChecklist.email = await Request.email()
+    getChecklist.referer = document.referrer
     getChecklist.localStorageId = await Request.localStorageId()
     getChecklist.urlId = window.location.pathname.split("/")[3]
     const res = await Request.middleware(getChecklist)

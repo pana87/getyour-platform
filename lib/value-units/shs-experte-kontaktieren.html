@@ -48,7 +48,7 @@
     import {TelField} from "/js/TelField.js"
     import {DateField} from "/js/DateField.js"
 
-    const localStorageId = Request.localStorageId()
+    const localStorageId = await Request.localStorageId()
 
 
     const header = new HeaderField()
@@ -154,7 +154,7 @@
         Helper.setWaitCursor()
         try {
           const registerLead = {}
-          registerLead.url = "/consumer/1/closed/
+          registerLead.url = "/consumer/1/closed/"
           registerLead.consumer = "operator"
           registerLead.method = "register"
           registerLead.type = "lead"
@@ -162,7 +162,9 @@
           registerLead.contactType = contactType[0].value
           registerLead.phone = phone
           registerLead.date = date
-          registerLead.localStorageId = localStorageId
+          registerLead.email = await Request.email()
+          registerLead.referer = document.referrer
+          registerLead.localStorageId = await Request.localStorageId()
           const res = await Request.middleware(registerLead)
 
           if (res.status !== 200) return window.location.assign("/home/")
