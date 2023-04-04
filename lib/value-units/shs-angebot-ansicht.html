@@ -63,6 +63,7 @@
     getOffer.method = "get"
     getOffer.type = "offer"
     getOffer.email = await Request.email()
+    getOffer.referer = document.referrer
     getOffer.localStorageId = await Request.localStorageId()
     const res = await Request.middleware(getOffer)
 
@@ -452,6 +453,7 @@
         getChecklist.method = "get"
         getChecklist.type = "checklist"
         getChecklist.email = await Request.email()
+        getChecklist.referer = document.referrer
         getChecklist.localStorageId = await Request.localStorageId()
         getChecklist.urlId = urlId
         const res = await Request.middleware(getChecklist)
@@ -470,6 +472,7 @@
             registerOffer.type = "offer"
             registerOffer.offer = offer
             registerOffer.email = email
+            registerOffer.referer = document.referrer
             registerOffer.localStorageId = await Request.localStorageId()
             await Request.sequence(registerOffer)
 
@@ -478,6 +481,7 @@
             registerChecklist.method = "register"
             registerChecklist.type = "checklist"
             registerChecklist.email = email
+            registerChecklist.referer = document.referrer
             registerChecklist.localStorageId = await Request.localStorageId()
             registerChecklist.checklist = checklist
             await Request.sequence(registerChecklist)

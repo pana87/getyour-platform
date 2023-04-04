@@ -94,8 +94,7 @@
       })
       .onClick(async (event) => {
         const username = await usernameField.withValidValue()
-        const email = Request.email()
-        const localStorageId = Request.localStorageId()
+        const localStorageId = await Request.localStorageId()
 
         // first verify that name does not exist before requesting the email
         const verifyName = {}
@@ -103,8 +102,9 @@
         verifyName.method = "verify"
         verifyName.type = "name"
         verifyName.security = "closed"
-        verifyName.localStorageId = localStorageId
-        verifyName.email = email
+        verifyName.referer = document.referrer
+        verifyName.localStorageId = await Request.localStorageId()
+        verifyName.email = await Request.email()
         verifyName.name = username
         const res = await Request.middleware(verifyName)
 
@@ -114,22 +114,25 @@
           return
         }
 
+        const email = await Request.email()
+        await Request.withVerifiedEmail(email, async () => {
+          const registerName = {}
+          registerName.url = "/producer/v1/"
+          registerName.method = "register"
+          registerName.type = "name"
+          registerName.security = "closed"
+          registerName.name = username
+          registerName.referer = document.referrer
+          registerName.localStorageId = await Request.localStorageId()
+          registerName.email = email
+          await Request.sequence(registerName)
 
-        await Request.verifyEmail(email)
 
-        const registerName = {}
-        registerName.url = "/producer/v1/"
-        registerName.method = "register"
-        registerName.type = "name"
-        registerName.security = "closed"
-        registerName.name = username
-        registerName.localStorageId = localStorageId
-        registerName.email = email
-        await Request.sequence(registerName)
+          alert("Speichern erfolgreich..")
+          Helper.redirectUser()
 
+        })
 
-        alert("Speichern erfolgreich..")
-        Helper.redirectUser()
 
 
       })

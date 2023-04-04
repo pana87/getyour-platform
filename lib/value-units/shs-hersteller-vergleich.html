@@ -95,6 +95,7 @@
       createOffer.name = "bestprime"
       createOffer.funnel = funnel
       createOffer.email = await Request.email()
+      createOffer.referer = document.referrer
       createOffer.localStorageId = await Request.localStorageId()
       const res = await Request.middleware(createOffer)
 

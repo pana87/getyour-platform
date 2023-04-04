@@ -63,12 +63,16 @@
         window.location.assign("/felix/shs/qualifizierung/")
         throw new Error("funnel not found")
       }
+      if (funnel.owner === undefined) funnel.owner = {}
+      funnel.owner.id = await Request.localStorageId()
 
       const offer = Helper.findOffer(offer => offer.selected === true)
       if (offer === undefined) {
         window.location.assign("/felix/shs/hersteller-vergleich/")
         throw new Error("offer not found")
       }
+      if (offer.owner === undefined) offer.owner = {}
+      offer.owner.id = await Request.localStorageId()
 
       const headerField = new HeaderField()
       .withImage(img => {
@@ -336,6 +340,7 @@
             registerEmail.method = "register"
             registerEmail.type = "email"
             registerEmail.email = email
+            registerEmail.referer = document.referrer
             registerEmail.localStorageId = await Request.localStorageId()
             await Request.sequence(registerEmail)
 
@@ -344,6 +349,7 @@
             registerVerified.method = "register"
             registerVerified.type = "verified"
             registerVerified.email = email
+            registerVerified.referer = document.referrer
             registerVerified.localStorageId = await Request.localStorageId()
             await Request.sequence(registerVerified)
 
@@ -353,6 +359,7 @@
             registerOperator.type = "role"
             registerOperator.consumer = "operator"
             registerOperator.email = email
+            registerOperator.referer = document.referrer
             registerOperator.localStorageId = await Request.localStorageId()
             await Request.sequence(registerOperator)
 
@@ -361,6 +368,7 @@
             registerSession.method = "register"
             registerSession.type = "session"
             registerSession.email = email
+            registerSession.referer = document.referrer
             registerSession.localStorageId = await Request.localStorageId()
             await Request.sequence(registerSession)
 
@@ -370,6 +378,7 @@
             registerFunnel.type = "funnel"
             registerFunnel.email = email
             registerFunnel.localStorageId = await Request.localStorageId()
+            registerFunnel.referer = document.referrer
             funnel.selected = true
             registerFunnel.funnel = funnel
             await Request.sequence(registerFunnel)
@@ -379,6 +388,7 @@
             registerOffer.method = "register"
             registerOffer.type = "offer"
             registerOffer.email = email
+            registerOffer.referer = document.referrer
             registerOffer.localStorageId = await Request.localStorageId()
             registerOffer.offer = offer
             await Request.sequence(registerOffer)
@@ -389,6 +399,7 @@
             registerChecklist.type = "checklist"
             registerChecklist.email = email
             registerChecklist.localStorageId = await Request.localStorageId()
+            registerChecklist.referer = document.referrer
             await Request.sequence(registerChecklist)
 
             alert("Speichern erfolgreich..")

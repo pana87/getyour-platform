@@ -247,7 +247,7 @@ app.post("/consumer/open/",
   Request.registerEmail,
   Request.registerVerified,
   Request.redirectUser,
-  Request.getFunnel,
+  Request.createFunnel,
   Request.createOffer,
   Request.getPlatforms,
   Request.registerRole,
@@ -317,7 +317,6 @@ async (req, res) => {
       user.session.jwt = jwtTokenDigest
       user.session.counter = 1
     } else {
-      user.session.session = {}
       user.session.createdAt = Date.now()
       user.session.pin = randomPin
       user.session.salt = saltDigest

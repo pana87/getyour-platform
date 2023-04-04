@@ -47,6 +47,7 @@
       getOffer.method = "get"
       getOffer.type = "offer"
       getOffer.email = await Request.email()
+      getOffer.referer = document.referrer
       getOffer.localStorageId = await Request.localStorageId()
       const res = await Request.middleware(getOffer)
 

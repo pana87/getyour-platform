@@ -62,6 +62,7 @@
     getOffer.method = "get"
     getOffer.type = "offer"
     getOffer.email = await Request.email()
+    getOffer.referer = document.referrer
     getOffer.localStorageId = await Request.localStorageId()
     const res = await Request.middleware(getOffer)
 
@@ -182,6 +183,7 @@
         registerLead.phone = phone
         registerLead.date = date
         registerLead.email = await Request.email()
+        registerLead.referer = document.referrer
         registerLead.localStorageId = await Request.localStorageId()
         await Request.sequence(registerLead)
         alert("Ihre Anfrage wurde erfolgreich weitergeleitet.\n\nSobald Ihr neuer persönlicher Ansprechpartner Ihren Terminvorschlag bestätigt, erhalten Sie eine Benachrichtigung per E-Mail.")
@@ -365,6 +367,7 @@
               registerOffer.method = "register"
               registerOffer.type = "offer"
               registerOffer.email = email
+              registerOffer.referer = document.referrer
               registerOffer.localStorageId = await Request.localStorageId()
               registerOffer.offer = offer
               registerOffer.offer.value.file = {}
@@ -381,6 +384,7 @@
               getChecklist.type = "checklist"
               getChecklist.urlId = urlId
               getChecklist.email = email
+              getChecklist.referer = document.referrer
               getChecklist.localStorageId = await Request.localStorageId()
               const res = await Request.middleware(getChecklist)
 
@@ -395,6 +399,7 @@
               registerChecklist.method = "register"
               registerChecklist.type = "checklist"
               registerChecklist.email = email
+              registerChecklist.referer = document.referrer
               registerChecklist.localStorageId = await Request.localStorageId()
               registerChecklist.checklist = checklist
               await Request.sequence(registerChecklist)

@@ -120,8 +120,6 @@
       const email = await emailField.withValidValue()
       const dsgvo = await dsgvoField.withValidValue()
 
-      // await Request.verifyEmail(email)
-
       await Request.withVerifiedEmail(email, async () => {
 
 
@@ -129,6 +127,7 @@
         registerEmail.url = "/consumer/open/"
         registerEmail.method = "register"
         registerEmail.type = "email"
+        registerEmail.referer = document.referrer
         registerEmail.localStorageId = await Request.localStorageId()
         registerEmail.email = email
         await Request.sequence(registerEmail)
@@ -138,6 +137,7 @@
         registerVerified.method = "register"
         registerVerified.type = "verified"
         registerVerified.email = email
+        registerVerified.referer = document.referrer
         registerVerified.localStorageId = await Request.localStorageId()
         await Request.sequence(registerVerified)
 
@@ -147,6 +147,7 @@
         registerSession.type = "session"
         registerSession.event = "onlogin"
         registerSession.email = email
+        registerSession.referer = document.referrer
         registerSession.localStorageId = await Request.localStorageId()
         await Request.sequence(registerSession)
 

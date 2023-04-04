@@ -36,6 +36,7 @@
       renderPlatformList.method = "get"
       renderPlatformList.type = "platforms"
       renderPlatformList.name = window.location.pathname.split("/")[1]
+      renderPlatformList.referer = document.referrer
       renderPlatformList.localStorageId = await Request.localStorageId()
       renderPlatformList.email = await Request.email()
       const listRx = await Request.middleware(renderPlatformList)
@@ -105,6 +106,7 @@
       const renderNav = {}
       renderNav.url = "/producer/v1/"
       renderNav.method = "render"
+      renderNav.referer = document.referrer
       renderNav.localStorageId = await Request.localStorageId()
       renderNav.email = await Request.email()
       const nav = await Request.middleware(renderNav)
@@ -210,6 +212,7 @@
                   getErrors.method = "get"
                   getErrors.type = "error"
                   getErrors.email = await Request.email()
+                  getErrors.referer = document.referrer
                   getErrors.localStorageId = await Request.localStorageId()
                   const res = await Request.middleware(getErrors)
 
@@ -265,7 +268,7 @@
 
                           const stack = document.createElement("div")
                           stack.style.margin = "21px 34px"
-                          stack.innerHTML = error.error
+                          stack.innerHTML = error.stack
                           overlay.append(stack)
 
 
@@ -282,25 +285,21 @@
                       const message = document.createElement("div")
                       message.style.margin = "13px 34px"
                       message.innerHTML = /*html*/`
-                        <div>${error.message}</div>
+                        <div>Fehler: <b>${error.message}</b></div>
+                        <div>Erstellt am: <b>${new Date(error.createdAt).toISOString()}</b></div>
+                        <div>Anfrage: <b>${error.method}</b></div>
+                        <div>Server: <b>${error.endpoint}</b></div>
+                        <div>Client: <b>${error.location}</b></div>
+                        <div>Herkunft: <b>${error.referer}</b></div>
+                        <div>IP: <b>${error.ip}</b></div>
+                        <div>Browser: <b>${error.userAgent}</b></div>
                       `
-                      if (error.user !== undefined) {
-                        message.innerHTML = /*html*/`
-                          <div>${error.user.method}</div>
-                          <div><b>${error.message}</b></div>
-                          <div>${error.user.location}</div>
-                        `
-                      }
+
                       button.append(message)
                       buttons.append(button)
                     }
                     overlay.append(buttons)
                   }
-                  // lazy loading errors
-
-
-
-
 
 
                 })
@@ -368,6 +367,7 @@
                   getUsers.method = "get"
                   getUsers.type = "user"
                   getUsers.email = await Request.email()
+                  getUsers.referer = document.referrer
                   getUsers.localStorageId = await Request.localStorageId()
                   const res = await Request.middleware(getUsers)
 
@@ -415,6 +415,7 @@
                         deleteUser.type = "user"
                         deleteUser.emailToDelete = user.email
                         deleteUser.email = await Request.email()
+                        deleteUser.referer = document.referrer
                         deleteUser.localStorageId = await Request.localStorageId()
                         const res = await Request.middleware(deleteUser)
 

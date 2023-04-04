@@ -28,14 +28,15 @@
       import { Request } from "/js/Request.js"
       import { DivField } from "/js/DivField.js"
 
-      const getFunnel = {}
-      getFunnel.url = "/consumer/open/"
-      getFunnel.method = "get"
-      getFunnel.name = "shs"
-      getFunnel.type = "funnel"
-      getFunnel.email = await Request.email()
-      getFunnel.localStorageId = await Request.localStorageId()
-      const res = await Request.middleware(getFunnel)
+      const createFunnel = {}
+      createFunnel.url = "/consumer/open/"
+      createFunnel.method = "create"
+      createFunnel.name = "shs"
+      createFunnel.type = "funnel"
+      createFunnel.email = await Request.email()
+      createFunnel.referer = document.referrer
+      createFunnel.localStorageId = await Request.localStorageId()
+      const res = await Request.middleware(createFunnel)
 
       if (res.status !== 200) {
         alert("Leider können wir Ihnen im Moment kein Angebot machen. Bitte melden Sie sich nochmal an und versuchen es erneut. Sollten Sie weiterhin kein Angebot erhalten, bitte kontaktieren Sie uns unter 'datenschutz@get-your.de'")

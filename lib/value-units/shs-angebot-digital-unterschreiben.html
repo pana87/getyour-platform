@@ -40,6 +40,7 @@
     getOffer.method = "get"
     getOffer.type = "offer"
     getOffer.email = await Request.email()
+    getOffer.referer = document.referrer
     getOffer.localStorageId = await Request.localStorageId()
     const res = await Request.middleware(getOffer)
 
@@ -101,7 +102,6 @@
       button.addEventListener("mouseout", () => button.style.backgroundColor = "#f7aa20")
 
       button.addEventListener("click", async() => {
-
         if (signField.isEmpty === undefined) return alert("Sie müssen erst unterschreiben.")
 
         const email = await Request.email()
@@ -112,6 +112,7 @@
           registerOffer.method = "register"
           registerOffer.type = "offer"
           registerOffer.email = email
+          registerOffer.referer = document.referrer
           registerOffer.localStorageId = await Request.localStorageId()
           registerOffer.offer = offer
           registerOffer.offer.value.eSign = {}
@@ -130,6 +131,7 @@
           getChecklist.type = "checklist"
           getChecklist.urlId = urlId
           getChecklist.email = email
+          getChecklist.referer = document.referrer
           getChecklist.localStorageId = await Request.localStorageId()
           const res = await Request.middleware(getChecklist)
 
@@ -144,6 +146,7 @@
           registerChecklist.method = "register"
           registerChecklist.type = "checklist"
           registerChecklist.email = email
+          registerChecklist.referer = document.referrer
           registerChecklist.localStorageId = await Request.localStorageId()
           registerChecklist.checklist = checklist
           await Request.sequence(registerChecklist)
