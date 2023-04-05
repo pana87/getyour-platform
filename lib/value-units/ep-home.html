@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+  <title>Startseite</title>
+
+  <style>
+    body {
+      margin: 0;
+      line-height: 1.2;
+      font-family: sans-serif;
+    }
+  </style>
+
+
+</head>
+<body>
+
+  <script type="module">
+
+    import {Helper} from "/js/Helper.js"
+
+    {
+      const header = document.createElement("header")
+      header.style.position = "fixed"
+      header.style.bottom = "0"
+      header.style.left = "0"
+      header.style.backgroundColor = "white"
+      header.style.zIndex = "1"
+      header.style.width = "100%"
+      header.style.display = "flex"
+      header.style.flexWrap = "wrap"
+      header.style.alignItems = "center"
+      header.style.justifyContent = "space-between"
+      header.style.boxShadow = "0 -3px 5px rgba(0, 0, 0, 0.13)"
+
+      const leftContainer = document.createElement("div")
+      leftContainer.style.display = "flex"
+      leftContainer.style.alignItems = "center"
+      leftContainer.style.flexWrap = "wrap"
+
+      const logo = document.createElement("img")
+      logo.src = "/felix/shs/public/ep-logo.svg"
+      logo.alt = "Energie Plattform"
+      logo.style.width = "55px"
+      logo.style.margin = "21px 0 21px 34px"
+      logo.style.cursor = "pointer"
+      logo.addEventListener("click", () => window.history.back())
+      leftContainer.append(logo)
+
+      const name = document.createElement("div")
+      name.innerHTML = "Energie Plattform"
+      name.style.padding = "21px 34px"
+      name.style.fontSize = "21px"
+      name.style.color = "#7bc043"
+      name.style.cursor = "pointer"
+
+      name.addEventListener("click", () => {
+
+        Helper.popup(overlay => {
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/public/ep-logo.svg"
+          logo.alt = "EP"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = `/`
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+
+          const buttons = document.createElement("div")
+          buttons.style.overflow = "auto"
+          buttons.style.paddingBottom = "144px"
+
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign("/pana/getyour/nutzervereinbarung/"))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/handshake.svg"
+            icon.alt = "Nutzervereinbarung"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Nutzervereinbarung"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign("/pana/getyour/datenschutz/"))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/security.svg"
+            icon.alt = "Sicherheit"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Datenschutz Richtilinien"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign("/pana/getyour/impressum/"))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/company.svg"
+            icon.alt = "Unternehmen"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Impressum"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+
+            button.addEventListener("click", () => window.location.assign("/"))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/entry.svg"
+            icon.alt = "Zugang"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.style.margin = "13px 34px"
+            title.style.fontSize = "21px"
+            title.innerHTML = "Plattform Zugänge"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+
+          overlay.append(buttons)
+
+        })
+
+
+      })
+
+      leftContainer.append(name)
+      header.append(leftContainer)
+      document.body.append(header)
+    }
+
+    {
+      const image = document.createElement("img")
+      image.src = "/public/lightbulb.jpg"
+      image.alt = "Energie"
+      image.style.width = "100%"
+      image.style.opacity = "0.2"
+      image.style.position = "fixed"
+      image.style.top = "0"
+      image.style.left = "0"
+      image.style.zIndex = "-1"
+      document.body.append(image)
+    }
+
+    const container = document.createElement("div")
+    container.style.margin = "144px 34px"
+    container.style.paddingBottom = "144px"
+    container.style.lineHeight = "1.5"
+
+    {
+      const title = document.createElement("h1")
+      title.innerHTML = `<span style="color: #7F7F7F;">Senken Sie Ihre</span> <span style="color: #7BC043;">Energiekosten! <span style="color: #22247E;">Kostenfreier</span> <span style="color: #7F7F7F;">Vergleich</span>`
+      container.append(title)
+    }
+
+    {
+      const hr = document.createElement("hr")
+      hr.style.color = "#7BC043"
+      container.append(hr)
+    }
+
+    {
+      const paragraph = document.createElement("p")
+      paragraph.innerHTML = "Als Hausbesitzer können Sie hier einfach und schnell die Daten Ihres Hauses eingeben und Angebote von verschiedenen Herstellern vergleichen."
+      container.append(paragraph)
+    }
+
+    {
+      const paragraph = document.createElement("p")
+      paragraph.innerHTML = "Und das Beste: Nach dem Kauf kümmern wir uns um das komplette Projektmanagement, damit Sie sicher sein können, dass alles reibungslos abläuft."
+      container.append(paragraph)
+    }
+
+    {
+      const buttonContainer = document.createElement("div")
+      buttonContainer.style.display = "flex"
+      buttonContainer.style.justifyContent = "flex-end"
+
+      const button = document.createElement("div")
+      button.style.width = "144px"
+      button.style.display = "flex"
+      button.style.justifyContent = "center"
+      button.style.alignItems = "center"
+      button.style.padding = "21px 34px"
+      button.style.borderRadius = "8px"
+      button.style.backgroundColor = "#7BC043"
+      button.innerHTML = "Jetzt Vergleichen!"
+      button.style.cursor = "pointer"
+      button.addEventListener("click", () => window.location.assign("/felix/energie-plattform/angebot-liste/"))
+      buttonContainer.append(button)
+      container.append(buttonContainer)
+    }
+
+    document.body.append(container)
+
+  </script>
+</body>
+</html>

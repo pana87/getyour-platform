@@ -77,8 +77,9 @@ export class SelectionField {
             }
           }
           Helper.setNotValidStyle(select)
-          console.error(`field '${this.name}' is required`)
-          return
+          const error = new Error(`field required: '${this.name}'`)
+          error.fieldName = this.name
+          return reject(error)
         }
         Helper.setValidStyle(select)
         return resolve(optionsSelected)
@@ -135,6 +136,7 @@ export class SelectionField {
 
   #setSelect(field) {
     field.innerHTML = ""
+    field.id = this.name
     field.classList.add(this.name)
     field.style.position = "relative"
     field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
@@ -165,18 +167,25 @@ export class SelectionField {
     label.style.fontSize = "21px"
     labelContainer.append(label)
     field.append(labelContainer)
+    this.label = label
 
     const select = document.createElement("select")
     select.classList.add(this.name)
     select.style.margin = "21px 89px 21px 34px"
     select.style.fontSize = "21px"
-    // select.style.maxWidth = "300px"
     field.append(select)
+    this.select = select
+    return field
   }
 
-  constructor(name) {
+  constructor(name, parent) {
     if (Helper.stringIsEmpty(name)) throw new Error("name is empty")
     this.name = name
+
+    this.field = document.createElement("div")
+    this.field = this.#setSelect(this.field)
+    if (parent !== undefined) parent.append(this.field)
+
     this.fieldSelector = `div[class='${this.name}']`
     this.inputSelector = `select[class='${this.name}']`
     this.labelSelector = `label[class='${this.name}']`

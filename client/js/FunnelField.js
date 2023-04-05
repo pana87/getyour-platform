@@ -12,11 +12,17 @@ export class FunnelField {
     return this
   }
 
-  withFunnel(funnel) {
-    this.funnel = funnel
+  build() {
     document.querySelectorAll(this.fieldSelector).forEach(field => this.#setFunnel(field))
     return this
   }
+
+  withQuestions(questions) {
+    this.questionIndex = 0
+    this.questions = questions
+    return this
+  }
+
 
   withClickOnAnswerEventListener(callback) {
     this.clickOnAnswer = callback
@@ -25,8 +31,9 @@ export class FunnelField {
 
   #setFunnel(field) {
     field.innerHTML = ""
+    field.classList.add(this.name)
 
-    if (this.funnel.questions[this.funnel.questionIndex] === undefined) {
+    if (this.questions[this.questionIndex] === undefined) {
       if (this.withFunnelCompletedCallback !== undefined) this.withFunnelCompletedCallback()
       return
     }
@@ -43,7 +50,7 @@ export class FunnelField {
 
     const questionText = document.createElement("p")
     // questionText.classList.add("question-text")
-    questionText.innerHTML = this.funnel.questions[this.funnel.questionIndex].question
+    questionText.innerHTML = this.questions[this.questionIndex].question
     questionText.style.textAlign = "center"
     questionText.style.lineHeight = "2"
 
@@ -61,7 +68,7 @@ export class FunnelField {
     answerContainer.style.alignItems = "center"
     answerContainer.style.marginTop = "5%"
 
-    this.funnel.questions[this.funnel.questionIndex].answers.forEach((answer, index) => {
+    this.questions[this.questionIndex].answers.forEach((answer, index) => {
       const answerBox = document.createElement("div")
       // answerBox.classList.add("answer-box")
       answerBox.style.display = "flex"
@@ -87,17 +94,19 @@ export class FunnelField {
 
       answerBox.addEventListener("click", () => {
         // save to storage
-        if (this.funnel.value === undefined) this.funnel.value = {}
-        this.funnel.value[`q${this.funnel.questionIndex}`] = index
-        // Helper.setFunnel(this.funnel)
-        window.localStorage.setItem(this.funnel.storage, JSON.stringify(this.funnel))
+        // if (this.value === undefined) this.value = {}
+        // this.value[`q${this.questionIndex}`] = index
+        // // Helper.setFunnel(this.funnel)
+        // window.localStorage.setItem("ep", JSON.stringify(this.funnel))
 
         if (this.clickOnAnswer !== undefined) {
-          this.clickOnAnswer(this.funnel.questionIndex, index)
-        } else {
-          this.funnel.questionIndex = this.funnel.questionIndex + 1
-          this.#setFunnel(field)
+          this.clickOnAnswer(this.questionIndex, index)
         }
+
+
+        this.questionIndex = this.questionIndex + 1
+        this.#setFunnel(field)
+
       })
 
       const answerImage = document.createElement("img")
@@ -123,19 +132,24 @@ export class FunnelField {
     container.append(answerContainer)
 
     field.append(container)
+    return field
   }
 
-  constructor(name) {
-    try {
-      if (Helper.stringIsEmpty(name)) throw new Error("field name is empty")
-      this.name = name
-      this.fieldSelector = `div[class='${this.name}']`
-      this.type = "funnel"
-      const fields = document.querySelectorAll(this.fieldSelector)
-      // this.fields = Array.from(document.querySelectorAll(this.fieldSelector))
-      if (fields.length <= 0) throw new Error(`field '${this.name}' not found`)
-    } catch (error) {
-      console.error(error)
-    }
+  constructor(questions, parent) {
+    // if (Helper.stringIsEmpty(name)) throw new Error("field name is empty")
+    // this.name = name
+    this.questionIndex = 0
+    this.questions = questions
+
+
+    this.field = document.createElement("div")
+    this.field = this.#setFunnel(this.field)
+    if (parent !== undefined) parent.append(this.field)
+
+    this.fieldSelector = `div[class='${this.name}']`
+    this.type = "funnel"
+    // const fields = document.querySelectorAll(this.fieldSelector)
+    // // this.fields = Array.from(document.querySelectorAll(this.fieldSelector))
+    // if (fields.length <= 0) throw new Error(`field '${this.name}' not found`)
   }
 }

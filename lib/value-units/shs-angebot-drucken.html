@@ -139,7 +139,7 @@
         offerId.innerHTML = `<b style="margin-right: 21px;">Angebotsnummer:</b> ${offer.id}`
 
         const offerCreateAt = document.createElement("div")
-        offerCreateAt.innerHTML = `<b style="margin-right: 36px;">Angebotsdatum:</b> ${Helper.millisToDateString(offer.createdAt)}`
+        offerCreateAt.innerHTML = `<b style="margin-right: 36px;">Angebotsdatum:</b> ${Helper.millisToDateString(offer.created)}`
 
         const offerExpiresAt = document.createElement("div")
         offerExpiresAt.innerHTML = `<b style="margin-right: 77px;">Gültig bis:</b> ${Helper.millisToDateString(offer.expiresAt)}`

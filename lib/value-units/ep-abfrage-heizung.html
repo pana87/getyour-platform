@@ -1,0 +1,3129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>Energie Portal Abfrage Heizung</title>
+
+
+    <style>
+      body {
+        margin: 0;
+        line-height: 1.2;
+        font-family: sans-serif;
+        padding-bottom: 144px;
+      }
+    </style>
+
+
+  </head>
+  <body>
+
+
+    <header></header>
+
+    <h1 class="heating-title"></h1>
+    <div class="heizungWomitHeizen"></div>
+    <div class="heizungWieHeizen"></div>
+    <div class="heizungVorlauf"></div>
+    <div class="heizungWarm"></div>
+    <div class="heizungKosten"></div>
+
+
+    <h2 class="location-title"></h2>
+    <div class="heizungWaermePumpeBild"></div>
+    <div class="heizungWasserSpeicherBild"></div>
+    <div class="heizungStromSpeicherBild"></div>
+    <div class="heizungBetriebsTemperaturBekannt"></div>
+    <div class="heizungEintrittZehnMeter"></div>
+    <div class="heizungGleichesGebaeude"></div>
+    <div class="heizungGleicherRaum"></div>
+    <div class="heizungMehrAlsZwanzigMeter"></div>
+
+
+    <h2 class="planning-title"></h2>
+    <div class="heizungSpeicherKellerEtage"></div>
+    <div class="heizungSpeicherErsteEtage"></div>
+    <div class="heizungSpeicherZweiteEtage"></div>
+    <div class="heizungSpeicherDritteEtage"></div>
+
+
+    <h2 class="meter-cabinet-title"></h2>
+    <div class="heizungZaehlerKellerEtage"></div>
+    <div class="heizungZaehlerErsteEtage"></div>
+    <div class="heizungZaehlerZweiteEtage"></div>
+    <div class="heizungZaehlerDritteEtage"></div>
+
+
+    <script type="module">
+      import { HeaderField } from "/js/HeaderField.js"
+      import { CheckboxField } from "/js/CheckboxField.js"
+      import { DivField } from "/js/DivField.js"
+      import { FileField } from "/js/FileField.js"
+      import { Helper } from "/js/Helper.js"
+      import { NumberField } from "/js/NumberField.js"
+      import { SelectionField } from "/js/SelectionField.js"
+      import { Request } from "/js/Request.js"
+
+      const urlId = window.location.pathname.split("/")[4]
+
+      const storageName = "epFunnel"
+      let funnel = JSON.parse(window.sessionStorage.getItem(storageName))
+      {
+        const get = {}
+        get.url = "/get/funnel/closed/4/"
+        get.tag = storageName
+        get.urlId = urlId
+        get.localStorageId = await Request.localStorageId()
+        get.localStorageEmail = await Request.email()
+        get.location = window.location.href
+        get.referer = document.referrer
+        const res = await Request.middleware(get)
+
+        if (res.status === 200) {
+          funnel = JSON.parse(res.response)
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        }
+      }
+      if (funnel === null) {
+        window.location.assign(`/felix/ep/qualifizierung/${urlId}/4/`)
+        throw new Error("funnel not found")
+      }
+
+
+      const header = document.querySelector("header")
+      header.style.position = "fixed"
+      header.style.bottom = "0"
+      header.style.left = "0"
+      header.style.backgroundColor = "white"
+      header.style.width = "100%"
+      header.style.display = "flex"
+      header.style.flexWrap = "wrap"
+      header.style.alignItems = "center"
+      header.style.zIndex = "1"
+      header.style.justifyContent = "space-between"
+      header.style.boxShadow = "0 -3px 5px rgba(0, 0, 0, 0.13)"
+
+      const leftContainer = document.createElement("div")
+      leftContainer.style.display = "flex"
+      leftContainer.style.alignItems = "center"
+      leftContainer.style.flexWrap = "wrap"
+
+      const logo = document.createElement("img")
+      logo.src = "/felix/shs/public/ep-logo.svg"
+      logo.alt = "Energie Portal"
+      logo.style.width = "55px"
+      logo.style.margin = "21px 0 21px 34px"
+      logo.style.cursor = "pointer"
+      logo.addEventListener("click", () => window.history.back())
+      leftContainer.append(logo)
+
+      const name = document.createElement("div")
+      name.innerHTML = "Energie Portal"
+      name.style.padding = "21px 34px"
+      name.style.fontSize = "21px"
+      name.style.color = "#7bc043"
+      name.style.cursor = "pointer"
+      name.addEventListener("click", () => {
+
+
+
+        Helper.popup(overlay => {
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Energie Portal"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+
+          const buttons = document.createElement("div")
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign(`/felix/ep/qualifizierung/${urlId}/4/`))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/refresh.svg"
+            icon.alt = "Neustart"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Neustart"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign(`/felix/ep/abfrage-haus/${urlId}/4/`))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/refresh.svg"
+            icon.alt = "Neustart"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Angaben zum Haus"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign(`/felix/ep/abfrage-heizung/${urlId}/4/`))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/refresh.svg"
+            icon.alt = "Neustart"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Angaben zur Heizung"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+
+
+          {
+
+            async function callback(event) {
+
+              try {
+                for (let i = 0; i < fields.length; i++) {
+                  await fields[i].withValidValue()
+                }
+
+
+                Helper.addOverlay()
+                Helper.setWaitCursor()
+                const funnel = JSON.parse(window.sessionStorage.getItem(storageName))
+                {
+                  const register = {}
+                  register.url = "/register/funnel/closed/4/"
+                  register.funnel = funnel
+                  register.tag = storageName
+                  register.urlId = urlId
+                  register.localStorageId = await Request.localStorageId()
+                  register.localStorageEmail = await Request.email()
+                  register.location = window.location.href
+                  register.referer = document.referrer
+                  const res = await Request.middleware(register)
+
+                  if (res.status === 200) {
+                    alert("Speichern erfolgreich..")
+                  }
+                }
+
+
+                window.location.assign(`/felix/ep/abfrage-strom/${urlId}/4/`)
+              } catch (error) {
+                alert(`Feld '${error.fieldName}' ist notwendig.`)
+                Helper.removeOverlay(overlay)
+                Helper.setDefaultCursor()
+                document.getElementById(error.fieldName).scrollIntoView({behavior: 'smooth'})
+              }
+
+            }
+
+
+
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", callback)
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/proceed-2.svg"
+            icon.alt = "Neustart"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Speichern und Weiter"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+
+
+
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/handshake.svg"
+            icon.alt = "Nutzervereinbarung"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Nutzervereinbarung"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign("/datenschutz/"))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/security.svg"
+            icon.alt = "Nutzervereinbarung"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Datenschutz Richtilinien"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign("/impressum/"))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/company.svg"
+            icon.alt = "Nutzervereinbarung"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Impressum"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+          overlay.append(buttons)
+
+        })
+
+
+      })
+      leftContainer.append(name)
+      header.append(leftContainer)
+
+
+
+
+
+
+      document.querySelectorAll(".heating-title").forEach(title => {
+        title.innerHTML = "Heizungsanlage"
+        title.style.margin = "21px 34px"
+        title.style.fontWeight = "normal"
+      })
+
+      const heizungWomitHeizen = new SelectionField("heizungWomitHeizen")
+      .withLabel(label => label.innerHTML = "Womit heizen Sie aktuell")
+      .withOptions(["Erdgas", "Heizöl", "Wärmepumpe", "Holz/Kohle", "Pellets", "Flüssiggas", "Strom", "Andere"])
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Wenn wir wissen, wie der Kunde derzeit heizt, können wir die Leistung der neuen Heizung oder Wärmepumpe anpassen. Wenn der Kunde beispielsweise derzeit eine Ölheizung verwendet, benötigt er möglicherweise eine leistungsstärkere Wärmepumpe als jemand, der mit einer elektrischen Heizung heizt."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        heizungWomitHeizen.withStorage(value => {
+          funnel[heizungWomitHeizen.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungWomitHeizen.withStorage(value => {
+        funnel[heizungWomitHeizen.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+
+      const heizungWieHeizen = new SelectionField("heizungWieHeizen")
+      .withLabel(label => label.innerHTML = "Wie heizen Sie")
+      .withOptions(["Radiatoren/Konvektoren", "Flachheizkörper", "Fußboden-/Wandheizung", "Andere"])
+      .withType(select => {
+        select.disabled = true
+        const q9 = funnel.q9
+        if (q9 === 0) {
+          select.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Falls der Kunde bereits eine bestehende Heizung hat, die in gutem Zustand ist, können wir möglicherweise das vorhandene Heizsystem mit dem neuen Energiesystem kombinieren, um die Effizienz zu maximieren und die Kosten zu senken. Durch die Verwendung eines Energiesystems, das auf die spezifischen Bedürfnisse des Kunden zugeschnitten ist, können wir möglicherweise die Heizkosten senken und dem Kunden langfristig Einsparungen bringen."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+
+      })
+      .onInput(async() => {
+        heizungWieHeizen.withStorage(value => {
+          funnel[heizungWieHeizen.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungWieHeizen.withStorage(value => {
+        funnel[heizungWieHeizen.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const heizungVorlauf = new NumberField("heizungVorlauf")
+      .withLabel(label => label.innerHTML = "Vorlauftemperatur ihrer Heizung (min)")
+      .withType(number => {
+        number.disabled = true
+        const q9 = funnel.q9
+        if (q9 === 0) {
+          number.disabled = false
+          number.placeholder = "in Grad"
+          number.required = true
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Eine Wärmepumpe muss genügend Heizleistung liefern, um das Haus bei jeder Außentemperatur zu heizen, die in der Region üblich ist. Wenn die Vorlauftemperatur zu hoch ist, benötigt die Wärmepumpe mehr Energie, um diese Temperatur zu erreichen, was zu einem höheren Energieverbrauch führen kann. Wenn die Vorlauftemperatur zu niedrig ist, kann die Heizleistung der Wärmepumpe nicht ausreichen, um das Haus bei kaltem Wetter zu heizen."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        heizungVorlauf.withStorage(value => {
+          funnel[heizungVorlauf.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungVorlauf.withStorage(value => {
+        funnel[heizungVorlauf.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+
+      const heizungWarm = new SelectionField("heizungWarm")
+      .withLabel(label => label.innerHTML = "Wie wird Warmwasser erzeugt")
+      .withOptions(["Zentral über Heizung", "Separat (z.B. Durchlauferhitzer)", "Solarthermie", "Andere"])
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Es gibt verschiedene Möglichkeiten, Warmwasser zu erzeugen, wie beispielsweise durch einen Boiler, eine Gastherme oder eine Solarthermieanlage. Jede dieser Methoden hat unterschiedliche Anforderungen an das Energiesystem und beeinflusst den Strom- oder Energiebedarf des Hauses. Wenn wir wissen, wie Warmwasser erzeugt wird, können wir das Energiesystem so planen, dass es optimal auf die Bedürfnisse des Hauses abgestimmt ist. Auf diese Weise kann eine höhere Effizienz des Systems erreicht werden, was langfristig auch zu Einsparungen bei den Energiekosten führen kann."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        heizungWarm.withStorage(value => {
+          funnel[heizungWarm.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungWarm.withStorage(value => {
+        funnel[heizungWarm.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const heizungKosten = new NumberField("heizungKosten")
+      .withLabel(label => label.innerHTML = "Jährliche Heizkosten in EUR")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in Euro"
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Indem man weiß, wie viel Geld der Kunde jedes Jahr für Heizung und Warmwasser ausgibt, kann man besser einschätzen, wie viel Energie das neue System erzeugen und speichern muss, um die Heizkosten des Kunden zu reduzieren. Wenn zum Beispiel die jährlichen Heizkosten des Kunden sehr hoch sind, kann es sinnvoll sein, ein größeres System zu installieren, um eine höhere Energieeinsparung zu erzielen. Darüber hinaus kann das Wissen um die jährlichen Heizkosten auch helfen, die Amortisationszeit des neuen Systems zu berechnen. Wenn das neue System dazu beitragen kann, die Heizkosten des Kunden signifikant zu reduzieren, wird es schneller rentabel und der Kunde spart langfristig Geld."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        heizungKosten.withStorage(value => {
+          funnel[heizungKosten.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungKosten.withStorage(value => {
+        funnel[heizungKosten.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      document.querySelectorAll(".location-title").forEach(title => {
+        title.innerHTML = "Aufstellungsort"
+        title.style.margin = "144px 34px 34px 34px"
+        title.style.fontWeight = "normal"
+      })
+
+
+      const heizungWaermePumpeBild = new FileField("heizungWaermePumpeBild")
+      .withLabel(label => label.innerHTML = "Wärmepumpe")
+      .withType(file => {
+        file.disabled = true
+        const q9 = funnel.q9
+        if (q9 === 0) {
+          file.disabled = false
+          file.required = true
+          file.accept = "image/jpeg, image/png"
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Die Wärmepumpe wird im Außenbereich aufgestellt. Sollte kein Betonfundament/Streifen vorhanden sein müssen mit 500€ Mehrkosten gerechnet werden"
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(() => {
+        heizungWaermePumpeBild.withStorage(async value => {
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(heizungWaermePumpeBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(heizungWaermePumpeBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(heizungWaermePumpeBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel[heizungWaermePumpeBild.name] = array
+            window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+          }
+
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungWaermePumpeBild.withStorage(async value => {
+
+
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(heizungWaermePumpeBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(heizungWaermePumpeBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(heizungWaermePumpeBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel[heizungWaermePumpeBild.name] = array
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        }
+
+      })
+
+
+      const heizungWasserSpeicherBild = new FileField("heizungWasserSpeicherBild")
+      .withLabel(label => label.innerHTML = "Wasserspeicher")
+      .withType(file => {
+        file.disabled = true
+        const q9 = funnel.q9
+        if (q9 === 0) {
+          file.disabled = false
+          file.required = true
+          file.accept = "image/jpeg, image/png"
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Eventuell Ort des vorhandenen Warmwasserspeichers"
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(() => {
+        heizungWasserSpeicherBild.withStorage(async value => {
+
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(heizungWasserSpeicherBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(heizungWasserSpeicherBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(heizungWasserSpeicherBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel[heizungWasserSpeicherBild.name] = array
+            window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+          }
+
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungWasserSpeicherBild.withStorage(async value => {
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(heizungWasserSpeicherBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(heizungWasserSpeicherBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(heizungWasserSpeicherBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel[heizungWasserSpeicherBild.name] = array
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        }
+
+      })
+
+
+
+      const heizungStromSpeicherBild = new FileField("heizungStromSpeicherBild")
+      .withLabel(label => label.innerHTML = "Stromspeicher")
+      .withType(file => {
+        file.disabled = true
+        const q9 = funnel.q9
+        if (q9 === 0) {
+          file.disabled = false
+          file.required = true
+          file.accept = "image/jpeg, image/png"
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "In der Nähe des Zählerschranks, höchstens 1 Etage unterschied"
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(() => {
+        heizungStromSpeicherBild.withStorage(async value => {
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(heizungStromSpeicherBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(heizungStromSpeicherBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(heizungStromSpeicherBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel[heizungStromSpeicherBild.name] = array
+            window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+          }
+
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungStromSpeicherBild.withStorage(async value => {
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(heizungStromSpeicherBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(heizungStromSpeicherBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(heizungStromSpeicherBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel[heizungStromSpeicherBild.name] = array
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        }
+
+      })
+
+
+      const heizungBetriebsTemperaturBekannt = new CheckboxField("heizungBetriebsTemperaturBekannt")
+      .withLabel(label => label.innerHTML = "Mir ist bekannt, dass die Raumtemperatur beim Speicherort bei +5 bis 40 Grad liegt")
+      .withAfterCheckbox(after => after.innerHTML = "Ja, das ist mir bekannt.")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q8 = funnel.q8
+        if (q8 === 0) {
+          checkbox.disabled = false
+          checkbox.required = true
+        }
+      })
+      .onInput(async() => {
+        heizungBetriebsTemperaturBekannt.withStorage(value => {
+          funnel[heizungBetriebsTemperaturBekannt.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungBetriebsTemperaturBekannt.withStorage(value => {
+        funnel[heizungBetriebsTemperaturBekannt.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+      const heizungEintrittZehnMeter = new SelectionField("heizungEintrittZehnMeter")
+      .withLabel(label => label.innerHTML = "Beträgt die DC-Kabelführung von Hausantritt bis Speicher mehr als 10")
+      .withOptions(["Nein", "Ja"])
+      .withType(select => {
+        select.disabled = true
+        const q7 = funnel.q7
+        const q8 = funnel.q8
+        const q9 = funnel.q9
+        if (q7 === 0 || q8 === 0 || q9 === 0) {
+          select.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Wenn die Kabellänge mehr als 10 Meter beträgt, müssen wir möglicherweise größere Kabelquerschnitte verwenden, um sicherzustellen, dass genügend Energie zum Speicher gelangen kann. Dies kann sich auch auf die Kosten für die Installation auswirken."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+
+      })
+      .onInput(async() => {
+        heizungEintrittZehnMeter.withStorage(value => {
+          funnel[heizungEintrittZehnMeter.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungEintrittZehnMeter.withStorage(value => {
+        funnel[heizungEintrittZehnMeter.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+
+      const heizungGleichesGebaeude = new SelectionField("heizungGleichesGebaeude")
+      .withLabel(label => label.innerHTML = "Befinden sich die Module auf dem Haus, in dem der Speicher ist")
+      .withOptions(["Ja", "Nein"])
+      .withType(select => {
+        select.disabled = true
+        const q7 = funnel.q7
+        const q8 = funnel.q8
+        const q9 = funnel.q9
+        if (q7 === 0 || q8 === 0 || q9 === 0) {
+          select.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Wenn die Module auf einem anderen Dach installiert werden, kann dies höheren Kosten führen, da der Kunde eventuell zusätzliche Erdarbeiten im Vorab vornehmen muss."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+
+      })
+      .onInput(async() => {
+        heizungGleichesGebaeude.withStorage(value => {
+          funnel[heizungGleichesGebaeude.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungGleichesGebaeude.withStorage(value => {
+        funnel[heizungGleichesGebaeude.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const heizungGleicherRaum = new SelectionField("heizungGleicherRaum")
+      .withLabel(label => label.innerHTML = "Kann Speicher und WR im Raum vom Zählerschrank montiert werden")
+      .withOptions(["Ja", "Nein, 1 - 2 Räume entfernt", "Nein, mehr als 2 Räume entfernt"])
+      .withType(select => {
+        select.disabled = true
+        const q7 = funnel.q7
+        const q8 = funnel.q8
+        if (q7 === 0 || q8 === 0) {
+          select.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Der Wechselrichter muss in der Nähe des Zählerschrankes installiert werden, damit der Strom, der von der Photovoltaikanlage erzeugt wird, ins Stromnetz eingespeist werden kann. Wenn der Speicher und Wechselrichter nicht im gleichen Raum wie der Zählerschrank montiert werden können, müssen zusätzliche Kabel verlegt werden, um den Wechselrichter mit dem Zählerschrank zu verbinden. Dies kann zusätzliche Kosten verursachen und die Installationszeit verlängern."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+
+      })
+      .onInput(async() => {
+        heizungGleicherRaum.withStorage(value => {
+          funnel[heizungGleicherRaum.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungGleicherRaum.withStorage(value => {
+        funnel[heizungGleicherRaum.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const heizungMehrAlsZwanzigMeter = new SelectionField("heizungMehrAlsZwanzigMeter")
+      .withLabel(label => label.innerHTML = "Kabellänge vom Speicher bis Zähler mehr als 20m")
+      .withOptions(["Nein", "20-30m", "30-40m", "40-50m", "mehr als 50m"])
+      .withType(select => {
+        select.disabled = true
+        const q7 = funnel.q7
+        const q8 = funnel.q8
+        if (q7 === 0 || q8 === 0) {
+          select.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Wenn die Kabellänge die 10 Meter überschreitet, kann dies höheren Kosten führen, da das Montageteam Extrakabel installieren muss."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        heizungMehrAlsZwanzigMeter.withStorage(value => {
+          funnel[heizungMehrAlsZwanzigMeter.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungMehrAlsZwanzigMeter.withStorage(value => {
+        funnel[heizungMehrAlsZwanzigMeter.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      document.querySelectorAll(".planning-title").forEach(title => {
+        title.innerHTML = "Etage des geplanten Speicher-/Wechselrichterstandort"
+        title.style.margin = "144px 34px 34px 34px"
+        title.style.fontWeight = "normal"
+      })
+
+
+      const heizungSpeicherKellerEtage = new CheckboxField("heizungSpeicherKellerEtage")
+      .withLabel(label => label.innerHTML = "Keller")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.q7
+        const q8 = funnel.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "In welcher Etage befindet sich ihr geplanter Speicher-/Wechselrichterstandort?"
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        heizungSpeicherKellerEtage.withStorage(value => {
+          funnel[heizungSpeicherKellerEtage.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungSpeicherKellerEtage.withStorage(value => {
+        funnel[heizungSpeicherKellerEtage.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const heizungSpeicherErsteEtage = new CheckboxField("heizungSpeicherErsteEtage")
+      .withLabel(label => label.innerHTML = "Erdgeschoss")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.q7
+        const q8 = funnel.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "In welcher Etage befindet sich ihr geplanter Speicher-/Wechselrichterstandort?"
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+
+      })
+      .onInput(async() => {
+        heizungSpeicherErsteEtage.withStorage(value => {
+          funnel[heizungSpeicherErsteEtage.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungSpeicherErsteEtage.withStorage(value => {
+        funnel[heizungSpeicherErsteEtage.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const heizungSpeicherZweiteEtage = new CheckboxField("heizungSpeicherZweiteEtage")
+      .withLabel(label => label.innerHTML = "2. Etage")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.q7
+        const q8 = funnel.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "In welcher Etage befindet sich ihr geplanter Speicher-/Wechselrichterstandort?"
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        heizungSpeicherZweiteEtage.withStorage(value => {
+          funnel[heizungSpeicherZweiteEtage.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungSpeicherZweiteEtage.withStorage(value => {
+        funnel[heizungSpeicherZweiteEtage.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const heizungSpeicherDritteEtage = new CheckboxField("heizungSpeicherDritteEtage")
+      .withLabel(label => label.innerHTML = "3. Etage")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.q7
+        const q8 = funnel.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "In welcher Etage befindet sich ihr geplanter Speicher-/Wechselrichterstandort?"
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        heizungSpeicherDritteEtage.withStorage(value => {
+          funnel[heizungSpeicherDritteEtage.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungSpeicherDritteEtage.withStorage(value => {
+        funnel[heizungSpeicherDritteEtage.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+
+      document.querySelectorAll(".meter-cabinet-title").forEach(title => {
+        title.innerHTML = "Etage Ihres Zählerschranks"
+        title.style.margin = "144px 34px 34px 34px"
+        title.style.fontWeight = "normal"
+      })
+
+
+      const heizungZaehlerKellerEtage = new CheckboxField("heizungZaehlerKellerEtage")
+      .withLabel(label => label.innerHTML = "Keller")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.q7
+        const q8 = funnel.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "In welcher Etage befindet sich ihr Zählerschrank?"
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+
+      })
+      .onInput(async() => {
+        heizungZaehlerKellerEtage.withStorage(value => {
+          funnel[heizungZaehlerKellerEtage.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungZaehlerKellerEtage.withStorage(value => {
+        funnel[heizungZaehlerKellerEtage.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const heizungZaehlerErsteEtage = new CheckboxField("heizungZaehlerErsteEtage")
+      .withLabel(label => label.innerHTML = "Erdgeschoss")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.q7
+        const q8 = funnel.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "In welcher Etage befindet sich ihr Zählerschrank?"
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        heizungZaehlerErsteEtage.withStorage(value => {
+          funnel[heizungZaehlerErsteEtage.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungZaehlerErsteEtage.withStorage(value => {
+        funnel[heizungZaehlerErsteEtage.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const heizungZaehlerZweiteEtage = new CheckboxField("heizungZaehlerZweiteEtage")
+      .withLabel(label => label.innerHTML = "2. Etage")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.q7
+        const q8 = funnel.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "In welcher Etage befindet sich ihr Zählerschrank?"
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+      })
+      .onInput(async() => {
+        heizungZaehlerZweiteEtage.withStorage(value => {
+          funnel[heizungZaehlerZweiteEtage.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungZaehlerZweiteEtage.withStorage(value => {
+        funnel[heizungZaehlerZweiteEtage.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const heizungZaehlerDritteEtage = new CheckboxField("heizungZaehlerDritteEtage")
+      .withLabel(label => label.innerHTML = "3. Etage")
+      .withType(checkbox => {
+        checkbox.disabled = true
+        const q7 = funnel.q7
+        const q8 = funnel.q8
+        if (q7 === 0 || q8 === 0) {
+          checkbox.disabled = false
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "In welcher Etage befindet sich ihr Zählerschrank?"
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+      })
+      .onInput(async() => {
+        heizungZaehlerDritteEtage.withStorage(value => {
+          funnel[heizungZaehlerDritteEtage.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      heizungZaehlerDritteEtage.withStorage(value => {
+        funnel[heizungZaehlerDritteEtage.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const fields = [
+        heizungWomitHeizen,
+        heizungWieHeizen,
+        heizungVorlauf,
+        heizungWarm,
+        heizungKosten,
+        heizungWaermePumpeBild,
+        heizungWasserSpeicherBild,
+        heizungStromSpeicherBild,
+        heizungBetriebsTemperaturBekannt,
+        heizungEintrittZehnMeter,
+        heizungGleichesGebaeude,
+        heizungGleicherRaum,
+        heizungMehrAlsZwanzigMeter,
+        heizungSpeicherKellerEtage,
+        heizungSpeicherErsteEtage,
+        heizungSpeicherZweiteEtage,
+        heizungSpeicherDritteEtage,
+        heizungZaehlerKellerEtage,
+        heizungZaehlerErsteEtage,
+        heizungZaehlerZweiteEtage,
+        heizungZaehlerDritteEtage,
+      ]
+
+
+    </script>
+
+  </body>
+</html>

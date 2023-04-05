@@ -19,11 +19,17 @@ export class DivField {
   #setDiv(field) {
     field.innerHTML = ""
     field.classList.add(this.name)
+    return field
   }
 
-  constructor(name) {
+  constructor(name, parent) {
     if (Helper.stringIsEmpty(name)) throw new Error("name is empty")
     this.name = name
+
+    this.field = document.createElement("div")
+    this.field = this.#setDiv(this.field)
+    if (parent !== undefined) parent.append(this.field)
+
     this.fieldSelector = `div[class='${this.name}']`
     this.type = "div"
     this.fields = Array.from(document.querySelectorAll(this.fieldSelector))

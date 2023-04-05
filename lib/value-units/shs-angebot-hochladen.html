@@ -372,7 +372,7 @@
               registerOffer.offer = offer
               registerOffer.offer.value.file = {}
               registerOffer.offer.value.file.name = `${offer.producer.name}-${Date.now()}.pdf`
-              registerOffer.offer.value.file.createdAt = Date.now()
+              registerOffer.offer.value.file.created = Date.now()
               registerOffer.offer.value.file.type = input.files[0].type
               registerOffer.offer.value.file.size = dataUrlSize
               registerOffer.offer.value.file.dataURL = event.target.result

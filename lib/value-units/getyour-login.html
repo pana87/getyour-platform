@@ -12,24 +12,12 @@
         margin: 0;
         line-height: 1.2;
         font-family: sans-serif;
+        padding-bottom: 144px;
       }
     </style>
 
   </head>
   <body>
-
-    <header></header>
-
-    <h1 class="title"></h1>
-
-    <div class="email"></div>
-    <div class="dsgvo"></div>
-
-    <div class="login-button"></div>
-
-    <div class="info"></div>
-
-    <footer></footer>
 
   <script type="module">
     import { HeaderField } from "/js/HeaderField.js"
@@ -39,34 +27,219 @@
     import { EmailField } from "/js/EmailField.js"
     import { Request } from "/js/Request.js"
     import { InfoField } from "/js/InfoField.js"
-    import { FooterField } from "/js/FooterField.js"
 
-    const headerField = new HeaderField()
-    .withType(header => {
-      header.style.backgroundColor = "white"
-      header.style.width = "100%"
-      header.style.position = "fixed"
-      header.style.top = "0"
-      header.style.left = "0"
-      header.style.zIndex = "1"
+    const header = document.createElement("header")
+    header.style.position = "fixed"
+    header.style.bottom = "0"
+    header.style.left = "0"
+    header.style.backgroundColor = "white"
+    header.style.width = "100%"
+    header.style.display = "flex"
+    header.style.flexWrap = "wrap"
+    header.style.alignItems = "center"
+    header.style.justifyContent = "space-between"
+    header.style.boxShadow = "0 -3px 5px rgba(0, 0, 0, 0.13)"
+
+    const leftContainer = document.createElement("div")
+    leftContainer.style.display = "flex"
+    leftContainer.style.alignItems = "center"
+    leftContainer.style.flexWrap = "wrap"
+
+    const logo = document.createElement("img")
+    logo.src = "/public/getyour-logo.svg"
+    logo.alt = "Plattform"
+    logo.style.width = "55px"
+    logo.style.margin = "21px 0 21px 34px"
+    logo.style.cursor = "pointer"
+    logo.addEventListener("click", () => window.history.back())
+    leftContainer.append(logo)
+
+    const name = document.createElement("div")
+    name.innerHTML = "Plattform"
+    name.style.padding = "21px 34px"
+    name.style.fontSize = "21px"
+    name.style.color = "#000"
+    name.style.cursor = "pointer"
+
+
+    name.addEventListener("click", () => {
+
+      Helper.popup(overlay => {
+
+        const header = document.createElement("div")
+        header.style.position = "fixed"
+        header.style.bottom = "0"
+        header.style.left = "0"
+        header.style.width = "100%"
+        header.style.display = "flex"
+        header.style.justifyContent = "flex-start"
+        header.style.alignItems = "center"
+        header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+        header.style.background = "white"
+        header.style.cursor = "pointer"
+        header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+        const logo = document.createElement("img")
+        logo.src = "/public/getyour-logo.svg"
+        logo.alt = "Getyour"
+        logo.style.width = "55px"
+        logo.style.margin = "34px"
+        header.append(logo)
+        const title = document.createElement("div")
+        title.innerHTML = `/ ${window.location.pathname.split("/")[3]} /`
+        title.style.fontWeight = "bold"
+        title.style.fontSize = "21px"
+        header.append(title)
+        overlay.append(header)
+
+
+
+        const buttons = document.createElement("div")
+        buttons.style.overflow = "auto"
+        buttons.style.paddingBottom = "144px"
+
+        {
+          const button = document.createElement("div")
+          button.style.display = "flex"
+          button.style.flexWrap = "wrap"
+          button.style.justifyContent = "space-between"
+          button.style.alignItems = "center"
+          button.style.margin = "21px 34px"
+          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+          button.style.borderRadius = "13px"
+          button.style.border = "0.3px solid black"
+          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+          button.style.cursor = "pointer"
+          button.addEventListener("click", () => window.location.assign("/"))
+
+          const icon = document.createElement("img")
+          icon.style.margin = "13px 34px"
+          icon.style.width = "34px"
+          icon.src = "/public/home.svg"
+          icon.alt = "Home"
+          button.append(icon)
+
+          const title = document.createElement("div")
+          title.innerHTML = "Startseite"
+          title.style.margin = "21px 34px"
+          title.style.fontSize = "21px"
+          button.append(title)
+
+          buttons.append(button)
+        }
+
+
+
+
+        {
+          const button = document.createElement("div")
+          button.style.display = "flex"
+          button.style.flexWrap = "wrap"
+          button.style.justifyContent = "space-between"
+          button.style.alignItems = "center"
+          button.style.margin = "21px 34px"
+          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+          button.style.borderRadius = "13px"
+          button.style.border = "0.3px solid black"
+          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+          button.style.cursor = "pointer"
+          button.addEventListener("click", () => window.location.assign("/pana/getyour/nutzervereinbarung/"))
+
+          const icon = document.createElement("img")
+          icon.style.margin = "13px 34px"
+          icon.style.width = "34px"
+          icon.src = "/public/handshake.svg"
+          icon.alt = "Nutzervereinbarung"
+          button.append(icon)
+
+          const title = document.createElement("div")
+          title.innerHTML = "Nutzervereinbarung"
+          title.style.margin = "21px 34px"
+          title.style.fontSize = "21px"
+          button.append(title)
+
+          buttons.append(button)
+        }
+
+        {
+          const button = document.createElement("div")
+          button.style.display = "flex"
+          button.style.flexWrap = "wrap"
+          button.style.justifyContent = "space-between"
+          button.style.alignItems = "center"
+          button.style.margin = "21px 34px"
+          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+          button.style.borderRadius = "13px"
+          button.style.border = "0.3px solid black"
+          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+          button.style.cursor = "pointer"
+          button.addEventListener("click", () => window.location.assign("/pana/getyour/datenschutz/"))
+
+          const icon = document.createElement("img")
+          icon.style.margin = "13px 34px"
+          icon.style.width = "34px"
+          icon.src = "/public/security.svg"
+          icon.alt = "Sicherheit"
+          button.append(icon)
+
+          const title = document.createElement("div")
+          title.innerHTML = "Datenschutz Richtilinien"
+          title.style.margin = "21px 34px"
+          title.style.fontSize = "21px"
+          button.append(title)
+
+          buttons.append(button)
+        }
+        {
+          const button = document.createElement("div")
+          button.style.display = "flex"
+          button.style.flexWrap = "wrap"
+          button.style.justifyContent = "space-between"
+          button.style.alignItems = "center"
+          button.style.margin = "21px 34px"
+          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+          button.style.borderRadius = "13px"
+          button.style.border = "0.3px solid black"
+          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+          button.style.cursor = "pointer"
+          button.addEventListener("click", () => window.location.assign("/pana/getyour/impressum/"))
+
+          const icon = document.createElement("img")
+          icon.style.margin = "13px 34px"
+          icon.style.width = "34px"
+          icon.src = "/public/company.svg"
+          icon.alt = "Unternehmen"
+          button.append(icon)
+
+          const title = document.createElement("div")
+          title.innerHTML = "Impressum"
+          title.style.margin = "21px 34px"
+          title.style.fontSize = "21px"
+          button.append(title)
+
+          buttons.append(button)
+        }
+
+        overlay.append(buttons)
+      })
+
 
     })
-    .withImage(img => {
-      img.style.width = "89px"
-      img.src = "/public/getyour-logo.svg"
-      img.alt = "Getyour Plattform Logo"
-      img.style.cursor = "pointer"
-      img.addEventListener("click", () => window.history.back())
-    })
-    .build()
 
-    document.querySelectorAll(".title").forEach(title => {
+
+    leftContainer.append(name)
+    header.append(leftContainer)
+    document.body.append(header)
+
+    {
+      const title = document.createElement("h1")
       title.innerHTML = "Login"
-      title.style.margin = "144px 34px 34px 34px"
+      title.style.margin = "21px 34px"
       title.style.fontWeight = "normal"
-    })
+      document.body.append(title)
+    }
 
-    const emailField = new EmailField("email")
+    const emailField = new EmailField("email", document.body)
     .withLabel(label => label.innerHTML = "E-Mail Adresse")
     .withType((input) => {
       input.placeholder = "meine@email.de"
@@ -82,9 +255,9 @@
       window.localStorage.setItem(emailField.name, value)
     })
 
-    const dsgvoField = new CheckboxField("dsgvo")
+    const dsgvoField = new CheckboxField("dsgvo", document.body)
     .withLabel(label => label.innerHTML = /*html*/`
-      <div style="font-size: 13px;">Ich habe die <a href="/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>
+      <div style="font-size: 13px;">Ich habe die <a href="/pana/getyour/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/pana/getyour/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>
     `)
     .withType((input) => {
       input.required = true
@@ -101,9 +274,9 @@
 
 
 
-    const loginbutton = new DivField("login-button")
+    const loginbutton = new DivField("login-button", document.body)
     .withType(div => {
-      div.innerHTML = "Anmelden"
+      div.innerHTML = "Jetzt anmelden"
       div.style.backgroundColor = "#c02221"
       div.style.cursor = "pointer"
       div.style.fontSize = "21px"
@@ -113,8 +286,7 @@
       div.style.justifyContent = "center"
       div.style.alignItems = "center"
       div.style.height = "89px"
-      div.addEventListener("mouseover", () => div.style.backgroundColor = "#f19d08")
-      div.addEventListener("mouseout", () => div.style.backgroundColor = "#c02221")
+      div.style.color = "#fff"
     })
     .onClick(async (event) => {
       const email = await emailField.withValidValue()
@@ -122,74 +294,56 @@
 
       await Request.withVerifiedEmail(email, async () => {
 
+        {
+          const register = {}
+          register.url = "/register/email/open/"
+          register.email = email
+          register.role = "2"
+          register.location = window.location.href
+          register.referer = document.referrer
+          register.localStorageEmail = await Request.email()
+          register.localStorageId = await Request.localStorageId()
+          await Request.sequence(register)
+        }
 
-        const registerEmail = {}
-        registerEmail.url = "/consumer/open/"
-        registerEmail.method = "register"
-        registerEmail.type = "email"
-        registerEmail.referer = document.referrer
-        registerEmail.localStorageId = await Request.localStorageId()
-        registerEmail.email = email
-        await Request.sequence(registerEmail)
+        {
+          const register = {}
+          register.url = "/request/register/session/"
+          register.event = "onlogin"
+          register.location = window.location.href
+          register.referer = document.referrer
+          register.localStorageEmail = await Request.email()
+          register.localStorageId = await Request.localStorageId()
+          await Request.sequence(register)
+        }
 
-        const registerVerified = {}
-        registerVerified.url = "/consumer/open/"
-        registerVerified.method = "register"
-        registerVerified.type = "verified"
-        registerVerified.email = email
-        registerVerified.referer = document.referrer
-        registerVerified.localStorageId = await Request.localStorageId()
-        await Request.sequence(registerVerified)
+        {
+          const redirect = {}
+          redirect.url = "/redirect/user/closed/"
+          redirect.location = window.location.href
+          redirect.referer = document.referrer
+          redirect.localStorageEmail = await Request.email()
+          redirect.localStorageId = await Request.localStorageId()
+          const res = await Request.middleware(redirect)
 
-        const registerSession = {}
-        registerSession.url = "/request/register/session/"
-        registerSession.method = "register"
-        registerSession.type = "session"
-        registerSession.event = "onlogin"
-        registerSession.email = email
-        registerSession.referer = document.referrer
-        registerSession.localStorageId = await Request.localStorageId()
-        await Request.sequence(registerSession)
+          if (res.status === 200) window.location.assign(res.response)
+          if (res.status !== 200) window.history.back()
+        }
 
-        await Helper.redirectUser("onlogin")
+
       })
     })
 
-    const infoField = new InfoField("info")
-    .withSuccess(/*html*/`
-      <div>Unser Login Prozess ist intuitiv gestaltet und erfordert nur wenige Klicks. Sie müssen lediglich Ihre E-Mail Adresse eingeben, um sich einzuloggen. Wir möchten, dass Sie den Login Prozess als einfach und stressfrei erleben. <a href="mailto:datenschutz@get-your.de">Wenn Sie Probleme haben oder Hilfe benötigen, stehen wir Ihnen jederzeit zur Verfügung, um Ihnen schnell und effektiv weiter zu helfen.</a></div>
-      <div style="margin-top: 13px;">Die Plattform von getyour soll ein sicheres und vertrauenswürdiges Umfeld bieten, damit Sie sich auf Ihre Daten verlassen können.</div>
-    `)
-    .build()
-
-    const footerField = new FooterField()
-    .withType(footer => {
-      footer.style.backgroundColor = "#781717"
-      footer.style.padding = "21px 34px"
-      footer.style.marginTop = "144px"
-      footer.style.color = "#d1d1d1"
-
-      const impressum = document.createElement("div")
-      impressum.innerHTML = "IMPRESSUM"
-      impressum.style.cursor = "pointer"
-      impressum.style.padding = "13px"
-      impressum.addEventListener("click", () => window.location.assign("/impressum/"))
-      footer.append(impressum)
-
-      const dsgvo = document.createElement("div")
-      dsgvo.innerHTML = "DATENSCHUTZ"
-      dsgvo.style.cursor = "pointer"
-      dsgvo.style.padding = "13px"
-      dsgvo.addEventListener("click", () => window.location.assign("/datenschutz/"))
-      footer.append(dsgvo)
-
-      const userAgreement = document.createElement("div")
-      userAgreement.innerHTML = "NUTZERVEREINBARUNG"
-      userAgreement.style.cursor = "pointer"
-      userAgreement.style.padding = "13px"
-      userAgreement.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
-      footer.append(userAgreement)
-    })
+    {
+      const div = document.createElement("div")
+      div.style.fontSize = "13px"
+      const info = new InfoField(div)
+      info.withSuccess(/*html*/`
+        <div>Unser Login Prozess ist intuitiv gestaltet und erfordert nur wenige Klicks. Sie müssen lediglich Ihre E-Mail Adresse eingeben, um sich einzuloggen. Wir möchten, dass Sie den Login Prozess als einfach und stressfrei erleben. <a href="mailto:datenschutz@get-your.de">Wenn Sie Probleme haben oder Hilfe benötigen, stehen wir Ihnen jederzeit zur Verfügung, um Ihnen schnell und effektiv weiter zu helfen.</a></div>
+        <div style="margin-top: 13px;">Die Plattform von getyour soll ein sicheres und vertrauenswürdiges Umfeld bieten, damit Sie sich auf Ihre Daten verlassen können.</div>
+      `)
+      document.body.append(info.field)
+    }
 
 
   </script>

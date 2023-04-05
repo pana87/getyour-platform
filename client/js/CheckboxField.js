@@ -51,17 +51,27 @@ export class CheckboxField {
     return false
   }
 
+  #checkValidity(input) {
+    const value = input.checked
+    if (typeof value !== "boolean") return false
+    if (value === false) return false
+    if (value === undefined) return false
+    if (value === null) return false
+    return true
+  }
+
   withValidValue() {
     return new Promise((resolve, reject) => {
       document.querySelectorAll(this.inputSelector).forEach(box => {
         if (this.#isRequired(box)) {
-          if (box.checked) {
+          if (this.#checkValidity(box)) {
             Helper.setValidStyle(box)
             return resolve(box.checked)
           }
           Helper.setNotValidStyle(box)
-          console.error(`field '${this.name}' is required`)
-          return
+          const error = new Error(`field required: '${this.name}'`)
+          error.fieldName = this.name
+          return reject(error)
         }
         Helper.setValidStyle(box)
         return resolve(box.checked)
@@ -86,6 +96,7 @@ export class CheckboxField {
 
   #setCheckbox(field) {
     field.innerHTML = ""
+    field.id = this.name
     field.classList.add(this.name)
     field.style.position = "relative"
     field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
@@ -137,11 +148,17 @@ export class CheckboxField {
     afterCheckbox.style.fontSize = "21px"
     checkboxContainer.append(afterCheckbox)
     field.append(checkboxContainer)
+    return field
   }
 
-  constructor(name) {
+  constructor(name, parent) {
     if (Helper.stringIsEmpty(name)) throw new Error("name is empty")
     this.name = name
+
+    this.field = document.createElement("div")
+    this.field = this.#setCheckbox(this.field)
+    if (parent !== undefined) parent.append(this.field)
+
     this.fieldSelector = `div[class='${this.name}']`
     this.inputSelector = `input[class='${this.name}']`
     this.labelSelector = `label[class='${this.name}']`

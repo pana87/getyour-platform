@@ -104,7 +104,7 @@
       // }
 
       const renderNav = {}
-      renderNav.url = "/producer/v1/"
+      renderNav.url = "/consumer/3/closed"
       renderNav.method = "render"
       renderNav.referer = document.referrer
       renderNav.localStorageId = await Request.localStorageId()
@@ -132,8 +132,10 @@
         statsButton.style.width = "20%"
         statsButton.style.cursor = "pointer"
         statsButton.addEventListener("click", () => {
+
+
+
           const popup = Helper.popup(overlay => {
-            // overlay.style.overflow = "auto"
 
             const header = document.createElement("div")
             header.style.position = "fixed"
@@ -146,7 +148,7 @@
             header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
             header.style.background = "white"
             header.style.cursor = "pointer"
-            header.addEventListener("click", () => overlay.remove())
+            header.addEventListener("click", () => Helper.removeOverlay(overlay))
 
             const logo = document.createElement("img")
             logo.src = "/public/getyour-logo.svg"
@@ -165,353 +167,353 @@
             buttons.style.paddingBottom = "144px"
 
 
-            {
-              const button = document.createElement("div")
-              button.style.display = "flex"
-              button.style.flexWrap = "wrap"
-              button.style.justifyContent = "space-between"
-              button.style.alignItems = "center"
-              button.style.margin = "21px 34px"
-              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-              button.style.borderRadius = "13px"
-              button.style.border = "0.3px solid black"
-              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-              button.style.cursor = "pointer"
-              button.addEventListener("click", () => {
-                // new overlay ???
-                const popup = Helper.popup(async overlay => {
-                  const header = document.createElement("div")
-                  header.style.position = "fixed"
-                  header.style.bottom = "0"
-                  header.style.left = "0"
-                  header.style.width = "100%"
-                  header.style.display = "flex"
-                  header.style.justifyContent = "flex-start"
-                  header.style.alignItems = "center"
-                  header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                  header.style.background = "white"
-                  header.style.cursor = "pointer"
-                  header.addEventListener("click", () => overlay.remove())
+            // {
+            //   const button = document.createElement("div")
+            //   button.style.display = "flex"
+            //   button.style.flexWrap = "wrap"
+            //   button.style.justifyContent = "space-between"
+            //   button.style.alignItems = "center"
+            //   button.style.margin = "21px 34px"
+            //   button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            //   button.style.borderRadius = "13px"
+            //   button.style.border = "0.3px solid black"
+            //   button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            //   button.style.cursor = "pointer"
+            //   button.addEventListener("click", () => {
+            //     // new overlay ???
+            //     const popup = Helper.popup(async overlay => {
+            //       const header = document.createElement("div")
+            //       header.style.position = "fixed"
+            //       header.style.bottom = "0"
+            //       header.style.left = "0"
+            //       header.style.width = "100%"
+            //       header.style.display = "flex"
+            //       header.style.justifyContent = "flex-start"
+            //       header.style.alignItems = "center"
+            //       header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+            //       header.style.background = "white"
+            //       header.style.cursor = "pointer"
+            //       header.addEventListener("click", () => Helper.removeOverlay(overlay))
 
-                  const logo = document.createElement("img")
-                  logo.src = "/public/getyour-logo.svg"
-                  logo.alt = "Getyour Popup"
-                  logo.style.margin = "34px"
-                  header.append(logo)
-                  const title = document.createElement("div")
-                  title.innerHTML = "error logs"
-                  title.style.fontWeight = "bold"
-                  title.style.fontSize = "21px"
-                  header.append(title)
-                  overlay.append(header)
-
-
-                  // lazy loading errors provide offset and limit
-                  const getErrors = {}
-                  getErrors.url = "/producer/v1/"
-                  getErrors.method = "get"
-                  getErrors.type = "error"
-                  getErrors.email = await Request.email()
-                  getErrors.referer = document.referrer
-                  getErrors.localStorageId = await Request.localStorageId()
-                  const res = await Request.middleware(getErrors)
-
-                  if (res.status === 200) {
-                    const errors = JSON.parse(res.response)
-
-                    const buttons = document.createElement("div")
-                    buttons.style.overflowY = "scroll"
-                    buttons.style.paddingBottom = "144px"
-
-                    for (let i = 0; i < errors.length; i++) {
-                      const error = errors[i]
+            //       const logo = document.createElement("img")
+            //       logo.src = "/public/getyour-logo.svg"
+            //       logo.alt = "Getyour Popup"
+            //       logo.style.margin = "34px"
+            //       header.append(logo)
+            //       const title = document.createElement("div")
+            //       title.innerHTML = "error logs"
+            //       title.style.fontWeight = "bold"
+            //       title.style.fontSize = "21px"
+            //       header.append(title)
+            //       overlay.append(header)
 
 
-                      const button = document.createElement("div")
-                      button.style.display = "flex"
-                      button.style.flexWrap = "wrap"
-                      button.style.alignItems = "center"
-                      button.style.margin = "21px 34px"
-                      button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                      button.style.borderRadius = "13px"
-                      button.style.border = "0.3px solid black"
-                      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                      button.style.cursor = "pointer"
-                      button.addEventListener("click", () => {
+            //       // lazy loading errors provide offset and limit
+            //       const getErrors = {}
+            //       getErrors.url = "/consumer/2/closed"
+            //       getErrors.method = "get"
+            //       getErrors.type = "error"
+            //       getErrors.email = await Request.email()
+            //       getErrors.referer = document.referrer
+            //       getErrors.localStorageId = await Request.localStorageId()
+            //       const res = await Request.middleware(getErrors)
 
-                        const popup = Helper.popup(overlay => {
+            //       if (res.status === 200) {
+            //         const errors = JSON.parse(res.response)
 
-                          const header = document.createElement("div")
-                          header.style.position = "fixed"
-                          header.style.bottom = "0"
-                          header.style.left = "0"
-                          header.style.width = "100%"
-                          header.style.display = "flex"
-                          header.style.justifyContent = "flex-start"
-                          header.style.alignItems = "center"
-                          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                          header.style.background = "white"
-                          header.style.cursor = "pointer"
-                          header.addEventListener("click", () => overlay.remove())
+            //         const buttons = document.createElement("div")
+            //         buttons.style.overflowY = "scroll"
+            //         buttons.style.paddingBottom = "144px"
 
-                          const logo = document.createElement("img")
-                          logo.src = "/public/getyour-logo.svg"
-                          logo.alt = "Getyour Popup"
-                          logo.style.margin = "34px"
-                          header.append(logo)
-                          const title = document.createElement("div")
-                          title.innerHTML = error.message
-                          title.style.fontWeight = "bold"
-                          title.style.fontSize = "21px"
-                          header.append(title)
-                          overlay.append(header)
-
-                          const stack = document.createElement("div")
-                          stack.style.margin = "21px 34px"
-                          stack.innerHTML = error.stack
-                          overlay.append(stack)
+            //         for (let i = 0; i < errors.length; i++) {
+            //           const error = errors[i]
 
 
-                        })
-                      })
+            //           const button = document.createElement("div")
+            //           button.style.display = "flex"
+            //           button.style.flexWrap = "wrap"
+            //           button.style.alignItems = "center"
+            //           button.style.margin = "21px 34px"
+            //           button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            //           button.style.borderRadius = "13px"
+            //           button.style.border = "0.3px solid black"
+            //           button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            //           button.style.cursor = "pointer"
+            //           button.addEventListener("click", () => {
 
-                      const icon = document.createElement("img")
-                      icon.style.margin = "13px 34px"
-                      icon.style.width = "34px"
-                      icon.src = "/public/error.svg"
-                      icon.alt = "Fehlerliste"
-                      button.append(icon)
+            //             const popup = Helper.popup(overlay => {
 
-                      const message = document.createElement("div")
-                      message.style.margin = "13px 34px"
-                      message.innerHTML = /*html*/`
-                        <div>Fehler: <b>${error.message}</b></div>
-                        <div>Erstellt am: <b>${new Date(error.createdAt).toISOString()}</b></div>
-                        <div>Anfrage: <b>${error.method}</b></div>
-                        <div>Server: <b>${error.endpoint}</b></div>
-                        <div>Client: <b>${error.location}</b></div>
-                        <div>Herkunft: <b>${error.referer}</b></div>
-                        <div>IP: <b>${error.ip}</b></div>
-                        <div>Browser: <b>${error.userAgent}</b></div>
-                      `
+            //               const header = document.createElement("div")
+            //               header.style.position = "fixed"
+            //               header.style.bottom = "0"
+            //               header.style.left = "0"
+            //               header.style.width = "100%"
+            //               header.style.display = "flex"
+            //               header.style.justifyContent = "flex-start"
+            //               header.style.alignItems = "center"
+            //               header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+            //               header.style.background = "white"
+            //               header.style.cursor = "pointer"
+            //               header.addEventListener("click", () => Helper.removeOverlay(overlay))
 
-                      button.append(message)
-                      buttons.append(button)
-                    }
-                    overlay.append(buttons)
-                  }
+            //               const logo = document.createElement("img")
+            //               logo.src = "/public/getyour-logo.svg"
+            //               logo.alt = "Getyour Popup"
+            //               logo.style.margin = "34px"
+            //               header.append(logo)
+            //               const title = document.createElement("div")
+            //               title.innerHTML = error.message
+            //               title.style.fontWeight = "bold"
+            //               title.style.fontSize = "21px"
+            //               header.append(title)
+            //               overlay.append(header)
 
-
-                })
-              })
-
-              const icon = document.createElement("img")
-              icon.style.margin = "13px 34px"
-              icon.style.width = "34px"
-              icon.src = "/public/error-logs.svg"
-              icon.alt = "Fehlerliste"
-              button.append(icon)
-
-              const title = document.createElement("h2")
-              title.style.margin = "13px 34px"
-              title.innerHTML = "error logs"
-              button.append(title)
-
-              buttons.append(button)
-            }
+            //               const stack = document.createElement("div")
+            //               stack.style.margin = "21px 34px"
+            //               stack.innerHTML = error.stack
+            //               overlay.append(stack)
 
 
-            {
-              const button = document.createElement("div")
-              button.style.display = "flex"
-              button.style.flexWrap = "wrap"
-              button.style.justifyContent = "space-between"
-              button.style.alignItems = "center"
-              button.style.margin = "21px 34px"
-              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-              button.style.borderRadius = "13px"
-              button.style.border = "0.3px solid black"
-              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-              button.style.cursor = "pointer"
-              button.addEventListener("click", () => {
-                // new overlay ???
-                const popup = Helper.popup(async overlay => {
-                  const header = document.createElement("div")
-                  header.style.position = "fixed"
-                  header.style.bottom = "0"
-                  header.style.left = "0"
-                  header.style.width = "100%"
-                  header.style.display = "flex"
-                  header.style.justifyContent = "flex-start"
-                  header.style.alignItems = "center"
-                  header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                  header.style.background = "white"
-                  header.style.cursor = "pointer"
-                  header.addEventListener("click", () => overlay.remove())
+            //             })
+            //           })
 
-                  const logo = document.createElement("img")
-                  logo.src = "/public/getyour-logo.svg"
-                  logo.alt = "Getyour Popup"
-                  logo.style.margin = "34px"
-                  header.append(logo)
-                  const title = document.createElement("div")
-                  title.innerHTML = "user logs"
-                  title.style.fontWeight = "bold"
-                  title.style.fontSize = "21px"
-                  header.append(title)
-                  overlay.append(header)
+            //           const icon = document.createElement("img")
+            //           icon.style.margin = "13px 34px"
+            //           icon.style.width = "34px"
+            //           icon.src = "/public/error.svg"
+            //           icon.alt = "Fehlerliste"
+            //           button.append(icon)
+
+            //           const message = document.createElement("div")
+            //           message.style.margin = "13px 34px"
+            //           message.innerHTML = /*html*/`
+            //             <div>Fehler: <b>${error.message}</b></div>
+            //             <div>Erstellt am: <b>${new Date(error.created).toISOString()}</b></div>
+            //             <div>Anfrage: <b>${error.method}</b></div>
+            //             <div>Server: <b>${error.endpoint}</b></div>
+            //             <div>Client: <b>${error.location}</b></div>
+            //             <div>Herkunft: <b>${error.referer}</b></div>
+            //             <div>IP: <b>${error.ip}</b></div>
+            //             <div>Browser: <b>${error.userAgent}</b></div>
+            //           `
+
+            //           button.append(message)
+            //           buttons.append(button)
+            //         }
+            //         overlay.append(buttons)
+            //       }
 
 
-                  const getUsers = {}
-                  getUsers.url = "/producer/v1/"
-                  getUsers.method = "get"
-                  getUsers.type = "user"
-                  getUsers.email = await Request.email()
-                  getUsers.referer = document.referrer
-                  getUsers.localStorageId = await Request.localStorageId()
-                  const res = await Request.middleware(getUsers)
+            //     })
+            //   })
 
-                  // if (res.status === 200) {
-                  //   // const html = Helper.jsonToHtml(JSON.parse(res.response))
-                  //   // console.log(html);
-                  //   // overlay.append(html)
-                  //   const response = JSON.parse(res.response)
-                  //   console.log(response);
-                  //   // Helper.jsonToHtml(response, overlay)
-                  //   // overlay.append(Helper.jsonToHtml(response))
-                  // }
+            //   const icon = document.createElement("img")
+            //   icon.style.margin = "13px 34px"
+            //   icon.style.width = "34px"
+            //   icon.src = "/public/error-logs.svg"
+            //   icon.alt = "Fehlerliste"
+            //   button.append(icon)
 
-                  if (res.status === 200) {
-                    const users = JSON.parse(res.response)
+            //   const title = document.createElement("h2")
+            //   title.style.margin = "13px 34px"
+            //   title.innerHTML = "error logs"
+            //   button.append(title)
 
-                    const buttons = document.createElement("div")
-                    buttons.style.overflowY = "scroll"
-                    buttons.style.paddingBottom = "144px"
-
-                    for (let i = 0; i < users.length; i++) {
-                      const user = users[i]
+            //   buttons.append(button)
+            // }
 
 
-                      const button = document.createElement("div")
-                      button.style.display = "flex"
-                      button.style.flexWrap = "wrap"
-                      button.style.alignItems = "center"
-                      button.style.margin = "21px 34px"
-                      button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                      button.style.borderRadius = "13px"
-                      button.style.border = "0.3px solid black"
-                      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            // {
+            //   const button = document.createElement("div")
+            //   button.style.display = "flex"
+            //   button.style.flexWrap = "wrap"
+            //   button.style.justifyContent = "space-between"
+            //   button.style.alignItems = "center"
+            //   button.style.margin = "21px 34px"
+            //   button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            //   button.style.borderRadius = "13px"
+            //   button.style.border = "0.3px solid black"
+            //   button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            //   button.style.cursor = "pointer"
+            //   button.addEventListener("click", () => {
+            //     // new overlay ???
+            //     const popup = Helper.popup(async overlay => {
+            //       const header = document.createElement("div")
+            //       header.style.position = "fixed"
+            //       header.style.bottom = "0"
+            //       header.style.left = "0"
+            //       header.style.width = "100%"
+            //       header.style.display = "flex"
+            //       header.style.justifyContent = "flex-start"
+            //       header.style.alignItems = "center"
+            //       header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+            //       header.style.background = "white"
+            //       header.style.cursor = "pointer"
+            //       header.addEventListener("click", () => Helper.removeOverlay(overlay))
 
-                      const icon = document.createElement("img")
-                      icon.style.margin = "13px 34px"
-                      icon.style.width = "34px"
-                      icon.src = "/public/delete.svg"
-                      icon.alt = "Löschen"
-                      icon.style.cursor = "pointer"
-                      icon.addEventListener("click", async () => {
-                        const deleteUser = {}
-                        deleteUser.url = "/producer/v1/"
-                        deleteUser.method = "delete"
-                        deleteUser.type = "user"
-                        deleteUser.emailToDelete = user.email
-                        deleteUser.email = await Request.email()
-                        deleteUser.referer = document.referrer
-                        deleteUser.localStorageId = await Request.localStorageId()
-                        const res = await Request.middleware(deleteUser)
-
-                        if (res.status === 200) button.remove()
-                      })
-                      button.append(icon)
-
-                      const message = document.createElement("div")
-                      message.style.margin = "13px 34px"
-                      message.innerHTML = /*html*/`
-                        <div>Email: <b>${user.email}</b></div>
-                        <div>Verified: <b>${user.verified}</b></div>
-                        <div>Rollen: <b>${user.roles.join(", ")}</b></div>
-                        <div>Anmeldeversuche: <b>${user.sessionCounter}</b></div>
-                        <div>Registriert am: <b>${Helper.millisToDateString(user.createdAt)}</b></div>
-                      `
-                      message.style.cursor = "pointer"
-                      message.addEventListener("click", () => {
-
-                        const popup = Helper.popup(overlay => {
-
-                          const header = document.createElement("div")
-                          header.style.position = "fixed"
-                          header.style.bottom = "0"
-                          header.style.left = "0"
-                          header.style.width = "100%"
-                          header.style.display = "flex"
-                          header.style.justifyContent = "flex-start"
-                          header.style.alignItems = "center"
-                          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                          header.style.background = "white"
-                          header.style.cursor = "pointer"
-                          header.addEventListener("click", () => overlay.remove())
-
-                          const logo = document.createElement("img")
-                          logo.src = "/public/getyour-logo.svg"
-                          logo.alt = "Getyour Popup"
-                          logo.style.margin = "34px"
-                          header.append(logo)
-                          const title = document.createElement("div")
-                          title.innerHTML = user.email
-                          title.style.fontWeight = "bold"
-                          title.style.fontSize = "21px"
-                          header.append(title)
-                          overlay.append(header)
-
-                          const keys = document.createElement("div")
-                          // keys.style.display = "flex"
-                          keys.style.padding = "21px 34px 144px 34px"
-                          keys.style.overflow = "auto"
-
-                          // const keyContainer = document.createElement("div")
-                          // keyContainer.style.margin = "13px 34px"
-
-                          for (let i = 0; i < user.keys.length; i++) {
-                            // const key = user.keys[i]
-
-                            const key = document.createElement("p")
-                            // console.log(key);
-                            key.innerHTML = user.keys[i]
-                            keys.append(key)
-                          }
-
-                          // keys.innerHTML = user.keys
-                          overlay.append(keys)
+            //       const logo = document.createElement("img")
+            //       logo.src = "/public/getyour-logo.svg"
+            //       logo.alt = "Getyour Popup"
+            //       logo.style.margin = "34px"
+            //       header.append(logo)
+            //       const title = document.createElement("div")
+            //       title.innerHTML = "user logs"
+            //       title.style.fontWeight = "bold"
+            //       title.style.fontSize = "21px"
+            //       header.append(title)
+            //       overlay.append(header)
 
 
-                        })
-                      })
+            //       const getUsers = {}
+            //       getUsers.url = "/consumer/2/closed"
+            //       getUsers.method = "get"
+            //       getUsers.type = "user"
+            //       getUsers.email = await Request.email()
+            //       getUsers.referer = document.referrer
+            //       getUsers.localStorageId = await Request.localStorageId()
+            //       const res = await Request.middleware(getUsers)
 
-                      button.append(message)
-                      buttons.append(button)
-                    }
-                    overlay.append(buttons)
-                  }
+            //       // if (res.status === 200) {
+            //       //   // const html = Helper.jsonToHtml(JSON.parse(res.response))
+            //       //   // console.log(html);
+            //       //   // overlay.append(html)
+            //       //   const response = JSON.parse(res.response)
+            //       //   console.log(response);
+            //       //   // Helper.jsonToHtml(response, overlay)
+            //       //   // overlay.append(Helper.jsonToHtml(response))
+            //       // }
+
+            //       if (res.status === 200) {
+            //         const users = JSON.parse(res.response)
+
+            //         const buttons = document.createElement("div")
+            //         buttons.style.overflowY = "scroll"
+            //         buttons.style.paddingBottom = "144px"
+
+            //         for (let i = 0; i < users.length; i++) {
+            //           const user = users[i]
+
+
+            //           const button = document.createElement("div")
+            //           button.style.display = "flex"
+            //           button.style.flexWrap = "wrap"
+            //           button.style.alignItems = "center"
+            //           button.style.margin = "21px 34px"
+            //           button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            //           button.style.borderRadius = "13px"
+            //           button.style.border = "0.3px solid black"
+            //           button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+
+            //           const icon = document.createElement("img")
+            //           icon.style.margin = "13px 34px"
+            //           icon.style.width = "34px"
+            //           icon.src = "/public/delete.svg"
+            //           icon.alt = "Löschen"
+            //           icon.style.cursor = "pointer"
+            //           icon.addEventListener("click", async () => {
+            //             const deleteUser = {}
+            //             deleteUser.url = "/consumer/2/closed"
+            //             deleteUser.method = "delete"
+            //             deleteUser.type = "user"
+            //             deleteUser.emailToDelete = user.email
+            //             deleteUser.email = await Request.email()
+            //             deleteUser.referer = document.referrer
+            //             deleteUser.localStorageId = await Request.localStorageId()
+            //             const res = await Request.middleware(deleteUser)
+
+            //             if (res.status === 200) button.remove()
+            //           })
+            //           button.append(icon)
+
+            //           const message = document.createElement("div")
+            //           message.style.margin = "13px 34px"
+            //           message.innerHTML = /*html*/`
+            //             <div>Email: <b>${user.email}</b></div>
+            //             <div>Verified: <b>${user.verified}</b></div>
+            //             <div>Rollen: <b>${user.roles.join(", ")}</b></div>
+            //             <div>Anmeldeversuche: <b>${user.sessionCounter}</b></div>
+            //             <div>Registriert am: <b>${Helper.millisToDateString(user.created)}</b></div>
+            //           `
+            //           message.style.cursor = "pointer"
+            //           message.addEventListener("click", () => {
+
+            //             const popup = Helper.popup(overlay => {
+
+            //               const header = document.createElement("div")
+            //               header.style.position = "fixed"
+            //               header.style.bottom = "0"
+            //               header.style.left = "0"
+            //               header.style.width = "100%"
+            //               header.style.display = "flex"
+            //               header.style.justifyContent = "flex-start"
+            //               header.style.alignItems = "center"
+            //               header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+            //               header.style.background = "white"
+            //               header.style.cursor = "pointer"
+            //               header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+            //               const logo = document.createElement("img")
+            //               logo.src = "/public/getyour-logo.svg"
+            //               logo.alt = "Getyour Popup"
+            //               logo.style.margin = "34px"
+            //               header.append(logo)
+            //               const title = document.createElement("div")
+            //               title.innerHTML = user.email
+            //               title.style.fontWeight = "bold"
+            //               title.style.fontSize = "21px"
+            //               header.append(title)
+            //               overlay.append(header)
+
+            //               const keys = document.createElement("div")
+            //               // keys.style.display = "flex"
+            //               keys.style.padding = "21px 34px 144px 34px"
+            //               keys.style.overflow = "auto"
+
+            //               // const keyContainer = document.createElement("div")
+            //               // keyContainer.style.margin = "13px 34px"
+
+            //               for (let i = 0; i < user.keys.length; i++) {
+            //                 // const key = user.keys[i]
+
+            //                 const key = document.createElement("p")
+            //                 // console.log(key);
+            //                 key.innerHTML = user.keys[i]
+            //                 keys.append(key)
+            //               }
+
+            //               // keys.innerHTML = user.keys
+            //               overlay.append(keys)
+
+
+            //             })
+            //           })
+
+            //           button.append(message)
+            //           buttons.append(button)
+            //         }
+            //         overlay.append(buttons)
+            //       }
 
 
 
 
-                })
-              })
+            //     })
+            //   })
 
-              const icon = document.createElement("img")
-              icon.style.margin = "13px 34px"
-              icon.style.width = "34px"
-              icon.src = "/public/user-logs.svg"
-              icon.alt = "Nutzerliste"
-              button.append(icon)
+            //   const icon = document.createElement("img")
+            //   icon.style.margin = "13px 34px"
+            //   icon.style.width = "34px"
+            //   icon.src = "/public/user-logs.svg"
+            //   icon.alt = "Nutzerliste"
+            //   button.append(icon)
 
-              const title = document.createElement("h2")
-              title.style.margin = "13px 34px"
-              title.innerHTML = "user logs"
-              button.append(title)
+            //   const title = document.createElement("h2")
+            //   title.style.margin = "13px 34px"
+            //   title.innerHTML = "user logs"
+            //   button.append(title)
 
-              buttons.append(button)
-            }
+            //   buttons.append(button)
+            // }
 
 
 
@@ -520,6 +522,9 @@
             overlay.append(buttons)
 
           })
+
+
+
 
         })
 
@@ -561,7 +566,7 @@
             header.style.alignItems = "center"
             header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
             header.style.cursor = "pointer"
-            header.addEventListener("click", () => overlay.remove())
+            header.addEventListener("click", () => Helper.removeOverlay(overlay))
 
             const logo = document.createElement("img")
             logo.src = "/public/getyour-logo.svg"
@@ -617,7 +622,7 @@
             header.style.alignItems = "center"
             header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
             header.style.cursor = "pointer"
-            header.addEventListener("click", () => overlay.remove())
+            header.addEventListener("click", () => Helper.removeOverlay(overlay))
 
             const logo = document.createElement("img")
             logo.src = "/public/getyour-logo.svg"
@@ -719,6 +724,8 @@
         moreButton.style.width = "20%"
         moreButton.style.cursor = "pointer"
         moreButton.addEventListener("click", () => {
+
+
           const popup = Helper.popup(overlay => {
 
             const header = document.createElement("div")
@@ -730,8 +737,9 @@
             header.style.justifyContent = "flex-start"
             header.style.alignItems = "center"
             header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+            header.style.background = "white"
             header.style.cursor = "pointer"
-            header.addEventListener("click", () => overlay.remove())
+            header.addEventListener("click", () => Helper.removeOverlay(overlay))
 
             const logo = document.createElement("img")
             logo.src = "/public/getyour-logo.svg"
@@ -745,7 +753,369 @@
             header.append(title)
             overlay.append(header)
 
-          })
+            const buttons = document.createElement("div")
+            buttons.style.overflowY = "scroll"
+            buttons.style.paddingBottom = "144px"
+
+
+            {
+              const button = document.createElement("div")
+              button.style.display = "flex"
+              button.style.flexWrap = "wrap"
+              button.style.justifyContent = "space-between"
+              button.style.alignItems = "center"
+              button.style.margin = "21px 34px"
+              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+              button.style.borderRadius = "13px"
+              button.style.border = "0.3px solid black"
+              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => {
+                // new overlay ???
+                const popup = Helper.popup(async overlay => {
+                  const header = document.createElement("div")
+                  header.style.position = "fixed"
+                  header.style.bottom = "0"
+                  header.style.left = "0"
+                  header.style.width = "100%"
+                  header.style.display = "flex"
+                  header.style.justifyContent = "flex-start"
+                  header.style.alignItems = "center"
+                  header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                  header.style.background = "white"
+                  header.style.cursor = "pointer"
+                  header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                  const logo = document.createElement("img")
+                  logo.src = "/public/getyour-logo.svg"
+                  logo.alt = "Getyour Popup"
+                  logo.style.margin = "34px"
+                  header.append(logo)
+                  const title = document.createElement("div")
+                  title.innerHTML = "error logs"
+                  title.style.fontWeight = "bold"
+                  title.style.fontSize = "21px"
+                  header.append(title)
+                  overlay.append(header)
+
+
+                  // lazy loading errors provide offset and limit
+                  const getErrors = {}
+                  getErrors.url = "/consumer/2/closed"
+                  getErrors.method = "get"
+                  getErrors.type = "error"
+                  getErrors.email = await Request.email()
+                  getErrors.referer = document.referrer
+                  getErrors.localStorageId = await Request.localStorageId()
+                  const res = await Request.middleware(getErrors)
+
+                  if (res.status === 200) {
+                    const errors = JSON.parse(res.response)
+
+                    const buttons = document.createElement("div")
+                    buttons.style.overflowY = "scroll"
+                    buttons.style.paddingBottom = "144px"
+
+                    for (let i = 0; i < errors.length; i++) {
+                      const error = errors[i]
+
+
+                      const button = document.createElement("div")
+                      button.style.display = "flex"
+                      button.style.flexWrap = "wrap"
+                      button.style.alignItems = "center"
+                      button.style.margin = "21px 34px"
+                      button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                      button.style.borderRadius = "13px"
+                      button.style.border = "0.3px solid black"
+                      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                      button.style.cursor = "pointer"
+                      button.addEventListener("click", () => {
+
+                        const popup = Helper.popup(overlay => {
+
+                          const header = document.createElement("div")
+                          header.style.position = "fixed"
+                          header.style.bottom = "0"
+                          header.style.left = "0"
+                          header.style.width = "100%"
+                          header.style.display = "flex"
+                          header.style.justifyContent = "flex-start"
+                          header.style.alignItems = "center"
+                          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                          header.style.background = "white"
+                          header.style.cursor = "pointer"
+                          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                          const logo = document.createElement("img")
+                          logo.src = "/public/getyour-logo.svg"
+                          logo.alt = "Getyour Popup"
+                          logo.style.margin = "34px"
+                          header.append(logo)
+                          const title = document.createElement("div")
+                          title.innerHTML = error.message
+                          title.style.fontWeight = "bold"
+                          title.style.fontSize = "21px"
+                          header.append(title)
+                          overlay.append(header)
+
+                          const stack = document.createElement("div")
+                          stack.style.margin = "21px 34px"
+                          stack.innerHTML = error.stack
+                          overlay.append(stack)
+
+
+                        })
+                      })
+
+                      const icon = document.createElement("img")
+                      icon.style.margin = "13px 34px"
+                      icon.style.width = "34px"
+                      icon.src = "/public/error.svg"
+                      icon.alt = "Fehlerliste"
+                      button.append(icon)
+
+                      const message = document.createElement("div")
+                      message.style.margin = "13px 34px"
+                      message.innerHTML = /*html*/`
+                        <div>Fehler: <b>${error.message}</b></div>
+                        <div>Erstellt am: <b>${new Date(error.created).toISOString()}</b></div>
+                        <div>Anfrage: <b>${error.method}</b></div>
+                        <div>Server: <b>${error.endpoint}</b></div>
+                        <div>Client: <b>${error.location}</b></div>
+                        <div>Herkunft: <b>${error.referer}</b></div>
+                        <div>IP: <b>${error.ip}</b></div>
+                        <div>Browser: <b>${error.userAgent}</b></div>
+                      `
+
+                      button.append(message)
+                      buttons.append(button)
+                    }
+                    overlay.append(buttons)
+                  }
+
+
+                })
+              })
+
+              const icon = document.createElement("img")
+              icon.style.margin = "13px 34px"
+              icon.style.width = "34px"
+              icon.src = "/public/error-logs.svg"
+              icon.alt = "Fehlerliste"
+              button.append(icon)
+
+              const title = document.createElement("h2")
+              title.style.margin = "13px 34px"
+              title.innerHTML = "error logs"
+              button.append(title)
+
+              buttons.append(button)
+            }
+
+
+            {
+              const button = document.createElement("div")
+              button.style.display = "flex"
+              button.style.flexWrap = "wrap"
+              button.style.justifyContent = "space-between"
+              button.style.alignItems = "center"
+              button.style.margin = "21px 34px"
+              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+              button.style.borderRadius = "13px"
+              button.style.border = "0.3px solid black"
+              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => {
+                // new overlay ???
+                const popup = Helper.popup(async overlay => {
+                  const header = document.createElement("div")
+                  header.style.position = "fixed"
+                  header.style.bottom = "0"
+                  header.style.left = "0"
+                  header.style.width = "100%"
+                  header.style.display = "flex"
+                  header.style.justifyContent = "flex-start"
+                  header.style.alignItems = "center"
+                  header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                  header.style.background = "white"
+                  header.style.cursor = "pointer"
+                  header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                  const logo = document.createElement("img")
+                  logo.src = "/public/getyour-logo.svg"
+                  logo.alt = "Getyour Popup"
+                  logo.style.margin = "34px"
+                  header.append(logo)
+                  const title = document.createElement("div")
+                  title.innerHTML = "user logs"
+                  title.style.fontWeight = "bold"
+                  title.style.fontSize = "21px"
+                  header.append(title)
+                  overlay.append(header)
+
+
+                  const getUsers = {}
+                  getUsers.url = "/consumer/2/closed"
+                  getUsers.method = "get"
+                  getUsers.type = "user"
+                  getUsers.email = await Request.email()
+                  getUsers.referer = document.referrer
+                  getUsers.localStorageId = await Request.localStorageId()
+                  const res = await Request.middleware(getUsers)
+
+                  // if (res.status === 200) {
+                  //   // const html = Helper.jsonToHtml(JSON.parse(res.response))
+                  //   // console.log(html);
+                  //   // overlay.append(html)
+                  //   const response = JSON.parse(res.response)
+                  //   console.log(response);
+                  //   // Helper.jsonToHtml(response, overlay)
+                  //   // overlay.append(Helper.jsonToHtml(response))
+                  // }
+
+                  if (res.status === 200) {
+                    const users = JSON.parse(res.response)
+
+                    const buttons = document.createElement("div")
+                    buttons.style.overflowY = "scroll"
+                    buttons.style.paddingBottom = "144px"
+
+                    for (let i = 0; i < users.length; i++) {
+                      const user = users[i]
+
+
+                      const button = document.createElement("div")
+                      button.style.display = "flex"
+                      button.style.flexWrap = "wrap"
+                      button.style.alignItems = "center"
+                      button.style.margin = "21px 34px"
+                      button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                      button.style.borderRadius = "13px"
+                      button.style.border = "0.3px solid black"
+                      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+
+                      const icon = document.createElement("img")
+                      icon.style.margin = "13px 34px"
+                      icon.style.width = "34px"
+                      icon.src = "/public/delete.svg"
+                      icon.alt = "Löschen"
+                      icon.style.cursor = "pointer"
+                      icon.addEventListener("click", async () => {
+                        const deleteUser = {}
+                        deleteUser.url = "/consumer/2/closed"
+                        deleteUser.method = "delete"
+                        deleteUser.type = "user"
+                        deleteUser.emailToDelete = user.email
+                        deleteUser.email = await Request.email()
+                        deleteUser.referer = document.referrer
+                        deleteUser.localStorageId = await Request.localStorageId()
+                        const res = await Request.middleware(deleteUser)
+
+                        if (res.status === 200) button.remove()
+                      })
+                      button.append(icon)
+
+                      const message = document.createElement("div")
+                      message.style.margin = "13px 34px"
+                      message.innerHTML = /*html*/`
+                        <div>Email: <b>${user.email}</b></div>
+                        <div>Verified: <b>${user.verified}</b></div>
+                        <div>Rollen: <b>${user.roles.join(", ")}</b></div>
+                        <div>Anmeldeversuche: <b>${user.sessionCounter}</b></div>
+                        <div>Registriert am: <b>${Helper.millisToDateString(user.created)}</b></div>
+                      `
+                      message.style.cursor = "pointer"
+                      message.addEventListener("click", () => {
+
+                        const popup = Helper.popup(overlay => {
+
+                          const header = document.createElement("div")
+                          header.style.position = "fixed"
+                          header.style.bottom = "0"
+                          header.style.left = "0"
+                          header.style.width = "100%"
+                          header.style.display = "flex"
+                          header.style.justifyContent = "flex-start"
+                          header.style.alignItems = "center"
+                          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                          header.style.background = "white"
+                          header.style.cursor = "pointer"
+                          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                          const logo = document.createElement("img")
+                          logo.src = "/public/getyour-logo.svg"
+                          logo.alt = "Getyour Popup"
+                          logo.style.margin = "34px"
+                          header.append(logo)
+                          const title = document.createElement("div")
+                          title.innerHTML = user.email
+                          title.style.fontWeight = "bold"
+                          title.style.fontSize = "21px"
+                          header.append(title)
+                          overlay.append(header)
+
+                          const keys = document.createElement("div")
+                          // keys.style.display = "flex"
+                          keys.style.padding = "21px 34px 144px 34px"
+                          keys.style.overflow = "auto"
+
+                          // const keyContainer = document.createElement("div")
+                          // keyContainer.style.margin = "13px 34px"
+
+                          for (let i = 0; i < user.keys.length; i++) {
+                            // const key = user.keys[i]
+
+                            const key = document.createElement("p")
+                            // console.log(key);
+                            key.innerHTML = user.keys[i]
+                            keys.append(key)
+                          }
+
+                          // keys.innerHTML = user.keys
+                          overlay.append(keys)
+
+
+                        })
+                      })
+
+                      button.append(message)
+                      buttons.append(button)
+                    }
+                    overlay.append(buttons)
+                  }
+
+
+
+
+                })
+              })
+
+              const icon = document.createElement("img")
+              icon.style.margin = "13px 34px"
+              icon.style.width = "34px"
+              icon.src = "/public/user-logs.svg"
+              icon.alt = "Nutzerliste"
+              button.append(icon)
+
+              const title = document.createElement("h2")
+              title.style.margin = "13px 34px"
+              title.innerHTML = "user logs"
+              button.append(title)
+
+              buttons.append(button)
+            }
+
+
+
+
+
+            overlay.append(buttons)
+
+            })
+
+
+
         })
 
         const moreIcon = document.createElement("img")

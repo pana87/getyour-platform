@@ -59,22 +59,109 @@ export class FileField {
     return this
   }
 
+  withValidPdf(file) {
+    return new Promise(async(resolve, reject) => {
+
+      const allowedMimeTypes = ["application/pdf"]
+      const allowedExtensions = ["pdf"]
+      await Helper.verifyFileMimeTypes(file, allowedMimeTypes)
+      .catch(error => {
+        alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
+        Helper.setNotValidStyle(document.querySelector(this.inputSelector))
+        throw error
+      })
+
+      await Helper.verifyFileExtension(file, allowedExtensions)
+      .catch(error => {
+        alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
+        Helper.setNotValidStyle(document.querySelector(this.inputSelector))
+        throw error
+      })
+
+      const fileReader = new FileReader()
+      fileReader.onload = async(event) => {
+
+        const dataUrlSize = Helper.calculateDataUrlSize(fileReader.result)
+        if (dataUrlSize > 5 * 1024 * 1024) {
+          alert("PDF ist zu groß.")
+          Helper.setNotValidStyle(document.querySelector(this.inputSelector))
+          throw new Error("pdf too large")
+        }
+
+        const newFile = {}
+        newFile.name = file.name
+        newFile.type = file.type
+        newFile.size = dataUrlSize
+        newFile.modified = Date.now()
+        newFile.dataUrl = fileReader.result
+
+        return resolve(newFile)
+      }
+      fileReader.readAsDataURL(file)
+    })
+  }
+
+  async withValidImage(file) {
+
+    const allowedMimeTypes = ["image/jpeg", "image/png"]
+    const allowedExtensions = ["jpg", "jpeg", "png"]
+
+    if (allowedMimeTypes !== undefined) {
+      await Helper.verifyFileMimeTypes(file, allowedMimeTypes)
+      .catch(error => {
+        alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+        Helper.setNotValidStyle(document.querySelector(this.inputSelector))
+        throw error
+      })
+    }
+
+    if (allowedExtensions !== undefined) {
+      await Helper.verifyFileExtension(file, allowedExtensions)
+      .catch(error => {
+        alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+        Helper.setNotValidStyle(document.querySelector(this.inputSelector))
+        throw error
+      })
+    }
+
+    const dataUrl = await Helper.convertImageFileToDataUrl(file)
+    const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+    if (dataUrlSize > 1024 * 1024) {
+      alert("Datei ist zu groß.")
+      Helper.setNotValidStyle(document.querySelector(this.inputSelector))
+      throw new Error("image too large")
+    }
+
+    const image = {}
+    image.name = file.name
+    image.type = file.type
+    image.size = dataUrlSize
+    image.modified = Date.now()
+    image.dataUrl = dataUrl
+    return image
+  }
+
   #isRequired(input) {
     if (input.required === true) return true
     return false
+  }
+
+  #checkValidity(input) {
+    return input.checkValidity()
   }
 
   withValidValue() {
     return new Promise((resolve, reject) => {
       document.querySelectorAll(this.inputSelector).forEach(async input => {
         if (this.#isRequired(input)) {
-          if (input.checkValidity()) {
+          if (this.#checkValidity(input)) {
             Helper.setValidStyle(input)
             return resolve(input.files)
           }
           Helper.setNotValidStyle(input)
-          console.error(`field '${this.name}' is required`)
-          return
+          const error = new Error(`field required: '${this.name}'`)
+          error.fieldName = this.name
+          return reject(error)
         }
         Helper.setValidStyle(input)
         return resolve(input.files)
@@ -84,6 +171,7 @@ export class FileField {
 
   #setFields(field) {
     field.innerHTML = ""
+    field.id = this.name
     field.classList.add(this.name)
     field.style.position = "relative"
     field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
@@ -108,28 +196,36 @@ export class FileField {
     info.style.marginRight = "21px"
     labelContainer.append(info)
 
+
     const label = document.createElement("label")
     label.classList.add(this.name)
     label.style.color = "#707070"
     label.style.fontSize = "21px"
     labelContainer.append(label)
+    this.label = label
     field.append(labelContainer)
 
     const input = document.createElement("input")
     input.classList.add(this.name)
     input.type = this.type
     input.style.margin = "21px 89px 21px 34px"
-    // input.style.maxWidth = "300px"
     field.append(input)
+    this.input = input
+    return field
   }
 
-  constructor(name) {
+  constructor(name, parent) {
     if (Helper.stringIsEmpty(name)) throw new Error("field name is empty")
     this.name = name
     this.fieldSelector = `div[class='${this.name}']`
     this.inputSelector = `input[class='${this.name}']`
     this.labelSelector = `label[class='${this.name}']`
     this.type = "file"
+
+    this.field = document.createElement("div")
+    this.field = this.#setFields(this.field)
+    if (parent !== undefined) parent.append(this.field)
+
     this.fields = Array.from(document.querySelectorAll(this.fieldSelector))
     for (let i = 0; i < this.fields.length; i++) {
       this.#setFields(this.fields[i])

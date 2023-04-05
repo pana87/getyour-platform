@@ -51,7 +51,8 @@ export class NumberField {
   async withStorage(callback) {
     if (callback !== undefined) {
       const value = await this.withValidValue()
-      if (!Helper.numberIsEmpty(value)) callback(value)
+      // if (!Helper.numberIsEmpty(value)) callback(value)
+      callback(value)
     }
     return this
   }
@@ -61,17 +62,31 @@ export class NumberField {
     return false
   }
 
+  #checkValidity(input) {
+
+    const value = input.value
+    if (typeof value !== "string") return false
+    if (value === "") return false
+    if (value.startsWith(".")) return false
+
+    const number = Number(input.value)
+    if (typeof number !== "number") return false
+
+    return true
+  }
+
   withValidValue() {
     return new Promise((resolve, reject) => {
       document.querySelectorAll(this.inputSelector).forEach(input => {
         if (this.#isRequired(input)) {
-          if (input.checkValidity()) {
+          if (this.#checkValidity(input)) {
             Helper.setValidStyle(input)
             return resolve(input.value)
           }
           Helper.setNotValidStyle(input)
-          console.error(`field '${this.name}' is required`)
-          return
+          const error = new Error(`field required: '${this.name}'`)
+          error.fieldName = this.name
+          return reject(error)
         }
         Helper.setValidStyle(input)
         return resolve(input.value)
@@ -81,6 +96,7 @@ export class NumberField {
 
   #setNumber(field) {
     field.innerHTML = ""
+    field.id = this.name
     field.classList.add(this.name)
     field.style.position = "relative"
     field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
@@ -119,11 +135,20 @@ export class NumberField {
     input.style.margin = "21px 89px 21px 34px"
     input.style.fontSize = "21px"
     field.append(input)
+    return field
   }
 
-  constructor(name) {
+  constructor(name, parent) {
     if (Helper.stringIsEmpty(name)) throw new Error("name is empty")
     this.name = name
+
+    this.field = document.createElement("div")
+    this.field = this.#setNumber(this.field)
+    if (parent !== undefined) {
+      this.parent = parent
+      parent.append(this.field)
+    }
+
     this.fieldSelector = `div[class='${this.name}']`
     this.inputSelector = `input[class='${this.name}']`
     this.labelSelector = `label[class='${this.name}']`

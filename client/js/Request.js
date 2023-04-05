@@ -39,30 +39,10 @@ export class Request {
     })
   }
 
-  // static async verifyEmail(email) {
-  //   const overlay = Helper.addOverlay()
-  //   const interval = Helper.startTimer({duration: 2 * 60, display: overlay})
-  //   Helper.setWaitCursor()
-  //   try {
-  //     await this.sequence({email, url: `/request/send/email/with/pin/`})
-  //     const userPin = prompt(`Es wurde eine PIN an deine E-Mail Adresse gesendet.\n\nBestätige deine PIN um fortzufahren.`)
-  //     await this.sequence({userPin, url: `/request/verify/pin/`})
-  //     const id = await Helper.digest(JSON.stringify({email: email, verified: true}))
-  //     window.localStorage.setItem("localStorageId", id)
-  //     window.localStorage.setItem("email", email)
-  //     overlay.textContent = "ok"
-  //     clearInterval(interval)
-  //   } catch (error) {
-  //     overlay.textContent = "fehler"
-  //     clearInterval(interval)
-  //     Helper.setNotAllowedCursor()
-  //     throw new Error(error)
-  //   }
-  // }
-
   static async withVerifiedEmail(email, callback) {
     const overlay = Helper.addOverlay()
     const interval = Helper.startTimer({duration: 2 * 60, display: overlay})
+    // window.navigator.vibrate([233, 144, 233])
     Helper.setWaitCursor()
     try {
       await this.sequence({email, url: `/request/send/email/with/pin/`})
@@ -73,11 +53,13 @@ export class Request {
       window.localStorage.setItem("email", email)
       callback()
       overlay.textContent = "ok"
+      // window.navigator.vibrate([233, 144, 233])
       clearInterval(interval)
     } catch (error) {
       Helper.setNotAllowedCursor()
       clearInterval(interval)
       overlay.textContent = "fehler"
+      // window.navigator.vibrate(233)
       EventTarget.prototype.addEventListener = function(type, listener, options) {
         console.log('Event listeners blocked')
       }
@@ -93,7 +75,7 @@ export class Request {
     return new Promise((resolve, reject) => {
       const email = window.localStorage.getItem("email")
       if (email !== null) return resolve(email)
-      else return window.location.assign("/home/")
+      else return window.location.assign("/pana/getyour/login/")
     })
   }
 
@@ -101,7 +83,7 @@ export class Request {
     return new Promise((resolve, reject) => {
       const localStorageId = window.localStorage.getItem("localStorageId")
       if (localStorageId !== null) return resolve(localStorageId)
-      else return window.location.assign("/home/")
+      else return window.location.assign("/pana/getyour/login/")
     })
   }
 

@@ -3,6 +3,222 @@ import {FooterField} from "/js/FooterField.js"
 
 export class Helper {
 
+  static createButton(event, options) {
+    if (event === "service") {
+      const {name, units, price, selected} = options
+
+      const item = document.createElement("div")
+      item.style.position = "relative"
+      item.style.margin = "21px 34px"
+      item.style.fontSize = "21px"
+      item.style.display = "flex"
+      item.style.flexDirection = "column"
+      item.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+      item.style.border = "0.3px solid black"
+      item.style.borderRadius = "13px"
+      item.style.padding = "21px 34px"
+
+      const firstRow = document.createElement("div")
+      firstRow.style.display = "flex"
+      firstRow.style.alignItems = "center"
+      firstRow.style.margin = "13px 0"
+      firstRow.style.cursor = "pointer"
+      firstRow.addEventListener("click", () => {
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.style.zIndex = "1"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = name
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", async () => {
+
+              try {
+                const securityOverlay = Helper.addOverlay()
+                Helper.setWaitCursor()
+                {
+                  const del = {}
+                  del.url = "/delete/service/closed/5/"
+                  del.name = name
+                  del.localStorageId = await Request.localStorageId()
+                  del.localStorageEmail = await Request.email()
+                  del.location = window.location.href
+                  del.referer = document.referrer
+                  await Request.sequence(del)
+                }
+
+                alert("Dienst erfolgreich gelöscht.")
+                item.remove()
+                Helper.removeOverlay(securityOverlay)
+                Helper.removeOverlay(overlay)
+              } catch (error) {
+                alert("Fehler.. Bitte wiederholen.")
+                window.location.reload()
+              }
+
+
+
+
+            })
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/delete.svg"
+            icon.alt = "Energie Portal"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Löschen"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            overlay.append(button)
+          }
+
+        })
+      })
+
+      const amount = document.createElement("div")
+      amount.innerHTML = `${units}x`
+      amount.style.marginRight = "8px"
+      firstRow.append(amount)
+
+      const title = document.createElement("div")
+      title.innerHTML = name
+      firstRow.append(title)
+
+      item.append(firstRow)
+
+      const secondRow = document.createElement("div")
+      secondRow.style.display = "flex"
+      secondRow.style.justifyContent = "flex-end"
+      secondRow.style.alignItems = "center"
+      secondRow.style.margin = "13px 0"
+
+      {
+        const div = document.createElement("div")
+        div.innerHTML = `${price}€`
+        secondRow.append(div)
+      }
+
+      const input = document.createElement("input")
+      input.type = "checkbox"
+      input.checked = selected
+      input.style.width = "21px"
+      input.style.height = "21px"
+      input.style.margin = "0 0 3px 13px"
+      input.addEventListener("input", (event) => {
+
+        const services = JSON.parse(window.sessionStorage.getItem("services"))
+        if (services !== null) {
+          for (let i = 0; i < services.length; i++) {
+            if (services[i].name === name) {
+              services[i].selected = event.target.checked
+            }
+          }
+          window.sessionStorage.setItem("services", JSON.stringify(services))
+        }
+
+      })
+      secondRow.append(input)
+
+      item.append(secondRow)
+
+      return item
+    }
+  }
+
+  // static async verifyFiles(files, allowedMimeTypes, allowedExtensions) {
+  //   if (files === undefined) throw new Error("files is undefined")
+
+  //   let array = []
+  //   const allowedMimeTypes = ["image/jpeg", "image/png"]
+  //   const allowedExtensions = ["jpg", "jpeg", "png"]
+  //   for (let i = 0; i < files.length; i++) {
+
+
+  //     if (allowedMimeTypes !== undefined) {
+  //       await Helper.verifyFileMimeTypes(files[i], allowedMimeTypes)
+  //       .catch(error => {
+  //         alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+  //         Helper.setNotValidStyle(document.querySelector(hausFrontBild.inputSelector))
+  //         throw error
+  //       })
+  //     }
+
+  //     if (allowedExtensions !== undefined) {
+  //       await Helper.verifyFileExtension(files[i], allowedExtensions)
+  //       .catch(error => {
+  //         alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+  //         Helper.setNotValidStyle(document.querySelector(hausFrontBild.inputSelector))
+  //         throw error
+  //       })
+  //     }
+
+
+  //     const dataUrl = await Helper.convertImageFileToDataUrl(files[i])
+  //     const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+  //     if (dataUrlSize > 1024 * 1024) {
+  //       alert("Bild ist zu groß.")
+  //       Helper.setNotValidStyle(document.querySelector(hausFrontBild.inputSelector))
+  //       throw new Error("image too large")
+  //     }
+
+  //     array.push({
+  //       name: files[i].name,
+  //       type: files[i].type,
+  //       size: dataUrlSize,
+  //       lastModified: Date.now(),
+  //       dataUrl: dataUrl,
+  //     })
+
+  //   }
+
+  //   if (array.length > 0) {
+  //     funnel[hausFrontBild.name] = array
+  //     window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+  //   }
+
+  // }
+
   // static jsonToHtml(json, element) {
   //   const div = document.createElement('div');
   //   div.style.fontFamily = 'sans-serif';
@@ -126,6 +342,11 @@ export class Helper {
     })
   }
 
+  static removeOverlay(overlay) {
+    document.body.style.position = "static"
+    overlay.remove()
+  }
+
   static popup(callback) {
     if (callback !== undefined) {
       const overlay = document.createElement("div")
@@ -143,6 +364,7 @@ export class Helper {
       callback(overlay)
 
       document.body.append(overlay)
+      document.body.style.position = "fixed"
 
       const animation = overlay.animate([
         { opacity: 0, transform: 'translateY(13px)' },
@@ -289,7 +511,7 @@ export class Helper {
       try {
         canvas.toBlob(blob => {
           return resolve({
-            createdAt: Date.now(),
+            created: Date.now(),
             type: blob.type,
             size: blob.size,
             dataURL: canvas.toDataURL()
@@ -360,41 +582,40 @@ export class Helper {
     }
   }
 
-  static createSHSFooter() {
-    return new FooterField()
-    .withType(footer => {
-      footer.style.textAlign = "center"
-      footer.style.backgroundColor = "#60a182"
-      footer.style.padding = "21px 34px"
-      footer.style.marginTop = "144px"
+  // static createSHSFooter() {
+  //   return new FooterField()
+  //   .withType(footer => {
+  //     footer.style.textAlign = "center"
+  //     footer.style.backgroundColor = "#60a182"
+  //     footer.style.padding = "21px 34px"
+  //     footer.style.marginTop = "144px"
 
-      const impressum = document.createElement("div")
-      impressum.innerHTML = "Impressum"
-      impressum.style.cursor = "pointer"
-      impressum.style.padding = "13px"
-      impressum.addEventListener("click", () => window.location.assign("/felix/shs/impressum/"))
-      footer.append(impressum)
+  //     const impressum = document.createElement("div")
+  //     impressum.innerHTML = "Impressum"
+  //     impressum.style.cursor = "pointer"
+  //     impressum.style.padding = "13px"
+  //     impressum.addEventListener("click", () => window.location.assign("/felix/shs/impressum/"))
+  //     footer.append(impressum)
 
-      const dsgvo = document.createElement("div")
-      dsgvo.innerHTML = "Datenschutz"
-      dsgvo.style.cursor = "pointer"
-      dsgvo.style.padding = "13px"
-      dsgvo.addEventListener("click", () => window.location.assign("/datenschutz/"))
-      footer.append(dsgvo)
+  //     const dsgvo = document.createElement("div")
+  //     dsgvo.innerHTML = "Datenschutz"
+  //     dsgvo.style.cursor = "pointer"
+  //     dsgvo.style.padding = "13px"
+  //     dsgvo.addEventListener("click", () => window.location.assign("/datenschutz/"))
+  //     footer.append(dsgvo)
 
-      const userAgreement = document.createElement("div")
-      userAgreement.innerHTML = "Nutzervereinbarung"
-      userAgreement.style.cursor = "pointer"
-      userAgreement.style.padding = "13px"
-      userAgreement.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
-      footer.append(userAgreement)
-    })
-  }
+  //     const userAgreement = document.createElement("div")
+  //     userAgreement.innerHTML = "Nutzervereinbarung"
+  //     userAgreement.style.cursor = "pointer"
+  //     userAgreement.style.padding = "13px"
+  //     userAgreement.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
+  //     footer.append(userAgreement)
+  //   })
+  // }
 
   static setDefaultCursor() {document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "default")}
   static setWaitCursor() {document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "wait")}
   static setNotAllowedCursor() {document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "not-allowed")}
-  static removeOverlay() {document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.remove())}
 
   static addOverlay() {
     const overlay = document.createElement("div")
@@ -423,7 +644,7 @@ export class Helper {
 
   static async redirectUser(event) {
     const redirectUser = {}
-    redirectUser.url = "/consumer/open/"
+    redirectUser.url = "/consumer/closed/"
     redirectUser.method = "redirect"
     redirectUser.type = "user"
     redirectUser.event = event
@@ -560,6 +781,7 @@ export class Helper {
   static numberIsEmpty(number) {
     return number === undefined ||
     number === null ||
+    typeof number !== "number" ||
     number === ""
   }
 
