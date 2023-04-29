@@ -55,8 +55,9 @@ export class PasswordField {
             return resolve(input.value)
           }
           Helper.setNotValidStyle(input)
-          console.error(`field '${this.name}' is required`)
-          return
+          const error = new Error(`field required: '${this.name}'`)
+          error.fieldName = this.name
+          return reject(error)
         }
         Helper.setValidStyle(input)
         return resolve(input.value)
@@ -66,6 +67,7 @@ export class PasswordField {
 
   #setPassword(field) {
     field.innerHTML = ""
+    field.id = this.name
     field.style.position = "relative"
     field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
     field.style.borderRadius = "13px"
@@ -101,7 +103,6 @@ export class PasswordField {
     input.type = this.type
     input.style.margin = "21px 89px 21px 34px"
     input.style.fontSize = "21px"
-    // input.style.maxWidth = "300px"
     field.append(input)
   }
 

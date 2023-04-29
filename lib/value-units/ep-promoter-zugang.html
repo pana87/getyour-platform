@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>Promoter Zugang</title>
+
+
+    <style>
+      body {
+        margin: 0;
+        line-height: 1.2;
+        font-family: sans-serif;
+        padding-bottom: 144px;
+      }
+    </style>
+
+
+  </head>
+  <body>
+
+    <script type="module">
+      import { InfoField } from "/js/InfoField.js"
+      import { DivField } from "/js/DivField.js"
+      import { Helper } from "/js/Helper.js"
+      import { EmailField } from "/js/EmailField.js"
+      import { Request } from "/js/Request.js"
+      import { CheckboxField } from "/js/CheckboxField.js"
+
+      {
+        const header = document.createElement("header")
+        header.style.position = "fixed"
+        header.style.bottom = "0"
+        header.style.left = "0"
+        header.style.backgroundColor = "white"
+        header.style.zIndex = "1"
+        header.style.width = "100%"
+        header.style.display = "flex"
+        header.style.flexWrap = "wrap"
+        header.style.alignItems = "center"
+        header.style.justifyContent = "space-between"
+        header.style.boxShadow = "0 -3px 5px rgba(0, 0, 0, 0.13)"
+
+        const leftContainer = document.createElement("div")
+        leftContainer.style.display = "flex"
+        leftContainer.style.alignItems = "center"
+        leftContainer.style.flexWrap = "wrap"
+
+        const logo = document.createElement("img")
+        logo.src = "/felix/shs/public/ep-logo.svg"
+        logo.alt = "Energie Plattform"
+        logo.style.width = "55px"
+        logo.style.margin = "21px 0 21px 34px"
+        logo.style.cursor = "pointer"
+        logo.addEventListener("click", () => window.history.back())
+        leftContainer.append(logo)
+
+        const name = document.createElement("div")
+        name.innerHTML = "Energie Plattform"
+        name.style.padding = "21px 34px"
+        name.style.fontSize = "21px"
+        name.style.color = "#7bc043"
+        name.style.cursor = "pointer"
+
+
+
+        name.addEventListener("click", () => {
+
+          Helper.popup(overlay => {
+
+            const header = document.createElement("div")
+            header.style.position = "fixed"
+            header.style.bottom = "0"
+            header.style.left = "0"
+            header.style.width = "100%"
+            header.style.display = "flex"
+            header.style.justifyContent = "flex-start"
+            header.style.alignItems = "center"
+            header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+            header.style.background = "white"
+            header.style.cursor = "pointer"
+            header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+            const logo = document.createElement("img")
+            logo.src = "/public/ep-logo.svg"
+            logo.alt = "EP"
+            logo.style.width = "55px"
+            logo.style.margin = "34px"
+            header.append(logo)
+            const title = document.createElement("div")
+            title.innerHTML = `/ ${window.location.pathname.split("/")[3]} /`
+            title.style.fontWeight = "bold"
+            title.style.fontSize = "21px"
+            header.append(title)
+            overlay.append(header)
+
+
+
+            const buttons = document.createElement("div")
+            buttons.style.overflow = "auto"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.style.display = "flex"
+              button.style.flexWrap = "wrap"
+              button.style.justifyContent = "space-between"
+              button.style.alignItems = "center"
+              button.style.margin = "21px 34px"
+              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+              button.style.borderRadius = "13px"
+              button.style.border = "0.3px solid black"
+              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => window.location.assign("/felix/energie-plattform/"))
+
+              const icon = document.createElement("img")
+              icon.style.margin = "13px 34px"
+              icon.style.width = "34px"
+              icon.src = "/public/home.svg"
+              icon.alt = "Home"
+              button.append(icon)
+
+              const title = document.createElement("div")
+              title.innerHTML = "Startseite"
+              title.style.margin = "21px 34px"
+              title.style.fontSize = "21px"
+              button.append(title)
+
+              buttons.append(button)
+            }
+
+            {
+              const button = document.createElement("div")
+              button.style.display = "flex"
+              button.style.flexWrap = "wrap"
+              button.style.justifyContent = "space-between"
+              button.style.alignItems = "center"
+              button.style.margin = "21px 34px"
+              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+              button.style.borderRadius = "13px"
+              button.style.border = "0.3px solid black"
+              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => window.location.assign("/pana/getyour/nutzervereinbarung/"))
+
+              const icon = document.createElement("img")
+              icon.style.margin = "13px 34px"
+              icon.style.width = "34px"
+              icon.src = "/public/handshake.svg"
+              icon.alt = "Nutzervereinbarung"
+              button.append(icon)
+
+              const title = document.createElement("div")
+              title.innerHTML = "Nutzervereinbarung"
+              title.style.margin = "21px 34px"
+              title.style.fontSize = "21px"
+              button.append(title)
+
+              buttons.append(button)
+            }
+
+            {
+              const button = document.createElement("div")
+              button.style.display = "flex"
+              button.style.flexWrap = "wrap"
+              button.style.justifyContent = "space-between"
+              button.style.alignItems = "center"
+              button.style.margin = "21px 34px"
+              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+              button.style.borderRadius = "13px"
+              button.style.border = "0.3px solid black"
+              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => window.location.assign("/pana/getyour/datenschutz/"))
+
+              const icon = document.createElement("img")
+              icon.style.margin = "13px 34px"
+              icon.style.width = "34px"
+              icon.src = "/public/security.svg"
+              icon.alt = "Sicherheit"
+              button.append(icon)
+
+              const title = document.createElement("div")
+              title.innerHTML = "Datenschutz Richtilinien"
+              title.style.margin = "21px 34px"
+              title.style.fontSize = "21px"
+              button.append(title)
+
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.style.display = "flex"
+              button.style.flexWrap = "wrap"
+              button.style.justifyContent = "space-between"
+              button.style.alignItems = "center"
+              button.style.margin = "21px 34px"
+              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+              button.style.borderRadius = "13px"
+              button.style.border = "0.3px solid black"
+              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => window.location.assign("/pana/getyour/impressum/"))
+
+              const icon = document.createElement("img")
+              icon.style.margin = "13px 34px"
+              icon.style.width = "34px"
+              icon.src = "/public/company.svg"
+              icon.alt = "Unternehmen"
+              button.append(icon)
+
+              const title = document.createElement("div")
+              title.innerHTML = "Impressum"
+              title.style.margin = "21px 34px"
+              title.style.fontSize = "21px"
+              button.append(title)
+
+              buttons.append(button)
+            }
+
+            {
+              const button = document.createElement("div")
+              button.style.display = "flex"
+              button.style.flexWrap = "wrap"
+              button.style.justifyContent = "space-between"
+              button.style.alignItems = "center"
+              button.style.margin = "21px 34px"
+              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+              button.style.borderRadius = "13px"
+              button.style.border = "0.3px solid black"
+              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+              button.style.cursor = "pointer"
+
+              button.addEventListener("click", () => window.location.assign("/"))
+
+              const icon = document.createElement("img")
+              icon.style.margin = "13px 34px"
+              icon.style.width = "34px"
+              icon.src = "/public/entry.svg"
+              icon.alt = "Zugang"
+              button.append(icon)
+
+              const title = document.createElement("div")
+              title.style.margin = "13px 34px"
+              title.style.fontSize = "21px"
+              title.innerHTML = "Plattform Zugänge"
+              button.append(title)
+
+              buttons.append(button)
+            }
+
+
+            overlay.append(buttons)
+          })
+        })
+
+        leftContainer.append(name)
+        header.append(leftContainer)
+        document.body.append(header)
+      }
+
+
+      {
+        const title = document.createElement("h1")
+        title.innerHTML = "Promoter Zugang"
+        title.style.margin = "21px 34px"
+        title.style.fontWeight = "normal"
+        document.body.append(title)
+      }
+
+      {
+        const div = document.createElement("div")
+        div.style.fontSize = "21px"
+        const info = new InfoField(div)
+        info.withSuccess("Konto erstellen, Daten sichern, Angebote erstellen und Zugang zu Ihrer persönlichen Verkäuferübersicht erhalten.")
+        document.body.append(info.field)
+      }
+
+      const emailField = new EmailField("email", document.body)
+      .withLabel(label => label.innerHTML = "E-Mail Adresse")
+      .withType(email => {
+        email.placeholder = "meine@email.de"
+        email.required = true
+      })
+      .onInput(async() => {
+        emailField.withStorage(value => {
+          window.localStorage.setItem(emailField.name, value)
+        })
+      })
+      .fromStorage((name) => window.localStorage.getItem(name))
+      emailField.withStorage(value => {
+        window.localStorage.setItem(emailField.name, value)
+      })
+
+      const dsgvoField = new CheckboxField("dsgvo", document.body)
+      .withLabel(label => label.innerHTML = /*html*/`
+        <div style="font-size: 13px;">Ich habe die <a href="/pana/getyour/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/pana/getyour/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>
+      `)
+      .withType((input) => {
+        input.required = true
+      })
+      .onInput(async() => {
+        dsgvoField.withStorage(value => {
+          window.localStorage.setItem(dsgvoField.name, value)
+        })
+      })
+      .fromStorage((name) => window.localStorage.getItem(name))
+      dsgvoField.withStorage(value => {
+        window.localStorage.setItem(dsgvoField.name, value)
+      })
+
+
+      const speichernundweiterbutton = new DivField("save-and-proceed-button", document.body)
+      .withType(div => {
+        div.innerHTML = "Login"
+        div.style.fontSize = "21px"
+        div.style.margin = "55px 34px 0 34px"
+        div.style.backgroundColor = "#f7aa20"
+        div.style.borderRadius = "13px"
+        div.style.height = "89px"
+        div.style.display = "flex"
+        div.style.justifyContent = "center"
+        div.style.alignItems = "center"
+      })
+      .onClick(async () => {
+        const dsgvo = await dsgvoField.withValidValue()
+
+        const email = await emailField.withValidValue()
+        await Request.withVerifiedEmail(email, async () => {
+
+          {
+            const register = {}
+            register.url = "/register/email/open/"
+            register.email = email
+            register.role = "5"
+            register.location = window.location.href
+            register.referer = document.referrer
+            register.localStorageId = await Request.localStorageId()
+            register.localStorageEmail = await Request.email()
+            await Request.sequence(register)
+          }
+
+          {
+            const register = {}
+            register.url = "/request/register/session/"
+            register.location = window.location.href
+            register.referer = document.referrer
+            register.localStorageEmail = await Request.email()
+            register.localStorageId = await Request.localStorageId()
+            await Request.sequence(register)
+          }
+
+          {
+            const register = {}
+            register.url = "/register/verified/closed/5/"
+            register.state = true
+            register.localStorageId = await Request.localStorageId()
+            register.localStorageEmail = await Request.email()
+            register.location = window.location.href
+            register.referer = document.referrer
+            await Request.sequence(register)
+          }
+
+          alert("Login erfolgreich..")
+
+          {
+            const redirect = {}
+            redirect.url = "/redirect/user/closed/"
+            redirect.location = window.location.href
+            redirect.referer = document.referrer
+            redirect.localStorageEmail = await Request.email()
+            redirect.localStorageId = await Request.localStorageId()
+            const res = await Request.middleware(redirect)
+            if (res.status === 200) window.location.assign(res.response)
+          }
+
+        })
+      })
+
+      {
+        const div = document.createElement("div")
+        div.style.fontSize = "13px"
+        const info = new InfoField(div)
+        info.withSuccess("*unverbindlichen und kostenlosen Zugang erhalten")
+        document.body.append(info.field)
+      }
+
+
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,2662 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>Energie Portal Abfrage Strom</title>
+
+
+    <style>
+      body {
+        margin: 0;
+        line-height: 1.2;
+        font-family: sans-serif;
+        padding-bottom: 144px;
+      }
+    </style>
+
+
+  </head>
+  <body>
+
+
+    <header></header>
+
+    <h1 class="power-system-title"></h1>
+    <div class="stromVersorger"></div>
+    <div class="stromZaehlerschrankVerbaut"></div>
+    <div class="stromPlatzZaehlerSchrank"></div>
+    <div class="stromHauptzaehlerAnzahl"></div>
+    <div class="stromUnterzaehlerNotwendig"></div>
+    <div class="stromWievieleNeueZaehler"></div>
+    <div class="stromHauptzaehlerNummer"></div>
+    <div class="stromNebenzaehlerNummer"></div>
+    <div class="stromZaehlerKonzeptZusammen"></div>
+    <div class="stromJahresverbrauch"></div>
+    <div class="stromNebenzaehlerFunktion"></div>
+    <div class="stromArbeitspreis"></div>
+    <div class="stromGrundpreis"></div>
+    <div class="stromArbeitspreisWaerme"></div>
+    <div class="stromaGrundpreisWaerme"></div>
+
+
+    <h2 class="picture-upload-title"></h2>
+    <div class="stromZaehlerschrankBild"></div>
+    <div class="stromTypenBezeichnungBild"></div>
+    <div class="stromAllezaehlerBild"></div>
+
+
+
+    <script type="module">
+      import { HeaderField } from "/js/HeaderField.js"
+      import { DivField } from "/js/DivField.js"
+      import { FileField } from "/js/FileField.js"
+      import { Helper } from "/js/Helper.js"
+      import { NumberField } from "/js/NumberField.js"
+      import { SelectionField } from "/js/SelectionField.js"
+      import { TextField } from "/js/TextField.js"
+      import { Request } from "/js/Request.js"
+
+      const urlId = window.location.pathname.split("/")[4]
+
+      const storageName = "epFunnel"
+      let funnel = JSON.parse(window.sessionStorage.getItem(storageName))
+      {
+        const get = {}
+        get.url = "/get/funnel/closed/4/"
+        get.tag = storageName
+        get.urlId = urlId
+        get.localStorageId = await Request.localStorageId()
+        get.localStorageEmail = await Request.email()
+        get.location = window.location.href
+        get.referer = document.referrer
+        const res = await Request.middleware(get)
+
+        if (res.status === 200) {
+          funnel = JSON.parse(res.response)
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        }
+      }
+      if (funnel === null) {
+        window.location.assign(`/felix/ep/qualifizierung/${urlId}/4/`)
+        throw new Error("funnel not found")
+      }
+
+      const header = document.querySelector("header")
+      header.style.position = "fixed"
+      header.style.bottom = "0"
+      header.style.left = "0"
+      header.style.backgroundColor = "white"
+      header.style.width = "100%"
+      header.style.display = "flex"
+      header.style.flexWrap = "wrap"
+      header.style.alignItems = "center"
+      header.style.zIndex = "1"
+      header.style.justifyContent = "space-between"
+      header.style.boxShadow = "0 -3px 5px rgba(0, 0, 0, 0.13)"
+
+      const leftContainer = document.createElement("div")
+      leftContainer.style.display = "flex"
+      leftContainer.style.alignItems = "center"
+      leftContainer.style.flexWrap = "wrap"
+
+      const logo = document.createElement("img")
+      logo.src = "/felix/shs/public/ep-logo.svg"
+      logo.alt = "Energie Portal"
+      logo.style.width = "55px"
+      logo.style.margin = "21px 0 21px 34px"
+      logo.style.cursor = "pointer"
+      logo.addEventListener("click", () => window.history.back())
+      leftContainer.append(logo)
+
+      const name = document.createElement("div")
+      name.innerHTML = "Energie Portal"
+      name.style.padding = "21px 34px"
+      name.style.fontSize = "21px"
+      name.style.color = "#7bc043"
+      name.style.cursor = "pointer"
+      name.addEventListener("click", () => {
+
+
+
+        Helper.popup(overlay => {
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Energie Portal"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+
+          const buttons = document.createElement("div")
+          buttons.style.overflow = "auto"
+          buttons.style.paddingBottom = "144px"
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign(`/felix/ep/qualifizierung/${urlId}/4/`))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/refresh.svg"
+            icon.alt = "Neustart"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Neustart"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign(`/felix/ep/abfrage-haus/${urlId}/4/`))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/refresh.svg"
+            icon.alt = "Neustart"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Angaben zum Haus"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign(`/felix/ep/abfrage-heizung/${urlId}/4/`))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/refresh.svg"
+            icon.alt = "Neustart"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Angaben zur Heizung"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+          {
+
+
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.reload())
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/refresh.svg"
+            icon.alt = "Neustart"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Angaben zum Strom"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+
+
+
+          {
+
+            async function callback(event) {
+
+              try {
+                for (let i = 0; i < fields.length; i++) {
+                  await fields[i].withValidValue()
+                }
+
+
+                Helper.addOverlay()
+                Helper.setWaitCursor()
+                const funnel = JSON.parse(window.sessionStorage.getItem(storageName))
+                {
+                  const register = {}
+                  register.url = "/register/funnel/closed/4/"
+                  register.funnel = funnel
+                  register.tag = storageName
+                  register.urlId = urlId
+                  register.localStorageId = await Request.localStorageId()
+                  register.localStorageEmail = await Request.email()
+                  register.location = window.location.href
+                  register.referer = document.referrer
+                  const res = await Request.middleware(register)
+
+                  if (res.status === 200) {
+                    alert("Speichern erfolgreich..")
+                  }
+                }
+
+                window.location.assign(`/felix/ep/abfrage-technisches/${urlId}/4/`)
+              } catch (error) {
+                alert(`Feld '${error.fieldName}' ist notwendig.`)
+                Helper.removeOverlay(overlay)
+                Helper.setDefaultCursor()
+                document.getElementById(error.fieldName).scrollIntoView({behavior: 'smooth'})
+              }
+
+            }
+
+
+
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", callback)
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/proceed-2.svg"
+            icon.alt = "Neustart"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Speichern und Weiter"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/handshake.svg"
+            icon.alt = "Nutzervereinbarung"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Nutzervereinbarung"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign("/datenschutz/"))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/security.svg"
+            icon.alt = "Nutzervereinbarung"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Datenschutz Richtilinien"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+            button.addEventListener("click", () => window.location.assign("/impressum/"))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/company.svg"
+            icon.alt = "Nutzervereinbarung"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Impressum"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+          overlay.append(buttons)
+
+        })
+
+
+      })
+      leftContainer.append(name)
+      header.append(leftContainer)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      document.querySelectorAll(".power-system-title").forEach(title => {
+        title.innerHTML = "Stromanlage"
+        title.style.margin = "21px 34px"
+        title.style.fontWeight = "normal"
+      })
+
+
+      const stromVersorger = new TextField("stromVersorger")
+      .withLabel(label => label.innerHTML = "Aktueller Stromversorger")
+      .withType(text => text.placeholder = "zb Netze - BW..")
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Wenn man die Stromquelle und -kosten des Kunden nicht berücksichtigt, kann dies zu einer falschen Planung des Energiesystems führen. Zum Beispiel kann es sein, dass der Kunde mehr Strom erzeugt als er tatsächlich verbraucht, was zu einem Rückfluss von Strom ins Netz führt. In diesem Fall könnte es passieren, dass der Netzbetreiber den Überschussstrom abnimmt, aber nur zu einem niedrigeren Tarif als der Kunde für den Strom zahlt. Das bedeutet, dass der Kunde Geld verliert, anstatt Geld zu sparen. Auf der anderen Seite könnte es auch sein, dass der Kunde mehr Strom verbraucht als erzeugt und deshalb immer noch auf den Stromversorger angewiesen ist. In diesem Fall könnte es passieren, dass der Kunde höhere Stromrechnungen hat als erwartet, weil das Energiesystem nicht ausreichend dimensioniert ist."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        stromVersorger.withStorage(value => {
+          funnel[stromVersorger.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromVersorger.withStorage(value => {
+        funnel[stromVersorger.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const stromZaehlerschrankVerbaut = new SelectionField("stromZaehlerschrankVerbaut")
+      .withLabel(label => label.innerHTML = "Geeigneter Zählerschrank verbaut")
+      .withOptions(["Nein", "Ja"])
+      .onWindowLoad(async event => {
+        const options = await stromZaehlerschrankVerbaut.withValidValue()
+        if (options[0].value === "Ja") {
+          document.querySelectorAll(stromPlatzZaehlerSchrank.selectSelector).forEach(select => select.disabled = true)
+        }
+      })
+      .onChange(event => {
+        if (event.target.value === "Ja") {
+          document.querySelectorAll(stromPlatzZaehlerSchrank.selectSelector).forEach(select => select.disabled = true)
+          stromPlatzZaehlerSchrank.withRequired(undefined)
+          stromPlatzZaehlerSchrank.withValidValue()
+        } else {
+          document.querySelectorAll(stromPlatzZaehlerSchrank.selectSelector).forEach(select => select.disabled = false)
+          stromPlatzZaehlerSchrank.withRequired(1)
+          stromPlatzZaehlerSchrank.withValidValue()
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Der Zählerschrank ist ein wichtiger Teil des elektrischen Systems und muss den Anforderungen des Energiesystems entsprechen. Wenn ein geeigneter Zählerschrank nicht vorhanden ist, kann dies zu Problemen bei der Installation des Energiesystems führen. Zum Beispiel könnte es sein, dass der Zählerschrank nicht genügend Platz für weitere Sicherungen oder zusätzliche Stromzähler bietet. Wenn dies der Fall ist, muss der Zählerschrank möglicherweise ersetzt oder erweitert werden, um Platz für das Energiesystem zu schaffen."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        stromZaehlerschrankVerbaut.withStorage(value => {
+          funnel[stromZaehlerschrankVerbaut.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromZaehlerschrankVerbaut.withStorage(value => {
+        funnel[stromZaehlerschrankVerbaut.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const stromPlatzZaehlerSchrank = new SelectionField("stromPlatzZaehlerSchrank")
+      .withLabel(label => label.innerHTML = "Platz für zusätzlichen, neuen Zählerschrank (600x1100mm) vorhanden")
+      .withOptions(["Nein", "Ja"])
+      .withRequired(1)
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Der Zählerschrank ist ein wichtiger Teil des elektrischen Systems und muss den Anforderungen des Energiesystems entsprechen. Wenn ein geeigneter Zählerschrank nicht vorhanden ist, kann dies zu Problemen bei der Installation des Energiesystems führen. Zum Beispiel könnte es sein, dass der Zählerschrank nicht genügend Platz für weitere Sicherungen oder zusätzliche Stromzähler bietet. Wenn dies der Fall ist, muss der Zählerschrank möglicherweise ersetzt oder erweitert werden, um Platz für das Energiesystem zu schaffen."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        stromPlatzZaehlerSchrank.withStorage(value => {
+          funnel[stromPlatzZaehlerSchrank.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromPlatzZaehlerSchrank.withStorage(value => {
+        funnel[stromPlatzZaehlerSchrank.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const stromHauptzaehlerAnzahl = new SelectionField("stromHauptzaehlerAnzahl")
+      .withLabel(label => label.innerHTML = "Anzahl der Stromzähler")
+      .withOptions(["0", "1", "2", "3", "mehr"])
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Wenn es mehrere Stromzähler im Zählerschrank gibt, kann dies bedeuten, dass das Haus oder Gebäude über mehrere Stromkreise verfügt. Jeder Stromkreis hat seine eigenen Anforderungen und Kapazitäten, die bei der Planung des Energiesystems berücksichtigt werden müssen. Zum Beispiel benötigt eine Wärmepumpe möglicherweise einen eigenen Stromkreis, um sicherzustellen, dass sie genügend Strom bekommt, um effizient zu arbeiten. Darüber hinaus kann die Kenntnis der Anzahl der Stromzähler im Zählerschrank auch dabei helfen, den Energieverbrauch des Hauses oder Gebäudes besser zu verstehen. Dies kann wiederum dazu beitragen, das Energiesystem so zu planen, dass es den Bedürfnissen des Hauses oder Gebäudes entspricht und dabei den Energieverbrauch senkt."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        stromHauptzaehlerAnzahl.withStorage(value => {
+          funnel[stromHauptzaehlerAnzahl.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromHauptzaehlerAnzahl.withStorage(value => {
+        funnel[stromHauptzaehlerAnzahl.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const stromWievieleNeueZaehler = new SelectionField("stromWievieleNeueZaehler")
+      .withLabel(label => label.innerHTML = "Wie viele zusätzliche Zähler")
+      .withOptions(["1", "2", "3"])
+      .onInput(async() => {
+        stromWievieleNeueZaehler.withStorage(value => {
+          funnel[stromWievieleNeueZaehler.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromWievieleNeueZaehler.withStorage(value => {
+        funnel[stromWievieleNeueZaehler.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+
+      const stromUnterzaehlerNotwendig = new SelectionField("stromUnterzaehlerNotwendig")
+      .withLabel(label => label.innerHTML = "Zusätzlicher Unter-/Zwischenzähler notwendig")
+      .withOptions(["Nein", "Ja"])
+      .onWindowLoad(async event => {
+        const options = await stromUnterzaehlerNotwendig.withValidValue()
+        if (options[0].value === "Nein") {
+          document.querySelectorAll(stromWievieleNeueZaehler.selectSelector).forEach(select => select.disabled = true)
+        } else {
+          document.querySelectorAll(stromWievieleNeueZaehler.selectSelector).forEach(select => select.disabled = false)
+        }
+      })
+      .onChange(event => {
+        if (event.target.value === "Ja") {
+          document.querySelectorAll(stromWievieleNeueZaehler.selectSelector).forEach(select => select.disabled = false)
+        } else {
+          document.querySelectorAll(stromWievieleNeueZaehler.selectSelector).forEach(select => select.disabled = true)
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Ein Zwischenzähler ist ein zusätzlicher Stromzähler, der zwischen dem Hauptstromzähler und dem elektrischen System installiert wird, um den Stromverbrauch bestimmter Geräte oder Systeme zu messen. Wenn das Energiesystem, das Sie planen und bauen, eine Wärmepumpe, eine Photovoltaikanlage mit Speicher oder eine Solarthermieanlage enthält, müssen Sie möglicherweise einen Zwischenzähler installieren, um den Stromverbrauch dieser Geräte separat zu messen. Die Messung des Stromverbrauchs von Geräten wie Wärmepumpen ist wichtig, um sicherzustellen, dass das Energiesystem effizient arbeitet und nicht überlastet wird. Wenn die Wärmepumpe zum Beispiel zu viel Strom verbraucht, kann dies zu einer Überlastung des Stromnetzes führen, was zu Störungen und Ausfällen führen kann. Durch die Installation eines Zwischenzählers können Sie den Stromverbrauch der Wärmepumpe oder anderen Geräte separat messen und kontrollieren, um sicherzustellen, dass das Energiesystem effizient und sicher arbeitet. Darüber hinaus kann die Installation eines Zwischenzählers auch dabei helfen, den Energieverbrauch des Hauses oder Gebäudes besser zu verstehen. Dies kann dazu beitragen, den Energieverbrauch zu senken, indem ineffiziente Geräte oder Systeme identifiziert und ersetzt werden."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        stromUnterzaehlerNotwendig.withStorage(value => {
+          funnel[stromUnterzaehlerNotwendig.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromUnterzaehlerNotwendig.withStorage(value => {
+        funnel[stromUnterzaehlerNotwendig.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const stromHauptzaehlerNummer = new TextField("stromHauptzaehlerNummer")
+      .withLabel(label => label.innerHTML = "Zählernummer Hauptzähler")
+      .withType(text => {
+        text.placeholder = "44600637"
+        const q7 = funnel.q7
+        if (q7 === 0) {
+          text.required = true
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Der Hauptzähler ist der Stromzähler, der den Gesamtstromverbrauch des Hauses oder Gebäudes misst. Wenn Sie ein neues Energiesystem installieren, müssen Sie die Zählernummer des Hauptzählers kennen, um sicherzustellen, dass das System korrekt konfiguriert wird und mit dem Stromnetz verbunden ist. Die Zählernummer ist eine eindeutige Kennung, die dem Hauptzähler zugewiesen wird. Es handelt sich in der Regel um eine Kombination aus Buchstaben und Zahlen, die auf dem Zähler selbst oder auf der Stromrechnung zu finden ist."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        stromHauptzaehlerNummer.withStorage(value => {
+          funnel[stromHauptzaehlerNummer.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromHauptzaehlerNummer.withStorage(value => {
+        funnel[stromHauptzaehlerNummer.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const stromNebenzaehlerNummer = new TextField("stromNebenzaehlerNummer")
+      .withLabel(label => label.innerHTML = "Zählernummer Nebenzähler")
+      .withType(text => text.placeholder = "33104800")
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Ein Nebenzähler ist ein zusätzlicher Stromzähler, der häufig verwendet wird, um den Stromverbrauch von speziellen Stromkreisen oder Geräten in einem Gebäude zu messen. Zum Beispiel kann ein Nebenzähler den Stromverbrauch von Elektroautos, Wärmepumpen oder Heizsystemen messen. Wenn Sie ein neues Energiesystem installieren, müssen Sie die Zählernummer des Nebenzählers kennen, um sicherzustellen, dass das System korrekt konfiguriert wird und mit dem richtigen Nebenzähler verbunden ist. Die Zählernummer ist eine eindeutige Kennung, die dem Nebenzähler zugewiesen wird. Es handelt sich in der Regel um eine Kombination aus Buchstaben und Zahlen, die auf dem Zähler selbst oder auf der Stromrechnung zu finden ist."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        stromNebenzaehlerNummer.withStorage(value => {
+          funnel[stromNebenzaehlerNummer.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromNebenzaehlerNummer.withStorage(value => {
+        funnel[stromNebenzaehlerNummer.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const stromZaehlerKonzeptZusammen = new SelectionField("stromZaehlerKonzeptZusammen")
+      .withLabel(label => label.innerHTML = "Sollen alle Stromzähler auf einen Stromzähler zusammengelegt werden")
+      .withOptions(["Nein", "Ja", "E-Auto", "Wärmepumpe", "Pool", "Durchlauferhitzer", "Nachtspeicherheizung", "Sonstige"])
+      .withType(select => select.multiple = true)
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Wenn mehrere Stromzähler in einem Gebäude vorhanden sind, kann es manchmal vorkommen, dass sie nicht alle gleichzeitig arbeiten oder auf verschiedene Energiequellen zugreifen. In diesem Fall kann es sinnvoll sein, alle Stromzähler auf einen einzigen Zähler zusammenzulegen, um den Energiefluss im Gebäude besser zu steuern und den Stromverbrauch zu optimieren. Wenn Sie ein neues Energiesystem installieren, müssen Sie daher wissen, ob alle Stromzähler auf einen Zähler zusammengelegt werden sollen oder nicht. Dies kann sich auf die Konfiguration des Energiesystems auswirken und beeinflussen, wie es installiert und angeschlossen wird. Wenn alle Stromzähler auf einen Zähler zusammengelegt werden sollen, müssen Sie sicherstellen, dass das Energiesystem entsprechend konfiguriert ist und alle Geräte korrekt angeschlossen sind. Wenn die Geräte auf verschiedene Stromkreise verteilt sind, müssen Sie möglicherweise zusätzliche Schaltungen oder Verkabelungen hinzufügen, um sicherzustellen, dass das System ordnungsgemäß funktioniert"
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+
+      })
+      .onInput(async() => {
+        stromZaehlerKonzeptZusammen.withStorage(value => {
+          funnel[stromZaehlerKonzeptZusammen.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromZaehlerKonzeptZusammen.withStorage(value => {
+        funnel[stromZaehlerKonzeptZusammen.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const stromJahresverbrauch = new NumberField("stromJahresverbrauch")
+      .withLabel(label => label.innerHTML = "Jahresstromverbrauch Hauptzähler in kWh")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in kWh"
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Dieser Wert gibt an, wie viel Strom Sie innerhalb eines Jahres benötigen. Sie können diesen Wert anhand der Stromrechnungen ermitteln oder eine Schätzung anhand der Größe des Hauses, der Anzahl der Bewohner und der Art der elektrischen Geräte vornehmen. Wenn Sie den Jahresstromverbrauch nicht berücksichtigen, können Sie ein System entwerfen, das entweder zu viel oder zu wenig Energie erzeugt, was zu zusätzlichen Kosten oder einer unzureichenden Energieversorgung führen kann."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        stromJahresverbrauch.withStorage(value => {
+          funnel[stromJahresverbrauch.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromJahresverbrauch.withStorage(value => {
+        funnel[stromJahresverbrauch.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const stromNebenzaehlerFunktion = new NumberField("stromNebenzaehlerFunktion")
+      .withLabel(label => label.innerHTML = "2. Stromzähler, Zweck und Jahresstromverbrauch in kWh")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in kWh"
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Dieser Wert gibt an, wie viel Strom Sie innerhalb eines Jahres benötigen. Sie können diesen Wert anhand der Stromrechnungen ermitteln oder eine Schätzung anhand der Größe des Hauses, der Anzahl der Bewohner und der Art der elektrischen Geräte vornehmen. Wenn Sie den Jahresstromverbrauch nicht berücksichtigen, können Sie ein System entwerfen, das entweder zu viel oder zu wenig Energie erzeugt, was zu zusätzlichen Kosten oder einer unzureichenden Energieversorgung führen kann."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+      })
+      .onInput(async() => {
+        stromNebenzaehlerFunktion.withStorage(value => {
+          funnel[stromNebenzaehlerFunktion.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromNebenzaehlerFunktion.withStorage(value => {
+        funnel[stromNebenzaehlerFunktion.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const stromArbeitspreis = new NumberField("stromArbeitspreis")
+      .withLabel(label => label.innerHTML = "Arbeitspreis brutto Cent/kWh")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in cent"
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Es ist wichtig, den Jahresstrompreis bei der Planung des Energiesystems zu berücksichtigen, da dies sicherstellt, dass das System nicht nur den Bedarf des Kunden deckt, sondern auch kosteneffizient ist. Wenn Sie den Jahresstrompreis nicht berücksichtigen, können Sie ein System entwerfen, das unnötig teuer ist und zu höheren Stromkosten führen kann."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+
+      })
+      .onInput(async() => {
+        stromArbeitspreis.withStorage(value => {
+          funnel[stromArbeitspreis.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromArbeitspreis.withStorage(value => {
+        funnel[stromArbeitspreis.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const stromGrundpreis = new NumberField("stromGrundpreis")
+      .withLabel(label => label.innerHTML = "Grundpreis brutto/Jahr in Euro")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in euro"
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Es ist wichtig, den Jahresstrompreis bei der Planung des Energiesystems zu berücksichtigen, da dies sicherstellt, dass das System nicht nur den Bedarf des Kunden deckt, sondern auch kosteneffizient ist. Wenn Sie den Jahresstrompreis nicht berücksichtigen, können Sie ein System entwerfen, das unnötig teuer ist und zu höheren Stromkosten führen kann."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+
+      })
+      .onInput(async() => {
+        stromGrundpreis.withStorage(value => {
+          funnel[stromGrundpreis.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromGrundpreis.withStorage(value => {
+        funnel[stromGrundpreis.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const stromArbeitspreisWaerme = new NumberField("stromArbeitspreisWaerme")
+      .withLabel(label => label.innerHTML = "Wärmestrom Arbeitspreis brutto Cent/kWh")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in cent"
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Es ist wichtig, den Wärmestrompreis bei der Planung des Energiesystems zu berücksichtigen, da dies sicherstellt, dass das System nicht nur den Bedarf des Kunden deckt, sondern auch kosteneffizient ist. Wenn Sie den Wärmestrompreis nicht berücksichtigen, können Sie ein System entwerfen, das unnötig teuer ist und zu höheren Kosten führen kann."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+
+      })
+      .onInput(async() => {
+        stromArbeitspreisWaerme.withStorage(value => {
+          funnel[stromArbeitspreisWaerme.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromArbeitspreisWaerme.withStorage(value => {
+        funnel[stromArbeitspreisWaerme.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      const stromaGrundpreisWaerme = new NumberField("stromaGrundpreisWaerme")
+      .withLabel(label => label.innerHTML = "Wärmestrom Grundpreis brutto/Jahr in Euro")
+      .withType(number => {
+        number.min = 0
+        number.placeholder = "in euro"
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Es ist wichtig, den Wärmestrompreis bei der Planung des Energiesystems zu berücksichtigen, da dies sicherstellt, dass das System nicht nur den Bedarf des Kunden deckt, sondern auch kosteneffizient ist. Wenn Sie den Wärmestrompreis nicht berücksichtigen, können Sie ein System entwerfen, das unnötig teuer ist und zu höheren Kosten führen kann."
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+
+      })
+      .onInput(async() => {
+        stromaGrundpreisWaerme.withStorage(value => {
+          funnel[stromaGrundpreisWaerme.name] = value
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromaGrundpreisWaerme.withStorage(value => {
+        funnel[stromaGrundpreisWaerme.name] = value
+        window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+      })
+
+
+      document.querySelectorAll(".picture-upload-title").forEach(title => {
+        title.innerHTML = "Bilder Upload"
+        title.style.margin = "144px 34px 34px 34px"
+        title.style.fontWeight = "normal"
+      })
+
+
+
+      const stromZaehlerschrankBild = new FileField("stromZaehlerschrankBild")
+      .withLabel(label => label.innerHTML = "Kompletter Zählerschrank")
+      .withType(file => {
+        file.accept = "image/jpeg, image/png"
+        const q7 = funnel.q7
+        if (q7 === 0) {
+          file.required = true
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Gesamtes Innenleben"
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+
+      })
+      .onInput(() => {
+        stromZaehlerschrankBild.withStorage(async value => {
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(stromZaehlerschrankBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(stromZaehlerschrankBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(stromZaehlerschrankBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel[stromZaehlerschrankBild.name] = array
+            window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+          }
+
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromZaehlerschrankBild.withStorage(async value => {
+
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(stromZaehlerschrankBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(stromZaehlerschrankBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(stromZaehlerschrankBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel[stromZaehlerschrankBild.name] = array
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        }
+
+      })
+
+
+      const stromTypenBezeichnungBild = new FileField("stromTypenBezeichnungBild")
+      .withLabel(label => label.innerHTML = "Typenbezeichnung")
+      .withType(file => {
+        file.accept = "image/jpeg, image/png"
+        const q7 = funnel.q7
+        if (q7 === 0) {
+          file.required = true
+        }
+      })
+      .onInput(() => {
+        stromTypenBezeichnungBild.withStorage(async value => {
+
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(stromTypenBezeichnungBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(stromTypenBezeichnungBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(stromTypenBezeichnungBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel[stromTypenBezeichnungBild.name] = array
+            window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+          }
+
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromTypenBezeichnungBild.withStorage(async value => {
+
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(stromTypenBezeichnungBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(stromTypenBezeichnungBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(stromTypenBezeichnungBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel[stromTypenBezeichnungBild.name] = array
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        }
+
+      })
+
+
+      const stromAllezaehlerBild = new FileField("stromAllezaehlerBild")
+      .withLabel(label => label.innerHTML = "Alle Zähler")
+      .withType(file => {
+        file.accept = "image/jpeg, image/png"
+        file.multiple = true
+        const q7 = funnel.q7
+        if (q7 === 0) {
+          file.required = true
+        }
+      })
+      .onInfoClick(() => {
+
+
+        Helper.popup(overlay => {
+
+
+          const header = document.createElement("div")
+          header.style.position = "fixed"
+          header.style.bottom = "0"
+          header.style.left = "0"
+          header.style.width = "100%"
+          header.style.display = "flex"
+          header.style.justifyContent = "flex-start"
+          header.style.alignItems = "center"
+          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+          header.style.background = "white"
+          header.style.cursor = "pointer"
+          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+          const logo = document.createElement("img")
+          logo.src = "/felix/shs/public/ep-logo.svg"
+          logo.alt = "Energie Portal"
+          logo.style.width = "55px"
+          logo.style.margin = "34px"
+          header.append(logo)
+          const title = document.createElement("div")
+          title.innerHTML = "Wissenswertes"
+          title.style.fontWeight = "bold"
+          title.style.fontSize = "21px"
+          header.append(title)
+          overlay.append(header)
+
+
+          const content = document.createElement("div")
+          content.style.overflow = "auto"
+          content.style.display = "flex"
+          content.style.flexDirection = "column"
+          content.style.justifyContent = "space-between"
+          content.style.minHeight = "100vh"
+          {
+
+            {
+              const info = document.createElement("div")
+              info.style.margin = "21px 34px"
+              info.style.lineHeight = "1.4"
+              info.style.fontSize = "21px"
+              info.innerHTML = "Die Zählernummer sollte klar und deutlich lesbar sein"
+              content.append(info)
+            }
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "space-between"
+            buttons.style.margin = "34px"
+            buttons.style.paddingBottom = "144px"
+
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👎"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.width = "89px"
+              button.style.height = "55px"
+              button.style.background = "rgb(204,50,50)"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+            {
+              const button = document.createElement("div")
+              button.innerHTML = "👍"
+              button.style.background = "rgb(45,201,55)"
+              button.style.display = "flex"
+              button.style.justifyContent = "center"
+              button.style.alignItems = "center"
+              button.style.height = "55px"
+              button.style.width = "89px"
+              button.style.color = "white"
+              button.style.borderRadius = "8px"
+              button.style.fontSize = "21px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => Helper.removeOverlay(overlay))
+              buttons.append(button)
+            }
+
+            content.append(buttons)
+          }
+          overlay.append(content)
+        })
+
+
+
+      })
+      .onInput(() => {
+        stromAllezaehlerBild.withStorage(async value => {
+
+          let array = []
+          const allowedMimeTypes = ["image/jpeg", "image/png"]
+          const allowedExtensions = ["jpg", "jpeg", "png"]
+          for (let i = 0; i < value.length; i++) {
+
+
+            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(stromAllezaehlerBild.inputSelector))
+              throw error
+            })
+
+            await Helper.verifyFileExtension(value[i], allowedExtensions)
+            .catch(error => {
+              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+              Helper.setNotValidStyle(document.querySelector(stromAllezaehlerBild.inputSelector))
+              throw error
+            })
+
+            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+            if (dataUrlSize > 1024 * 1024) {
+              alert("Bild ist zu groß.")
+              Helper.setNotValidStyle(document.querySelector(stromAllezaehlerBild.inputSelector))
+              throw new Error("image too large")
+            }
+
+            array.push({
+              name: value[i].name,
+              type: value[i].type,
+              size: dataUrlSize,
+              lastModified: Date.now(),
+              dataUrl: dataUrl,
+            })
+
+          }
+
+          if (array.length > 0) {
+            funnel[stromAllezaehlerBild.name] = array
+            window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+          }
+
+        })
+      })
+      .fromStorage((name) => funnel[name])
+      stromAllezaehlerBild.withStorage(async value => {
+
+
+
+        let array = []
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+        for (let i = 0; i < value.length; i++) {
+
+
+          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(stromAllezaehlerBild.inputSelector))
+            throw error
+          })
+
+          await Helper.verifyFileExtension(value[i], allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
+            Helper.setNotValidStyle(document.querySelector(stromAllezaehlerBild.inputSelector))
+            throw error
+          })
+
+          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
+          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+          if (dataUrlSize > 1024 * 1024) {
+            alert("Bild ist zu groß.")
+            Helper.setNotValidStyle(document.querySelector(stromAllezaehlerBild.inputSelector))
+            throw new Error("image too large")
+          }
+
+          array.push({
+            name: value[i].name,
+            type: value[i].type,
+            size: dataUrlSize,
+            lastModified: Date.now(),
+            dataUrl: dataUrl,
+          })
+
+        }
+
+        if (array.length > 0) {
+          funnel[stromAllezaehlerBild.name] = array
+          window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
+        }
+
+      })
+
+      const fields = [
+        stromVersorger,
+        stromZaehlerschrankVerbaut,
+        stromPlatzZaehlerSchrank,
+        stromHauptzaehlerAnzahl,
+        stromUnterzaehlerNotwendig,
+        stromWievieleNeueZaehler,
+        stromHauptzaehlerNummer,
+        stromNebenzaehlerNummer,
+        stromZaehlerKonzeptZusammen,
+        stromJahresverbrauch,
+        stromNebenzaehlerFunktion,
+        stromArbeitspreis,
+        stromGrundpreis,
+        stromArbeitspreisWaerme,
+        stromaGrundpreisWaerme,
+        stromZaehlerschrankBild,
+        stromTypenBezeichnungBild,
+        stromAllezaehlerBild,
+      ]
+
+
+    </script>
+
+  </body>
+</html>

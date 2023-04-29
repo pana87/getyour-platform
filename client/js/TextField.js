@@ -56,17 +56,29 @@ export class TextField {
     return false
   }
 
+  #checkValidity(input) {
+    if (input.checkValidity() === false) return false
+    if (input.accept === "text/tag") {
+      if (typeof input.value !== "string") return false
+      input.value = input.value.replace(/ /g, "-")
+      if (/^[a-z](?:-?[a-z]+)*$/.test(input.value) === true) return true
+      return false
+    }
+    return true
+  }
+
   withValidValue() {
     return new Promise((resolve, reject) => {
       document.querySelectorAll(this.inputSelector).forEach(input => {
         if (this.#isRequired(input)) {
-          if (input.checkValidity()) {
+          if (this.#checkValidity(input)) {
             Helper.setValidStyle(input)
             return resolve(input.value)
           }
           Helper.setNotValidStyle(input)
-          console.error(`field '${this.name}' is required`)
-          return
+          const error = new Error(`field required: '${this.name}'`)
+          error.fieldName = this.name
+          return reject(error)
         }
         Helper.setValidStyle(input)
         return resolve(input.value)
@@ -76,6 +88,7 @@ export class TextField {
 
   #setText(field) {
     field.innerHTML = ""
+    field.id = this.name
     field.classList.add(this.name)
     field.style.position = "relative"
     field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
@@ -106,19 +119,26 @@ export class TextField {
     label.style.fontSize = "21px"
     labelContainer.append(label)
     field.append(labelContainer)
+    this.label = label
 
     const input = document.createElement("input")
     input.classList.add(this.name)
     input.type = this.type
     input.style.margin = "21px 89px 21px 34px"
     input.style.fontSize = "21px"
-    // input.style.maxWidth = "300px"
     field.append(input)
+    this.input = input
+    return field
   }
 
-  constructor(name) {
+  constructor(name, parent) {
     if (Helper.stringIsEmpty(name)) throw new Error("name is empty")
     this.name = name
+
+    this.field = document.createElement("div")
+    this.field = this.#setText(this.field)
+    if (parent !== undefined) parent.append(this.field)
+
     this.fieldSelector = `div[class='${this.name}']`
     this.inputSelector = `input[class='${this.name}']`
     this.labelSelector = `label[class='${this.name}']`

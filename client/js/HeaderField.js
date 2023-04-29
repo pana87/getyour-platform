@@ -163,13 +163,10 @@ export class HeaderField {
   }
 
   constructor() {
-    try {
-      this.type = "header"
-      const fields = document.querySelectorAll(this.type)
-      if (fields.length <= 0) throw new Error(`field '${this.type}' not found`)
-      fields.forEach(field => this.#setHeader(field))
-    } catch (error) {
-      console.error(error)
+    this.type = "header"
+    this.fields = Array.from(document.querySelectorAll(this.type))
+    for (let i = 0; i < this.fields.length; i++) {
+      this.#setHeader(this.fields[i])
     }
   }
 }

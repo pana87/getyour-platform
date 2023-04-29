@@ -43,21 +43,26 @@ export class TextAreaField {
   }
 
   #isRequired(input) {
-    if (input.required !== true) return true
+    if (input.required === true) return true
     return false
+  }
+
+  #checkValidity(input) {
+    return input.checkValidity()
   }
 
   withValidValue() {
     return new Promise((resolve, reject) => {
       document.querySelectorAll(this.inputSelector).forEach(input => {
         if (this.#isRequired(input)) {
-          if (input.checkValidity()) {
+          if (this.#checkValidity(input)) {
             Helper.setValidStyle(input)
             return resolve(input.value)
           }
           Helper.setNotValidStyle(input)
-          console.error(`field '${this.name}' is required`)
-          return
+          const error = new Error(`field required: '${this.name}'`)
+          error.fieldName = this.name
+          return reject(error)
         }
         Helper.setValidStyle(input)
         return resolve(input.value)
@@ -67,6 +72,7 @@ export class TextAreaField {
 
   #setTextArea(field) {
     field.innerHTML = ""
+    field.id = this.name
     field.style.position = "relative"
     field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
     field.style.borderRadius = "13px"
@@ -102,11 +108,17 @@ export class TextAreaField {
     input.style.margin = "21px 89px 21px 34px"
     input.style.fontSize = "21px"
     field.append(input)
+    return field
   }
 
-  constructor(name) {
+  constructor(name, parent) {
     if (Helper.stringIsEmpty(name)) throw new Error("name is empty")
     this.name = name
+
+    this.field = document.createElement("div")
+    this.field = this.#setTextArea(this.field)
+    if (parent !== undefined) parent.append(this.field)
+
     this.fieldSelector = `div[class='${this.name}']`
     this.inputSelector = `textarea[class='${this.name}']`
     this.labelSelector = `label[class='${this.name}']`

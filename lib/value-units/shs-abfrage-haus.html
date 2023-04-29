@@ -764,7 +764,7 @@
           helpfulButton.style.borderRadius = "8px"
           helpfulButton.style.fontSize = "21px"
           helpfulButton.style.cursor = "pointer"
-          helpfulButton.addEventListener("click", () => overlay.remove())
+          helpfulButton.addEventListener("click", () => Helper.removeOverlay(overlay))
 
           const notHelpfulButton = document.createElement("div")
           notHelpfulButton.innerHTML = "👎"
@@ -777,7 +777,7 @@
           notHelpfulButton.style.borderRadius = "8px"
           notHelpfulButton.style.fontSize = "21px"
           notHelpfulButton.style.cursor = "pointer"
-          notHelpfulButton.addEventListener("click", () => overlay.remove())
+          notHelpfulButton.addEventListener("click", () => Helper.removeOverlay(overlay))
 
           buttonContainer.append(notHelpfulButton, helpfulButton)
 
@@ -803,8 +803,6 @@
         funnel.value[hausUKUeberstand.name] = options
         window.localStorage.setItem("shsFunnel", JSON.stringify(funnel))
       })
-
-
 
       const hausAnderesHausAbstand = new SelectionField("hausAnderesHausAbstand")
       .withLabel(label => label.innerHTML = "Mir sind die Vorgaben der Landesbauordnung hinsichtlich Nachbargrundstück bekannt")

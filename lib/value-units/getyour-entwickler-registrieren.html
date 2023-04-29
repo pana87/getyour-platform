@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="shortcut icon" href="/public/getyour-logo.svg" />
-    <title>Getyour Plattform Entwickler registrieren</title>
+    <title>Getyour Plattform Experte registrieren</title>
 
     <style>
       body {
@@ -18,13 +18,12 @@
   </head>
   <body>
 
-    <header></header>
-
     <h1 class="title"></h1>
 
     <div class="info"></div>
 
     <div class="username"></div>
+    <div class="email"></div>
 
     <div class="button"></div>
 
@@ -38,26 +37,16 @@
       import { DivField } from "/js/DivField.js"
       import { Helper } from "/js/Helper.js"
       import { Request } from "/js/Request.js"
-
-      const headerField = new HeaderField()
-      .withType(header => {
-        header.style.backgroundColor = "white"
-      })
-      .withImage(img => {
-        img.style.width = "89px"
-        img.src = "/public/getyour-logo.svg"
-        img.alt = "Getyour Plattform Logo"
-      })
-      .build()
+      import { EmailField } from "/js/EmailField.js"
 
       document.querySelectorAll(".title").forEach(title => {
-        title.innerHTML = "Als Plattformentwickler registrieren"
+        title.innerHTML = "Experte registrieren"
         title.style.margin = "34px"
         title.style.fontWeight = "normal"
       })
 
       const usernameField = new TextField("username")
-      .withLabel(label => label.innerHTML = "Nutzername:")
+      .withLabel(label => label.innerHTML = "Rufname:")
       .withType(input => {
         input.placeholder = "huansolo"
         input.pattern = "[a-z]{3,8}"
@@ -65,21 +54,35 @@
       })
       .onInput(async() => {
         const username = await usernameField.withValidValue()
-        document.querySelector("#url-preview").innerHTML = `https://get-your.de/${username}`
+        document.querySelector("#url-preview").innerHTML = `https://get-your.de/<b>${username}</b>`
         usernameField.withValidValue()
       })
       usernameField.withValidValue()
 
+
+      const emailField = new EmailField("email")
+      .withLabel(label => label.innerHTML = "E-Mail Adresse:")
+      .withType(email => {
+        email.placeholder = "experte@email.de"
+        email.required = true
+      })
+      .onInput(() => emailField.withValidValue())
+      emailField.withValidValue()
+
       const infoField = new InfoField("info")
       .withWarning(/*html*/`
-        <p>Der Pfad als Plattformentwickler beginnt immer mit deinem Namen. Dieser Name wird in der URL für alle erreichbar sein. Aus dem Grund sind <b>mindestens 3</b> Kleinbuchstaben und <b>maximal 8</b> Kleinbuchstaben aus dem deutschen Alphabet erlaubt: <b>[a-z]</b></p>
+        <p>Der Pfad als Plattformentwickler beginnt immer mit einem Namen. Dieser Name wird in der URL für alle erreichbar sein. Aus dem Grund sind <b>mindestens 3</b> Kleinbuchstaben und <b>maximal 8</b> Kleinbuchstaben aus dem deutschen Alphabet erlaubt: <b>[a-z]</b></p>
+        <ul>
+          <li><b>[a-z]</b></li>
+          <li><b>3 - 8 Kleinbuchstaben</b></li>
+        </ul>
         <p id="url-preview">https://get-your.de/</p>
       `)
       .build()
 
       const loginbutton = new DivField("button")
       .withType(div => {
-        div.innerHTML = "Name speichern"
+        div.innerHTML = "Jetzt registrieren"
         div.style.backgroundColor = "#c02221"
         div.style.cursor = "pointer"
         div.style.fontSize = "21px"
@@ -89,48 +92,50 @@
         div.style.justifyContent = "center"
         div.style.alignItems = "center"
         div.style.height = "89px"
-        div.addEventListener("mouseover", () => div.style.backgroundColor = "#f19d08")
-        div.addEventListener("mouseout", () => div.style.backgroundColor = "#c02221")
+        div.style.color = "white"
+        div.addEventListener("mouseover", () => {
+          div.style.backgroundColor = "#f19d08"
+          div.style.color = "black"
+        })
+        div.addEventListener("mouseout", () => {
+          div.style.color = "white"
+          div.style.backgroundColor = "#c02221"
+        })
       })
       .onClick(async (event) => {
         const username = await usernameField.withValidValue()
-        const localStorageId = await Request.localStorageId()
+        const email = await emailField.withValidValue()
 
-        // first verify that name does not exist before requesting the email
         const verifyName = {}
-        verifyName.url = "/producer/v1/"
+        verifyName.url = "/consumer/2/closed/"
         verifyName.method = "verify"
         verifyName.type = "name"
-        verifyName.security = "closed"
         verifyName.referer = document.referrer
         verifyName.localStorageId = await Request.localStorageId()
         verifyName.email = await Request.email()
-        verifyName.name = username
+        verifyName.nameToVerify = username
         const res = await Request.middleware(verifyName)
 
         if (res.status === 200) {
-          alert("Dieser Nutzername existiert bereits.")
+          alert("Dieser Rufname existiert bereits.")
           Helper.setNotValidStyle(document.querySelector(usernameField.inputSelector))
           return
         }
 
-        const email = await Request.email()
-        await Request.withVerifiedEmail(email, async () => {
-          const registerName = {}
-          registerName.url = "/producer/v1/"
-          registerName.method = "register"
-          registerName.type = "name"
-          registerName.security = "closed"
-          registerName.name = username
-          registerName.referer = document.referrer
-          registerName.localStorageId = await Request.localStorageId()
-          registerName.email = email
-          await Request.sequence(registerName)
+        await Request.withVerifiedEmail(await Request.email(), async () => {
+          const inviteEmail = {}
+          inviteEmail.url = "/invite/email/"
+          inviteEmail.name = username
+          inviteEmail.role = 3
+          inviteEmail.referer = document.referrer
+          inviteEmail.email = await Request.email()
+          inviteEmail.localStorageId = await Request.localStorageId()
+          inviteEmail.emailToInvite = email
+          await Request.sequence(inviteEmail)
 
 
-          alert("Speichern erfolgreich..")
-          Helper.redirectUser()
-
+          alert("Einladung wurde verschickt..")
+          window.location.assign("/pana/getyour/experte-registrieren/")
         })
 
 
