@@ -343,7 +343,7 @@ export class Helper {
   }
 
   static removeOverlay(overlay) {
-    document.body.style.position = "static"
+    // document.body.style.position = "static"
     overlay.remove()
   }
 
@@ -364,7 +364,7 @@ export class Helper {
       callback(overlay)
 
       document.body.append(overlay)
-      document.body.style.position = "fixed"
+      // document.body.style.position = "fixed"
 
       const animation = overlay.animate([
         { opacity: 0, transform: 'translateY(13px)' },
@@ -375,7 +375,16 @@ export class Helper {
         fill: "forwards"
       })
 
-      window.scrollTo(0, 1)
+      // When ready...
+      window.addEventListener("load",function() {
+        // Set a timeout...
+        setTimeout(function(){
+          // Hide the address bar!
+          window.scrollTo(0, 1)
+        }, 0)
+      })
+
+      // window.scrollTo(0, 1)
 
       return overlay
     }

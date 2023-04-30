@@ -783,7 +783,8 @@ app.post(`/:method/:type/:event/`,
 
   Request.registerEmail,
 
-  Request.get,
+  // Request.get,
+  Request.register,
 
 
 async(req, res, next) => {

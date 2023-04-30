@@ -338,8 +338,6 @@
             register.role = "5"
             register.location = window.location.href
             register.referer = document.referrer
-            register.localStorageId = await Request.localStorageId()
-            register.localStorageEmail = await Request.email()
             await Request.sequence(register)
           }
 
@@ -355,10 +353,9 @@
 
           {
             const register = {}
-            register.url = "/register/verified/closed/5/"
+            register.url = "/register/verified/open/"
+            register.email = email
             register.state = true
-            register.localStorageId = await Request.localStorageId()
-            register.localStorageEmail = await Request.email()
             register.location = window.location.href
             register.referer = document.referrer
             await Request.sequence(register)
