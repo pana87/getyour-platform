@@ -21,11 +21,6 @@
   </head>
   <body>
 
-    <header></header>
-
-    <h1 class="title"></h1>
-
-
 
   <script type="module">
 
@@ -46,7 +41,7 @@
 
 
 
-    const header = document.querySelector("header")
+    const header = document.createElement("header")
     header.style.position = "fixed"
     header.style.bottom = "0"
     header.style.left = "0"
@@ -1054,7 +1049,7 @@
           icon.style.margin = "13px 34px"
           icon.style.width = "34px"
           icon.src = "/public/security.svg"
-          icon.alt = "Nutzervereinbarung"
+          icon.alt = "Sicherheit"
           button.append(icon)
 
           const title = document.createElement("div")
@@ -1083,7 +1078,7 @@
           icon.style.margin = "13px 34px"
           icon.style.width = "34px"
           icon.src = "/public/company.svg"
-          icon.alt = "Nutzervereinbarung"
+          icon.alt = "Unternehmen"
           button.append(icon)
 
           const title = document.createElement("div")
@@ -1100,329 +1095,334 @@
     })
     leftContainer.append(name)
     header.append(leftContainer)
+    document.body.append(header)
 
-
-    document.querySelectorAll(".title").forEach(title => {
+    {
+      const title = document.createElement("h1")
       title.innerHTML = "Kundenübersicht"
       title.style.margin = "21px 34px"
       title.style.fontWeight = "normal"
-    })
+      document.body.append(title)
+    }
+
+    {
+
+      const get = {}
+      get.url = `/get/clients/closed/4/`
+      get.location = window.location.href
+      get.referer = document.referrer
+      get.localStorageEmail = await Request.email()
+      get.localStorageId = await Request.localStorageId()
+      const res = await Request.middleware(get)
 
 
-
-    const getClients = {}
-    getClients.url = `/get/clients/closed/4/`
-    getClients.location = window.location.href
-    getClients.referer = document.referrer
-    getClients.localStorageEmail = await Request.email()
-    getClients.localStorageId = await Request.localStorageId()
-    const res = await Request.middleware(getClients)
-
-    if (res.status === 200) {
       const clientlist = document.createElement("div")
       clientlist.style.paddingBottom = "144px"
 
-      const clients = JSON.parse(res.response)
-
-      if (clients.length === 0) {
+      if (res.status !== 200) {
         clientlist.innerHTML = "Keine Kunden angelegt."
         clientlist.style.color = "gray"
         clientlist.style.display = "flex"
         clientlist.style.justifyContent = "center"
         clientlist.style.alignItems = "center"
         clientlist.style.height = "50vh"
+        document.body.append(clientlist)
+        throw new Error("client not found")
       }
 
-      for (let i = 0; i < clients.length; i++) {
-        const client = clients[i]
+      if (res.status === 200) {
 
-        const item = document.createElement("div")
-        item.classList.add("checklist-item")
-        item.style.margin = "34px"
+        const clients = JSON.parse(res.response)
 
-        const itemHeader = document.createElement("div")
-        itemHeader.classList.add("item-header")
-        itemHeader.style.display = "flex"
-        itemHeader.style.borderTopRightRadius = "21px"
-        itemHeader.style.borderTopLeftRadius = "21px"
-        itemHeader.style.borderBottomLeftRadius = "21px"
-        itemHeader.style.backgroundColor = "#d1d0d0"
-        itemHeader.style.cursor = "pointer"
-        itemHeader.addEventListener("click", async () => {
+        if (clients.length === 0) {
+          clientlist.innerHTML = "Keine Kunden angelegt."
+          clientlist.style.color = "gray"
+          clientlist.style.display = "flex"
+          clientlist.style.justifyContent = "center"
+          clientlist.style.alignItems = "center"
+          clientlist.style.height = "50vh"
+          document.body.append(clientlist)
+          throw new Error("client not found")
+        }
 
+        for (let i = 0; i < clients.length; i++) {
+          const client = clients[i]
+
+          const item = document.createElement("div")
+          item.classList.add("checklist-item")
+          item.style.margin = "34px"
+
+          const itemHeader = document.createElement("div")
+          itemHeader.classList.add("item-header")
+          itemHeader.style.display = "flex"
+          itemHeader.style.borderTopRightRadius = "21px"
+          itemHeader.style.borderTopLeftRadius = "21px"
+          itemHeader.style.borderBottomLeftRadius = "21px"
+          itemHeader.style.backgroundColor = "#d1d0d0"
+          itemHeader.style.cursor = "pointer"
+          itemHeader.addEventListener("click", async () => {
+
+
+            {
+              const verify = {}
+              verify.url = "/verify/seller/closed/4/"
+              verify.state = "active"
+              verify.localStorageEmail = await Request.email()
+              verify.localStorageId = await Request.localStorageId()
+              verify.location = window.location.href
+              verify.referer = document.referrer
+              const res = await Request.middleware(verify)
+
+              if (res.status === 200) {
+
+                Helper.popup(overlay => {
+
+                  const header = document.createElement("div")
+                  header.style.position = "fixed"
+                  header.style.bottom = "0"
+                  header.style.left = "0"
+                  header.style.width = "100%"
+                  header.style.display = "flex"
+                  header.style.justifyContent = "flex-start"
+                  header.style.alignItems = "center"
+                  header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                  header.style.background = "white"
+                  header.style.cursor = "pointer"
+                  header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                  const logo = document.createElement("img")
+                  logo.src = "/felix/shs/public/ep-logo.svg"
+                  logo.alt = "Energie Plattform"
+                  logo.style.width = "55px"
+                  logo.style.margin = "34px"
+                  header.append(logo)
+                  const title = document.createElement("div")
+                  title.innerHTML = `${client.firstname} ${client.lastname}`
+                  title.style.fontWeight = "bold"
+                  title.style.fontSize = "21px"
+                  header.append(title)
+                  overlay.append(header)
+
+
+
+                  const buttons = document.createElement("div")
+                  buttons.style.overflow = "auto"
+
+                  {
+                    const button = document.createElement("div")
+                    button.style.display = "flex"
+                    button.style.flexWrap = "wrap"
+                    button.style.justifyContent = "space-between"
+                    button.style.alignItems = "center"
+                    button.style.margin = "21px 34px"
+                    button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                    button.style.borderRadius = "13px"
+                    button.style.border = "0.3px solid black"
+                    button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                    button.style.cursor = "pointer"
+                    button.addEventListener("click", () => {
+
+                      Helper.popup(overlay => {
+
+                        const header = document.createElement("div")
+                        header.style.position = "fixed"
+                        header.style.bottom = "0"
+                        header.style.left = "0"
+                        header.style.width = "100%"
+                        header.style.display = "flex"
+                        header.style.justifyContent = "flex-start"
+                        header.style.alignItems = "center"
+                        header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                        header.style.background = "white"
+                        header.style.cursor = "pointer"
+                        header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                        const logo = document.createElement("img")
+                        logo.src = "/felix/shs/public/ep-logo.svg"
+                        logo.alt = "Energie Plattform"
+                        logo.style.width = "55px"
+                        logo.style.margin = "34px"
+                        header.append(logo)
+                        const title = document.createElement("div")
+                        title.innerHTML = "Funnel wählen"
+                        title.style.fontWeight = "bold"
+                        title.style.fontSize = "21px"
+                        header.append(title)
+                        overlay.append(header)
+
+
+                        const buttons = document.createElement("div")
+                        buttons.style.overflow = "auto"
+                        buttons.style.paddingBottom = "144px"
+
+
+                        {
+                          const button = document.createElement("div")
+                          button.style.display = "flex"
+                          button.style.flexWrap = "wrap"
+                          button.style.justifyContent = "space-between"
+                          button.style.alignItems = "center"
+                          button.style.margin = "21px 34px"
+                          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                          button.style.borderRadius = "13px"
+                          button.style.border = "0.3px solid black"
+                          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                          button.style.cursor = "pointer"
+                          button.addEventListener("click", () => window.location.assign(`/felix/ep/qualifizierung/${client.id}/4/`))
+
+                          const icon = document.createElement("img")
+                          icon.style.margin = "13px 34px"
+                          icon.style.width = "34px"
+                          icon.src = "/felix/shs/public/ep-logo.svg"
+                          icon.alt = "Energie Plattform"
+                          button.append(icon)
+
+                          const title = document.createElement("div")
+                          title.innerHTML = "Energie Plattform"
+                          title.style.margin = "21px 34px"
+                          title.style.fontSize = "21px"
+                          button.append(title)
+
+                          buttons.append(button)
+                        }
+                        overlay.append(buttons)
+                      })
+                    })
+
+                    const icon = document.createElement("img")
+                    icon.style.margin = "13px 34px"
+                    icon.style.width = "34px"
+                    icon.src = "/public/funnel.svg"
+                    icon.alt = "Kunde qualifizieren"
+                    button.append(icon)
+
+                    const title = document.createElement("div")
+                    title.innerHTML = "Qualifizieren"
+                    title.style.margin = "21px 34px"
+                    title.style.fontSize = "21px"
+                    button.append(title)
+
+                    buttons.append(button)
+                  }
+
+                  overlay.append(buttons)
+                })
+
+              } else {
+                alert("Um diese Funktion nutzen zu können, müssen Sie sich erst um Angebote bewerben. Sollten Sie Ihren Promoter nicht in der Liste finden, dann schreiben Sie uns unter 'datenschutz@get-your.de' und wir werden uns mit Ihrem Promoter in Verbindung setzen. Sobald Sie der Promoter freigeschaltet hat, erhalten Sie eine Nachricht per E-Mail und die Funktion wird für Sie aktiviert.")
+              }
+            }
+          })
+
+          const itemState = document.createElement("div")
+          itemState.classList.add("item-state")
+          itemState.style.display = "flex"
+          itemState.style.justifyContent = "center"
+          itemState.style.alignItems = "center"
+          itemState.style.width = "89px"
+          itemState.style.height = "89px"
+          itemState.style.backgroundColor = "#c6c6c6"
+          itemState.style.fontSize = "34px"
+
+          if (client.state === "offen") {
+            itemState.style.backgroundColor = "#006f39"
+            itemState.style.color = "#ffffff"
+          }
+          itemState.style.borderTopLeftRadius = "21px"
+          itemState.style.borderBottomLeftRadius = "21px"
+
+          const itemIndex = document.createElement("div")
+          itemIndex.classList.add("item-index")
+          itemIndex.innerHTML = client.reputation
+          itemIndex.style.fontSize = "21px"
+
+          itemState.append(itemIndex)
+
+
+          const itemTitle = document.createElement("div")
+          itemTitle.classList.add("item-title")
+          itemTitle.style.alignSelf = "center"
+          itemTitle.style.marginLeft = "13px"
+          itemTitle.innerHTML = `${client.firstname} ${client.lastname}`
+          itemTitle.style.fontSize = "21px"
+
+          itemHeader.append(itemState, itemTitle)
+          item.append(itemHeader)
+
+
+          const itemBody = document.createElement("div")
+          itemBody.classList.add("item-body")
+          itemBody.style.marginLeft = "8%"
+          itemBody.style.backgroundColor = "#dbdbdb"
+          itemBody.style.borderBottomRightRadius = "21px"
+          itemBody.style.borderBottomLeftRadius = "21px"
+          itemBody.style.padding = "21px"
+          itemBody.style.display = "flex"
+          itemBody.style.flexDirection = "column"
+          itemBody.style.boxShadow = "0 3px 5px rgba(0, 0, 0, 0.13)"
+
+          const buttons = document.createElement("div")
+          buttons.style.display = "flex"
+          buttons.style.alignItems = "center"
 
           {
-            const verify = {}
-            verify.url = "/verify/seller/closed/4/"
-            verify.state = "active"
-            verify.localStorageEmail = await Request.email()
-            verify.localStorageId = await Request.localStorageId()
-            verify.location = window.location.href
-            verify.referer = document.referrer
-            const res = await Request.middleware(verify)
-
-            if (res.status === 200) {
-
-              Helper.popup(overlay => {
-
-                const header = document.createElement("div")
-                header.style.position = "fixed"
-                header.style.bottom = "0"
-                header.style.left = "0"
-                header.style.width = "100%"
-                header.style.display = "flex"
-                header.style.justifyContent = "flex-start"
-                header.style.alignItems = "center"
-                header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                header.style.background = "white"
-                header.style.cursor = "pointer"
-                header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                const logo = document.createElement("img")
-                logo.src = "/felix/shs/public/ep-logo.svg"
-                logo.alt = "Energie Plattform"
-                logo.style.width = "55px"
-                logo.style.margin = "34px"
-                header.append(logo)
-                const title = document.createElement("div")
-                title.innerHTML = `${client.firstname} ${client.lastname}`
-                title.style.fontWeight = "bold"
-                title.style.fontSize = "21px"
-                header.append(title)
-                overlay.append(header)
-
-
-
-                const buttons = document.createElement("div")
-                buttons.style.overflow = "auto"
-
-                {
-                  const button = document.createElement("div")
-                  button.style.display = "flex"
-                  button.style.flexWrap = "wrap"
-                  button.style.justifyContent = "space-between"
-                  button.style.alignItems = "center"
-                  button.style.margin = "21px 34px"
-                  button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                  button.style.borderRadius = "13px"
-                  button.style.border = "0.3px solid black"
-                  button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                  button.style.cursor = "pointer"
-                  button.addEventListener("click", () => {
-
-                    Helper.popup(overlay => {
-
-                      const header = document.createElement("div")
-                      header.style.position = "fixed"
-                      header.style.bottom = "0"
-                      header.style.left = "0"
-                      header.style.width = "100%"
-                      header.style.display = "flex"
-                      header.style.justifyContent = "flex-start"
-                      header.style.alignItems = "center"
-                      header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                      header.style.background = "white"
-                      header.style.cursor = "pointer"
-                      header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                      const logo = document.createElement("img")
-                      logo.src = "/felix/shs/public/ep-logo.svg"
-                      logo.alt = "Energie Plattform"
-                      logo.style.width = "55px"
-                      logo.style.margin = "34px"
-                      header.append(logo)
-                      const title = document.createElement("div")
-                      title.innerHTML = "Funnel wählen"
-                      title.style.fontWeight = "bold"
-                      title.style.fontSize = "21px"
-                      header.append(title)
-                      overlay.append(header)
-
-
-                      const buttons = document.createElement("div")
-
-
-                      {
-                        const button = document.createElement("div")
-                        button.style.display = "flex"
-                        button.style.flexWrap = "wrap"
-                        button.style.justifyContent = "space-between"
-                        button.style.alignItems = "center"
-                        button.style.margin = "21px 34px"
-                        button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                        button.style.borderRadius = "13px"
-                        button.style.border = "0.3px solid black"
-                        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                        button.style.cursor = "pointer"
-                        button.addEventListener("click", () => window.location.assign(`/felix/ep/qualifizierung/${client.id}/4/`))
-
-                        const icon = document.createElement("img")
-                        icon.style.margin = "13px 34px"
-                        icon.style.width = "34px"
-                        icon.src = "/felix/shs/public/ep-logo.svg"
-                        icon.alt = "Energie Plattform"
-                        button.append(icon)
-
-                        const title = document.createElement("div")
-                        title.innerHTML = "Energie Plattform"
-                        title.style.margin = "21px 34px"
-                        title.style.fontSize = "21px"
-                        button.append(title)
-
-                        buttons.append(button)
-                      }
-                      overlay.append(buttons)
-                    })
-                  })
-
-                  const icon = document.createElement("img")
-                  icon.style.margin = "13px 34px"
-                  icon.style.width = "34px"
-                  icon.src = "/public/funnel.svg"
-                  icon.alt = "Kunde qualifizieren"
-                  button.append(icon)
-
-                  const title = document.createElement("div")
-                  title.innerHTML = "Qualifizieren"
-                  title.style.margin = "21px 34px"
-                  title.style.fontSize = "21px"
-                  button.append(title)
-
-                  buttons.append(button)
-                }
-
-
-
-
-                overlay.append(buttons)
-
-
-
+            if (client.phone !== undefined) {
+              const button = document.createElement("img")
+              button.src = "/public/phone-out.svg"
+              button.alt = "Anrufen"
+              button.style.width = "55px"
+              button.style.padding = "13px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => {
+                const a = document.createElement("a")
+                a.href = `tel:${client.phone}`
+                a.click()
               })
-
-            } else {
-              alert("Um diese Funktion nutzen zu können, müssen Sie sich erst um Angebote bewerben. Sollten Sie Ihren Promoter nicht in der Liste finden, dann schreiben Sie uns unter 'datenschutz@get-your.de' und wir werden uns mit Ihrem Promoter in Verbindung setzen. Sobald Sie der Promoter freigeschaltet hat, erhalten Sie eine Nachricht per E-Mail und die Funktion wird für Sie aktiviert.")
+              buttons.append(button)
             }
           }
 
-
-
-
-        })
-
-        const itemState = document.createElement("div")
-        itemState.classList.add("item-state")
-        itemState.style.display = "flex"
-        itemState.style.justifyContent = "center"
-        itemState.style.alignItems = "center"
-        itemState.style.width = "89px"
-        itemState.style.height = "89px"
-        itemState.style.backgroundColor = "#c6c6c6"
-        itemState.style.fontSize = "34px"
-
-        if (client.state === "offen") {
-          itemState.style.backgroundColor = "#006f39"
-          itemState.style.color = "#ffffff"
-        }
-        itemState.style.borderTopLeftRadius = "21px"
-        itemState.style.borderBottomLeftRadius = "21px"
-
-        const itemIndex = document.createElement("div")
-        itemIndex.classList.add("item-index")
-        itemIndex.innerHTML = client.reputation
-        itemIndex.style.fontSize = "21px"
-
-        itemState.append(itemIndex)
-
-
-        const itemTitle = document.createElement("div")
-        itemTitle.classList.add("item-title")
-        itemTitle.style.alignSelf = "center"
-        itemTitle.style.marginLeft = "13px"
-        itemTitle.innerHTML = `${client.firstname} ${client.lastname}`
-        itemTitle.style.fontSize = "21px"
-
-        itemHeader.append(itemState, itemTitle)
-        item.append(itemHeader)
-
-
-        const itemBody = document.createElement("div")
-        itemBody.classList.add("item-body")
-        itemBody.style.marginLeft = "8%"
-        itemBody.style.backgroundColor = "#dbdbdb"
-        itemBody.style.borderBottomRightRadius = "21px"
-        itemBody.style.borderBottomLeftRadius = "21px"
-        itemBody.style.padding = "21px"
-        itemBody.style.display = "flex"
-        itemBody.style.flexDirection = "column"
-        itemBody.style.boxShadow = "0 3px 5px rgba(0, 0, 0, 0.13)"
-
-        const buttons = document.createElement("div")
-        buttons.style.display = "flex"
-        buttons.style.alignItems = "center"
-
-        {
-          if (client.phone !== undefined) {
-            const button = document.createElement("img")
-            button.src = "/public/phone-out.svg"
-            button.alt = "Anrufen"
-            button.style.width = "55px"
-            button.style.padding = "13px"
-            button.style.cursor = "pointer"
-            button.addEventListener("click", () => {
-              const a = document.createElement("a")
-              a.href = `tel:${client.phone}`
-              a.click()
-            })
-            buttons.append(button)
+          {
+            if (client.email !== undefined) {
+              const button = document.createElement("img")
+              button.src = "/public/mailto.svg"
+              button.alt = "E-Mail schreiben"
+              button.style.width = "55px"
+              button.style.padding = "13px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => {
+                const a = document.createElement("a")
+                a.href = `mailto:${client.email}`
+                a.click()
+              })
+              buttons.append(button)
+            }
           }
-        }
 
-        {
-          if (client.email !== undefined) {
-            const button = document.createElement("img")
-            button.src = "/public/mailto.svg"
-            button.alt = "E-Mail schreiben"
-            button.style.width = "55px"
-            button.style.padding = "13px"
-            button.style.cursor = "pointer"
-            button.addEventListener("click", () => {
-              const a = document.createElement("a")
-              a.href = `mailto:${client.email}`
-              a.click()
-            })
-            buttons.append(button)
+          {
+            if (client.street !== undefined && client.zip !== undefined) {
+              const button = document.createElement("img")
+              button.src = "/public/maps.svg"
+              button.alt = "Navigieren"
+              button.style.width = "55px"
+              button.style.padding = "13px"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => {
+                const a = document.createElement("a")
+                a.target = "_blank"
+                a.href = `https://maps.google.com/?q=${client.zip}, ${client.street}`
+                a.click()
+              })
+              buttons.append(button)
+            }
           }
+
+          itemBody.append(buttons)
+          item.append(itemBody)
+          clientlist.append(item)
         }
-
-        {
-          if (client.street !== undefined && client.zip !== undefined) {
-            const button = document.createElement("img")
-            button.src = "/public/maps.svg"
-            button.alt = "Navigieren"
-            button.style.width = "55px"
-            button.style.padding = "13px"
-            button.style.cursor = "pointer"
-            button.addEventListener("click", () => {
-              const a = document.createElement("a")
-              a.target = "_blank"
-              a.href = `https://maps.google.com/?q=${client.zip}, ${client.street}`
-              a.click()
-            })
-            buttons.append(button)
-          }
-        }
-
-
-
-        itemBody.append(buttons)
-
-        item.append(itemBody)
-        clientlist.append(item)
-
-
+        document.body.append(clientlist)
       }
-      document.body.append(clientlist)
     }
 
 

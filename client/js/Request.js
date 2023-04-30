@@ -52,13 +52,13 @@ export class Request {
       window.localStorage.setItem("localStorageId", id)
       window.localStorage.setItem("email", email)
       callback()
-      overlay.textContent = "ok"
+      // overlay.textContent = "ok"
       // window.navigator.vibrate([233, 144, 233])
       clearInterval(interval)
     } catch (error) {
       Helper.setNotAllowedCursor()
       clearInterval(interval)
-      overlay.textContent = "fehler"
+      overlay.textContent = "fehler" // button instead
       // window.navigator.vibrate(233)
       EventTarget.prototype.addEventListener = function(type, listener, options) {
         console.log('Event listeners blocked')
