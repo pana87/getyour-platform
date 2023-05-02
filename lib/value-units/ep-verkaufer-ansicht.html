@@ -71,7 +71,7 @@
     name.innerHTML = "Energie Plattform"
     name.style.padding = "21px 34px"
     name.style.fontSize = "21px"
-    name.style.color = "#7bc043"
+    // name.style.color = "#7bc043"
     name.style.cursor = "pointer"
     name.addEventListener("click", () => {
 
@@ -80,6 +80,8 @@
 
         const header = document.createElement("div")
         header.style.position = "fixed"
+        console.log(window.innerHeight);
+        // header.style.top = `calc(${window.innerHeight}px - 97px)`
         header.style.bottom = "0"
         header.style.left = "0"
         header.style.width = "100%"
@@ -95,7 +97,7 @@
         logo.src = "/felix/shs/public/ep-logo.svg"
         logo.alt = "EP"
         logo.style.width = "55px"
-        logo.style.margin = "34px"
+        logo.style.margin = "21px 34px"
         header.append(logo)
         const title = document.createElement("div")
         title.innerHTML = `/ ${window.location.pathname.split("/")[3]} /`
@@ -154,7 +156,7 @@
                 logo.src = "/felix/shs/public/ep-logo.svg"
                 logo.alt = "Energie Plattform"
                 logo.style.width = "55px"
-                logo.style.margin = "34px"
+                logo.style.margin = "21px 34px"
                 header.append(logo)
                 const title = document.createElement("div")
                 title.innerHTML = "Kunden anlegen"
@@ -532,7 +534,7 @@
               logo.src = "/felix/shs/public/ep-logo.svg"
               logo.alt = "Energie Plattform"
               logo.style.width = "55px"
-              logo.style.margin = "34px"
+              logo.style.margin = "21px 34px"
               header.append(logo)
               const title = document.createElement("div")
               title.innerHTML = "Bewerben"
@@ -1194,7 +1196,7 @@
                   logo.src = "/felix/shs/public/ep-logo.svg"
                   logo.alt = "Energie Plattform"
                   logo.style.width = "55px"
-                  logo.style.margin = "34px"
+                  logo.style.margin = "21px 34px"
                   header.append(logo)
                   const title = document.createElement("div")
                   title.innerHTML = `${client.firstname} ${client.lastname}`
@@ -1207,6 +1209,7 @@
 
                   const buttons = document.createElement("div")
                   buttons.style.overflow = "auto"
+                  buttons.style.paddingBottom = "144px"
 
                   {
                     const button = document.createElement("div")
@@ -1241,7 +1244,7 @@
                         logo.src = "/felix/shs/public/ep-logo.svg"
                         logo.alt = "Energie Plattform"
                         logo.style.width = "55px"
-                        logo.style.margin = "34px"
+                        logo.style.margin = "21px 34px"
                         header.append(logo)
                         const title = document.createElement("div")
                         title.innerHTML = "Funnel wählen"

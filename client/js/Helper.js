@@ -45,7 +45,7 @@ export class Helper {
           logo.src = "/felix/shs/public/ep-logo.svg"
           logo.alt = "Energie Portal"
           logo.style.width = "55px"
-          logo.style.margin = "34px"
+          logo.style.margin = "21px 34px"
           header.append(logo)
           const title = document.createElement("div")
           title.innerHTML = name
@@ -298,8 +298,8 @@ export class Helper {
         const image = document.createElement("img")
         image.src = reader.result
         image.onload = () => {
-          const width = 300
-          const height = 300 * image.height / image.width
+          const width = 377
+          const height = 377 * image.height / image.width
           canvas.width = width
           canvas.height = height
           ctx.drawImage(image, 0, 0, width, height)
@@ -350,7 +350,12 @@ export class Helper {
   static popup(callback) {
     if (callback !== undefined) {
       const overlay = document.createElement("div")
+
+      // safari mobile address bar issue
       overlay.style.height = "100vh"
+      overlay.style.height = "-webkit-fill-available"
+      document.documentElement.style.height = "-webkit-fill-available"
+
       overlay.style.width = "100%"
       overlay.style.zIndex = "1"
       overlay.style.position = "fixed"
@@ -375,14 +380,14 @@ export class Helper {
         fill: "forwards"
       })
 
-      // When ready...
-      window.addEventListener("load",function() {
-        // Set a timeout...
-        setTimeout(function(){
-          // Hide the address bar!
-          window.scrollTo(0, 1)
-        }, 0)
-      })
+      // // When ready...
+      // window.addEventListener("load",function() {
+      //   // Set a timeout...
+      //   setTimeout(function(){
+      //     // Hide the address bar!
+      //     window.scrollTo(0, 1)
+      //   }, 0)
+      // })
 
       // window.scrollTo(0, 1)
 

@@ -21,11 +21,6 @@
   </head>
   <body>
 
-    <header></header>
-
-    <h1 class="title"></h1>
-
-
 
   <script type="module">
 
@@ -44,7 +39,7 @@
     import { CheckboxField } from "/js/CheckboxField.js"
     import { NumberField } from "/js/NumberField.js"
 
-    const header = document.querySelector("header")
+    const header = document.createElement("header")
     header.style.position = "fixed"
     header.style.bottom = "0"
     header.style.left = "0"
@@ -74,7 +69,7 @@
     name.innerHTML = "Energie Plattform"
     name.style.padding = "21px 34px"
     name.style.fontSize = "21px"
-    name.style.color = "#7bc043"
+    // name.style.color = "#7bc043"
     name.style.cursor = "pointer"
     name.addEventListener("click", () => {
 
@@ -98,7 +93,7 @@
         logo.src = "/public/ep-logo.svg"
         logo.alt = "Energie Plattform"
         logo.style.width = "55px"
-        logo.style.margin = "34px"
+        logo.style.margin = "21px 34px"
         header.append(logo)
         const title = document.createElement("div")
         title.innerHTML = `/ ${window.location.pathname.split("/")[3]} /`
@@ -157,7 +152,7 @@
                   logo.src = "/felix/shs/public/ep-logo.svg"
                   logo.alt = "Energie Plattform"
                   logo.style.width = "55px"
-                  logo.style.margin = "34px"
+                  logo.style.margin = "21px 34px"
                   header.append(logo)
                   const title = document.createElement("div")
                   title.innerHTML = "Angebot erstellen"
@@ -207,7 +202,7 @@
                         logo.src = "/felix/shs/public/ep-logo.svg"
                         logo.alt = "Energie Plattform"
                         logo.style.width = "55px"
-                        logo.style.margin = "34px"
+                        logo.style.margin = "21px 34px"
                         header.append(logo)
                         const title = document.createElement("div")
                         title.innerHTML = "Besitzerdaten"
@@ -529,7 +524,7 @@
                         logo.src = "/felix/shs/public/ep-logo.svg"
                         logo.alt = "Energie Plattform"
                         logo.style.width = "55px"
-                        logo.style.margin = "34px"
+                        logo.style.margin = "21px 34px"
                         header.append(logo)
                         const title = document.createElement("div")
                         title.innerHTML = "Unternehmensdaten"
@@ -856,7 +851,7 @@
                         logo.src = "/felix/shs/public/ep-logo.svg"
                         logo.alt = "Energie Plattform"
                         logo.style.width = "55px"
-                        logo.style.margin = "34px"
+                        logo.style.margin = "21px 34px"
                         header.append(logo)
                         const title = document.createElement("div")
                         title.innerHTML = "Angebotsdaten"
@@ -931,6 +926,11 @@
                           funnel.append(offer)
                         }
 
+                        {
+                          const offer = document.createElement("div")
+                          offer.classList.add("offerVisibility")
+                          funnel.append(offer)
+                        }
 
 
                         const checkAndProceed = document.createElement("div")
@@ -1019,7 +1019,7 @@
                       const offerNotesField = new TextAreaField("offerNotes")
                       .withLabel(label => label.innerHTML = "Warnhinweise für den Endverbraucher")
                       .withType(text => {
-                        text.placeholder = "Befindet sich die Stellfläche des Gerüsts auf einem öffentlichen Gehweg, muss .."
+                        text.placeholder = "Befindet sich die Stellfläche des Gerüsts auf einem öffentlichen Gehweg, muss.."
                         text.maxlength = "987"
                         text.style.height = "144px"
                         text.required = true
@@ -1101,6 +1101,19 @@
                         window.localStorage.setItem(offerVatField.name, value)
                       })
 
+                      const offerVisibilityField = new SelectionField("offerVisibility")
+                      .withOptions(["Sichtbar nur für mich", "Sichtbar für alle"])
+                      .withLabel(label => label.innerHTML = "Sichtbarkeit")
+                      .onInput(async() => {
+                        offerVisibilityField.withStorage(value => {
+                          window.localStorage.setItem(offerVisibilityField.name, value[0])
+                        })
+                      })
+                      .fromStorage((name) => [window.localStorage.getItem(name)])
+                      offerVisibilityField.withStorage(value => {
+                        window.localStorage.setItem(offerVisibilityField.name, value[0])
+                      })
+
 
 
 
@@ -1115,8 +1128,8 @@
                         div.style.display = "flex"
                         div.style.justifyContent = "center"
                         div.style.alignItems = "center"
-                        div.addEventListener("mouseover", () => div.style.backgroundColor = "#f19d08")
-                        div.addEventListener("mouseout", () => div.style.backgroundColor = "#f7aa20")
+                        // div.addEventListener("mouseover", () => div.style.backgroundColor = "#f19d08")
+                        // div.addEventListener("mouseout", () => div.style.backgroundColor = "#f7aa20")
                       })
                       .onClick(async () => {
 
@@ -1133,6 +1146,7 @@
                         let offerProductPdf
                         let discount
                         let vat
+                        let offerVisibility
                         try {
                           offerTag = await offerTagField.withValidValue()
                           offerTitle = await offerTitleField.withValidValue()
@@ -1147,6 +1161,7 @@
                           offerProductPdf = await offerProductPdfField.withValidPdf(offerProductFile)
                           discount = await offerDiscountField.withValidValue()
                           vat = await offerVatField.withValidValue()
+                          offerVisibility = (await offerVisibilityField.withValidValue())[0].value
                         } catch (error) {
                           alert(`Feld '${error.fieldName}' ist notwendig.`)
                           document.getElementById(error.fieldName).scrollIntoView({behavior: 'smooth'})
@@ -1169,6 +1184,7 @@
                             register.productPdf = offerProductPdf
                             register.discount = discount
                             register.vat = vat
+                            register.visibility = offerVisibility
                             register.location = window.location.href
                             register.referer = document.referrer
                             register.localStorageEmail = await Request.email()
@@ -1239,7 +1255,7 @@
                         logo.src = "/felix/shs/public/ep-logo.svg"
                         logo.alt = "Energie Plattform"
                         logo.style.width = "55px"
-                        logo.style.margin = "34px"
+                        logo.style.margin = "21px 34px"
                         header.append(logo)
                         const title = document.createElement("div")
                         title.innerHTML = "Dienste"
@@ -1318,7 +1334,7 @@
                               logo.src = "/felix/shs/public/ep-logo.svg"
                               logo.alt = "Energie Plattform"
                               logo.style.width = "55px"
-                              logo.style.margin = "34px"
+                              logo.style.margin = "21px 34px"
                               header.append(logo)
                               const title = document.createElement("div")
                               title.innerHTML = "Dienst hinzufügen"
@@ -1652,7 +1668,7 @@
                         logo.src = "/felix/shs/public/ep-logo.svg"
                         logo.alt = "Energie Plattform"
                         logo.style.width = "55px"
-                        logo.style.margin = "34px"
+                        logo.style.margin = "21px 34px"
                         header.append(logo)
                         const title = document.createElement("div")
                         title.innerHTML = "Dienste filtern"
@@ -1746,7 +1762,7 @@
                               logo.src = "/felix/shs/public/ep-logo.svg"
                               logo.alt = "Energie Plattform"
                               logo.style.width = "55px"
-                              logo.style.margin = "34px"
+                              logo.style.margin = "21px 34px"
                               header.append(logo)
                               const title = document.createElement("div")
                               title.innerHTML = "Filter hinzufügen"
@@ -1770,7 +1786,6 @@
                               {
                                 const get = {}
                                 get.url = "/get/funnel/closed/5/"
-                                // get.tag = "epFunnel"
                                 get.state = "keys"
                                 get.localStorageId = await Request.localStorageId()
                                 get.localStorageEmail = await Request.email()
@@ -2110,7 +2125,7 @@
                   logo.src = "/felix/shs/public/ep-logo.svg"
                   logo.alt = "Energie Plattform"
                   logo.style.width = "55px"
-                  logo.style.margin = "34px"
+                  logo.style.margin = "21px 34px"
                   header.append(logo)
 
                   const title = document.createElement("div")
@@ -2174,7 +2189,7 @@
                           logo.src = "/felix/shs/public/ep-logo.svg"
                           logo.alt = "Energie Plattform"
                           logo.style.width = "55px"
-                          logo.style.margin = "34px"
+                          logo.style.margin = "21px 34px"
                           header.append(logo)
                           const title = document.createElement("div")
                           title.innerHTML = `${lead.firstname} ${lead.lastname}`
@@ -2443,121 +2458,108 @@
 
 
         {
-            const button = document.createElement("div")
-            button.style.display = "flex"
-            button.style.flexWrap = "wrap"
-            button.style.justifyContent = "space-between"
-            button.style.alignItems = "center"
-            button.style.margin = "21px 34px"
-            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-            button.style.borderRadius = "13px"
-            button.style.border = "0.3px solid black"
-            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-            button.style.cursor = "pointer"
-            button.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
+          const button = document.createElement("div")
+          button.style.display = "flex"
+          button.style.flexWrap = "wrap"
+          button.style.justifyContent = "space-between"
+          button.style.alignItems = "center"
+          button.style.margin = "21px 34px"
+          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+          button.style.borderRadius = "13px"
+          button.style.border = "0.3px solid black"
+          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+          button.style.cursor = "pointer"
+          button.addEventListener("click", () => window.location.assign("/pana/getyour/nutzervereinbarung/"))
 
-            const icon = document.createElement("img")
-            icon.style.margin = "13px 34px"
-            icon.style.width = "34px"
-            icon.src = "/public/handshake.svg"
-            icon.alt = "Nutzervereinbarung"
-            button.append(icon)
+          const icon = document.createElement("img")
+          icon.style.margin = "13px 34px"
+          icon.style.width = "34px"
+          icon.src = "/public/handshake.svg"
+          icon.alt = "Nutzervereinbarung"
+          button.append(icon)
 
-            const title = document.createElement("div")
-            title.innerHTML = "Nutzervereinbarung"
-            title.style.margin = "21px 34px"
-            title.style.fontSize = "21px"
-            button.append(title)
+          const title = document.createElement("div")
+          title.innerHTML = "Nutzervereinbarung"
+          title.style.margin = "21px 34px"
+          title.style.fontSize = "21px"
+          button.append(title)
 
-            buttons.append(button)
-          }
+          buttons.append(button)
+        }
 
-          {
-            const button = document.createElement("div")
-            button.style.display = "flex"
-            button.style.flexWrap = "wrap"
-            button.style.justifyContent = "space-between"
-            button.style.alignItems = "center"
-            button.style.margin = "21px 34px"
-            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-            button.style.borderRadius = "13px"
-            button.style.border = "0.3px solid black"
-            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-            button.style.cursor = "pointer"
-            button.addEventListener("click", () => window.location.assign("/datenschutz/"))
+        {
+          const button = document.createElement("div")
+          button.style.display = "flex"
+          button.style.flexWrap = "wrap"
+          button.style.justifyContent = "space-between"
+          button.style.alignItems = "center"
+          button.style.margin = "21px 34px"
+          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+          button.style.borderRadius = "13px"
+          button.style.border = "0.3px solid black"
+          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+          button.style.cursor = "pointer"
+          button.addEventListener("click", () => window.location.assign("/pana/getyour/datenschutz/"))
 
-            const icon = document.createElement("img")
-            icon.style.margin = "13px 34px"
-            icon.style.width = "34px"
-            icon.src = "/public/security.svg"
-            icon.alt = "Nutzervereinbarung"
-            button.append(icon)
+          const icon = document.createElement("img")
+          icon.style.margin = "13px 34px"
+          icon.style.width = "34px"
+          icon.src = "/public/security.svg"
+          icon.alt = "Sicherheit"
+          button.append(icon)
 
-            const title = document.createElement("div")
-            title.innerHTML = "Datenschutz Richtilinien"
-            title.style.margin = "21px 34px"
-            title.style.fontSize = "21px"
-            button.append(title)
+          const title = document.createElement("div")
+          title.innerHTML = "Datenschutz Richtilinien"
+          title.style.margin = "21px 34px"
+          title.style.fontSize = "21px"
+          button.append(title)
 
-            buttons.append(button)
-          }
-          {
-            const button = document.createElement("div")
-            button.style.display = "flex"
-            button.style.flexWrap = "wrap"
-            button.style.justifyContent = "space-between"
-            button.style.alignItems = "center"
-            button.style.margin = "21px 34px"
-            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-            button.style.borderRadius = "13px"
-            button.style.border = "0.3px solid black"
-            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-            button.style.cursor = "pointer"
-            button.addEventListener("click", () => window.location.assign("/impressum/"))
+          buttons.append(button)
+        }
+        {
+          const button = document.createElement("div")
+          button.style.display = "flex"
+          button.style.flexWrap = "wrap"
+          button.style.justifyContent = "space-between"
+          button.style.alignItems = "center"
+          button.style.margin = "21px 34px"
+          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+          button.style.borderRadius = "13px"
+          button.style.border = "0.3px solid black"
+          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+          button.style.cursor = "pointer"
+          button.addEventListener("click", () => window.location.assign("/pana/getyour/impressum/"))
 
-            const icon = document.createElement("img")
-            icon.style.margin = "13px 34px"
-            icon.style.width = "34px"
-            icon.src = "/public/company.svg"
-            icon.alt = "Nutzervereinbarung"
-            button.append(icon)
+          const icon = document.createElement("img")
+          icon.style.margin = "13px 34px"
+          icon.style.width = "34px"
+          icon.src = "/public/company.svg"
+          icon.alt = "Unternehmen"
+          button.append(icon)
 
-            const title = document.createElement("div")
-            title.innerHTML = "Impressum"
-            title.style.margin = "21px 34px"
-            title.style.fontSize = "21px"
-            button.append(title)
+          const title = document.createElement("div")
+          title.innerHTML = "Impressum"
+          title.style.margin = "21px 34px"
+          title.style.fontSize = "21px"
+          button.append(title)
 
-            buttons.append(button)
-          }
-
-
-
-
-
-
+          buttons.append(button)
+        }
 
         overlay.append(buttons)
-
-
-
-        })
-
-
-
-
-
-
+      })
     })
     leftContainer.append(name)
     header.append(leftContainer)
+    document.body.append(header)
 
-
-    document.querySelectorAll(".title").forEach(title => {
+    {
+      const title = document.createElement("h1")
       title.innerHTML = "Verkäuferübersicht"
       title.style.margin = "21px 34px"
       title.style.fontWeight = "normal"
-    })
+      document.body.append(title)
+    }
 
     {
       const verify = {}
@@ -2572,10 +2574,19 @@
 
       if (res.status !== 200) {
         const div = document.createElement("div")
-        div.style.margin = "21px 34px"
+        div.style.position = "absolute"
+        div.style.top = "0"
+        div.style.left = "0"
+        div.style.height = "89vh"
+        div.style.width = "100%"
+        div.style.display = "flex"
+        div.style.justifyContent = "center"
+        div.style.alignItems = "center"
+        div.style.zIndex = "-1"
         div.style.color = "gray"
-        div.innerHTML = "Um Verkäufer anzuwerben, müssen Sie erst Ihr Angebot vervollständigen."
+        div.innerHTML = `<span style="margin: 21px 34px;">Um Verkäufer anzuwerben, müssen Sie erst ein Angebot erstellen.</span>`
         document.body.append(div)
+        throw new Error("offer not verified")
       }
 
       if (res.status === 200) {
@@ -2588,6 +2599,25 @@
           get.localStorageId = await Request.localStorageId()
           const res = await Request.middleware(get)
 
+          if (res.status !== 200) {
+
+            const div = document.createElement("div")
+            div.style.position = "absolute"
+            div.style.top = "0"
+            div.style.left = "0"
+            div.style.height = "89vh"
+            div.style.width = "100%"
+            div.style.display = "flex"
+            div.style.justifyContent = "center"
+            div.style.alignItems = "center"
+            div.style.zIndex = "-1"
+            div.style.color = "gray"
+            div.innerHTML = `<span style="margin: 21px 34px;">Ihr Angebot ist vollständig. Sie können jetzt unter 'Bewerber ansehen' Ihre Anfragen bearbeiten.</span>`
+            document.body.append(div)
+            throw new Error("seller not found")
+
+          }
+
 
           if (res.status === 200) {
           const list = document.createElement("div")
@@ -2596,12 +2626,20 @@
           const array = JSON.parse(res.response)
 
           if (array.length === 0) {
-            list.innerHTML = "Keine Verkäufer hinzugefügt."
-            list.style.color = "gray"
-            list.style.display = "flex"
-            list.style.justifyContent = "center"
-            list.style.alignItems = "center"
-            list.style.height = "50vh"
+            const div = document.createElement("div")
+            div.style.position = "absolute"
+            div.style.top = "0"
+            div.style.left = "0"
+            div.style.height = "89vh"
+            div.style.width = "100%"
+            div.style.display = "flex"
+            div.style.justifyContent = "center"
+            div.style.alignItems = "center"
+            div.style.zIndex = "-1"
+            div.style.color = "gray"
+            div.innerHTML = `<span style="margin: 21px 34px;">Ihr Angebot ist vollständig. Sie können jetzt unter 'Bewerber ansehen' Ihre Anfragen bearbeiten.</span>`
+            document.body.append(div)
+            throw new Error("seller not found")
           }
 
           for (let i = 0; i < array.length; i++) {

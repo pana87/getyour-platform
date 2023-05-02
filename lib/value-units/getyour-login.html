@@ -20,7 +20,6 @@
   <body>
 
   <script type="module">
-    import { HeaderField } from "/js/HeaderField.js"
     import { Helper } from "/js/Helper.js"
     import { DivField } from "/js/DivField.js"
     import { CheckboxField } from "/js/CheckboxField.js"
@@ -83,7 +82,7 @@
         logo.src = "/public/getyour-logo.svg"
         logo.alt = "Getyour"
         logo.style.width = "55px"
-        logo.style.margin = "34px"
+        logo.style.margin = "21px 34px"
         header.append(logo)
         const title = document.createElement("div")
         title.innerHTML = `/ ${window.location.pathname.split("/")[3]} /`
