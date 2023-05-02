@@ -61,7 +61,7 @@
         name.innerHTML = "Energie Plattform"
         name.style.padding = "21px 34px"
         name.style.fontSize = "21px"
-        name.style.color = "#7bc043"
+        // name.style.color = "#7bc043"
         name.style.cursor = "pointer"
 
 
@@ -87,7 +87,7 @@
             logo.src = "/public/ep-logo.svg"
             logo.alt = "EP"
             logo.style.width = "55px"
-            logo.style.margin = "34px"
+            logo.style.margin = "21px 34px"
             header.append(logo)
             const title = document.createElement("div")
             title.innerHTML = `/ ${window.location.pathname.split("/")[3]} /`
@@ -366,6 +366,7 @@
           {
             const redirect = {}
             redirect.url = "/redirect/user/closed/"
+            redirect.roleId = "4"
             redirect.location = window.location.href
             redirect.referer = document.referrer
             redirect.localStorageEmail = await Request.email()

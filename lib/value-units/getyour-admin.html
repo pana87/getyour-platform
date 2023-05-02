@@ -77,7 +77,7 @@
                   const logo = document.createElement("img")
                   logo.src = "/public/getyour-logo.svg"
                   logo.alt = "Getyour Popup"
-                  logo.style.margin = "34px"
+                  logo.style.margin = "21px 34px"
                   header.append(logo)
 
                   const title = document.createElement("div")
@@ -141,7 +141,7 @@
                   const logo = document.createElement("img")
                   logo.src = "/public/getyour-logo.svg"
                   logo.alt = "Getyour Popup"
-                  logo.style.margin = "34px"
+                  logo.style.margin = "21px 34px"
                   header.append(logo)
 
                   const title = document.createElement("div")
@@ -196,7 +196,7 @@
                   const logo = document.createElement("img")
                   logo.src = "/public/getyour-logo.svg"
                   logo.alt = "Getyour"
-                  logo.style.margin = "34px"
+                  logo.style.margin = "21px 34px"
                   header.append(logo)
 
                   const title = document.createElement("div")
@@ -305,7 +305,7 @@
                   const logo = document.createElement("img")
                   logo.src = "/public/getyour-logo.svg"
                   logo.alt = "Getyour Popup"
-                  logo.style.margin = "34px"
+                  logo.style.margin = "21px 34px"
                   header.append(logo)
 
                   const title = document.createElement("div")
@@ -354,7 +354,7 @@
                       const logo = document.createElement("img")
                       logo.src = "/public/getyour-logo.svg"
                       logo.alt = "Getyour Popup"
-                      logo.style.margin = "34px"
+                      logo.style.margin = "21px 34px"
                       header.append(logo)
                       const title = document.createElement("div")
                       title.innerHTML = "error logs"
@@ -412,7 +412,7 @@
                               const logo = document.createElement("img")
                               logo.src = "/public/getyour-logo.svg"
                               logo.alt = "Getyour Popup"
-                              logo.style.margin = "34px"
+                              logo.style.margin = "21px 34px"
                               header.append(logo)
                               const title = document.createElement("div")
                               title.innerHTML = error.message
@@ -439,6 +439,7 @@
 
                           const message = document.createElement("div")
                           message.style.margin = "13px 34px"
+                          message.style.width = "100%"
                           message.innerHTML = /*html*/`
                             <div>Fehler: <b>${error.message}</b></div>
                             <div>Erstellt am: <b>${new Date(error.created).toISOString()}</b></div>
@@ -507,7 +508,7 @@
                       const logo = document.createElement("img")
                       logo.src = "/public/getyour-logo.svg"
                       logo.alt = "Getyour Popup"
-                      logo.style.margin = "34px"
+                      logo.style.margin = "21px 34px"
                       header.append(logo)
                       const title = document.createElement("div")
                       title.innerHTML = "user logs"
@@ -604,7 +605,7 @@
                               const logo = document.createElement("img")
                               logo.src = "/public/getyour-logo.svg"
                               logo.alt = "Getyour Popup"
-                              logo.style.margin = "34px"
+                              logo.style.margin = "21px 34px"
                               header.append(logo)
                               const title = document.createElement("div")
                               title.innerHTML = user.email
@@ -702,7 +703,7 @@
                         const logo = document.createElement("img")
                         logo.src = "/public/getyour-logo.svg"
                         logo.alt = "Getyour"
-                        logo.style.margin = "34px"
+                        logo.style.margin = "21px 34px"
                         header.append(logo)
 
                         const title = document.createElement("div")
@@ -914,7 +915,7 @@
                           logo.src = "/public/getyour-logo.svg"
                           logo.alt = "get-your"
                           logo.style.width = "55px"
-                          logo.style.margin = "34px"
+                          logo.style.margin = "21px 34px"
                           header.append(logo)
 
                           const title = document.createElement("div")
@@ -959,7 +960,20 @@
                                 button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
                                 button.style.cursor = "pointer"
 
-                                button.addEventListener("click", () => window.location.assign(role.path))
+                                button.addEventListener("click", async () => {
+                                  {
+                                    const redirect = {}
+                                    redirect.url = "/redirect/user/closed/"
+                                    redirect.roleId = role.id
+                                    redirect.location = window.location.href
+                                    redirect.referer = document.referrer
+                                    redirect.localStorageEmail = await Request.email()
+                                    redirect.localStorageId = await Request.localStorageId()
+                                    const res = await Request.middleware(redirect)
+
+                                    if (res.status === 200) window.location.assign(res.response)
+                                  }
+                                })
 
                                 const icon = document.createElement("img")
                                 icon.style.margin = "13px 34px"

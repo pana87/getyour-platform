@@ -26,6 +26,17 @@ app.use((req, res, next) => {
   next()
 })
 
+// app.use(async(req, res, next) => {
+//   try {
+//     await Helper.logRequest(req)
+//     next()
+//   } catch (error) {
+//     await Helper.logError(error, req)
+//   }
+//   return res.sendStatus(404)
+// })
+
+
 // static first
 app.use("/docs/", express.static(docsLocation.absolutePath))
 app.use(express.static(clientLocation.absolutePath))
@@ -745,6 +756,10 @@ async (req, res, next) => {
         if (parseInt(req.params.role) === UserRole.PROMOTER) {
           if (req.params.path === "promoter-ansicht") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
         }
+
+        // if (parseInt(req.params.role) === UserRole.EXPERT) {
+        //   // if (req.params.path === "experten-ansicht") return res.send(Helper.readFileSyncToString(`../lib/value-units/getyour-${req.params.path}.html`))
+        // }
       }
     }
 
@@ -762,9 +777,24 @@ async (req, res, next) => {
 app.get("/:name/",
 async (req, res, next) => {
   try {
-    const {user} = await Helper.findUser(user => user.name === req.params.name)
-    if (Helper.stringIsEmpty(user.name)) throw new Error("user name is empty")
-    return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-profile-page.html"))
+
+    const doc = await nano.db.use("getyour").get("users")
+    if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
+    if (doc.users === undefined) throw new Error("users is undefined")
+
+    for (let i = 0; i < doc.users.length; i++) {
+      const user = doc.users[i]
+
+      if (Helper.stringIsEmpty(user.name)) throw new Error("user name is empty")
+      if (user.name === req.params.name) {
+        return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-experten-ansicht.html"))
+      }
+
+    }
+
+
+    throw new Error("name not found")
+
   } catch (error) {
     await Helper.logError(error, req)
   }
@@ -783,7 +813,7 @@ app.post(`/:method/:type/:event/`,
 
   Request.registerEmail,
 
-  // Request.get,
+  Request.get,
   Request.register,
 
 

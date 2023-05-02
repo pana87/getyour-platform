@@ -51,8 +51,7 @@ export class NumberField {
   async withStorage(callback) {
     if (callback !== undefined) {
       const value = await this.withValidValue()
-      // if (!Helper.numberIsEmpty(value)) callback(value)
-      callback(value)
+      if (!Helper.stringIsEmpty(value)) callback(value)
     }
     return this
   }
