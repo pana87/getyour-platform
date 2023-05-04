@@ -785,7 +785,7 @@ async (req, res, next) => {
     for (let i = 0; i < doc.users.length; i++) {
       const user = doc.users[i]
 
-      if (Helper.stringIsEmpty(user.name)) throw new Error("user name is empty")
+      if (Helper.stringIsEmpty(user.name)) throw new Error("name is empty")
       if (user.name === req.params.name) {
         return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-experten-ansicht.html"))
       }
