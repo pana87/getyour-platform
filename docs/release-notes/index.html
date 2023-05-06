@@ -10,125 +10,49 @@
 	<style>
 		body {
 			font-family: sans-serif;
-			margin: 0;
+			margin: 21px 34px;
       line-height: 1.2;
-		}
-
-		.container {
-			margin: 144px 34px;
+      padding-bottom: 144px;
 		}
 	</style>
 </head>
 <body>
 
-  <header></header>
+  <h1>Release Notes</h1>
 
-  <h1 style="margin: 144px 34px">Release Notes</h1>
-
-	<div class="container">
-
-
-
-
-		<h2>Version 29.04.2023</h2>
-		<p><strong>Neue Funktionen:</strong></p>
-		<ul>
-      <li>Registrierung als Verkäufer möglich unter der ep Plattform</li>
-      <li>Registrierung als Promoter möglich unter der ep Plattform</li>
-      <li>Registrierung als Anlagenbetreiber möglich unter der ep Plattform</li>
-      <li>Registrierung als Branchenexperte möglich unter der getyour Plattform</li>
-      <li>Ladeanimation im PIN Modus hinzugefügt</li>
-      <li>Direktes Matching möglich</li>
-      <li>Lazy Loading ist nun verfügbar</li>
-      <li>Session Storage Sync ist nun verfügbar</li>
-      <li>Benutzer erhält bei jeder Request die neueste Version von Getyour Plattform</li>
-			<li>Release notes sind jetzt unter <a href="/docs/release-notes/">/docs/release-notes/</a> verfügbar</li>
-      <li>Login möglich auf der getyour Plattform</li>
-      <li>Major Release der getyour Plattform</li>
-		</ul>
-		<p><strong>Fehlerbehebungen:</strong></p>
-    <ul>
-      <li>Neue Angebote werden jetzt gespeichert</li>
-      <li>Alle Endpunkte werden jetzt abgefangen</li>
-      <li>Unterschrift für Mobilgeräte ist verfügbar</li>
-    </ul>
-		<p><strong>Sicherheitsrelevante Updates:</strong></p>
-    <ul>
-      <li>Stabilitätsupdates</li>
-      <li>Erweiterte Fehlerlogs</li>
-      <li>PIN Abfrage blockt Funktionen nach Fehler</li>
-      <li>Loggerfunktion loggt jetzt in die Datenbank</li>
-      <li>Telefonnummern für Schweiz und Österreich sind nun erlaubt</li>
-      <li>Uploads werden Serverseitig überprüft</li>
-    </ul>
-    <hr>
-
-
-
-
-
-
-
-	</div>
-
-
-  <footer></footer>
-
+  <h2>Plattform Version 06.05.2023</h2>
+  <p><strong>Neue Funktionen:</strong></p>
+  <ul>
+    <li>Registrierung als Verkäufer möglich unter der ep Plattform</li>
+    <li>Registrierung als Promoter möglich unter der ep Plattform</li>
+    <li>Registrierung als Anlagenbetreiber möglich unter der ep Plattform</li>
+    <li>Registrierung als Branchenexperte möglich unter der getyour Plattform</li>
+    <li>Ladeanimation im PIN Modus hinzugefügt</li>
+    <li>Direktes Matching möglich</li>
+    <li>Lazy Loading ist nun verfügbar</li>
+    <li>Session Storage Sync ist nun verfügbar</li>
+    <li>Benutzer erhält bei jeder Request die neueste Version von Getyour Plattform</li>
+    <li>Release notes sind jetzt unter <a href="/docs/release-notes/">/docs/release-notes/</a> verfügbar</li>
+    <li>Login möglich auf der getyour Plattform</li>
+    <li>Major Release der getyour Plattform</li>
+  </ul>
+  <p><strong>Fehlerbehebungen:</strong></p>
+  <ul>
+    <li>Neue Angebote werden jetzt gespeichert</li>
+    <li>Alle Endpunkte werden jetzt abgefangen</li>
+    <li>Unterschrift für Mobilgeräte ist verfügbar</li>
+  </ul>
+  <p><strong>Sicherheitsrelevante Updates:</strong></p>
+  <ul>
+    <li>Stabilitätsupdates</li>
+    <li>Erweiterte Fehlerlogs</li>
+    <li>PIN Abfrage blockt Funktionen nach Fehler</li>
+    <li>Loggerfunktion loggt jetzt in die Datenbank</li>
+    <li>Telefonnummern für Schweiz und Österreich sind nun erlaubt</li>
+    <li>Uploads werden Serverseitig überprüft</li>
+  </ul>
 
   <script type="module">
-    import { HeaderField } from "/js/HeaderField.js"
-    import { FooterField } from "/js/FooterField.js"
-
-
-
-    const headerField = new HeaderField()
-    .withType(header => {
-      header.style.backgroundColor = "white"
-      header.style.width = "100%"
-      header.style.position = "fixed"
-      header.style.top = "0"
-      header.style.left = "0"
-      header.style.zIndex = "1"
-
-    })
-    .withImage(img => {
-      img.style.width = "89px"
-      img.src = "/public/getyour-logo.svg"
-      img.alt = "Getyour Plattform Logo"
-      img.style.cursor = "pointer"
-      img.addEventListener("click", () => window.history.back())
-    })
-    .build()
-
-    const footerField = new FooterField()
-    .withType(footer => {
-      footer.style.backgroundColor = "#781717"
-      footer.style.padding = "21px 34px"
-      footer.style.marginTop = "144px"
-      footer.style.color = "#d1d1d1"
-
-      const impressum = document.createElement("div")
-      impressum.innerHTML = "IMPRESSUM"
-      impressum.style.cursor = "pointer"
-      impressum.style.padding = "13px"
-      impressum.addEventListener("click", () => window.location.assign("/impressum/"))
-      footer.append(impressum)
-
-      const dsgvo = document.createElement("div")
-      dsgvo.innerHTML = "DATENSCHUTZ"
-      dsgvo.style.cursor = "pointer"
-      dsgvo.style.padding = "13px"
-      dsgvo.addEventListener("click", () => window.location.assign("/datenschutz/"))
-      footer.append(dsgvo)
-
-      const userAgreement = document.createElement("div")
-      userAgreement.innerHTML = "NUTZERVEREINBARUNG"
-      userAgreement.style.cursor = "pointer"
-      userAgreement.style.padding = "13px"
-      userAgreement.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
-      footer.append(userAgreement)
-    })
-
 
 
   </script>

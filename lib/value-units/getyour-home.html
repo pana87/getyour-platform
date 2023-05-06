@@ -21,6 +21,7 @@
   <body>
 
     <script type="module">
+      import {Request} from "/js/Request.js"
       import {Helper} from "/js/Helper.js"
 
       {
@@ -59,7 +60,7 @@
 
         name.addEventListener("click", () => {
 
-          Helper.popup(overlay => {
+          Helper.popup(async overlay => {
 
             const header = document.createElement("div")
             header.style.position = "fixed"
@@ -94,6 +95,48 @@
             buttons.style.paddingBottom = "144px"
 
             {
+              const verify = {}
+              verify.url = "/verify/roles/closed/2/"
+              verify.state = "exist"
+              verify.localStorageId = await Request.localStorageId()
+              verify.localStorageEmail = await Request.email()
+              verify.location = window.location.href
+              verify.referer = document.referrer
+              const res = await Request.middleware(verify)
+
+              if (res.status === 200) {
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.flexWrap = "wrap"
+                button.style.justifyContent = "space-between"
+                button.style.alignItems = "center"
+                button.style.margin = "21px 34px"
+                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                button.style.borderRadius = "13px"
+                button.style.border = "0.3px solid black"
+                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                button.style.cursor = "pointer"
+                button.addEventListener("click", () => window.location.assign("/pana/getyour/admin/"))
+
+                const icon = document.createElement("img")
+                icon.style.margin = "13px 34px"
+                icon.style.width = "34px"
+                icon.src = "/public/admin.svg"
+                icon.alt = "Admin"
+                button.append(icon)
+
+                const title = document.createElement("div")
+                title.innerHTML = "Admin"
+                title.style.margin = "21px 34px"
+                title.style.fontSize = "21px"
+                button.append(title)
+
+                buttons.append(button)
+              }
+
+            }
+
+            {
               const button = document.createElement("div")
               button.style.display = "flex"
               button.style.flexWrap = "wrap"
@@ -110,8 +153,8 @@
               const icon = document.createElement("img")
               icon.style.margin = "13px 34px"
               icon.style.width = "34px"
-              icon.src = "/public/admin.svg"
-              icon.alt = "Admin"
+              icon.src = "/public/entry.svg"
+              icon.alt = "Login"
               button.append(icon)
 
               const title = document.createElement("div")

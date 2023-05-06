@@ -26,131 +26,561 @@
       import { EmailField } from "/js/EmailField.js"
       import { DivField } from "/js/DivField.js"
 
-      {
-        const renderNav = {}
-        renderNav.url = "/verify/role/closed/2/"
-        renderNav.location = window.location.href
-        renderNav.referer = document.referrer
-        renderNav.localStorageId = await Request.localStorageId()
-        renderNav.localStorageEmail = await Request.email()
-        const res = await Request.middleware(renderNav)
 
-        if (res.status === 200) {
+      const header = document.createElement("header")
+      header.style.position = "fixed"
+      header.style.bottom = "0"
+      header.style.left = "0"
+      header.style.backgroundColor = "white"
+      header.style.width = "100%"
+      header.style.display = "flex"
+      header.style.flexWrap = "wrap"
+      header.style.alignItems = "center"
+      header.style.justifyContent = "space-between"
+      header.style.boxShadow = "0 -3px 5px rgba(0, 0, 0, 0.13)"
 
-          const nav = document.createElement("div")
-          nav.style.position = "fixed"
-          nav.style.bottom = "0"
-          nav.style.left = "0"
-          nav.style.width = "100%"
-          nav.style.display = "flex"
-          nav.style.justifyContent = "space-around"
-          nav.style.borderTop = "solid 1px #be0909"
-          nav.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-          nav.style.zIndex = "1"
+      const leftContainer = document.createElement("div")
+      leftContainer.style.display = "flex"
+      leftContainer.style.alignItems = "center"
+      leftContainer.style.flexWrap = "wrap"
+
+      const logo = document.createElement("img")
+      logo.src = "/public/getyour-logo.svg"
+      logo.alt = "Plattform"
+      logo.style.width = "55px"
+      logo.style.margin = "21px 0 21px 34px"
+      logo.style.cursor = "pointer"
+      logo.addEventListener("click", () => window.history.back())
+      leftContainer.append(logo)
+
+      const name = document.createElement("div")
+      name.innerHTML = "Plattform"
+      name.style.padding = "21px 34px"
+      name.style.fontSize = "21px"
+      name.style.color = "#000"
+      name.style.cursor = "pointer"
+
+
+      name.addEventListener("click", () => {
+
+        // Helper.popup(overlay => {
+
+        //   const header = document.createElement("div")
+        //   header.style.position = "fixed"
+        //   header.style.bottom = "0"
+        //   header.style.left = "0"
+        //   header.style.width = "100%"
+        //   header.style.display = "flex"
+        //   header.style.justifyContent = "flex-start"
+        //   header.style.alignItems = "center"
+        //   header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+        //   header.style.background = "white"
+        //   header.style.cursor = "pointer"
+        //   header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+        //   const logo = document.createElement("img")
+        //   logo.src = "/public/getyour-logo.svg"
+        //   logo.alt = "Getyour"
+        //   logo.style.width = "55px"
+        //   logo.style.margin = "21px 34px"
+        //   header.append(logo)
+        //   const title = document.createElement("div")
+        //   title.innerHTML = `/ ${window.location.pathname.split("/")[3]} /`
+        //   title.style.fontWeight = "bold"
+        //   title.style.fontSize = "21px"
+        //   header.append(title)
+        //   overlay.append(header)
+
+
+
+        //   const buttons = document.createElement("div")
+        //   buttons.style.overflow = "auto"
+        //   buttons.style.paddingBottom = "144px"
+
+        //   {
+        //     const button = document.createElement("div")
+        //     button.style.display = "flex"
+        //     button.style.flexWrap = "wrap"
+        //     button.style.justifyContent = "space-between"
+        //     button.style.alignItems = "center"
+        //     button.style.margin = "21px 34px"
+        //     button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+        //     button.style.borderRadius = "13px"
+        //     button.style.border = "0.3px solid black"
+        //     button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+        //     button.style.cursor = "pointer"
+        //     button.addEventListener("click", () => window.location.assign("/"))
+
+        //     const icon = document.createElement("img")
+        //     icon.style.margin = "13px 34px"
+        //     icon.style.width = "34px"
+        //     icon.src = "/public/home.svg"
+        //     icon.alt = "Home"
+        //     button.append(icon)
+
+        //     const title = document.createElement("div")
+        //     title.innerHTML = "Startseite"
+        //     title.style.margin = "21px 34px"
+        //     title.style.fontSize = "21px"
+        //     button.append(title)
+
+        //     buttons.append(button)
+        //   }
+
+
+
+
+        //   {
+        //     const button = document.createElement("div")
+        //     button.style.display = "flex"
+        //     button.style.flexWrap = "wrap"
+        //     button.style.justifyContent = "space-between"
+        //     button.style.alignItems = "center"
+        //     button.style.margin = "21px 34px"
+        //     button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+        //     button.style.borderRadius = "13px"
+        //     button.style.border = "0.3px solid black"
+        //     button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+        //     button.style.cursor = "pointer"
+        //     button.addEventListener("click", () => window.location.assign("/pana/getyour/nutzervereinbarung/"))
+
+        //     const icon = document.createElement("img")
+        //     icon.style.margin = "13px 34px"
+        //     icon.style.width = "34px"
+        //     icon.src = "/public/handshake.svg"
+        //     icon.alt = "Nutzervereinbarung"
+        //     button.append(icon)
+
+        //     const title = document.createElement("div")
+        //     title.innerHTML = "Nutzervereinbarung"
+        //     title.style.margin = "21px 34px"
+        //     title.style.fontSize = "21px"
+        //     button.append(title)
+
+        //     buttons.append(button)
+        //   }
+
+        //   {
+        //     const button = document.createElement("div")
+        //     button.style.display = "flex"
+        //     button.style.flexWrap = "wrap"
+        //     button.style.justifyContent = "space-between"
+        //     button.style.alignItems = "center"
+        //     button.style.margin = "21px 34px"
+        //     button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+        //     button.style.borderRadius = "13px"
+        //     button.style.border = "0.3px solid black"
+        //     button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+        //     button.style.cursor = "pointer"
+        //     button.addEventListener("click", () => window.location.assign("/pana/getyour/datenschutz/"))
+
+        //     const icon = document.createElement("img")
+        //     icon.style.margin = "13px 34px"
+        //     icon.style.width = "34px"
+        //     icon.src = "/public/security.svg"
+        //     icon.alt = "Sicherheit"
+        //     button.append(icon)
+
+        //     const title = document.createElement("div")
+        //     title.innerHTML = "Datenschutz Richtilinien"
+        //     title.style.margin = "21px 34px"
+        //     title.style.fontSize = "21px"
+        //     button.append(title)
+
+        //     buttons.append(button)
+        //   }
+        //   {
+        //     const button = document.createElement("div")
+        //     button.style.display = "flex"
+        //     button.style.flexWrap = "wrap"
+        //     button.style.justifyContent = "space-between"
+        //     button.style.alignItems = "center"
+        //     button.style.margin = "21px 34px"
+        //     button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+        //     button.style.borderRadius = "13px"
+        //     button.style.border = "0.3px solid black"
+        //     button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+        //     button.style.cursor = "pointer"
+        //     button.addEventListener("click", () => window.location.assign("/pana/getyour/impressum/"))
+
+        //     const icon = document.createElement("img")
+        //     icon.style.margin = "13px 34px"
+        //     icon.style.width = "34px"
+        //     icon.src = "/public/company.svg"
+        //     icon.alt = "Unternehmen"
+        //     button.append(icon)
+
+        //     const title = document.createElement("div")
+        //     title.innerHTML = "Impressum"
+        //     title.style.margin = "21px 34px"
+        //     title.style.fontSize = "21px"
+        //     button.append(title)
+
+        //     buttons.append(button)
+        //   }
+
+        //   overlay.append(buttons)
+        // })
+
+
+        const popup = Helper.popup(async overlay => {
+
+          {
+            const header = document.createElement("div")
+            header.style.position = "fixed"
+            header.style.bottom = "0"
+            header.style.left = "0"
+            header.style.width = "100%"
+            header.style.display = "flex"
+            header.style.justifyContent = "flex-start"
+            header.style.alignItems = "center"
+            header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+            header.style.background = "white"
+            header.style.cursor = "pointer"
+            header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+            const logo = document.createElement("img")
+            logo.src = "/public/getyour-logo.svg"
+            logo.alt = "Logo"
+            logo.style.width = "55px"
+            logo.style.margin = "21px 34px"
+            header.append(logo)
+
+            const title = document.createElement("div")
+            title.innerHTML = `/ ${window.location.pathname.split("/")[3]} /`
+            title.style.fontWeight = "bold"
+            title.style.fontSize = "21px"
+            header.append(title)
+
+            overlay.append(header)
+          }
+
+
+          const buttons = document.createElement("div")
+          buttons.style.overflowY = "scroll"
+          buttons.style.paddingBottom = "144px"
+
 
           {
             const button = document.createElement("div")
             button.style.display = "flex"
-            button.style.flexDirection = "column"
-            button.style.justifyContent = "center"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
             button.style.alignItems = "center"
-            button.style.width = "20%"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
             button.style.cursor = "pointer"
             button.addEventListener("click", () => {
+              // new overlay ???
+              const popup = Helper.popup(async overlay => {
+                const header = document.createElement("div")
+                header.style.position = "fixed"
+                header.style.bottom = "0"
+                header.style.left = "0"
+                header.style.width = "100%"
+                header.style.display = "flex"
+                header.style.justifyContent = "flex-start"
+                header.style.alignItems = "center"
+                header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                header.style.background = "white"
+                header.style.cursor = "pointer"
+                header.addEventListener("click", () => Helper.removeOverlay(overlay))
 
-              const popup = Helper.popup(overlay => {
+                const logo = document.createElement("img")
+                logo.src = "/public/getyour-logo.svg"
+                logo.alt = "Getyour Popup"
+                logo.style.margin = "21px 34px"
+                header.append(logo)
+                const title = document.createElement("div")
+                title.innerHTML = "error logs"
+                title.style.fontWeight = "bold"
+                title.style.fontSize = "21px"
+                header.append(title)
+                overlay.append(header)
 
-                {
-                  const header = document.createElement("div")
-                  header.style.position = "fixed"
-                  header.style.bottom = "0"
-                  header.style.left = "0"
-                  header.style.width = "100%"
-                  header.style.display = "flex"
-                  header.style.justifyContent = "flex-start"
-                  header.style.alignItems = "center"
-                  header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                  header.style.background = "white"
-                  header.style.cursor = "pointer"
-                  header.addEventListener("click", () => Helper.removeOverlay(overlay))
+                const getErrors = {}
+                getErrors.url = "/get/error/closed/2/"
+                getErrors.localStorageEmail = await Request.email()
+                getErrors.localStorageId = await Request.localStorageId()
+                getErrors.referer = document.referrer
+                getErrors.location = window.location.href
+                const res = await Request.middleware(getErrors)
 
-                  const logo = document.createElement("img")
-                  logo.src = "/public/getyour-logo.svg"
-                  logo.alt = "Getyour Popup"
-                  logo.style.margin = "21px 34px"
-                  header.append(logo)
+                if (res.status === 200) {
+                  const errors = JSON.parse(res.response)
 
-                  const title = document.createElement("div")
-                  title.innerHTML = "stats"
-                  title.style.fontWeight = "bold"
-                  title.style.fontSize = "21px"
-                  header.append(title)
-
-                  overlay.append(header)
-                }
-
-                {
                   const buttons = document.createElement("div")
                   buttons.style.overflowY = "scroll"
                   buttons.style.paddingBottom = "144px"
 
+                  for (let i = 0; i < errors.length; i++) {
+                    const error = errors[i]
+
+
+                    const button = document.createElement("div")
+                    button.style.display = "flex"
+                    button.style.flexWrap = "wrap"
+                    button.style.alignItems = "center"
+                    button.style.margin = "21px 34px"
+                    button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                    button.style.borderRadius = "13px"
+                    button.style.border = "0.3px solid black"
+                    button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                    button.style.cursor = "pointer"
+                    button.addEventListener("click", () => {
+
+                      const popup = Helper.popup(overlay => {
+
+                        const header = document.createElement("div")
+                        header.style.position = "fixed"
+                        header.style.bottom = "0"
+                        header.style.left = "0"
+                        header.style.width = "100%"
+                        header.style.display = "flex"
+                        header.style.justifyContent = "flex-start"
+                        header.style.alignItems = "center"
+                        header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                        header.style.background = "white"
+                        header.style.cursor = "pointer"
+                        header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                        const logo = document.createElement("img")
+                        logo.src = "/public/getyour-logo.svg"
+                        logo.alt = "Getyour Popup"
+                        logo.style.margin = "21px 34px"
+                        header.append(logo)
+                        const title = document.createElement("div")
+                        title.innerHTML = error.message
+                        title.style.fontWeight = "bold"
+                        title.style.fontSize = "21px"
+                        header.append(title)
+                        overlay.append(header)
+
+                        const stack = document.createElement("div")
+                        stack.style.margin = "21px 34px"
+                        stack.innerHTML = error.stack
+                        overlay.append(stack)
+
+
+                      })
+                    })
+
+                    const icon = document.createElement("img")
+                    icon.style.margin = "13px 34px"
+                    icon.style.width = "34px"
+                    icon.src = "/public/error.svg"
+                    icon.alt = "Fehlerliste"
+                    button.append(icon)
+
+                    const message = document.createElement("div")
+                    message.style.margin = "13px 34px"
+                    message.style.width = "100%"
+                    message.innerHTML = /*html*/`
+                      <div>Fehler: <b>${error.message}</b></div>
+                      <div>Erstellt am: <b>${new Date(error.created).toISOString()}</b></div>
+                      <div>Anfrage: <b>${error.method}</b></div>
+                      <div>Server: <b>${error.endpoint}</b></div>
+                      <div>Client: <b>${error.location}</b></div>
+                      <div>Herkunft: <b>${error.referer}</b></div>
+                      <div>IP: <b>${error.ip}</b></div>
+                      <div>Browser: <b>${error.userAgent}</b></div>
+                    `
+
+                    button.append(message)
+                    buttons.append(button)
+                  }
                   overlay.append(buttons)
                 }
 
+
               })
-
-
-
-
             })
 
             const icon = document.createElement("img")
-            icon.src = "/public/stats-icon-3.svg"
-            icon.alt = "Stats"
+            icon.style.margin = "13px 34px"
             icon.style.width = "34px"
-            icon.style.margin = "21px"
+            icon.src = "/public/error-logs.svg"
+            icon.alt = "Fehlerliste"
             button.append(icon)
 
-            nav.append(button)
+            const title = document.createElement("h2")
+            title.style.margin = "13px 34px"
+            title.innerHTML = "Error Logs"
+            button.append(title)
+
+            buttons.append(button)
           }
+
 
           {
             const button = document.createElement("div")
             button.style.display = "flex"
-            button.style.flexDirection = "column"
-            button.style.justifyContent = "center"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
             button.style.alignItems = "center"
-            button.style.width = "20%"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
             button.style.cursor = "pointer"
             button.addEventListener("click", () => {
-              const popup = Helper.popup(overlay => {
+              // new overlay ???
+              const popup = Helper.popup(async overlay => {
+                const header = document.createElement("div")
+                header.style.position = "fixed"
+                header.style.bottom = "0"
+                header.style.left = "0"
+                header.style.width = "100%"
+                header.style.display = "flex"
+                header.style.justifyContent = "flex-start"
+                header.style.alignItems = "center"
+                header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                header.style.background = "white"
+                header.style.cursor = "pointer"
+                header.addEventListener("click", () => Helper.removeOverlay(overlay))
 
-                {
-                  const header = document.createElement("div")
-                  header.style.position = "fixed"
-                  header.style.bottom = "0"
-                  header.style.left = "0"
-                  header.style.width = "100%"
-                  header.style.display = "flex"
-                  header.style.justifyContent = "flex-start"
-                  header.style.alignItems = "center"
-                  header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                  header.style.cursor = "pointer"
-                  header.addEventListener("click", () => Helper.removeOverlay(overlay))
+                const logo = document.createElement("img")
+                logo.src = "/public/getyour-logo.svg"
+                logo.alt = "Getyour Popup"
+                logo.style.margin = "21px 34px"
+                header.append(logo)
+                const title = document.createElement("div")
+                title.innerHTML = "user logs"
+                title.style.fontWeight = "bold"
+                title.style.fontSize = "21px"
+                header.append(title)
+                overlay.append(header)
 
-                  const logo = document.createElement("img")
-                  logo.src = "/public/getyour-logo.svg"
-                  logo.alt = "Getyour Popup"
-                  logo.style.margin = "21px 34px"
-                  header.append(logo)
 
-                  const title = document.createElement("div")
-                  title.innerHTML = "tools"
-                  title.style.fontWeight = "bold"
-                  title.style.fontSize = "21px"
-                  header.append(title)
+                const getUsers = {}
+                getUsers.url = "/get/user/closed/2/"
+                // getUsers.event = "all"
+                getUsers.location = window.location.href
+                getUsers.referer = document.referrer
+                getUsers.localStorageEmail = await Request.email()
+                getUsers.localStorageId = await Request.localStorageId()
+                const res = await Request.middleware(getUsers)
 
-                  overlay.append(header)
+                if (res.status === 200) {
+                  const users = JSON.parse(res.response)
+
+                  const buttons = document.createElement("div")
+                  buttons.style.overflowY = "scroll"
+                  buttons.style.paddingBottom = "144px"
+
+                  for (let i = 0; i < users.length; i++) {
+                    const user = users[i]
+
+
+                    const button = document.createElement("div")
+                    button.style.display = "flex"
+                    button.style.flexWrap = "wrap"
+                    button.style.alignItems = "center"
+                    button.style.margin = "21px 34px"
+                    button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                    button.style.borderRadius = "13px"
+                    button.style.border = "0.3px solid black"
+                    button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+
+                    const icon = document.createElement("img")
+                    icon.style.margin = "13px 34px"
+                    icon.style.width = "34px"
+                    icon.src = "/public/delete.svg"
+                    icon.alt = "Löschen"
+                    icon.style.cursor = "pointer"
+                    icon.addEventListener("click", async () => {
+
+                      const confirm = window.confirm("Möchten Sie wirklich diesen Nutzer löschen?")
+                      if (confirm === true) {
+                        const deleteUser = {}
+                        deleteUser.url = "/consumer/2/closed"
+                        deleteUser.method = "delete"
+                        deleteUser.type = "user"
+                        deleteUser.emailToDelete = user.email
+                        deleteUser.email = await Request.email()
+                        deleteUser.referer = document.referrer
+                        deleteUser.localStorageId = await Request.localStorageId()
+                        const res = await Request.middleware(deleteUser)
+
+                        if (res.status === 200) button.remove()
+                      }
+
+
+                    })
+                    button.append(icon)
+
+                    const message = document.createElement("div")
+                    message.style.margin = "13px 34px"
+                    message.innerHTML = /*html*/`
+                      <div>Email: <b>${user.email}</b></div>
+                      <div>Verified: <b>${user.verified}</b></div>
+                      <div>Rollen: <b>${user.roles.join(", ")}</b></div>
+                      <div>Anmeldeversuche: <b>${user.counter}</b></div>
+                      <div>Registriert am: <b>${Helper.millisToDateString(user.created)}</b></div>
+                    `
+                    message.style.cursor = "pointer"
+                    message.addEventListener("click", () => {
+
+                      const popup = Helper.popup(overlay => {
+
+                        const header = document.createElement("div")
+                        header.style.position = "fixed"
+                        header.style.bottom = "0"
+                        header.style.left = "0"
+                        header.style.width = "100%"
+                        header.style.display = "flex"
+                        header.style.justifyContent = "flex-start"
+                        header.style.alignItems = "center"
+                        header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                        header.style.background = "white"
+                        header.style.cursor = "pointer"
+                        header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                        const logo = document.createElement("img")
+                        logo.src = "/public/getyour-logo.svg"
+                        logo.alt = "Getyour Popup"
+                        logo.style.margin = "21px 34px"
+                        header.append(logo)
+                        const title = document.createElement("div")
+                        title.innerHTML = user.email
+                        title.style.fontWeight = "bold"
+                        title.style.fontSize = "21px"
+                        header.append(title)
+                        overlay.append(header)
+
+                        const keys = document.createElement("div")
+                        // keys.style.display = "flex"
+                        keys.style.padding = "21px 34px 144px 34px"
+                        keys.style.overflow = "auto"
+
+                        // const keyContainer = document.createElement("div")
+                        // keyContainer.style.margin = "13px 34px"
+
+                        for (let i = 0; i < user.keys.length; i++) {
+
+                          // const key = user.keys[i]
+
+                          const key = document.createElement("p")
+                          // console.log(key);
+                          key.innerHTML = user.keys[i]
+                          keys.append(key)
+                        }
+
+                        // keys.innerHTML = user.keys
+                        overlay.append(keys)
+
+
+                      })
+                    })
+
+                    button.append(message)
+                    buttons.append(button)
+                  }
+                  overlay.append(buttons)
                 }
 
 
@@ -160,131 +590,37 @@
             })
 
             const icon = document.createElement("img")
-            icon.src = "/public/tools-icon-1.svg"
-            icon.alt = "Tools"
+            icon.style.margin = "13px 34px"
             icon.style.width = "34px"
+            icon.src = "/public/user-logs.svg"
+            icon.alt = "Nutzerliste"
             button.append(icon)
 
-            nav.append(button)
+            const title = document.createElement("h2")
+            title.style.margin = "13px 34px"
+            title.innerHTML = "User Logs"
+            button.append(title)
+
+            buttons.append(button)
           }
+
 
 
           {
             const button = document.createElement("div")
             button.style.display = "flex"
-            button.style.flexDirection = "column"
-            button.style.justifyContent = "center"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
             button.style.alignItems = "center"
-            button.style.width = "20%"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
             button.style.cursor = "pointer"
+
+
             button.addEventListener("click", () => {
-              const popup = Helper.popup(overlay => {
-
-                {
-                  const header = document.createElement("div")
-                  header.style.position = "fixed"
-                  header.style.bottom = "0"
-                  header.style.left = "0"
-                  header.style.width = "100%"
-                  header.style.display = "flex"
-                  header.style.justifyContent = "flex-start"
-                  header.style.alignItems = "center"
-                  header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                  header.style.cursor = "pointer"
-                  header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                  const logo = document.createElement("img")
-                  logo.src = "/public/getyour-logo.svg"
-                  logo.alt = "Getyour"
-                  logo.style.margin = "21px 34px"
-                  header.append(logo)
-
-                  const title = document.createElement("div")
-                  title.innerHTML = "ruf"
-                  title.style.fontWeight = "bold"
-                  title.style.fontSize = "21px"
-                  header.append(title)
-
-                  overlay.append(header)
-                }
-
-
-              })
-            })
-
-            const icon = document.createElement("div")
-            icon.innerHTML = /*html*/`
-              <svg height="34" width="89" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                viewBox="0 0 512 512"  xml:space="preserve">
-              <style type="text/css">
-                .st0{fill:#be0909;}
-              </style>
-              <g>
-                <path class="st0" d="M139.751,425.91c-17.29-5.507-34.575-3.84-45.38,3.18c4.097,11.734,16.794,22.895,34.09,28.381
-                  c17.282,5.493,34.572,3.84,45.373-3.187C169.736,442.557,157.036,431.373,139.751,425.91z"/>
-                <path class="st0" d="M126.602,407.318c8.478-8.768,12.656-23.975,9.836-40.115c-2.816-16.133-11.884-28.888-22.804-34.05
-                  c-8.47,8.76-12.667,23.975-9.84,40.114C106.611,389.393,115.688,402.17,126.602,407.318z"/>
-                <path class="st0" d="M68.398,359.404c-14.925-9.421-31.862-11.925-44.146-7.718c0.58,12.322,9.516,26.126,24.441,35.548
-                  c14.921,9.413,31.854,11.917,44.143,7.703C92.252,382.608,83.32,368.825,68.398,359.404z"/>
-                <path class="st0" d="M79.266,273.785c-9.271,6.843-15.567,20.406-15.483,35.885c0.081,15.479,6.517,28.778,15.861,35.246
-                  c9.274-6.858,15.567-20.406,15.483-35.892C95.043,293.552,88.606,280.261,79.266,273.785z"/>
-                <path class="st0" d="M55.136,248.649c11.411-2.32,23.182-11.94,30.1-25.972c6.935-14.032,7.156-28.733,1.7-38.485
-                  c-11.418,2.328-23.192,11.94-30.11,25.988C49.898,224.197,49.666,238.905,55.136,248.649z"/>
-                <path class="st0" d="M38.428,213.19c8.602-6.888,14.087-20.069,13.39-34.872c-0.687-14.804-7.372-27.272-16.581-33.132
-                  c-8.602,6.881-14.099,20.054-13.397,34.865C22.519,194.847,29.216,207.33,38.428,213.19z"/>
-                <path class="st0" d="M124.638,116.915c-10.518-1.05-23.634,4.148-33.983,14.488c-10.346,10.339-15.163,23.057-13.544,32.992
-                  c10.526,1.05,23.634-4.148,33.98-14.488C121.437,139.569,126.258,126.865,124.638,116.915z"/>
-                <path class="st0" d="M93.321,106.473c4.479-12.527,3.267-24.937-2.254-32.602c-9.388,3.113-18.369,12.402-22.855,24.937
-                  c-4.483,12.512-3.268,24.929,2.262,32.595C79.853,128.275,88.834,119.001,93.321,106.473z"/>
-                <path class="st0" d="M144.134,82.051c9.678-9.583,14.227-21.391,12.751-30.665c-9.781-1.006-22,3.775-31.689,13.365
-                  c-9.667,9.575-14.204,21.398-12.744,30.649C122.241,96.421,134.463,91.64,144.134,82.051z"/>
-                <path class="st0" d="M34.932,262.477c-8.463-13.012-21.185-20.928-32.739-21.64c-4.27,10.486-2.342,25.098,6.11,38.096
-                  c8.452,13.004,21.185,20.928,32.739,21.633C45.3,290.071,43.384,275.466,34.932,262.477z"/>
-                <path class="st0" d="M372.249,425.91c-17.286,5.464-29.982,16.647-34.086,28.374c10.801,7.027,28.094,8.68,45.379,3.187
-                  c17.3-5.486,29.989-16.647,34.086-28.381C406.82,422.07,389.549,420.403,372.249,425.91z"/>
-                <path class="st0" d="M375.568,367.203c-2.82,16.14,1.351,31.347,9.84,40.115c10.911-5.148,19.988-17.924,22.808-34.05
-                  c2.82-16.139-1.381-31.354-9.855-40.114C387.45,338.315,378.388,351.07,375.568,367.203z"/>
-                <path class="st0" d="M443.609,359.404c-14.922,9.421-23.865,23.204-24.452,35.533c12.292,4.214,29.239,1.71,44.146-7.703
-                  c14.936-9.422,23.88-23.226,24.452-35.548C475.478,347.479,458.53,349.983,443.609,359.404z"/>
-                <path class="st0" d="M432.741,273.785c-9.341,6.476-15.788,19.768-15.861,35.239c-0.088,15.486,6.212,29.034,15.465,35.892
-                  c9.355-6.469,15.787-19.768,15.875-35.246C448.308,294.191,442.008,280.628,432.741,273.785z"/>
-                <path class="st0" d="M425.075,184.192c-5.464,9.752-5.243,24.453,1.689,38.485c6.917,14.032,18.695,23.652,30.106,25.972
-                  c5.463-9.744,5.228-24.453-1.689-38.47C448.264,196.132,436.486,186.52,425.075,184.192z"/>
-                <path class="st0" d="M473.583,213.19c9.208-5.86,15.905-18.343,16.58-33.139c0.706-14.811-4.787-27.984-13.393-34.865
-                  c-9.208,5.86-15.89,18.328-16.581,33.132C459.484,193.121,464.977,206.302,473.583,213.19z"/>
-                <path class="st0" d="M434.885,164.395c1.63-9.935-3.201-22.654-13.54-32.992c-10.354-10.339-23.454-15.538-33.984-14.488
-                  c-1.615,9.95,3.202,22.654,13.556,32.992C411.256,160.247,424.355,165.446,434.885,164.395z"/>
-                <path class="st0" d="M441.538,131.403c5.522-7.666,6.741-20.083,2.246-32.595c-4.479-12.535-13.452-21.824-22.851-24.937
-                  c-5.522,7.666-6.727,20.076-2.247,32.602C423.18,119.001,432.139,128.275,441.538,131.403z"/>
-                <path class="st0" d="M399.55,95.4c1.468-9.252-3.07-21.074-12.748-30.649c-9.678-9.59-21.897-14.371-31.678-13.365
-                  c-1.482,9.274,3.07,21.082,12.748,30.665C377.536,91.64,389.755,96.421,399.55,95.4z"/>
-                <path class="st0" d="M509.814,240.836c-11.558,0.713-24.276,8.628-32.735,21.64c-8.459,12.989-10.368,27.595-6.11,38.088
-                  c11.543-0.705,24.29-8.628,32.735-21.633C512.148,265.935,514.072,251.322,509.814,240.836z"/>
-              </g>
-
-              <text x="256" y="256" text-anchor="middle" alignment-baseline="middle" font-size="233" font-weight="bold">0</text>
-              </svg>
-
-
-            `
-            icon.style.display = "flex"
-            icon.style.alignItems = "center"
-            button.append(icon)
-
-            nav.append(button)
-          }
-
-
-          {
-            const button = document.createElement("div")
-            button.style.display = "flex"
-            button.style.flexDirection = "column"
-            button.style.justifyContent = "center"
-            button.style.alignItems = "center"
-            button.style.width = "20%"
-            button.style.cursor = "pointer"
-            button.addEventListener("click", () => {
-
 
               const popup = Helper.popup(async overlay => {
 
@@ -304,12 +640,12 @@
 
                   const logo = document.createElement("img")
                   logo.src = "/public/getyour-logo.svg"
-                  logo.alt = "Getyour Popup"
+                  logo.alt = "Getyour"
                   logo.style.margin = "21px 34px"
                   header.append(logo)
 
                   const title = document.createElement("div")
-                  title.innerHTML = "mehr"
+                  title.innerHTML = "Experten anmelden"
                   title.style.fontWeight = "bold"
                   title.style.fontSize = "21px"
                   header.append(title)
@@ -318,73 +654,242 @@
                 }
 
 
-                const buttons = document.createElement("div")
-                buttons.style.overflowY = "scroll"
-                buttons.style.paddingBottom = "144px"
-
 
                 {
+                  const funnel = document.createElement("div")
+                  funnel.style.paddingBottom = "144px"
+                  funnel.style.overflow = "auto"
+
+                  const name = document.createElement("div")
+                  name.classList.add("username")
+                  funnel.append(name)
+
+                  const email = document.createElement("div")
+                  email.classList.add("email")
+                  funnel.append(email)
+
                   const button = document.createElement("div")
-                  button.style.display = "flex"
-                  button.style.flexWrap = "wrap"
-                  button.style.justifyContent = "space-between"
-                  button.style.alignItems = "center"
-                  button.style.margin = "21px 34px"
-                  button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                  button.style.borderRadius = "13px"
-                  button.style.border = "0.3px solid black"
-                  button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                  button.style.cursor = "pointer"
-                  button.addEventListener("click", () => {
-                    // new overlay ???
-                    const popup = Helper.popup(async overlay => {
-                      const header = document.createElement("div")
-                      header.style.position = "fixed"
-                      header.style.bottom = "0"
-                      header.style.left = "0"
-                      header.style.width = "100%"
-                      header.style.display = "flex"
-                      header.style.justifyContent = "flex-start"
-                      header.style.alignItems = "center"
-                      header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                      header.style.background = "white"
-                      header.style.cursor = "pointer"
-                      header.addEventListener("click", () => Helper.removeOverlay(overlay))
+                  button.classList.add("register-expert")
+                  funnel.append(button)
 
-                      const logo = document.createElement("img")
-                      logo.src = "/public/getyour-logo.svg"
-                      logo.alt = "Getyour Popup"
-                      logo.style.margin = "21px 34px"
-                      header.append(logo)
-                      const title = document.createElement("div")
-                      title.innerHTML = "error logs"
-                      title.style.fontWeight = "bold"
-                      title.style.fontSize = "21px"
-                      header.append(title)
-                      overlay.append(header)
 
-                      const getErrors = {}
-                      getErrors.url = "/get/error/closed/2/"
-                      getErrors.localStorageEmail = await Request.email()
-                      getErrors.localStorageId = await Request.localStorageId()
-                      getErrors.referer = document.referrer
-                      getErrors.location = window.location.href
-                      const res = await Request.middleware(getErrors)
+                  overlay.append(funnel)
+                }
+
+              })
+
+              const usernameField = new TextField("username")
+              .withLabel(label => label.innerHTML = "Name:")
+              .withType(input => {
+                input.placeholder = "huansolo"
+                input.pattern = "[a-z]{3,8}"
+                input.required = true
+              })
+              .onInput(async() => {
+                usernameField.withValidValue()
+              })
+              usernameField.withValidValue()
+
+              const emailField = new EmailField("email")
+              .withLabel(label => label.innerHTML = "E-Mail Adresse:")
+              .withType(email => {
+                email.placeholder = "experte@email.de"
+                email.required = true
+              })
+              .onInput(() => emailField.withValidValue())
+              emailField.withValidValue()
+
+
+
+              const registerExpert = new DivField("register-expert")
+              .withType(div => {
+                div.innerHTML = "Jetzt anmelden"
+                div.style.backgroundColor = "#c02221"
+                div.style.cursor = "pointer"
+                div.style.fontSize = "21px"
+                div.style.borderRadius = "13px"
+                div.style.margin = "13px 34px"
+                div.style.display = "flex"
+                div.style.justifyContent = "center"
+                div.style.alignItems = "center"
+                div.style.height = "89px"
+                div.style.color = "white"
+                div.addEventListener("mouseover", () => {
+                  div.style.backgroundColor = "#f19d08"
+                  div.style.color = "black"
+                })
+                div.addEventListener("mouseout", () => {
+                  div.style.color = "white"
+                  div.style.backgroundColor = "#c02221"
+                })
+              })
+              .onClick(async (event) => {
+                const username = await usernameField.withValidValue()
+                const email = await emailField.withValidValue()
+
+                {
+                  const verify = {}
+                  verify.url = "/verify/name/closed/2/"
+                  verify.location = window.location.href
+                  verify.referer = document.referrer
+                  verify.localStorageId = await Request.localStorageId()
+                  verify.localStorageEmail = await Request.email()
+                  verify.name = username
+                  const res = await Request.middleware(verify)
+
+                  if (res.status === 200) {
+                    alert("Dieser Name existiert bereits.")
+                    Helper.setNotValidStyle(document.querySelector(usernameField.inputSelector))
+                    return
+                  }
+                }
+
+                await Request.withVerifiedEmail(await Request.email(), async () => {
+
+                  {
+                    const register = {}
+                    register.url = "/register/email/closed/2/"
+                    register.email = email
+                    register.role = "3"
+                    register.location = window.location.href
+                    register.localStorageEmail = await Request.email()
+                    register.localStorageId = await Request.localStorageId()
+                    register.referer = document.referrer
+                    await Request.sequence(register)
+                  }
+
+                  {
+                    const register = {}
+                    register.url = "/register/name/closed/2/"
+                    register.email = email
+                    register.name = username
+                    register.location = window.location.href
+                    register.localStorageEmail = await Request.email()
+                    register.localStorageId = await Request.localStorageId()
+                    register.referer = document.referrer
+                    await Request.sequence(register)
+                  }
+
+                  {
+                    const invite = {}
+                    invite.url = "/invite/email/closed/2/"
+                    invite.email = email
+                    invite.location = window.location.href
+                    invite.referer = document.referrer
+                    invite.localStorageEmail = await Request.email()
+                    invite.localStorageId = await Request.localStorageId()
+                    await Request.sequence(invite)
+                  }
+
+                  alert("Experte erfolgreich registriert..")
+                  window.location.reload()
+                })
+
+
+
+              })
+            })
+
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/expert.svg"
+            icon.alt = "Experten anmelden"
+            button.append(icon)
+
+            const title = document.createElement("h2")
+            title.style.margin = "13px 34px"
+            title.innerHTML = "Experten anmelden"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+          {
+            const verify = {}
+            verify.url = "/verify/roles/closed/2/"
+            verify.state = "multiple"
+            verify.referer = document.referrer
+            verify.location = window.location.href
+            verify.localStorageEmail = await Request.email()
+            verify.localStorageId = await Request.localStorageId()
+            const res = await Request.middleware(verify)
+
+            if (res.status === 200) {
+
+              const button = document.createElement("div")
+              button.style.display = "flex"
+              button.style.flexWrap = "wrap"
+              button.style.justifyContent = "space-between"
+              button.style.alignItems = "center"
+              button.style.margin = "21px 34px"
+              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+              button.style.borderRadius = "13px"
+              button.style.border = "0.3px solid black"
+              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+              button.style.cursor = "pointer"
+
+              button.addEventListener("click", () => {
+
+
+                Helper.popup(async overlay => {
+
+                  {
+                    const header = document.createElement("div")
+                    header.style.position = "fixed"
+                    header.style.bottom = "0"
+                    header.style.left = "0"
+                    header.style.width = "100%"
+                    header.style.display = "flex"
+                    header.style.justifyContent = "flex-start"
+                    header.style.alignItems = "center"
+                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                    header.style.background = "white"
+                    header.style.cursor = "pointer"
+                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                    const logo = document.createElement("img")
+                    logo.src = "/public/getyour-logo.svg"
+                    logo.alt = "get-your"
+                    logo.style.width = "55px"
+                    logo.style.margin = "21px 34px"
+                    header.append(logo)
+
+                    const title = document.createElement("div")
+                    title.innerHTML = "Rolle wechseln"
+                    title.style.fontWeight = "bold"
+                    title.style.fontSize = "21px"
+                    header.append(title)
+
+                    overlay.append(header)
+                  }
+
+                  {
+                    const buttons = document.createElement("div")
+                    buttons.style.overflow = "auto"
+                    buttons.style.paddingBottom = "144px"
+
+
+                    {
+                      const get = {}
+                      get.url = "/get/roles/closed/"
+                      get.referer = document.referrer
+                      get.location = window.location.href
+                      get.localStorageEmail = await Request.email()
+                      get.localStorageId = await Request.localStorageId()
+                      const res = await Request.middleware(get)
 
                       if (res.status === 200) {
-                        const errors = JSON.parse(res.response)
+                        const roles = JSON.parse(res.response)
 
-                        const buttons = document.createElement("div")
-                        buttons.style.overflowY = "scroll"
-                        buttons.style.paddingBottom = "144px"
-
-                        for (let i = 0; i < errors.length; i++) {
-                          const error = errors[i]
-
+                        for (let i = 0; i < roles.length; i++) {
+                          const role = roles[i]
 
                           const button = document.createElement("div")
                           button.style.display = "flex"
                           button.style.flexWrap = "wrap"
+                          button.style.justifyContent = "space-between"
                           button.style.alignItems = "center"
                           button.style.margin = "21px 34px"
                           button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
@@ -392,687 +897,1167 @@
                           button.style.border = "0.3px solid black"
                           button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
                           button.style.cursor = "pointer"
-                          button.addEventListener("click", () => {
 
-                            const popup = Helper.popup(overlay => {
+                          button.addEventListener("click", async () => {
+                            {
+                              const redirect = {}
+                              redirect.url = "/redirect/user/closed/"
+                              redirect.roleId = role.id
+                              redirect.location = window.location.href
+                              redirect.referer = document.referrer
+                              redirect.localStorageEmail = await Request.email()
+                              redirect.localStorageId = await Request.localStorageId()
+                              const res = await Request.middleware(redirect)
 
-                              const header = document.createElement("div")
-                              header.style.position = "fixed"
-                              header.style.bottom = "0"
-                              header.style.left = "0"
-                              header.style.width = "100%"
-                              header.style.display = "flex"
-                              header.style.justifyContent = "flex-start"
-                              header.style.alignItems = "center"
-                              header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                              header.style.background = "white"
-                              header.style.cursor = "pointer"
-                              header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                              const logo = document.createElement("img")
-                              logo.src = "/public/getyour-logo.svg"
-                              logo.alt = "Getyour Popup"
-                              logo.style.margin = "21px 34px"
-                              header.append(logo)
-                              const title = document.createElement("div")
-                              title.innerHTML = error.message
-                              title.style.fontWeight = "bold"
-                              title.style.fontSize = "21px"
-                              header.append(title)
-                              overlay.append(header)
-
-                              const stack = document.createElement("div")
-                              stack.style.margin = "21px 34px"
-                              stack.innerHTML = error.stack
-                              overlay.append(stack)
-
-
-                            })
-                          })
-
-                          const icon = document.createElement("img")
-                          icon.style.margin = "13px 34px"
-                          icon.style.width = "34px"
-                          icon.src = "/public/error.svg"
-                          icon.alt = "Fehlerliste"
-                          button.append(icon)
-
-                          const message = document.createElement("div")
-                          message.style.margin = "13px 34px"
-                          message.style.width = "100%"
-                          message.innerHTML = /*html*/`
-                            <div>Fehler: <b>${error.message}</b></div>
-                            <div>Erstellt am: <b>${new Date(error.created).toISOString()}</b></div>
-                            <div>Anfrage: <b>${error.method}</b></div>
-                            <div>Server: <b>${error.endpoint}</b></div>
-                            <div>Client: <b>${error.location}</b></div>
-                            <div>Herkunft: <b>${error.referer}</b></div>
-                            <div>IP: <b>${error.ip}</b></div>
-                            <div>Browser: <b>${error.userAgent}</b></div>
-                          `
-
-                          button.append(message)
-                          buttons.append(button)
-                        }
-                        overlay.append(buttons)
-                      }
-
-
-                    })
-                  })
-
-                  const icon = document.createElement("img")
-                  icon.style.margin = "13px 34px"
-                  icon.style.width = "34px"
-                  icon.src = "/public/error-logs.svg"
-                  icon.alt = "Fehlerliste"
-                  button.append(icon)
-
-                  const title = document.createElement("h2")
-                  title.style.margin = "13px 34px"
-                  title.innerHTML = "Error Logs"
-                  button.append(title)
-
-                  buttons.append(button)
-                }
-
-
-                {
-                  const button = document.createElement("div")
-                  button.style.display = "flex"
-                  button.style.flexWrap = "wrap"
-                  button.style.justifyContent = "space-between"
-                  button.style.alignItems = "center"
-                  button.style.margin = "21px 34px"
-                  button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                  button.style.borderRadius = "13px"
-                  button.style.border = "0.3px solid black"
-                  button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                  button.style.cursor = "pointer"
-                  button.addEventListener("click", () => {
-                    // new overlay ???
-                    const popup = Helper.popup(async overlay => {
-                      const header = document.createElement("div")
-                      header.style.position = "fixed"
-                      header.style.bottom = "0"
-                      header.style.left = "0"
-                      header.style.width = "100%"
-                      header.style.display = "flex"
-                      header.style.justifyContent = "flex-start"
-                      header.style.alignItems = "center"
-                      header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                      header.style.background = "white"
-                      header.style.cursor = "pointer"
-                      header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                      const logo = document.createElement("img")
-                      logo.src = "/public/getyour-logo.svg"
-                      logo.alt = "Getyour Popup"
-                      logo.style.margin = "21px 34px"
-                      header.append(logo)
-                      const title = document.createElement("div")
-                      title.innerHTML = "user logs"
-                      title.style.fontWeight = "bold"
-                      title.style.fontSize = "21px"
-                      header.append(title)
-                      overlay.append(header)
-
-
-                      const getUsers = {}
-                      getUsers.url = "/get/user/closed/2/"
-                      // getUsers.event = "all"
-                      getUsers.location = window.location.href
-                      getUsers.referer = document.referrer
-                      getUsers.localStorageEmail = await Request.email()
-                      getUsers.localStorageId = await Request.localStorageId()
-                      const res = await Request.middleware(getUsers)
-
-                      if (res.status === 200) {
-                        const users = JSON.parse(res.response)
-
-                        const buttons = document.createElement("div")
-                        buttons.style.overflowY = "scroll"
-                        buttons.style.paddingBottom = "144px"
-
-                        for (let i = 0; i < users.length; i++) {
-                          const user = users[i]
-
-
-                          const button = document.createElement("div")
-                          button.style.display = "flex"
-                          button.style.flexWrap = "wrap"
-                          button.style.alignItems = "center"
-                          button.style.margin = "21px 34px"
-                          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                          button.style.borderRadius = "13px"
-                          button.style.border = "0.3px solid black"
-                          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-
-                          const icon = document.createElement("img")
-                          icon.style.margin = "13px 34px"
-                          icon.style.width = "34px"
-                          icon.src = "/public/delete.svg"
-                          icon.alt = "Löschen"
-                          icon.style.cursor = "pointer"
-                          icon.addEventListener("click", async () => {
-
-                            const confirm = window.confirm("Möchten Sie wirklich diesen Nutzer löschen?")
-                            if (confirm === true) {
-                              const deleteUser = {}
-                              deleteUser.url = "/consumer/2/closed"
-                              deleteUser.method = "delete"
-                              deleteUser.type = "user"
-                              deleteUser.emailToDelete = user.email
-                              deleteUser.email = await Request.email()
-                              deleteUser.referer = document.referrer
-                              deleteUser.localStorageId = await Request.localStorageId()
-                              const res = await Request.middleware(deleteUser)
-
-                              if (res.status === 200) button.remove()
+                              if (res.status === 200) window.location.assign(res.response)
                             }
-
-
                           })
+
+                          const icon = document.createElement("img")
+                          icon.style.margin = "13px 34px"
+                          icon.style.width = "34px"
+                          icon.src = role.icon
+                          icon.alt = role.name
                           button.append(icon)
-
-                          const message = document.createElement("div")
-                          message.style.margin = "13px 34px"
-                          message.innerHTML = /*html*/`
-                            <div>Email: <b>${user.email}</b></div>
-                            <div>Verified: <b>${user.verified}</b></div>
-                            <div>Rollen: <b>${user.roles.join(", ")}</b></div>
-                            <div>Anmeldeversuche: <b>${user.counter}</b></div>
-                            <div>Registriert am: <b>${Helper.millisToDateString(user.created)}</b></div>
-                          `
-                          message.style.cursor = "pointer"
-                          message.addEventListener("click", () => {
-
-                            const popup = Helper.popup(overlay => {
-
-                              const header = document.createElement("div")
-                              header.style.position = "fixed"
-                              header.style.bottom = "0"
-                              header.style.left = "0"
-                              header.style.width = "100%"
-                              header.style.display = "flex"
-                              header.style.justifyContent = "flex-start"
-                              header.style.alignItems = "center"
-                              header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                              header.style.background = "white"
-                              header.style.cursor = "pointer"
-                              header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                              const logo = document.createElement("img")
-                              logo.src = "/public/getyour-logo.svg"
-                              logo.alt = "Getyour Popup"
-                              logo.style.margin = "21px 34px"
-                              header.append(logo)
-                              const title = document.createElement("div")
-                              title.innerHTML = user.email
-                              title.style.fontWeight = "bold"
-                              title.style.fontSize = "21px"
-                              header.append(title)
-                              overlay.append(header)
-
-                              const keys = document.createElement("div")
-                              // keys.style.display = "flex"
-                              keys.style.padding = "21px 34px 144px 34px"
-                              keys.style.overflow = "auto"
-
-                              // const keyContainer = document.createElement("div")
-                              // keyContainer.style.margin = "13px 34px"
-
-                              for (let i = 0; i < user.keys.length; i++) {
-
-                                // const key = user.keys[i]
-
-                                const key = document.createElement("p")
-                                // console.log(key);
-                                key.innerHTML = user.keys[i]
-                                keys.append(key)
-                              }
-
-                              // keys.innerHTML = user.keys
-                              overlay.append(keys)
-
-
-                            })
-                          })
-
-                          button.append(message)
-                          buttons.append(button)
-                        }
-                        overlay.append(buttons)
-                      }
-
-
-
-
-                    })
-                  })
-
-                  const icon = document.createElement("img")
-                  icon.style.margin = "13px 34px"
-                  icon.style.width = "34px"
-                  icon.src = "/public/user-logs.svg"
-                  icon.alt = "Nutzerliste"
-                  button.append(icon)
-
-                  const title = document.createElement("h2")
-                  title.style.margin = "13px 34px"
-                  title.innerHTML = "User Logs"
-                  button.append(title)
-
-                  buttons.append(button)
-                }
-
-
-
-                {
-                  const button = document.createElement("div")
-                  button.style.display = "flex"
-                  button.style.flexWrap = "wrap"
-                  button.style.justifyContent = "space-between"
-                  button.style.alignItems = "center"
-                  button.style.margin = "21px 34px"
-                  button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                  button.style.borderRadius = "13px"
-                  button.style.border = "0.3px solid black"
-                  button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                  button.style.cursor = "pointer"
-
-
-                  button.addEventListener("click", () => {
-
-                    const popup = Helper.popup(async overlay => {
-
-                      {
-                        const header = document.createElement("div")
-                        header.style.position = "fixed"
-                        header.style.bottom = "0"
-                        header.style.left = "0"
-                        header.style.width = "100%"
-                        header.style.display = "flex"
-                        header.style.justifyContent = "flex-start"
-                        header.style.alignItems = "center"
-                        header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                        header.style.background = "white"
-                        header.style.cursor = "pointer"
-                        header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                        const logo = document.createElement("img")
-                        logo.src = "/public/getyour-logo.svg"
-                        logo.alt = "Getyour"
-                        logo.style.margin = "21px 34px"
-                        header.append(logo)
-
-                        const title = document.createElement("div")
-                        title.innerHTML = "Experten anmelden"
-                        title.style.fontWeight = "bold"
-                        title.style.fontSize = "21px"
-                        header.append(title)
-
-                        overlay.append(header)
-                      }
-
-
-
-                      {
-                        const funnel = document.createElement("div")
-                        funnel.style.paddingBottom = "144px"
-                        funnel.style.overflow = "auto"
-
-                        const name = document.createElement("div")
-                        name.classList.add("username")
-                        funnel.append(name)
-
-                        const email = document.createElement("div")
-                        email.classList.add("email")
-                        funnel.append(email)
-
-                        const button = document.createElement("div")
-                        button.classList.add("register-expert")
-                        funnel.append(button)
-
-
-                        overlay.append(funnel)
-                      }
-
-                    })
-
-                    const usernameField = new TextField("username")
-                    .withLabel(label => label.innerHTML = "Name:")
-                    .withType(input => {
-                      input.placeholder = "huansolo"
-                      input.pattern = "[a-z]{3,8}"
-                      input.required = true
-                    })
-                    .onInput(async() => {
-                      usernameField.withValidValue()
-                    })
-                    usernameField.withValidValue()
-
-                    const emailField = new EmailField("email")
-                    .withLabel(label => label.innerHTML = "E-Mail Adresse:")
-                    .withType(email => {
-                      email.placeholder = "experte@email.de"
-                      email.required = true
-                    })
-                    .onInput(() => emailField.withValidValue())
-                    emailField.withValidValue()
-
-
-
-                    const registerExpert = new DivField("register-expert")
-                    .withType(div => {
-                      div.innerHTML = "Jetzt anmelden"
-                      div.style.backgroundColor = "#c02221"
-                      div.style.cursor = "pointer"
-                      div.style.fontSize = "21px"
-                      div.style.borderRadius = "13px"
-                      div.style.margin = "13px 34px"
-                      div.style.display = "flex"
-                      div.style.justifyContent = "center"
-                      div.style.alignItems = "center"
-                      div.style.height = "89px"
-                      div.style.color = "white"
-                      div.addEventListener("mouseover", () => {
-                        div.style.backgroundColor = "#f19d08"
-                        div.style.color = "black"
-                      })
-                      div.addEventListener("mouseout", () => {
-                        div.style.color = "white"
-                        div.style.backgroundColor = "#c02221"
-                      })
-                    })
-                    .onClick(async (event) => {
-                      const username = await usernameField.withValidValue()
-                      const email = await emailField.withValidValue()
-
-                      {
-                        const verify = {}
-                        verify.url = "/verify/name/closed/2/"
-                        verify.location = window.location.href
-                        verify.referer = document.referrer
-                        verify.localStorageId = await Request.localStorageId()
-                        verify.localStorageEmail = await Request.email()
-                        verify.name = username
-                        const res = await Request.middleware(verify)
-
-                        if (res.status === 200) {
-                          alert("Dieser Name existiert bereits.")
-                          Helper.setNotValidStyle(document.querySelector(usernameField.inputSelector))
-                          return
-                        }
-                      }
-
-                      await Request.withVerifiedEmail(await Request.email(), async () => {
-
-                        {
-                          const register = {}
-                          register.url = "/register/email/closed/2/"
-                          register.email = email
-                          register.role = "3"
-                          register.location = window.location.href
-                          register.localStorageEmail = await Request.email()
-                          register.localStorageId = await Request.localStorageId()
-                          register.referer = document.referrer
-                          await Request.sequence(register)
-                        }
-
-                        {
-                          const register = {}
-                          register.url = "/register/name/closed/2/"
-                          register.email = email
-                          register.name = username
-                          register.location = window.location.href
-                          register.localStorageEmail = await Request.email()
-                          register.localStorageId = await Request.localStorageId()
-                          register.referer = document.referrer
-                          await Request.sequence(register)
-                        }
-
-                        {
-                          const invite = {}
-                          invite.url = "/invite/email/closed/2/"
-                          invite.email = email
-                          invite.location = window.location.href
-                          invite.referer = document.referrer
-                          invite.localStorageEmail = await Request.email()
-                          invite.localStorageId = await Request.localStorageId()
-                          await Request.sequence(invite)
-                        }
-
-                        alert("Experte erfolgreich registriert..")
-                        window.location.reload()
-                      })
-
-
-
-                    })
-                  })
-
-
-                  const icon = document.createElement("img")
-                  icon.style.margin = "13px 34px"
-                  icon.style.width = "34px"
-                  icon.src = "/public/expert.svg"
-                  icon.alt = "Experten anmelden"
-                  button.append(icon)
-
-                  const title = document.createElement("h2")
-                  title.style.margin = "13px 34px"
-                  title.innerHTML = "Experten anmelden"
-                  button.append(title)
-
-                  buttons.append(button)
-                }
-
-                {
-                  const verify = {}
-                  verify.url = "/verify/roles/closed/2/"
-                  verify.state = "multiple"
-                  verify.referer = document.referrer
-                  verify.location = window.location.href
-                  verify.localStorageEmail = await Request.email()
-                  verify.localStorageId = await Request.localStorageId()
-                  const res = await Request.middleware(verify)
-
-                  if (res.status === 200) {
-
-                    const button = document.createElement("div")
-                    button.style.display = "flex"
-                    button.style.flexWrap = "wrap"
-                    button.style.justifyContent = "space-between"
-                    button.style.alignItems = "center"
-                    button.style.margin = "21px 34px"
-                    button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                    button.style.borderRadius = "13px"
-                    button.style.border = "0.3px solid black"
-                    button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                    button.style.cursor = "pointer"
-
-                    button.addEventListener("click", () => {
-
-
-                      Helper.popup(async overlay => {
-
-                        {
-                          const header = document.createElement("div")
-                          header.style.position = "fixed"
-                          header.style.bottom = "0"
-                          header.style.left = "0"
-                          header.style.width = "100%"
-                          header.style.display = "flex"
-                          header.style.justifyContent = "flex-start"
-                          header.style.alignItems = "center"
-                          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                          header.style.background = "white"
-                          header.style.cursor = "pointer"
-                          header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                          const logo = document.createElement("img")
-                          logo.src = "/public/getyour-logo.svg"
-                          logo.alt = "get-your"
-                          logo.style.width = "55px"
-                          logo.style.margin = "21px 34px"
-                          header.append(logo)
 
                           const title = document.createElement("div")
-                          title.innerHTML = "Rolle wechseln"
-                          title.style.fontWeight = "bold"
+                          title.innerHTML = role.name
+                          title.style.margin = "21px 34px"
                           title.style.fontSize = "21px"
-                          header.append(title)
+                          button.append(title)
 
-                          overlay.append(header)
+                          buttons.append(button)
                         }
 
-                        {
-                          const buttons = document.createElement("div")
-                          buttons.style.overflow = "auto"
-                          buttons.style.paddingBottom = "144px"
 
 
-                          {
-                            const get = {}
-                            get.url = "/get/roles/closed/"
-                            get.referer = document.referrer
-                            get.location = window.location.href
-                            get.localStorageEmail = await Request.email()
-                            get.localStorageId = await Request.localStorageId()
-                            const res = await Request.middleware(get)
-
-                            if (res.status === 200) {
-                              const roles = JSON.parse(res.response)
-
-                              for (let i = 0; i < roles.length; i++) {
-                                const role = roles[i]
-
-                                const button = document.createElement("div")
-                                button.style.display = "flex"
-                                button.style.flexWrap = "wrap"
-                                button.style.justifyContent = "space-between"
-                                button.style.alignItems = "center"
-                                button.style.margin = "21px 34px"
-                                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                                button.style.borderRadius = "13px"
-                                button.style.border = "0.3px solid black"
-                                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                                button.style.cursor = "pointer"
-
-                                button.addEventListener("click", async () => {
-                                  {
-                                    const redirect = {}
-                                    redirect.url = "/redirect/user/closed/"
-                                    redirect.roleId = role.id
-                                    redirect.location = window.location.href
-                                    redirect.referer = document.referrer
-                                    redirect.localStorageEmail = await Request.email()
-                                    redirect.localStorageId = await Request.localStorageId()
-                                    const res = await Request.middleware(redirect)
-
-                                    if (res.status === 200) window.location.assign(res.response)
-                                  }
-                                })
-
-                                const icon = document.createElement("img")
-                                icon.style.margin = "13px 34px"
-                                icon.style.width = "34px"
-                                icon.src = role.icon
-                                icon.alt = role.name
-                                button.append(icon)
-
-                                const title = document.createElement("div")
-                                title.innerHTML = role.name
-                                title.style.margin = "21px 34px"
-                                title.style.fontSize = "21px"
-                                button.append(title)
-
-                                buttons.append(button)
-                              }
+                      }
+                    }
 
 
 
-                            }
-                          }
-
-
-
-                          overlay.append(buttons)
-                        }
-
-                      })
-
-
-                    })
-
-                    const icon = document.createElement("img")
-                    icon.style.margin = "13px 34px"
-                    icon.style.width = "34px"
-                    icon.src = "/public/change.svg"
-                    icon.alt = "Wechseln"
-                    button.append(icon)
-
-                    const title = document.createElement("h2")
-                    title.style.margin = "13px 34px"
-                    title.innerHTML = "Rolle wechseln"
-                    button.append(title)
-
-                    buttons.append(button)
+                    overlay.append(buttons)
                   }
-                }
+
+                })
 
 
-                {
-                  const button = document.createElement("div")
-                  button.style.display = "flex"
-                  button.style.flexWrap = "wrap"
-                  button.style.justifyContent = "space-between"
-                  button.style.alignItems = "center"
-                  button.style.margin = "21px 34px"
-                  button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                  button.style.borderRadius = "13px"
-                  button.style.border = "0.3px solid black"
-                  button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                  button.style.cursor = "pointer"
-
-                  button.addEventListener("click", () => window.location.assign("/"))
-
-                  const icon = document.createElement("img")
-                  icon.style.margin = "13px 34px"
-                  icon.style.width = "34px"
-                  icon.src = "/public/entry.svg"
-                  icon.alt = "Zugang"
-                  button.append(icon)
-
-                  const title = document.createElement("h2")
-                  title.style.margin = "13px 34px"
-                  title.innerHTML = "Plattform Zugänge"
-                  button.append(title)
-
-                  buttons.append(button)
-                }
-
-
-                overlay.append(buttons)
               })
 
+              const icon = document.createElement("img")
+              icon.style.margin = "13px 34px"
+              icon.style.width = "34px"
+              icon.src = "/public/change.svg"
+              icon.alt = "Wechseln"
+              button.append(icon)
 
+              const title = document.createElement("h2")
+              title.style.margin = "13px 34px"
+              title.innerHTML = "Rolle wechseln"
+              button.append(title)
 
-            })
-
-            const icon = document.createElement("img")
-            icon.style.width = "34px"
-            icon.src = "/public/more-icon.svg"
-            icon.alt = "Mehr"
-            button.append(icon)
-
-            nav.append(button)
+              buttons.append(button)
+            }
           }
 
-          document.body.append(nav)
-        }
-      }
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+
+            button.addEventListener("click", () => window.location.assign("/"))
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/entry.svg"
+            icon.alt = "Zugang"
+            button.append(icon)
+
+            const title = document.createElement("h2")
+            title.style.margin = "13px 34px"
+            title.innerHTML = "Plattform Zugänge"
+            button.append(title)
+
+            buttons.append(button)
+          }
+
+
+          overlay.append(buttons)
+        })
+
+
+      })
+
+
+      leftContainer.append(name)
+      header.append(leftContainer)
+      document.body.append(header)
+
+
+
+
+
+
+
+
+
+      // {
+      //   const renderNav = {}
+      //   renderNav.url = "/verify/role/closed/2/"
+      //   renderNav.location = window.location.href
+      //   renderNav.referer = document.referrer
+      //   renderNav.localStorageId = await Request.localStorageId()
+      //   renderNav.localStorageEmail = await Request.email()
+      //   const res = await Request.middleware(renderNav)
+
+      //   if (res.status === 200) {
+
+      //     const nav = document.createElement("div")
+      //     nav.style.position = "fixed"
+      //     nav.style.bottom = "0"
+      //     nav.style.left = "0"
+      //     nav.style.width = "100%"
+      //     nav.style.display = "flex"
+      //     nav.style.justifyContent = "space-around"
+      //     nav.style.borderTop = "solid 1px #be0909"
+      //     nav.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+      //     nav.style.zIndex = "1"
+
+      //     {
+      //       const button = document.createElement("div")
+      //       button.style.display = "flex"
+      //       button.style.flexDirection = "column"
+      //       button.style.justifyContent = "center"
+      //       button.style.alignItems = "center"
+      //       button.style.width = "20%"
+      //       button.style.cursor = "pointer"
+      //       button.addEventListener("click", () => {
+
+      //         const popup = Helper.popup(overlay => {
+
+      //           {
+      //             const header = document.createElement("div")
+      //             header.style.position = "fixed"
+      //             header.style.bottom = "0"
+      //             header.style.left = "0"
+      //             header.style.width = "100%"
+      //             header.style.display = "flex"
+      //             header.style.justifyContent = "flex-start"
+      //             header.style.alignItems = "center"
+      //             header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+      //             header.style.background = "white"
+      //             header.style.cursor = "pointer"
+      //             header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+      //             const logo = document.createElement("img")
+      //             logo.src = "/public/getyour-logo.svg"
+      //             logo.alt = "Getyour Popup"
+      //             logo.style.margin = "21px 34px"
+      //             header.append(logo)
+
+      //             const title = document.createElement("div")
+      //             title.innerHTML = "stats"
+      //             title.style.fontWeight = "bold"
+      //             title.style.fontSize = "21px"
+      //             header.append(title)
+
+      //             overlay.append(header)
+      //           }
+
+      //           {
+      //             const buttons = document.createElement("div")
+      //             buttons.style.overflowY = "scroll"
+      //             buttons.style.paddingBottom = "144px"
+
+      //             overlay.append(buttons)
+      //           }
+
+      //         })
+
+
+
+
+      //       })
+
+      //       const icon = document.createElement("img")
+      //       icon.src = "/public/stats-icon-3.svg"
+      //       icon.alt = "Stats"
+      //       icon.style.width = "34px"
+      //       icon.style.margin = "21px"
+      //       button.append(icon)
+
+      //       nav.append(button)
+      //     }
+
+      //     {
+      //       const button = document.createElement("div")
+      //       button.style.display = "flex"
+      //       button.style.flexDirection = "column"
+      //       button.style.justifyContent = "center"
+      //       button.style.alignItems = "center"
+      //       button.style.width = "20%"
+      //       button.style.cursor = "pointer"
+      //       button.addEventListener("click", () => {
+      //         const popup = Helper.popup(overlay => {
+
+      //           {
+      //             const header = document.createElement("div")
+      //             header.style.position = "fixed"
+      //             header.style.bottom = "0"
+      //             header.style.left = "0"
+      //             header.style.width = "100%"
+      //             header.style.display = "flex"
+      //             header.style.justifyContent = "flex-start"
+      //             header.style.alignItems = "center"
+      //             header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+      //             header.style.cursor = "pointer"
+      //             header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+      //             const logo = document.createElement("img")
+      //             logo.src = "/public/getyour-logo.svg"
+      //             logo.alt = "Getyour Popup"
+      //             logo.style.margin = "21px 34px"
+      //             header.append(logo)
+
+      //             const title = document.createElement("div")
+      //             title.innerHTML = "tools"
+      //             title.style.fontWeight = "bold"
+      //             title.style.fontSize = "21px"
+      //             header.append(title)
+
+      //             overlay.append(header)
+      //           }
+
+
+
+
+      //         })
+      //       })
+
+      //       const icon = document.createElement("img")
+      //       icon.src = "/public/tools-icon-1.svg"
+      //       icon.alt = "Tools"
+      //       icon.style.width = "34px"
+      //       button.append(icon)
+
+      //       nav.append(button)
+      //     }
+
+
+      //     {
+      //       const button = document.createElement("div")
+      //       button.style.display = "flex"
+      //       button.style.flexDirection = "column"
+      //       button.style.justifyContent = "center"
+      //       button.style.alignItems = "center"
+      //       button.style.width = "20%"
+      //       button.style.cursor = "pointer"
+      //       button.addEventListener("click", () => {
+      //         const popup = Helper.popup(overlay => {
+
+      //           {
+      //             const header = document.createElement("div")
+      //             header.style.position = "fixed"
+      //             header.style.bottom = "0"
+      //             header.style.left = "0"
+      //             header.style.width = "100%"
+      //             header.style.display = "flex"
+      //             header.style.justifyContent = "flex-start"
+      //             header.style.alignItems = "center"
+      //             header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+      //             header.style.cursor = "pointer"
+      //             header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+      //             const logo = document.createElement("img")
+      //             logo.src = "/public/getyour-logo.svg"
+      //             logo.alt = "Getyour"
+      //             logo.style.margin = "21px 34px"
+      //             header.append(logo)
+
+      //             const title = document.createElement("div")
+      //             title.innerHTML = "ruf"
+      //             title.style.fontWeight = "bold"
+      //             title.style.fontSize = "21px"
+      //             header.append(title)
+
+      //             overlay.append(header)
+      //           }
+
+
+      //         })
+      //       })
+
+      //       const icon = document.createElement("div")
+      //       icon.innerHTML = /*html*/`
+      //         <svg height="34" width="89" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+      //           viewBox="0 0 512 512"  xml:space="preserve">
+      //         <style type="text/css">
+      //           .st0{fill:#be0909;}
+      //         </style>
+      //         <g>
+      //           <path class="st0" d="M139.751,425.91c-17.29-5.507-34.575-3.84-45.38,3.18c4.097,11.734,16.794,22.895,34.09,28.381
+      //             c17.282,5.493,34.572,3.84,45.373-3.187C169.736,442.557,157.036,431.373,139.751,425.91z"/>
+      //           <path class="st0" d="M126.602,407.318c8.478-8.768,12.656-23.975,9.836-40.115c-2.816-16.133-11.884-28.888-22.804-34.05
+      //             c-8.47,8.76-12.667,23.975-9.84,40.114C106.611,389.393,115.688,402.17,126.602,407.318z"/>
+      //           <path class="st0" d="M68.398,359.404c-14.925-9.421-31.862-11.925-44.146-7.718c0.58,12.322,9.516,26.126,24.441,35.548
+      //             c14.921,9.413,31.854,11.917,44.143,7.703C92.252,382.608,83.32,368.825,68.398,359.404z"/>
+      //           <path class="st0" d="M79.266,273.785c-9.271,6.843-15.567,20.406-15.483,35.885c0.081,15.479,6.517,28.778,15.861,35.246
+      //             c9.274-6.858,15.567-20.406,15.483-35.892C95.043,293.552,88.606,280.261,79.266,273.785z"/>
+      //           <path class="st0" d="M55.136,248.649c11.411-2.32,23.182-11.94,30.1-25.972c6.935-14.032,7.156-28.733,1.7-38.485
+      //             c-11.418,2.328-23.192,11.94-30.11,25.988C49.898,224.197,49.666,238.905,55.136,248.649z"/>
+      //           <path class="st0" d="M38.428,213.19c8.602-6.888,14.087-20.069,13.39-34.872c-0.687-14.804-7.372-27.272-16.581-33.132
+      //             c-8.602,6.881-14.099,20.054-13.397,34.865C22.519,194.847,29.216,207.33,38.428,213.19z"/>
+      //           <path class="st0" d="M124.638,116.915c-10.518-1.05-23.634,4.148-33.983,14.488c-10.346,10.339-15.163,23.057-13.544,32.992
+      //             c10.526,1.05,23.634-4.148,33.98-14.488C121.437,139.569,126.258,126.865,124.638,116.915z"/>
+      //           <path class="st0" d="M93.321,106.473c4.479-12.527,3.267-24.937-2.254-32.602c-9.388,3.113-18.369,12.402-22.855,24.937
+      //             c-4.483,12.512-3.268,24.929,2.262,32.595C79.853,128.275,88.834,119.001,93.321,106.473z"/>
+      //           <path class="st0" d="M144.134,82.051c9.678-9.583,14.227-21.391,12.751-30.665c-9.781-1.006-22,3.775-31.689,13.365
+      //             c-9.667,9.575-14.204,21.398-12.744,30.649C122.241,96.421,134.463,91.64,144.134,82.051z"/>
+      //           <path class="st0" d="M34.932,262.477c-8.463-13.012-21.185-20.928-32.739-21.64c-4.27,10.486-2.342,25.098,6.11,38.096
+      //             c8.452,13.004,21.185,20.928,32.739,21.633C45.3,290.071,43.384,275.466,34.932,262.477z"/>
+      //           <path class="st0" d="M372.249,425.91c-17.286,5.464-29.982,16.647-34.086,28.374c10.801,7.027,28.094,8.68,45.379,3.187
+      //             c17.3-5.486,29.989-16.647,34.086-28.381C406.82,422.07,389.549,420.403,372.249,425.91z"/>
+      //           <path class="st0" d="M375.568,367.203c-2.82,16.14,1.351,31.347,9.84,40.115c10.911-5.148,19.988-17.924,22.808-34.05
+      //             c2.82-16.139-1.381-31.354-9.855-40.114C387.45,338.315,378.388,351.07,375.568,367.203z"/>
+      //           <path class="st0" d="M443.609,359.404c-14.922,9.421-23.865,23.204-24.452,35.533c12.292,4.214,29.239,1.71,44.146-7.703
+      //             c14.936-9.422,23.88-23.226,24.452-35.548C475.478,347.479,458.53,349.983,443.609,359.404z"/>
+      //           <path class="st0" d="M432.741,273.785c-9.341,6.476-15.788,19.768-15.861,35.239c-0.088,15.486,6.212,29.034,15.465,35.892
+      //             c9.355-6.469,15.787-19.768,15.875-35.246C448.308,294.191,442.008,280.628,432.741,273.785z"/>
+      //           <path class="st0" d="M425.075,184.192c-5.464,9.752-5.243,24.453,1.689,38.485c6.917,14.032,18.695,23.652,30.106,25.972
+      //             c5.463-9.744,5.228-24.453-1.689-38.47C448.264,196.132,436.486,186.52,425.075,184.192z"/>
+      //           <path class="st0" d="M473.583,213.19c9.208-5.86,15.905-18.343,16.58-33.139c0.706-14.811-4.787-27.984-13.393-34.865
+      //             c-9.208,5.86-15.89,18.328-16.581,33.132C459.484,193.121,464.977,206.302,473.583,213.19z"/>
+      //           <path class="st0" d="M434.885,164.395c1.63-9.935-3.201-22.654-13.54-32.992c-10.354-10.339-23.454-15.538-33.984-14.488
+      //             c-1.615,9.95,3.202,22.654,13.556,32.992C411.256,160.247,424.355,165.446,434.885,164.395z"/>
+      //           <path class="st0" d="M441.538,131.403c5.522-7.666,6.741-20.083,2.246-32.595c-4.479-12.535-13.452-21.824-22.851-24.937
+      //             c-5.522,7.666-6.727,20.076-2.247,32.602C423.18,119.001,432.139,128.275,441.538,131.403z"/>
+      //           <path class="st0" d="M399.55,95.4c1.468-9.252-3.07-21.074-12.748-30.649c-9.678-9.59-21.897-14.371-31.678-13.365
+      //             c-1.482,9.274,3.07,21.082,12.748,30.665C377.536,91.64,389.755,96.421,399.55,95.4z"/>
+      //           <path class="st0" d="M509.814,240.836c-11.558,0.713-24.276,8.628-32.735,21.64c-8.459,12.989-10.368,27.595-6.11,38.088
+      //             c11.543-0.705,24.29-8.628,32.735-21.633C512.148,265.935,514.072,251.322,509.814,240.836z"/>
+      //         </g>
+
+      //         <text x="256" y="256" text-anchor="middle" alignment-baseline="middle" font-size="233" font-weight="bold">0</text>
+      //         </svg>
+
+
+      //       `
+      //       icon.style.display = "flex"
+      //       icon.style.alignItems = "center"
+      //       button.append(icon)
+
+      //       nav.append(button)
+      //     }
+
+
+      //     {
+      //       const button = document.createElement("div")
+      //       button.style.display = "flex"
+      //       button.style.flexDirection = "column"
+      //       button.style.justifyContent = "center"
+      //       button.style.alignItems = "center"
+      //       button.style.width = "20%"
+      //       button.style.cursor = "pointer"
+      //       button.addEventListener("click", () => {
+
+
+      //         const popup = Helper.popup(async overlay => {
+
+      //           {
+      //             const header = document.createElement("div")
+      //             header.style.position = "fixed"
+      //             header.style.bottom = "0"
+      //             header.style.left = "0"
+      //             header.style.width = "100%"
+      //             header.style.display = "flex"
+      //             header.style.justifyContent = "flex-start"
+      //             header.style.alignItems = "center"
+      //             header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+      //             header.style.background = "white"
+      //             header.style.cursor = "pointer"
+      //             header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+      //             const logo = document.createElement("img")
+      //             logo.src = "/public/getyour-logo.svg"
+      //             logo.alt = "Getyour Popup"
+      //             logo.style.margin = "21px 34px"
+      //             header.append(logo)
+
+      //             const title = document.createElement("div")
+      //             title.innerHTML = "mehr"
+      //             title.style.fontWeight = "bold"
+      //             title.style.fontSize = "21px"
+      //             header.append(title)
+
+      //             overlay.append(header)
+      //           }
+
+
+      //           const buttons = document.createElement("div")
+      //           buttons.style.overflowY = "scroll"
+      //           buttons.style.paddingBottom = "144px"
+
+
+      //           {
+      //             const button = document.createElement("div")
+      //             button.style.display = "flex"
+      //             button.style.flexWrap = "wrap"
+      //             button.style.justifyContent = "space-between"
+      //             button.style.alignItems = "center"
+      //             button.style.margin = "21px 34px"
+      //             button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+      //             button.style.borderRadius = "13px"
+      //             button.style.border = "0.3px solid black"
+      //             button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+      //             button.style.cursor = "pointer"
+      //             button.addEventListener("click", () => {
+      //               // new overlay ???
+      //               const popup = Helper.popup(async overlay => {
+      //                 const header = document.createElement("div")
+      //                 header.style.position = "fixed"
+      //                 header.style.bottom = "0"
+      //                 header.style.left = "0"
+      //                 header.style.width = "100%"
+      //                 header.style.display = "flex"
+      //                 header.style.justifyContent = "flex-start"
+      //                 header.style.alignItems = "center"
+      //                 header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+      //                 header.style.background = "white"
+      //                 header.style.cursor = "pointer"
+      //                 header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+      //                 const logo = document.createElement("img")
+      //                 logo.src = "/public/getyour-logo.svg"
+      //                 logo.alt = "Getyour Popup"
+      //                 logo.style.margin = "21px 34px"
+      //                 header.append(logo)
+      //                 const title = document.createElement("div")
+      //                 title.innerHTML = "error logs"
+      //                 title.style.fontWeight = "bold"
+      //                 title.style.fontSize = "21px"
+      //                 header.append(title)
+      //                 overlay.append(header)
+
+      //                 const getErrors = {}
+      //                 getErrors.url = "/get/error/closed/2/"
+      //                 getErrors.localStorageEmail = await Request.email()
+      //                 getErrors.localStorageId = await Request.localStorageId()
+      //                 getErrors.referer = document.referrer
+      //                 getErrors.location = window.location.href
+      //                 const res = await Request.middleware(getErrors)
+
+      //                 if (res.status === 200) {
+      //                   const errors = JSON.parse(res.response)
+
+      //                   const buttons = document.createElement("div")
+      //                   buttons.style.overflowY = "scroll"
+      //                   buttons.style.paddingBottom = "144px"
+
+      //                   for (let i = 0; i < errors.length; i++) {
+      //                     const error = errors[i]
+
+
+      //                     const button = document.createElement("div")
+      //                     button.style.display = "flex"
+      //                     button.style.flexWrap = "wrap"
+      //                     button.style.alignItems = "center"
+      //                     button.style.margin = "21px 34px"
+      //                     button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+      //                     button.style.borderRadius = "13px"
+      //                     button.style.border = "0.3px solid black"
+      //                     button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+      //                     button.style.cursor = "pointer"
+      //                     button.addEventListener("click", () => {
+
+      //                       const popup = Helper.popup(overlay => {
+
+      //                         const header = document.createElement("div")
+      //                         header.style.position = "fixed"
+      //                         header.style.bottom = "0"
+      //                         header.style.left = "0"
+      //                         header.style.width = "100%"
+      //                         header.style.display = "flex"
+      //                         header.style.justifyContent = "flex-start"
+      //                         header.style.alignItems = "center"
+      //                         header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+      //                         header.style.background = "white"
+      //                         header.style.cursor = "pointer"
+      //                         header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+      //                         const logo = document.createElement("img")
+      //                         logo.src = "/public/getyour-logo.svg"
+      //                         logo.alt = "Getyour Popup"
+      //                         logo.style.margin = "21px 34px"
+      //                         header.append(logo)
+      //                         const title = document.createElement("div")
+      //                         title.innerHTML = error.message
+      //                         title.style.fontWeight = "bold"
+      //                         title.style.fontSize = "21px"
+      //                         header.append(title)
+      //                         overlay.append(header)
+
+      //                         const stack = document.createElement("div")
+      //                         stack.style.margin = "21px 34px"
+      //                         stack.innerHTML = error.stack
+      //                         overlay.append(stack)
+
+
+      //                       })
+      //                     })
+
+      //                     const icon = document.createElement("img")
+      //                     icon.style.margin = "13px 34px"
+      //                     icon.style.width = "34px"
+      //                     icon.src = "/public/error.svg"
+      //                     icon.alt = "Fehlerliste"
+      //                     button.append(icon)
+
+      //                     const message = document.createElement("div")
+      //                     message.style.margin = "13px 34px"
+      //                     message.style.width = "100%"
+      //                     message.innerHTML = /*html*/`
+      //                       <div>Fehler: <b>${error.message}</b></div>
+      //                       <div>Erstellt am: <b>${new Date(error.created).toISOString()}</b></div>
+      //                       <div>Anfrage: <b>${error.method}</b></div>
+      //                       <div>Server: <b>${error.endpoint}</b></div>
+      //                       <div>Client: <b>${error.location}</b></div>
+      //                       <div>Herkunft: <b>${error.referer}</b></div>
+      //                       <div>IP: <b>${error.ip}</b></div>
+      //                       <div>Browser: <b>${error.userAgent}</b></div>
+      //                     `
+
+      //                     button.append(message)
+      //                     buttons.append(button)
+      //                   }
+      //                   overlay.append(buttons)
+      //                 }
+
+
+      //               })
+      //             })
+
+      //             const icon = document.createElement("img")
+      //             icon.style.margin = "13px 34px"
+      //             icon.style.width = "34px"
+      //             icon.src = "/public/error-logs.svg"
+      //             icon.alt = "Fehlerliste"
+      //             button.append(icon)
+
+      //             const title = document.createElement("h2")
+      //             title.style.margin = "13px 34px"
+      //             title.innerHTML = "Error Logs"
+      //             button.append(title)
+
+      //             buttons.append(button)
+      //           }
+
+
+      //           {
+      //             const button = document.createElement("div")
+      //             button.style.display = "flex"
+      //             button.style.flexWrap = "wrap"
+      //             button.style.justifyContent = "space-between"
+      //             button.style.alignItems = "center"
+      //             button.style.margin = "21px 34px"
+      //             button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+      //             button.style.borderRadius = "13px"
+      //             button.style.border = "0.3px solid black"
+      //             button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+      //             button.style.cursor = "pointer"
+      //             button.addEventListener("click", () => {
+      //               // new overlay ???
+      //               const popup = Helper.popup(async overlay => {
+      //                 const header = document.createElement("div")
+      //                 header.style.position = "fixed"
+      //                 header.style.bottom = "0"
+      //                 header.style.left = "0"
+      //                 header.style.width = "100%"
+      //                 header.style.display = "flex"
+      //                 header.style.justifyContent = "flex-start"
+      //                 header.style.alignItems = "center"
+      //                 header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+      //                 header.style.background = "white"
+      //                 header.style.cursor = "pointer"
+      //                 header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+      //                 const logo = document.createElement("img")
+      //                 logo.src = "/public/getyour-logo.svg"
+      //                 logo.alt = "Getyour Popup"
+      //                 logo.style.margin = "21px 34px"
+      //                 header.append(logo)
+      //                 const title = document.createElement("div")
+      //                 title.innerHTML = "user logs"
+      //                 title.style.fontWeight = "bold"
+      //                 title.style.fontSize = "21px"
+      //                 header.append(title)
+      //                 overlay.append(header)
+
+
+      //                 const getUsers = {}
+      //                 getUsers.url = "/get/user/closed/2/"
+      //                 // getUsers.event = "all"
+      //                 getUsers.location = window.location.href
+      //                 getUsers.referer = document.referrer
+      //                 getUsers.localStorageEmail = await Request.email()
+      //                 getUsers.localStorageId = await Request.localStorageId()
+      //                 const res = await Request.middleware(getUsers)
+
+      //                 if (res.status === 200) {
+      //                   const users = JSON.parse(res.response)
+
+      //                   const buttons = document.createElement("div")
+      //                   buttons.style.overflowY = "scroll"
+      //                   buttons.style.paddingBottom = "144px"
+
+      //                   for (let i = 0; i < users.length; i++) {
+      //                     const user = users[i]
+
+
+      //                     const button = document.createElement("div")
+      //                     button.style.display = "flex"
+      //                     button.style.flexWrap = "wrap"
+      //                     button.style.alignItems = "center"
+      //                     button.style.margin = "21px 34px"
+      //                     button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+      //                     button.style.borderRadius = "13px"
+      //                     button.style.border = "0.3px solid black"
+      //                     button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+
+      //                     const icon = document.createElement("img")
+      //                     icon.style.margin = "13px 34px"
+      //                     icon.style.width = "34px"
+      //                     icon.src = "/public/delete.svg"
+      //                     icon.alt = "Löschen"
+      //                     icon.style.cursor = "pointer"
+      //                     icon.addEventListener("click", async () => {
+
+      //                       const confirm = window.confirm("Möchten Sie wirklich diesen Nutzer löschen?")
+      //                       if (confirm === true) {
+      //                         const deleteUser = {}
+      //                         deleteUser.url = "/consumer/2/closed"
+      //                         deleteUser.method = "delete"
+      //                         deleteUser.type = "user"
+      //                         deleteUser.emailToDelete = user.email
+      //                         deleteUser.email = await Request.email()
+      //                         deleteUser.referer = document.referrer
+      //                         deleteUser.localStorageId = await Request.localStorageId()
+      //                         const res = await Request.middleware(deleteUser)
+
+      //                         if (res.status === 200) button.remove()
+      //                       }
+
+
+      //                     })
+      //                     button.append(icon)
+
+      //                     const message = document.createElement("div")
+      //                     message.style.margin = "13px 34px"
+      //                     message.innerHTML = /*html*/`
+      //                       <div>Email: <b>${user.email}</b></div>
+      //                       <div>Verified: <b>${user.verified}</b></div>
+      //                       <div>Rollen: <b>${user.roles.join(", ")}</b></div>
+      //                       <div>Anmeldeversuche: <b>${user.counter}</b></div>
+      //                       <div>Registriert am: <b>${Helper.millisToDateString(user.created)}</b></div>
+      //                     `
+      //                     message.style.cursor = "pointer"
+      //                     message.addEventListener("click", () => {
+
+      //                       const popup = Helper.popup(overlay => {
+
+      //                         const header = document.createElement("div")
+      //                         header.style.position = "fixed"
+      //                         header.style.bottom = "0"
+      //                         header.style.left = "0"
+      //                         header.style.width = "100%"
+      //                         header.style.display = "flex"
+      //                         header.style.justifyContent = "flex-start"
+      //                         header.style.alignItems = "center"
+      //                         header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+      //                         header.style.background = "white"
+      //                         header.style.cursor = "pointer"
+      //                         header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+      //                         const logo = document.createElement("img")
+      //                         logo.src = "/public/getyour-logo.svg"
+      //                         logo.alt = "Getyour Popup"
+      //                         logo.style.margin = "21px 34px"
+      //                         header.append(logo)
+      //                         const title = document.createElement("div")
+      //                         title.innerHTML = user.email
+      //                         title.style.fontWeight = "bold"
+      //                         title.style.fontSize = "21px"
+      //                         header.append(title)
+      //                         overlay.append(header)
+
+      //                         const keys = document.createElement("div")
+      //                         // keys.style.display = "flex"
+      //                         keys.style.padding = "21px 34px 144px 34px"
+      //                         keys.style.overflow = "auto"
+
+      //                         // const keyContainer = document.createElement("div")
+      //                         // keyContainer.style.margin = "13px 34px"
+
+      //                         for (let i = 0; i < user.keys.length; i++) {
+
+      //                           // const key = user.keys[i]
+
+      //                           const key = document.createElement("p")
+      //                           // console.log(key);
+      //                           key.innerHTML = user.keys[i]
+      //                           keys.append(key)
+      //                         }
+
+      //                         // keys.innerHTML = user.keys
+      //                         overlay.append(keys)
+
+
+      //                       })
+      //                     })
+
+      //                     button.append(message)
+      //                     buttons.append(button)
+      //                   }
+      //                   overlay.append(buttons)
+      //                 }
+
+
+
+
+      //               })
+      //             })
+
+      //             const icon = document.createElement("img")
+      //             icon.style.margin = "13px 34px"
+      //             icon.style.width = "34px"
+      //             icon.src = "/public/user-logs.svg"
+      //             icon.alt = "Nutzerliste"
+      //             button.append(icon)
+
+      //             const title = document.createElement("h2")
+      //             title.style.margin = "13px 34px"
+      //             title.innerHTML = "User Logs"
+      //             button.append(title)
+
+      //             buttons.append(button)
+      //           }
+
+
+
+      //           {
+      //             const button = document.createElement("div")
+      //             button.style.display = "flex"
+      //             button.style.flexWrap = "wrap"
+      //             button.style.justifyContent = "space-between"
+      //             button.style.alignItems = "center"
+      //             button.style.margin = "21px 34px"
+      //             button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+      //             button.style.borderRadius = "13px"
+      //             button.style.border = "0.3px solid black"
+      //             button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+      //             button.style.cursor = "pointer"
+
+
+      //             button.addEventListener("click", () => {
+
+      //               const popup = Helper.popup(async overlay => {
+
+      //                 {
+      //                   const header = document.createElement("div")
+      //                   header.style.position = "fixed"
+      //                   header.style.bottom = "0"
+      //                   header.style.left = "0"
+      //                   header.style.width = "100%"
+      //                   header.style.display = "flex"
+      //                   header.style.justifyContent = "flex-start"
+      //                   header.style.alignItems = "center"
+      //                   header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+      //                   header.style.background = "white"
+      //                   header.style.cursor = "pointer"
+      //                   header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+      //                   const logo = document.createElement("img")
+      //                   logo.src = "/public/getyour-logo.svg"
+      //                   logo.alt = "Getyour"
+      //                   logo.style.margin = "21px 34px"
+      //                   header.append(logo)
+
+      //                   const title = document.createElement("div")
+      //                   title.innerHTML = "Experten anmelden"
+      //                   title.style.fontWeight = "bold"
+      //                   title.style.fontSize = "21px"
+      //                   header.append(title)
+
+      //                   overlay.append(header)
+      //                 }
+
+
+
+      //                 {
+      //                   const funnel = document.createElement("div")
+      //                   funnel.style.paddingBottom = "144px"
+      //                   funnel.style.overflow = "auto"
+
+      //                   const name = document.createElement("div")
+      //                   name.classList.add("username")
+      //                   funnel.append(name)
+
+      //                   const email = document.createElement("div")
+      //                   email.classList.add("email")
+      //                   funnel.append(email)
+
+      //                   const button = document.createElement("div")
+      //                   button.classList.add("register-expert")
+      //                   funnel.append(button)
+
+
+      //                   overlay.append(funnel)
+      //                 }
+
+      //               })
+
+      //               const usernameField = new TextField("username")
+      //               .withLabel(label => label.innerHTML = "Name:")
+      //               .withType(input => {
+      //                 input.placeholder = "huansolo"
+      //                 input.pattern = "[a-z]{3,8}"
+      //                 input.required = true
+      //               })
+      //               .onInput(async() => {
+      //                 usernameField.withValidValue()
+      //               })
+      //               usernameField.withValidValue()
+
+      //               const emailField = new EmailField("email")
+      //               .withLabel(label => label.innerHTML = "E-Mail Adresse:")
+      //               .withType(email => {
+      //                 email.placeholder = "experte@email.de"
+      //                 email.required = true
+      //               })
+      //               .onInput(() => emailField.withValidValue())
+      //               emailField.withValidValue()
+
+
+
+      //               const registerExpert = new DivField("register-expert")
+      //               .withType(div => {
+      //                 div.innerHTML = "Jetzt anmelden"
+      //                 div.style.backgroundColor = "#c02221"
+      //                 div.style.cursor = "pointer"
+      //                 div.style.fontSize = "21px"
+      //                 div.style.borderRadius = "13px"
+      //                 div.style.margin = "13px 34px"
+      //                 div.style.display = "flex"
+      //                 div.style.justifyContent = "center"
+      //                 div.style.alignItems = "center"
+      //                 div.style.height = "89px"
+      //                 div.style.color = "white"
+      //                 div.addEventListener("mouseover", () => {
+      //                   div.style.backgroundColor = "#f19d08"
+      //                   div.style.color = "black"
+      //                 })
+      //                 div.addEventListener("mouseout", () => {
+      //                   div.style.color = "white"
+      //                   div.style.backgroundColor = "#c02221"
+      //                 })
+      //               })
+      //               .onClick(async (event) => {
+      //                 const username = await usernameField.withValidValue()
+      //                 const email = await emailField.withValidValue()
+
+      //                 {
+      //                   const verify = {}
+      //                   verify.url = "/verify/name/closed/2/"
+      //                   verify.location = window.location.href
+      //                   verify.referer = document.referrer
+      //                   verify.localStorageId = await Request.localStorageId()
+      //                   verify.localStorageEmail = await Request.email()
+      //                   verify.name = username
+      //                   const res = await Request.middleware(verify)
+
+      //                   if (res.status === 200) {
+      //                     alert("Dieser Name existiert bereits.")
+      //                     Helper.setNotValidStyle(document.querySelector(usernameField.inputSelector))
+      //                     return
+      //                   }
+      //                 }
+
+      //                 await Request.withVerifiedEmail(await Request.email(), async () => {
+
+      //                   {
+      //                     const register = {}
+      //                     register.url = "/register/email/closed/2/"
+      //                     register.email = email
+      //                     register.role = "3"
+      //                     register.location = window.location.href
+      //                     register.localStorageEmail = await Request.email()
+      //                     register.localStorageId = await Request.localStorageId()
+      //                     register.referer = document.referrer
+      //                     await Request.sequence(register)
+      //                   }
+
+      //                   {
+      //                     const register = {}
+      //                     register.url = "/register/name/closed/2/"
+      //                     register.email = email
+      //                     register.name = username
+      //                     register.location = window.location.href
+      //                     register.localStorageEmail = await Request.email()
+      //                     register.localStorageId = await Request.localStorageId()
+      //                     register.referer = document.referrer
+      //                     await Request.sequence(register)
+      //                   }
+
+      //                   {
+      //                     const invite = {}
+      //                     invite.url = "/invite/email/closed/2/"
+      //                     invite.email = email
+      //                     invite.location = window.location.href
+      //                     invite.referer = document.referrer
+      //                     invite.localStorageEmail = await Request.email()
+      //                     invite.localStorageId = await Request.localStorageId()
+      //                     await Request.sequence(invite)
+      //                   }
+
+      //                   alert("Experte erfolgreich registriert..")
+      //                   window.location.reload()
+      //                 })
+
+
+
+      //               })
+      //             })
+
+
+      //             const icon = document.createElement("img")
+      //             icon.style.margin = "13px 34px"
+      //             icon.style.width = "34px"
+      //             icon.src = "/public/expert.svg"
+      //             icon.alt = "Experten anmelden"
+      //             button.append(icon)
+
+      //             const title = document.createElement("h2")
+      //             title.style.margin = "13px 34px"
+      //             title.innerHTML = "Experten anmelden"
+      //             button.append(title)
+
+      //             buttons.append(button)
+      //           }
+
+      //           {
+      //             const verify = {}
+      //             verify.url = "/verify/roles/closed/2/"
+      //             verify.state = "multiple"
+      //             verify.referer = document.referrer
+      //             verify.location = window.location.href
+      //             verify.localStorageEmail = await Request.email()
+      //             verify.localStorageId = await Request.localStorageId()
+      //             const res = await Request.middleware(verify)
+
+      //             if (res.status === 200) {
+
+      //               const button = document.createElement("div")
+      //               button.style.display = "flex"
+      //               button.style.flexWrap = "wrap"
+      //               button.style.justifyContent = "space-between"
+      //               button.style.alignItems = "center"
+      //               button.style.margin = "21px 34px"
+      //               button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+      //               button.style.borderRadius = "13px"
+      //               button.style.border = "0.3px solid black"
+      //               button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+      //               button.style.cursor = "pointer"
+
+      //               button.addEventListener("click", () => {
+
+
+      //                 Helper.popup(async overlay => {
+
+      //                   {
+      //                     const header = document.createElement("div")
+      //                     header.style.position = "fixed"
+      //                     header.style.bottom = "0"
+      //                     header.style.left = "0"
+      //                     header.style.width = "100%"
+      //                     header.style.display = "flex"
+      //                     header.style.justifyContent = "flex-start"
+      //                     header.style.alignItems = "center"
+      //                     header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+      //                     header.style.background = "white"
+      //                     header.style.cursor = "pointer"
+      //                     header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+      //                     const logo = document.createElement("img")
+      //                     logo.src = "/public/getyour-logo.svg"
+      //                     logo.alt = "get-your"
+      //                     logo.style.width = "55px"
+      //                     logo.style.margin = "21px 34px"
+      //                     header.append(logo)
+
+      //                     const title = document.createElement("div")
+      //                     title.innerHTML = "Rolle wechseln"
+      //                     title.style.fontWeight = "bold"
+      //                     title.style.fontSize = "21px"
+      //                     header.append(title)
+
+      //                     overlay.append(header)
+      //                   }
+
+      //                   {
+      //                     const buttons = document.createElement("div")
+      //                     buttons.style.overflow = "auto"
+      //                     buttons.style.paddingBottom = "144px"
+
+
+      //                     {
+      //                       const get = {}
+      //                       get.url = "/get/roles/closed/"
+      //                       get.referer = document.referrer
+      //                       get.location = window.location.href
+      //                       get.localStorageEmail = await Request.email()
+      //                       get.localStorageId = await Request.localStorageId()
+      //                       const res = await Request.middleware(get)
+
+      //                       if (res.status === 200) {
+      //                         const roles = JSON.parse(res.response)
+
+      //                         for (let i = 0; i < roles.length; i++) {
+      //                           const role = roles[i]
+
+      //                           const button = document.createElement("div")
+      //                           button.style.display = "flex"
+      //                           button.style.flexWrap = "wrap"
+      //                           button.style.justifyContent = "space-between"
+      //                           button.style.alignItems = "center"
+      //                           button.style.margin = "21px 34px"
+      //                           button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+      //                           button.style.borderRadius = "13px"
+      //                           button.style.border = "0.3px solid black"
+      //                           button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+      //                           button.style.cursor = "pointer"
+
+      //                           button.addEventListener("click", async () => {
+      //                             {
+      //                               const redirect = {}
+      //                               redirect.url = "/redirect/user/closed/"
+      //                               redirect.roleId = role.id
+      //                               redirect.location = window.location.href
+      //                               redirect.referer = document.referrer
+      //                               redirect.localStorageEmail = await Request.email()
+      //                               redirect.localStorageId = await Request.localStorageId()
+      //                               const res = await Request.middleware(redirect)
+
+      //                               if (res.status === 200) window.location.assign(res.response)
+      //                             }
+      //                           })
+
+      //                           const icon = document.createElement("img")
+      //                           icon.style.margin = "13px 34px"
+      //                           icon.style.width = "34px"
+      //                           icon.src = role.icon
+      //                           icon.alt = role.name
+      //                           button.append(icon)
+
+      //                           const title = document.createElement("div")
+      //                           title.innerHTML = role.name
+      //                           title.style.margin = "21px 34px"
+      //                           title.style.fontSize = "21px"
+      //                           button.append(title)
+
+      //                           buttons.append(button)
+      //                         }
+
+
+
+      //                       }
+      //                     }
+
+
+
+      //                     overlay.append(buttons)
+      //                   }
+
+      //                 })
+
+
+      //               })
+
+      //               const icon = document.createElement("img")
+      //               icon.style.margin = "13px 34px"
+      //               icon.style.width = "34px"
+      //               icon.src = "/public/change.svg"
+      //               icon.alt = "Wechseln"
+      //               button.append(icon)
+
+      //               const title = document.createElement("h2")
+      //               title.style.margin = "13px 34px"
+      //               title.innerHTML = "Rolle wechseln"
+      //               button.append(title)
+
+      //               buttons.append(button)
+      //             }
+      //           }
+
+
+      //           {
+      //             const button = document.createElement("div")
+      //             button.style.display = "flex"
+      //             button.style.flexWrap = "wrap"
+      //             button.style.justifyContent = "space-between"
+      //             button.style.alignItems = "center"
+      //             button.style.margin = "21px 34px"
+      //             button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+      //             button.style.borderRadius = "13px"
+      //             button.style.border = "0.3px solid black"
+      //             button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+      //             button.style.cursor = "pointer"
+
+      //             button.addEventListener("click", () => window.location.assign("/"))
+
+      //             const icon = document.createElement("img")
+      //             icon.style.margin = "13px 34px"
+      //             icon.style.width = "34px"
+      //             icon.src = "/public/entry.svg"
+      //             icon.alt = "Zugang"
+      //             button.append(icon)
+
+      //             const title = document.createElement("h2")
+      //             title.style.margin = "13px 34px"
+      //             title.innerHTML = "Plattform Zugänge"
+      //             button.append(title)
+
+      //             buttons.append(button)
+      //           }
+
+
+      //           overlay.append(buttons)
+      //         })
+
+
+
+      //       })
+
+      //       const icon = document.createElement("img")
+      //       icon.style.width = "34px"
+      //       icon.src = "/public/more-icon.svg"
+      //       icon.alt = "Mehr"
+      //       button.append(icon)
+
+      //       nav.append(button)
+      //     }
+
+      //     document.body.append(nav)
+      //   }
+      // }
 
 
 

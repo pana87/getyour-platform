@@ -101,7 +101,7 @@ export class Helper {
             icon.style.margin = "13px 34px"
             icon.style.width = "34px"
             icon.src = "/public/delete.svg"
-            icon.alt = "Energie Portal"
+            icon.alt = "Löschen"
             button.append(icon)
 
             const title = document.createElement("div")
@@ -352,9 +352,10 @@ export class Helper {
       const overlay = document.createElement("div")
 
       // safari mobile address bar issue
-      overlay.style.height = "100vh"
-      overlay.style.height = "-webkit-fill-available"
-      document.documentElement.style.height = "-webkit-fill-available"
+      // overlay.style.height = "100vh"
+      overlay.style.height = "100%"
+      // // overlay.style.height = "-webkit-fill-available"
+      // document.documentElement.style.height = "-webkit-fill-available"
 
       overlay.style.width = "100%"
       overlay.style.zIndex = "1"

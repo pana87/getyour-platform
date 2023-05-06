@@ -138,6 +138,7 @@ export class FileField {
     image.size = dataUrlSize
     image.modified = Date.now()
     image.dataUrl = dataUrl
+    Helper.setValidStyle(document.querySelector(this.inputSelector))
     return image
   }
 

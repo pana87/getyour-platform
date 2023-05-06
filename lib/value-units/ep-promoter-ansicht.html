@@ -563,16 +563,6 @@
                           funnel.append(company)
                         }
 
-
-                        // {
-                        //   const company = new FileField("logo", funnel)
-                        //   company.label.innerHTML = "Logo"
-                        //   company.input.accept = "image/jpeg, image/png"
-                        //   company.input.required = true
-
-                        // }
-
-
                         const checkAndProceed = document.createElement("div")
                         checkAndProceed.classList.add("check-and-proceed")
                         funnel.append(checkAndProceed)
@@ -637,103 +627,11 @@
                       .withLabel(label => label.innerHTML = "Logo")
                       .withType(file => {
                         file.accept = "image/jpeg, image/png"
-                        file.required = true
                       })
-                      .onInput(() => {
-                        companyLogoField.withStorage(async value => {
-
-                          let array = []
-                          const allowedMimeTypes = ["image/jpeg", "image/png"]
-                          const allowedExtensions = ["jpg", "jpeg", "png"]
-                          for (let i = 0; i < value.length; i++) {
-
-
-                            await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
-                            .catch(error => {
-                              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
-                              Helper.setNotValidStyle(document.querySelector(companyLogoField.inputSelector))
-                              throw error
-                            })
-
-                            await Helper.verifyFileExtension(value[i], allowedExtensions)
-                            .catch(error => {
-                              alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
-                              Helper.setNotValidStyle(document.querySelector(companyLogoField.inputSelector))
-                              throw error
-                            })
-
-                            const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
-                            const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
-                            if (dataUrlSize > 1024 * 1024) {
-                              alert("Bild ist zu groß.")
-                              Helper.setNotValidStyle(document.querySelector(companyLogoField.inputSelector))
-                              throw new Error("image too large")
-                            }
-
-                            array.push({
-                              name: value[i].name,
-                              type: value[i].type,
-                              size: dataUrlSize,
-                              lastModified: Date.now(),
-                              dataUrl: dataUrl,
-                            })
-
-                          }
-
-                          if (array.length > 0) {
-                            window.localStorage.setItem(companyLogoField.name, JSON.stringify(array))
-                          }
-
-                        })
+                      .onInput((event) => {
+                        companyLogoField.withValidImage(event.target.files[0])
                       })
-                      .fromStorage((name) => JSON.parse(window.localStorage.getItem(name)))
-                      companyLogoField.withStorage(async value => {
-
-
-                        let array = []
-                        const allowedMimeTypes = ["image/jpeg", "image/png"]
-                        const allowedExtensions = ["jpg", "jpeg", "png"]
-                        for (let i = 0; i < value.length; i++) {
-
-
-                          await Helper.verifyFileMimeTypes(value[i], allowedMimeTypes)
-                          .catch(error => {
-                            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
-                            Helper.setNotValidStyle(document.querySelector(companyLogoField.inputSelector))
-                            throw error
-                          })
-
-                          await Helper.verifyFileExtension(value[i], allowedExtensions)
-                          .catch(error => {
-                            alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
-                            Helper.setNotValidStyle(document.querySelector(companyLogoField.inputSelector))
-                            throw error
-                          })
-
-                          const dataUrl = await Helper.convertImageFileToDataUrl(value[i])
-                          const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
-                          if (dataUrlSize > 1024 * 1024) {
-                            alert("Bild ist zu groß.")
-                            Helper.setNotValidStyle(document.querySelector(companyLogoField.inputSelector))
-                            throw new Error("image too large")
-                          }
-
-                          array.push({
-                            name: value[i].name,
-                            type: value[i].type,
-                            size: dataUrlSize,
-                            lastModified: Date.now(),
-                            dataUrl: dataUrl,
-                          })
-
-                        }
-
-                        if (array.length > 0) {
-                          window.localStorage.setItem(companyLogoField.name, JSON.stringify(array))
-                        }
-
-                      })
-
+                      companyLogoField.withValidValue()
 
 
                       const checkAndProceedField = new DivField("check-and-proceed")
@@ -747,8 +645,6 @@
                         div.style.display = "flex"
                         div.style.justifyContent = "center"
                         div.style.alignItems = "center"
-                        div.addEventListener("mouseover", () => div.style.backgroundColor = "#f19d08")
-                        div.addEventListener("mouseout", () => div.style.backgroundColor = "#f7aa20")
                       })
                       .onClick(async () => {
 
@@ -767,7 +663,10 @@
                           document.getElementById(error.fieldName).scrollIntoView({behavior: 'smooth'})
                           return
                         }
-                        companyLogoImage = await companyLogoField.withValidImage(companyLogoFile)
+
+                        if (companyLogoFile !== undefined) {
+                          companyLogoImage = await companyLogoField.withValidImage(companyLogoFile)
+                        }
 
 
                         try {
@@ -947,7 +846,6 @@
                         text.maxLength = "13"
                         text.required = true
                         text.accept = "text/tag"
-                        // console.log(text);
                       })
                       .onInput(async() => {
                         offerTagField.withStorage(value => {
@@ -1038,10 +936,9 @@
                       .withLabel(label => label.innerHTML = "AGBs als PDF Datei hochladen")
                       .withType(file => {
                         file.accept = "application/pdf"
-                        file.required = true
                       })
-                      .onInput(async() => {
-                        offerTermsPdfField.withValidValue()
+                      .onInput((event) => {
+                        offerTermsPdfField.withValidPdf(event.target.files[0])
                       })
                       offerTermsPdfField.withValidValue()
 
@@ -1050,10 +947,9 @@
                       .withLabel(label => label.innerHTML = "Unternehmensbrochüre als PDF Datei hochladen")
                       .withType(file => {
                         file.accept = "application/pdf"
-                        file.required = true
                       })
-                      .onInput(async() => {
-                        offerCompanyPdfField.withValidValue()
+                      .onInput((event) => {
+                        offerCompanyPdfField.withValidPdf(event.target.files[0])
                       })
                       offerCompanyPdfField.withValidValue()
 
@@ -1061,11 +957,10 @@
                       const offerProductPdfField = new FileField("offerProductPdf")
                       .withLabel(label => label.innerHTML = "Produktbrochüre als PDF Datei hochladen")
                       .withType(file => {
-                        file.required = true
                         file.accept = "application/pdf"
                       })
-                      .onInput(async() => {
-                        offerProductPdfField.withValidValue()
+                      .onInput((event) => {
+                        offerProductPdfField.withValidPdf(event.target.files[0])
                       })
                       offerProductPdfField.withValidValue()
 
@@ -1128,8 +1023,6 @@
                         div.style.display = "flex"
                         div.style.justifyContent = "center"
                         div.style.alignItems = "center"
-                        // div.addEventListener("mouseover", () => div.style.backgroundColor = "#f19d08")
-                        // div.addEventListener("mouseout", () => div.style.backgroundColor = "#f7aa20")
                       })
                       .onClick(async () => {
 
@@ -1153,12 +1046,20 @@
                           offerDescription = await offerDescriptionField.withValidValue()
                           offerMessage = await offerMessageField.withValidValue()
                           offerNotes = await offerNotesField.withValidValue()
+
                           offerTermsFile = (await offerTermsPdfField.withValidValue())[0]
-                          offerTermsPdf = await offerTermsPdfField.withValidPdf(offerTermsFile)
+                          if (offerTermsFile !== undefined) {
+                            offerTermsPdf = await offerTermsPdfField.withValidPdf(offerTermsFile)
+                          }
+
                           offerCompanyFile = (await offerCompanyPdfField.withValidValue())[0]
-                          offerCompanyPdf = await offerCompanyPdfField.withValidPdf(offerCompanyFile)
+                          if (offerCompanyFile !== undefined) {
+                            offerCompanyPdf = await offerCompanyPdfField.withValidPdf(offerCompanyFile)
+                          }
                           offerProductFile = (await offerProductPdfField.withValidValue())[0]
-                          offerProductPdf = await offerProductPdfField.withValidPdf(offerProductFile)
+                          if (offerProductFile !== undefined) {
+                            offerProductPdf = await offerProductPdfField.withValidPdf(offerProductFile)
+                          }
                           discount = await offerDiscountField.withValidValue()
                           vat = await offerVatField.withValidValue()
                           offerVisibility = (await offerVisibilityField.withValidValue())[0].value
