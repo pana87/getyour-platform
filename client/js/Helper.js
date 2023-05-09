@@ -1,7 +1,11 @@
 import {Request} from "/js/Request.js"
-import {FooterField} from "/js/FooterField.js"
 
 export class Helper {
+
+  static reset(element) {
+    element.removeAttribute("style")
+    element.innerHTML = ""
+  }
 
   static createButton(event, options) {
     if (event === "service") {

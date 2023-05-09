@@ -101,12 +101,14 @@ export class TextAreaField {
     label.style.color = "#707070"
     label.style.fontSize = "21px"
     labelContainer.append(label)
+    this.label = label
     field.append(labelContainer)
 
     const input = document.createElement("textarea")
     input.classList.add(this.name)
     input.style.margin = "21px 89px 21px 34px"
     input.style.fontSize = "21px"
+    this.input = input
     field.append(input)
     return field
   }
