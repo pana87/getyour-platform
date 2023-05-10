@@ -144,7 +144,7 @@
               button.style.border = "0.3px solid black"
               button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
               button.style.cursor = "pointer"
-              button.addEventListener("click", () => window.location.assign("/pana/getyour/nutzervereinbarung/"))
+              button.addEventListener("click", () => window.location.assign("/getyour/pana/nutzervereinbarung/"))
 
               const icon = document.createElement("img")
               icon.style.margin = "13px 34px"
@@ -174,7 +174,7 @@
               button.style.border = "0.3px solid black"
               button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
               button.style.cursor = "pointer"
-              button.addEventListener("click", () => window.location.assign("/pana/getyour/datenschutz/"))
+              button.addEventListener("click", () => window.location.assign("/getyour/pana/datenschutz/"))
 
               const icon = document.createElement("img")
               icon.style.margin = "13px 34px"
@@ -203,7 +203,7 @@
               button.style.border = "0.3px solid black"
               button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
               button.style.cursor = "pointer"
-              button.addEventListener("click", () => window.location.assign("/pana/getyour/impressum/"))
+              button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
 
               const icon = document.createElement("img")
               icon.style.margin = "13px 34px"
@@ -297,7 +297,7 @@
 
       const dsgvoField = new CheckboxField("dsgvo", document.body)
       .withLabel(label => label.innerHTML = /*html*/`
-        <div style="font-size: 13px;">Ich habe die <a href="/pana/getyour/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/pana/getyour/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>
+        <div style="font-size: 13px;">Ich habe die <a href="/getyour/pana/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/getyour/pana/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>
       `)
       .withType((input) => {
         input.required = true

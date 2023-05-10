@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="shortcut icon" href="/public/getyour-logo.svg" />
-  <title>Getyour Plattform Impressum</title>
+  <title>Getyour Plattform Datenschutz Richtlinien</title>
 
   <style>
     body {
@@ -36,6 +36,21 @@
 
   <div class="sub-title-5"></div>
   <div class="text-5"></div>
+
+  <div class="sub-title-6"></div>
+  <div class="text-6"></div>
+
+  <div class="sub-title-7"></div>
+  <div class="text-7"></div>
+
+  <div class="sub-title-8"></div>
+  <div class="text-8"></div>
+
+  <div class="sub-title-9"></div>
+  <div class="text-9"></div>
+
+  <div class="sub-title-10"></div>
+  <div class="text-10"></div>
 
 
   <script type="module">
@@ -124,7 +139,7 @@
           button.style.border = "0.3px solid black"
           button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
           button.style.cursor = "pointer"
-          button.addEventListener("click", () => window.location.assign("/pana/getyour/nutzervereinbarung/"))
+          button.addEventListener("click", () => window.location.assign("/getyour/pana/nutzervereinbarung/"))
 
           const icon = document.createElement("img")
           icon.style.margin = "13px 34px"
@@ -154,7 +169,7 @@
           button.style.border = "0.3px solid black"
           button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
           button.style.cursor = "pointer"
-          button.addEventListener("click", () => window.location.assign("/pana/getyour/datenschutz/"))
+          button.addEventListener("click", () => window.location.assign("/getyour/pana/datenschutz/"))
 
           const icon = document.createElement("img")
           icon.style.margin = "13px 34px"
@@ -183,7 +198,7 @@
           button.style.border = "0.3px solid black"
           button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
           button.style.cursor = "pointer"
-          button.addEventListener("click", () => window.location.assign("/pana/getyour/impressum/"))
+          button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
 
           const icon = document.createElement("img")
           icon.style.margin = "13px 34px"
@@ -218,7 +233,7 @@
     const title = new DivField("title")
     .withType(div => {
       const title = document.createElement("h1")
-      title.innerHTML = "Impressum"
+      title.innerHTML = "Datenschutz Richtlinien"
       title.style.fontWeight = "normal"
       title.style.margin = "21px 34px"
       div.append(title)
@@ -227,7 +242,7 @@
     const subTitle1 = new DivField("sub-title-1")
     .withType(div => {
       const subTitle = document.createElement("h2")
-      subTitle.innerHTML = "Inhaltlich Verantwortlicher gemäß § 55 Abs. 2 RStV"
+      subTitle.innerHTML = "Geltungsbereich"
       subTitle.style.fontWeight = "normal"
       subTitle.style.margin = "21px 34px"
       div.append(subTitle)
@@ -237,21 +252,16 @@
       div.style.fontWeight = "normal"
       div.style.margin = "21px 34px"
       div.innerHTML = /*html*/`
-        <p>
-          <b>Panagiotis Tsivelekidis</b><br>
-          Staigerbacher Str. 188<br>
-          70184 Stuttgart<br>
-          Deutschland<br>
-        </p>
-        <a href="mailto:datenschutz@get-your.de">datenschutz@get-your.de</a>
-        <p>Bei Fragen zum Datenschutz oder zu dieser Webseite, kontaktiere uns bitte unter der angegebenen E-Mail Adresse.</p>
+        <p>Diese Datenschutz-Richtilinien sollen dich als Nutzer gemäß Bundesdatenschutzgesetz und Telemediengesetz über die Art, den Umfang und den Zweck der Erhebung und Verwendung personenbezogener Daten durch uns informieren.</p>
+        <p>Wir nehmen deinen Datenschutz sehr ernst und behandeln deine personenbezogenen Daten vertraulich und entsprechend der gesetzlichen Vorschriften.</p>
+        <p>Bedenke, dass die Datenübertragung im Internet grundsätzlich mit Sicherheitslücken bedacht sein kann. Ein vollumfänglicher Schutz vor dem Zugriff durch Fremde ist nicht realisierbar.</p>
       `
     })
 
     const subTitle2 = new DivField("sub-title-2")
     .withType(div => {
       const subTitle = document.createElement("h2")
-      subTitle.innerHTML = "Haftung für Inhalte"
+      subTitle.innerHTML = "Zugriffsdaten"
       subTitle.style.fontWeight = "normal"
       subTitle.style.margin = "21px 34px"
       div.append(subTitle)
@@ -261,15 +271,24 @@
       div.style.fontWeight = "normal"
       div.style.margin = "21px 34px"
       div.innerHTML = /*html*/`
-        <p>Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
-        <p>Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.</p>
+        <p>Wir erheben Daten über Zugriffe auf unsere Dienste und speichern diese als ab. Folgende Daten werden so protokolliert:</p>
+        <p>
+          - Besuchter Dienst<br>
+          - Uhrzeit zum Zeitpunkt des Zugriffes<br>
+          - Menge der gesendeten Daten in Byte<br>
+          - Quelle/Verweis, von wo du auf den Dienst gelangst<br>
+          - Verwendeter Browser<br>
+          - Verwendetes Betriebssystem<br>
+          - Verwendete IP-Adresse<br>
+        </p>
+        <p>Die erhobenen Daten dienen lediglich statistischen Auswertungen und zur Verbesserung unserer Dienste. Wir behalten uns allerdings vor, die Inhalte nachträglich zu überprüfen, sollten konkrete Anhaltspunkte auf eine rechtswidrige Nutzung hinweisen.</p>
       `
     })
 
     const subTitle3 = new DivField("sub-title-3")
     .withType(div => {
       const subTitle = document.createElement("h2")
-      subTitle.innerHTML = "Haftung für Links"
+      subTitle.innerHTML = "Cookies"
       subTitle.style.margin = "21px 34px"
       subTitle.style.fontWeight = "normal"
       div.append(subTitle)
@@ -279,8 +298,8 @@
       div.style.margin = "21px 34px"
       div.style.fontWeight = "normal"
       div.innerHTML = /*html*/`
-        <p>Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar.</p>
-        <p>Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.</p>
+        <p>Diese Website verwendet Cookies. Dabei handelt es sich um kleine Textdateien, welche auf deinem Endgerät gespeichert werden. Dein Browser greift auf diese Dateien zu. Durch den Einsatz von Cookies erhöht sich die Benutzerfreundlichkeit und Sicherheit unserer Dienste.</p>
+        <p>Gängige Browser bieten die Einstellungsoption, Cookies nicht zuzulassen. Hinweis: Es ist nicht gewährleistet, dass du auf alle Funktionen ohne Einschränkungen zugreifen kannst, wenn du entsprechende Einstellungen vornimmst.</p>
       `
     })
 
@@ -288,7 +307,7 @@
     .withType(div => {
       const subTitle = document.createElement("h2")
       subTitle.style.margin = "21px 34px"
-      subTitle.innerHTML = "Urheberrecht"
+      subTitle.innerHTML = "Umgang mit personenbezogenen Daten"
       subTitle.style.fontWeight = "normal"
       div.append(subTitle)
     })
@@ -297,8 +316,8 @@
       div.style.margin = "21px 34px"
       div.style.fontWeight = "normal"
       div.innerHTML = /*html*/`
-        <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet.</p>
-        <p>Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.</p>
+        <p>Wir erheben, nutzen und geben deine personenbezogenen Daten nur dann weiter, wenn dies im gesetzlichen Rahmen erlaubt ist oder du in die Datenerhebung einwilligst.</p>
+        <p>Als personenbezogene Daten gelten sämtliche Informationen, welche dazu dienen, deine Person zu bestimmen und welche zu dir zurückverfolgt werden können – also beispielsweise dein Name, deine E-Mail-Adresse und Telefonnummer.</p>
       `
     })
 
@@ -306,7 +325,7 @@
     .withType(div => {
       const subTitle = document.createElement("h2")
       subTitle.style.margin = "21px 34px"
-      subTitle.innerHTML = "Online Streitbeilegung"
+      subTitle.innerHTML = "Konto"
       subTitle.style.fontWeight = "normal"
       div.append(subTitle)
     })
@@ -315,10 +334,104 @@
       div.style.margin = "21px 34px"
       div.style.fontWeight = "normal"
       div.innerHTML = /*html*/`
-        <a href="https://ec.europa.eu/consumers/odr/" target="_blank" style="color: inherit;">Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit</a>
-        <p>Zur Teilnahme an einem Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle sind wir nicht verpflichtet und nicht bereit.</p>
+        <p>Wir übernehmen keine Haftung für Passwortmissbrauch, sofern dieser nicht von uns selbst verursacht wurde.</p>
       `
     })
+
+    const subTitle6 = new DivField("sub-title-6")
+    .withType(div => {
+      const subTitle = document.createElement("h2")
+      subTitle.style.margin = "21px 34px"
+      subTitle.innerHTML = "Mitgliedschaft"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
+    })
+    const text6 = new DivField("text-6")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.style.fontWeight = "normal"
+      div.innerHTML = /*html*/`
+        <p>Sämtliche Daten, welche im Rahmen einer Mitgliedschaft eingegeben werden, werden gespeichert. Dazu gehören:</p>
+        <p>
+          - Name, Vorname<br>
+          - Adresse<br>
+          - Zahlungsmethode<br>
+          - E-Mail-Adresse<br>
+        </p>
+        <p>Sowie die Aufbewahrung deiner Daten nicht mehr erforderlich oder gesetzlich geboten ist, werden diese gelöscht.</p>
+      `
+    })
+
+    const subTitle7 = new DivField("sub-title-7")
+    .withType(div => {
+      const subTitle = document.createElement("h2")
+      subTitle.style.margin = "21px 34px"
+      subTitle.innerHTML = "Umgang mit Kontaktdaten"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
+    })
+    const text7 = new DivField("text-7")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Nimmst du mit uns, durch unseren Dienst, Verbindung auf, werden deine Angaben gespeichert, damit auf diese zur Bearbeitung und Beantwortung deiner Anfrage zurückgegriffen werden kann. Ohne deine Einwilligung werden diese Daten nicht an Dritte weitergegeben.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle8 = new DivField("sub-title-8")
+    .withType(div => {
+      const subTitle = document.createElement("h2")
+      subTitle.style.margin = "21px 34px"
+      subTitle.innerHTML = "Newsletter"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
+    })
+    const text8 = new DivField("text-8")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Wir bieten dir einen Newsletter an, in welchem du über aktuelle Geschehnisse und Angebote informiert wirst. Möchten du den Newsletter abonnieren, musst Sie eine gültige E-Mail-Adresse angeben.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle9 = new DivField("sub-title-9")
+    .withType(div => {
+      const subTitle = document.createElement("h2")
+      subTitle.innerHTML = "Rechte des Nutzers: Auskunft, Berichtigung und Löschung "
+      subTitle.style.margin = "21px 34px"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
+    })
+    const text9 = new DivField("text-9")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <p>Du als Nutzer erhälst, auf Antrag, kostenlose Auskunft darüber, welche personenbezogenen Daten über dich gespeichert wurden. Sofern dein Wunsch nicht mit einer gesetzlichen Pflicht zur Aufbewahrung von Daten (z. B. Vorratsdatenspeicherung) kollidiert, hast du ein Anrecht auf Berichtigung falscher Daten und auf die Sperrung oder Löschung deiner personenbezogenen Daten.</p>
+      `
+      div.style.fontWeight = "normal"
+    })
+
+    const subTitle10 = new DivField("sub-title-10")
+    .withType(div => {
+      const subTitle = document.createElement("h2")
+      subTitle.innerHTML = "Weitere Informationen findest du hier:"
+      subTitle.style.margin = "21px 34px"
+      subTitle.style.fontWeight = "normal"
+      div.append(subTitle)
+    })
+    const text10 = new DivField("text-10")
+    .withType(div => {
+      div.style.margin = "21px 34px"
+      div.innerHTML = /*html*/`
+        <a href="https://www.gesetze-im-internet.de/tmg/" target="_blank" style="color: inherit;">Telemediengesetz (TMG)</a><br>
+        <a href="https://www.gesetze-im-internet.de/bdsg_2018/" target="_blank" style="color: inherit;">Bundesdatenschutzgesetz (BDSG)</a><br>
+        <a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:32016L0680" target="_blank" style="color: inherit;">EU Datenschutz Grundverordnung (DGSVO)</a><br>
+      `
+      div.style.fontWeight = "normal"
+    })
+
 
     const footer = new FooterField()
     .withType(footer => {

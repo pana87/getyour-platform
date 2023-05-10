@@ -40,7 +40,9 @@ export class Request {
   }
 
   static async withVerifiedEmail(email, callback) {
+    const event = {}
     const overlay = Helper.addOverlay()
+    event.overlay = overlay
     const interval = Helper.startTimer({duration: 2 * 60, display: overlay})
     // window.navigator.vibrate([233, 144, 233])
     Helper.setWaitCursor()
@@ -51,10 +53,11 @@ export class Request {
       const id = await Helper.digest(JSON.stringify({email: email, verified: true}))
       window.localStorage.setItem("localStorageId", id)
       window.localStorage.setItem("email", email)
-      callback()
+      callback(event)
       // overlay.textContent = "ok"
       // window.navigator.vibrate([233, 144, 233])
       clearInterval(interval)
+      // Helper.removeOverlay(overlay)
     } catch (error) {
       Helper.setNotAllowedCursor()
       clearInterval(interval)
@@ -75,7 +78,7 @@ export class Request {
     return new Promise((resolve, reject) => {
       const email = window.localStorage.getItem("email")
       if (email !== null) return resolve(email)
-      else return window.location.assign("/pana/getyour/login/")
+      else return window.location.assign("/getyour/pana/login/")
     })
   }
 
@@ -83,7 +86,7 @@ export class Request {
     return new Promise((resolve, reject) => {
       const localStorageId = window.localStorage.getItem("localStorageId")
       if (localStorageId !== null) return resolve(localStorageId)
-      else return window.location.assign("/pana/getyour/login/")
+      else return window.location.assign("/getyour/pana/login/")
     })
   }
 

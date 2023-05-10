@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Meine Toolbox</title>
+  </head>
+  <body>
+
+    <script id="toolbox" type="module">
+
+      import {Request} from "/js/Request.js"
+      import {Helper} from "/js/Helper.js"
+      import {FileField} from "/js/FileField.js"
+      import {TextField} from "/js/TextField.js"
+      import {SelectionField} from "/js/SelectionField.js"
+
+      const localStoragId = window.localStorage.getItem("localStorageId")
+      if (localStoragId !== null) {
+        const localStorageEmail = window.localStorage.getItem("email")
+        if (localStorageEmail !== null) {
+
+          {
+            const verify = {}
+            verify.url = "/verify/expert/closed/3/"
+            verify.event = "toolbox"
+            verify.localStorageId = await Request.localStorageId()
+            verify.localStorageEmail = await Request.email()
+            verify.location = window.location.href
+            verify.referer = document.referrer
+            const res = await Request.middleware(verify)
+
+            if (res.status === 200) {
+
+              {
+                const header = document.createElement("header")
+                header.id = "toolbox-header"
+                header.style.position = "fixed"
+                header.style.bottom = "0"
+                header.style.left = "0"
+                header.style.backgroundColor = "white"
+                header.style.width = "100%"
+                header.style.display = "flex"
+                header.style.flexWrap = "wrap"
+                header.style.alignItems = "center"
+                header.style.justifyContent = "space-between"
+                header.style.boxShadow = "0 -3px 5px rgba(0, 0, 0, 0.13)"
+                document.body.append(header)
+
+                const leftContainer = document.createElement("div")
+                leftContainer.style.display = "flex"
+                leftContainer.style.alignItems = "center"
+                leftContainer.style.flexWrap = "wrap"
+                header.append(leftContainer)
+
+                const logo = document.createElement("img")
+                logo.src = "/public/getyour-logo.svg"
+                logo.alt = "Getyour"
+                logo.style.width = "55px"
+                logo.style.margin = "21px 0 21px 34px"
+                logo.style.cursor = "pointer"
+                logo.addEventListener("click", () => window.history.back())
+                leftContainer.append(logo)
+
+                const name = document.createElement("div")
+                name.innerHTML = "Toolbox"
+                name.style.padding = "21px 34px"
+                name.style.fontSize = "21px"
+                name.style.color = "#000"
+                name.style.cursor = "pointer"
+                name.style.fontFamily = "sans-serif"
+                name.addEventListener("click", () => {
+
+                  Helper.popup(async overlay => {
+                    overlay.id = "overlay-1"
+                    const overlay1 = overlay
+
+                    {
+                      const header = document.createElement("div")
+                      header.style.position = "fixed"
+                      header.style.bottom = "0"
+                      header.style.left = "0"
+                      header.style.width = "100%"
+                      header.style.display = "flex"
+                      header.style.flexWrap = "wrap"
+                      header.style.justifyContent = "space-between"
+                      header.style.alignItems = "center"
+                      header.style.background = "transparent"
+                      overlay.append(header)
+
+                      const show = document.createElement("img")
+                      show.src = "/public/show.svg"
+                      show.alt = "Vorschau"
+                      show.style.width = "55px"
+                      show.style.padding = "13px"
+                      show.style.margin = "21px 34px"
+                      show.style.border = "0.3px solid black"
+                      show.style.borderRadius = "50%"
+                      show.style.boxShadow = "0px 5px 8px rgba(0, 0, 0, 0.21)"
+                      show.style.zIndex = "999"
+                      show.style.cursor = "pointer"
+                      show.addEventListener("click", () => Helper.removeOverlay(overlay))
+                      header.append(show)
+
+                      const save = document.createElement("img")
+                      save.src = "/public/save.svg"
+                      save.alt = "Speichern"
+                      save.style.width = "55px"
+                      save.style.padding = "13px"
+                      save.style.margin = "21px 34px"
+                      save.style.border = "0.3px solid black"
+                      save.style.borderRadius = "50%"
+                      save.style.boxShadow = "0px 5px 8px rgba(0, 0, 0, 0.21)"
+                      save.style.zIndex = "999"
+                      save.style.cursor = "pointer"
+                      save.addEventListener("click", async () => {
+
+                        try {
+                          const toolbox = document.querySelector("#toolbox")
+                          const toolboxHeader = document.querySelector("#toolbox-header")
+                          console.log(toolbox);
+                          document.querySelector("#toolbox-header").remove()
+                          document.querySelector("#toolbox").remove()
+                          overlay.remove()
+
+                          const sanitized = Helper.sanitizeHtml(document.documentElement.outerHTML)
+                          const sanatizedDom = new DOMParser().parseFromString(sanitized, "text/html")
+                          sanatizedDom.body.append(toolbox)
+
+                          const register = {}
+                          register.url = "/register/platform-value/closed/3/"
+                          register.type = "html"
+                          register.html = sanatizedDom.documentElement.outerHTML
+                          register.localStorageId = await Request.localStorageId()
+                          register.localStorageEmail = await Request.email()
+                          register.location = window.location.href
+                          register.referer = document.referrer
+                          await Request.sequence(register)
+
+
+
+                          document.body.append(toolbox)
+                          document.body.append(toolboxHeader)
+                        } catch (error) {
+                          alert("Fehler.. Bitte wiederholen.")
+                        }
+
+                      })
+                      header.append(save)
+
+                    }
+
+                    {
+                      const button = document.createElement("div")
+                      button.style.display = "flex"
+                      button.style.flexDirection = "column"
+                      button.style.marginTop = "21px"
+                      button.style.cursor = "pointer"
+                      button.addEventListener("click", () => {
+
+                        Helper.popup(overlay => {
+
+                          {
+                            const header = document.createElement("div")
+                            header.style.position = "fixed"
+                            header.style.bottom = "0"
+                            header.style.left = "0"
+                            header.style.width = "100%"
+                            header.style.display = "flex"
+                            header.style.justifyContent = "flex-start"
+                            header.style.alignItems = "center"
+                            header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                            header.style.background = "white"
+                            header.style.cursor = "pointer"
+                            header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                            const logo = document.createElement("img")
+                            logo.src = "/public/getyour-logo.svg"
+                            logo.alt = "Getyour"
+                            logo.style.width = "55px"
+                            logo.style.margin = "21px 34px"
+                            header.append(logo)
+                            const title = document.createElement("div")
+                            title.innerHTML = `&lt; head`
+                            title.style.fontWeight = "bold"
+                            title.style.fontSize = "21px"
+                            title.style.fontFamily = "sans-serif"
+                            header.append(title)
+                            overlay.append(header)
+                          }
+
+
+                          const buttons = document.createElement("div")
+                          buttons.style.overflowY = "auto"
+                          buttons.style.paddingBottom = "144px"
+                          overlay.append(buttons)
+
+                          {
+                            const button = document.createElement("div")
+                            button.style.display = "flex"
+                            button.style.flexWrap = "wrap"
+                            button.style.justifyContent = "space-between"
+                            button.style.alignItems = "center"
+                            button.style.margin = "21px 34px"
+                            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+
+                            button.style.borderRadius = "13px"
+                            button.style.border = "0.3px solid black"
+                            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                            button.style.cursor = "pointer"
+
+                            button.addEventListener("click", async () => {
+                              const title = window.prompt("Dokumententitel:")
+
+                              if (!Helper.stringIsEmpty(title)) {
+
+                                const titleElement = document.createElement("title")
+                                titleElement.innerHTML = title
+
+                                for (let i = 0; i < document.head.children.length; i++) {
+                                  const child = document.head.children[i]
+                                  if (child.tagName === "TITLE") {
+                                    alert("Titel existiert.")
+                                    Helper.removeOverlay(overlay)
+                                    throw new Error("title exist")
+                                  }
+                                }
+
+                                document.head.append(titleElement)
+                              }
+
+                              Helper.removeOverlay(overlay)
+                              Helper.renderHeadButtons(document.querySelector(".head-buttons"))
+                            })
+
+                            const icon = document.createElement("img")
+                            icon.style.margin = "13px 34px"
+                            icon.style.width = "34px"
+                            icon.src = "/public/tab.svg"
+                            icon.alt = "Tab"
+                            button.append(icon)
+
+                            const title = document.createElement("div")
+                            title.innerHTML = "Titel"
+                            title.style.margin = "21px 34px"
+                            title.style.fontSize = "21px"
+                            title.style.fontFamily = "sans-serif"
+                            button.append(title)
+
+                            buttons.append(button)
+                          }
+
+                          // {
+                          //   const button = document.createElement("div")
+                          //   button.style.display = "flex"
+                          //   button.style.flexWrap = "wrap"
+                          //   button.style.justifyContent = "space-between"
+                          //   button.style.alignItems = "center"
+                          //   button.style.margin = "21px 34px"
+                          //   button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+
+                          //   button.style.borderRadius = "13px"
+                          //   button.style.border = "0.3px solid black"
+                          //   button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                          //   button.style.cursor = "pointer"
+
+                          //   button.addEventListener("click", async () => {
+                          //     const title = window.prompt("Dokumententitel:")
+
+                          //     if (!Helper.stringIsEmpty(title)) {
+
+                          //       const titleElement = document.createElement("title")
+                          //       titleElement.innerHTML = title
+
+                          //       for (let i = 0; i < document.head.children.length; i++) {
+                          //         const child = document.head.children[i]
+                          //         if (child.tagName === "TITLE") {
+                          //           alert("Titel existiert.")
+                          //           Helper.removeOverlay(overlay)
+                          //           throw new Error("title exist")
+                          //         }
+                          //       }
+
+                          //       document.head.append(titleElement)
+                          //     }
+
+                          //     Helper.removeOverlay(overlay)
+                          //     Helper.renderHeadButtons(document.querySelector(".head-buttons"))
+                          //   })
+
+                          //   const icon = document.createElement("img")
+                          //   icon.style.margin = "13px 34px"
+                          //   icon.style.width = "34px"
+                          //   icon.src = "/public/favicon.svg"
+                          //   icon.alt = "Favicon"
+                          //   button.append(icon)
+
+                          //   const title = document.createElement("div")
+                          //   title.innerHTML = "Favicon"
+                          //   title.style.margin = "21px 34px"
+                          //   title.style.fontSize = "21px"
+                          //   title.style.fontFamily = "sans-serif"
+                          //   button.append(title)
+
+                          //   buttons.append(button)
+                          // }
+
+                        })
+
+                      })
+                      overlay.append(button)
+
+                      const icon = document.createElement("img")
+                      icon.src = "/public/add.svg"
+                      icon.alt = "Hinzufügen"
+                      icon.style.width = "34px"
+                      icon.style.alignSelf = "center"
+                      button.append(icon)
+
+                      const text = document.createElement("div")
+                      text.innerHTML = "head"
+                      text.style.fontSize = "13px"
+                      text.style.fontFamily = "sans-serif"
+                      text.style.margin = "0 34px"
+                      button.append(text)
+
+                      const hr = document.createElement("hr")
+                      hr.style.width = "89vw"
+                      hr.style.margin = "0 auto"
+                      button.append(hr)
+                    }
+
+                    {
+                      const buttons = document.createElement("div")
+                      buttons.classList.add("head-buttons")
+                      buttons.style.maxHeight = "34vh"
+                      buttons.style.overflowY = "auto"
+                      overlay.append(buttons)
+
+                      Helper.renderHeadButtons(buttons)
+                    }
+
+                    {
+                      const button = document.createElement("div")
+                      button.style.display = "flex"
+                      button.style.flexDirection = "column"
+                      button.style.cursor = "pointer"
+                      button.addEventListener("click", () => {
+
+                        Helper.popup(overlay => {
+                          overlay.id = "overlay-2"
+                          const overlay2 = overlay
+
+
+
+                          {
+                            const header = document.createElement("div")
+                            header.style.position = "fixed"
+                            header.style.bottom = "0"
+                            header.style.left = "0"
+                            header.style.width = "100%"
+                            header.style.display = "flex"
+                            header.style.justifyContent = "flex-start"
+                            header.style.alignItems = "center"
+                            header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                            header.style.background = "white"
+                            header.style.cursor = "pointer"
+                            header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                            const logo = document.createElement("img")
+                            logo.src = "/public/getyour-logo.svg"
+                            logo.alt = "Getyour"
+                            logo.style.width = "55px"
+                            logo.style.margin = "21px 34px"
+                            header.append(logo)
+                            const title = document.createElement("div")
+                            title.innerHTML = `&lt; body`
+                            title.style.fontWeight = "bold"
+                            title.style.fontSize = "21px"
+                            title.style.fontFamily = "sans-serif"
+                            header.append(title)
+                            overlay.append(header)
+                          }
+
+                          {
+                            const buttons = document.createElement("div")
+                            buttons.style.overflowY = "auto"
+                            buttons.style.paddingBottom = "144px"
+                            overlay.append(buttons)
+
+
+                            {
+                              // in body
+                              // add templates
+                              // tags the expert with templates = []
+                              // shows a list of all expert.templates
+                              // if visible
+                              // in use?
+                              // purchase to use?
+                              // payment ?
+
+                              const button = document.createElement("div")
+                              button.style.display = "flex"
+                              button.style.flexWrap = "wrap"
+                              button.style.justifyContent = "space-between"
+                              button.style.alignItems = "center"
+                              button.style.margin = "21px 34px"
+                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+
+                              button.style.borderRadius = "13px"
+                              button.style.border = "0.3px solid black"
+                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                              button.style.cursor = "pointer"
+
+                              const icon = document.createElement("img")
+                              icon.style.margin = "13px 34px"
+                              icon.style.width = "34px"
+                              icon.src = "/public/template.svg"
+                              icon.alt = "Template"
+                              button.append(icon)
+
+                              const title = document.createElement("div")
+                              title.innerHTML = "Templates"
+                              title.style.margin = "21px 34px"
+                              title.style.fontSize = "21px"
+                              title.style.fontFamily = "sans-serif"
+                              button.append(title)
+
+                              buttons.append(button)
+                            }
+
+                            {
+                              const button = document.createElement("div")
+                              button.style.display = "flex"
+                              button.style.flexWrap = "wrap"
+                              button.style.justifyContent = "space-between"
+                              button.style.alignItems = "center"
+                              button.style.margin = "21px 34px"
+                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                              button.style.borderRadius = "13px"
+                              button.style.border = "0.3px solid black"
+                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                              button.style.cursor = "pointer"
+                              button.addEventListener("click", () => {
+
+                                Helper.popup(overlay => {
+                                  overlay.id = "overlay-3"
+                                  const overlay3 = overlay
+
+                                  {
+                                    const header = document.createElement("div")
+                                    header.style.position = "fixed"
+                                    header.style.bottom = "0"
+                                    header.style.left = "0"
+                                    header.style.width = "100%"
+                                    header.style.display = "flex"
+                                    header.style.justifyContent = "flex-start"
+                                    header.style.alignItems = "center"
+                                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                                    header.style.background = "white"
+                                    header.style.cursor = "pointer"
+                                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                                    const logo = document.createElement("img")
+                                    logo.src = "/public/getyour-logo.svg"
+                                    logo.alt = "Getyour"
+                                    logo.style.width = "55px"
+                                    logo.style.margin = "21px 34px"
+                                    header.append(logo)
+                                    const title = document.createElement("div")
+                                    title.innerHTML = `HTML Import`
+                                    title.style.fontWeight = "bold"
+                                    title.style.fontSize = "21px"
+                                    title.style.fontFamily = "sans-serif"
+                                    header.append(title)
+                                    overlay.append(header)
+                                  }
+
+                                  {
+                                    const funnel = document.createElement("div")
+                                    overlay.append(funnel)
+
+                                    const htmlFileField = new FileField("htmlFile", funnel)
+                                    htmlFileField.input.accept = "text/html"
+                                    htmlFileField.input.required = true
+                                    htmlFileField.input.addEventListener("input", async (event) => {
+                                      await htmlFileField.validHtml(event.target.files[0])
+                                    })
+                                    htmlFileField.label.innerHTML = "HTML Datei"
+                                    htmlFileField.label.style.fontFamily = "sans-serif"
+                                    htmlFileField.verifyValue()
+
+                                    const button = document.createElement("div")
+                                    button.innerHTML = "Jetzt importieren"
+                                    button.style.backgroundColor = "#f7aa20"
+                                    button.style.cursor = "pointer"
+                                    button.style.fontSize = "21px"
+                                    button.style.fontFamily = "sans-serif"
+                                    button.style.borderRadius = "13px"
+                                    button.style.margin = "21px 34px"
+                                    button.style.display = "flex"
+                                    button.style.justifyContent = "center"
+                                    button.style.alignItems = "center"
+                                    button.style.height = "89px"
+                                    button.style.color = "#000"
+                                    button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                                    button.addEventListener("click", async () => {
+
+                                      const file = await htmlFileField.validHtml(htmlFileField.input.files[0])
+
+                                      const node = document.createElement("div")
+                                      node.classList.add("html-import")
+                                      node.innerHTML = file.html
+
+                                      document.body.insertBefore(node, document.querySelector("#toolbox"))
+
+                                      Helper.removeOverlay(overlay)
+                                      Helper.removeOverlay(overlay2)
+                                      Helper.renderBodyButtons(document.querySelector(".body-buttons"))
+
+                                    })
+                                    funnel.append(button)
+                                  }
+
+
+
+                                })
+
+
+                              })
+
+                              const icon = document.createElement("img")
+                              icon.style.margin = "13px 34px"
+                              icon.style.width = "34px"
+                              icon.src = "/public/html.svg"
+                              icon.alt = "HTML"
+                              button.append(icon)
+
+                              const title = document.createElement("div")
+                              title.innerHTML = "HTML Import"
+                              title.style.margin = "21px 34px"
+                              title.style.fontSize = "21px"
+                              title.style.fontFamily = "sans-serif"
+                              button.append(title)
+
+                              buttons.append(button)
+                            }
+
+                            {
+                              const button = document.createElement("div")
+                              button.style.display = "flex"
+                              button.style.flexWrap = "wrap"
+                              button.style.justifyContent = "space-between"
+                              button.style.alignItems = "center"
+                              button.style.margin = "21px 34px"
+                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                              button.style.borderRadius = "13px"
+                              button.style.border = "0.3px solid black"
+                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                              button.style.cursor = "pointer"
+                              button.addEventListener("click", () => {
+
+                                Helper.popup(overlay => {
+                                  overlay.id = "overlay-3"
+                                  const overlay3 = overlay
+
+                                  {
+                                    const header = document.createElement("div")
+                                    header.style.position = "fixed"
+                                    header.style.bottom = "0"
+                                    header.style.left = "0"
+                                    header.style.width = "100%"
+                                    header.style.display = "flex"
+                                    header.style.justifyContent = "flex-start"
+                                    header.style.alignItems = "center"
+                                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                                    header.style.background = "white"
+                                    header.style.zIndex = "1"
+                                    header.style.cursor = "pointer"
+                                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                                    const logo = document.createElement("img")
+                                    logo.src = "/public/getyour-logo.svg"
+                                    logo.alt = "Getyour"
+                                    logo.style.width = "55px"
+                                    logo.style.margin = "21px 34px"
+                                    header.append(logo)
+                                    const title = document.createElement("div")
+                                    title.innerHTML = `Web API`
+                                    title.style.fontWeight = "bold"
+                                    title.style.fontSize = "21px"
+                                    title.style.fontFamily = "sans-serif"
+                                    header.append(title)
+                                    overlay.append(header)
+                                  }
+
+                                  {
+                                    // web api labor
+                                    const preview = document.createElement("div")
+                                    preview.style.minHeight = "233px"
+                                    preview.style.maxHeight = "233px"
+                                    preview.style.overflow = "auto"
+                                    overlay.append(preview)
+
+                                    const text = document.createElement("div")
+                                    text.innerHTML = "Vorschau"
+                                    text.style.fontFamily = "sans-serif"
+                                    text.style.fontSize = "13px"
+                                    text.style.margin = "0 34px"
+                                    overlay.append(text)
+
+                                    const hr = document.createElement("hr")
+                                    hr.style.width = "89vw"
+                                    hr.style.margin = "0 auto"
+                                    overlay.append(hr)
+
+                                    const funnel = document.createElement("div")
+                                    funnel.style.overflowY = "auto"
+                                    funnel.style.paddingBottom = "144px"
+                                    overlay.append(funnel)
+
+                                    const elementSelectField = new SelectionField("elementSelect", funnel)
+                                    elementSelectField.label.innerHTML = "Wähle ein Element"
+                                    elementSelectField.options(["--", "div", "hr"])
+
+                                    const removableFunnel = document.createElement("div")
+                                    funnel.append(removableFunnel)
+
+                                    Helper.setNotValidStyle(elementSelectField.select)
+                                    elementSelectField.select.addEventListener("input", (event) => {
+
+                                      for (let i = 0; i < event.target.options.length; i++) {
+                                        const option = event.target.options[i]
+
+                                        if (option.selected === true) {
+
+                                          if (option.value === "div") {
+                                            Helper.setValidStyle(elementSelectField.select)
+
+                                            preview.innerHTML = ""
+
+                                            const div = document.createElement("div")
+                                            preview.append(div)
+
+                                            {
+                                              const text = document.createElement("div")
+                                              text.innerHTML = "div.textContent"
+                                              text.style.fontFamily = "sans-serif"
+                                              text.style.fontSize = "13px"
+                                              text.style.margin = "0 34px"
+                                              removableFunnel.append(text)
+
+                                              const hr = document.createElement("hr")
+                                              hr.style.width = "89vw"
+                                              hr.style.margin = "0 auto"
+                                              removableFunnel.append(hr)
+                                            }
+
+                                            const divTextContentField = new TextField("divTextContent", removableFunnel)
+                                            divTextContentField.label.innerHTML = "Inhalt"
+                                            divTextContentField.input.addEventListener("input", (event) => {
+                                              div.textContent = event.target.value
+                                              divTextContentField.verifyValue()
+                                            })
+
+
+                                            {
+                                              const text = document.createElement("div")
+                                              text.innerHTML = "div.style"
+                                              text.style.fontFamily = "sans-serif"
+                                              text.style.fontSize = "13px"
+                                              text.style.margin = "0 34px"
+                                              removableFunnel.append(text)
+
+                                              const hr = document.createElement("hr")
+                                              hr.style.width = "89vw"
+                                              hr.style.margin = "0 auto"
+                                              removableFunnel.append(hr)
+                                            }
+
+                                            const divStylePropertyField = new TextField("divStyleProperty", removableFunnel)
+                                            divStylePropertyField.label.innerHTML = "CSS Eigenschaft"
+                                            divStylePropertyField.input.required = true
+                                            divStylePropertyField.input.addEventListener("input", (event) => {
+                                              if (event.target.style[event.target.value] !== undefined) {
+                                                Helper.setValidStyle(event.target)
+                                              } else {
+                                                Helper.setNotValidStyle(event.target)
+                                              }
+                                            })
+
+                                            const divStyleValueField = new TextField("divStyleValue", removableFunnel)
+                                            divStyleValueField.label.innerHTML = "CSS Wert"
+                                            divStyleValueField.input.addEventListener("input", () => {
+                                              divStyleValueField.verifyValue()
+                                            })
+
+
+                                            {
+                                              const button = document.createElement("div")
+                                              button.innerHTML = "CSS anwenden"
+                                              button.style.backgroundColor = "#f7aa20"
+                                              button.style.cursor = "pointer"
+                                              button.style.fontSize = "21px"
+                                              button.style.fontFamily = "sans-serif"
+                                              button.style.borderRadius = "13px"
+                                              button.style.margin = "21px 34px"
+                                              button.style.display = "flex"
+                                              button.style.justifyContent = "center"
+                                              button.style.alignItems = "center"
+                                              button.style.height = "89px"
+                                              button.style.color = "#000"
+                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                                              button.addEventListener("click", () => {
+
+                                                try {
+                                                  const cssProperty = divStylePropertyField.validValue()
+                                                  if (divStylePropertyField.input.style[divStylePropertyField.input.value] === undefined) throw new Error("css property not found")
+                                                } catch (error) {
+                                                  alert(`Die CSS Eigenschaft ist ungültig.`)
+                                                  Helper.setNotValidStyle(divStylePropertyField.input)
+                                                  throw error
+                                                }
+
+                                                const cssValue = divStyleValueField.validValue()
+
+                                                div.style[divStylePropertyField.input.value] = cssValue
+
+                                                divStylePropertyField.input.value = ""
+                                                Helper.setNotValidStyle(divStylePropertyField.input)
+                                                divStyleValueField.input.value = ""
+
+                                              })
+                                              removableFunnel.append(button)
+                                            }
+
+                                            {
+                                              const text = document.createElement("div")
+                                              text.innerHTML = "div"
+                                              text.style.fontFamily = "sans-serif"
+                                              text.style.fontSize = "13px"
+                                              text.style.margin = "0 34px"
+                                              removableFunnel.append(text)
+
+                                              const hr = document.createElement("hr")
+                                              hr.style.width = "89vw"
+                                              hr.style.margin = "0 auto"
+                                              removableFunnel.append(hr)
+                                            }
+
+                                            {
+                                              const button = document.createElement("div")
+                                              button.innerHTML = "Element einfügen"
+                                              button.style.backgroundColor = "#f7aa20"
+                                              button.style.cursor = "pointer"
+                                              button.style.fontSize = "21px"
+                                              button.style.fontFamily = "sans-serif"
+                                              button.style.borderRadius = "13px"
+                                              button.style.margin = "21px 34px"
+                                              button.style.display = "flex"
+                                              button.style.justifyContent = "center"
+                                              button.style.alignItems = "center"
+                                              button.style.height = "89px"
+                                              button.style.color = "#000"
+                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                                              button.addEventListener("click", () => {
+                                                document.body.insertBefore(div, document.querySelector("#toolbox"))
+                                                Helper.removeOverlay(overlay2)
+                                                Helper.removeOverlay(overlay3)
+                                                Helper.renderBodyButtons(document.querySelector(".body-buttons"))
+                                              })
+                                              removableFunnel.append(button)
+                                            }
+
+
+                                          } else {
+
+                                            removableFunnel.innerHTML = ""
+                                            preview.innerHTML = ""
+                                            Helper.setNotValidStyle(elementSelectField.select)
+
+                                          }
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+                                      }
+                                    })
+
+
+
+                                  }
+
+
+                                })
+                              })
+
+                              const icon = document.createElement("img")
+                              icon.style.margin = "13px 34px"
+                              icon.style.width = "34px"
+                              icon.src = "/public/js.svg"
+                              icon.alt = "JavaScript"
+                              button.append(icon)
+
+                              const title = document.createElement("div")
+                              title.innerHTML = "Web API"
+                              title.style.margin = "21px 34px"
+                              title.style.fontSize = "21px"
+                              title.style.fontFamily = "sans-serif"
+                              button.append(title)
+
+                              buttons.append(button)
+                            }
+
+                          }
+
+                        })
+
+                      })
+                      overlay.append(button)
+
+                      const icon = document.createElement("img")
+                      icon.src = "/public/add.svg"
+                      icon.alt = "Hinzufügen"
+                      icon.style.width = "34px"
+                      icon.style.alignSelf = "center"
+                      button.append(icon)
+
+                      const text = document.createElement("div")
+                      text.innerHTML = "body"
+                      text.style.fontSize = "13px"
+                      text.style.fontFamily = "sans-serif"
+                      text.style.margin = "0 34px"
+                      button.append(text)
+
+                      const hr = document.createElement("hr")
+                      hr.style.width = "89vw"
+                      hr.style.margin = "0 auto"
+                      button.append(hr)
+                    }
+
+                    {
+                      const buttons = document.createElement("div")
+                      buttons.classList.add("body-buttons")
+                      buttons.style.maxHeight = "34vh"
+                      buttons.style.overflowY = "auto"
+                      overlay.append(buttons)
+
+                      Helper.renderBodyButtons(buttons)
+                    }
+
+                  })
+
+                })
+                leftContainer.append(name)
+
+              }
+
+            }
+
+          }
+
+        }
+      }
+
+    </script>
+
+  </body>
+</html>

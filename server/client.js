@@ -8,11 +8,9 @@ const crypto = require("node:crypto")
 const jwt = require('jsonwebtoken')
 const nano = require("nano")(process.env.COUCHDB_LOCATION)
 
-const database = "getyour"
-Helper.createDatabase(database)
-Helper.createUsers(database)
-Helper.createLogs(database)
-
+Helper.createDatabase("getyour")
+Helper.createUsers("getyour")
+Helper.createLogs("getyour")
 
 const app = express()
 app.use(cookieParser())
@@ -25,6 +23,17 @@ app.use((req, res, next) => {
   res.setHeader('Expires', '0')
   next()
 })
+
+// let cookiesRemoved
+// app.use((req, res, next) => {
+//   if (cookiesRemoved === undefined) {
+//     for (const cookie in req.cookies) {
+//       res.clearCookie(cookie)
+//     }
+//     cookiesRemoved = true
+//   }
+//   next()
+// })
 
 // app.use(async(req, res, next) => {
 //   try {
@@ -41,21 +50,6 @@ app.use((req, res, next) => {
 app.use("/docs/", express.static(docsLocation.absolutePath))
 app.use(express.static(clientLocation.absolutePath))
 
-
-app.get("/pana/getyour/admin/",
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyRoles([UserRole.ADMIN]),
-  Request.verifyJwtId,
-async(req, res) => {
-  try {
-    return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-admin.html"))
-
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
-})
 
 
 
@@ -90,7 +84,6 @@ async (req, res) => {
   return res.sendStatus(404)
 })
 
-
 app.get("/cookies/anzeigen/", async (req, res) => {
   try {
     return res.send(req.cookies)
@@ -116,50 +109,49 @@ app.get("/cookies/entfernen/", async (req, res) => {
 
 app.get("/", async (req, res, next) => {
   try {
-    return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-home.html"))
+    return res.send(Helper.readFileSyncToString("../lib/value-units/home.html"))
   } catch (error) {
     await Helper.logError(error, req)
   }
   return res.sendStatus(404)
 })
 
-
-// app.get("/impressum/", async (req, res, next) => {
+// app.get("/:platform/", async (req, res, next) => {
 //   try {
-//     return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-impressum.html"))
+//     // find platform
+//     // if platform exist
+//     // show stats
+//     return res.send(Helper.readFileSyncToString("../lib/value-units/platform.html"))
 //   } catch (error) {
 //     await Helper.logError(error, req)
 //   }
 //   return res.sendStatus(404)
 // })
 
-// app.get("/datenschutz/", async (req, res, next) => {
-//   try {
-//     return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-datenschutz.html"))
-//   } catch (error) {
-//     await Helper.logError(error, req)
-//   }
-//   return res.sendStatus(404)
-// })
-
-// app.get("/nutzervereinbarung/", async (req, res, next) => {
-//   try {
-//     return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-nutzervereinbarung.html"))
-//   } catch (error) {
-//     await Helper.logError(error, req)
-//   }
-//   return res.sendStatus(404)
-// })
-
-app.get("/:name/:platform/", async (req, res, next) => {
+app.get("/:platform/:expert/", async (req, res, next) => {
   try {
+    const doc = await nano.db.use("getyour").get("users")
+    if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
+    if (doc.users === undefined) throw new Error("users is undefined")
 
-    if (req.params.name === "felix") {
-      if (req.params.platform === "energie-plattform") {
-        return res.send(Helper.readFileSyncToString("../lib/value-units/ep-home.html"))
+    const platform = req.params.platform
+    if (Helper.stringIsEmpty(platform)) throw new Error("platform is empty")
+    const expert = req.params.expert
+    if (Helper.stringIsEmpty(expert)) throw new Error("expert is empty")
+
+    for (let i = 0; i < doc.users.length; i++) {
+      const user = doc.users[i]
+      if (user[platform] !== undefined) {
+        if (user[platform].expert.name === expert) {
+          // if (user[platform].expert.verified.status === 200) {
+          // }
+          return res.send(Helper.readFileSyncToString("../lib/value-units/expert.html"))
+        }
       }
     }
 
+
+    // throw new Error("endpoint not found")
   } catch (error) {
     await Helper.logError(error, req)
   }
@@ -167,29 +159,75 @@ app.get("/:name/:platform/", async (req, res, next) => {
 })
 
 
-
-app.get("/:name/:platform/:path/", async(req, res, next) => {
+app.get("/getyour/pana/toolbox/",
+  Request.verifyJwtToken,
+  Request.verifySession,
+  Request.verifyRoles([UserRole.ADMIN]),
+  Request.verifyJwtId,
+async(req, res) => {
   try {
+    return res.send(Helper.readFileSyncToString("../lib/value-units/toolbox.html"))
 
-    if (req.params.name === "pana") {
+  } catch (error) {
+    await Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
+})
+
+app.get("/getyour/pana/admin/",
+  Request.verifyJwtToken,
+  Request.verifySession,
+  Request.verifyRoles([UserRole.ADMIN]),
+  Request.verifyJwtId,
+async(req, res) => {
+  try {
+    return res.send(Helper.readFileSyncToString("../lib/value-units/admin.html"))
+
+  } catch (error) {
+    await Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
+})
+
+app.get("/:platform/:expert/:path/",
+async(req, res, next) => {
+  try {
+    const doc = await nano.db.use("getyour").get("users")
+    if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
+    if (doc.users === undefined) throw new Error("users is undefined")
+
+    if (req.params.expert === "pana") {
       if (req.params.platform === "getyour") {
-        if (req.params.path === "login") return res.send(Helper.readFileSyncToString(`../lib/value-units/getyour-${req.params.path}.html`))
-        if (req.params.path === "nutzervereinbarung") return res.send(Helper.readFileSyncToString(`../lib/value-units/getyour-${req.params.path}.html`))
-        if (req.params.path === "impressum") return res.send(Helper.readFileSyncToString(`../lib/value-units/getyour-${req.params.path}.html`))
-        if (req.params.path === "datenschutz") return res.send(Helper.readFileSyncToString(`../lib/value-units/getyour-${req.params.path}.html`))
+        if (req.params.path === "login") return res.send(Helper.readFileSyncToString(`../lib/value-units/login.html`))
+        if (req.params.path === "nutzervereinbarung") return res.send(Helper.readFileSyncToString(`../lib/value-units/nutzervereinbarung.html`))
+        if (req.params.path === "impressum") return res.send(Helper.readFileSyncToString(`../lib/value-units/impressum.html`))
+        if (req.params.path === "datenschutz") return res.send(Helper.readFileSyncToString(`../lib/value-units/datenschutz.html`))
       }
     }
 
-    if (req.params.name === "felix") {
-      if (req.params.platform === "energie-plattform") {
-        if (req.params.path === "verkaufer-zugang") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-        if (req.params.path === "promoter-zugang") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-        if (req.params.path === "monteur-zugang") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-        if (req.params.path === "anlagenbetreiber-zugang") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-        if (req.params.path === "angebot-liste") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
+    for (let i = 0; i < doc.users.length; i++) {
+      const user = doc.users[i]
+      if (user["getyour"] !== undefined) {
+        if (user["getyour"].expert.name === req.params.expert) {
+          for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
+            const platform = user["getyour"].expert.platforms[i]
+
+            if (platform.name === req.params.platform) {
+              if (platform.visibility === "open") {
+                for (let i = 0; i < platform.values.length; i++) {
+                  const value = platform.values[i]
+                  if (value.path.split("/")[3] === req.params.path) {
+                    if (value.visibility === "open") {
+                      return res.send(value.html)
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
-
 
     return next()
   } catch (error) {
@@ -198,17 +236,105 @@ app.get("/:name/:platform/:path/", async(req, res, next) => {
   return res.sendStatus(404)
 })
 
-app.get("/:name/:platform/:path/",
+// hook more restrictions here
+app.get("/:platform/:expert/:path/",
   Request.verifyJwtToken,
   Request.verifyJwtId,
   Request.verifySession,
 async (req, res, next) => {
   try {
 
-    if (req.params.name === "pana") {
-      if (req.params.platform === "getyour") {
-        if (req.params.path === "rolle-wahlen") return res.send(Helper.readFileSyncToString(`../lib/value-units/getyour-${req.params.path}.html`))
+    const doc = await nano.db.use("getyour").get("users")
+    if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
+    if (doc.users === undefined) throw new Error("users is undefined")
+
+    for (let i = 0; i < doc.users.length; i++) {
+      const user = doc.users[i]
+
+      if (user.id === req.jwt.id) {
+        if (user["getyour"] !== undefined) {
+          if (user["getyour"].expert.name === req.params.expert) {
+
+            for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
+              const platform = user["getyour"].expert.platforms[i]
+              if (platform.name === req.params.platform) {
+                for (let i = 0; i < platform.values.length; i++) {
+                  const value = platform.values[i]
+                  if (value.path.split("/")[3] === req.params.path) {
+                    return res.send(value.html)
+                  }
+                }
+              }
+            }
+
+          }
+
+          for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
+            const platform = user["getyour"].expert.platforms[i]
+
+            if (platform.visibility === "open") {
+
+              if (platform.name === req.params.platform) {
+                for (let i = 0; i < platform.values.length; i++) {
+                  const value = platform.values[i]
+
+                  if (value.path.split("/")[3] === req.params.path) {
+
+
+                    for (let i = 0; i < value.authorized.length; i++) {
+                      const authorized = value.authorized[i]
+                      if (req.jwt.id === authorized) {
+                        return res.send(value.html)
+                      }
+                    }
+
+                    for (let i = 0; i < value.roles.length; i++) {
+                      const authorized = value.roles[i]
+                      for (let i = 0; i < user.roles.length; i++) {
+                        const role = user.roles[i]
+                        if (role === authorized) {
+                          return res.send(value.html)
+                        }
+                      }
+                    }
+
+                  }
+
+
+
+
+
+
+                }
+              }
+
+
+
+            }
+          }
+
+
+
+
+
+
+
+
+
+
+        }
+
+
+
+
+
+
       }
+
+
+
+
+
     }
 
   } catch (error) {
@@ -216,303 +342,6 @@ async (req, res, next) => {
   }
   return res.sendStatus(404)
 })
-
-
-
-// app.get("/felix/:platform/:path/", async(req, res, next) => {
-//   try {
-
-
-//     // if (req.params.platform === "shs") {
-//     //   if (req.params.path === "impressum") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-//     //   if (req.params.path === "hersteller-vergleich") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-
-//     //   if (req.params.path === "qualifizierung") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-//     //   if (req.params.path === "abfrage-haus") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-//     //   if (req.params.path === "abfrage-heizung") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-//     //   if (req.params.path === "abfrage-strom") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-//     //   if (req.params.path === "abfrage-technisches") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-//     //   if (req.params.path === "abfrage-persoenliches") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-//     // }
-
-
-
-
-
-//     if (req.params.platform === "ep") {
-
-//       if (req.params.path === "verkaufer-registrieren") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-
-//       // if (req.params.path === "qualifizierung") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//       // if (req.params.path === "abfrage-haus") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//       // if (req.params.path === "abfrage-heizung") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//       // if (req.params.path === "abfrage-strom") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//       // if (req.params.path === "abfrage-technisches") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//       // if (req.params.path === "abfrage-persoenliches") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//       // if (req.params.path === "verkaufer-registrieren") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//     }
-
-
-
-//     return next()
-//   } catch (error) {
-//     await Helper.logError(error, req)
-//   }
-//   return res.sendStatus(404)
-// })
-
-
-// app.get("/felix/shs/:path/", async(req, res, next) => {
-//   try {
-
-//     if (req.params.path === "impressum") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-//     if (req.params.path === "hersteller-vergleich") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-
-//     // if (req.params.path === "qualifizierung") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-//     // if (req.params.path === "abfrage-haus") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-//     // if (req.params.path === "abfrage-heizung") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-//     // if (req.params.path === "abfrage-strom") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-//     // if (req.params.path === "abfrage-technisches") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-//     // if (req.params.path === "abfrage-persoenliches") return res.send(Helper.readFileSyncToString(`../lib/value-units/shs-${req.params.path}.html`))
-
-//     return next()
-//   } catch (error) {
-//     await Helper.logError(error, req)
-//   }
-//   return res.sendStatus(404)
-// })
-
-// app.get("/felix/ep/:path/",
-//   Request.verifyJwtToken,
-//   Request.verifySession,
-//   Request.verifyRoles([UserRole.SELLER]),
-//   Request.verifyJwtId,
-// async(req, res, next) => {
-//   try {
-
-//     // if (req.params.path === "verkaufer-ansicht") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//     // if (req.params.path === "kunden-anlegen") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-
-//     // if (req.params.path === "qualifizierung") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//     // if (req.params.path === "abfrage-haus") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//     // if (req.params.path === "abfrage-heizung") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//     // if (req.params.path === "abfrage-strom") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//     // if (req.params.path === "abfrage-technisches") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//     // if (req.params.path === "abfrage-persoenliches") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//     // if (req.params.path === "verkaufer-registrieren") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-//     // if (req.params.path === "hersteller-vergleich") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-
-
-
-//     return next()
-//   } catch (error) {
-//     await Helper.logError(error, req)
-//   }
-//   return res.sendStatus(404)
-// })
-
-
-app.get("/felix/shs/:urlId/",
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyRoles([UserRole.OPERATOR]),
-  Request.verifyJwtId,
-  Request.verifyUrlId,
-async(req, res) => {
-  try {
-    return res.send(Helper.readFileSyncToString("../lib/value-units/shs-checklist.html"))
-
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
-})
-
-app.get("/felix/shs/:urlId/print/",
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyRoles([UserRole.OPERATOR]),
-  Request.verifyJwtId,
-  Request.verifyUrlId,
-async (req, res) => {
-  try {
-    return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-drucken.html"))
-
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
-})
-
-app.get("/felix/shs/:urlId/sign/",
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyRoles([UserRole.OPERATOR]),
-  Request.verifyJwtId,
-  Request.verifyUrlId,
-
-async (req, res) => {
-  try {
-    return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-digital-unterschreiben.html"))
-
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
-})
-
-
-
-app.get("/felix/shs/:urlId/:itemIndex/",
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyRoles([UserRole.OPERATOR]),
-  Request.verifyJwtId,
-  Request.verifyUrlId,
-
-async(req, res) => {
-
-  try {
-    if (req.params.itemIndex === "0") {
-      return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-ansicht.html"))
-    }
-    if (req.params.itemIndex === "1") {
-      return res.send(Helper.readFileSyncToString("../lib/value-units/shs-angebot-hochladen.html"))
-    }
-
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
-
-})
-
-
-
-// app.get("/pana/getyour/experte-registrieren/",
-//   Request.verifyJwtToken,
-//   Request.verifySession,
-//   Request.verifyRoles([UserRole.ADMIN]),
-//   Request.verifyJwtId,
-// async(req, res) => {
-//   try {
-//     return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-entwickler-registrieren.html"))
-
-//   } catch (error) {
-//     await Helper.logError(error, req)
-//   }
-//   return res.sendStatus(404)
-// })
-
-
-// app.get("/pana/getyour/zugang/", async(req, res) => {
-
-//   try {
-//     return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-plattform-zugang.html"))
-
-//   } catch (error) {
-//     await Helper.logError(error, req)
-//   }
-//   return res.sendStatus(404)
-
-// })
-
-
-// because express root is not serving any css or js files
-// app.get("/", (req, res) => res.redirect("/home/"))
-
-app.post(`/consumer/${UserRole.SELLER}/closed/`,
-
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyClosedPostRequest,
-  Request.verifyRoles([UserRole.SELLER]),
-
-  Request.getClients,
-  Request.getOwner,
-
-  Request.render,
-async(req, res) => {
-  return res.sendStatus(404)
-})
-
-app.post(`/consumer/${UserRole.EXPERT}/closed/`,
-
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyClosedPostRequest,
-  Request.verifyRoles([UserRole.EXPERT]),
-
-  // Request.verifyName,
-  // Request.registerName,
-
-  Request.render,
-async(req, res) => {
-  return res.sendStatus(404)
-})
-
-app.post(`/consumer/${UserRole.ADMIN}/closed/`,
-
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyClosedPostRequest,
-  Request.verifyRoles([UserRole.ADMIN]),
-  Request.verifyAdmin,
-  // Request.verifyName,
-
-
-  // Request.getErrors,
-  // Request.getUsers,
-  Request.deleteUser,
-  // Request.inviteEmail,
-  // inviteUser
-  Request.verify,
-
-  // Request.render,
-async(req, res) => {
-  return res.sendStatus(404)
-})
-
-app.post("/consumer/closed/",
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyJwtId,
-  Request.verifyClosedPostRequest,
-
-  Request.redirectUser,
-async(req, res) => {
-  return res.sendStatus(404)
-})
-
-app.post("/consumer/open/",
-  Request.verifyOpenPostRequest,
-  Request.registerVerified,
-  Request.createFunnel,
-  Request.createOffer,
-  Request.getPlatforms,
-async(req, res) => {
-  return res.sendStatus(404)
-})
-
-app.post(`/consumer/${UserRole.OPERATOR}/closed/`,
-
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyJwtId,
-  Request.verifyClosedPostRequest,
-  Request.verifyRoles([UserRole.OPERATOR]),
-
-  Request.registerFunnel,
-  Request.registerOffer,
-  Request.registerChecklist,
-  Request.registerLead,
-
-  Request.getChecklist,
-  Request.getOffer,
-async(req, res) => {
-  return res.sendStatus(404)
-})
-
 
 app.post("/request/register/session/",
   // Request.verifyOpenPostRequest,
@@ -522,10 +351,6 @@ async (req, res) => {
     const {doc, user} = await Helper.findUser(user => user.id === localStorageId)
     if (Helper.objectIsEmpty(user)) throw new Error("user is empty")
     if (Helper.stringIsEmpty(user.id)) throw new Error("user id is empty")
-
-    if (event === "onlogin") {
-      if (Helper.arrayIsEmpty(user.roles)) return res.sendStatus(200)
-    }
     if (Helper.arrayIsEmpty(user.roles)) throw new Error("user roles is empty")
 
     const salt = Helper.generateRandomBytes(32)
@@ -564,17 +389,21 @@ async (req, res) => {
     }
     await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
 
+    const cookies = Object.keys(req.cookies)
+    cookies.forEach((cookie) => {
+      res.cookie(cookie, '', { expires: new Date(0) })
+    })
 
     const sessionLength = 120 * 60000
     res.cookie("jwtToken", jwtToken, {
       maxAge: sessionLength,
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "Lax",
     })
     res.cookie("sessionToken", sessionToken, {
       maxAge: sessionLength,
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "Lax",
     })
     return res.sendStatus(200)
   } catch (error) {
@@ -583,8 +412,7 @@ async (req, res) => {
   return res.sendStatus(404)
 })
 
-
-app.get("/pana/getyour/:randomDigest/",
+app.get("/getyour/pana/:randomDigest/",
 async (req, res) => {
   try {
 
@@ -599,7 +427,6 @@ async (req, res) => {
   }
   return res.sendStatus(404)
 })
-
 
 let EMAIL_TO_INVITE_RANDOM_PIN
 let EMAIL_TO_INVITE_RANDOM_DIGEST
@@ -699,119 +526,9 @@ async (req, res) => {
   return res.sendStatus(404)
 })
 
-app.get("/:name/:platform/:path/:urlId/:role/",
-  Request.verifyJwtToken,
-  Request.verifyJwtId,
-  Request.verifySession,
-  Request.verifyRole,
-  Request.verifyUrlId,
-async (req, res, next) => {
-  try {
-
-    if (req.params.name === "felix") {
-      if (req.params.platform === "ep") {
-        if (parseInt(req.params.role) === UserRole.SELLER) {
-          if (req.params.path === "qualifizierung") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-          if (req.params.path === "abfrage-haus") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-          if (req.params.path === "abfrage-heizung") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-          if (req.params.path === "abfrage-strom") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-          if (req.params.path === "abfrage-technisches") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-          if (req.params.path === "hersteller-vergleich") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-        }
-      }
-    }
-
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
-})
-
-
-app.get("/:name/:platform/:path/:role/",
-  Request.verifyJwtToken,
-  Request.verifyJwtId,
-  Request.verifySession,
-  Request.verifyRole,
-async (req, res, next) => {
-  try {
-    if (req.params.name === "felix") {
-      if (req.params.platform === "energie-plattform") {
-
-        if (parseInt(req.params.role) === UserRole.OPERATOR) {
-          if (req.params.path === "qualifizierung") return res.send(Helper.readFileSyncToString(`../lib/value-units/direct-${req.params.path}.html`))
-          if (req.params.path === "abfrage-haus") return res.send(Helper.readFileSyncToString(`../lib/value-units/direct-${req.params.path}.html`))
-          if (req.params.path === "abfrage-heizung") return res.send(Helper.readFileSyncToString(`../lib/value-units/direct-${req.params.path}.html`))
-          if (req.params.path === "abfrage-strom") return res.send(Helper.readFileSyncToString(`../lib/value-units/direct-${req.params.path}.html`))
-          if (req.params.path === "abfrage-technisches") return res.send(Helper.readFileSyncToString(`../lib/value-units/direct-${req.params.path}.html`))
-          if (req.params.path === "angebot-vergleich") return res.send(Helper.readFileSyncToString(`../lib/value-units/operator-${req.params.path}.html`))
-
-        }
-
-        if (parseInt(req.params.role) === UserRole.SELLER) {
-          // path is id of html value
-          if (req.params.path === "verkaufer-ansicht") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-        }
-
-        if (parseInt(req.params.role) === UserRole.PROMOTER) {
-          if (req.params.path === "promoter-ansicht") return res.send(Helper.readFileSyncToString(`../lib/value-units/ep-${req.params.path}.html`))
-        }
-
-        // if (parseInt(req.params.role) === UserRole.EXPERT) {
-        //   // if (req.params.path === "experten-ansicht") return res.send(Helper.readFileSyncToString(`../lib/value-units/getyour-${req.params.path}.html`))
-        // }
-      }
-    }
-
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
-})
-
-
-
-
-
-
-app.get("/:name/",
-async (req, res, next) => {
-  try {
-
-    const doc = await nano.db.use("getyour").get("users")
-    if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
-    if (doc.users === undefined) throw new Error("users is undefined")
-
-    for (let i = 0; i < doc.users.length; i++) {
-      const user = doc.users[i]
-
-      if (Helper.stringIsEmpty(user.name)) throw new Error("name is empty")
-      if (user.name === req.params.name) {
-        return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-experten-ansicht.html"))
-      }
-
-    }
-
-
-    throw new Error("name not found")
-
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
-})
-
-
-
-
-
-
-
 app.post(`/:method/:type/:event/`,
 
   Request.verifyEvent,
-
-  Request.registerEmail,
 
   Request.get,
   Request.register,
@@ -834,14 +551,6 @@ async(req, res) => {
   return res.sendStatus(404)
 })
 
-
-
-
-
-
-
-
-
 app.post(`/:method/:type/:event/:role/`,
 
   Request.verifyEvent,
@@ -849,13 +558,11 @@ app.post(`/:method/:type/:event/:role/`,
   Request.verifyJwtToken,
   Request.verifyJwtId,
   Request.verifySession,
-  Request.verifyRole,
 
-  Request.registerEmail,
+  Request.verifyRole,
 
   Request.get,
   Request.register,
-  Request.invite,
   Request.send,
   Request.redirect,
   Request.delete,
@@ -864,6 +571,5 @@ app.post(`/:method/:type/:event/:role/`,
 async(req, res) => {
   return res.sendStatus(404)
 })
-
 
 app.listen(clientLocation.port, () => console.log(`[getyour] client listening on ${clientLocation.origin}`))

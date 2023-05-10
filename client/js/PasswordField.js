@@ -2,67 +2,67 @@ import { Helper } from "/js/Helper.js"
 
 export class PasswordField {
 
-  withField(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.fieldSelector).forEach(field => callback(field))
+  withInfoClick(callback) {
+    if (callback !== undefined) {
+      this.icon.src = "/public/info-gray.svg"
+      this.icon.alt = "Mehr Infos"
+      this.icon.style.display = "block"
+      this.labelContainer.style.cursor = "pointer"
+      this.labelContainer.childNodes.forEach(child => child.style.cursor = "pointer")
+      this.labelContainer.addEventListener("click", callback)
+    }
     return this
   }
 
-  withLabel(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.labelSelector).forEach(label => callback(label))
-    return this
+  verifyValue() {
+    if (this.#isRequired(this.input)) {
+      if (this.#checkValidity(this.input)) {
+        Helper.setValidStyle(this.input)
+        return this.input.value
+      }
+      Helper.setNotValidStyle(this.input)
+      const error = new Error(`field required: '${this.name}'`)
+      error.fieldName = this.name
+      throw new Error(error)
+    }
+    Helper.setValidStyle(this.input)
+    return this.input.value
   }
 
-  withType(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => callback(input))
+  value(callback) {
+    if (callback !== undefined) {
+      if (!Helper.stringIsEmpty(callback(this.name))) this.input.value = callback(this.name)
+    }
     return this
-  }
-
-  onInfoClick(callback) {
-    if (callback !== undefined) document.querySelectorAll(`.label-container-${this.name}`).forEach(info => {
-      info.style.cursor = "pointer"
-      info.childNodes.forEach(child => child.style.cursor = "pointer")
-      info.addEventListener("click", callback)
-    })
-    return this
-  }
-
-  onChange(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("change", (event) => callback(event)))
-    return this
-  }
-
-  onInput(callback) {
-    if (callback !== undefined) document.body.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("input", (event) => callback(event)))
-    return this
-  }
-
-  #isValid(input) {
-    return input.checkValidity() &&
-      input.value.length >= input.minLength
   }
 
   #isRequired(input) {
     if (input.required === true) return true
+    // check for length
     return false
   }
 
-  withValidValue() {
-    return new Promise((resolve, reject) => {
-      document.querySelectorAll(this.inputSelector).forEach(input => {
-        if (this.#isRequired(input)) {
-          if (this.#isValid(input)) {
-            Helper.setValidStyle(input)
-            return resolve(input.value)
-          }
-          Helper.setNotValidStyle(input)
-          const error = new Error(`field required: '${this.name}'`)
-          error.fieldName = this.name
-          return reject(error)
-        }
-        Helper.setValidStyle(input)
-        return resolve(input.value)
-      })
-    })
+  #checkValidity(input) {
+    if (input.checkValidity() === false) return false
+
+    if (input.value.length >= input.minLength) return false
+
+    return true
+  }
+
+  validValue() {
+    if (this.#isRequired(this.input)) {
+      if (this.#checkValidity(this.input)) {
+        Helper.setValidStyle(this.input)
+        return this.input.value
+      }
+      Helper.setNotValidStyle(this.input)
+      const error = new Error(`field required: '${this.name}'`)
+      error.fieldName = this.name
+      throw new Error(error)
+    }
+    Helper.setValidStyle(this.input)
+    return this.input.value
   }
 
   #setPassword(field) {
@@ -83,18 +83,20 @@ export class PasswordField {
     labelContainer.style.display = "flex"
     labelContainer.style.alignItems = "center"
     labelContainer.style.margin = "21px 89px 0 34px"
+    this.labelContainer = labelContainer
 
-    const info = document.createElement("img")
-    info.src = "/public/info-gray.svg"
-    info.alt = "Info"
-    info.style.width = "34px"
-    info.style.marginRight = "21px"
-    labelContainer.append(info)
+    const icon = document.createElement("img")
+    icon.style.width = "34px"
+    icon.style.marginRight = "21px"
+    icon.style.display = "none"
+    this.icon = icon
+    labelContainer.append(icon)
 
     const label = document.createElement("label")
     label.classList.add(this.name)
     label.style.color = "#707070"
     label.style.fontSize = "21px"
+    this.label = label
     labelContainer.append(label)
     field.append(labelContainer)
 
@@ -103,19 +105,20 @@ export class PasswordField {
     input.type = this.type
     input.style.margin = "21px 89px 21px 34px"
     input.style.fontSize = "21px"
+    this.input = input
     field.append(input)
+    return field
   }
 
-  constructor(name) {
+  constructor(name, parent) {
     if (Helper.stringIsEmpty(name)) throw new Error("name is empty")
     this.name = name
-    this.fieldSelector = `div[class='${this.name}']`
-    this.inputSelector = `input[class='${this.name}']`
-    this.labelSelector = `label[class='${this.name}']`
     this.type = "password"
-    this.fields = Array.from(document.querySelectorAll(this.fieldSelector))
-    for (let i = 0; i < this.fields.length; i++) {
-      this.#setPassword(this.fields[i])
+    this.field = document.createElement("div")
+    this.field = this.#setPassword(this.field)
+    if (parent !== undefined) {
+      this.parent = parent
+      parent.append(this.field)
     }
   }
 }
