@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>Startseite</title>
+
+    <style>
+      body {
+        margin: 0;
+        line-height: 1.2;
+        font-family: sans-serif;
+        padding-bottom: 144px;
+      }
+    </style>
+
+  </head>
+  <body>
+
+    <script type="module">
+      import {Request} from "/js/Request.js"
+      import {Helper} from "/js/Helper.js"
+
+      {
+        const header = document.createElement("header")
+        header.style.position = "fixed"
+        header.style.bottom = "0"
+        header.style.left = "0"
+        header.style.backgroundColor = "white"
+        header.style.width = "100%"
+        header.style.display = "flex"
+        header.style.flexWrap = "wrap"
+        header.style.alignItems = "center"
+        header.style.justifyContent = "space-between"
+        header.style.boxShadow = "0 -3px 5px rgba(0, 0, 0, 0.13)"
+
+        const leftContainer = document.createElement("div")
+        leftContainer.style.display = "flex"
+        leftContainer.style.alignItems = "center"
+        leftContainer.style.flexWrap = "wrap"
+
+        const logo = document.createElement("img")
+        logo.src = "/public/getyour-logo.svg"
+        logo.alt = "Plattform"
+        logo.style.width = "55px"
+        logo.style.margin = "21px 0 21px 34px"
+        logo.style.cursor = "pointer"
+        logo.addEventListener("click", () => window.history.back())
+        leftContainer.append(logo)
+
+        const name = document.createElement("div")
+        name.innerHTML = "Start"
+        name.style.padding = "21px 34px"
+        name.style.fontSize = "21px"
+        name.style.color = "#000"
+        name.style.cursor = "pointer"
+
+        name.addEventListener("click", () => {
+
+          Helper.popup(async overlay => {
+
+            {
+              const header = document.createElement("div")
+              header.style.position = "fixed"
+              header.style.bottom = "0"
+              header.style.left = "0"
+              header.style.width = "100%"
+              header.style.display = "flex"
+              header.style.justifyContent = "flex-start"
+              header.style.alignItems = "center"
+              header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+              header.style.background = "white"
+              header.style.cursor = "pointer"
+              header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+              const logo = document.createElement("img")
+              logo.src = "/public/getyour-logo.svg"
+              logo.alt = "Getyour"
+              logo.style.width = "55px"
+              logo.style.margin = "21px 34px"
+              header.append(logo)
+              const title = document.createElement("div")
+              title.innerHTML = "/"
+              title.style.fontWeight = "bold"
+              title.style.fontSize = "21px"
+              header.append(title)
+              overlay.append(header)
+            }
+
+            {
+              const buttons = document.createElement("div")
+              buttons.style.display = "flex"
+              buttons.style.justifyContent = "center"
+              buttons.style.alignItems = "center"
+              buttons.style.height = "55vh"
+              const loading = document.createElement("img")
+              loading.src = "/public/load.svg"
+              loading.alt = "Bitte warten.."
+              loading.style.width = "55px"
+              buttons.append(loading)
+              overlay.append(buttons)
+
+              {
+                const verify = {}
+                verify.url = "/verify/roles/closed/2/"
+                verify.state = "exist"
+                verify.localStorageId = await Request.localStorageId()
+                verify.localStorageEmail = await Request.email()
+                verify.location = window.location.href
+                verify.referer = document.referrer
+                const res = await Request.middleware(verify)
+
+                Helper.reset(buttons)
+                buttons.style.overflow = "auto"
+                buttons.style.paddingBottom = "144px"
+
+                if (res.status === 200) {
+                  const button = document.createElement("div")
+                  button.style.display = "flex"
+                  button.style.flexWrap = "wrap"
+                  button.style.justifyContent = "space-between"
+                  button.style.alignItems = "center"
+                  button.style.margin = "21px 34px"
+                  button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                  button.style.borderRadius = "13px"
+                  button.style.border = "0.3px solid black"
+                  button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                  button.style.cursor = "pointer"
+                  button.addEventListener("click", () => window.location.assign("/getyour/pana/admin/"))
+
+                  const icon = document.createElement("img")
+                  icon.style.margin = "13px 34px"
+                  icon.style.width = "34px"
+                  icon.src = "/public/admin.svg"
+                  icon.alt = "Admin"
+                  button.append(icon)
+
+                  const title = document.createElement("div")
+                  title.innerHTML = "Admin"
+                  title.style.margin = "21px 34px"
+                  title.style.fontSize = "21px"
+                  button.append(title)
+
+                  buttons.append(button)
+                }
+
+              }
+
+              {
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.flexWrap = "wrap"
+                button.style.justifyContent = "space-between"
+                button.style.alignItems = "center"
+                button.style.margin = "21px 34px"
+                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                button.style.borderRadius = "13px"
+                button.style.border = "0.3px solid black"
+                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                button.style.cursor = "pointer"
+                button.addEventListener("click", () => window.location.assign("/getyour/pana/login/"))
+
+                const icon = document.createElement("img")
+                icon.style.margin = "13px 34px"
+                icon.style.width = "34px"
+                icon.src = "/public/entry.svg"
+                icon.alt = "Login"
+                button.append(icon)
+
+                const title = document.createElement("div")
+                title.innerHTML = "Login"
+                title.style.margin = "21px 34px"
+                title.style.fontSize = "21px"
+                button.append(title)
+
+                buttons.append(button)
+              }
+
+              {
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.flexWrap = "wrap"
+                button.style.justifyContent = "space-between"
+                button.style.alignItems = "center"
+                button.style.margin = "21px 34px"
+                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                button.style.borderRadius = "13px"
+                button.style.border = "0.3px solid black"
+                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                button.style.cursor = "pointer"
+                button.addEventListener("click", () => window.location.assign("/getyour/pana/nutzervereinbarung/"))
+
+                const icon = document.createElement("img")
+                icon.style.margin = "13px 34px"
+                icon.style.width = "34px"
+                icon.src = "/public/handshake.svg"
+                icon.alt = "Nutzervereinbarung"
+                button.append(icon)
+
+                const title = document.createElement("div")
+                title.innerHTML = "Nutzervereinbarung"
+                title.style.margin = "21px 34px"
+                title.style.fontSize = "21px"
+                button.append(title)
+
+                buttons.append(button)
+              }
+
+              {
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.flexWrap = "wrap"
+                button.style.justifyContent = "space-between"
+                button.style.alignItems = "center"
+                button.style.margin = "21px 34px"
+                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                button.style.borderRadius = "13px"
+                button.style.border = "0.3px solid black"
+                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                button.style.cursor = "pointer"
+                button.addEventListener("click", () => window.location.assign("/getyour/pana/datenschutz/"))
+
+                const icon = document.createElement("img")
+                icon.style.margin = "13px 34px"
+                icon.style.width = "34px"
+                icon.src = "/public/security.svg"
+                icon.alt = "Sicherheit"
+                button.append(icon)
+
+                const title = document.createElement("div")
+                title.innerHTML = "Datenschutz Richtilinien"
+                title.style.margin = "21px 34px"
+                title.style.fontSize = "21px"
+                button.append(title)
+
+                buttons.append(button)
+              }
+
+              {
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.flexWrap = "wrap"
+                button.style.justifyContent = "space-between"
+                button.style.alignItems = "center"
+                button.style.margin = "21px 34px"
+                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                button.style.borderRadius = "13px"
+                button.style.border = "0.3px solid black"
+                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                button.style.cursor = "pointer"
+                button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
+
+                const icon = document.createElement("img")
+                icon.style.margin = "13px 34px"
+                icon.style.width = "34px"
+                icon.src = "/public/company.svg"
+                icon.alt = "Unternehmen"
+                button.append(icon)
+
+                const title = document.createElement("div")
+                title.innerHTML = "Impressum"
+                title.style.margin = "21px 34px"
+                title.style.fontSize = "21px"
+                button.append(title)
+
+                buttons.append(button)
+              }
+
+            }
+
+          })
+        })
+
+        leftContainer.append(name)
+        header.append(leftContainer)
+        document.body.append(header)
+      }
+
+      {
+        const title = document.createElement("h1")
+        title.innerHTML = "Plattformen"
+        title.style.margin = "21px 34px"
+        title.style.fontWeight = "normal"
+        document.body.append(title)
+      }
+
+      {
+        const buttons = document.createElement("div")
+        buttons.style.display = "flex"
+        buttons.style.justifyContent = "center"
+        buttons.style.alignItems = "center"
+        buttons.style.height = "55vh"
+        const loading = document.createElement("img")
+        loading.src = "/public/load.svg"
+        loading.alt = "Bitte warten.."
+        loading.style.width = "55px"
+        buttons.append(loading)
+        document.body.append(buttons)
+
+
+        // provide as template
+        const get = {}
+        get.url = "/get/platforms/open/"
+        get.platform = "getyour"
+        get.expert = "pana"
+        get.location = window.location.href
+        get.referer = document.referrer
+        const res = await Request.middleware(get)
+
+        if (res.status !== 200) {
+
+          Helper.reset(buttons)
+          buttons.style.position = "absolute"
+          buttons.style.top = "0"
+          buttons.style.left = "0"
+          buttons.style.height = "89vh"
+          buttons.style.width = "100%"
+          buttons.style.display = "flex"
+          buttons.style.justifyContent = "center"
+          buttons.style.alignItems = "center"
+          buttons.style.zIndex = "-1"
+          buttons.style.color = "gray"
+          buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Plattformen für dich zur Verfügung stehen.</span>`
+          throw new Error("platform not found")
+
+        }
+
+        if (res.status === 200) {
+          const platforms = JSON.parse(res.response)
+
+          if (platforms.length === 0) {
+
+            Helper.reset(buttons)
+            buttons.style.position = "absolute"
+            buttons.style.top = "0"
+            buttons.style.left = "0"
+            buttons.style.height = "89vh"
+            buttons.style.width = "100%"
+            buttons.style.display = "flex"
+            buttons.style.justifyContent = "center"
+            buttons.style.alignItems = "center"
+            buttons.style.zIndex = "-1"
+            buttons.style.color = "gray"
+            buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Plattformen für dich zur Verfügung stehen.</span>`
+            throw new Error("platform not found")
+
+          }
+
+          Helper.reset(buttons)
+          buttons.style.overflowY = "auto"
+          buttons.style.paddingBottom = "144px"
+          for (let i = 0; i < platforms.length; i++) {
+
+            const platform = platforms[i]
+
+            {
+              const button = document.createElement("div")
+              button.style.display = "flex"
+              button.style.flexWrap = "wrap"
+              button.style.justifyContent = "space-between"
+              button.style.alignItems = "center"
+              button.style.margin = "21px 34px"
+              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+              button.style.borderRadius = "13px"
+              button.style.border = "0.3px solid black"
+              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+              button.style.cursor = "pointer"
+
+              button.addEventListener("click", () => {
+
+                Helper.popup(async overlay => {
+
+                  {
+                    const header = document.createElement("div")
+                    header.style.position = "fixed"
+                    header.style.bottom = "0"
+                    header.style.left = "0"
+                    header.style.width = "100%"
+                    header.style.display = "flex"
+                    header.style.justifyContent = "flex-start"
+                    header.style.alignItems = "center"
+                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                    header.style.background = "white"
+                    header.style.cursor = "pointer"
+                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                    const logo = document.createElement("img")
+                    logo.src = platform.logo
+                    logo.alt = "Logo"
+                    logo.style.width = "55px"
+                    logo.style.margin = "21px 34px"
+                    header.append(logo)
+                    const title = document.createElement("div")
+                    title.innerHTML = platform.name
+                    title.style.fontWeight = "bold"
+                    title.style.fontSize = "21px"
+                    header.append(title)
+                    overlay.append(header)
+                  }
+
+                  {
+                    const buttons = document.createElement("div")
+                    buttons.style.overflow = "auto"
+                    buttons.style.paddingBottom = "144px"
+
+                    for (let i = 0; i < platform.values.length; i++) {
+                      const value = platform.values[i]
+
+                      const button = document.createElement("div")
+                      button.style.display = "flex"
+                      button.style.flexWrap = "wrap"
+                      button.style.justifyContent = "space-between"
+                      button.style.alignItems = "center"
+                      button.style.margin = "21px 34px"
+                      button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                      button.style.borderRadius = "13px"
+                      button.style.border = "0.3px solid black"
+                      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                      button.style.cursor = "pointer"
+                      button.addEventListener("click", () => window.location.assign(value.path))
+
+                      const icon = document.createElement("img")
+                      icon.style.margin = "13px 34px"
+                      icon.style.width = "34px"
+                      if (value.logo.dataUrl !== undefined) {
+                        icon.src = value.logo.dataUrl
+                      } else {
+                        icon.src = value.logo
+                      }
+                      icon.alt = "Icon"
+                      button.append(icon)
+
+                      const title = document.createElement("div")
+                      title.innerHTML = value.alias
+                      title.style.margin = "21px 34px"
+                      title.style.fontSize = "21px"
+                      button.append(title)
+
+                      buttons.append(button)
+                    }
+
+                    overlay.append(buttons)
+                  }
+
+                })
+
+
+              })
+
+              const icon = document.createElement("img")
+              icon.style.margin = "13px 34px"
+              icon.style.width = "55px"
+              icon.src = platform.logo
+              icon.alt = platform.name
+              button.append(icon)
+
+              const title = document.createElement("h2")
+              title.style.margin = "13px 34px"
+              title.style.fontWeight = "normal"
+              title.innerHTML = platform.name
+              button.append(title)
+
+              buttons.append(button)
+            }
+
+          }
+
+        }
+      }
+
+
+
+
+    </script>
+
+  </body>
+</html>

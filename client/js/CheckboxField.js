@@ -2,47 +2,22 @@ import { Helper } from "/js/Helper.js"
 
 export class CheckboxField {
 
-  withIcon(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.iconSelector).forEach(icon => callback(icon))
+  withInfoClick(callback) {
+    if (callback !== undefined) {
+      this.icon.src = "/public/info-gray.svg"
+      this.icon.alt = "Mehr Infos"
+      this.icon.style.display = "block"
+      this.labelContainer.style.cursor = "pointer"
+      this.labelContainer.childNodes.forEach(child => child.style.cursor = "pointer")
+      this.labelContainer.addEventListener("click", callback)
+    }
     return this
   }
 
-  withField(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.fieldSelector).forEach(field => callback(field))
-    return this
-  }
-
-  withType(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(checkbox => callback(checkbox))
-    return this
-  }
-
-  withLabel(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.labelSelector).forEach(label => callback(label))
-    return this
-  }
-
-  withAfterCheckbox(callback) {
-    if (callback !== undefined) document.querySelectorAll(`.after-checkbox-${this.name}`).forEach(after => callback(after))
-    return this
-  }
-
-  onInfoClick(callback) {
-    if (callback !== undefined) document.querySelectorAll(`.label-container-${this.name}`).forEach(info => {
-      info.style.cursor = "pointer"
-      info.childNodes.forEach(child => child.style.cursor = "pointer")
-      info.addEventListener("click", callback)
-    })
-    return this
-  }
-
-  onChange(callback) {
-    if (callback !== undefined) document.body.querySelectorAll(this.inputSelector).forEach(checkbox => checkbox.addEventListener("change", (event) => callback(event)))
-    return this
-  }
-
-  onInput(callback) {
-    if (callback !== undefined) document.body.querySelectorAll(this.inputSelector).forEach(checkbox => checkbox.addEventListener("input", (event) => callback(event)))
+  value(callback) {
+    if (callback !== undefined) {
+      if (!Helper.stringIsEmpty(callback(this.name))) this.checkbox.checked = callback(this.name)
+    }
     return this
   }
 
@@ -60,44 +35,37 @@ export class CheckboxField {
     return true
   }
 
-  withValidValue() {
-    return new Promise((resolve, reject) => {
-      document.querySelectorAll(this.inputSelector).forEach(box => {
-        if (this.#isRequired(box)) {
-          if (this.#checkValidity(box)) {
-            Helper.setValidStyle(box)
-            return resolve(box.checked)
-          }
-          Helper.setNotValidStyle(box)
-          const error = new Error(`field required: '${this.name}'`)
-          error.fieldName = this.name
-          return reject(error)
-        }
-        Helper.setValidStyle(box)
-        return resolve(box.checked)
-      })
-    })
-  }
-
-  fromStorage(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => {
-      if (callback(this.name) !== undefined) input.checked = callback(this.name)
-    })
-    return this
-  }
-
-  async withStorage(callback) {
-    if (callback !== undefined) {
-      const value = await this.withValidValue()
-      if (!Helper.booleanIsEmpty(value)) callback(value)
+  validValue() {
+    if (this.#isRequired(this.checkbox)) {
+      if (this.#checkValidity(this.checkbox)) {
+        Helper.setValidStyle(this.checkbox)
+        return this.checkbox.checked
+      }
+      Helper.setNotValidStyle(this.checkbox)
+      const error = new Error(`field required: '${this.name}'`)
+      error.fieldName = this.name
+      throw new Error(error)
     }
-    return this
+    Helper.setValidStyle(this.checkbox)
+    return this.checkbox.checked
+  }
+
+  verifyValue() {
+    if (this.#isRequired(this.checkbox)) {
+      if (this.#checkValidity(this.checkbox)) {
+        Helper.setValidStyle(this.checkbox)
+        return true
+      }
+      Helper.setNotValidStyle(this.checkbox)
+      return false
+    }
+    Helper.setValidStyle(this.checkbox)
+    return true
   }
 
   #setCheckbox(field) {
     field.innerHTML = ""
     field.id = this.name
-    field.classList.add(this.name)
     field.style.position = "relative"
     field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
     field.style.borderRadius = "13px"
@@ -110,23 +78,22 @@ export class CheckboxField {
     field.style.alignItems = "flex-start"
 
     const labelContainer = document.createElement("div")
-    labelContainer.classList.add(`label-container-${this.name}`)
     labelContainer.style.display = "flex"
     labelContainer.style.alignItems = "center"
     labelContainer.style.margin = "21px 89px 0 34px"
+    this.labelContainer = labelContainer
 
-    const info = document.createElement("img")
-    info.classList.add(this.name)
-    info.src = "/public/info-gray.svg"
-    info.alt = "Info"
-    info.style.width = "34px"
-    info.style.marginRight = "21px"
-    labelContainer.append(info)
+    const icon = document.createElement("img")
+    icon.style.width = "34px"
+    icon.style.marginRight = "21px"
+    icon.style.display = "none"
+    this.icon = icon
+    labelContainer.append(icon)
 
     const label = document.createElement("label")
-    label.classList.add(this.name)
     label.style.color = "#707070"
     label.style.fontSize = "21px"
+    this.label = label
     labelContainer.append(label)
     field.append(labelContainer)
 
@@ -141,11 +108,12 @@ export class CheckboxField {
     checkbox.style.marginRight = "34px"
     checkbox.style.width = "21px"
     checkbox.style.height = "21px"
+    this.checkbox = checkbox
     checkboxContainer.append(checkbox)
 
     const afterCheckbox = document.createElement("div")
-    afterCheckbox.classList.add(`after-checkbox-${this.name}`)
     afterCheckbox.style.fontSize = "21px"
+    this.afterCheckbox = afterCheckbox
     checkboxContainer.append(afterCheckbox)
     field.append(checkboxContainer)
     return field
@@ -154,19 +122,12 @@ export class CheckboxField {
   constructor(name, parent) {
     if (Helper.stringIsEmpty(name)) throw new Error("name is empty")
     this.name = name
-
+    this.type = "checkbox"
     this.field = document.createElement("div")
     this.field = this.#setCheckbox(this.field)
-    if (parent !== undefined) parent.append(this.field)
-
-    this.fieldSelector = `div[class='${this.name}']`
-    this.inputSelector = `input[class='${this.name}']`
-    this.labelSelector = `label[class='${this.name}']`
-    this.iconSelector = `img[class='${this.name}']`
-    this.type = "checkbox"
-    this.fields = Array.from(document.querySelectorAll(this.fieldSelector))
-    for (let i = 0; i < this.fields.length; i++) {
-      this.#setCheckbox(this.fields[i])
+    if (parent !== undefined) {
+      this.parent = parent
+      parent.append(this.field)
     }
   }
 }

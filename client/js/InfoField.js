@@ -26,8 +26,12 @@ export class InfoField {
     return field
   }
 
-  constructor(div) {
+  constructor(child, parent) {
     this.type = "info"
-    this.field = this.#setInfo(div)
+    this.field = this.#setInfo(child)
+    if (parent !== undefined) {
+      this.parent = parent
+      parent.append(this.field)
+    }
   }
 }

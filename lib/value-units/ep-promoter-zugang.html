@@ -61,10 +61,7 @@
         name.innerHTML = "Energie Plattform"
         name.style.padding = "21px 34px"
         name.style.fontSize = "21px"
-        // name.style.color = "#7bc043"
         name.style.cursor = "pointer"
-
-
 
         name.addEventListener("click", () => {
 
@@ -144,7 +141,7 @@
               button.style.border = "0.3px solid black"
               button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
               button.style.cursor = "pointer"
-              button.addEventListener("click", () => window.location.assign("/pana/getyour/nutzervereinbarung/"))
+              button.addEventListener("click", () => window.location.assign("/getyour/pana/nutzervereinbarung/"))
 
               const icon = document.createElement("img")
               icon.style.margin = "13px 34px"
@@ -174,7 +171,7 @@
               button.style.border = "0.3px solid black"
               button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
               button.style.cursor = "pointer"
-              button.addEventListener("click", () => window.location.assign("/pana/getyour/datenschutz/"))
+              button.addEventListener("click", () => window.location.assign("/getyour/pana/datenschutz/"))
 
               const icon = document.createElement("img")
               icon.style.margin = "13px 34px"
@@ -203,7 +200,7 @@
               button.style.border = "0.3px solid black"
               button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
               button.style.cursor = "pointer"
-              button.addEventListener("click", () => window.location.assign("/pana/getyour/impressum/"))
+              button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
 
               const icon = document.createElement("img")
               icon.style.margin = "13px 34px"
@@ -262,7 +259,6 @@
         document.body.append(header)
       }
 
-
       {
         const title = document.createElement("h1")
         title.innerHTML = "Promoter Zugang"
@@ -280,38 +276,28 @@
       }
 
       const emailField = new EmailField("email", document.body)
-      .withLabel(label => label.innerHTML = "E-Mail Adresse")
-      .withType(email => {
-        email.placeholder = "meine@email.de"
-        email.required = true
-      })
-      .onInput(async() => {
-        emailField.withStorage(value => {
-          window.localStorage.setItem(emailField.name, value)
-        })
-      })
-      .fromStorage((name) => window.localStorage.getItem(name))
-      emailField.withStorage(value => {
+      emailField.value(name => window.localStorage.getItem(name))
+      emailField.label.innerHTML = "E-Mail Adresse"
+      emailField.input.placeholder = "meine@email.de"
+      emailField.input.required = true
+      emailField.input.addEventListener("input", () => {
+        const value = emailField.validValue()
         window.localStorage.setItem(emailField.name, value)
       })
+      emailField.verifyValue()
 
       const dsgvoField = new CheckboxField("dsgvo", document.body)
-      .withLabel(label => label.innerHTML = /*html*/`
-        <div style="font-size: 13px;">Ich habe die <a href="/pana/getyour/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/pana/getyour/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>
-      `)
-      .withType((input) => {
-        input.required = true
-      })
-      .onInput(async() => {
-        dsgvoField.withStorage(value => {
-          window.localStorage.setItem(dsgvoField.name, value)
-        })
-      })
-      .fromStorage((name) => window.localStorage.getItem(name))
-      dsgvoField.withStorage(value => {
+      dsgvoField.label.innerHTML = `<div style="font-size: 13px;">Ich habe die <a href="/getyour/pana/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/getyour/pana/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>`
+      dsgvoField.checkbox.required = true
+      dsgvoField.icon.style.display = "block"
+      dsgvoField.icon.src = "/public/info-gray.svg"
+      dsgvoField.icon.alt = "Info"
+      dsgvoField.value(name => window.localStorage.getItem(name))
+      dsgvoField.checkbox.addEventListener("input", () => {
+        const value = dsgvoField.validValue()
         window.localStorage.setItem(dsgvoField.name, value)
       })
-
+      dsgvoField.verifyValue()
 
       const speichernundweiterbutton = new DivField("save-and-proceed-button", document.body)
       .withType(div => {

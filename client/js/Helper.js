@@ -2,6 +2,296 @@ import {Request} from "/js/Request.js"
 
 export class Helper {
 
+  static renderBodyButtons(buttons) {
+    buttons.innerHTML = ""
+
+    for (let i = 0; i < document.body.children.length; i++) {
+      const child = document.body.children[i]
+
+      if (child.id === "toolbox") continue
+      if (child.id === "toolbox-header") continue
+      if (child.id.startsWith("overlay")) continue
+
+      const button = document.createElement("div")
+      button.style.display = "flex"
+      button.style.flexWrap = "wrap"
+      button.style.justifyContent = "space-between"
+      button.style.alignItems = "center"
+      button.style.margin = "21px 34px"
+      button.style.backgroundColor = "rgba(255, 255, 255, 1)"
+      button.style.borderRadius = "13px"
+      button.style.border = "0.3px solid black"
+      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+      button.style.cursor = "pointer"
+      button.addEventListener("click", () => {
+
+        this.popup(overlay => {
+
+          {
+            const header = document.createElement("div")
+            header.style.position = "fixed"
+            header.style.bottom = "0"
+            header.style.left = "0"
+            header.style.width = "100%"
+            header.style.display = "flex"
+            header.style.justifyContent = "flex-start"
+            header.style.alignItems = "center"
+            header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+            header.style.background = "white"
+            header.style.cursor = "pointer"
+            header.addEventListener("click", () => this.removeOverlay(overlay))
+
+            const logo = document.createElement("img")
+            logo.src = "/public/getyour-logo.svg"
+            logo.alt = "Logo"
+            logo.style.width = "55px"
+            logo.style.margin = "21px 34px"
+            header.append(logo)
+            const title = document.createElement("div")
+            title.innerHTML = `&lt; ${child.tagName.toLowerCase()} ..`
+            title.style.fontWeight = "bold"
+            title.style.fontFamily = "sans-serif"
+            title.style.fontSize = "21px"
+            header.append(title)
+            overlay.append(header)
+          }
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+
+            button.addEventListener("click", async () => {
+              child.remove()
+              this.removeOverlay(overlay)
+              this.renderBodyButtons(buttons)
+            })
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/delete.svg"
+            icon.alt = "Löschen"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Löschen"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            title.style.fontFamily = "sans-serif"
+            button.append(title)
+
+            overlay.append(button)
+          }
+
+        })
+
+      })
+
+      const left = document.createElement("div")
+      left.innerHTML = `&lt; ${child.tagName.toLowerCase()}`
+      left.style.fontFamily = "sans-serif"
+      left.style.margin = "21px 34px"
+      left.style.fontSize = "21px"
+      button.append(left)
+      buttons.append(button)
+
+      const right = document.createElement("div")
+      right.innerHTML = `..`
+      right.style.fontFamily = "sans-serif"
+      right.style.margin = "21px 34px"
+      right.style.fontSize = "21px"
+      button.append(right)
+      buttons.append(button)
+    }
+
+    return buttons
+  }
+
+  static renderHeadButtons(buttons) {
+    buttons.innerHTML = ""
+
+    for (let i = 0; i < document.head.children.length; i++) {
+      const child = document.head.children[i]
+
+      const button = document.createElement("div")
+      button.style.display = "flex"
+      button.style.flexWrap = "wrap"
+      button.style.justifyContent = "space-between"
+      button.style.alignItems = "center"
+      button.style.margin = "21px 34px"
+      button.style.backgroundColor = "rgba(255, 255, 255, 1)"
+      button.style.borderRadius = "13px"
+      button.style.border = "0.3px solid black"
+      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+      button.style.cursor = "pointer"
+      button.addEventListener("click", () => {
+
+        this.popup(overlay => {
+
+          {
+            const header = document.createElement("div")
+            header.style.position = "fixed"
+            header.style.bottom = "0"
+            header.style.left = "0"
+            header.style.width = "100%"
+            header.style.display = "flex"
+            header.style.justifyContent = "flex-start"
+            header.style.alignItems = "center"
+            header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+            header.style.background = "white"
+            header.style.cursor = "pointer"
+            header.addEventListener("click", () => this.removeOverlay(overlay))
+
+            const logo = document.createElement("img")
+            logo.src = "/public/getyour-logo.svg"
+            logo.alt = "Logo"
+            logo.style.width = "55px"
+            logo.style.margin = "21px 34px"
+            header.append(logo)
+            const title = document.createElement("div")
+            title.innerHTML = `&lt; ${child.tagName.toLowerCase()} ..`
+            title.style.fontWeight = "bold"
+            title.style.fontFamily = "sans-serif"
+            title.style.fontSize = "21px"
+            header.append(title)
+            overlay.append(header)
+          }
+
+          {
+            const button = document.createElement("div")
+            button.style.display = "flex"
+            button.style.flexWrap = "wrap"
+            button.style.justifyContent = "space-between"
+            button.style.alignItems = "center"
+            button.style.margin = "21px 34px"
+            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+
+            button.style.borderRadius = "13px"
+            button.style.border = "0.3px solid black"
+            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+            button.style.cursor = "pointer"
+
+            button.addEventListener("click", async () => {
+              child.remove()
+              this.removeOverlay(overlay)
+              this.renderHeadButtons(buttons)
+            })
+
+            const icon = document.createElement("img")
+            icon.style.margin = "13px 34px"
+            icon.style.width = "34px"
+            icon.src = "/public/delete.svg"
+            icon.alt = "Löschen"
+            button.append(icon)
+
+            const title = document.createElement("div")
+            title.innerHTML = "Löschen"
+            title.style.margin = "21px 34px"
+            title.style.fontSize = "21px"
+            title.style.fontFamily = "sans-serif"
+            button.append(title)
+
+            overlay.append(button)
+          }
+
+        })
+
+      })
+
+      const left = document.createElement("div")
+      left.innerHTML = `&lt; ${child.tagName.toLowerCase()}`
+      left.style.fontFamily = "sans-serif"
+      left.style.margin = "21px 34px"
+      left.style.fontSize = "21px"
+      button.append(left)
+      buttons.append(button)
+
+      const right = document.createElement("div")
+      right.innerHTML = `..`
+      right.style.fontFamily = "sans-serif"
+      right.style.margin = "21px 34px"
+      right.style.fontSize = "21px"
+      button.append(right)
+      buttons.append(button)
+    }
+
+    return buttons
+  }
+
+  static sanitizeHtml(html) {
+    // events
+    html = html.replace(/on\w+="[^"]*"/gi, "")
+
+    // chars
+    html = html.replace(/{{(.*?)}}/g, "")
+    html = html.replace(/\[\[(.*?)\]\]/g, "")
+
+    // attributes
+    html = html.replace(/src=["'`](.*?)["'`]/gi, "")
+    html = html.replace(/href=["'`](.*?)["'`]/gi, "")
+
+    // css
+    html = html.replace(/expression\([^)]*\)/gi, "")
+    html = html.replace(/url\((['"]?)(.*?)\1\)/gi, "")
+
+    // js
+    html = html.replace(/javascript:/gi, "")
+
+    // tags
+    html = html.replace(/<img\b[^>]*>/gi, "")
+    html = html.replace(/<link\b[^>]*>/gi, "")
+    html = html.replace(/<input\b[^>]*>/gi, "")
+    html = html.replace(/<a\b[^>]*>/gi, "")
+    html = html.replace(/<meta\b[^>]*>/gi, "")
+    html = html.replace(/<datalist\b[^>]*>/gi, "")
+    html = html.replace(/<source\b[^>]*>/gi, "")
+    html = html.replace(/<progress\b[^>]*>/gi, "")
+    html = html.replace(/<details\b[^>]*>/gi, "")
+    html = html.replace(/<summary\b[^>]*>/gi, "")
+    html = html.replace(/<script\b[^>]*>/gi, "")
+    html = html.replace(/<iframe\b[^>]*>/gi, "")
+    html = html.replace(/<object\b[^>]*>/gi, "")
+    html = html.replace(/<embed\b[^>]*>/gi, "")
+    html = html.replace(/<form\b[^>]*>/gi, "")
+    html = html.replace(/<textarea\b[^>]*>/gi, "")
+    html = html.replace(/<select\b[^>]*>/gi, "")
+    html = html.replace(/<button\b[^>]*>/gi, "")
+    html = html.replace(/<base\b[^>]*>/gi, "")
+    html = html.replace(/<frame\b[^>]*>/gi, "")
+    html = html.replace(/<frameset\b[^>]*>/gi, "")
+    html = html.replace(/<applet\b[^>]*>/gi, "")
+    html = html.replace(/<audio\b[^>]*>/gi, "")
+    html = html.replace(/<video\b[^>]*>/gi, "")
+    html = html.replace(/<source\b[^>]*>/gi, "")
+    html = html.replace(/<track\b[^>]*>/gi, "")
+    html = html.replace(/<canvas\b[^>]*>/gi, "")
+    html = html.replace(/<svg\b[^>]*>/gi, "")
+    html = html.replace(/<math\b[^>]*>/gi, "")
+    html = html.replace(/<template\b[^>]*>/gi, "")
+    html = html.replace(/<noscript\b[^>]*>/gi, "")
+    html = html.replace(/<noembed\b[^>]*>/gi, "")
+    html = html.replace(/<plaintext\b[^>]*>/gi, "")
+    html = html.replace(/<marquee\b[^>]*>/gi, "")
+    html = html.replace(/<blink\b[^>]*>/gi, "")
+    html = html.replace(/<layer\b[^>]*>/gi, "")
+    html = html.replace(/<ilayer\b[^>]*>/gi, "")
+    html = html.replace(/<basefont\b[^>]*>/gi, "")
+    html = html.replace(/<isindex\b[^>]*>/gi, "")
+    html = html.replace(/<keygen\b[^>]*>/gi, "")
+    html = html.replace(/<command\b[^>]*>/gi, "")
+    return html
+  }
+
   static reset(element) {
     element.removeAttribute("style")
     element.innerHTML = ""
@@ -169,115 +459,6 @@ export class Helper {
       return item
     }
   }
-
-  // static async verifyFiles(files, allowedMimeTypes, allowedExtensions) {
-  //   if (files === undefined) throw new Error("files is undefined")
-
-  //   let array = []
-  //   const allowedMimeTypes = ["image/jpeg", "image/png"]
-  //   const allowedExtensions = ["jpg", "jpeg", "png"]
-  //   for (let i = 0; i < files.length; i++) {
-
-
-  //     if (allowedMimeTypes !== undefined) {
-  //       await Helper.verifyFileMimeTypes(files[i], allowedMimeTypes)
-  //       .catch(error => {
-  //         alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
-  //         Helper.setNotValidStyle(document.querySelector(hausFrontBild.inputSelector))
-  //         throw error
-  //       })
-  //     }
-
-  //     if (allowedExtensions !== undefined) {
-  //       await Helper.verifyFileExtension(files[i], allowedExtensions)
-  //       .catch(error => {
-  //         alert(`Erlaubte Bildformate: ${allowedExtensions.join(", ")}`)
-  //         Helper.setNotValidStyle(document.querySelector(hausFrontBild.inputSelector))
-  //         throw error
-  //       })
-  //     }
-
-
-  //     const dataUrl = await Helper.convertImageFileToDataUrl(files[i])
-  //     const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
-  //     if (dataUrlSize > 1024 * 1024) {
-  //       alert("Bild ist zu groß.")
-  //       Helper.setNotValidStyle(document.querySelector(hausFrontBild.inputSelector))
-  //       throw new Error("image too large")
-  //     }
-
-  //     array.push({
-  //       name: files[i].name,
-  //       type: files[i].type,
-  //       size: dataUrlSize,
-  //       lastModified: Date.now(),
-  //       dataUrl: dataUrl,
-  //     })
-
-  //   }
-
-  //   if (array.length > 0) {
-  //     funnel[hausFrontBild.name] = array
-  //     window.sessionStorage.setItem(storageName, JSON.stringify(funnel))
-  //   }
-
-  // }
-
-  // static jsonToHtml(json, element) {
-  //   const div = document.createElement('div');
-  //   div.style.fontFamily = 'sans-serif';
-  //   div.style.fontSize = '14px';
-  //   div.style.lineHeight = '1.5em';
-  //   div.style.color = '#333';
-  //   div.style.padding = '20px';
-  //   div.style.border = '1px solid #ccc';
-  //   div.style.borderRadius = '5px';
-
-  //   for (const key in json) {
-  //     if (json.hasOwnProperty(key)) {
-  //       let value = json[key];
-  //       const childDiv = document.createElement('div');
-  //       const strong = document.createElement('strong');
-  //       strong.innerText = `${key}: `;
-  //       childDiv.appendChild(strong);
-
-  //       if (typeof value === 'object') {
-  //         value = this.jsonToHtml(value);
-  //       }
-
-  //       const span = document.createElement('span');
-  //       span.innerText = value;
-  //       childDiv.appendChild(span);
-  //       div.appendChild(childDiv);
-  //     }
-  //   }
-
-  //   // return div.outerHTML;
-  //   console.log(element);
-  //   element.append(div)
-  // }
-
-
-  // static jsonToHtml(json) {
-  //   let html = '';
-
-  //   for (const key in json) {
-  //     if (json.hasOwnProperty(key)) {
-  //       let value = json[key];
-
-  //       // If the value is an object, recursively call jsonToHtml
-  //       if (typeof value === 'object') {
-  //         value = this.jsonToHtml(value);
-  //       }
-
-  //       html += `<div><strong>${key}:</strong> ${value}</div>`;
-  //     }
-  //   }
-
-  //   html = `<div style="font-family: sans-serif; font-size: 14px; line-height: 1.5em; color: #333; padding: 20px; border: 1px solid #ccc; border-radius: 5px;">${html}</div>`;
-
-  //   return html;
-  // }
 
   static calculateDataUrlSize(dataUrl) {
     var base64Marker = ';base64,'
@@ -601,40 +782,17 @@ export class Helper {
     }
   }
 
-  // static createSHSFooter() {
-  //   return new FooterField()
-  //   .withType(footer => {
-  //     footer.style.textAlign = "center"
-  //     footer.style.backgroundColor = "#60a182"
-  //     footer.style.padding = "21px 34px"
-  //     footer.style.marginTop = "144px"
+  static setDefaultCursor() {
+    document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "default")
+  }
 
-  //     const impressum = document.createElement("div")
-  //     impressum.innerHTML = "Impressum"
-  //     impressum.style.cursor = "pointer"
-  //     impressum.style.padding = "13px"
-  //     impressum.addEventListener("click", () => window.location.assign("/felix/shs/impressum/"))
-  //     footer.append(impressum)
+  static setWaitCursor() {
+    document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "wait")
+  }
 
-  //     const dsgvo = document.createElement("div")
-  //     dsgvo.innerHTML = "Datenschutz"
-  //     dsgvo.style.cursor = "pointer"
-  //     dsgvo.style.padding = "13px"
-  //     dsgvo.addEventListener("click", () => window.location.assign("/datenschutz/"))
-  //     footer.append(dsgvo)
-
-  //     const userAgreement = document.createElement("div")
-  //     userAgreement.innerHTML = "Nutzervereinbarung"
-  //     userAgreement.style.cursor = "pointer"
-  //     userAgreement.style.padding = "13px"
-  //     userAgreement.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
-  //     footer.append(userAgreement)
-  //   })
-  // }
-
-  static setDefaultCursor() {document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "default")}
-  static setWaitCursor() {document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "wait")}
-  static setNotAllowedCursor() {document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "not-allowed")}
+  static setNotAllowedCursor() {
+    document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "not-allowed")
+  }
 
   static addOverlay() {
     const overlay = document.createElement("div")
@@ -699,6 +857,7 @@ export class Helper {
       sign.style.right = "34px"
       sign.style.color = "#d50000"
       sign.style.fontSize = "34px"
+      sign.style.fontFamily = "sans-serif"
       element.parentNode.append(sign)
       return element
     }
@@ -711,6 +870,7 @@ export class Helper {
       sign.style.right = "34px"
       sign.style.color = "#d50000"
       sign.style.fontSize = "34px"
+      sign.style.fontFamily = "sans-serif"
       element.parentNode.append(sign)
       return element
     }
@@ -732,6 +892,7 @@ export class Helper {
       sign.style.right = "34px"
       sign.style.color = "#00c853"
       sign.style.fontSize = "34px"
+      sign.style.fontFamily = "sans-serif"
       element.parentNode.append(sign)
       return element
     }
@@ -744,6 +905,7 @@ export class Helper {
       sign.style.right = "34px"
       sign.style.color = "#00c853"
       sign.style.fontSize = "34px"
+      sign.style.fontFamily = "sans-serif"
       element.parentNode.append(sign)
       return element
     }

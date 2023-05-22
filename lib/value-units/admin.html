@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
+    <title>Admin Bereich</title>
+
+    <style>
+      body {
+        margin: 0;
+        line-height: 1.2;
+        font-family: sans-serif;
+      }
+    </style>
+
+  </head>
+  <body>
+
+    <script type="module">
+      import { Request } from "/js/Request.js"
+      import { Helper } from "/js/Helper.js"
+      import { TextField } from "/js/TextField.js"
+      import { EmailField } from "/js/EmailField.js"
+      import { SelectionField } from "/js/SelectionField.js"
+      import { TelField } from "/js/TelField.js"
+
+      {
+        const header = document.createElement("header")
+        header.style.position = "fixed"
+        header.style.bottom = "0"
+        header.style.left = "0"
+        header.style.backgroundColor = "white"
+        header.style.width = "100%"
+        header.style.display = "flex"
+        header.style.flexWrap = "wrap"
+        header.style.alignItems = "center"
+        header.style.justifyContent = "space-between"
+        header.style.boxShadow = "0 -3px 5px rgba(0, 0, 0, 0.13)"
+
+        const leftContainer = document.createElement("div")
+        leftContainer.style.display = "flex"
+        leftContainer.style.alignItems = "center"
+        leftContainer.style.flexWrap = "wrap"
+
+        const logo = document.createElement("img")
+        logo.src = "/public/getyour-logo.svg"
+        logo.alt = "Plattform"
+        logo.style.width = "55px"
+        logo.style.margin = "21px 0 21px 34px"
+        logo.style.cursor = "pointer"
+        logo.addEventListener("click", () => window.history.back())
+        leftContainer.append(logo)
+
+        const name = document.createElement("div")
+        name.innerHTML = "Adminseite"
+        name.style.padding = "21px 34px"
+        name.style.fontSize = "21px"
+        name.style.color = "#000"
+        name.style.cursor = "pointer"
+
+
+        name.addEventListener("click", () => {
+
+          const popup = Helper.popup(async overlay => {
+
+            {
+              const header = document.createElement("div")
+              header.style.position = "fixed"
+              header.style.bottom = "0"
+              header.style.left = "0"
+              header.style.width = "100%"
+              header.style.display = "flex"
+              header.style.justifyContent = "flex-start"
+              header.style.alignItems = "center"
+              header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+              header.style.background = "white"
+              header.style.cursor = "pointer"
+              header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+              const logo = document.createElement("img")
+              logo.src = "/public/getyour-logo.svg"
+              logo.alt = "Logo"
+              logo.style.width = "55px"
+              logo.style.margin = "21px 34px"
+              header.append(logo)
+
+              const title = document.createElement("div")
+              title.innerHTML = `/ ${window.location.pathname.split("/")[3]} /`
+              title.style.fontWeight = "bold"
+              title.style.fontSize = "21px"
+              header.append(title)
+
+              overlay.append(header)
+            }
+
+            {
+              const buttons = document.createElement("div")
+              buttons.style.overflowY = "auto"
+              buttons.style.paddingBottom = "144px"
+
+
+              {
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.justifyContent = "center"
+                const loading = document.createElement("img")
+                loading.src = "/public/load.svg"
+                loading.alt = "Bitte warten.."
+                loading.style.width = "55px"
+                button.append(loading)
+                buttons.append(button)
+
+                const verify = {}
+                verify.url = "/verify/owner/closed/2/"
+                verify.location = window.location.href
+                verify.referer = document.referrer
+                verify.localStorageEmail = await Request.email()
+                verify.localStorageId = await Request.localStorageId()
+                const res = await Request.middleware(verify)
+
+                if (res.status !== 200) button.remove()
+
+                if (res.status === 200) {
+                  Helper.reset(button)
+                  button.style.display = "flex"
+                  button.style.flexWrap = "wrap"
+                  button.style.justifyContent = "space-between"
+                  button.style.alignItems = "center"
+                  button.style.margin = "21px 34px"
+                  button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                  button.style.borderRadius = "13px"
+                  button.style.border = "0.3px solid black"
+                  button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                  button.style.cursor = "pointer"
+
+
+                  button.addEventListener("click", () => {
+
+                    const popup = Helper.popup(async overlay => {
+
+                      {
+                        const header = document.createElement("div")
+                        header.style.position = "fixed"
+                        header.style.bottom = "0"
+                        header.style.left = "0"
+                        header.style.width = "100%"
+                        header.style.display = "flex"
+                        header.style.justifyContent = "flex-start"
+                        header.style.alignItems = "center"
+                        header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                        header.style.background = "white"
+                        header.style.cursor = "pointer"
+                        header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                        const logo = document.createElement("img")
+                        logo.src = "/public/getyour-logo.svg"
+                        logo.alt = "Getyour"
+                        logo.style.margin = "21px 34px"
+                        logo.style.width = "55px"
+                        header.append(logo)
+
+                        const title = document.createElement("div")
+                        title.innerHTML = "Experten anmelden"
+                        title.style.fontWeight = "bold"
+                        title.style.fontSize = "21px"
+                        header.append(title)
+
+                        overlay.append(header)
+                      }
+
+                      {
+                        const funnel = document.createElement("div")
+                        funnel.style.paddingBottom = "144px"
+                        funnel.style.overflow = "auto"
+
+                        const nameField = new TextField("name", funnel)
+                        nameField.label.innerHTML = "Name"
+                        nameField.input.placeholder = "huansolo"
+                        nameField.input.accept = "text/tag"
+                        nameField.input.required = true
+                        nameField.input.addEventListener("input", () => {
+                          nameField.verifyValue()
+                        })
+                        nameField.verifyValue()
+
+                        const emailField = new EmailField("email", funnel)
+                        emailField.label.innerHTML = "E-Mail Adresse"
+                        emailField.input.placeholder = "experte@email.de"
+                        emailField.input.required = true
+                        emailField.input.addEventListener("input", () => {
+                          emailField.verifyValue()
+                        })
+                        emailField.verifyValue()
+
+                        const button = document.createElement("div")
+                        button.innerHTML = "Jetzt anmelden"
+                        button.style.backgroundColor = "#f7aa20"
+                        button.style.fontSize = "21px"
+                        button.style.borderRadius = "13px"
+                        button.style.margin = "13px 34px"
+                        button.style.display = "flex"
+                        button.style.justifyContent = "center"
+                        button.style.alignItems = "center"
+                        button.style.height = "89px"
+                        button.style.color = "#000"
+                        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                        button.style.cursor = "pointer"
+                        button.addEventListener("click", async () => {
+
+                          const username = nameField.validValue()
+                          const email = emailField.validValue()
+
+                          {
+                            const verify = {}
+                            verify.url = "/verify/expert/closed/2/"
+                            verify.event = "exist"
+                            verify.name = username
+                            verify.email = email
+                            verify.location = window.location.href
+                            verify.referer = document.referrer
+                            verify.localStorageId = await Request.localStorageId()
+                            verify.localStorageEmail = await Request.email()
+                            const res = await Request.middleware(verify)
+
+                            if (res.status === 200) {
+                              alert("Experte existiert bereits.")
+                              Helper.setNotValidStyle(nameField.input)
+                              Helper.setNotValidStyle(emailField.input)
+                              return
+                            }
+                          }
+
+                          await Request.withVerifiedEmail(await Request.email(), async (event) => {
+
+                            {
+                              const register = {}
+                              register.url = "/register/email/closed/2/"
+                              register.event = "indirect"
+                              register.email = email
+                              register.role = "3"
+                              register.name = username
+                              register.location = window.location.href
+                              register.localStorageEmail = await Request.email()
+                              register.localStorageId = await Request.localStorageId()
+                              register.referer = document.referrer
+                              const res = await Request.middleware(register)
+
+                              if (res.status === 200) {
+                                const send = {}
+                                send.url = "/send/email/closed/2/"
+                                send.email = email
+                                send.event = "invite/expert"
+                                send.location = window.location.href
+                                send.referer = document.referrer
+                                send.localStorageEmail = await Request.email()
+                                send.localStorageId = await Request.localStorageId()
+                                await Request.sequence(send)
+
+                                alert("Experte erfolgreich angemeldet..")
+                                window.location.reload()
+                              } else {
+                                alert("Anmeldung nicht möglich. Mehr Infos in den Error Logs.")
+                                Helper.removeOverlay(event.overlay)
+                                Helper.removeOverlay(overlay)
+                              }
+                            }
+
+                          })
+
+
+
+
+                        })
+                        funnel.append(button)
+                        overlay.append(funnel)
+                      }
+
+                    })
+                  })
+
+
+                  const icon = document.createElement("img")
+                  icon.style.margin = "13px 34px"
+                  icon.style.width = "34px"
+                  icon.src = "/public/expert.svg"
+                  icon.alt = "Experte"
+                  button.append(icon)
+
+                  const title = document.createElement("div")
+                  title.style.margin = "13px 34px"
+                  title.style.fontSize = "21px"
+                  title.innerHTML = "Neuer Experte"
+                  button.append(title)
+                }
+              }
+
+              {
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.justifyContent = "center"
+                const loading = document.createElement("img")
+                loading.src = "/public/load.svg"
+                loading.alt = "Bitte warten.."
+                loading.style.width = "55px"
+                button.append(loading)
+                buttons.append(button)
+
+                const verify = {}
+                verify.url = "/verify/roles/closed/2/"
+                verify.state = "multiple"
+                verify.referer = document.referrer
+                verify.location = window.location.href
+                verify.localStorageEmail = await Request.email()
+                verify.localStorageId = await Request.localStorageId()
+                const res = await Request.middleware(verify)
+
+                if (res.status !== 200) button.remove()
+
+                if (res.status === 200) {
+
+                  Helper.reset(button)
+                  button.style.display = "flex"
+                  button.style.flexWrap = "wrap"
+                  button.style.justifyContent = "space-between"
+                  button.style.alignItems = "center"
+                  button.style.margin = "21px 34px"
+                  button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                  button.style.borderRadius = "13px"
+                  button.style.border = "0.3px solid black"
+                  button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                  button.style.cursor = "pointer"
+
+                  button.addEventListener("click", () => {
+
+                    Helper.popup(async overlay => {
+
+                      {
+                        const header = document.createElement("div")
+                        header.style.position = "fixed"
+                        header.style.bottom = "0"
+                        header.style.left = "0"
+                        header.style.width = "100%"
+                        header.style.display = "flex"
+                        header.style.justifyContent = "flex-start"
+                        header.style.alignItems = "center"
+                        header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                        header.style.background = "white"
+                        header.style.cursor = "pointer"
+                        header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                        const logo = document.createElement("img")
+                        logo.src = "/public/getyour-logo.svg"
+                        logo.alt = "get-your"
+                        logo.style.width = "55px"
+                        logo.style.margin = "21px 34px"
+                        header.append(logo)
+
+                        const title = document.createElement("div")
+                        title.innerHTML = "Rolle wechseln"
+                        title.style.fontWeight = "bold"
+                        title.style.fontSize = "21px"
+                        header.append(title)
+
+                        overlay.append(header)
+                      }
+
+                      {
+                        const buttons = document.createElement("div")
+                        buttons.style.overflow = "auto"
+                        buttons.style.paddingBottom = "144px"
+
+
+                        {
+                          const get = {}
+                          get.url = "/get/roles/closed/"
+                          get.referer = document.referrer
+                          get.location = window.location.href
+                          get.localStorageEmail = await Request.email()
+                          get.localStorageId = await Request.localStorageId()
+                          const res = await Request.middleware(get)
+
+                          if (res.status === 200) {
+                            const roles = JSON.parse(res.response)
+
+                            for (let i = 0; i < roles.length; i++) {
+                              const role = roles[i]
+
+                              const button = document.createElement("div")
+                              button.style.display = "flex"
+                              button.style.flexWrap = "wrap"
+                              button.style.justifyContent = "space-between"
+                              button.style.alignItems = "center"
+                              button.style.margin = "21px 34px"
+                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                              button.style.borderRadius = "13px"
+                              button.style.border = "0.3px solid black"
+                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                              button.style.cursor = "pointer"
+
+                              button.addEventListener("click", async () => {
+                                {
+                                  const redirect = {}
+                                  redirect.url = "/redirect/user/closed/"
+                                  redirect.roleId = role.id
+                                  redirect.location = window.location.href
+                                  redirect.referer = document.referrer
+                                  redirect.localStorageEmail = await Request.email()
+                                  redirect.localStorageId = await Request.localStorageId()
+                                  const res = await Request.middleware(redirect)
+
+                                  if (res.status === 200) window.location.assign(res.response)
+                                }
+                              })
+
+                              const icon = document.createElement("img")
+                              icon.style.margin = "13px 34px"
+                              icon.style.width = "34px"
+                              icon.src = role.icon
+                              icon.alt = role.name
+                              button.append(icon)
+
+                              const title = document.createElement("div")
+                              title.innerHTML = role.name
+                              title.style.margin = "21px 34px"
+                              title.style.fontSize = "21px"
+                              button.append(title)
+
+                              buttons.append(button)
+                            }
+
+
+
+                          }
+                        }
+
+
+
+                        overlay.append(buttons)
+                      }
+
+                    })
+                  })
+
+                  const icon = document.createElement("img")
+                  icon.style.margin = "13px 34px"
+                  icon.style.width = "34px"
+                  icon.src = "/public/change.svg"
+                  icon.alt = "Wechseln"
+                  button.append(icon)
+
+                  const title = document.createElement("div")
+                  title.style.margin = "13px 34px"
+                  title.style.fontSize = "21px"
+                  title.innerHTML = "Rolle wechseln"
+                  button.append(title)
+                }
+              }
+
+              {
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.flexWrap = "wrap"
+                button.style.justifyContent = "space-between"
+                button.style.alignItems = "center"
+                button.style.margin = "21px 34px"
+                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                button.style.borderRadius = "13px"
+                button.style.border = "0.3px solid black"
+                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                button.style.cursor = "pointer"
+                button.addEventListener("click", () => {
+
+                  Helper.popup(async overlay => {
+
+                    {
+                      const header = document.createElement("div")
+                      header.style.position = "fixed"
+                      header.style.bottom = "0"
+                      header.style.left = "0"
+                      header.style.width = "100%"
+                      header.style.display = "flex"
+                      header.style.justifyContent = "flex-start"
+                      header.style.alignItems = "center"
+                      header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                      header.style.background = "white"
+                      header.style.zIndex = "1"
+                      header.style.cursor = "pointer"
+                      header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                      const logo = document.createElement("img")
+                      logo.src = "/public/getyour-logo.svg"
+                      logo.alt = "Logo"
+                      logo.style.width = "55px"
+                      logo.style.margin = "21px 34px"
+                      header.append(logo)
+                      const title = document.createElement("div")
+                      title.innerHTML = `Besitzerdaten`
+                      title.style.fontWeight = "bold"
+                      title.style.fontSize = "21px"
+                      header.append(title)
+                      overlay.append(header)
+                    }
+
+                    {
+                      const ownerList = document.createElement("div")
+                      ownerList.style.display = "flex"
+                      ownerList.style.justifyContent = "center"
+                      ownerList.style.alignItems = "center"
+                      ownerList.style.height = "55vh"
+                      const loading = document.createElement("img")
+                      loading.src = "/public/load.svg"
+                      loading.alt = "Bitte warten.."
+                      loading.style.width = "55px"
+                      ownerList.append(loading)
+                      overlay.append(ownerList)
+
+                      const get = {}
+                      get.url = "/get/owner/closed/2/"
+                      get.localStorageEmail = await Request.email()
+                      get.localStorageId = await Request.localStorageId()
+                      get.location = window.location.href
+                      get.referer = document.referrer
+                      const res = await Request.middleware(get)
+
+                      Helper.reset(ownerList)
+                      ownerList.style.overflowY = "auto"
+                      ownerList.style.paddingBottom = "144px"
+
+                      const firstnameField = new TextField("firstname", ownerList)
+                      firstnameField.value(name => window.localStorage.getItem(name))
+                      if (res.status === 200) {
+                        const owner = JSON.parse(res.response)
+                        if (owner.firstname !== undefined) {
+                          firstnameField.value(name => owner.firstname)
+                        }
+                      }
+                      firstnameField.label.innerHTML = "Vorname"
+                      firstnameField.input.placeholder = "Huan"
+                      firstnameField.input.required = true
+                      firstnameField.input.maxLength = "34"
+                      firstnameField.input.addEventListener("input", () => {
+                        const value = firstnameField.validValue()
+                        window.localStorage.setItem(firstnameField.name, value)
+                      })
+                      firstnameField.verifyValue()
+
+                      const lastnameField = new TextField("lastname", ownerList)
+                      lastnameField.value(name => window.localStorage.getItem(name))
+                      if (res.status === 200) {
+                        const owner = JSON.parse(res.response)
+                        if (owner.lastname !== undefined) {
+                          lastnameField.value(name => owner.lastname)
+                        }
+                      }
+                      lastnameField.label.innerHTML = "Nachname"
+                      lastnameField.input.placeholder = "Solo"
+                      lastnameField.input.required = true
+                      lastnameField.input.maxLength = "34"
+                      lastnameField.input.addEventListener("input", () => {
+                        const value = lastnameField.validValue()
+                        window.localStorage.setItem(lastnameField.name, value)
+                      })
+                      lastnameField.verifyValue()
+
+                      const streetField = new TextField("street", ownerList)
+                      streetField.value(name => window.localStorage.getItem(name))
+                      if (res.status === 200) {
+                        const owner = JSON.parse(res.response)
+                        if (owner.street !== undefined) {
+                          streetField.value(name => owner.street)
+                        }
+                      }
+                      streetField.label.innerHTML = "Straße und Hausnummer"
+                      streetField.input.required = true
+                      streetField.input.placeholder = "Wiesentalstr. 21"
+                      streetField.input.maxLength = "34"
+                      streetField.input.addEventListener("input", () => {
+                        const value = streetField.validValue()
+                        window.localStorage.setItem(streetField.name, value)
+                      })
+                      streetField.verifyValue()
+
+                      const zipField = new TextField("zip", ownerList)
+                      zipField.value(name => window.localStorage.getItem(name))
+                      if (res.status === 200) {
+                        const owner = JSON.parse(res.response)
+                        if (owner.zip !== undefined) {
+                          zipField.value(name => owner.zip)
+                        }
+                      }
+                      zipField.label.innerHTML = "Postleitzahl und Ort"
+                      zipField.input.placeholder = "70184 Stuttgart"
+                      zipField.input.required = true
+                      zipField.input.maxLength = "34"
+                      zipField.input.addEventListener("input", () => {
+                        const value = zipField.validValue()
+                        window.localStorage.setItem(zipField.name, value)
+                      })
+                      zipField.verifyValue()
+
+                      const stateField = new SelectionField("state", ownerList)
+                      stateField.value(name => [window.localStorage.getItem(name)])
+                      if (res.status === 200) {
+                        const owner = JSON.parse(res.response)
+                        if (owner.state !== undefined) {
+                          stateField.value(name => [owner.state])
+                        }
+                      }
+                      stateField.label.innerHTML = "Bundesland oder Kanton"
+                      stateField.withOptionSelected(option => window.localStorage.setItem(stateField.name, option.value))
+                      stateField.verifyValue()
+
+                      const countryField = new SelectionField("country", ownerList)
+                      countryField.value(name => [window.localStorage.getItem(name)])
+                      if (res.status === 200) {
+                        const owner = JSON.parse(res.response)
+                        if (owner.country !== undefined) {
+                          countryField.value(name => [owner.country])
+                        }
+                      }
+                      countryField.label.innerHTML = "Land"
+                      countryField.options(["Deutschland", "Österreich", "Schweiz"])
+                      countryField.select.addEventListener("input", (event) => {
+                        countryField.withOptionSelected(option => {
+                          stateField.addStatesByCountry(option.value)
+                          window.localStorage.setItem(countryField.name, option.value)
+                        })
+                      })
+                      countryField.withOptionSelected(option => {
+                        stateField.addStatesByCountry(option.value)
+                        window.localStorage.setItem(countryField.name, option.value)
+                      })
+                      countryField.verifyValue()
+
+                      const phoneField = new TelField("phone", ownerList)
+                      phoneField.value(name => window.localStorage.getItem(name))
+                      if (res.status === 200) {
+                        const owner = JSON.parse(res.response)
+                        if (owner.phone !== undefined) {
+                          phoneField.value(name => owner.phone)
+                        }
+                      }
+                      phoneField.label.innerHTML = "Telefon"
+                      phoneField.input.required = true
+                      phoneField.input.maxLength = "21"
+                      phoneField.input.accept = "text/phone"
+                      phoneField.input.placeholder = "+49.."
+                      phoneField.input.addEventListener("input", () => {
+                        const value = phoneField.validValue()
+                        window.localStorage.setItem(phoneField.name, value)
+                      })
+                      phoneField.verifyValue()
+
+                      const submitButton = document.createElement("div")
+                      submitButton.innerHTML = "Speichern"
+                      submitButton.style.fontSize = "21px"
+                      submitButton.style.margin = "21px 34px"
+                      submitButton.style.backgroundColor = "#f7aa20"
+                      submitButton.style.borderRadius = "13px"
+                      submitButton.style.height = "89px"
+                      submitButton.style.display = "flex"
+                      submitButton.style.justifyContent = "center"
+                      submitButton.style.alignItems = "center"
+                      submitButton.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                      submitButton.style.cursor = "pointer"
+                      submitButton.addEventListener("click", async () => {
+
+                        let firstname
+                        let lastname
+                        let street
+                        let zip
+                        let state
+                        let country
+                        let phone
+                        try {
+                          firstname = firstnameField.validValue()
+                          lastname = lastnameField.validValue()
+                          street = streetField.validValue()
+                          zip = zipField.validValue()
+                          state = stateField.validValue()[0].value
+                          country = countryField.validValue()[0].value
+                          phone = phoneField.validValue()
+                        } catch (error) {
+                          alert(`Feld '${error.fieldName}' ist notwendig.`)
+                          document.getElementById(error.fieldName).scrollIntoView({behavior: 'smooth'})
+                          return
+                        }
+
+
+                        Helper.addOverlay()
+                        Helper.setWaitCursor()
+                        try {
+
+                          const register = {}
+                          register.url = "/register/owner/closed/2/"
+                          register.firstname = firstname
+                          register.lastname = lastname
+                          register.street = street
+                          register.zip = zip
+                          register.country = country
+                          register.state = state
+                          register.phone = phone
+                          register.location = window.location.href
+                          register.referer = document.referrer
+                          register.localStorageEmail = await Request.email()
+                          register.localStorageId = await Request.localStorageId()
+                          await Request.sequence(register)
+
+                          alert("Speichern erfolgreich..")
+                        } catch (error) {
+                          alert("Fehler.. Bitte wiederholen.")
+                        }
+                        window.location.reload()
+                      })
+                      ownerList.append(submitButton)
+                    }
+
+
+
+                  })
+                })
+
+                const icon = document.createElement("img")
+                icon.style.margin = "13px 34px"
+                icon.style.width = "34px"
+                icon.src = "/public/owner.svg"
+                icon.alt = "Besitzer"
+                button.append(icon)
+
+                const title = document.createElement("div")
+                title.innerHTML = "Besitzerdaten"
+                title.style.margin = "21px 34px"
+                title.style.fontSize = "21px"
+                button.append(title)
+
+                buttons.append(button)
+              }
+
+              {
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.flexWrap = "wrap"
+                button.style.justifyContent = "space-between"
+                button.style.alignItems = "center"
+                button.style.margin = "21px 34px"
+                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                button.style.borderRadius = "13px"
+                button.style.border = "0.3px solid black"
+                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                button.style.cursor = "pointer"
+                button.addEventListener("click", () => {
+
+                  const popup = Helper.popup(async overlay => {
+                    const header = document.createElement("div")
+                    header.style.position = "fixed"
+                    header.style.bottom = "0"
+                    header.style.left = "0"
+                    header.style.width = "100%"
+                    header.style.display = "flex"
+                    header.style.justifyContent = "flex-start"
+                    header.style.alignItems = "center"
+                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                    header.style.background = "white"
+                    header.style.cursor = "pointer"
+                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                    const logo = document.createElement("img")
+                    logo.src = "/public/getyour-logo.svg"
+                    logo.alt = "Getyour Popup"
+                    logo.style.width = "55px"
+                    logo.style.margin = "21px 34px"
+                    header.append(logo)
+                    const title = document.createElement("div")
+                    title.innerHTML = "Error Logs"
+                    title.style.fontWeight = "bold"
+                    title.style.fontSize = "21px"
+                    header.append(title)
+                    overlay.append(header)
+
+                    const getErrors = {}
+                    getErrors.url = "/get/error/closed/2/"
+                    getErrors.localStorageEmail = await Request.email()
+                    getErrors.localStorageId = await Request.localStorageId()
+                    getErrors.referer = document.referrer
+                    getErrors.location = window.location.href
+                    const res = await Request.middleware(getErrors)
+
+                    if (res.status === 200) {
+                      const errors = JSON.parse(res.response)
+
+                      const buttons = document.createElement("div")
+                      buttons.style.overflowY = "scroll"
+                      buttons.style.paddingBottom = "144px"
+
+                      for (let i = 0; i < errors.length; i++) {
+                        const error = errors[i]
+
+
+                        const button = document.createElement("div")
+                        button.style.display = "flex"
+                        button.style.flexWrap = "wrap"
+                        button.style.alignItems = "center"
+                        button.style.margin = "21px 34px"
+                        button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                        button.style.borderRadius = "13px"
+                        button.style.border = "0.3px solid black"
+                        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                        button.style.cursor = "pointer"
+                        button.addEventListener("click", () => {
+
+                          const popup = Helper.popup(overlay => {
+
+                            const header = document.createElement("div")
+                            header.style.position = "fixed"
+                            header.style.bottom = "0"
+                            header.style.left = "0"
+                            header.style.width = "100%"
+                            header.style.display = "flex"
+                            header.style.justifyContent = "flex-start"
+                            header.style.alignItems = "center"
+                            header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                            header.style.background = "white"
+                            header.style.cursor = "pointer"
+                            header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                            const logo = document.createElement("img")
+                            logo.src = "/public/getyour-logo.svg"
+                            logo.alt = "Getyour Popup"
+                            logo.style.margin = "21px 34px"
+                            header.append(logo)
+                            const title = document.createElement("div")
+                            title.innerHTML = error.message
+                            title.style.fontWeight = "bold"
+                            title.style.fontSize = "21px"
+                            header.append(title)
+                            overlay.append(header)
+
+                            const stack = document.createElement("div")
+                            stack.style.margin = "21px 34px"
+                            stack.innerHTML = error.stack
+                            overlay.append(stack)
+
+
+                          })
+                        })
+
+                        const icon = document.createElement("img")
+                        icon.style.margin = "13px 34px"
+                        icon.style.width = "34px"
+                        icon.src = "/public/error.svg"
+                        icon.alt = "Fehlerliste"
+                        button.append(icon)
+
+                        const message = document.createElement("div")
+                        message.style.margin = "13px 34px"
+                        message.style.width = "100%"
+                        message.innerHTML = /*html*/`
+                          <div>Fehler: <b>${error.message}</b></div>
+                          <div>Erstellt am: <b>${new Date(error.created).toISOString()}</b></div>
+                          <div>Anfrage: <b>${error.method}</b></div>
+                          <div>Server: <b>${error.endpoint}</b></div>
+                          <div>Client: <b>${error.location}</b></div>
+                          <div>Herkunft: <b>${error.referer}</b></div>
+                          <div>IP: <b>${error.ip}</b></div>
+                          <div>Browser: <b>${error.userAgent}</b></div>
+                        `
+
+                        button.append(message)
+                        buttons.append(button)
+                      }
+                      overlay.append(buttons)
+                    }
+
+
+                  })
+                })
+
+                const icon = document.createElement("img")
+                icon.style.margin = "13px 34px"
+                icon.style.width = "34px"
+                icon.src = "/public/error-logs.svg"
+                icon.alt = "Fehlerliste"
+                button.append(icon)
+
+                const title = document.createElement("div")
+                title.style.margin = "13px 34px"
+                title.style.fontSize = "21px"
+                title.innerHTML = "Error Logs"
+                button.append(title)
+
+                buttons.append(button)
+              }
+
+              {
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.flexWrap = "wrap"
+                button.style.justifyContent = "space-between"
+                button.style.alignItems = "center"
+                button.style.margin = "21px 34px"
+                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                button.style.borderRadius = "13px"
+                button.style.border = "0.3px solid black"
+                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                button.style.cursor = "pointer"
+                button.addEventListener("click", () => {
+
+                  const popup = Helper.popup(async overlay => {
+                    const header = document.createElement("div")
+                    header.style.position = "fixed"
+                    header.style.bottom = "0"
+                    header.style.left = "0"
+                    header.style.width = "100%"
+                    header.style.display = "flex"
+                    header.style.justifyContent = "flex-start"
+                    header.style.alignItems = "center"
+                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                    header.style.background = "white"
+                    header.style.cursor = "pointer"
+                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                    const logo = document.createElement("img")
+                    logo.src = "/public/getyour-logo.svg"
+                    logo.alt = "Getyour Popup"
+                    logo.style.width = "55px"
+                    logo.style.margin = "21px 34px"
+                    header.append(logo)
+                    const title = document.createElement("div")
+                    title.innerHTML = "User Logs"
+                    title.style.fontWeight = "bold"
+                    title.style.fontSize = "21px"
+                    header.append(title)
+                    overlay.append(header)
+
+
+                    const getUsers = {}
+                    getUsers.url = "/get/user/closed/2/"
+                    getUsers.location = window.location.href
+                    getUsers.referer = document.referrer
+                    getUsers.localStorageEmail = await Request.email()
+                    getUsers.localStorageId = await Request.localStorageId()
+                    const res = await Request.middleware(getUsers)
+
+                    if (res.status === 200) {
+                      const users = JSON.parse(res.response)
+
+                      const buttons = document.createElement("div")
+                      buttons.style.overflowY = "scroll"
+                      buttons.style.paddingBottom = "144px"
+
+                      for (let i = 0; i < users.length; i++) {
+                        const user = users[i]
+
+
+                        const button = document.createElement("div")
+                        button.style.display = "flex"
+                        button.style.flexWrap = "wrap"
+                        button.style.alignItems = "center"
+                        button.style.margin = "21px 34px"
+                        button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                        button.style.borderRadius = "13px"
+                        button.style.border = "0.3px solid black"
+                        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+
+                        const icon = document.createElement("img")
+                        icon.style.margin = "13px 34px"
+                        icon.style.width = "34px"
+                        icon.src = "/public/delete.svg"
+                        icon.alt = "Löschen"
+                        icon.style.cursor = "pointer"
+                        icon.addEventListener("click", async () => {
+
+                          const confirm = window.confirm("Möchten Sie wirklich diesen Nutzer löschen?")
+                          if (confirm === true) {
+                            const deleteUser = {}
+                            deleteUser.url = "/consumer/2/closed"
+                            deleteUser.method = "delete"
+                            deleteUser.type = "user"
+                            deleteUser.emailToDelete = user.email
+                            deleteUser.email = await Request.email()
+                            deleteUser.referer = document.referrer
+                            deleteUser.localStorageId = await Request.localStorageId()
+                            const res = await Request.middleware(deleteUser)
+
+                            if (res.status === 200) button.remove()
+                          }
+
+
+                        })
+                        button.append(icon)
+
+                        const message = document.createElement("div")
+                        message.style.margin = "13px 34px"
+                        message.innerHTML = /*html*/`
+                          <div>Email: <b>${user.email}</b></div>
+                          <div>Verified: <b>${user.verified}</b></div>
+                          <div>Rollen: <b>${user.roles.join(", ")}</b></div>
+                          <div>Anmeldeversuche: <b>${user.counter}</b></div>
+                          <div>Registriert am: <b>${Helper.millisToDateString(user.created)}</b></div>
+                        `
+                        message.style.cursor = "pointer"
+                        message.addEventListener("click", () => {
+
+                          const popup = Helper.popup(overlay => {
+
+                            const header = document.createElement("div")
+                            header.style.position = "fixed"
+                            header.style.bottom = "0"
+                            header.style.left = "0"
+                            header.style.width = "100%"
+                            header.style.display = "flex"
+                            header.style.justifyContent = "flex-start"
+                            header.style.alignItems = "center"
+                            header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                            header.style.background = "white"
+                            header.style.cursor = "pointer"
+                            header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                            const logo = document.createElement("img")
+                            logo.src = "/public/getyour-logo.svg"
+                            logo.alt = "Getyour Popup"
+                            logo.style.margin = "21px 34px"
+                            header.append(logo)
+                            const title = document.createElement("div")
+                            title.innerHTML = user.email
+                            title.style.fontWeight = "bold"
+                            title.style.fontSize = "21px"
+                            header.append(title)
+                            overlay.append(header)
+
+                            const keys = document.createElement("div")
+                            // keys.style.display = "flex"
+                            keys.style.padding = "21px 34px 144px 34px"
+                            keys.style.overflow = "auto"
+
+                            // const keyContainer = document.createElement("div")
+                            // keyContainer.style.margin = "13px 34px"
+
+                            for (let i = 0; i < user.keys.length; i++) {
+
+                              // const key = user.keys[i]
+
+                              const key = document.createElement("p")
+                              // console.log(key);
+                              key.innerHTML = user.keys[i]
+                              keys.append(key)
+                            }
+
+                            // keys.innerHTML = user.keys
+                            overlay.append(keys)
+
+
+                          })
+                        })
+
+                        button.append(message)
+                        buttons.append(button)
+                      }
+                      overlay.append(buttons)
+                    }
+
+
+
+
+                  })
+                })
+
+                const icon = document.createElement("img")
+                icon.style.margin = "13px 34px"
+                icon.style.width = "34px"
+                icon.src = "/public/user-logs.svg"
+                icon.alt = "Nutzerliste"
+                button.append(icon)
+
+                const title = document.createElement("div")
+                title.style.margin = "13px 34px"
+                title.style.fontSize = "21px"
+                title.innerHTML = "User Logs"
+                button.append(title)
+
+                buttons.append(button)
+              }
+
+              {
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.flexWrap = "wrap"
+                button.style.justifyContent = "space-between"
+                button.style.alignItems = "center"
+                button.style.margin = "21px 34px"
+                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                button.style.borderRadius = "13px"
+                button.style.border = "0.3px solid black"
+                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                button.style.cursor = "pointer"
+
+                button.addEventListener("click", () => window.location.assign("/"))
+
+                const icon = document.createElement("img")
+                icon.style.margin = "13px 34px"
+                icon.style.width = "34px"
+                icon.src = "/public/entry.svg"
+                icon.alt = "Zugang"
+                button.append(icon)
+
+                const title = document.createElement("div")
+                title.style.margin = "13px 34px"
+                title.style.fontSize = "21px"
+                title.innerHTML = "Plattform Zugänge"
+                button.append(title)
+
+                buttons.append(button)
+              }
+
+              overlay.append(buttons)
+            }
+
+          })
+        })
+
+        leftContainer.append(name)
+        header.append(leftContainer)
+        document.body.append(header)
+      }
+
+    </script>
+
+  </body>
+</html>

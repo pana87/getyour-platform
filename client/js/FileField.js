@@ -2,106 +2,111 @@ import { Helper } from "/js/Helper.js"
 
 export class FileField {
 
-  withField(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.fieldSelector).forEach(field => callback(field))
-    return this
-  }
+  validHtml(file) {
 
-  withType(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => callback(input))
-    return this
-  }
+    return new Promise(async (resolve, reject) => {
+      const allowedMimeTypes = ["text/html"]
+      const allowedExtensions = ["html"]
 
-  withLabel(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.labelSelector).forEach(label => callback(label))
-    return this
-  }
+      if (allowedMimeTypes !== undefined) {
+        await Helper.verifyFileMimeTypes(file, allowedMimeTypes)
+        .catch(error => {
+          alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+          Helper.setNotValidStyle(this.input)
+          throw error
+        })
+      }
 
-  onChange(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("change", (event) => callback(event)))
-    return this
-  }
-
-  onInput(callback) {
-    if (callback !== undefined) document.querySelectorAll(this.inputSelector).forEach(input => input.addEventListener("input", (event) => callback(event)))
-    return this
-  }
-
-  onInfoClick(callback) {
-    if (callback !== undefined) document.querySelectorAll(`.label-container-${this.name}`).forEach(info => {
-      info.style.cursor = "pointer"
-      info.childNodes.forEach(child => child.style.cursor = "pointer")
-      info.addEventListener("click", callback)
-    })
-    return this
-  }
-
-  fromStorage(callback) {
-    if (callback !== undefined) {
-      document.querySelectorAll(this.inputSelector).forEach(input => {
-        if (callback(this.name) !== undefined) input.required = false
-      })
-    }
-    return this
-  }
-
-  #isEmpty(value) {
-    return value === undefined ||
-      value.length <= 0 ||
-      value === null
-  }
-
-  async withStorage(callback) {
-    if (callback !== undefined) {
-      const files = await this.withValidValue()
-      if (!this.#isEmpty(files)) callback(files)
-    }
-    return this
-  }
-
-  withValidPdf(file) {
-    return new Promise(async(resolve, reject) => {
-
-      const allowedMimeTypes = ["application/pdf"]
-      const allowedExtensions = ["pdf"]
-      await Helper.verifyFileMimeTypes(file, allowedMimeTypes)
-      .catch(error => {
-        alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
-        Helper.setNotValidStyle(document.querySelector(this.inputSelector))
-        throw error
-      })
-
-      await Helper.verifyFileExtension(file, allowedExtensions)
-      .catch(error => {
-        alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
-        Helper.setNotValidStyle(document.querySelector(this.inputSelector))
-        throw error
-      })
+      if (allowedExtensions !== undefined) {
+        await Helper.verifyFileExtension(file, allowedExtensions)
+        .catch(error => {
+          alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+          Helper.setNotValidStyle(this.input)
+          throw error
+        })
+      }
 
       const fileReader = new FileReader()
-      fileReader.onload = async(event) => {
-
-        const dataUrlSize = Helper.calculateDataUrlSize(fileReader.result)
-        if (dataUrlSize > 5 * 1024 * 1024) {
-          alert("PDF ist zu groß.")
-          Helper.setNotValidStyle(document.querySelector(this.inputSelector))
-          throw new Error("pdf too large")
-        }
+      fileReader.onload = () => {
 
         const newFile = {}
         newFile.name = file.name
         newFile.type = file.type
-        newFile.size = dataUrlSize
+        newFile.size = file.size
         newFile.modified = Date.now()
-        newFile.dataUrl = fileReader.result
+        newFile.html = Helper.sanitizeHtml(fileReader.result)
 
+        Helper.setValidStyle(this.input)
         return resolve(newFile)
       }
-      fileReader.readAsDataURL(file)
+      fileReader.readAsText(file)
+
     })
+
+
   }
 
-  async withValidImage(file) {
+  withInfoClick(callback) {
+    if (callback !== undefined) {
+      this.icon.src = "/public/info-gray.svg"
+      this.icon.alt = "Mehr Infos"
+      this.icon.style.display = "block"
+      this.labelContainer.style.cursor = "pointer"
+      this.labelContainer.childNodes.forEach(child => child.style.cursor = "pointer")
+      this.labelContainer.addEventListener("click", callback)
+    }
+    return this
+  }
+
+  value(callback) {
+    if (callback !== undefined) {
+      if (callback(this.name) !== undefined) input.required = false
+    }
+    return this
+  }
+
+  async validPdf(file) {
+
+    const allowedMimeTypes = ["application/pdf"]
+    const allowedExtensions = ["pdf"]
+    await Helper.verifyFileMimeTypes(file, allowedMimeTypes)
+    .catch(error => {
+      alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
+      Helper.setNotValidStyle(this.input)
+      throw error
+    })
+
+    await Helper.verifyFileExtension(file, allowedExtensions)
+    .catch(error => {
+      alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
+      Helper.setNotValidStyle(this.input)
+      throw error
+    })
+
+    const fileReader = new FileReader()
+    fileReader.onload = async(event) => {
+
+      const dataUrlSize = Helper.calculateDataUrlSize(fileReader.result)
+      if (dataUrlSize > 5 * 1024 * 1024) {
+        alert("PDF ist zu groß.")
+        Helper.setNotValidStyle(this.input)
+        throw new Error("pdf too large")
+      }
+
+      const newFile = {}
+      newFile.name = file.name
+      newFile.type = file.type
+      newFile.size = dataUrlSize
+      newFile.modified = Date.now()
+      newFile.dataUrl = fileReader.result
+
+      return resolve(newFile)
+    }
+    fileReader.readAsDataURL(file)
+
+  }
+
+  async validImage(file) {
 
     const allowedMimeTypes = ["image/jpeg", "image/png"]
     const allowedExtensions = ["jpg", "jpeg", "png"]
@@ -110,7 +115,7 @@ export class FileField {
       await Helper.verifyFileMimeTypes(file, allowedMimeTypes)
       .catch(error => {
         alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
-        Helper.setNotValidStyle(document.querySelector(this.inputSelector))
+        Helper.setNotValidStyle(this.input)
         throw error
       })
     }
@@ -119,7 +124,7 @@ export class FileField {
       await Helper.verifyFileExtension(file, allowedExtensions)
       .catch(error => {
         alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
-        Helper.setNotValidStyle(document.querySelector(this.inputSelector))
+        Helper.setNotValidStyle(this.input)
         throw error
       })
     }
@@ -128,7 +133,7 @@ export class FileField {
     const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
     if (dataUrlSize > 1024 * 1024) {
       alert("Datei ist zu groß.")
-      Helper.setNotValidStyle(document.querySelector(this.inputSelector))
+      Helper.setNotValidStyle(this.input)
       throw new Error("image too large")
     }
 
@@ -138,42 +143,53 @@ export class FileField {
     image.size = dataUrlSize
     image.modified = Date.now()
     image.dataUrl = dataUrl
-    Helper.setValidStyle(document.querySelector(this.inputSelector))
+    Helper.setValidStyle(this.input)
     return image
+
   }
 
   #isRequired(input) {
     if (input.required === true) return true
+    if (input.accept === "text/html") return true
     return false
   }
 
   #checkValidity(input) {
-    return input.checkValidity()
+    if (input.checkValidity() === false) return false
+    return true
   }
 
-  withValidValue() {
-    return new Promise((resolve, reject) => {
-      document.querySelectorAll(this.inputSelector).forEach(async input => {
-        if (this.#isRequired(input)) {
-          if (this.#checkValidity(input)) {
-            Helper.setValidStyle(input)
-            return resolve(input.files)
-          }
-          Helper.setNotValidStyle(input)
-          const error = new Error(`field required: '${this.name}'`)
-          error.fieldName = this.name
-          return reject(error)
-        }
-        Helper.setValidStyle(input)
-        return resolve(input.files)
-      })
-    })
+  verifyValue() {
+    if (this.#isRequired(this.input)) {
+      if (this.#checkValidity(this.input)) {
+        Helper.setValidStyle(this.input)
+        return true
+      }
+      Helper.setNotValidStyle(this.input)
+      return false
+    }
+    Helper.setValidStyle(this.input)
+    return true
+  }
+
+  validValue() {
+    if (this.#isRequired(this.input)) {
+      if (this.#checkValidity(this.input)) {
+        Helper.setValidStyle(this.input)
+        return this.input.files
+      }
+      Helper.setNotValidStyle(this.input)
+      const error = new Error(`field required: '${this.name}'`)
+      error.fieldName = this.name
+      throw new Error(error)
+    }
+    Helper.setValidStyle(this.input)
+    return this.input.files
   }
 
   #setFields(field) {
     field.innerHTML = ""
     field.id = this.name
-    field.classList.add(this.name)
     field.style.position = "relative"
     field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
     field.style.borderRadius = "13px"
@@ -189,47 +205,42 @@ export class FileField {
     labelContainer.style.display = "flex"
     labelContainer.style.alignItems = "center"
     labelContainer.style.margin = "21px 89px 0 34px"
+    this.labelContainer = labelContainer
 
-    const info = document.createElement("img")
-    info.src = "/public/info-gray.svg"
-    info.alt = "Info"
-    info.style.width = "34px"
-    info.style.marginRight = "21px"
-    labelContainer.append(info)
+    const icon = document.createElement("img")
+    icon.style.width = "34px"
+    icon.style.marginRight = "21px"
+    icon.style.display = "none"
+    this.icon = icon
+    labelContainer.append(icon)
 
 
     const label = document.createElement("label")
     label.classList.add(this.name)
     label.style.color = "#707070"
     label.style.fontSize = "21px"
-    labelContainer.append(label)
     this.label = label
+    labelContainer.append(label)
     field.append(labelContainer)
 
     const input = document.createElement("input")
     input.classList.add(this.name)
     input.type = this.type
     input.style.margin = "21px 89px 21px 34px"
-    field.append(input)
     this.input = input
+    field.append(input)
     return field
   }
 
   constructor(name, parent) {
-    if (Helper.stringIsEmpty(name)) throw new Error("field name is empty")
+    if (Helper.stringIsEmpty(name)) throw new Error("name is empty")
     this.name = name
-    this.fieldSelector = `div[class='${this.name}']`
-    this.inputSelector = `input[class='${this.name}']`
-    this.labelSelector = `label[class='${this.name}']`
     this.type = "file"
-
     this.field = document.createElement("div")
     this.field = this.#setFields(this.field)
-    if (parent !== undefined) parent.append(this.field)
-
-    this.fields = Array.from(document.querySelectorAll(this.fieldSelector))
-    for (let i = 0; i < this.fields.length; i++) {
-      this.#setFields(this.fields[i])
+    if (parent !== undefined) {
+      this.parent = parent
+      parent.append(this.field)
     }
   }
 }
