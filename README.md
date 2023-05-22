@@ -57,7 +57,7 @@ Fields are `div` elements (placeholder elements) in the document with a class na
 
 ```html
 <head>
-  <script src="https://get-your.de/js/TextField.js"></script>
+  <script src="https://www.get-your.de/js/TextField.js"></script>
 </head>
 <body>
   <div class="my-class-name"></div>
