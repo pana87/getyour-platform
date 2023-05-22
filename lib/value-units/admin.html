@@ -976,11 +976,10 @@
                           const confirm = window.confirm("Möchten Sie wirklich diesen Nutzer löschen?")
                           if (confirm === true) {
                             const deleteUser = {}
-                            deleteUser.url = "/consumer/2/closed"
-                            deleteUser.method = "delete"
-                            deleteUser.type = "user"
-                            deleteUser.emailToDelete = user.email
-                            deleteUser.email = await Request.email()
+                            deleteUser.url = "/delete/user/closed/2/"
+                            deleteUser.email = user.email
+                            deleteUser.localStorageEmail = await Request.email()
+                            deleteUser.location = window.location.href
                             deleteUser.referer = document.referrer
                             deleteUser.localStorageId = await Request.localStorageId()
                             const res = await Request.middleware(deleteUser)
