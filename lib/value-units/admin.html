@@ -100,6 +100,7 @@
               const buttons = document.createElement("div")
               buttons.style.overflowY = "auto"
               buttons.style.paddingBottom = "144px"
+              buttons.style.overscrollBehavior = "none"
 
 
               {
@@ -175,6 +176,7 @@
                         const funnel = document.createElement("div")
                         funnel.style.paddingBottom = "144px"
                         funnel.style.overflow = "auto"
+                        funnel.style.overscrollBehavior = "none"
 
                         const nameField = new TextField("name", funnel)
                         nameField.label.innerHTML = "Name"
@@ -371,6 +373,7 @@
                         const buttons = document.createElement("div")
                         buttons.style.overflow = "auto"
                         buttons.style.paddingBottom = "144px"
+                        buttons.style.overscrollBehavior = "none"
 
 
                         {
@@ -528,6 +531,7 @@
                       Helper.reset(ownerList)
                       ownerList.style.overflowY = "auto"
                       ownerList.style.paddingBottom = "144px"
+                      ownerList.style.overscrollBehavior = "none"
 
                       const firstnameField = new TextField("firstname", ownerList)
                       firstnameField.value(name => window.localStorage.getItem(name))
@@ -684,11 +688,10 @@
                           country = countryField.validValue()[0].value
                           phone = phoneField.validValue()
                         } catch (error) {
-                          alert(`Feld '${error.fieldName}' ist notwendig.`)
-                          document.getElementById(error.fieldName).scrollIntoView({behavior: 'smooth'})
-                          return
+                          alert(error.message)
+                          error.field.scrollIntoView({behavior: 'smooth'})
+                          throw error
                         }
-
 
                         Helper.addOverlay()
                         Helper.setWaitCursor()
@@ -794,6 +797,7 @@
                       const buttons = document.createElement("div")
                       buttons.style.overflowY = "scroll"
                       buttons.style.paddingBottom = "144px"
+                      buttons.style.overscrollBehavior = "none"
 
                       for (let i = 0; i < errors.length; i++) {
                         const error = errors[i]
@@ -950,6 +954,7 @@
                       const buttons = document.createElement("div")
                       buttons.style.overflowY = "scroll"
                       buttons.style.paddingBottom = "144px"
+                      buttons.style.overscrollBehavior = "none"
 
                       for (let i = 0; i < users.length; i++) {
                         const user = users[i]

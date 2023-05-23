@@ -116,48 +116,61 @@ app.get("/", async (req, res, next) => {
   return res.sendStatus(404)
 })
 
-// app.get("/:platform/", async (req, res, next) => {
-//   try {
-//     // find platform
-//     // if platform exist
-//     // show stats
-//     return res.send(Helper.readFileSyncToString("../lib/value-units/platform.html"))
-//   } catch (error) {
-//     await Helper.logError(error, req)
-//   }
-//   return res.sendStatus(404)
-// })
-
-app.get("/:platform/:expert/", async (req, res, next) => {
+app.get("/:platform/", async (req, res, next) => {
   try {
     const doc = await nano.db.use("getyour").get("users")
     if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
     if (doc.users === undefined) throw new Error("users is undefined")
 
-    const platform = req.params.platform
-    if (Helper.stringIsEmpty(platform)) throw new Error("platform is empty")
-    const expert = req.params.expert
-    if (Helper.stringIsEmpty(expert)) throw new Error("expert is empty")
-
+    if (Helper.stringIsEmpty(req.params.platform)) throw new Error("req.params.platform is empty")
     for (let i = 0; i < doc.users.length; i++) {
       const user = doc.users[i]
-      if (user[platform] !== undefined) {
-        if (user[platform].expert.name === expert) {
-          // if (user[platform].expert.verified.status === 200) {
-          // }
-          return res.send(Helper.readFileSyncToString("../lib/value-units/expert.html"))
+      if (user[req.params.platform] !== undefined) {
+        if (user[req.params.platform].stats !== undefined) {
+          return res.send(`<div style="display: flex; justify-content: center; align-items: center; height: 89vh; font-family: sans-serif;">Plattform Statistiken sind bald verfügbar.</div>`)
         }
       }
     }
 
-
-    // throw new Error("endpoint not found")
+    return next()
   } catch (error) {
     await Helper.logError(error, req)
   }
   return res.sendStatus(404)
 })
 
+app.get("/:expert/", async (req, res, next) => {
+  try {
+    const doc = await nano.db.use("getyour").get("users")
+    if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
+    if (doc.users === undefined) throw new Error("users is undefined")
+
+    if (Helper.stringIsEmpty(req.params.expert)) throw new Error("req.params.expert is empty")
+    for (let i = 0; i < doc.users.length; i++) {
+      const user = doc.users[i]
+      if (user["getyour"] !== undefined) {
+        if (user["getyour"].expert.name === req.params.expert) {
+          return res.send(Helper.readFileSyncToString("../lib/value-units/expert.html"))
+        }
+      }
+    }
+
+  } catch (error) {
+    await Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
+})
+
+// app.get("/getyour/pana/toolbox-alpha/",
+// async(req, res) => {
+//   try {
+//     return res.send(Helper.readFileSyncToString("../lib/value-units/toolbox.html"))
+
+//   } catch (error) {
+//     await Helper.logError(error, req)
+//   }
+//   return res.sendStatus(404)
+// })
 
 app.get("/getyour/pana/toolbox/",
   Request.verifyJwtToken,
@@ -211,7 +224,6 @@ async(req, res, next) => {
         if (user["getyour"].expert.name === req.params.expert) {
           for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
             const platform = user["getyour"].expert.platforms[i]
-
             if (platform.name === req.params.platform) {
               if (platform.visibility === "open") {
                 for (let i = 0; i < platform.values.length; i++) {
@@ -236,7 +248,6 @@ async(req, res, next) => {
   return res.sendStatus(404)
 })
 
-// hook more restrictions here
 app.get("/:platform/:expert/:path/",
   Request.verifyJwtToken,
   Request.verifyJwtId,
@@ -250,91 +261,69 @@ async (req, res, next) => {
 
     for (let i = 0; i < doc.users.length; i++) {
       const user = doc.users[i]
-
       if (user.id === req.jwt.id) {
         if (user["getyour"] !== undefined) {
-          if (user["getyour"].expert.name === req.params.expert) {
 
+          if (user["getyour"].expert.name === req.params.expert) {
             for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
               const platform = user["getyour"].expert.platforms[i]
               if (platform.name === req.params.platform) {
                 for (let i = 0; i < platform.values.length; i++) {
                   const value = platform.values[i]
-                  if (value.path.split("/")[3] === req.params.path) {
+                  if (value.path === `/${req.params.platform}/${req.params.expert}/${req.params.path}/`) {
                     return res.send(value.html)
                   }
                 }
               }
             }
-
           }
 
-          for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
-            const platform = user["getyour"].expert.platforms[i]
+          if (user["getyour"].expert.name !== req.params.expert) {
+            for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
+              const platform = user["getyour"].expert.platforms[i]
 
-            if (platform.visibility === "open") {
+
 
               if (platform.name === req.params.platform) {
-                for (let i = 0; i < platform.values.length; i++) {
-                  const value = platform.values[i]
-
-                  if (value.path.split("/")[3] === req.params.path) {
 
 
-                    for (let i = 0; i < value.authorized.length; i++) {
-                      const authorized = value.authorized[i]
-                      if (req.jwt.id === authorized) {
-                        return res.send(value.html)
-                      }
-                    }
 
-                    for (let i = 0; i < value.roles.length; i++) {
-                      const authorized = value.roles[i]
-                      for (let i = 0; i < user.roles.length; i++) {
-                        const role = user.roles[i]
-                        if (role === authorized) {
-                          return res.send(value.html)
+                if (platform.visibility === "open") {
+                  for (let i = 0; i < platform.values.length; i++) {
+                    const value = platform.values[i]
+                    if (value.path === `/${req.params.platform}/${req.params.expert}/${req.params.path}/`) {
+
+                      if (value.visibility === "closed") {
+                        for (let i = 0; i < value.authorized.length; i++) {
+                          const authorized = value.authorized[i]
+                          if (req.jwt.id === authorized) {
+                            return res.send(value.html)
+                          }
+                        }
+
+                        for (let i = 0; i < value.roles.length; i++) {
+                          const authorized = value.roles[i]
+                          for (let i = 0; i < user.roles.length; i++) {
+                            const role = user.roles[i]
+                            if (role === authorized) {
+                              return res.send(value.html)
+                            }
+                          }
                         }
                       }
+
                     }
-
                   }
-
-
-
-
-
-
                 }
+
+
+
+
               }
-
-
-
             }
           }
-
-
-
-
-
-
-
-
-
-
         }
-
-
-
-
-
-
       }
-
-
-
-
-
     }
 
   } catch (error) {
@@ -344,7 +333,7 @@ async (req, res, next) => {
 })
 
 app.post("/request/register/session/",
-  // Request.verifyOpenPostRequest,
+  Request.verifyLocation,
 async (req, res) => {
   try {
     const {localStorageId, event} = req.body
@@ -392,6 +381,7 @@ async (req, res) => {
     const cookies = Object.keys(req.cookies)
     cookies.forEach((cookie) => {
       res.cookie(cookie, '', { expires: new Date(0) })
+      res.clearCookie(cookie)
     })
 
     const sessionLength = 120 * 60000
@@ -435,6 +425,8 @@ let EMAIL_TO_INVITE
 let ROLE_TO_INVITE
 let NAME_TO_INVITE
 app.post(`/invite/email/`,
+
+  Request.verifyLocation,
 
   Request.verifyJwtToken,
   Request.verifySession,
@@ -484,6 +476,7 @@ async(req, res) => {
 })
 
 app.post("/request/verify/pin/",
+  Request.verifyLocation,
 async (req, res) => {
   try {
     const {userPin} = req.body
@@ -501,6 +494,7 @@ async (req, res) => {
 let expiredTimeMs
 let randomPin
 app.post("/request/send/email/with/pin/",
+  Request.verifyLocation,
 async (req, res) => {
   try {
     const {email} = req.body
@@ -527,12 +521,12 @@ async (req, res) => {
 })
 
 app.post(`/:method/:type/:event/`,
+  Request.verifyLocation,
 
   Request.verifyEvent,
 
   Request.get,
   Request.register,
-
 
 async(req, res, next) => {
   return next()
@@ -552,6 +546,8 @@ async(req, res) => {
 })
 
 app.post(`/:method/:type/:event/:role/`,
+
+  Request.verifyLocation,
 
   Request.verifyEvent,
 

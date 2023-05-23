@@ -47,9 +47,23 @@ export class Request {
     // window.navigator.vibrate([233, 144, 233])
     Helper.setWaitCursor()
     try {
-      await this.sequence({email, url: `/request/send/email/with/pin/`})
+
+      const send = {}
+      send.url = "/request/send/email/with/pin/"
+      send.email = email
+      send.location = window.location.href
+      send.referer = document.referrer
+      await this.sequence(send)
+
       const userPin = prompt(`Es wurde eine PIN an deine E-Mail Adresse gesendet.\n\nBestätige deine PIN um fortzufahren.`)
-      await this.sequence({userPin, url: `/request/verify/pin/`})
+
+      const verify = {}
+      verify.url = "/request/verify/pin/"
+      verify.userPin = userPin
+      verify.location = window.location.href
+      verify.referer = document.referrer
+      await this.sequence(verify)
+
       const id = await Helper.digest(JSON.stringify({email: email, verified: true}))
       window.localStorage.setItem("localStorageId", id)
       window.localStorage.setItem("email", email)

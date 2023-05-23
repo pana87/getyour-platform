@@ -56,7 +56,6 @@ export class SelectionField {
 
   }
 
-
   options(options) {
     this.select.innerHTML = ""
     for (let i = 0; i < options.length; i++) {
@@ -126,7 +125,6 @@ export class SelectionField {
     }
     return false
   }
-
 
   validValue() {
 

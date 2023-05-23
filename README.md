@@ -6,6 +6,8 @@ When it comes to software development, it's important to keep in mind that the s
 
 Additionally, the use of the code is subject to [specific usage agreements](https://www.get-your.de/pana/getyour/nutzervereinbarung/) that outline how the code can be used and distributed. These agreements may restrict the usage of the code to certain individuals or organizations, or require certain conditions to be met before the code can be used.
 
+
+
 # Standards
 
 ## Icons and logos
@@ -75,3 +77,7 @@ Fields are `div` elements (placeholder elements) in the document with a class na
 ```bash
 npm run dev
 ```
+
+## Dependencies
+
+[package.json](https://github.com/pana87/getyour-platform/blob/main/package.json)
