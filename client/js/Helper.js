@@ -317,9 +317,14 @@ export class Helper {
               button.style.cursor = "pointer"
 
               button.addEventListener("click", async () => {
+
+                if (child.getAttribute("data-id") !== null) {
+                  document.getElementById(child.getAttribute("data-id")).remove()
+                }
                 child.remove()
                 this.removeOverlay(overlay)
                 this.renderBodyButtons(element)
+
               })
 
               const icon = document.createElement("img")
