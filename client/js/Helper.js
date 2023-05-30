@@ -1,15 +1,59 @@
 import {Request} from "/js/Request.js"
+import {TextField} from "/js/TextField.js"
 
 export class Helper {
 
-  static renderBodyButtons(buttons) {
-    buttons.innerHTML = ""
+  static convert(event, input) {
+
+
+    if (event === "element/alias") {
+
+      const output = document.createElement("div")
+      output.innerHTML = `&lt; ${input.tagName.toLowerCase()}`
+
+      if (input.id !== "") {
+        const id = document.createElement("span")
+        id.style.fontSize = "13px"
+        id.innerHTML = `#${input.id}`
+        output.append(id)
+      }
+
+      if (input.id === "") {
+        if (input.getAttribute("data-id") !== null) {
+          const id = document.createElement("span")
+          id.style.fontSize = "13px"
+          id.innerHTML = `#${input.getAttribute("data-id")}`
+          output.append(id)
+        }
+      }
+
+      if (input.classList.length > 0) {
+
+        for (let i = 0; i < input.classList.length; i++) {
+          const className = input.classList[i]
+          const span = document.createElement("span")
+          span.style.fontSize = "13px"
+          span.innerHTML = `.${className}`
+          output.append(span)
+        }
+
+      }
+
+      return output.innerHTML
+
+    }
+
+  }
+
+  static renderBodyButtons(element) {
+    element.innerHTML = ""
 
     for (let i = 0; i < document.body.children.length; i++) {
       const child = document.body.children[i]
 
+      if (child.tagName === "SCRIPT") continue
       if (child.id === "toolbox") continue
-      if (child.id === "toolbox-header") continue
+      if (child.getAttribute("data-id") === "toolbox") continue
       if (child.id.startsWith("overlay")) continue
 
       const button = document.createElement("div")
@@ -48,7 +92,9 @@ export class Helper {
             logo.style.margin = "21px 34px"
             header.append(logo)
             const title = document.createElement("div")
-            title.innerHTML = `&lt; ${child.tagName.toLowerCase()} ..`
+
+            title.innerHTML = this.convert("element/alias", child)
+
             title.style.fontWeight = "bold"
             title.style.fontFamily = "sans-serif"
             title.style.fontSize = "21px"
@@ -57,53 +103,258 @@ export class Helper {
           }
 
           {
-            const button = document.createElement("div")
-            button.style.display = "flex"
-            button.style.flexWrap = "wrap"
-            button.style.justifyContent = "space-between"
-            button.style.alignItems = "center"
-            button.style.margin = "21px 34px"
-            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+            const buttons = document.createElement("div")
+            buttons.style.overflowY = "auto"
+            buttons.style.paddingBottom = "144px"
+            buttons.style.overscrollBehavior = "none"
+            overlay.append(buttons)
 
-            button.style.borderRadius = "13px"
-            button.style.border = "0.3px solid black"
-            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-            button.style.cursor = "pointer"
+            {
+              const button = document.createElement("div")
+              button.style.display = "flex"
+              button.style.flexWrap = "wrap"
+              button.style.justifyContent = "space-between"
+              button.style.alignItems = "center"
+              button.style.margin = "21px 34px"
+              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+              button.style.borderRadius = "13px"
+              button.style.border = "0.3px solid black"
+              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+              button.style.cursor = "pointer"
+              button.addEventListener("click", () => {
 
-            button.addEventListener("click", async () => {
-              child.remove()
-              this.removeOverlay(overlay)
-              this.renderBodyButtons(buttons)
-            })
+                this.popup(overlay => {
+                  overlay.id = "overlay-3"
+                  const overlay3 = overlay
 
-            const icon = document.createElement("img")
-            icon.style.margin = "13px 34px"
-            icon.style.width = "34px"
-            icon.src = "/public/delete.svg"
-            icon.alt = "Löschen"
-            button.append(icon)
+                  {
+                    const header = document.createElement("div")
+                    header.style.position = "fixed"
+                    header.style.bottom = "0"
+                    header.style.left = "0"
+                    header.style.width = "100%"
+                    header.style.display = "flex"
+                    header.style.justifyContent = "flex-start"
+                    header.style.alignItems = "center"
+                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                    header.style.background = "white"
+                    header.style.zIndex = "1"
+                    header.style.cursor = "pointer"
+                    header.addEventListener("click", () => this.removeOverlay(overlay))
 
-            const title = document.createElement("div")
-            title.innerHTML = "Löschen"
-            title.style.margin = "21px 34px"
-            title.style.fontSize = "21px"
-            title.style.fontFamily = "sans-serif"
-            button.append(title)
+                    const logo = document.createElement("img")
+                    logo.src = "/public/getyour-logo.svg"
+                    logo.alt = "Getyour"
+                    logo.style.width = "55px"
+                    logo.style.margin = "21px 34px"
+                    header.append(logo)
+                    const title = document.createElement("div")
+                    title.innerHTML = `Web API`
+                    title.style.fontWeight = "bold"
+                    title.style.fontSize = "21px"
+                    title.style.fontFamily = "sans-serif"
+                    header.append(title)
+                    overlay.append(header)
+                  }
 
-            overlay.append(button)
+                  {
+                    const preview = document.createElement("div")
+                    preview.style.minHeight = "233px"
+                    preview.style.maxHeight = "233px"
+                    preview.style.overflow = "auto"
+                    const clone = child.cloneNode(true)
+                    clone.id = Date.now()
+                    clone.name = `${Date.now()}`
+                    preview.append(clone)
+                    overlay.append(preview)
+
+                    const text = document.createElement("div")
+                    text.innerHTML = "Vorschau"
+                    text.style.fontFamily = "sans-serif"
+                    text.style.fontSize = "13px"
+                    text.style.margin = "0 34px"
+                    overlay.append(text)
+
+                    const hr = document.createElement("hr")
+                    hr.style.margin = "0 21px"
+                    overlay.append(hr)
+
+                    const funnel = document.createElement("div")
+                    funnel.style.overflowY = "auto"
+                    funnel.style.paddingBottom = "144px"
+                    funnel.style.overscrollBehavior = "none"
+                    overlay.append(funnel)
+
+
+                    {
+                      const text = document.createElement("div")
+                      text.innerHTML = "div.textContent"
+                      text.style.fontFamily = "sans-serif"
+                      text.style.fontSize = "13px"
+                      text.style.margin = "0 34px"
+                      funnel.append(text)
+
+                      const hr = document.createElement("hr")
+                      hr.style.margin = "0 21px"
+                      funnel.append(hr)
+                    }
+
+                    const divTextContentField = new TextField("divTextContent", funnel)
+                    divTextContentField.label.innerHTML = "Inhalt"
+                    divTextContentField.input.addEventListener("input", (event) => {
+                      clone.textContent = event.target.value
+                      child.textContent = event.target.value
+                      divTextContentField.verifyValue()
+                    })
+                    divTextContentField.value(() => child.textContent)
+
+
+                    {
+                      const text = document.createElement("div")
+                      text.innerHTML = "div.style"
+                      text.style.fontFamily = "sans-serif"
+                      text.style.fontSize = "13px"
+                      text.style.margin = "0 34px"
+                      funnel.append(text)
+
+                      const hr = document.createElement("hr")
+                      hr.style.margin = "0 21px"
+                      funnel.append(hr)
+                    }
+
+                    const divStylePropertyField = new TextField("divStyleProperty", funnel)
+                    divStylePropertyField.label.innerHTML = "CSS Eigenschaft"
+                    divStylePropertyField.input.required = true
+                    divStylePropertyField.input.addEventListener("input", (event) => {
+                      if (event.target.style[event.target.value] !== undefined) {
+                        Helper.setValidStyle(event.target)
+                      } else {
+                        Helper.setNotValidStyle(event.target)
+                      }
+                    })
+
+                    const divStyleValueField = new TextField("divStyleValue", funnel)
+                    divStyleValueField.label.innerHTML = "CSS Wert"
+                    divStyleValueField.input.addEventListener("input", () => {
+                      divStyleValueField.verifyValue()
+                    })
+
+
+                    {
+                      const button = document.createElement("div")
+                      button.innerHTML = "CSS anwenden"
+                      button.style.backgroundColor = "#f7aa20"
+                      button.style.cursor = "pointer"
+                      button.style.fontSize = "21px"
+                      button.style.fontFamily = "sans-serif"
+                      button.style.borderRadius = "13px"
+                      button.style.margin = "21px 34px"
+                      button.style.display = "flex"
+                      button.style.justifyContent = "center"
+                      button.style.alignItems = "center"
+                      button.style.height = "89px"
+                      button.style.color = "#000"
+                      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                      button.addEventListener("click", () => {
+
+                        try {
+                          divStylePropertyField.validValue()
+                          if (divStylePropertyField.input.style[divStylePropertyField.input.value] === undefined) throw new Error("css property not found")
+                        } catch (error) {
+                          alert(`Die CSS Eigenschaft ist ungültig.`)
+                          Helper.setNotValidStyle(divStylePropertyField.input)
+                          throw error
+                        }
+
+                        const cssValue = divStyleValueField.validValue()
+
+                        clone.style[divStylePropertyField.input.value] = cssValue
+                        child.style[divStylePropertyField.input.value] = cssValue
+
+                        divStylePropertyField.input.value = ""
+                        Helper.setNotValidStyle(divStylePropertyField.input)
+                        divStyleValueField.input.value = ""
+
+                      })
+                      funnel.append(button)
+                    }
+
+                  }
+
+
+                })
+              })
+
+              const icon = document.createElement("img")
+              icon.style.margin = "13px 34px"
+              icon.style.width = "34px"
+              icon.src = "/public/js.svg"
+              icon.alt = "JavaScript"
+              button.append(icon)
+
+              const title = document.createElement("div")
+              title.innerHTML = "Web API"
+              title.style.margin = "21px 34px"
+              title.style.fontSize = "21px"
+              title.style.fontFamily = "sans-serif"
+              button.append(title)
+
+              buttons.append(button)
+            }
+
+            {
+              const button = document.createElement("div")
+              button.style.display = "flex"
+              button.style.flexWrap = "wrap"
+              button.style.justifyContent = "space-between"
+              button.style.alignItems = "center"
+              button.style.margin = "21px 34px"
+              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+
+              button.style.borderRadius = "13px"
+              button.style.border = "0.3px solid black"
+              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+              button.style.cursor = "pointer"
+
+              button.addEventListener("click", async () => {
+                child.remove()
+                this.removeOverlay(overlay)
+                this.renderBodyButtons(element)
+              })
+
+              const icon = document.createElement("img")
+              icon.style.margin = "13px 34px"
+              icon.style.width = "34px"
+              icon.src = "/public/delete.svg"
+              icon.alt = "Löschen"
+              button.append(icon)
+
+              const title = document.createElement("div")
+              title.innerHTML = "Löschen"
+              title.style.margin = "21px 34px"
+              title.style.fontSize = "21px"
+              title.style.fontFamily = "sans-serif"
+              button.append(title)
+
+              buttons.append(button)
+            }
+
           }
+
 
         })
 
       })
 
       const left = document.createElement("div")
-      left.innerHTML = `&lt; ${child.tagName.toLowerCase()}`
+
+      left.innerHTML = this.convert("element/alias", child)
+
       left.style.fontFamily = "sans-serif"
       left.style.margin = "21px 34px"
       left.style.fontSize = "21px"
       button.append(left)
-      buttons.append(button)
+      element.append(button)
 
       const right = document.createElement("div")
       right.innerHTML = `..`
@@ -111,10 +362,10 @@ export class Helper {
       right.style.margin = "21px 34px"
       right.style.fontSize = "21px"
       button.append(right)
-      buttons.append(button)
+      element.append(button)
     }
 
-    return buttons
+    return element
   }
 
   static renderHeadButtons(buttons) {
@@ -122,6 +373,8 @@ export class Helper {
 
     for (let i = 0; i < document.head.children.length; i++) {
       const child = document.head.children[i]
+
+      if (child.id.startsWith("meta-default")) continue
 
       const button = document.createElement("div")
       button.style.display = "flex"
@@ -536,11 +789,10 @@ export class Helper {
     if (callback !== undefined) {
       const overlay = document.createElement("div")
 
-      // safari mobile address bar issue
-      // overlay.style.height = "100vh"
+      // mobile issues
       overlay.style.height = "100%"
-      // // overlay.style.height = "-webkit-fill-available"
-      // document.documentElement.style.height = "-webkit-fill-available"
+      overlay.style.overscrollBehavior = "none"
+      document.body.style.overscrollBehavior = "none"
 
       overlay.style.width = "100%"
       overlay.style.zIndex = "1"
@@ -555,7 +807,6 @@ export class Helper {
       callback(overlay)
 
       document.body.append(overlay)
-      // document.body.style.position = "fixed"
 
       const animation = overlay.animate([
         { opacity: 0, transform: 'translateY(13px)' },
@@ -565,17 +816,6 @@ export class Helper {
         easing: 'ease-in-out',
         fill: "forwards"
       })
-
-      // // When ready...
-      // window.addEventListener("load",function() {
-      //   // Set a timeout...
-      //   setTimeout(function(){
-      //     // Hide the address bar!
-      //     window.scrollTo(0, 1)
-      //   }, 0)
-      // })
-
-      // window.scrollTo(0, 1)
 
       return overlay
     }

@@ -20,9 +20,19 @@
   </head>
   <body>
 
+
+
     <script type="module">
       import {Request} from "/js/Request.js"
       import {Helper} from "/js/Helper.js"
+
+      // moved everything to expert.html
+      // do marketing here
+      // and lead to expert
+      // lead to expert funnel
+      // tell them what they can expect
+      // nimm design von felix
+
 
       {
         const header = document.createElement("header")
@@ -116,6 +126,7 @@
                 Helper.reset(buttons)
                 buttons.style.overflow = "auto"
                 buttons.style.paddingBottom = "144px"
+                buttons.style.overscrollBehavior = "none"
 
                 if (res.status === 200) {
                   const button = document.createElement("div")
@@ -352,6 +363,8 @@
           Helper.reset(buttons)
           buttons.style.overflowY = "auto"
           buttons.style.paddingBottom = "144px"
+          buttons.style.overscrollBehavior = "none"
+
           for (let i = 0; i < platforms.length; i++) {
 
             const platform = platforms[i]
@@ -405,6 +418,8 @@
                     const buttons = document.createElement("div")
                     buttons.style.overflow = "auto"
                     buttons.style.paddingBottom = "144px"
+                    buttons.style.overscrollBehavior = "none"
+
 
                     for (let i = 0; i < platform.values.length; i++) {
                       const value = platform.values[i]

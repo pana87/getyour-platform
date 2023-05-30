@@ -2,6 +2,29 @@ import { Helper } from "/js/Helper.js"
 
 export class TextField {
 
+  updateScript() {
+
+    this.script.innerHTML = ""
+
+    this.script.append(`import {TextField} from "/js/TextField.js";`)
+    this.script.append(`const textField = new TextField("${this.name}");`)
+    this.script.append(`textField.field.setAttribute("data-id", "${this.name}");`)
+
+    if (!Helper.stringIsEmpty(this.label.textContent)) {
+      this.appendToScript(`textField.label.textContent = "${this.label.textContent}";`)
+    }
+
+    for (let i = 0; i < this.field.classList.length; i++) {
+      const className = this.field.classList[i]
+      this.appendToScript(`textField.field.classList.add("${className}");`)
+    }
+
+  }
+
+  appendToScript(string) {
+    this.script.append(string)
+  }
+
   withInfoClick(callback) {
     if (callback !== undefined) {
       this.icon.src = "/public/info-gray.svg"
@@ -60,8 +83,8 @@ export class TextField {
         return this.input.value
       }
       Helper.setNotValidStyle(this.input)
-      const error = new Error(`field required: '${this.name}'`)
-      error.fieldName = this.name
+      const error = new Error(`Feld '${this.name}' ist ungültig.`)
+      error.field = this.field
       throw new Error(error)
     }
     Helper.setValidStyle(this.input)
@@ -70,7 +93,6 @@ export class TextField {
 
   #setText(field) {
     field.innerHTML = ""
-    field.id = this.name
     field.style.position = "relative"
     field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
     field.style.borderRadius = "13px"
@@ -123,5 +145,10 @@ export class TextField {
       this.parent = parent
       parent.append(this.field)
     }
+
+    this.script = document.createElement("script")
+    this.script.id = this.name
+    this.script.type = "module"
+    this.updateScript()
   }
 }
