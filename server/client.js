@@ -24,16 +24,15 @@ app.use((req, res, next) => {
   next()
 })
 
-// let cookiesRemoved
-// app.use((req, res, next) => {
-//   if (cookiesRemoved === undefined) {
-//     for (const cookie in req.cookies) {
-//       res.clearCookie(cookie)
-//     }
-//     cookiesRemoved = true
-//   }
-//   next()
-// })
+app.use((req, res, next) => {
+  for (const cookie in req.cookies) {
+    if (cookie === "jwtToken") continue
+    if (cookie === "sessionToken") continue
+    res.cookie(cookie, '', { expires: new Date(0) })
+    res.clearCookie(cookie)
+  }
+  next()
+})
 
 // app.use(async(req, res, next) => {
 //   try {
@@ -46,7 +45,6 @@ app.use((req, res, next) => {
 // })
 
 
-// static first
 app.use("/docs/", express.static(docsLocation.absolutePath))
 app.use(express.static(clientLocation.absolutePath))
 
@@ -377,12 +375,6 @@ async (req, res) => {
       user.session.counter = user.session.counter + 1
     }
     await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
-
-    const cookies = Object.keys(req.cookies)
-    cookies.forEach((cookie) => {
-      res.cookie(cookie, '', { expires: new Date(0) })
-      res.clearCookie(cookie)
-    })
 
     const sessionLength = 120 * 60000
     res.cookie("jwtToken", jwtToken, {

@@ -3,6 +3,29 @@ import {TextField} from "/js/TextField.js"
 
 export class Helper {
 
+  static warnMattePalette = {
+    darkYellow: "#9A8700",
+    lightYellow: "#f7aa20",
+  }
+
+  static darkMattePalette = {
+    background: '#292929',
+    primary: '#2E4369',
+    secondary: '#4E6172',
+    accent: '#6D8898',
+    text: '#CDD9E5',
+    error: '#9B3C38',
+  }
+
+  static lightMattePalette = {
+    background: '#F0F0F0',
+    primary: '#A0A0A0',
+    secondary: '#7C7C7C',
+    accent: '#595959',
+    text: '#333333',
+    error: '#B03535',
+  }
+
   static convert(event, input) {
 
 

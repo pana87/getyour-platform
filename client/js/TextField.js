@@ -47,11 +47,18 @@ export class TextField {
   #isRequired(input) {
     if (input.required === true) return true
     if (input.accept === "text/tag") return true
+    if (input.accept === "text/hex") return true
     return false
   }
 
   #checkValidity(input) {
     if (input.checkValidity() === false) return false
+
+    if (input.accept === "text/hex") {
+      if (typeof input.value !== "string") return false
+      if (/^[0-9A-Fa-f]+$/.test(input.value) === true) return true
+      return false
+    }
 
     if (input.accept === "text/tag") {
       if (typeof input.value !== "string") return false
