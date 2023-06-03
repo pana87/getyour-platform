@@ -46,9 +46,9 @@ export class Request {
     Helper.popup(async securityOverlay => {
 
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        securityOverlay.style.backgroundColor = Helper.darkMattePalette.background
+        securityOverlay.style.backgroundColor = Helper.colors.matte.dark.background
       } else {
-        securityOverlay.style.backgroundColor = Helper.lightMattePalette.background
+        securityOverlay.style.backgroundColor = Helper.colors.matte.light.background
       }
 
       document.body.style.overflow = "hidden"
@@ -92,13 +92,13 @@ export class Request {
 
 
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          pinField.field.style.border = `0.3px solid ${Helper.darkMattePalette.text}`
-          pinField.input.style.color = Helper.darkMattePalette.text
-          pinField.label.style.color = Helper.darkMattePalette.text
+          pinField.field.style.border = `0.3px solid ${Helper.colors.matte.dark.text}`
+          pinField.input.style.color = Helper.colors.matte.dark.text
+          pinField.label.style.color = Helper.colors.matte.dark.text
         } else {
-          pinField.field.style.border = `0.3px solid ${Helper.lightMattePalette.text}`
-          pinField.input.style.color = Helper.lightMattePalette.text
-          pinField.label.style.color = Helper.lightMattePalette.text
+          pinField.field.style.border = `0.3px solid ${Helper.colors.matte.light.text}`
+          pinField.input.style.color = Helper.colors.matte.light.text
+          pinField.label.style.color = Helper.colors.matte.light.text
         }
 
         Helper.setNotValidStyle(pinField.input)
@@ -113,11 +113,11 @@ export class Request {
         button.innerHTML = "PIN bestätigen"
 
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          button.style.backgroundColor = Helper.warnMattePalette.lightYellow
-          button.style.color = Helper.darkMattePalette.background
+          button.style.backgroundColor = Helper.colors.matte.lightYellow
+          button.style.color = Helper.colors.matte.dark.background
         } else {
-          button.style.backgroundColor = Helper.warnMattePalette.lightYellow
-          button.style.color = Helper.lightMattePalette.background
+          button.style.backgroundColor = Helper.colors.matte.lightYellow
+          button.style.color = Helper.colors.matte.light.background
         }
 
         button.style.cursor = "pointer"
@@ -168,13 +168,13 @@ export class Request {
           infoBox.style.display = "flex"
 
           if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            infoBox.style.color = Helper.darkMattePalette.text
-            infoBox.style.backgroundColor = Helper.darkMattePalette.error
-            infoBox.style.border = `2px solid ${Helper.lightMattePalette.error}`
+            infoBox.style.color = Helper.colors.matte.dark.text
+            infoBox.style.backgroundColor = Helper.colors.matte.dark.error
+            infoBox.style.border = `2px solid ${Helper.colors.matte.dark.error}`
           } else {
-            infoBox.style.color = Helper.lightMattePalette.text
-            infoBox.style.backgroundColor = Helper.lightMattePalette.error
-            infoBox.style.border = `2px solid ${Helper.darkMattePalette.error}`
+            infoBox.style.color = Helper.colors.matte.light.text
+            infoBox.style.backgroundColor = Helper.colors.matte.light.error
+            infoBox.style.border = `2px solid ${Helper.colors.matte.light.error}`
           }
 
           infoBox.style.fontSize = "13px"

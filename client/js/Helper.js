@@ -3,30 +3,114 @@ import {TextField} from "/js/TextField.js"
 
 export class Helper {
 
-  static warnMattePalette = {
-    darkYellow: "#9A8700",
-    lightYellow: "#f7aa20",
+  static iconPicker(name) {
+
+    if (name === "smiling-bear") {
+      const svgString = `<svg fill="#000000" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19,1a3.976,3.976,0,0,0-3.268,1.729,9.917,9.917,0,0,0-7.464,0,3.984,3.984,0,1,0-5.539,5.54A9.941,9.941,0,0,0,2,12c0,5.192,4.276,11,10,11s10-5.808,10-11a9.941,9.941,0,0,0-.729-3.731A3.984,3.984,0,0,0,19,1ZM3.667,6.478A1.978,1.978,0,0,1,3,5,2,2,0,0,1,5,3a1.978,1.978,0,0,1,1.478.667A10.3,10.3,0,0,0,3.667,6.478ZM12,21c-4.579,0-8-4.751-8-9a8,8,0,0,1,16,0C20,16.249,16.579,21,12,21ZM17.522,3.667A1.978,1.978,0,0,1,19,3a2,2,0,0,1,2,2,1.978,1.978,0,0,1-.667,1.478A10.407,10.407,0,0,0,17.522,3.667ZM16,15.5c0,1.038-.836,3-4,3s-4-1.962-4-3a1,1,0,0,1,2,0c.008.111.109.644,1,.882V15.051L9.617,12.426A.954.954,0,0,1,10.368,11h3.264a.954.954,0,0,1,.751,1.426L13,15.051v1.331c.891-.239.992-.778,1-.911a1.029,1.029,0,0,1,1.032-.952A.984.984,0,0,1,16,15.5Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      return svg
+    }
+
   }
 
-  static darkMattePalette = {
-    background: '#292929',
-    primary: '#2E4369',
-    secondary: '#4E6172',
-    accent: '#6D8898',
-    text: '#CDD9E5',
-    error: '#9B3C38',
+  static colorPicker(palette, element) {
+    const colors = document.createElement("div")
+    colors.style.overflowY = "auto"
+    colors.style.height = "610px"
+    colors.style.overscrollBehavior = "none"
+    element.append(colors)
+
+    for (const [key, value] of Object.entries(this.colors[palette])) {
+      const color = document.createElement("div")
+      color.style.height = "34px"
+      color.style.margin = "8px 34px"
+      color.style.borderRadius = "3px"
+      color.style.padding = "5px"
+      color.innerHTML = key
+      color.style.background = value
+      colors.append(color)
+
+      if (typeof value === "object") {
+        for (const [key, val] of Object.entries(value)) {
+          const color = document.createElement("div")
+          color.style.height = "34px"
+          color.style.margin = "8px 34px"
+          color.style.borderRadius = "3px"
+          color.style.padding = "5px"
+          color.innerHTML = key
+          color.style.background = val
+          colors.append(color)
+        }
+      }
+    }
   }
 
-  static lightMattePalette = {
-    background: '#F0F0F0',
-    primary: '#A0A0A0',
-    secondary: '#7C7C7C',
-    accent: '#595959',
-    text: '#333333',
-    error: '#B03535',
+  // https://simplicable.com/colors/
+  static colors = {
+    matte: {
+      mint: '#72e6cb',
+      seaGreen: '#277e71',
+      black: '#303030',
+      charcoal: '#444444',
+      slate: '#555555',
+      deepBlue: '#003366',
+      forest: '#09443c',
+      maroon: '#801515',
+      mustard: '#9A8700',
+      plum: '#4F2D56',
+      chocolate: '#3D1F0D',
+      steel: '#555B6E',
+      white: '#F0F0F0',
+      snow: '#FAFAFA',
+      ash: '#C0C0C0',
+      skyBlue: '#A3C1D1',
+      mintGreen: '#84B082',
+      coral: '#D46A6A',
+      lemon: '#FFEB99',
+      lavender: '#D8C8EA',
+      almond: '#E9D6AF',
+      pearl: '#F2F2F2',
+      chartreuse: '#b5e288',
+      celadon: '#ace1af',
+      royalBlue: '#4169E1',
+      olive: '#808000',
+      teal: '#008080',
+      raspberry: '#B5014E',
+      sand: '#CDB79E',
+      navy: '#000080',
+      emerald: '#50C878',
+      tangerine: '#FFA500',
+      lilac: '#C8A2C8',
+      taupe: '#483C32',
+      lime: '#9fcb8d',
+      lightYellow: "#f7aa20",
+      dark: {
+        background: '#28282B',
+        primary: '#2E4369',
+        secondary: '#4E6172',
+        accent: '#6D8898',
+        text: '#CDD9E5',
+        error: '#9B3C38',
+      },
+      light: {
+        background: '#F0F0F0',
+        primary: '#A0A0A0',
+        secondary: '#7C7C7C',
+        accent: '#595959',
+        text: '#333333',
+        error: '#B03535',
+      },
+    },
   }
 
   static convert(event, input) {
+
+    if (event === "text/svg") {
+      const container = document.createElement("div")
+      // sanatize svg
+      container.innerHTML = input
+      return container.children[0]
+    }
 
 
     if (event === "element/alias") {
