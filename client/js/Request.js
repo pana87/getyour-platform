@@ -58,16 +58,31 @@ export class Request {
       content.style.flexDirection = "column"
       content.style.justifyContent = "center"
       content.style.alignItems = "center"
-      content.style.height = "89vh"
-      const loading = document.createElement("img")
-      loading.src = "/public/load.svg"
-      loading.alt = "Bitte warten.."
+      content.style.height = `${window.innerHeight}px`
+
+
+      const loading = Helper.iconPicker("loading")
+
       loading.style.width = "55px"
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        loading.style.fill = Helper.colors.matte.dark.error
+      } else {
+        loading.style.fill = Helper.colors.matte.light.error
+      }
+
       content.append(loading)
+
+
+
       const info = document.createElement("div")
       info.innerHTML = "Das kann einen Moment dauern .."
       info.style.fontSize = "13px"
-      info.style.color = "#be0909"
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        info.style.color = Helper.colors.matte.dark.error
+      } else {
+        info.style.color = Helper.colors.matte.light.error
+      }
       info.style.margin = "13px"
       content.append(info)
       securityOverlay.append(content)
@@ -132,32 +147,79 @@ export class Request {
 
         button.addEventListener("click", async () => {
 
-          try {
-            const pin = pinField.validValue()
+          Helper.popup(async securityOverlay => {
 
-            const verify = {}
-            verify.url = "/request/verify/pin/"
-            verify.userPin = pin
-            verify.location = window.location.href
-            verify.referer = document.referrer
-            await this.sequence(verify)
-
-            const id = await Helper.digest(JSON.stringify({email: email, verified: true}))
-            window.localStorage.setItem("localStorageId", id)
-            window.localStorage.setItem("email", email)
-            callback(event)
-          } catch (error) {
-            EventTarget.prototype.addEventListener = function(type, listener, options) {
-              console.log('Event listeners blocked')
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              securityOverlay.style.backgroundColor = Helper.colors.matte.dark.background
+            } else {
+              securityOverlay.style.backgroundColor = Helper.colors.matte.light.background
             }
-            window.XMLHttpRequest = function() {
-              console.log('XHR blocked')
-            }
-            alert("Es tut uns sehr leid, dass ein Fehler aufgetreten ist. Wir verstehen, wie frustrierend es sein kann, wenn Dinge nicht so funktionieren, wie sie sollten. Wir möchten Sie gerne beruhigen und Ihnen versichern, dass unser Team hart daran arbeitet, diesen Fehler so schnell wie möglich zu beheben. Wir hoffen, dass Sie uns die Gelegenheit geben werden, das Problem zu lösen. Falls der Fehler noch einmal auftritt, stehen wir Ihnen gerne zur Verfügung. Bitte zögern Sie nicht, uns unter 'datenschutz@get-your.de' zu kontaktieren, damit wir Ihnen helfen können. In der Zwischenzeit möchten wir Sie ermutigen, es einfach noch einmal zu versuchen. Vielen Dank für Ihr Verständnis und Ihre Geduld.")
-            window.location.reload()
-            throw error
 
-          }
+            const content = document.createElement("div")
+            content.style.display = "flex"
+            content.style.flexDirection = "column"
+            content.style.justifyContent = "center"
+            content.style.alignItems = "center"
+            content.style.height = `${window.innerHeight}px`
+
+
+            const loading = Helper.iconPicker("loading")
+            loading.style.width = "55px"
+
+
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              loading.style.fill = Helper.colors.matte.dark.error
+            } else {
+              loading.style.fill = Helper.colors.matte.light.error
+            }
+
+            content.append(loading)
+
+            const info = document.createElement("div")
+            info.innerHTML = "Das kann einen Moment dauern .."
+            info.style.fontSize = "13px"
+            info.style.margin = "13px"
+
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              info.style.color = Helper.colors.matte.dark.error
+            } else {
+              info.style.color = Helper.colors.matte.light.error
+            }
+
+            content.append(info)
+            securityOverlay.append(content)
+
+            try {
+              const pin = pinField.validValue()
+
+              const verify = {}
+              verify.url = "/request/verify/pin/"
+              verify.userPin = pin
+              verify.location = window.location.href
+              verify.referer = document.referrer
+              await this.sequence(verify)
+
+              const id = await Helper.digest(JSON.stringify({email: email, verified: true}))
+              window.localStorage.setItem("localStorageId", id)
+              window.localStorage.setItem("email", email)
+              callback(event)
+            } catch (error) {
+
+              EventTarget.prototype.addEventListener = function(type, listener, options) {
+                console.log('Event listeners blocked')
+              }
+              window.XMLHttpRequest = function() {
+                console.log('XHR blocked')
+              }
+              alert("Es tut uns sehr leid, dass ein Fehler aufgetreten ist. Wir verstehen, wie frustrierend es sein kann, wenn Dinge nicht so funktionieren, wie sie sollten. Wir möchten Sie gerne beruhigen und Ihnen versichern, dass unser Team hart daran arbeitet, diesen Fehler so schnell wie möglich zu beheben. Wir hoffen, dass Sie uns die Gelegenheit geben werden, das Problem zu lösen. Falls der Fehler noch einmal auftritt, stehen wir Ihnen gerne zur Verfügung. Bitte zögern Sie nicht, uns unter 'datenschutz@get-your.de' zu kontaktieren, damit wir Ihnen helfen können. In der Zwischenzeit möchten wir Sie ermutigen, es einfach noch einmal zu versuchen. Vielen Dank für Ihr Verständnis und Ihre Geduld.")
+              window.location.reload()
+              throw error
+
+            }
+
+          })
+
+
 
         })
         content.append(button)
