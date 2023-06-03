@@ -314,7 +314,7 @@
             if (res.status === 200) {
               const redirect = {}
               redirect.url = "/redirect/user/closed/"
-              redirect.roleId = "2"
+              // redirect.roleId = "2"
               redirect.location = window.location.href
               redirect.referer = document.referrer
               redirect.localStorageEmail = await Request.email()
