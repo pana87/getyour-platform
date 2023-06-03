@@ -531,6 +531,7 @@ app.post(`/:method/:type/:event/`,
   Request.verifySession,
 
   Request.redirect,
+  // Request.register,
   Request.get,
 
 async(req, res) => {
