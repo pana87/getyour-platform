@@ -101,9 +101,18 @@ export class TextField {
   #setText(field) {
     field.innerHTML = ""
     field.style.position = "relative"
-    field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
     field.style.borderRadius = "13px"
-    field.style.border = "0.3px solid black"
+
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      field.style.backgroundColor = Helper.colors.matte.dark.background
+      field.style.border = `0.3px solid ${Helper.colors.matte.dark.accent}`
+    } else {
+      field.style.backgroundColor = Helper.colors.matte.light.background
+      field.style.border = `0.3px solid ${Helper.colors.matte.light.accent}`
+    }
+
+
+
     field.style.display = "flex"
     field.style.flexDirection = "column"
     field.style.margin = "34px"
@@ -125,8 +134,20 @@ export class TextField {
     labelContainer.append(icon)
 
     const label = document.createElement("label")
+
+
+
     label.classList.add(this.name)
-    label.style.color = "#707070"
+
+
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      label.style.color = Helper.colors.matte.dark.text
+    } else {
+      label.style.color = Helper.colors.matte.light.text
+    }
+
+
+
     label.style.fontSize = "21px"
     this.label = label
     labelContainer.append(label)
@@ -135,8 +156,20 @@ export class TextField {
     const input = document.createElement("input")
     input.classList.add(this.name)
     input.type = this.type
+
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      input.style.backgroundColor = Helper.colors.matte.dark.background
+      input.style.color = Helper.colors.matte.dark.text
+    } else {
+      input.style.backgroundColor = Helper.colors.matte.light.background
+      input.style.color = Helper.colors.matte.light.text
+    }
+
     input.style.margin = "21px 89px 21px 34px"
     input.style.fontSize = "21px"
+
+
+
     this.input = input
     field.append(input)
     return field

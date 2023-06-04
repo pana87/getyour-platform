@@ -102,24 +102,10 @@ export class Request {
         content.style.height = `${window.innerHeight}px`
 
         const pinField = new TextField("pin", content)
-        pinField.field.style.backgroundColor = "transparent"
         pinField.label.textContent = "Meine PIN"
-
-
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          pinField.field.style.border = `0.3px solid ${Helper.colors.matte.dark.text}`
-          pinField.input.style.color = Helper.colors.matte.dark.text
-          pinField.label.style.color = Helper.colors.matte.dark.text
-        } else {
-          pinField.field.style.border = `0.3px solid ${Helper.colors.matte.light.text}`
-          pinField.input.style.color = Helper.colors.matte.light.text
-          pinField.label.style.color = Helper.colors.matte.light.text
-        }
-
         Helper.setNotValidStyle(pinField.input)
         pinField.input.required = true
         pinField.input.accept = "text/hex"
-        pinField.input.style.backgroundColor = "transparent"
         pinField.input.addEventListener("input", () => {
           pinField.verifyValue()
         })
@@ -128,11 +114,11 @@ export class Request {
         button.innerHTML = "PIN bestätigen"
 
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          button.style.backgroundColor = Helper.colors.matte.lightYellow
-          button.style.color = Helper.colors.matte.dark.background
+          button.style.backgroundColor = Helper.colors.matte.orange
+          button.style.color = Helper.colors.matte.light.text
         } else {
-          button.style.backgroundColor = Helper.colors.matte.lightYellow
-          button.style.color = Helper.colors.matte.light.background
+          button.style.backgroundColor = Helper.colors.matte.sunflower
+          button.style.color = Helper.colors.matte.light.text
         }
 
         button.style.cursor = "pointer"
@@ -232,11 +218,9 @@ export class Request {
           if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             infoBox.style.color = Helper.colors.matte.dark.text
             infoBox.style.backgroundColor = Helper.colors.matte.dark.error
-            infoBox.style.border = `2px solid ${Helper.colors.matte.dark.error}`
           } else {
             infoBox.style.color = Helper.colors.matte.light.text
-            infoBox.style.backgroundColor = Helper.colors.matte.light.error
-            infoBox.style.border = `2px solid ${Helper.colors.matte.light.error}`
+            infoBox.style.backgroundColor = Helper.colors.matte.apricot
           }
 
           infoBox.style.fontSize = "13px"
@@ -244,11 +228,9 @@ export class Request {
           infoBox.style.padding = "21px"
           infoBox.style.borderRadius = "13px"
 
-          const icon = document.createElement("img")
-          icon.style.width = "21px"
+          const icon = Helper.iconPicker("warn")
+          icon.style.width = "144px"
           icon.style.marginRight = "13px"
-          icon.src = "/public/warn-light.svg"
-          icon.alt = "Achtung"
           infoBox.append(icon)
 
           const message = document.createElement("div")

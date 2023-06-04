@@ -5,15 +5,51 @@ export class Helper {
 
   static iconPicker(name) {
 
+    if (name === "warn") {
+      const svgString = /*html*/`
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 9V14" stroke="whitesmoke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12.0001 21.41H5.94005C2.47005 21.41 1.02005 18.93 2.70005 15.9L5.82006 10.28L8.76006 5.00003C10.5401 1.79003 13.4601 1.79003 15.2401 5.00003L18.1801 10.29L21.3001 15.91C22.9801 18.94 21.5201 21.42 18.0601 21.42H12.0001V21.41Z" stroke="whitesmoke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M11.9945 17H12.0035" stroke="whitesmoke" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      `
+      const svg = this.convert("text/svg", svgString)
+
+      for (let i = 0; i < svg.children.length; i++) {
+        const child = svg.children[i]
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          child.setAttribute("stroke", this.colors.matte.dark.text)
+        } else {
+          child.setAttribute("stroke", this.colors.matte.light.text)
+        }
+      }
+
+      return svg
+    }
+
     if (name === "loading") {
       const svgString = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100"><path d="M10 50A40 40 0 0 0 90 50A40 42 0 0 1 10 50" stroke="none"><animateTransform attributeName="transform" type="rotate" dur="1s" repeatCount="indefinite" keyTimes="0;1" values="0 50 51;360 50 51"></animateTransform></path></svg>`
       const svg = this.convert("text/svg", svgString)
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        svg.style.fill = this.colors.matte.dark.text
+      } else {
+        svg.style.fill = this.colors.matte.light.text
+      }
+
       return svg
     }
 
     if (name === "smiling-bear") {
       const svgString = `<svg fill="#000000" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19,1a3.976,3.976,0,0,0-3.268,1.729,9.917,9.917,0,0,0-7.464,0,3.984,3.984,0,1,0-5.539,5.54A9.941,9.941,0,0,0,2,12c0,5.192,4.276,11,10,11s10-5.808,10-11a9.941,9.941,0,0,0-.729-3.731A3.984,3.984,0,0,0,19,1ZM3.667,6.478A1.978,1.978,0,0,1,3,5,2,2,0,0,1,5,3a1.978,1.978,0,0,1,1.478.667A10.3,10.3,0,0,0,3.667,6.478ZM12,21c-4.579,0-8-4.751-8-9a8,8,0,0,1,16,0C20,16.249,16.579,21,12,21ZM17.522,3.667A1.978,1.978,0,0,1,19,3a2,2,0,0,1,2,2,1.978,1.978,0,0,1-.667,1.478A10.407,10.407,0,0,0,17.522,3.667ZM16,15.5c0,1.038-.836,3-4,3s-4-1.962-4-3a1,1,0,0,1,2,0c.008.111.109.644,1,.882V15.051L9.617,12.426A.954.954,0,0,1,10.368,11h3.264a.954.954,0,0,1,.751,1.426L13,15.051v1.331c.891-.239.992-.778,1-.911a1.029,1.029,0,0,1,1.032-.952A.984.984,0,0,1,16,15.5Z"/></svg>`
       const svg = this.convert("text/svg", svgString)
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        svg.style.fill = this.colors.matte.dark.text
+      } else {
+        svg.style.fill = this.colors.matte.light.text
+      }
+
       return svg
     }
 
@@ -54,6 +90,10 @@ export class Helper {
   // https://simplicable.com/colors/
   static colors = {
     matte: {
+      orange: '#e8a435',
+      sunflower: '#efa514',
+      apricot: '#fbceb1',
+      red: '#ee7a7a',
       mint: '#72e6cb',
       seaGreen: '#277e71',
       black: '#303030',
@@ -1201,9 +1241,21 @@ export class Helper {
   }
 
   static setNotValidStyle(element) {
-    element.style.border = "2px solid #d50000"
+
+    let color
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      color = this.colors.matte.light.error
+    } else {
+      color = this.colors.matte.light.error
+    }
+
+
+
+    element.style.border = `2px solid ${color}`
     if (element.type === "checkbox") {
-      element.style.outline = "2px solid #d50000"
+
+
+      element.style.outline = `2px solid ${color}`
     }
     element.style.borderRadius = "3px"
     const signs = element.parentNode.querySelectorAll("div[id='sign']")
@@ -1213,7 +1265,7 @@ export class Helper {
       sign.innerHTML = "x"
       sign.style.position = "absolute"
       sign.style.right = "34px"
-      sign.style.color = "#d50000"
+      sign.style.color = color
       sign.style.fontSize = "34px"
       sign.style.fontFamily = "sans-serif"
       element.parentNode.append(sign)
@@ -1226,7 +1278,7 @@ export class Helper {
       sign.innerHTML = "x"
       sign.style.position = "absolute"
       sign.style.right = "34px"
-      sign.style.color = "#d50000"
+      sign.style.color = color
       sign.style.fontSize = "34px"
       sign.style.fontFamily = "sans-serif"
       element.parentNode.append(sign)
