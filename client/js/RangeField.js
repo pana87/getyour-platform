@@ -1,6 +1,6 @@
 import { Helper } from "/js/Helper.js"
 
-export class TextField {
+export class RangeField {
 
   withInfoClick(callback) {
     if (callback !== undefined) {
@@ -23,26 +23,27 @@ export class TextField {
 
   #isRequired(input) {
     if (input.required === true) return true
-    if (input.accept === "text/tag") return true
-    if (input.accept === "text/hex") return true
+    // if (input.accept === "text/tag") return true
+    // if (input.accept === "text/hex") return true
     return false
   }
 
   #checkValidity(input) {
     if (input.checkValidity() === false) return false
+    // if (typeof input.value !== "number") return falses
 
-    if (input.accept === "text/hex") {
-      if (typeof input.value !== "string") return false
-      if (/^[0-9A-Fa-f]+$/.test(input.value) === true) return true
-      return false
-    }
+    // if (input.accept === "text/hex") {
+    //   if (typeof input.value !== "string") return false
+    //   if (/^[0-9A-Fa-f]+$/.test(input.value) === true) return true
+    //   return false
+    // }
 
-    if (input.accept === "text/tag") {
-      if (typeof input.value !== "string") return false
-      input.value = input.value.replace(/ /g, "-")
-      if (/^[a-z](?:-?[a-z]+)*$/.test(input.value) === true) return true
-      return false
-    }
+    // if (input.accept === "text/tag") {
+    //   if (typeof input.value !== "string") return false
+    //   input.value = input.value.replace(/ /g, "-")
+    //   if (/^[a-z](?:-?[a-z]+)*$/.test(input.value) === true) return true
+    //   return false
+    // }
 
     return true
   }
@@ -69,7 +70,7 @@ export class TextField {
       Helper.setNotValidStyle(this.input)
       const error = new Error(`Feld '${this.name}' ist ungültig.`)
       error.field = this.field
-      throw error
+      throw new Error(error)
     }
     Helper.setValidStyle(this.input)
     return this.input.value
@@ -138,8 +139,6 @@ export class TextField {
     input.style.margin = "21px 89px 21px 34px"
     input.style.fontSize = "21px"
 
-
-
     this.input = input
     field.append(input)
     return field
@@ -148,7 +147,7 @@ export class TextField {
   constructor(name, parent) {
     if (Helper.stringIsEmpty(name)) throw new Error("name is empty")
     this.name = name
-    this.type = "text"
+    this.type = "range"
     this.field = document.createElement("div")
     this.field = this.#setText(this.field)
     if (parent !== undefined) {

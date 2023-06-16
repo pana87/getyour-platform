@@ -4,9 +4,14 @@ import { TextField } from "/js/TextField.js"
 export class Request {
 
   static middleware(options) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (Helper.objectIsEmpty(options)) return reject(new Error(`expected options, found '${options}'`))
       if (Helper.stringIsEmpty(options.url)) return reject(new Error(`expected url, found '${options.url}'`))
+      options.location = window.location.href
+      options.referer = document.referrer
+      options.localStorageEmail = await this.email()
+      options.localStorageId = await this.localStorageId()
+
       const xhr = new XMLHttpRequest()
       xhr.open("POST", options.url)
       xhr.setRequestHeader("Accept", "application/json")
@@ -96,10 +101,7 @@ export class Request {
         await this.sequence(send)
 
         Helper.reset(content)
-        content.style.display = "flex"
-        content.style.flexDirection = "column"
-        content.style.justifyContent = "center"
-        content.style.height = `${window.innerHeight}px`
+        content.style.overflowY = "auto"
 
         const pinField = new TextField("pin", content)
         pinField.label.textContent = "Meine PIN"
@@ -128,7 +130,7 @@ export class Request {
         button.style.display = "flex"
         button.style.justifyContent = "center"
         button.style.alignItems = "center"
-        button.style.height = "89px"
+        button.style.padding = "21px 0"
         button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
 
         button.addEventListener("click", async () => {
@@ -224,7 +226,7 @@ export class Request {
           }
 
           infoBox.style.fontSize = "13px"
-          infoBox.style.margin = "13px 34px"
+          infoBox.style.margin = "21px 34px"
           infoBox.style.padding = "21px"
           infoBox.style.borderRadius = "13px"
 

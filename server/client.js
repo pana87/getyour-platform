@@ -34,6 +34,10 @@ app.use((req, res, next) => {
   next()
 })
 
+
+// create different logs for every request
+// and error logs
+
 // app.use(async(req, res, next) => {
 //   try {
 //     await Helper.logRequest(req)
@@ -159,18 +163,7 @@ app.get("/:expert/", async (req, res, next) => {
   return res.sendStatus(404)
 })
 
-// app.get("/getyour/pana/toolbox-alpha/",
-// async(req, res) => {
-//   try {
-//     return res.send(Helper.readFileSyncToString("../lib/value-units/toolbox.html"))
-
-//   } catch (error) {
-//     await Helper.logError(error, req)
-//   }
-//   return res.sendStatus(404)
-// })
-
-app.get("/getyour/pana/toolbox/",
+app.get("/getyour/pana/toolbox-contest/",
   Request.verifyJwtToken,
   Request.verifySession,
   Request.verifyRoles([UserRole.ADMIN]),
