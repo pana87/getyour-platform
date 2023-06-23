@@ -6,12 +6,39 @@
   import {TextField} from "/js/TextField.js"
   import {SelectionField} from "/js/SelectionField.js"
   import {TextAreaField} from "/js/TextAreaField.js"
+  import {RangeField} from "/js/RangeField.js"
 
 
   // Templates for each element
-  // html import should allow innerhtml in the element it is called
-  // html import for each
-  // html js manipulation for each element
+
+  // .templates shows list of all expert templates
+
+
+
+
+
+
+
+
+
+
+
+
+  // setzt das template script in den body
+  // setzt das template script in ein element ???????
+  // wie??
+
+
+
+  // für jedes element
+  // als template speichern
+  // erzeugt aus dem element ein script string
+  // convert(element/script)
+  // speichert das template in die db
+
+  // template verändern
+  // lass das script laden
+  // verändern geht erstmal nur mit dem css picker
 
 
   const localStoragId = window.localStorage.getItem("localStorageId")
@@ -151,105 +178,255 @@
                   const res = await Request.middleware(verify)
 
                   if (res.status === 200) {
-                    const button = document.createElement("div")
-                    button.style.display = "flex"
-                    button.style.flexWrap = "wrap"
-                    button.style.justifyContent = "space-between"
-                    button.style.alignItems = "center"
-                    button.style.margin = "21px 34px"
-                    button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                    button.style.borderRadius = "13px"
-                    button.style.border = "0.3px solid black"
-                    button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                    button.style.cursor = "pointer"
-                    button.addEventListener("click", () => {
 
-                      Helper.popup(overlay => {
-                        overlay.id = "overlay-3"
-                        const overlay3 = overlay
+                    {
+                      const button = Helper.buttonPicker("left/right", buttons)
+                      button.left.innerHTML = "template.import"
+                      button.right.innerHTML = "HTML Script Elemente importieren"
+                      button.addEventListener("click", () => {
 
-                        Helper.headerPicker("removeOverlay", overlay)
+                        Helper.popup(overlay => {
 
-                        {
-                          const funnel = document.createElement("div")
-                          funnel.style.overflow = "auto"
-                          funnel.style.overscrollBehavior = "none"
-                          funnel.style.paddingBottom = "144px"
-                          overlay.append(funnel)
+                          Helper.headerPicker("removeOverlay", overlay)
 
-                          const htmlField = new TextAreaField("htm-l", funnel)
-                          htmlField.label.innerHTML = "HTML Dokument"
-                          htmlField.label.style.fontFamily = "sans-serif"
-                          htmlField.input.style.fontSize = "13px"
-                          htmlField.input.style.height = "89px"
-                          htmlField.input.placeholder = `<html>..</html>`
-                          htmlField.input.addEventListener("input", () => {
-                            htmlField.verifyValue()
-                          })
+                          {
+                            const funnel = document.createElement("div")
+                            funnel.style.overflow = "auto"
+                            funnel.style.overscrollBehavior = "none"
+                            funnel.style.paddingBottom = "144px"
+                            overlay.append(funnel)
 
-                          const button = document.createElement("div")
-                          button.innerHTML = "Jetzt ersetzen"
-                          button.style.backgroundColor = "#f7aa20"
-                          button.style.cursor = "pointer"
-                          button.style.fontSize = "21px"
-                          button.style.fontFamily = "sans-serif"
-                          button.style.borderRadius = "13px"
-                          button.style.margin = "21px 34px"
-                          button.style.display = "flex"
-                          button.style.justifyContent = "center"
-                          button.style.alignItems = "center"
-                          button.style.height = "89px"
-                          button.style.color = "#000"
-                          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                          button.addEventListener("click", async () => {
+                            const htmlField = new TextAreaField("script-import", funnel)
+                            htmlField.label.innerHTML = "HTML Script Element"
+                            htmlField.label.style.fontFamily = "sans-serif"
+                            htmlField.input.required = true
+                            // htmlField.input.accept = "text/tag"
+                            htmlField.input.style.fontSize = "13px"
+                            htmlField.input.style.height = "89px"
+                            htmlField.input.placeholder = `<script id="" alias="" loadmode="">..</>`
+                            htmlField.input.addEventListener("input", () => {
+                              htmlField.verifyValue()
+                            })
 
-                            const html = htmlField.validValue()
+                            const button = document.createElement("div")
+                            button.innerHTML = "Jetzt als Template speichern"
+                            button.style.backgroundColor = "#f7aa20"
+                            button.style.cursor = "pointer"
+                            button.style.fontSize = "21px"
+                            button.style.fontFamily = "sans-serif"
+                            button.style.borderRadius = "13px"
+                            button.style.margin = "21px 34px"
+                            button.style.display = "flex"
+                            button.style.justifyContent = "center"
+                            button.style.alignItems = "center"
+                            button.style.height = "89px"
+                            button.style.color = "#000"
+                            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                            button.addEventListener("click", async () => {
 
-                            const confirm = window.confirm("Achtung! Diese Funktion wird dein aktuelles HTML Dokument mit deinem neuen HTML Import ersetzen. Der Inhalt deines aktuellen Dokuments wird unwideruflich gelöscht, sobald du deine Werteinheit abspeicherst.\n\n Möchtest du dein aktuelles HTML Dokument wirklich ersetzen?")
-                            if (confirm === true) {
+                              const html = htmlField.validValue()
 
-                              const toolbox = document.getElementById("toolbox").cloneNode(true)
+                              const parser = document.createElement("div")
+                              parser.innerHTML = html
 
-                              document.open()
-                              document.write(html)
-                              document.close()
+
+                              if (parser.children.length > 1) {
+                                alert("Es kann nur ein HTML Script Element auf einmal gespeichert werden.")
+                                Helper.setNotValidStyle(htmlField.input)
+                                throw new Error(`too many children`)
+                              }
+
+
+
+                              const node = parser.firstChild
+
+                              if (node.tagName !== "SCRIPT") {
+                                alert("Es können nur HTML Script Elemente als Templates gespeichert werden. Der von dir bereitgestellte Code ist kein HTML Script Element.")
+                                Helper.setNotValidStyle(htmlField.input)
+                                throw new Error(`not a script`)
+                              }
+
+                              if (Helper.stringIsEmpty(node.id)) {
+                                alert("HTML Script Element benötigt eine Id.")
+                                Helper.setNotValidStyle(htmlField.input)
+                                throw new Error(`id is empty`)
+                              }
+
+                              if (!Helper.verifyIs("text/tag", node.id)) {
+                                alert("Id muss vom 'tag' Format sein. Es sind nur Kleinbuchstaben (a-z) und Bindestriche dazwischen erlaubt. (-)")
+                                Helper.setNotValidStyle(htmlField.input)
+                                throw new Error(`id is not a tag`)
+                              }
+
+                              const verify = {}
+                              verify.url = "/verify/template/closed/2/"
+                              verify.type = "id"
+                              verify.id = node.id
+                              verify.localStorageId = await Request.localStorageId()
+                              verify.localStorageEmail = await Request.email()
+                              verify.location = window.location.href
+                              verify.referer = document.referrer
+                              const res = await Request.middleware(verify)
+
+                              if (res.status === 200) {
+                                alert("Id existiert bereits.")
+                                Helper.setNotValidStyle(htmlField.input)
+                                throw new Error(`id exist`)
+                              }
+
+                              if (Helper.stringIsEmpty(node.getAttribute("alias"))) {
+                                alert("HTML Script Element benötigt eine Alias.")
+                                Helper.setNotValidStyle(htmlField.input)
+                                throw new Error(`alias is empty`)
+                              }
 
                               const script = document.createElement("script")
-                              script.id = toolbox.id
-                              script.type = toolbox.type
-                              script.innerHTML = toolbox.innerHTML
-                              document.body.append(script)
+                              script.id = node.id
+                              script.innerHTML = node.innerHTML
+                              script.setAttribute("alias", node.getAttribute("alias"))
+                              // if (!Helper.stringIsEmpty(node.getAttribute("loadmode"))) {
+                              //   script.setAttribute("loadmode", node.getAttribute("loadmode"))
+                              // }
 
-                            }
+                              Helper.popup(async securityOverlay => {
+                                Helper.headerPicker("loading", securityOverlay)
+                                const register = {}
+                                register.url = "/register/template/closed/2/"
+                                register.id = script.id
+                                register.alias = script.getAttribute("alias")
+                                // if (!Helper.stringIsEmpty(script.getAttribute("loadmode"))) {
+                                //   register.loadmode = script.getAttribute("loadmode")
+                                // }
+                                register.script = script.outerHTML
+                                register.localStorageId = await Request.localStorageId()
+                                register.localStorageEmail = await Request.email()
+                                register.location = window.location.href
+                                register.referer = document.referrer
+                                const res = await Request.middleware(register)
 
-                            Helper.removeOverlay(overlay)
+                                if (res.status === 200) {
+                                  alert("Template erfolgreich gespeichert ..")
+                                  Helper.removeOverlay(securityOverlay)
+                                  Helper.removeOverlay(overlay)
+                                } else {
+                                  alert("Fehler .. Bitte wiederholen.")
+                                  Helper.removeOverlay(securityOverlay)
+                                  Helper.setNotValidStyle(htmlField.input)
+                                  throw new Error(`register template failed`)
+                                }
+                              })
 
-                          })
-                          funnel.append(button)
-                        }
+                            })
+                            funnel.append(button)
+                          }
 
+                        })
+
+                      })
+                    }
+
+
+                    {
+                      const button = document.createElement("div")
+                      button.style.display = "flex"
+                      button.style.flexWrap = "wrap"
+                      button.style.justifyContent = "space-between"
+                      button.style.alignItems = "center"
+                      button.style.margin = "21px 34px"
+                      button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                      button.style.borderRadius = "13px"
+                      button.style.border = "0.3px solid black"
+                      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                      button.style.cursor = "pointer"
+                      button.addEventListener("click", () => {
+
+                        Helper.popup(overlay => {
+
+                          Helper.headerPicker("removeOverlay", overlay)
+
+                          {
+                            const funnel = document.createElement("div")
+                            funnel.style.overflow = "auto"
+                            funnel.style.overscrollBehavior = "none"
+                            funnel.style.paddingBottom = "144px"
+                            overlay.append(funnel)
+
+                            const htmlField = new TextAreaField("htm-l", funnel)
+                            htmlField.label.innerHTML = "HTML Dokument"
+                            htmlField.label.style.fontFamily = "sans-serif"
+                            htmlField.input.style.fontSize = "13px"
+                            htmlField.input.style.height = "89px"
+                            htmlField.input.placeholder = `<html>..</html>`
+                            htmlField.input.addEventListener("input", () => {
+                              htmlField.verifyValue()
+                            })
+
+                            const button = document.createElement("div")
+                            button.innerHTML = "Jetzt ersetzen"
+                            button.style.backgroundColor = "#f7aa20"
+                            button.style.cursor = "pointer"
+                            button.style.fontSize = "21px"
+                            button.style.fontFamily = "sans-serif"
+                            button.style.borderRadius = "13px"
+                            button.style.margin = "21px 34px"
+                            button.style.display = "flex"
+                            button.style.justifyContent = "center"
+                            button.style.alignItems = "center"
+                            button.style.height = "89px"
+                            button.style.color = "#000"
+                            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                            button.addEventListener("click", async () => {
+
+                              const html = htmlField.validValue()
+
+                              const confirm = window.confirm("Achtung! Diese Funktion wird dein aktuelles HTML Dokument mit deinem neuen HTML Import ersetzen. Der Inhalt deines aktuellen Dokuments wird unwideruflich gelöscht, sobald du deine Werteinheit abspeicherst.\n\n Möchtest du dein aktuelles HTML Dokument wirklich ersetzen?")
+                              if (confirm === true) {
+
+                                const toolbox = document.getElementById("toolbox").cloneNode(true)
+
+                                document.open()
+                                document.write(html)
+                                document.close()
+
+                                const script = document.createElement("script")
+                                script.id = toolbox.id
+                                script.type = toolbox.type
+                                script.innerHTML = toolbox.innerHTML
+                                document.body.append(script)
+
+                              }
+
+                              Helper.removeOverlay(overlay)
+
+                            })
+                            funnel.append(button)
+                          }
+
+
+
+                        })
 
 
                       })
 
+                      const left = document.createElement("div")
+                      left.innerHTML = "document.write"
+                      left.style.margin = "21px 34px"
+                      left.style.fontSize = "21px"
+                      left.style.fontFamily = "sans-serif"
+                      button.append(left)
 
-                    })
+                      const title = document.createElement("div")
+                      title.innerHTML = "Dokument ersetzen"
+                      title.style.margin = "21px 34px"
+                      title.style.fontSize = "13px"
+                      title.style.fontFamily = "sans-serif"
+                      button.append(title)
 
-                    const left = document.createElement("div")
-                    left.innerHTML = "document.write()"
-                    left.style.margin = "21px 34px"
-                    left.style.fontSize = "21px"
-                    left.style.fontFamily = "sans-serif"
-                    button.append(left)
+                      buttons.append(button)
+                    }
 
-                    const title = document.createElement("div")
-                    title.innerHTML = "Dokument ersetzen"
-                    title.style.margin = "21px 34px"
-                    title.style.fontSize = "13px"
-                    title.style.fontFamily = "sans-serif"
-                    button.append(title)
 
-                    buttons.append(button)
                   }
 
                 }
@@ -269,21 +446,87 @@
 
                   button.addEventListener("click", async () => {
 
-                    if (document.head.children.length > 0) {
+                    Helper.popup(async overlay => {
 
-                      Helper.popup(overlay => {
+                      Helper.headerPicker("removeOverlay", overlay)
+                      const elementInfo = Helper.headerPicker("elementInfo", overlay)
+                      elementInfo.append(Helper.convert("element/alias", document.head))
 
-                        Helper.headerPicker("removeOverlay", overlay)
-                        const elementInfo = Helper.headerPicker("elementInfo", overlay)
-                        elementInfo.append(Helper.convert("element/alias", document.head))
+                      const headButtons = document.createElement("div")
+                      headButtons.style.overflowY = "auto"
+                      headButtons.style.paddingBottom = "144px"
+                      headButtons.style.overscrollBehavior = "none"
+                      overlay.append(headButtons)
 
-                        const buttons = document.createElement("div")
-                        buttons.style.overflowY = "auto"
-                        buttons.style.paddingBottom = "144px"
-                        buttons.style.overscrollBehavior = "none"
-                        overlay.append(buttons)
+                      {
+                        const button = document.createElement("div")
+                        button.style.display = "flex"
+                        button.style.flexWrap = "wrap"
+                        button.style.justifyContent = "space-between"
+                        button.style.alignItems = "center"
+                        button.style.margin = "21px 34px"
+                        button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
 
-                        {
+                        button.style.borderRadius = "13px"
+                        button.style.border = "0.3px solid black"
+                        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                        button.style.cursor = "pointer"
+
+
+
+                        button.addEventListener("click", async () => {
+
+                          if (document.head.children.length > 0) {
+
+                            Helper.popup(overlay => {
+
+
+                              Helper.headerPicker("removeOverlay", overlay)
+                              const elementInfo = Helper.headerPicker("elementInfo", overlay)
+
+                              elementInfo.append(Helper.convert("element/alias", document.head))
+
+                              const span = document.createElement("span")
+                              span.innerHTML = ".children"
+                              span.style.fontSize = "13px"
+                              span.style.fontFamily = "monospace"
+                              elementInfo.append(span)
+
+                              Helper.renderChildren(document.head, overlay)
+
+                            })
+
+                          } else alert("Das HTML Element ist leer.")
+
+                        })
+
+                        const left = document.createElement("div")
+                        left.innerHTML = ".children"
+                        left.style.margin = "21px 34px"
+                        left.style.fontSize = "21px"
+                        left.style.fontFamily = "sans-serif"
+                        button.append(left)
+
+                        const title = document.createElement("div")
+                        title.innerHTML = "Element Inhalt"
+                        title.style.margin = "21px 34px"
+                        title.style.fontSize = "13px"
+                        title.style.fontFamily = "sans-serif"
+                        button.append(title)
+
+                        headButtons.append(button)
+                      }
+
+                      {
+                        const verify = {}
+                        verify.url = "/verify/role/closed/2/"
+                        verify.localStorageId = await Request.localStorageId()
+                        verify.localStorageEmail = await Request.email()
+                        verify.location = window.location.href
+                        verify.referer = document.referrer
+                        const res = await Request.middleware(verify)
+
+                        if (res.status === 200) {
                           const button = document.createElement("div")
                           button.style.display = "flex"
                           button.style.flexWrap = "wrap"
@@ -291,59 +534,104 @@
                           button.style.alignItems = "center"
                           button.style.margin = "21px 34px"
                           button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-
                           button.style.borderRadius = "13px"
                           button.style.border = "0.3px solid black"
                           button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
                           button.style.cursor = "pointer"
+                          button.addEventListener("click", () => {
 
-                          button.addEventListener("click", async () => {
+                            Helper.popup(overlay => {
+                              overlay.id = "overlay-3"
+                              const overlay3 = overlay
 
-                            if (document.head.children.length > 0) {
+                              Helper.headerPicker("removeOverlay", overlay)
 
-                              Helper.popup(overlay => {
+                              const elementInfo = Helper.headerPicker("elementInfo", overlay)
+                              elementInfo.append(Helper.convert("element/alias", document.body))
+
+                              const span = document.createElement("span")
+                              span.textContent = ".append"
+                              span.style.fontSize = "13px"
+                              span.style.fontFamily = "monospace"
+
+                              elementInfo.append(span)
+
+                              {
+                                const funnel = document.createElement("div")
+                                funnel.style.overflowY = "auto"
+                                funnel.style.overscrollBehavior = "none"
+                                funnel.style.paddingBottom = "144px"
+                                overlay.append(funnel)
+
+                                const htmlField = new TextAreaField("html-input", funnel)
+                                htmlField.label.innerHTML = "HTML Element"
+                                htmlField.label.style.fontFamily = "sans-serif"
+                                htmlField.input.style.fontSize = "13px"
+                                htmlField.input.style.height = "89px"
+                                htmlField.input.placeholder = `<meta .. />`
+                                htmlField.input.addEventListener("input", () => {
+                                  htmlField.verifyValue()
+                                })
+
+                                const button = document.createElement("div")
+                                button.innerHTML = "Jetzt anhängen"
+                                button.style.backgroundColor = "#f7aa20"
+                                button.style.cursor = "pointer"
+                                button.style.fontSize = "21px"
+                                button.style.fontFamily = "sans-serif"
+                                button.style.borderRadius = "13px"
+                                button.style.margin = "21px 34px"
+                                button.style.display = "flex"
+                                button.style.justifyContent = "center"
+                                button.style.alignItems = "center"
+                                button.style.height = "89px"
+                                button.style.color = "#000"
+                                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                                button.addEventListener("click", async () => {
+
+                                  const elementString = htmlField.validValue()
+
+                                  const parser = document.createElement("div")
+                                  parser.innerHTML = elementString
+                                  while (parser.firstChild) {
+                                    document.head.append(parser.firstChild)
+                                  }
+
+                                  Helper.removeOverlay(overlay)
+
+                                })
+                                funnel.append(button)
+                              }
 
 
-                                Helper.headerPicker("removeOverlay", overlay)
-                                const elementInfo = Helper.headerPicker("elementInfo", overlay)
 
-                                elementInfo.append(Helper.convert("element/alias", document.head))
-
-                                const span = document.createElement("span")
-                                span.innerHTML = ".children"
-                                span.style.fontSize = "13px"
-                                span.style.fontFamily = "monospace"
-                                elementInfo.append(span)
-
-                                Helper.renderChildren(document.head, overlay)
-
-                              })
-
-                            } else alert("Das HTML Element ist leer.")
+                            })
 
 
                           })
 
                           const left = document.createElement("div")
-                          left.innerHTML = ".children"
+                          left.innerHTML = ".append"
                           left.style.margin = "21px 34px"
                           left.style.fontSize = "21px"
                           left.style.fontFamily = "sans-serif"
                           button.append(left)
 
                           const title = document.createElement("div")
-                          title.innerHTML = "Element Inhalt"
+                          title.innerHTML = "Element anhängen"
                           title.style.margin = "21px 34px"
                           title.style.fontSize = "13px"
                           title.style.fontFamily = "sans-serif"
                           button.append(title)
 
-                          buttons.append(button)
+                          headButtons.append(button)
                         }
 
-                      })
+                      }
 
-                    } else alert("Das HTML Kopf ist leer.")
+                    })
+
+
 
 
                   })
@@ -378,9 +666,9 @@
                   button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
                   button.style.cursor = "pointer"
 
-                  button.addEventListener("click", async () => {
+                  button.addEventListener("click", () => {
 
-                    Helper.popup(overlay => {
+                    Helper.popup(async overlay => {
 
                       overlay.classList.add("overlay-2")
                       const overlay2 = overlay
@@ -395,51 +683,6 @@
                       buttons.style.paddingBottom = "144px"
                       buttons.style.overscrollBehavior = "none"
                       overlay.append(buttons)
-
-
-                      {
-                        // in body
-                        // add templates
-                        // tags the expert with templates = []
-                        // shows a list of all expert.templates
-                        // if visible
-                        // in use?
-                        // purchase to use?
-                        // payment ?
-
-                        const button = document.createElement("div")
-                        button.style.display = "flex"
-                        button.style.flexWrap = "wrap"
-                        button.style.justifyContent = "space-between"
-                        button.style.alignItems = "center"
-                        button.style.margin = "21px 34px"
-                        button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-
-                        button.style.borderRadius = "13px"
-                        button.style.border = "0.3px solid black"
-                        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                        button.style.cursor = "pointer"
-                        button.addEventListener("click", () => {
-                          alert("Bald verfügbar..")
-                        })
-
-
-                        const left = document.createElement("div")
-                        left.innerHTML = ".templates"
-                        left.style.margin = "21px 34px"
-                        left.style.fontSize = "21px"
-                        left.style.fontFamily = "sans-serif"
-                        button.append(left)
-
-                        const title = document.createElement("div")
-                        title.innerHTML = "Template einsetzen"
-                        title.style.margin = "21px 34px"
-                        title.style.fontSize = "13px"
-                        title.style.fontFamily = "sans-serif"
-                        button.append(title)
-
-                        buttons.append(button)
-                      }
 
                       {
                         const button = document.createElement("div")
@@ -501,8 +744,1009 @@
                         buttons.append(button)
                       }
 
-                      // add append html import string innerHTML??
+                      {
+                        const button = document.createElement("div")
+                        button.style.display = "flex"
+                        button.style.flexWrap = "wrap"
+                        button.style.justifyContent = "space-between"
+                        button.style.alignItems = "center"
+                        button.style.margin = "21px 34px"
+                        button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
 
+                        button.style.borderRadius = "13px"
+                        button.style.border = "0.3px solid black"
+                        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                        button.style.cursor = "pointer"
+                        button.addEventListener("click", () => {
+
+                          Helper.popup(async overlay => {
+
+                            Helper.headerPicker("removeOverlay", overlay)
+
+
+                            const elementInfo = Helper.headerPicker("elementInfo", overlay)
+
+                            elementInfo.append(Helper.convert("element/alias", document.body))
+
+                            const span = document.createElement("span")
+                            span.innerHTML = ".templates"
+                            span.style.fontSize = "13px"
+                            span.style.fontFamily = "monospace"
+                            elementInfo.append(span)
+
+                            {
+                              const units = Helper.headerPicker("loading", overlay)
+
+                              const get = {}
+                              get.url = "/get/templates/closed/3/"
+                              get.location = window.location.href
+                              get.referer = document.referrer
+                              get.localStorageEmail = await Request.email()
+                              get.localStorageId = await Request.localStorageId()
+                              const res = await Request.middleware(get)
+
+                              if (res.status !== 200) {
+                                Helper.reset(units)
+                                Helper.convert("element/center", units)
+                                units.style.zIndex = "-1"
+                                units.style.fontFamily = "sans-serif"
+                                units.innerHTML = `<span style="margin: 21px 34px;">Keine Templates gefunden.</span>`
+                                throw new Error("values not found")
+                              }
+
+                              if (res.status === 200) {
+                                const templates = JSON.parse(res.response)
+
+                                // console.log(templates);
+
+                                if (templates.length === 0) {
+                                  Helper.reset(units)
+                                  Helper.convert("element/center", units)
+                                  units.style.zIndex = "-1"
+                                  units.style.fontFamily = "sans-serif"
+                                  units.innerHTML = `<span style="margin: 21px 34px;">Keine Templates gefunden.</span>`
+                                  throw new Error("platform templates is empty")
+                                }
+
+                                Helper.reset(units)
+                                units.style.overflowY = "auto"
+                                units.style.paddingBottom = "144px"
+                                units.style.overscrollBehavior = "none"
+
+                                // sort with reputation best on top as default
+
+
+
+
+
+
+                                for (let i = 0; i < templates.length; i++) {
+                                  const template = templates[i]
+
+                                  // console.log(template);
+
+                                  const item = document.createElement("div")
+                                  // item.classList.add("checklist-item")
+                                  item.style.margin = "34px"
+
+                                  const itemHeader = document.createElement("div")
+                                  // itemHeader.classList.add("item-header")
+                                  itemHeader.style.display = "flex"
+                                  itemHeader.style.borderTopRightRadius = "21px"
+                                  itemHeader.style.borderTopLeftRadius = "21px"
+                                  itemHeader.style.borderBottomLeftRadius = "21px"
+                                  itemHeader.style.fontFamily = "sans-serif"
+
+                                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                    itemHeader.style.backgroundColor = Helper.colors.matte.charcoal
+                                    itemHeader.style.color = Helper.colors.matte.dark.text
+
+                                  } else {
+                                    itemHeader.style.color = Helper.colors.matte.light.text
+                                    itemHeader.style.backgroundColor = Helper.colors.gray[1]
+                                  }
+
+                                  // itemHeader.style.cursor = "pointer"
+
+
+                                  // add something ??
+                                  // itemHeader.addEventListener("click", async () => {
+
+                                  //   Helper.popup(overlay => {
+
+                                  //     Helper.headerPicker("removeOverlay", overlay)
+
+                                  //     const elementInfo = Helper.headerPicker("elementInfo", overlay)
+                                  //     elementInfo.append(Helper.convert("element/alias", document.body))
+
+                                  //     const span = document.createElement("span")
+                                  //     span.innerHTML = `.templates[${i}]`
+                                  //     span.style.fontSize = "13px"
+                                  //     span.style.fontFamily = "monospace"
+                                  //     elementInfo.append(span)
+
+                                  //     {
+
+
+                                  //       // verify if this is the expert from the url and if he owns the platform from the url
+                                  //       // verify expert by url - expert and platform
+                                  //       // if name in the jwt user id
+                                  //       // check if the template id is in the user jwt id
+
+
+                                  //       const buttons = document.createElement("div")
+                                  //       buttons.style.overflowY = "auto"
+                                  //       buttons.style.paddingBottom = "144px"
+                                  //       buttons.style.overscrollBehavior = "none"
+                                  //       overlay.append(buttons)
+
+                                  //       {
+                                  //         const button = Helper.buttonPicker("left/right", buttons)
+                                  //         button.left.innerHTML = ".loadmode"
+                                  //         button.right.innerHTML = "Ausführung ändern"
+                                  //       }
+
+                                  //       {
+                                  //         const button = Helper.buttonPicker("left/right", buttons)
+                                  //         button.left.innerHTML = ".id"
+                                  //         button.right.innerHTML = "Ausführung ändern"
+                                  //       }
+
+                                  //       {
+                                  //         const button = Helper.buttonPicker("left/right", buttons)
+                                  //         button.left.innerHTML = ".alias"
+                                  //         button.right.innerHTML = "Alias ändern"
+                                  //       }
+
+                                  //       {
+                                  //         const button = Helper.buttonPicker("left/right", buttons)
+                                  //         button.left.innerHTML = ".remove"
+                                  //         button.right.innerHTML = "Template löschen"
+                                  //       }
+
+
+                                  //     }
+
+                                  //   })
+                                  // })
+
+                                  const itemState = document.createElement("div")
+                                  itemState.classList.add("item-state")
+                                  itemState.style.display = "flex"
+                                  itemState.style.justifyContent = "center"
+                                  itemState.style.alignItems = "center"
+                                  itemState.style.width = "89px"
+                                  itemState.style.height = "89px"
+                                  itemState.style.fontSize = "34px"
+
+                                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                    itemState.style.backgroundColor = Helper.colors.dark.foreground
+                                  } else {
+                                    itemState.style.backgroundColor = Helper.colors.light.foreground
+                                  }
+
+                                  if (document.getElementById(template.id) !== null) {
+                                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                      itemState.style.backgroundColor = Helper.colors.dark.success
+                                    } else {
+                                      itemState.style.backgroundColor = Helper.colors.light.success
+                                    }
+                                  }
+
+                                  itemState.style.borderTopLeftRadius = "21px"
+                                  itemState.style.borderBottomLeftRadius = "21px"
+
+                                  // append reputation in state
+                                  const reputation = document.createElement("div")
+                                  reputation.innerHTML = template.reputation
+                                  reputation.style.fontSize = "34px"
+                                  // reputation.style.fontFamily = "sans-serfi"
+
+                                  // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                  //   reputation.style.color = Helper.colors.matte.dark.text
+                                  // } else {
+                                  //   reputation.style.color = Helper.colors.matte.light.text
+                                  // }
+
+                                  itemState.append(reputation)
+
+
+                                  const itemTitle = document.createElement("div")
+                                  // itemTitle.classList.add("item-title")
+                                  itemTitle.style.alignSelf = "center"
+                                  itemTitle.style.marginLeft = "13px"
+                                  // itemTitle.innerHTML = `${template.alias}`
+                                  // itemTitle.style.fontSize = "21px"
+
+                                  {
+                                    const alias = document.createElement("div")
+                                    alias.innerHTML = template.alias
+                                    alias.style.fontSize = "21px"
+                                    itemTitle.append(alias)
+                                  }
+
+                                  {
+                                    const creator = document.createElement("div")
+                                    creator.innerHTML = template.id
+                                    creator.style.fontSize = "13px"
+                                    itemTitle.append(creator)
+                                  }
+
+                                  // {
+                                  //   const id = document.createElement("div")
+                                  //   id.innerHTML = `${template.id}`
+                                  //   id.style.fontSize = "13px"
+                                  //   itemTitle.append(id)
+                                  // }
+
+
+                                  itemHeader.append(itemState, itemTitle)
+                                  item.append(itemHeader)
+
+
+                                  const itemBody = document.createElement("div")
+                                  itemBody.classList.add("item-body")
+                                  itemBody.style.marginLeft = "8%"
+
+
+                                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                    itemBody.style.backgroundColor = Helper.colors.matte.slate
+                                    itemBody.style.boxShadow = `0 1px ${Helper.colors.gray[4]}`
+                                  } else {
+                                    itemBody.style.boxShadow = `0 1px ${Helper.colors.gray[2]}`
+                                    itemBody.style.backgroundColor = Helper.colors.gray[0]
+                                  }
+
+                                  itemBody.style.borderBottomRightRadius = "21px"
+                                  itemBody.style.borderBottomLeftRadius = "21px"
+                                  itemBody.style.padding = "21px"
+                                  itemBody.style.display = "flex"
+                                  itemBody.style.flexDirection = "column"
+
+                                  const buttons = document.createElement("div")
+                                  buttons.style.display = "flex"
+                                  buttons.style.alignItems = "center"
+
+
+                                  // buttons for values
+                                  // drop, preview, feedback, stats if exist
+
+
+                                  {
+                                    const button = Helper.iconPicker("repeat-once")
+                                    button.style.width = "55px"
+                                    button.style.padding = "8px"
+                                    // button.style.margin = "0 8px"
+
+                                    button.style.cursor = "pointer"
+                                    button.addEventListener("click", () => {
+
+                                      if (document.getElementById(template.id) === null) {
+                                        const parser = document.createElement("div")
+                                        parser.innerHTML = template.script
+                                        const node = parser.firstChild
+                                        const script = document.createElement("script")
+                                        script.id = node.id
+                                        script.innerHTML = node.innerHTML
+                                        script.append(`document.getElementById("${script.id}").remove()`)
+                                        document.body.append(script)
+                                        // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                        //   itemState.style.backgroundColor = Helper.colors.dark.success
+                                        // } else {
+                                        //   itemState.style.backgroundColor = Helper.colors.light.success
+                                        // }
+                                      } else {
+
+                                        alert("Template wurde bereits im Dokument eingesetzt.")
+                                      }
+
+                                      // script.setAttribute("alias", node.getAttribute("alias"))
+                                      // script.setAttribute("loadmode", node.getAttribute("loadmode"))
+                                      // script.setAttribute("loadmode", "once")
+
+
+
+                                      // if (node.getAttribute("loadmode") === "once") {
+                                      // }
+
+                                      // console.log(script);
+
+
+                                      // console.log(parser);
+
+                                      // if (document.getElementById(template.id) !== null) {
+                                      //   if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                      //     itemState.style.backgroundColor = Helper.colors.dark.success
+                                      //   } else {
+                                      //     itemState.style.backgroundColor = Helper.colors.light.success
+                                      //   }
+                                      // }
+
+
+
+                                    })
+                                    buttons.append(button)
+                                  }
+
+
+                                  {
+                                    const button = Helper.iconPicker("repeat-always")
+                                    button.style.width = "55px"
+                                    button.style.padding = "8px"
+                                    // button.style.margin = "0 8px"
+                                    button.style.cursor = "pointer"
+                                    button.addEventListener("click", () => {
+
+
+                                      if (document.getElementById(template.id) === null) {
+                                        // const parser = document.createElement("div")
+                                        // parser.innerHTML = template.script
+                                        // const node = parser.firstChild
+                                        // const script = document.createElement("script")
+                                        // script.id = node.id
+                                        // script.innerHTML = node.innerHTML
+                                        // script.append(`document.getElementById("${script.id}").remove()`)
+                                        // document.body.append(script)
+                                        const parser = document.createElement("div")
+                                        parser.innerHTML = template.script
+                                        const node = parser.firstChild
+                                        const script = document.createElement("script")
+                                        script.id = node.id
+                                        script.innerHTML = node.innerHTML
+                                        document.body.append(script)
+                                        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                          itemState.style.backgroundColor = Helper.colors.dark.success
+                                        } else {
+                                          itemState.style.backgroundColor = Helper.colors.light.success
+                                        }
+                                      } else {
+
+                                        alert("Template wurde bereits im Dokument eingesetzt.")
+                                      }
+
+
+                                      // script.setAttribute("alias", node.getAttribute("alias"))
+                                      // script.setAttribute("loadmode", node.getAttribute("loadmode"))
+                                      // script.setAttribute("loadmode", "once")
+
+
+
+                                      // script.append(`document.getElementById("${script.id}").remove()`)
+                                      // if (node.getAttribute("loadmode") === "once") {
+                                      // }
+
+                                      // console.log(script);
+
+
+                                      // console.log(parser);
+
+
+                                    })
+                                    buttons.append(button)
+                                  }
+
+                                  {
+
+                                    const button = document.createElement("div")
+                                    button.style.cursor = "pointer"
+                                    button.style.position = "relative"
+                                    button.addEventListener("click", () => {
+
+                                      Helper.popup(async overlay => {
+                                        const feedbackOverlay = overlay
+
+                                        Helper.headerPicker("removeOverlay", overlay)
+
+                                        const elementInfo = Helper.headerPicker("elementInfo", overlay)
+
+                                        elementInfo.append(Helper.convert("element/alias", document.body))
+
+                                        const span = document.createElement("span")
+                                        span.innerHTML = `.templates[${i}].feedback`
+                                        span.style.fontSize = "13px"
+                                        span.style.fontFamily = "monospace"
+                                        elementInfo.append(span)
+
+
+
+
+
+
+
+                                        // const content = Helper.headerPicker("loading", overlay)
+
+                                        const content = document.createElement("div")
+                                        content.style.overflowY = "auto"
+                                        content.style.overscrollBehavior = "none"
+                                        content.style.paddingBottom = "144px"
+                                        overlay.append(content)
+
+
+
+                                        // create list from template.feedback
+                                        const feedbackContainer = Helper.headerPicker("loading", content)
+                                        feedbackContainer.info.remove()
+
+                                        feedbackContainer.style.margin = "21px 34px"
+                                        feedbackContainer.style.overflowY = "auto"
+                                        feedbackContainer.style.overscrollBehavior = "none"
+                                        feedbackContainer.style.fontFamily = "monospace"
+                                        feedbackContainer.style.fontSize = "13px"
+                                        feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
+
+
+                                        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                          feedbackContainer.style.color = Helper.colors.dark.text
+                                        } else {
+                                          feedbackContainer.style.color = Helper.colors.light.text
+                                        }
+
+
+
+
+                                        const get = {}
+                                        get.url = "/get/templates/closed/3/"
+                                        get.type = "feedback"
+                                        get.id = template.id
+                                        get.location = window.location.href
+                                        get.referer = document.referrer
+                                        get.localStorageEmail = await Request.email()
+                                        get.localStorageId = await Request.localStorageId()
+                                        const res = await Request.middleware(get)
+
+                                        if (res.status !== 200) {
+                                          feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
+                                          throw new Error("feedback not found")
+                                        }
+
+                                        getFeedbackSuccess: if (res.status === 200) {
+                                          const feedback = JSON.parse(res.response)
+
+                                          if (feedback.length === 0) {
+                                            feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
+                                            break getFeedbackSuccess
+                                          }
+
+                                          Helper.reset(feedbackContainer)
+                                          feedbackContainer.style.margin = "21px 34px"
+                                          feedbackContainer.style.overflowY = "auto"
+                                          feedbackContainer.style.overscrollBehavior = "none"
+                                          feedbackContainer.style.fontFamily = "monospace"
+                                          feedbackContainer.style.fontSize = "13px"
+                                          feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
+
+                                          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                            feedbackContainer.style.color = Helper.colors.dark.text
+                                          } else {
+                                            feedbackContainer.style.color = Helper.colors.light.text
+                                          }
+
+
+                                          for (let i = 0; i < feedback.length; i++) {
+                                            const value = feedback[i]
+                                            // console.log(value);
+
+
+                                            // value created instead of pfeil
+                                            const div = document.createElement("div")
+                                            div.style.display = "flex"
+                                            div.style.justifyContent = "space-between"
+                                            div.style.alignItems = "center"
+
+                                            // if (i % 2 === 0) {
+                                            //   div.style.background = Helper.colors.light.background
+                                            //   div.style.color = Helper.colors.light.background
+                                            // } else {
+                                            //   div.style.background = Helper.colors.dark.background
+                                            // }
+                                            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                              // feedbackContainer.style.color = Helper.colors.dark.text
+
+                                              if (i % 2 === 0) {
+                                                div.style.background = Helper.colors.light.foreground
+                                                div.style.color = Helper.colors.light.text
+                                              } else {
+                                                div.style.background = Helper.colors.dark.foreground
+                                                div.style.color = Helper.colors.dark.text
+                                              }
+
+                                            } else {
+
+                                              if (i % 2 === 1) {
+                                                div.style.background = Helper.colors.light.foreground
+                                                div.style.color = Helper.colors.light.text
+                                              } else {
+                                                div.style.background = Helper.colors.dark.foreground
+                                                div.style.color = Helper.colors.dark.text
+                                              }
+
+                                              // feedbackContainer.style.color = Helper.colors.light.text
+                                            }
+
+
+
+
+
+
+
+                                            const left = document.createElement("span")
+                                            // left.style.marginRight = "8px"
+                                            left.innerHTML = `${Helper.convert("millis/dd.mm.yyyy hh:mm", value.created)}`
+                                            div.append(left)
+
+                                            const nextToLeft = document.createElement("span")
+                                            nextToLeft.style.width = "100%"
+                                            nextToLeft.style.margin = "0 13px"
+                                            // nextToLeft.style.marginLeft = "auto"
+                                            nextToLeft.innerHTML = value.content
+                                            div.append(nextToLeft)
+
+
+                                            // const importance = document.createElesment("span")
+                                            // div.append(importance)
+
+                                            const right = document.createElement("span")
+                                            right.style.padding = "13px"
+                                            right.innerHTML = value.importance
+                                            // right.style.padding = "0 13px 0 0"
+                                            // right.style.alignItems = "flex-end"
+                                            // right.style.marginLeft = "auto"
+
+                                            // importance.innerHTML = value.importance
+
+
+
+                                            // verify user first if he is the owner of this template
+
+
+
+
+
+                                            // if (Helper.verifyIs("text/offence", value.content)) {
+
+                                            //   // wenn eine beleidigung entdeckt wurde
+                                            //   // und der user der owner des templates ist
+                                            //   // dann darf gelöscht werden.
+                                            //   right.innerHTML = "X"
+                                            //   right.style.cursor = "pointer"
+                                            //   right.addEventListener("click", () => {
+
+                                            //     // delete feedback
+                                            //     const confirm = window.confirm("In diesem Beitrag wurde beleidigende Wörter gefunden. Das bedeutet, dass du das Recht hast diesen Beitrag unwiderruflich zu löschen, nachdem du ihn geprüft hast.\n\n Möchtest du diesen Beitrag wirklich löschen?")
+
+                                            //   })
+                                            // }
+
+
+                                            div.append(right)
+
+
+                                            // if bad language
+
+                                            // div.innerHTML = `${value.created} -> ${value.content}`
+                                            feedbackContainer.append(div)
+
+                                            // append x when bad language found
+                                            // every user can delete bad language content
+                                            div.style.cursor = "pointer"
+                                            div.addEventListener("click", () => {
+
+                                              Helper.popup(overlay => {
+                                                Helper.headerPicker("removeOverlay", overlay)
+
+                                                const button = Helper.buttonPicker("left/right", overlay)
+                                                const icon = Helper.iconPicker("delete")
+                                                icon.style.width = "34px"
+                                                button.left.append(icon)
+                                                button.right.innerHTML = "Feedback löschen"
+
+                                                button.addEventListener("click", async () => {
+                                                  const confirm = window.confirm("Möchtest du diesen Beitrag wirklich löschen?")
+
+                                                  if (confirm === true) {
+                                                    const del = {}
+                                                    del.url = "/delete/feedback/closed/3/"
+                                                    del.type = "template"
+                                                    del.id = template.id
+                                                    del.created = value.created
+                                                    del.location = window.location.href
+                                                    del.referer = document.referrer
+                                                    del.localStorageEmail = await Request.email()
+                                                    del.localStorageId = await Request.localStorageId()
+                                                    const res = await Request.middleware(del)
+
+                                                    if (res.status === 200) {
+                                                      alert("Beitrag erfolgreich gelöscht.")
+                                                      length.innerHTML = template.feedbackLength - 1
+                                                      Helper.removeOverlay(overlay)
+                                                      Helper.removeOverlay(feedbackOverlay)
+                                                    } else {
+                                                      alert("Fehler.. Bitte wiederholen.")
+                                                      Helper.removeOverlay(overlay)
+                                                    }
+
+
+                                                  }
+
+                                                })
+                                              })
+
+                                            })
+                                          }
+
+
+                                        }
+
+                                        // create content text field
+                                        const contentField = new TextField("feedback", content)
+                                        contentField.label.innerHTML = "Feedback"
+                                        contentField.input.required = true
+                                        contentField.input.maxLength = "55"
+                                        contentField.verifyValue()
+                                        contentField.input.addEventListener("input", () => contentField.verifyValue())
+                                        // console.log(contentField);
+
+
+
+                                        // create importance field slider 0-13
+                                        const importanceField = new RangeField("importance", content)
+                                        importanceField.input.min = "0"
+                                        importanceField.input.max = "13"
+                                        importanceField.input.step = "1"
+                                        importanceField.input.value = "0"
+                                        importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
+                                        importanceField.verifyValue()
+                                        importanceField.input.addEventListener("input", (event) => {
+                                          importanceField.verifyValue()
+                                          importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
+                                        })
+
+                                        // add button
+                                        const button = Helper.buttonPicker("action", content)
+                                        button.innerHTML = "Jetzt speichern"
+                                        button.addEventListener("click", () => {
+
+                                          const importance = importanceField.validValue()
+                                          const content = contentField.validValue()
+
+
+                                          Helper.popup(async securityOverlay => {
+
+                                            Helper.headerPicker("loading", securityOverlay)
+
+                                            const register = {}
+                                            register.url = "/register/feedback/closed/3/"
+                                            register.type = "template"
+                                            register.id = template.id
+                                            register.importance = importance
+                                            register.content = content
+                                            register.location = window.location.href
+                                            register.referer = document.referrer
+                                            register.localStorageEmail = await Request.email()
+                                            register.localStorageId = await Request.localStorageId()
+                                            const res = await Request.middleware(register)
+
+                                            if (res.status === 200) {
+                                              alert("Feedback erfolgreich gespeichert.")
+                                              Helper.removeOverlay(securityOverlay)
+                                              Helper.removeOverlay(overlay)
+                                              length.innerHTML = template.feedbackLength + 1
+                                            } else {
+                                              alert("Fehler.. Bitte wiederholen.")
+                                              Helper.removeOverlay(securityOverlay)
+                                            }
+
+                                          })
+
+
+                                        })
+
+
+
+                                      })
+
+                                    })
+
+
+                                    const icon = Helper.iconPicker("branch")
+                                    icon.style.width = "55px"
+                                    button.append(icon)
+
+                                    const length = document.createElement("div")
+                                    length.style.position = "absolute"
+                                    length.style.top = "0"
+                                    length.style.right = "0"
+                                    length.style.fontFamily = "monospace"
+                                    length.style.fontSize = "13px"
+                                    length.style.borderRadius = "50%"
+                                    length.style.padding = "3px 5px"
+                                    length.innerHTML = template.feedbackLength
+
+                                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                      length.style.color = Helper.colors.dark.text
+                                      length.style.background = Helper.colors.dark.foreground
+                                    } else {
+                                      length.style.color = Helper.colors.light.text
+                                      length.style.background = Helper.colors.light.foreground
+                                    }
+                                    button.append(length)
+                                    buttons.append(button)
+                                  }
+
+
+                                  // {
+                                  //   const button = Helper.iconPicker("verify-document")
+                                  //   button.style.width = "44px"
+                                  //   button.style.padding = "8px"
+                                  //   button.style.cursor = "pointer"
+                                  //   buttons.append(button)
+                                  // }
+
+
+
+
+                                  itemBody.append(buttons)
+                                  item.append(itemBody)
+                                  units.append(item)
+                                }
+                              }
+
+                            }
+
+                          })
+
+                        })
+
+                        const left = document.createElement("div")
+                        left.innerHTML = ".templates"
+                        left.style.margin = "21px 34px"
+                        left.style.fontSize = "21px"
+                        left.style.fontFamily = "sans-serif"
+                        button.append(left)
+
+                        const title = document.createElement("div")
+                        title.innerHTML = "Template anhängen"
+                        title.style.margin = "21px 34px"
+                        title.style.fontSize = "13px"
+                        title.style.fontFamily = "sans-serif"
+                        button.append(title)
+
+                        buttons.append(button)
+                      }
+
+                      {
+                        const button = document.createElement("div")
+                        button.style.display = "flex"
+                        button.style.flexWrap = "wrap"
+                        button.style.justifyContent = "space-between"
+                        button.style.alignItems = "center"
+                        button.style.margin = "21px 34px"
+                        button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                        button.style.borderRadius = "13px"
+                        button.style.border = "0.3px solid black"
+                        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                        button.style.cursor = "pointer"
+                        button.addEventListener("click", () => {
+
+                          Helper.popup(overlay => {
+                            overlay.classList.add("overlay-3")
+                            const overlay3 = overlay
+
+                            Helper.headerPicker("removeOverlay", overlay)
+
+                            const elementInfo = Helper.headerPicker("elementInfo", overlay)
+
+                            elementInfo.append(Helper.convert("element/alias", document.body))
+
+                            const span = document.createElement("span")
+                            span.innerHTML = ".style"
+                            span.style.fontSize = "13px"
+                            span.style.fontFamily = "monospace"
+                            elementInfo.append(span)
+
+                            const content = document.createElement("div")
+                            content.style.overflowY = "auto"
+                            content.style.overscrollBehavior = "none"
+                            content.style.paddingBottom = "144px"
+                            overlay.append(content)
+
+                            {
+                              const divStylePropertyField = new TextField("divStyleProperty", content)
+                              divStylePropertyField.label.innerHTML = "CSS Eigenschaft"
+                              divStylePropertyField.input.required = true
+                              divStylePropertyField.input.addEventListener("input", (event) => {
+                                if (event.target.style[event.target.value] !== undefined) {
+                                  Helper.setValidStyle(event.target)
+                                } else {
+                                  Helper.setNotValidStyle(event.target)
+                                }
+                              })
+
+                              const divStyleValueField = new TextField("divStyleValue", content)
+                              divStyleValueField.label.innerHTML = "CSS Wert"
+                              divStyleValueField.input.addEventListener("input", () => {
+                                divStyleValueField.verifyValue()
+                              })
+
+
+                              {
+                                const button = document.createElement("div")
+                                button.innerHTML = "CSS anwenden"
+                                button.style.backgroundColor = "#f7aa20"
+                                button.style.cursor = "pointer"
+                                button.style.fontSize = "21px"
+                                button.style.fontFamily = "sans-serif"
+                                button.style.borderRadius = "13px"
+                                button.style.margin = "21px 34px"
+                                button.style.display = "flex"
+                                button.style.justifyContent = "center"
+                                button.style.alignItems = "center"
+                                button.style.height = "89px"
+                                button.style.color = "#000"
+                                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                                button.addEventListener("click", () => {
+
+                                  try {
+                                    divStylePropertyField.validValue()
+                                    if (divStylePropertyField.input.style[divStylePropertyField.input.value] === undefined) throw new Error("css property not found")
+                                  } catch (error) {
+                                    alert(`Die CSS Eigenschaft ist ungültig.`)
+                                    Helper.setNotValidStyle(divStylePropertyField.input)
+                                    throw error
+                                  }
+
+                                  const cssValue = divStyleValueField.validValue()
+
+                                  // clone.style[divStylePropertyField.input.value] = cssValue
+                                  document.body.style[divStylePropertyField.input.value] = cssValue
+
+                                  // divStylePropertyField.input.value = ""
+                                  // Helper.setNotValidStyle(divStylePropertyField.input)
+                                  // divStyleValueField.input.value = ""+
+
+                                  Helper.removeOverlay(overlay3)
+                                  Helper.removeOverlay(overlay2)
+                                  Helper.removeOverlay(overlay1)
+
+                                })
+                                content.append(button)
+                              }
+
+                            }
+
+
+                          })
+                        })
+
+                        const left = document.createElement("div")
+                        left.innerHTML = ".style"
+                        left.style.margin = "21px 34px"
+                        left.style.fontSize = "21px"
+                        left.style.fontFamily = "sans-serif"
+                        button.append(left)
+
+                        const title = document.createElement("div")
+                        title.innerHTML = "Style anpassen"
+                        title.style.margin = "21px 34px"
+                        title.style.fontSize = "13px"
+                        title.style.fontFamily = "sans-serif"
+                        button.append(title)
+
+                        buttons.append(button)
+                      }
+
+                      {
+                        const verify = {}
+                        verify.url = "/verify/role/closed/2/"
+                        verify.localStorageId = await Request.localStorageId()
+                        verify.localStorageEmail = await Request.email()
+                        verify.location = window.location.href
+                        verify.referer = document.referrer
+                        const res = await Request.middleware(verify)
+
+                        if (res.status === 200) {
+                          const button = document.createElement("div")
+                          button.style.display = "flex"
+                          button.style.flexWrap = "wrap"
+                          button.style.justifyContent = "space-between"
+                          button.style.alignItems = "center"
+                          button.style.margin = "21px 34px"
+                          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                          button.style.borderRadius = "13px"
+                          button.style.border = "0.3px solid black"
+                          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                          button.style.cursor = "pointer"
+                          button.addEventListener("click", () => {
+
+                            Helper.popup(overlay => {
+                              overlay.id = "overlay-3"
+                              const overlay3 = overlay
+
+                              Helper.headerPicker("removeOverlay", overlay)
+
+                              const elementInfo = Helper.headerPicker("elementInfo", overlay)
+                              elementInfo.append(Helper.convert("element/alias", document.body))
+
+                              const span = document.createElement("span")
+                              span.textContent = ".append"
+                              span.style.fontSize = "13px"
+                              span.style.fontFamily = "monospace"
+
+                              elementInfo.append(span)
+
+                              {
+                                const funnel = document.createElement("div")
+                                funnel.style.overflowY = "auto"
+                                funnel.style.overscrollBehavior = "none"
+                                funnel.style.paddingBottom = "144px"
+                                overlay.append(funnel)
+
+                                const htmlField = new TextAreaField("html-input", funnel)
+                                htmlField.label.innerHTML = "HTML Element"
+                                htmlField.label.style.fontFamily = "sans-serif"
+                                htmlField.input.style.fontSize = "13px"
+                                htmlField.input.style.height = "89px"
+                                htmlField.input.placeholder = `<div>..</div>`
+                                htmlField.input.addEventListener("input", () => {
+                                  htmlField.verifyValue()
+                                })
+
+                                const button = document.createElement("div")
+                                button.innerHTML = "Jetzt anhängen"
+                                button.style.backgroundColor = "#f7aa20"
+                                button.style.cursor = "pointer"
+                                button.style.fontSize = "21px"
+                                button.style.fontFamily = "sans-serif"
+                                button.style.borderRadius = "13px"
+                                button.style.margin = "21px 34px"
+                                button.style.display = "flex"
+                                button.style.justifyContent = "center"
+                                button.style.alignItems = "center"
+                                button.style.height = "89px"
+                                button.style.color = "#000"
+                                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                                button.addEventListener("click", async () => {
+
+                                  const elementString = htmlField.validValue()
+
+                                  const parser = document.createElement("div")
+                                  parser.innerHTML = elementString
+
+                                  while (parser.firstChild) {
+                                    document.body.append(parser.firstChild)
+                                  }
+
+                                  Helper.removeOverlay(overlay)
+
+                                })
+                                funnel.append(button)
+                              }
+
+
+
+                            })
+
+
+                          })
+
+                          const left = document.createElement("div")
+                          left.innerHTML = ".append"
+                          left.style.margin = "21px 34px"
+                          left.style.fontSize = "21px"
+                          left.style.fontFamily = "sans-serif"
+                          button.append(left)
+
+                          const title = document.createElement("div")
+                          title.innerHTML = "Element anhängen"
+                          title.style.margin = "21px 34px"
+                          title.style.fontSize = "13px"
+                          title.style.fontFamily = "sans-serif"
+                          button.append(title)
+
+                          buttons.append(button)
+                        }
+
+                      }
 
                     })
 
@@ -527,6 +1771,49 @@
 
               })
 
+            })
+
+            // observe ids in document
+            const observer = new MutationObserver((mutations, observer) => {
+
+              for (let i = 0; i < mutations.length; i++) {
+                const mutation = mutations[i]
+
+                // on nodes added
+                mutation.addedNodes.forEach(node => {
+                  const nodes = document.querySelectorAll("*[id]")
+                  for (let i = 0; i < nodes.length; i++) {
+                    const element = nodes[i]
+                    if (element.id === node.id) {
+                      if (element.tagName === "SCRIPT") continue
+                      document.querySelectorAll(`#${node.id}`).forEach(element => {
+                        element.style.border = `2px dashed ${Helper.colors.matte.light.error}`
+                      })
+                    }
+                  }
+                })
+
+                // on id change
+                if (mutation.type === 'attributes' && mutation.attributeName === 'id') {
+                  const ids = document.querySelectorAll(`#${mutation.target.id}`)
+                  if (ids[1] !== undefined) {
+                    ids[0].style.border = `2px dashed ${Helper.colors.matte.light.error}`
+                    ids[1].style.border = `2px dashed ${Helper.colors.matte.light.error}`
+                  } else {
+                    if (ids[0].style.border === "2px dashed rgb(176, 53, 53)") {
+                      ids[0].style.border = null
+                    }
+                  }
+                }
+
+              }
+
+            })
+
+            observer.observe(document.documentElement, {
+              childList: true,
+              subtree: true,
+              attributes: true,
             })
 
           }
