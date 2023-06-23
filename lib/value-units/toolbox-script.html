@@ -9,27 +9,6 @@
   import {RangeField} from "/js/RangeField.js"
 
 
-  // Templates for each element
-
-  // .templates shows list of all expert templates
-
-
-
-
-
-
-
-
-
-
-
-
-  // setzt das template script in den body
-  // setzt das template script in ein element ???????
-  // wie??
-
-
-
   // für jedes element
   // als template speichern
   // erzeugt aus dem element ein script string
@@ -169,267 +148,256 @@
                 overlay.append(buttons)
 
                 {
-                  const verify = {}
-                  verify.url = "/verify/role/closed/2/"
-                  verify.localStorageId = await Request.localStorageId()
-                  verify.localStorageEmail = await Request.email()
-                  verify.location = window.location.href
-                  verify.referer = document.referrer
-                  const res = await Request.middleware(verify)
+                  const button = Helper.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = "template.import"
+                  button.right.innerHTML = "HTML Script Elemente importieren"
+                  button.addEventListener("click", () => {
 
-                  if (res.status === 200) {
+                    Helper.popup(overlay => {
 
-                    {
-                      const button = Helper.buttonPicker("left/right", buttons)
-                      button.left.innerHTML = "template.import"
-                      button.right.innerHTML = "HTML Script Elemente importieren"
-                      button.addEventListener("click", () => {
+                      Helper.headerPicker("removeOverlay", overlay)
 
-                        Helper.popup(overlay => {
+                      {
+                        const funnel = document.createElement("div")
+                        funnel.style.overflow = "auto"
+                        funnel.style.overscrollBehavior = "none"
+                        funnel.style.paddingBottom = "144px"
+                        overlay.append(funnel)
 
-                          Helper.headerPicker("removeOverlay", overlay)
-
-                          {
-                            const funnel = document.createElement("div")
-                            funnel.style.overflow = "auto"
-                            funnel.style.overscrollBehavior = "none"
-                            funnel.style.paddingBottom = "144px"
-                            overlay.append(funnel)
-
-                            const htmlField = new TextAreaField("script-import", funnel)
-                            htmlField.label.innerHTML = "HTML Script Element"
-                            htmlField.label.style.fontFamily = "sans-serif"
-                            htmlField.input.required = true
-                            // htmlField.input.accept = "text/tag"
-                            htmlField.input.style.fontSize = "13px"
-                            htmlField.input.style.height = "89px"
-                            htmlField.input.placeholder = `<script id="" alias="" loadmode="">..</>`
-                            htmlField.input.addEventListener("input", () => {
-                              htmlField.verifyValue()
-                            })
-
-                            const button = document.createElement("div")
-                            button.innerHTML = "Jetzt als Template speichern"
-                            button.style.backgroundColor = "#f7aa20"
-                            button.style.cursor = "pointer"
-                            button.style.fontSize = "21px"
-                            button.style.fontFamily = "sans-serif"
-                            button.style.borderRadius = "13px"
-                            button.style.margin = "21px 34px"
-                            button.style.display = "flex"
-                            button.style.justifyContent = "center"
-                            button.style.alignItems = "center"
-                            button.style.height = "89px"
-                            button.style.color = "#000"
-                            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                            button.addEventListener("click", async () => {
-
-                              const html = htmlField.validValue()
-
-                              const parser = document.createElement("div")
-                              parser.innerHTML = html
-
-
-                              if (parser.children.length > 1) {
-                                alert("Es kann nur ein HTML Script Element auf einmal gespeichert werden.")
-                                Helper.setNotValidStyle(htmlField.input)
-                                throw new Error(`too many children`)
-                              }
-
-
-
-                              const node = parser.firstChild
-
-                              if (node.tagName !== "SCRIPT") {
-                                alert("Es können nur HTML Script Elemente als Templates gespeichert werden. Der von dir bereitgestellte Code ist kein HTML Script Element.")
-                                Helper.setNotValidStyle(htmlField.input)
-                                throw new Error(`not a script`)
-                              }
-
-                              if (Helper.stringIsEmpty(node.id)) {
-                                alert("HTML Script Element benötigt eine Id.")
-                                Helper.setNotValidStyle(htmlField.input)
-                                throw new Error(`id is empty`)
-                              }
-
-                              if (!Helper.verifyIs("text/tag", node.id)) {
-                                alert("Id muss vom 'tag' Format sein. Es sind nur Kleinbuchstaben (a-z) und Bindestriche dazwischen erlaubt. (-)")
-                                Helper.setNotValidStyle(htmlField.input)
-                                throw new Error(`id is not a tag`)
-                              }
-
-                              const verify = {}
-                              verify.url = "/verify/template/closed/2/"
-                              verify.type = "id"
-                              verify.id = node.id
-                              verify.localStorageId = await Request.localStorageId()
-                              verify.localStorageEmail = await Request.email()
-                              verify.location = window.location.href
-                              verify.referer = document.referrer
-                              const res = await Request.middleware(verify)
-
-                              if (res.status === 200) {
-                                alert("Id existiert bereits.")
-                                Helper.setNotValidStyle(htmlField.input)
-                                throw new Error(`id exist`)
-                              }
-
-                              if (Helper.stringIsEmpty(node.getAttribute("alias"))) {
-                                alert("HTML Script Element benötigt eine Alias.")
-                                Helper.setNotValidStyle(htmlField.input)
-                                throw new Error(`alias is empty`)
-                              }
-
-                              const script = document.createElement("script")
-                              script.id = node.id
-                              script.innerHTML = node.innerHTML
-                              script.setAttribute("alias", node.getAttribute("alias"))
-                              // if (!Helper.stringIsEmpty(node.getAttribute("loadmode"))) {
-                              //   script.setAttribute("loadmode", node.getAttribute("loadmode"))
-                              // }
-
-                              Helper.popup(async securityOverlay => {
-                                Helper.headerPicker("loading", securityOverlay)
-                                const register = {}
-                                register.url = "/register/template/closed/2/"
-                                register.id = script.id
-                                register.alias = script.getAttribute("alias")
-                                // if (!Helper.stringIsEmpty(script.getAttribute("loadmode"))) {
-                                //   register.loadmode = script.getAttribute("loadmode")
-                                // }
-                                register.script = script.outerHTML
-                                register.localStorageId = await Request.localStorageId()
-                                register.localStorageEmail = await Request.email()
-                                register.location = window.location.href
-                                register.referer = document.referrer
-                                const res = await Request.middleware(register)
-
-                                if (res.status === 200) {
-                                  alert("Template erfolgreich gespeichert ..")
-                                  Helper.removeOverlay(securityOverlay)
-                                  Helper.removeOverlay(overlay)
-                                } else {
-                                  alert("Fehler .. Bitte wiederholen.")
-                                  Helper.removeOverlay(securityOverlay)
-                                  Helper.setNotValidStyle(htmlField.input)
-                                  throw new Error(`register template failed`)
-                                }
-                              })
-
-                            })
-                            funnel.append(button)
-                          }
-
+                        const htmlField = new TextAreaField("script-import", funnel)
+                        htmlField.label.innerHTML = "HTML Script Element"
+                        htmlField.label.style.fontFamily = "sans-serif"
+                        htmlField.input.required = true
+                        // htmlField.input.accept = "text/tag"
+                        htmlField.input.style.fontSize = "13px"
+                        htmlField.input.style.height = "89px"
+                        htmlField.input.placeholder = `<script id="" alias="" loadmode="">..</>`
+                        htmlField.input.addEventListener("input", () => {
+                          htmlField.verifyValue()
                         })
 
-                      })
-                    }
+                        const button = document.createElement("div")
+                        button.innerHTML = "Jetzt als Template speichern"
+                        button.style.backgroundColor = "#f7aa20"
+                        button.style.cursor = "pointer"
+                        button.style.fontSize = "21px"
+                        button.style.fontFamily = "sans-serif"
+                        button.style.borderRadius = "13px"
+                        button.style.margin = "21px 34px"
+                        button.style.display = "flex"
+                        button.style.justifyContent = "center"
+                        button.style.alignItems = "center"
+                        button.style.height = "89px"
+                        button.style.color = "#000"
+                        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                        button.addEventListener("click", async () => {
+
+                          const html = htmlField.validValue()
+
+                          const parser = document.createElement("div")
+                          parser.innerHTML = html
 
 
-                    {
-                      const button = document.createElement("div")
-                      button.style.display = "flex"
-                      button.style.flexWrap = "wrap"
-                      button.style.justifyContent = "space-between"
-                      button.style.alignItems = "center"
-                      button.style.margin = "21px 34px"
-                      button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                      button.style.borderRadius = "13px"
-                      button.style.border = "0.3px solid black"
-                      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                      button.style.cursor = "pointer"
-                      button.addEventListener("click", () => {
+                          if (parser.children.length > 1) {
+                            alert("Es kann nur ein HTML Script Element auf einmal gespeichert werden.")
+                            Helper.setNotValidStyle(htmlField.input)
+                            throw new Error(`too many children`)
+                          }
 
-                        Helper.popup(overlay => {
 
-                          Helper.headerPicker("removeOverlay", overlay)
 
-                          {
-                            const funnel = document.createElement("div")
-                            funnel.style.overflow = "auto"
-                            funnel.style.overscrollBehavior = "none"
-                            funnel.style.paddingBottom = "144px"
-                            overlay.append(funnel)
+                          const node = parser.firstChild
 
-                            const htmlField = new TextAreaField("htm-l", funnel)
-                            htmlField.label.innerHTML = "HTML Dokument"
-                            htmlField.label.style.fontFamily = "sans-serif"
-                            htmlField.input.style.fontSize = "13px"
-                            htmlField.input.style.height = "89px"
-                            htmlField.input.placeholder = `<html>..</html>`
-                            htmlField.input.addEventListener("input", () => {
-                              htmlField.verifyValue()
-                            })
+                          if (node.tagName !== "SCRIPT") {
+                            alert("Es können nur HTML Script Elemente als Templates gespeichert werden. Der von dir bereitgestellte Code ist kein HTML Script Element.")
+                            Helper.setNotValidStyle(htmlField.input)
+                            throw new Error(`not a script`)
+                          }
 
-                            const button = document.createElement("div")
-                            button.innerHTML = "Jetzt ersetzen"
-                            button.style.backgroundColor = "#f7aa20"
-                            button.style.cursor = "pointer"
-                            button.style.fontSize = "21px"
-                            button.style.fontFamily = "sans-serif"
-                            button.style.borderRadius = "13px"
-                            button.style.margin = "21px 34px"
-                            button.style.display = "flex"
-                            button.style.justifyContent = "center"
-                            button.style.alignItems = "center"
-                            button.style.height = "89px"
-                            button.style.color = "#000"
-                            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                            button.addEventListener("click", async () => {
+                          if (Helper.stringIsEmpty(node.id)) {
+                            alert("HTML Script Element benötigt eine Id.")
+                            Helper.setNotValidStyle(htmlField.input)
+                            throw new Error(`id is empty`)
+                          }
 
-                              const html = htmlField.validValue()
+                          if (!Helper.verifyIs("text/tag", node.id)) {
+                            alert("Id muss vom 'tag' Format sein. Es sind nur Kleinbuchstaben (a-z) und Bindestriche dazwischen erlaubt. (-)")
+                            Helper.setNotValidStyle(htmlField.input)
+                            throw new Error(`id is not a tag`)
+                          }
 
-                              const confirm = window.confirm("Achtung! Diese Funktion wird dein aktuelles HTML Dokument mit deinem neuen HTML Import ersetzen. Der Inhalt deines aktuellen Dokuments wird unwideruflich gelöscht, sobald du deine Werteinheit abspeicherst.\n\n Möchtest du dein aktuelles HTML Dokument wirklich ersetzen?")
-                              if (confirm === true) {
+                          const verify = {}
+                          verify.url = "/verify/template/closed/3/"
+                          verify.type = "id"
+                          verify.id = node.id
+                          verify.localStorageId = await Request.localStorageId()
+                          verify.localStorageEmail = await Request.email()
+                          verify.location = window.location.href
+                          verify.referer = document.referrer
+                          const res = await Request.middleware(verify)
 
-                                const toolbox = document.getElementById("toolbox").cloneNode(true)
+                          if (res.status === 200) {
+                            alert("Id existiert bereits.")
+                            Helper.setNotValidStyle(htmlField.input)
+                            throw new Error(`id exist`)
+                          }
 
-                                document.open()
-                                document.write(html)
-                                document.close()
+                          if (Helper.stringIsEmpty(node.getAttribute("alias"))) {
+                            alert("HTML Script Element benötigt eine Alias.")
+                            Helper.setNotValidStyle(htmlField.input)
+                            throw new Error(`alias is empty`)
+                          }
 
-                                const script = document.createElement("script")
-                                script.id = toolbox.id
-                                script.type = toolbox.type
-                                script.innerHTML = toolbox.innerHTML
-                                document.body.append(script)
+                          const script = document.createElement("script")
+                          script.id = node.id
+                          script.innerHTML = node.innerHTML
+                          script.setAttribute("alias", node.getAttribute("alias"))
+                          // if (!Helper.stringIsEmpty(node.getAttribute("loadmode"))) {
+                          //   script.setAttribute("loadmode", node.getAttribute("loadmode"))
+                          // }
 
-                              }
+                          Helper.popup(async securityOverlay => {
+                            Helper.headerPicker("loading", securityOverlay)
+                            const register = {}
+                            register.url = "/register/template/closed/3/"
+                            register.id = script.id
+                            register.alias = script.getAttribute("alias")
+                            // if (!Helper.stringIsEmpty(script.getAttribute("loadmode"))) {
+                            //   register.loadmode = script.getAttribute("loadmode")
+                            // }
+                            register.script = script.outerHTML
+                            register.localStorageId = await Request.localStorageId()
+                            register.localStorageEmail = await Request.email()
+                            register.location = window.location.href
+                            register.referer = document.referrer
+                            const res = await Request.middleware(register)
 
+                            if (res.status === 200) {
+                              alert("Template erfolgreich gespeichert ..")
+                              Helper.removeOverlay(securityOverlay)
                               Helper.removeOverlay(overlay)
-
-                            })
-                            funnel.append(button)
-                          }
-
-
+                            } else {
+                              alert("Fehler .. Bitte wiederholen.")
+                              Helper.removeOverlay(securityOverlay)
+                              Helper.setNotValidStyle(htmlField.input)
+                              throw new Error(`register template failed`)
+                            }
+                          })
 
                         })
+                        funnel.append(button)
+                      }
 
+                    })
 
-                      })
-
-                      const left = document.createElement("div")
-                      left.innerHTML = "document.write"
-                      left.style.margin = "21px 34px"
-                      left.style.fontSize = "21px"
-                      left.style.fontFamily = "sans-serif"
-                      button.append(left)
-
-                      const title = document.createElement("div")
-                      title.innerHTML = "Dokument ersetzen"
-                      title.style.margin = "21px 34px"
-                      title.style.fontSize = "13px"
-                      title.style.fontFamily = "sans-serif"
-                      button.append(title)
-
-                      buttons.append(button)
-                    }
-
-
-                  }
-
+                  })
                 }
+
+                {
+                  const button = Helper.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = "document.write"
+                  button.right.innerHTML = "Dokument ersetzen"
+
+                  // const button = document.createElement("div")
+                  // button.style.display = "flex"
+                  // button.style.flexWrap = "wrap"
+                  // button.style.justifyContent = "space-between"
+                  // button.style.alignItems = "center"
+                  // button.style.margin = "21px 34px"
+                  // button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                  // button.style.borderRadius = "13px"
+                  // button.style.border = "0.3px solid black"
+                  // button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                  // button.style.cursor = "pointer"
+                  button.addEventListener("click", () => {
+
+                    Helper.popup(overlay => {
+
+                      Helper.headerPicker("removeOverlay", overlay)
+
+                      {
+                        const funnel = document.createElement("div")
+                        funnel.style.overflow = "auto"
+                        funnel.style.overscrollBehavior = "none"
+                        funnel.style.paddingBottom = "144px"
+                        overlay.append(funnel)
+
+                        const htmlField = new TextAreaField("htm-l", funnel)
+                        htmlField.label.innerHTML = "HTML Dokument"
+                        htmlField.label.style.fontFamily = "sans-serif"
+                        htmlField.input.style.fontSize = "13px"
+                        htmlField.input.style.height = "89px"
+                        htmlField.input.placeholder = `<html>..</html>`
+                        htmlField.input.addEventListener("input", () => {
+                          htmlField.verifyValue()
+                        })
+
+                        const button = document.createElement("div")
+                        button.innerHTML = "Jetzt ersetzen"
+                        button.style.backgroundColor = "#f7aa20"
+                        button.style.cursor = "pointer"
+                        button.style.fontSize = "21px"
+                        button.style.fontFamily = "sans-serif"
+                        button.style.borderRadius = "13px"
+                        button.style.margin = "21px 34px"
+                        button.style.display = "flex"
+                        button.style.justifyContent = "center"
+                        button.style.alignItems = "center"
+                        button.style.height = "89px"
+                        button.style.color = "#000"
+                        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                        button.addEventListener("click", async () => {
+
+                          const html = htmlField.validValue()
+
+                          const confirm = window.confirm("Achtung! Diese Funktion wird dein aktuelles HTML Dokument mit deinem neuen HTML Import ersetzen. Der Inhalt deines aktuellen Dokuments wird unwideruflich gelöscht, sobald du deine Werteinheit abspeicherst.\n\n Möchtest du dein aktuelles HTML Dokument wirklich ersetzen?")
+                          if (confirm === true) {
+
+                            const toolbox = document.getElementById("toolbox").cloneNode(true)
+
+                            document.open()
+                            document.write(html)
+                            document.close()
+
+                            const script = document.createElement("script")
+                            script.id = toolbox.id
+                            script.type = toolbox.type
+                            script.innerHTML = toolbox.innerHTML
+                            document.body.append(script)
+
+                          }
+
+                          Helper.removeOverlay(overlay)
+
+                        })
+                        funnel.append(button)
+                      }
+
+
+
+                    })
+
+
+                  })
+
+                  // const left = document.createElement("div")
+                  // left.innerHTML = "document.write"
+                  // left.style.margin = "21px 34px"
+                  // left.style.fontSize = "21px"
+                  // left.style.fontFamily = "sans-serif"
+                  // button.append(left)
+
+                  // const title = document.createElement("div")
+                  // title.innerHTML = "Dokument ersetzen"
+                  // title.style.margin = "21px 34px"
+                  // title.style.fontSize = "13px"
+                  // title.style.fontFamily = "sans-serif"
+                  // button.append(title)
+
+                  // buttons.append(button)
+                }
+
+
 
                 {
                   const button = document.createElement("div")
@@ -518,114 +486,80 @@
                       }
 
                       {
-                        const verify = {}
-                        verify.url = "/verify/role/closed/2/"
-                        verify.localStorageId = await Request.localStorageId()
-                        verify.localStorageEmail = await Request.email()
-                        verify.location = window.location.href
-                        verify.referer = document.referrer
-                        const res = await Request.middleware(verify)
 
-                        if (res.status === 200) {
-                          const button = document.createElement("div")
-                          button.style.display = "flex"
-                          button.style.flexWrap = "wrap"
-                          button.style.justifyContent = "space-between"
-                          button.style.alignItems = "center"
-                          button.style.margin = "21px 34px"
-                          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                          button.style.borderRadius = "13px"
-                          button.style.border = "0.3px solid black"
-                          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                          button.style.cursor = "pointer"
-                          button.addEventListener("click", () => {
+                        const button = Helper.buttonPicker("left/right", headButtons)
+                        button.left.innerHTML = ".append"
+                        button.right.innerHTML = "Element anhängen"
+                        button.addEventListener("click", () => {
 
-                            Helper.popup(overlay => {
-                              overlay.id = "overlay-3"
-                              const overlay3 = overlay
+                          Helper.popup(overlay => {
+                            const overlay3 = overlay
 
-                              Helper.headerPicker("removeOverlay", overlay)
+                            Helper.headerPicker("removeOverlay", overlay)
 
-                              const elementInfo = Helper.headerPicker("elementInfo", overlay)
-                              elementInfo.append(Helper.convert("element/alias", document.body))
+                            const elementInfo = Helper.headerPicker("elementInfo", overlay)
+                            elementInfo.append(Helper.convert("element/alias", document.body))
 
-                              const span = document.createElement("span")
-                              span.textContent = ".append"
-                              span.style.fontSize = "13px"
-                              span.style.fontFamily = "monospace"
+                            const span = document.createElement("span")
+                            span.textContent = ".append"
+                            span.style.fontSize = "13px"
+                            span.style.fontFamily = "monospace"
 
-                              elementInfo.append(span)
+                            elementInfo.append(span)
 
-                              {
-                                const funnel = document.createElement("div")
-                                funnel.style.overflowY = "auto"
-                                funnel.style.overscrollBehavior = "none"
-                                funnel.style.paddingBottom = "144px"
-                                overlay.append(funnel)
+                            {
+                              const funnel = document.createElement("div")
+                              funnel.style.overflowY = "auto"
+                              funnel.style.overscrollBehavior = "none"
+                              funnel.style.paddingBottom = "144px"
+                              overlay.append(funnel)
 
-                                const htmlField = new TextAreaField("html-input", funnel)
-                                htmlField.label.innerHTML = "HTML Element"
-                                htmlField.label.style.fontFamily = "sans-serif"
-                                htmlField.input.style.fontSize = "13px"
-                                htmlField.input.style.height = "89px"
-                                htmlField.input.placeholder = `<meta .. />`
-                                htmlField.input.addEventListener("input", () => {
-                                  htmlField.verifyValue()
-                                })
+                              const htmlField = new TextAreaField("html-input", funnel)
+                              htmlField.label.innerHTML = "HTML Element"
+                              htmlField.label.style.fontFamily = "sans-serif"
+                              htmlField.input.style.fontSize = "13px"
+                              htmlField.input.style.height = "89px"
+                              htmlField.input.placeholder = `<meta .. />`
+                              htmlField.input.addEventListener("input", () => {
+                                htmlField.verifyValue()
+                              })
 
-                                const button = document.createElement("div")
-                                button.innerHTML = "Jetzt anhängen"
-                                button.style.backgroundColor = "#f7aa20"
-                                button.style.cursor = "pointer"
-                                button.style.fontSize = "21px"
-                                button.style.fontFamily = "sans-serif"
-                                button.style.borderRadius = "13px"
-                                button.style.margin = "21px 34px"
-                                button.style.display = "flex"
-                                button.style.justifyContent = "center"
-                                button.style.alignItems = "center"
-                                button.style.height = "89px"
-                                button.style.color = "#000"
-                                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                                button.addEventListener("click", async () => {
+                              const button = document.createElement("div")
+                              button.innerHTML = "Jetzt anhängen"
+                              button.style.backgroundColor = "#f7aa20"
+                              button.style.cursor = "pointer"
+                              button.style.fontSize = "21px"
+                              button.style.fontFamily = "sans-serif"
+                              button.style.borderRadius = "13px"
+                              button.style.margin = "21px 34px"
+                              button.style.display = "flex"
+                              button.style.justifyContent = "center"
+                              button.style.alignItems = "center"
+                              button.style.height = "89px"
+                              button.style.color = "#000"
+                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                              button.addEventListener("click", async () => {
 
-                                  const elementString = htmlField.validValue()
+                                const elementString = htmlField.validValue()
 
-                                  const parser = document.createElement("div")
-                                  parser.innerHTML = elementString
-                                  while (parser.firstChild) {
-                                    document.head.append(parser.firstChild)
-                                  }
+                                const parser = document.createElement("div")
+                                parser.innerHTML = elementString
+                                while (parser.firstChild) {
+                                  document.head.append(parser.firstChild)
+                                }
 
-                                  Helper.removeOverlay(overlay)
+                                Helper.removeOverlay(overlay)
 
-                                })
-                                funnel.append(button)
-                              }
+                              })
+                              funnel.append(button)
+                            }
 
-
-
-                            })
 
 
                           })
 
-                          const left = document.createElement("div")
-                          left.innerHTML = ".append"
-                          left.style.margin = "21px 34px"
-                          left.style.fontSize = "21px"
-                          left.style.fontFamily = "sans-serif"
-                          button.append(left)
 
-                          const title = document.createElement("div")
-                          title.innerHTML = "Element anhängen"
-                          title.style.margin = "21px 34px"
-                          title.style.fontSize = "13px"
-                          title.style.fontFamily = "sans-serif"
-                          button.append(title)
-
-                          headButtons.append(button)
-                        }
+                        })
 
                       }
 
@@ -1636,115 +1570,82 @@
                       }
 
                       {
-                        const verify = {}
-                        verify.url = "/verify/role/closed/2/"
-                        verify.localStorageId = await Request.localStorageId()
-                        verify.localStorageEmail = await Request.email()
-                        verify.location = window.location.href
-                        verify.referer = document.referrer
-                        const res = await Request.middleware(verify)
 
-                        if (res.status === 200) {
-                          const button = document.createElement("div")
-                          button.style.display = "flex"
-                          button.style.flexWrap = "wrap"
-                          button.style.justifyContent = "space-between"
-                          button.style.alignItems = "center"
-                          button.style.margin = "21px 34px"
-                          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                          button.style.borderRadius = "13px"
-                          button.style.border = "0.3px solid black"
-                          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                          button.style.cursor = "pointer"
-                          button.addEventListener("click", () => {
+                        const button = Helper.buttonPicker("left/right", buttons)
+                        button.left.innerHTML = ".append"
+                        button.right.innerHTML = "Element anhängen"
 
-                            Helper.popup(overlay => {
-                              overlay.id = "overlay-3"
-                              const overlay3 = overlay
+                        button.addEventListener("click", () => {
 
-                              Helper.headerPicker("removeOverlay", overlay)
+                          Helper.popup(overlay => {
+                            const overlay3 = overlay
 
-                              const elementInfo = Helper.headerPicker("elementInfo", overlay)
-                              elementInfo.append(Helper.convert("element/alias", document.body))
+                            Helper.headerPicker("removeOverlay", overlay)
 
-                              const span = document.createElement("span")
-                              span.textContent = ".append"
-                              span.style.fontSize = "13px"
-                              span.style.fontFamily = "monospace"
+                            const elementInfo = Helper.headerPicker("elementInfo", overlay)
+                            elementInfo.append(Helper.convert("element/alias", document.body))
 
-                              elementInfo.append(span)
+                            const span = document.createElement("span")
+                            span.textContent = ".append"
+                            span.style.fontSize = "13px"
+                            span.style.fontFamily = "monospace"
 
-                              {
-                                const funnel = document.createElement("div")
-                                funnel.style.overflowY = "auto"
-                                funnel.style.overscrollBehavior = "none"
-                                funnel.style.paddingBottom = "144px"
-                                overlay.append(funnel)
+                            elementInfo.append(span)
 
-                                const htmlField = new TextAreaField("html-input", funnel)
-                                htmlField.label.innerHTML = "HTML Element"
-                                htmlField.label.style.fontFamily = "sans-serif"
-                                htmlField.input.style.fontSize = "13px"
-                                htmlField.input.style.height = "89px"
-                                htmlField.input.placeholder = `<div>..</div>`
-                                htmlField.input.addEventListener("input", () => {
-                                  htmlField.verifyValue()
-                                })
+                            {
+                              const funnel = document.createElement("div")
+                              funnel.style.overflowY = "auto"
+                              funnel.style.overscrollBehavior = "none"
+                              funnel.style.paddingBottom = "144px"
+                              overlay.append(funnel)
 
-                                const button = document.createElement("div")
-                                button.innerHTML = "Jetzt anhängen"
-                                button.style.backgroundColor = "#f7aa20"
-                                button.style.cursor = "pointer"
-                                button.style.fontSize = "21px"
-                                button.style.fontFamily = "sans-serif"
-                                button.style.borderRadius = "13px"
-                                button.style.margin = "21px 34px"
-                                button.style.display = "flex"
-                                button.style.justifyContent = "center"
-                                button.style.alignItems = "center"
-                                button.style.height = "89px"
-                                button.style.color = "#000"
-                                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                                button.addEventListener("click", async () => {
+                              const htmlField = new TextAreaField("html-input", funnel)
+                              htmlField.label.innerHTML = "HTML Element"
+                              htmlField.label.style.fontFamily = "sans-serif"
+                              htmlField.input.style.fontSize = "13px"
+                              htmlField.input.style.height = "89px"
+                              htmlField.input.placeholder = `<div>..</div>`
+                              htmlField.input.addEventListener("input", () => {
+                                htmlField.verifyValue()
+                              })
 
-                                  const elementString = htmlField.validValue()
+                              const button = document.createElement("div")
+                              button.innerHTML = "Jetzt anhängen"
+                              button.style.backgroundColor = "#f7aa20"
+                              button.style.cursor = "pointer"
+                              button.style.fontSize = "21px"
+                              button.style.fontFamily = "sans-serif"
+                              button.style.borderRadius = "13px"
+                              button.style.margin = "21px 34px"
+                              button.style.display = "flex"
+                              button.style.justifyContent = "center"
+                              button.style.alignItems = "center"
+                              button.style.height = "89px"
+                              button.style.color = "#000"
+                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                              button.addEventListener("click", async () => {
 
-                                  const parser = document.createElement("div")
-                                  parser.innerHTML = elementString
+                                const elementString = htmlField.validValue()
 
-                                  while (parser.firstChild) {
-                                    document.body.append(parser.firstChild)
-                                  }
+                                const parser = document.createElement("div")
+                                parser.innerHTML = elementString
 
-                                  Helper.removeOverlay(overlay)
+                                while (parser.firstChild) {
+                                  document.body.append(parser.firstChild)
+                                }
 
-                                })
-                                funnel.append(button)
-                              }
+                                Helper.removeOverlay(overlay)
 
+                              })
+                              funnel.append(button)
+                            }
 
-
-                            })
 
 
                           })
 
-                          const left = document.createElement("div")
-                          left.innerHTML = ".append"
-                          left.style.margin = "21px 34px"
-                          left.style.fontSize = "21px"
-                          left.style.fontFamily = "sans-serif"
-                          button.append(left)
 
-                          const title = document.createElement("div")
-                          title.innerHTML = "Element anhängen"
-                          title.style.margin = "21px 34px"
-                          title.style.fontSize = "13px"
-                          title.style.fontFamily = "sans-serif"
-                          button.append(title)
-
-                          buttons.append(button)
-                        }
+                        })
 
                       }
 

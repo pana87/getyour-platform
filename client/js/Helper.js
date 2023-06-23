@@ -1218,120 +1218,88 @@ export class Helper {
             }
 
             {
-              const verify = {}
-              verify.url = "/verify/role/closed/2/"
-              verify.localStorageId = await Request.localStorageId()
-              verify.localStorageEmail = await Request.email()
-              verify.location = window.location.href
-              verify.referer = document.referrer
-              const res = await Request.middleware(verify)
 
-              if (res.status === 200) {
-                const button = document.createElement("div")
-                button.style.display = "flex"
-                button.style.flexWrap = "wrap"
-                button.style.justifyContent = "space-between"
-                button.style.alignItems = "center"
-                button.style.margin = "21px 34px"
-                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                button.style.borderRadius = "13px"
-                button.style.border = "0.3px solid black"
-                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                button.style.cursor = "pointer"
-                button.addEventListener("click", () => {
+              const button = this.buttonPicker("left/right", buttons)
+              button.left.innerHTML = ".append"
+              button.right.innerHTML = "Element anhängen"
+              if (child.tagName === "SCRIPT") {
+                button.right.innerHTML = "JavaScript anhängen"
+              }
 
-                  this.popup(overlay => {
+              button.addEventListener("click", () => {
 
-                    this.headerPicker("removeOverlay", overlay)
+                this.popup(overlay => {
 
-                    const elementInfo = this.headerPicker("elementInfo", overlay)
-                    elementInfo.append(this.convert("element/alias", document.body))
+                  this.headerPicker("removeOverlay", overlay)
 
-                    const span = document.createElement("span")
-                    span.textContent = ".append"
-                    span.style.fontSize = "13px"
-                    span.style.fontFamily = "monospace"
+                  const elementInfo = this.headerPicker("elementInfo", overlay)
+                  elementInfo.append(this.convert("element/alias", document.body))
 
-                    elementInfo.append(span)
+                  const span = document.createElement("span")
+                  span.textContent = ".append"
+                  span.style.fontSize = "13px"
+                  span.style.fontFamily = "monospace"
 
-                    {
-                      const funnel = document.createElement("div")
-                      funnel.style.overflowY = "auto"
-                      funnel.style.overscrollBehavior = "none"
-                      funnel.style.paddingBottom = "144px"
-                      overlay.append(funnel)
+                  elementInfo.append(span)
 
-                      const htmlField = new TextAreaField("html-input", funnel)
-                      htmlField.label.innerHTML = "HTML Element"
-                      htmlField.input.placeholder = `<div>..</div>`
-                      if (child.tagName === "SCRIPT") {
-                        htmlField.label.innerHTML = "JavaScript"
-                        htmlField.input.placeholder = `document.getElementById(id) ..`
-                      }
-                      htmlField.label.style.fontFamily = "sans-serif"
-                      htmlField.input.style.fontSize = "13px"
-                      htmlField.input.style.height = "89px"
-                      htmlField.input.addEventListener("input", () => {
-                        htmlField.verifyValue()
-                      })
+                  {
+                    const funnel = document.createElement("div")
+                    funnel.style.overflowY = "auto"
+                    funnel.style.overscrollBehavior = "none"
+                    funnel.style.paddingBottom = "144px"
+                    overlay.append(funnel)
 
-                      const button = document.createElement("div")
-                      button.innerHTML = "Jetzt anhängen"
-                      button.style.backgroundColor = "#f7aa20"
-                      button.style.cursor = "pointer"
-                      button.style.fontSize = "21px"
-                      button.style.fontFamily = "sans-serif"
-                      button.style.borderRadius = "13px"
-                      button.style.margin = "21px 34px"
-                      button.style.display = "flex"
-                      button.style.justifyContent = "center"
-                      button.style.alignItems = "center"
-                      button.style.height = "89px"
-                      button.style.color = "#000"
-                      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                      button.addEventListener("click", async () => {
-
-                        const elementString = htmlField.validValue()
-
-                        const parser = document.createElement("div")
-                        parser.innerHTML = elementString
-
-                        while (parser.firstChild) {
-                          child.append(parser.firstChild)
-                        }
-
-                        this.removeOverlay(overlay)
-
-                      })
-                      funnel.append(button)
+                    const htmlField = new TextAreaField("html-input", funnel)
+                    htmlField.label.innerHTML = "HTML Element"
+                    htmlField.input.placeholder = `<div>..</div>`
+                    if (child.tagName === "SCRIPT") {
+                      htmlField.label.innerHTML = "JavaScript"
+                      htmlField.input.placeholder = `document.getElementById(id) ..`
                     }
+                    htmlField.label.style.fontFamily = "sans-serif"
+                    htmlField.input.style.fontSize = "13px"
+                    htmlField.input.style.height = "89px"
+                    htmlField.input.addEventListener("input", () => {
+                      htmlField.verifyValue()
+                    })
 
+                    const button = document.createElement("div")
+                    button.innerHTML = "Jetzt anhängen"
+                    button.style.backgroundColor = "#f7aa20"
+                    button.style.cursor = "pointer"
+                    button.style.fontSize = "21px"
+                    button.style.fontFamily = "sans-serif"
+                    button.style.borderRadius = "13px"
+                    button.style.margin = "21px 34px"
+                    button.style.display = "flex"
+                    button.style.justifyContent = "center"
+                    button.style.alignItems = "center"
+                    button.style.height = "89px"
+                    button.style.color = "#000"
+                    button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                    button.addEventListener("click", async () => {
 
+                      const elementString = htmlField.validValue()
 
-                  })
+                      const parser = document.createElement("div")
+                      parser.innerHTML = elementString
+
+                      while (parser.firstChild) {
+                        child.append(parser.firstChild)
+                      }
+
+                      this.removeOverlay(overlay)
+
+                    })
+                    funnel.append(button)
+                  }
+
 
 
                 })
 
-                const left = document.createElement("div")
-                left.innerHTML = ".append"
-                left.style.margin = "21px 34px"
-                left.style.fontSize = "21px"
-                left.style.fontFamily = "sans-serif"
-                button.append(left)
 
-                const title = document.createElement("div")
-                title.innerHTML = "Element anhängen"
-                if (child.tagName === "SCRIPT") {
-                  title.innerHTML = "JavaScript anhängen"
-                }
-                title.style.margin = "21px 34px"
-                title.style.fontSize = "13px"
-                title.style.fontFamily = "sans-serif"
-                button.append(title)
-
-                buttons.append(button)
-              }
+              })
 
             }
 
