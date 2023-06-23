@@ -10,14 +10,9 @@ Additionally, the use of the code is subject to [specific usage agreements](http
 
 # Standards
 
-## Icons and logos
+## Templates
 
-Only svg.
-
-## Data
-
-Only add or multiply. Never substract, delete or divide.
-
+Every template that creates a HTML Element need to sign it with an id. Read in template.dependencies more about, which ids are needed for the script to function.
 
 ## Functions
 
