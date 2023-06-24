@@ -168,10 +168,9 @@
                         htmlField.label.innerHTML = "HTML Script Element"
                         htmlField.label.style.fontFamily = "sans-serif"
                         htmlField.input.required = true
-                        // htmlField.input.accept = "text/tag"
                         htmlField.input.style.fontSize = "13px"
                         htmlField.input.style.height = "89px"
-                        htmlField.input.placeholder = `<script id="" alias="" loadmode="">..</>`
+                        htmlField.input.placeholder = `<script id=".." alias=".." >..</>`
                         htmlField.input.addEventListener("input", () => {
                           htmlField.verifyValue()
                         })
@@ -249,16 +248,14 @@
                           }
 
                           const script = document.createElement("script")
-                          script.id = node.id
                           script.innerHTML = node.innerHTML
-                          script.setAttribute("alias", node.getAttribute("alias"))
 
                           Helper.popup(async securityOverlay => {
                             Helper.headerPicker("loading", securityOverlay)
                             const register = {}
                             register.url = "/register/template/closed/3/"
-                            register.id = script.id
-                            register.alias = script.getAttribute("alias")
+                            register.id = node.id
+                            register.alias = node.getAttribute("alias")
                             register.script = script.outerHTML
                             register.localStorageId = await Request.localStorageId()
                             register.localStorageEmail = await Request.email()
@@ -866,10 +863,12 @@
                                         parser.innerHTML = template.script
                                         const node = parser.firstChild
                                         const script = document.createElement("script")
-                                        script.id = node.id
+                                        script.id = template.id
                                         script.innerHTML = node.innerHTML
+                                        script.type = "module"
                                         script.append(`document.getElementById("${script.id}").remove()`)
                                         document.body.append(script)
+
                                       } else {
                                         alert("Template wurde bereits im Dokument eingesetzt.")
                                       }
@@ -892,7 +891,7 @@
                                         parser.innerHTML = template.script
                                         const node = parser.firstChild
                                         const script = document.createElement("script")
-                                        script.id = node.id
+                                        script.id = template.id
                                         script.type = "module"
                                         script.innerHTML = node.innerHTML
                                         document.body.append(script)
