@@ -252,9 +252,6 @@
                           script.id = node.id
                           script.innerHTML = node.innerHTML
                           script.setAttribute("alias", node.getAttribute("alias"))
-                          // if (!Helper.stringIsEmpty(node.getAttribute("loadmode"))) {
-                          //   script.setAttribute("loadmode", node.getAttribute("loadmode"))
-                          // }
 
                           Helper.popup(async securityOverlay => {
                             Helper.headerPicker("loading", securityOverlay)
@@ -262,9 +259,6 @@
                             register.url = "/register/template/closed/3/"
                             register.id = script.id
                             register.alias = script.getAttribute("alias")
-                            // if (!Helper.stringIsEmpty(script.getAttribute("loadmode"))) {
-                            //   register.loadmode = script.getAttribute("loadmode")
-                            // }
                             register.script = script.outerHTML
                             register.localStorageId = await Request.localStorageId()
                             register.localStorageEmail = await Request.email()
@@ -273,11 +267,11 @@
                             const res = await Request.middleware(register)
 
                             if (res.status === 200) {
-                              alert("Template erfolgreich gespeichert ..")
+                              alert("Template erfolgreich gespeichert.")
                               Helper.removeOverlay(securityOverlay)
                               Helper.removeOverlay(overlay)
                             } else {
-                              alert("Fehler .. Bitte wiederholen.")
+                              alert("Fehler.. Bitte wiederholen.")
                               Helper.removeOverlay(securityOverlay)
                               Helper.setNotValidStyle(htmlField.input)
                               throw new Error(`register template failed`)
@@ -298,17 +292,6 @@
                   button.left.innerHTML = "document.write"
                   button.right.innerHTML = "Dokument ersetzen"
 
-                  // const button = document.createElement("div")
-                  // button.style.display = "flex"
-                  // button.style.flexWrap = "wrap"
-                  // button.style.justifyContent = "space-between"
-                  // button.style.alignItems = "center"
-                  // button.style.margin = "21px 34px"
-                  // button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                  // button.style.borderRadius = "13px"
-                  // button.style.border = "0.3px solid black"
-                  // button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                  // button.style.cursor = "pointer"
                   button.addEventListener("click", () => {
 
                     Helper.popup(overlay => {
@@ -380,21 +363,6 @@
 
                   })
 
-                  // const left = document.createElement("div")
-                  // left.innerHTML = "document.write"
-                  // left.style.margin = "21px 34px"
-                  // left.style.fontSize = "21px"
-                  // left.style.fontFamily = "sans-serif"
-                  // button.append(left)
-
-                  // const title = document.createElement("div")
-                  // title.innerHTML = "Dokument ersetzen"
-                  // title.style.margin = "21px 34px"
-                  // title.style.fontSize = "13px"
-                  // title.style.fontFamily = "sans-serif"
-                  // button.append(title)
-
-                  // buttons.append(button)
                 }
 
 
@@ -753,7 +721,7 @@
 
 
 
-
+                                // Helper.render("templates", templates)
                                 for (let i = 0; i < templates.length; i++) {
                                   const template = templates[i]
 
@@ -780,69 +748,8 @@
                                     itemHeader.style.backgroundColor = Helper.colors.gray[1]
                                   }
 
-                                  // itemHeader.style.cursor = "pointer"
 
 
-                                  // add something ??
-                                  // itemHeader.addEventListener("click", async () => {
-
-                                  //   Helper.popup(overlay => {
-
-                                  //     Helper.headerPicker("removeOverlay", overlay)
-
-                                  //     const elementInfo = Helper.headerPicker("elementInfo", overlay)
-                                  //     elementInfo.append(Helper.convert("element/alias", document.body))
-
-                                  //     const span = document.createElement("span")
-                                  //     span.innerHTML = `.templates[${i}]`
-                                  //     span.style.fontSize = "13px"
-                                  //     span.style.fontFamily = "monospace"
-                                  //     elementInfo.append(span)
-
-                                  //     {
-
-
-                                  //       // verify if this is the expert from the url and if he owns the platform from the url
-                                  //       // verify expert by url - expert and platform
-                                  //       // if name in the jwt user id
-                                  //       // check if the template id is in the user jwt id
-
-
-                                  //       const buttons = document.createElement("div")
-                                  //       buttons.style.overflowY = "auto"
-                                  //       buttons.style.paddingBottom = "144px"
-                                  //       buttons.style.overscrollBehavior = "none"
-                                  //       overlay.append(buttons)
-
-                                  //       {
-                                  //         const button = Helper.buttonPicker("left/right", buttons)
-                                  //         button.left.innerHTML = ".loadmode"
-                                  //         button.right.innerHTML = "Ausführung ändern"
-                                  //       }
-
-                                  //       {
-                                  //         const button = Helper.buttonPicker("left/right", buttons)
-                                  //         button.left.innerHTML = ".id"
-                                  //         button.right.innerHTML = "Ausführung ändern"
-                                  //       }
-
-                                  //       {
-                                  //         const button = Helper.buttonPicker("left/right", buttons)
-                                  //         button.left.innerHTML = ".alias"
-                                  //         button.right.innerHTML = "Alias ändern"
-                                  //       }
-
-                                  //       {
-                                  //         const button = Helper.buttonPicker("left/right", buttons)
-                                  //         button.left.innerHTML = ".remove"
-                                  //         button.right.innerHTML = "Template löschen"
-                                  //       }
-
-
-                                  //     }
-
-                                  //   })
-                                  // })
 
                                   const itemState = document.createElement("div")
                                   itemState.classList.add("item-state")
@@ -950,7 +857,6 @@
                                     const button = Helper.iconPicker("repeat-once")
                                     button.style.width = "55px"
                                     button.style.padding = "8px"
-                                    // button.style.margin = "0 8px"
 
                                     button.style.cursor = "pointer"
                                     button.addEventListener("click", () => {
@@ -964,39 +870,9 @@
                                         script.innerHTML = node.innerHTML
                                         script.append(`document.getElementById("${script.id}").remove()`)
                                         document.body.append(script)
-                                        // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                        //   itemState.style.backgroundColor = Helper.colors.dark.success
-                                        // } else {
-                                        //   itemState.style.backgroundColor = Helper.colors.light.success
-                                        // }
                                       } else {
-
                                         alert("Template wurde bereits im Dokument eingesetzt.")
                                       }
-
-                                      // script.setAttribute("alias", node.getAttribute("alias"))
-                                      // script.setAttribute("loadmode", node.getAttribute("loadmode"))
-                                      // script.setAttribute("loadmode", "once")
-
-
-
-                                      // if (node.getAttribute("loadmode") === "once") {
-                                      // }
-
-                                      // console.log(script);
-
-
-                                      // console.log(parser);
-
-                                      // if (document.getElementById(template.id) !== null) {
-                                      //   if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                      //     itemState.style.backgroundColor = Helper.colors.dark.success
-                                      //   } else {
-                                      //     itemState.style.backgroundColor = Helper.colors.light.success
-                                      //   }
-                                      // }
-
-
 
                                     })
                                     buttons.append(button)
@@ -1007,25 +883,17 @@
                                     const button = Helper.iconPicker("repeat-always")
                                     button.style.width = "55px"
                                     button.style.padding = "8px"
-                                    // button.style.margin = "0 8px"
                                     button.style.cursor = "pointer"
                                     button.addEventListener("click", () => {
 
 
                                       if (document.getElementById(template.id) === null) {
-                                        // const parser = document.createElement("div")
-                                        // parser.innerHTML = template.script
-                                        // const node = parser.firstChild
-                                        // const script = document.createElement("script")
-                                        // script.id = node.id
-                                        // script.innerHTML = node.innerHTML
-                                        // script.append(`document.getElementById("${script.id}").remove()`)
-                                        // document.body.append(script)
                                         const parser = document.createElement("div")
                                         parser.innerHTML = template.script
                                         const node = parser.firstChild
                                         const script = document.createElement("script")
                                         script.id = node.id
+                                        script.type = "module"
                                         script.innerHTML = node.innerHTML
                                         document.body.append(script)
                                         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -1034,26 +902,8 @@
                                           itemState.style.backgroundColor = Helper.colors.light.success
                                         }
                                       } else {
-
                                         alert("Template wurde bereits im Dokument eingesetzt.")
                                       }
-
-
-                                      // script.setAttribute("alias", node.getAttribute("alias"))
-                                      // script.setAttribute("loadmode", node.getAttribute("loadmode"))
-                                      // script.setAttribute("loadmode", "once")
-
-
-
-                                      // script.append(`document.getElementById("${script.id}").remove()`)
-                                      // if (node.getAttribute("loadmode") === "once") {
-                                      // }
-
-                                      // console.log(script);
-
-
-                                      // console.log(parser);
-
 
                                     })
                                     buttons.append(button)
@@ -1081,23 +931,12 @@
                                         span.style.fontFamily = "monospace"
                                         elementInfo.append(span)
 
-
-
-
-
-
-
-                                        // const content = Helper.headerPicker("loading", overlay)
-
                                         const content = document.createElement("div")
                                         content.style.overflowY = "auto"
                                         content.style.overscrollBehavior = "none"
                                         content.style.paddingBottom = "144px"
                                         overlay.append(content)
 
-
-
-                                        // create list from template.feedback
                                         const feedbackContainer = Helper.headerPicker("loading", content)
                                         feedbackContainer.info.remove()
 
@@ -1114,9 +953,6 @@
                                         } else {
                                           feedbackContainer.style.color = Helper.colors.light.text
                                         }
-
-
-
 
                                         const get = {}
                                         get.url = "/get/templates/closed/3/"
@@ -1158,23 +994,13 @@
 
                                           for (let i = 0; i < feedback.length; i++) {
                                             const value = feedback[i]
-                                            // console.log(value);
 
-
-                                            // value created instead of pfeil
                                             const div = document.createElement("div")
                                             div.style.display = "flex"
                                             div.style.justifyContent = "space-between"
                                             div.style.alignItems = "center"
 
-                                            // if (i % 2 === 0) {
-                                            //   div.style.background = Helper.colors.light.background
-                                            //   div.style.color = Helper.colors.light.background
-                                            // } else {
-                                            //   div.style.background = Helper.colors.dark.background
-                                            // }
                                             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                              // feedbackContainer.style.color = Helper.colors.dark.text
 
                                               if (i % 2 === 0) {
                                                 div.style.background = Helper.colors.light.foreground
@@ -1194,74 +1020,25 @@
                                                 div.style.color = Helper.colors.dark.text
                                               }
 
-                                              // feedbackContainer.style.color = Helper.colors.light.text
                                             }
 
-
-
-
-
-
-
                                             const left = document.createElement("span")
-                                            // left.style.marginRight = "8px"
                                             left.innerHTML = `${Helper.convert("millis/dd.mm.yyyy hh:mm", value.created)}`
                                             div.append(left)
 
                                             const nextToLeft = document.createElement("span")
                                             nextToLeft.style.width = "100%"
                                             nextToLeft.style.margin = "0 13px"
-                                            // nextToLeft.style.marginLeft = "auto"
                                             nextToLeft.innerHTML = value.content
                                             div.append(nextToLeft)
-
-
-                                            // const importance = document.createElesment("span")
-                                            // div.append(importance)
 
                                             const right = document.createElement("span")
                                             right.style.padding = "13px"
                                             right.innerHTML = value.importance
-                                            // right.style.padding = "0 13px 0 0"
-                                            // right.style.alignItems = "flex-end"
-                                            // right.style.marginLeft = "auto"
-
-                                            // importance.innerHTML = value.importance
-
-
-
-                                            // verify user first if he is the owner of this template
-
-
-
-
-
-                                            // if (Helper.verifyIs("text/offence", value.content)) {
-
-                                            //   // wenn eine beleidigung entdeckt wurde
-                                            //   // und der user der owner des templates ist
-                                            //   // dann darf gelöscht werden.
-                                            //   right.innerHTML = "X"
-                                            //   right.style.cursor = "pointer"
-                                            //   right.addEventListener("click", () => {
-
-                                            //     // delete feedback
-                                            //     const confirm = window.confirm("In diesem Beitrag wurde beleidigende Wörter gefunden. Das bedeutet, dass du das Recht hast diesen Beitrag unwiderruflich zu löschen, nachdem du ihn geprüft hast.\n\n Möchtest du diesen Beitrag wirklich löschen?")
-
-                                            //   })
-                                            // }
-
-
                                             div.append(right)
 
-
-                                            // if bad language
-
-                                            // div.innerHTML = `${value.created} -> ${value.content}`
                                             feedbackContainer.append(div)
 
-                                            // append x when bad language found
-                                            // every user can delete bad language content
                                             div.style.cursor = "pointer"
                                             div.addEventListener("click", () => {
 
@@ -1311,18 +1088,13 @@
 
                                         }
 
-                                        // create content text field
                                         const contentField = new TextField("feedback", content)
                                         contentField.label.innerHTML = "Feedback"
                                         contentField.input.required = true
                                         contentField.input.maxLength = "55"
                                         contentField.verifyValue()
                                         contentField.input.addEventListener("input", () => contentField.verifyValue())
-                                        // console.log(contentField);
 
-
-
-                                        // create importance field slider 0-13
                                         const importanceField = new RangeField("importance", content)
                                         importanceField.input.min = "0"
                                         importanceField.input.max = "13"
@@ -1335,7 +1107,6 @@
                                           importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
                                         })
 
-                                        // add button
                                         const button = Helper.buttonPicker("action", content)
                                         button.innerHTML = "Jetzt speichern"
                                         button.addEventListener("click", () => {
@@ -1407,22 +1178,13 @@
                                     buttons.append(button)
                                   }
 
-
-                                  // {
-                                  //   const button = Helper.iconPicker("verify-document")
-                                  //   button.style.width = "44px"
-                                  //   button.style.padding = "8px"
-                                  //   button.style.cursor = "pointer"
-                                  //   buttons.append(button)
-                                  // }
-
-
-
-
                                   itemBody.append(buttons)
                                   item.append(itemBody)
                                   units.append(item)
                                 }
+
+
+
                               }
 
                             }
@@ -1531,12 +1293,7 @@
 
                                   const cssValue = divStyleValueField.validValue()
 
-                                  // clone.style[divStylePropertyField.input.value] = cssValue
                                   document.body.style[divStylePropertyField.input.value] = cssValue
-
-                                  // divStylePropertyField.input.value = ""
-                                  // Helper.setNotValidStyle(divStylePropertyField.input)
-                                  // divStyleValueField.input.value = ""+
 
                                   Helper.removeOverlay(overlay3)
                                   Helper.removeOverlay(overlay2)

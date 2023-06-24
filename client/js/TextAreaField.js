@@ -61,7 +61,6 @@ export class TextAreaField {
 
   #setTextArea(field) {
     field.innerHTML = ""
-    // field.id = this.name
     field.classList.add("field")
 
     field.style.position = "relative"
@@ -98,9 +97,6 @@ export class TextAreaField {
     labelContainer.append(icon)
 
     const label = document.createElement("label")
-    // label.classList.add(this.name)
-
-
 
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       label.style.color = Helper.colors.dark.text
@@ -115,7 +111,6 @@ export class TextAreaField {
     field.append(labelContainer)
 
     const input = document.createElement("textarea")
-    // input.classList.add(this.name)
 
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       input.style.backgroundColor = Helper.colors.dark.background
