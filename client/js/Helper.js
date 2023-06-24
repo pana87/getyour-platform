@@ -42,6 +42,15 @@ export class Helper {
 
   static headerPicker(name, parent) {
 
+    if (name === "scrollable") {
+      const header = document.createElement("div")
+      header.style.overflowY = "auto"
+      header.style.overscrollBehavior = "none"
+      header.style.paddingBottom = "144px"
+      if (parent !== undefined) parent.append(header)
+      return header
+    }
+
 
     if (name === "info") {
 
@@ -110,7 +119,7 @@ export class Helper {
       header.style.justifyContent = "center"
       header.style.alignItems = "center"
       header.style.height = "100%"
-      header.style.zIndex = "1"
+      // header.style.zIndex = "1"
       parent.append(header)
 
       header.loading = this.iconPicker("loading")
