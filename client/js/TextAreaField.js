@@ -52,8 +52,9 @@ export class TextAreaField {
       }
       Helper.setNotValidStyle(this.input)
       const error = new Error(`field required: '${this.name}'`)
-      error.fieldName = this.name
-      throw new Error(error)
+      error.field = this.name
+      this.field.scrollIntoView({behavior: "smooth"})
+      throw error
     }
     Helper.setValidStyle(this.input)
     return this.input.value
@@ -62,10 +63,8 @@ export class TextAreaField {
   #setTextArea(field) {
     field.innerHTML = ""
     field.classList.add("field")
-
     field.style.position = "relative"
     field.style.borderRadius = "13px"
-    field.style.border = "0.3px solid black"
     field.style.display = "flex"
     field.style.flexDirection = "column"
     field.style.margin = "34px"
@@ -97,6 +96,8 @@ export class TextAreaField {
     labelContainer.append(icon)
 
     const label = document.createElement("label")
+    label.style.fontFamily = "sans-serif"
+    label.style.fontSize = "21px"
 
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       label.style.color = Helper.colors.dark.text
@@ -105,12 +106,12 @@ export class TextAreaField {
     }
 
 
-    label.style.fontSize = "21px"
     labelContainer.append(label)
     this.label = label
     field.append(labelContainer)
 
     const input = document.createElement("textarea")
+    input.style.margin = "21px 89px 21px 34px"
 
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       input.style.backgroundColor = Helper.colors.dark.background
@@ -120,8 +121,6 @@ export class TextAreaField {
       input.style.color = Helper.colors.light.text
     }
 
-    input.style.margin = "21px 89px 21px 34px"
-    input.style.fontSize = "21px"
     this.input = input
     field.append(input)
     return field

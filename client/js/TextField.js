@@ -25,11 +25,18 @@ export class TextField {
     if (input.required === true) return true
     if (input.accept === "text/tag") return true
     if (input.accept === "text/hex") return true
+    if (input.accept === "text/path") return true
     return false
   }
 
   #checkValidity(input) {
     if (input.checkValidity() === false) return false
+
+    if (input.accept === "text/path") {
+      if (typeof input.value !== "string") return false
+      if (/^\/[\w\-._~!$&'()*+,;=:@/]+\/$/.test(input.value) === true) return true
+      return false
+    }
 
     if (input.accept === "text/hex") {
       if (typeof input.value !== "string") return false
@@ -67,8 +74,9 @@ export class TextField {
         return this.input.value
       }
       Helper.setNotValidStyle(this.input)
-      const error = new Error(`Feld '${this.name}' ist ungültig.`)
+      const error = new Error(`field required: '${this.name}'`)
       error.field = this.field
+      this.field.scrollIntoView({behavior: "smooth"})
       throw error
     }
     Helper.setValidStyle(this.input)
@@ -84,7 +92,6 @@ export class TextField {
     field.style.flexDirection = "column"
     field.style.margin = "34px"
     field.style.justifyContent = "center"
-    field.style.fontFamily = "sans-serif"
 
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       field.style.backgroundColor = Helper.colors.dark.foreground
@@ -112,6 +119,8 @@ export class TextField {
     labelContainer.append(icon)
 
     const label = document.createElement("label")
+    label.style.fontFamily = "sans-serif"
+    label.style.fontSize = "21px"
 
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       label.style.color = Helper.colors.dark.text
@@ -119,13 +128,14 @@ export class TextField {
       label.style.color = Helper.colors.light.text
     }
 
-    label.style.fontSize = "21px"
     this.label = label
     labelContainer.append(label)
     field.append(labelContainer)
 
     const input = document.createElement("input")
     input.type = this.type
+    input.style.margin = "21px 89px 21px 34px"
+    input.style.fontSize = "21px"
 
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       input.style.backgroundColor = Helper.colors.dark.background
@@ -134,11 +144,6 @@ export class TextField {
       input.style.backgroundColor = Helper.colors.light.background
       input.style.color = Helper.colors.light.text
     }
-
-    input.style.margin = "21px 89px 21px 34px"
-    input.style.fontSize = "21px"
-
-
 
     this.input = input
     field.append(input)
