@@ -68,9 +68,10 @@ export class RangeField {
         return this.input.value
       }
       Helper.setNotValidStyle(this.input)
-      const error = new Error(`Feld '${this.name}' ist ungültig.`)
+      const error = new Error(`field required: '${this.name}'`)
       error.field = this.field
-      throw new Error(error)
+      this.field.scrollIntoView({behavior: "smooth"})
+      throw error
     }
     Helper.setValidStyle(this.input)
     return this.input.value
@@ -85,7 +86,6 @@ export class RangeField {
     field.style.flexDirection = "column"
     field.style.margin = "34px"
     field.style.justifyContent = "center"
-    field.style.fontFamily = "sans-serif"
 
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       field.style.backgroundColor = Helper.colors.dark.foreground
@@ -113,6 +113,7 @@ export class RangeField {
     labelContainer.append(icon)
 
     const label = document.createElement("label")
+    label.style.fontFamily = "sans-serif"
 
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       label.style.color = Helper.colors.dark.text
@@ -137,7 +138,6 @@ export class RangeField {
     }
 
     input.style.margin = "21px 89px 21px 34px"
-    input.style.fontSize = "21px"
 
     this.input = input
     field.append(input)

@@ -53,8 +53,9 @@ export class DateField {
       }
       Helper.setNotValidStyle(this.input)
       const error = new Error(`field required: '${this.name}'`)
-      error.fieldName = this.name
-      throw new Error(error)
+      error.field = this.name
+      this.field.scrollIntoView({behavior: "smooth"})
+      throw error
     }
     Helper.setValidStyle(this.input)
     return this.input.value
@@ -62,16 +63,25 @@ export class DateField {
 
   #setDate(field) {
     field.innerHTML = ""
-    field.id = this.name
+    field.classList.add("field")
     field.style.position = "relative"
-    field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
     field.style.borderRadius = "13px"
-    field.style.border = "0.3px solid black"
     field.style.display = "flex"
     field.style.flexDirection = "column"
     field.style.margin = "34px"
-    field.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
     field.style.justifyContent = "center"
+
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      field.style.backgroundColor = Helper.colors.dark.foreground
+      field.style.border = Helper.colors.dark.border
+      field.style.boxShadow = Helper.colors.dark.boxShadow
+      field.style.color = Helper.colors.dark.text
+    } else {
+      field.style.backgroundColor = Helper.colors.light.foreground
+      field.style.border = Helper.colors.light.border
+      field.style.boxShadow = Helper.colors.light.boxShadow
+      field.style.color = Helper.colors.light.text
+    }
 
     const labelContainer = document.createElement("div")
     labelContainer.style.display = "flex"
@@ -87,8 +97,15 @@ export class DateField {
     labelContainer.append(icon)
 
     const label = document.createElement("label")
-    label.style.color = "#707070"
+    label.style.fontFamily = "sans-serif"
     label.style.fontSize = "21px"
+
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      label.style.color = Helper.colors.dark.text
+    } else {
+      label.style.color = Helper.colors.light.text
+    }
+
     this.label = label
     labelContainer.append(label)
     field.append(labelContainer)
@@ -97,6 +114,15 @@ export class DateField {
     input.type = this.type
     input.style.margin = "21px 89px 21px 34px"
     input.style.fontSize = "21px"
+
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      input.style.backgroundColor = Helper.colors.dark.background
+      input.style.color = Helper.colors.dark.text
+    } else {
+      input.style.backgroundColor = Helper.colors.light.background
+      input.style.color = Helper.colors.light.text
+    }
+
     this.input = input
     field.append(input)
     return field

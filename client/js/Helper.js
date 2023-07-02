@@ -4,11 +4,385 @@ import {TextAreaField} from "/js/TextAreaField.js"
 
 export class Helper {
 
-  // static render(event, parent) {
+  static request(event, input) {
+    if (event === "end-click-funnel") {
 
-  // }
+      const endButton = input.querySelector(".end-click-funnel-button")
+      const buttonIcon = endButton.children[0]
+      const buttonText = endButton.children[1]
+
+      if (endButton.onclick === null) {
+
+        endButton.onclick = () => {
+
+          const funnelTag = input.id
+
+          if (this.stringIsEmpty(funnelTag)) {
+            window.alert("Diesem Funnel wurde keine Id vergeben.")
+            throw new Error("funnel tag is empty")
+          }
+
+          const map = {}
+          input.querySelectorAll(".click-field").forEach(field => {
+            field.querySelectorAll(".answer").forEach(answer => {
+              if (answer.getAttribute("clicked") === "true") {
+                map[field.id] = answer.innerHTML
+              }
+            })
+          })
+
+          this.popup(async securityOverlay => {
+            this.headerPicker("loading", securityOverlay)
+
+            const register = {}
+            register.url = "/register/funnel/closed/"
+            register.tag = funnelTag
+            register.funnel = map
+            const res = await Request.middleware(register)
+
+            if (res.status === 200) {
+
+              endButton.onclick = null
+
+              buttonIcon.innerHTML = ""
+              buttonIcon.append(this.iconPicker("success"))
+              buttonText.innerHTML = "Erfolgreich"
+
+
+              const nextJs = input.getAttribute("next-js")
+              if (!this.stringIsEmpty(nextJs)) {
+                try {
+                  eval(nextJs)
+                  return
+                } catch (error) {
+                  window.alert("Die Weiterleitung ist fehlgeschlagen. Ihre Daten wurden allerdings erfolgreich gespeichert. Für die nächsten Schritte kontaktieren Sie bitte Ihren verantwortlichen Experten.")
+                  this.removeOverlay(securityOverlay)
+                  throw error
+                }
+              }
+
+
+            } else {
+              window.alert("Fehler.. Bitte wiederholen.")
+
+              buttonIcon.innerHTML = ""
+              buttonIcon.append(this.iconPicker("warn"))
+              buttonText.innerHTML = "Fehler"
+
+              endButton.onclick = () => window.location.reload()
+
+              this.removeOverlay(securityOverlay)
+            }
+          })
+
+
+        }
+
+      }
+
+
+      endButton.style.visibility = "visible"
+      endButton.style.position = "static"
+
+    }
+  }
+
+  static skipSiblings(index, sibling) {
+
+    let count = 0
+    let currentSibling = sibling
+
+    while (currentSibling) {
+      if (count >= index) break
+
+      const nextSibling = currentSibling.nextSibling
+
+      if (currentSibling.nodeType === Node.ELEMENT_NODE) {
+        count++
+        currentSibling.style.visibility = 'hidden'
+        currentSibling.style.position = 'absolute'
+      }
+
+      currentSibling = nextSibling
+    }
+
+    if (currentSibling && currentSibling.nodeType === Node.ELEMENT_NODE) {
+      currentSibling.style.visibility = 'visible'
+      currentSibling.style.position = 'static'
+    }
+
+    if (count < index) throw new Error("out of bounds")
+
+  }
+
+  static create(event, parent) {
+
+    if (event === "click-funnel") {
+      const clickFunnel = document.createElement("div")
+      clickFunnel.classList.add("click-funnel")
+      clickFunnel.style.display = "flex"
+      clickFunnel.style.justifyContent = "center"
+      clickFunnel.style.position = "relative"
+      clickFunnel.style.margin = "21px 34px"
+
+      {
+        const button = document.createElement("div")
+        button.classList.add("start-click-funnel-button")
+        button.style.display = "flex"
+        button.style.flexDirection = "column"
+        button.style.justifyContent = "center"
+        button.style.alignItems = "center"
+        button.style.cursor = "pointer"
+
+        button.style.borderRadius = "50%"
+        button.style.width = "144px"
+        button.style.height = "144px"
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          button.style.background = this.colors.dark.foreground
+          button.style.border = this.colors.dark.border
+          button.style.boxShadow = this.colors.dark.boxShadow
+        } else {
+          button.style.background = this.colors.light.foreground
+          button.style.border = this.colors.light.border
+          button.style.boxShadow = this.colors.light.boxShadow
+        }
+        clickFunnel.append(button)
+
+        // wrap div
+        const icon = this.iconPicker("touch")
+        icon.style.width = "55px"
+        button.append(icon)
+
+        const text = document.createElement("div")
+        text.innerHTML = "Start"
+        text.style.fontFamily = "sans-serif"
+        text.style.fontSize = "21px"
+        text.style.margin = "13px"
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          text.style.color = this.colors.dark.text
+        } else {
+          text.style.color = this.colors.light.text
+        }
+        button.append(text)
+      }
+
+
+
+      {
+        const button = this.buttonPicker("icon-top/text-bottom", clickFunnel)
+        button.classList.add("end-click-funnel-button")
+        button.style.visibility = "hidden"
+        button.icon.append(this.iconPicker("touch"))
+        button.text.innerHTML = "Speichern"
+      }
+
+
+
+
+      if (parent !== undefined) parent.append(clickFunnel)
+
+      return clickFunnel
+    }
+
+    if (event === "image-left/text-right") {
+
+      const box = document.createElement("div")
+      box.style.display = "flex"
+      box.style.maxHeight = "144px"
+      box.style.borderRadius = "13px"
+      box.style.margin = "8px 0"
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        box.style.border = `1px solid ${this.colors.dark.text}`
+      } else {
+        box.style.border = `1px solid ${this.colors.light.text}`
+      }
+
+      box.image = document.createElement("img")
+      box.image.style.width = "34%"
+      box.image.style.borderTopLeftRadius = "13px"
+      box.image.style.borderBottomLeftRadius = "13px"
+      box.append(box.image)
+
+      box.text = document.createElement("div")
+      box.text.style.fontFamily = "sans-serif"
+      box.text.style.width = "100%"
+      box.text.style.overflow = "auto"
+      box.text.style.padding = "8px"
+      box.append(box.text)
+
+      if (parent !== undefined) parent.append(box)
+
+      return box
+
+    }
+
+
+    if (event === "click/field") {
+
+      const field = document.createElement("div")
+      field.classList.add("click-field")
+      field.style.position = "absolute"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.justifyContent = "center"
+      field.style.width = "100%"
+      field.style.visibility = "hidden"
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+      } else {
+        field.style.backgroundColor = this.colors.light.foreground
+        field.style.border = this.colors.light.border
+        field.style.boxShadow = this.colors.light.boxShadow
+        field.style.color = this.colors.light.text
+      }
+
+      field.label = document.createElement("label")
+      field.label.style.margin = "21px 34px"
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "21px"
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.label.style.color = this.colors.dark.text
+      } else {
+        field.label.style.color = this.colors.light.text
+      }
+      field.append(field.label)
+
+      field.input = document.createElement("div")
+      field.input.style.display = "flex"
+      field.input.style.flexDirection = "column"
+      field.input.style.margin = "21px 34px"
+      field.append(field.input)
+
+      if (parent !== undefined) parent.append(field)
+
+      return field
+    }
+
+
+
+    if (event === "info/success") {
+      const element = document.createElement("div")
+      element.style.fontSize = "13px"
+      element.style.fontFamily = "sans-serif"
+      element.style.margin = "21px 34px"
+      element.style.padding = "21px 34px"
+      element.style.borderRadius = "13px"
+
+
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // element.style.boxShadow = this.colors.dark.boxShadow
+        element.style.color = this.colors.dark.text
+        // element.style. border = this.colors.dark.border
+        element.style.backgroundColor = this.colors.dark.success
+      } else {
+        element.style.color = this.colors.light.text
+
+        // element.style.boxShadow = this.colors.light.boxShadow
+        // element.style.border = this.colors.light.border
+        element.style.backgroundColor = this.colors.light.success
+      }
+
+
+      if (parent !== undefined) parent.append(element)
+
+      return element
+    }
+  }
+
+  static render(event, input, parent) {
+
+
+    if (event === "question/answers") {
+
+      const output = document.createElement("div")
+      for (let i = 0; i < input.length; i++) {
+        const element = input[i]
+
+        const button = this.buttonPicker("left/right")
+        button.left.innerHTML = `Option: ${i + 1}`
+
+        // const right = document.createElement("div")
+        // right.style.width = "34%"
+        // right.style.overflowX = "auto"
+        // right.innerHTML = element.value
+
+
+
+        button.right.innerHTML = element.value
+        // button.right.append(right)
+
+        // on click
+        // change id and value
+        // delete
+        // change answers if exist
+        output.append(button)
+
+
+      }
+
+
+
+
+      if (parent !== undefined) parent.append(output)
+      return output
+    }
+
+    if (event === "funnel/questions") {
+
+      const output = document.createElement("div")
+      for (let i = 0; i < input.length; i++) {
+        const element = input[i]
+
+        const button = this.buttonPicker("left/right")
+        button.left.innerHTML = `Frage: ${i + 1}`
+        button.right.innerHTML = element.id
+
+        // on click
+        // change id and value
+        // delete
+        // change answers if exist
+        output.append(button)
+
+
+      }
+
+      if (parent !== undefined) parent.append(output)
+      return output
+    }
+
+
+
+  }
 
   static verifyIs(type, input) {
+
+    if (type === "element/html") {
+      const htmlString = input.outerHTML
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(htmlString, 'text/html')
+
+      const parsedElement = doc.body.firstChild
+      if (!parsedElement) {
+        return false
+      }
+
+      for (let i = 0; i < parsedElement.children.length; i++) {
+        const child = parsedElement.children[i]
+        if (!this.verifyIs("element/html", child)) {
+          return false
+        }
+      }
+
+      return true
+    }
 
     if (type === "text/hex") {
       if (typeof input !== "string") return false
@@ -42,6 +416,70 @@ export class Helper {
 
   static headerPicker(name, parent) {
 
+
+    if (name === "app") {
+
+      const header = this.iconPicker("getyour")
+      header.style.position = "fixed"
+      header.style.bottom = "0"
+      header.style.right = "0"
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        header.style.boxShadow = this.colors.dark.boxShadow
+        header.style.border = this.colors.dark.border
+        header.style.backgroundColor = this.colors.dark.foreground
+      } else {
+        header.style.boxShadow = this.colors.light.boxShadow
+        header.style.border = this.colors.light.border
+        header.style.backgroundColor = this.colors.light.foreground
+      }
+
+      header.style.width = "34px"
+      header.style.height = "34px"
+      header.style.borderRadius = "50%"
+      header.style.margin = "21px 34px"
+      header.style.padding = "21px"
+      header.style.zIndex = "1"
+      header.style.cursor = "pointer"
+
+      if (parent !== undefined) parent.append(header)
+
+      return header
+    }
+
+
+    if (name === "back") {
+
+      const header = this.iconPicker("back")
+      header.style.position = "fixed"
+      header.style.bottom = "0"
+      header.style.left = "0"
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        header.style.boxShadow = this.colors.dark.boxShadow
+        header.style.border = this.colors.dark.border
+        header.style.backgroundColor = this.colors.dark.foreground
+      } else {
+        header.style.boxShadow = this.colors.light.boxShadow
+        header.style.border = this.colors.light.border
+        header.style.backgroundColor = this.colors.light.foreground
+      }
+
+      header.style.width = "34px"
+      header.style.borderRadius = "50%"
+      header.style.margin = "21px 34px"
+      header.style.padding = "21px"
+      header.style.zIndex = "1"
+      header.style.cursor = "pointer"
+
+
+      header.addEventListener("click", () => window.history.back())
+
+      if (parent !== undefined) parent.append(header)
+
+      return header
+    }
+
     if (name === "scrollable") {
       const header = document.createElement("div")
       header.style.overflowY = "auto"
@@ -50,7 +488,6 @@ export class Helper {
       if (parent !== undefined) parent.append(header)
       return header
     }
-
 
     if (name === "info") {
 
@@ -61,6 +498,7 @@ export class Helper {
       header.style.bottom = "0"
       header.style.right = "0"
       header.style.zIndex = "1"
+      header.style.maxWidth = "55vw"
 
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         header.style.boxShadow = this.colors.dark.boxShadow
@@ -145,6 +583,7 @@ export class Helper {
       header.style.position = "fixed"
       header.style.bottom = "0"
       header.style.right = "0"
+      header.style.maxWidth = "55vw"
 
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         header.style.boxShadow = "0 3px 5px rgba(255, 255, 255, 0.13)"
@@ -196,6 +635,51 @@ export class Helper {
   }
 
   static buttonPicker(name, parent) {
+
+    if (name === "icon-top/text-bottom") {
+
+      const button = document.createElement("div")
+      button.style.display = "flex"
+      button.style.flexDirection = "column"
+      button.style.justifyContent = "center"
+      button.style.alignItems = "center"
+      button.style.position = "absolute"
+      button.style.cursor = "pointer"
+      button.style.borderRadius = "50%"
+      button.style.width = "144px"
+      button.style.height = "144px"
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        button.style.background = this.colors.dark.foreground
+        button.style.border = this.colors.dark.border
+        button.style.boxShadow = this.colors.dark.boxShadow
+      } else {
+        button.style.background = this.colors.light.foreground
+        button.style.border = this.colors.light.border
+        button.style.boxShadow = this.colors.light.boxShadow
+      }
+
+      button.icon = document.createElement("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "55px"
+      button.append(button.icon)
+
+      button.text = document.createElement("div")
+      button.text.classList.add("text")
+      button.text.style.fontFamily = "sans-serif"
+      button.text.style.fontSize = "21px"
+      button.text.style.margin = "13px"
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        button.text.style.color = this.colors.dark.text
+      } else {
+        button.text.style.color = this.colors.light.text
+      }
+      button.append(button.text)
+
+      if (parent !== undefined) parent.append(button)
+
+      return button
+    }
 
     if (name === "action") {
       const button = document.createElement("div")
@@ -297,6 +781,64 @@ export class Helper {
   }
 
   static iconPicker(name) {
+
+    if (name === "success") {
+
+      const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path class="checkmark" fill="none" stroke="#4bb71b" stroke-width="5" d="M25 50 l20 20 l40 -40"><animate attributeName="stroke-dasharray" attributeType="XML" from="0,100" to="100,0" dur="0.5s" fill="freeze" /></path></svg>`
+      const svg = this.convert("text/svg", svgString)
+
+      return svg
+    }
+
+
+    if (name === "touch") {
+
+      let primary
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      } else {
+        primary = this.colors.light.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 512.001 512.001" xml:space="preserve"><g><g><path d="M401.809,212.523c-12.295-1.17-24.556,2.892-33.639,11.15c-1.122,1.021-2.186,2.096-3.188,3.217 c-6.805-12.704-19.329-21.819-33.946-23.214c-12.295-1.17-24.556,2.892-33.639,11.15c-1.122,1.021-2.186,2.096-3.188,3.217 c-5.941-11.089-16.24-19.443-28.485-22.315c21.223-21.098,33.958-50.2,33.958-81.275C299.681,51.344,248.337,0,185.227,0 S70.774,51.344,70.774,114.454c0,46.302,28.254,88.244,70.773,105.817v49.155l-31.869,22.764 c-18.882,13.488-26.638,37.341-19.3,59.353l31.431,94.297c13.193,39.573,50.082,66.162,91.796,66.162h130.862 c53.354,0,96.76-43.406,96.76-96.76V257.522C441.227,234.396,423.913,214.632,401.809,212.523z M87.361,114.454 c0-53.963,43.903-97.866,97.866-97.866c53.963,0,97.866,43.903,97.866,97.866c0,37.248-21.382,71.191-54.186,87.594v-21.686 c21.942-14.579,35.387-39.4,35.387-65.908c0-43.597-35.47-79.067-79.067-79.067c-43.597,0-79.067,35.47-79.067,79.067 c0,26.506,13.446,51.328,35.387,65.908v21.686C108.745,185.645,87.361,151.701,87.361,114.454z M189.489,70.978 c-12.296-1.172-24.556,2.89-33.638,11.149c-9.09,8.265-14.304,20.048-14.304,32.327v44.644 c-11.839-11.626-18.799-27.699-18.799-44.644c0-34.451,28.028-62.479,62.479-62.479c34.451,0,62.479,28.028,62.479,62.479 c0,16.947-6.96,33.019-18.799,44.645v-43.123C228.908,92.85,211.594,73.084,189.489,70.978z M344.467,495.413H213.604 c-34.564,0-65.129-22.03-76.059-54.819l-31.431-94.296c-5.022-15.061,0.285-31.381,13.205-40.609l22.228-15.878v72.352 c0,4.58,3.712,8.294,8.294,8.294c4.581,0,8.294-3.713,8.294-8.294V114.454c0-7.617,3.235-14.927,8.874-20.053 c5.716-5.197,13.146-7.652,20.906-6.91c13.686,1.304,24.406,13.816,24.406,28.484v175.413c0,4.58,3.712,8.294,8.294,8.294 c4.581,0,8.294-3.713,8.294-8.294v-53.08c0-7.617,3.235-14.927,8.874-20.053c5.715-5.196,13.137-7.657,20.906-6.91 c13.685,1.305,24.405,13.817,24.405,28.485v7.325v53.08c0,4.58,3.712,8.294,8.294,8.294s8.294-3.713,8.294-8.294v-53.08 c0-7.617,3.235-14.927,8.874-20.053c5.715-5.196,13.137-7.657,20.906-6.91c13.685,1.305,24.405,13.817,24.405,28.485V256v53.08 c0,4.58,3.712,8.294,8.294,8.294s8.294-3.713,8.294-8.294V256c0-7.617,3.234-14.927,8.874-20.053 c5.715-5.196,13.137-7.657,20.906-6.91c13.685,1.305,24.405,13.817,24.405,28.485V415.24h0.003 C424.64,459.448,388.675,495.413,344.467,495.413z"/></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+
+      return svg
+    }
+
+
+    if (name === "back") {
+
+      let primary
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      } else {
+        primary = this.colors.light.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 17L7 14L10 11" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14L13.5 14C15.433 14 17 12.433 17 10.5V10.5C17 8.567 15.433 7 13.5 7L12 7" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+
+      return svg
+    }
+
+
+    if (name === "arrow-down") {
+
+      let primary
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      } else {
+        primary = this.colors.light.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.71,17.29a1,1,0,0,0-1.42,0L13,18.59V3a1,1,0,0,0-2,0V18.59l-1.29-1.3a1,1,0,0,0-1.42,1.42l3,3a1,1,0,0,0,1.42,0l3-3A1,1,0,0,0,15.71,17.29Z"></path></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "34px"
+
+      return svg
+    }
 
 
     if (name === "expert") {
@@ -661,6 +1203,7 @@ export class Helper {
     },
     dark: {
       foreground: '#303030',
+
       // add more events like action color
       // add more events like css - boxShadow, border, ??
       background: '#28282B',
@@ -673,7 +1216,7 @@ export class Helper {
       accent: '#6D8898',
       text: '#CDD9E5',
       error: '#9B3C38',
-      success: '#277e71',
+      success: '#285D34',
     },
     light: {
       foreground: '#FAFAFA',
@@ -687,13 +1230,21 @@ export class Helper {
       error: '#B03535',
       success: '#9fcb8d',
     },
+    link: {
+      color: "#4169E1",
+      active: "#D46A6A"
+    },
   }
 
   static convert(event, input) {
 
-    // if (event === "element/script") {
-
-    // }
+    if (event === "element/scrollable") {
+      this.reset(input)
+      input.style.overflowY = "auto"
+      input.style.overscrollBehavior = "none"
+      input.style.paddingBottom = "144px"
+      return input
+    }
 
     if (event === "millis/dd.mm.yyyy hh:mm") {
       const date = new Date(input)
@@ -744,13 +1295,12 @@ export class Helper {
       return container.children[0]
     }
 
-
     if (event === "element/alias") {
 
       const output = document.createElement("div")
       output.style.fontFamily = "monospace"
       output.style.fontSize = "13px"
-      output.style.display = "inline-block"
+      output.style.display = "inline"
       output.innerHTML = `&lt; ${input.tagName.toLowerCase()}`
 
       if (input.id !== "") {
@@ -782,7 +1332,6 @@ export class Helper {
       }
 
       return output
-
     }
 
   }
@@ -829,6 +1378,39 @@ export class Helper {
       button.style.border = "0.3px solid black"
       button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
       button.style.cursor = "pointer"
+      button.style.position = "relative"
+
+      // add stream symbol
+      // icon.style.height = "100%"
+      // icon.children[0].style.transform = "scale("
+      // icon.setAttribute("transform", "translate(0 10)")
+      // // icon.style.transform = "scale(0, 144px)"
+      // // icon.children[0].style.height = "100%"
+      // console.log(icon.children[0].getAttribute("d"));
+
+      // if (child.tagName !== "SCRIPT") {
+      //   const icon = this.iconPicker("arrow-down")
+      //   icon.style.position = "absolute"
+      //   icon.style.top = "0"
+      //   icon.style.right = "0"
+      //   if (this.verifyIs("element/html", child)) {
+
+      //     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      //       icon.style.fill = this.colors.dark.success
+      //     } else {
+      //       icon.style.fill = this.colors.light.success
+      //     }
+
+      //   } else {
+      //     icon.style.fill = this.colors.light.error
+      //   }
+      //   button.append(icon)
+      // } else {
+
+      // }
+
+
+
       button.addEventListener("click", () => {
 
         this.popup(async overlay => {
@@ -851,6 +1433,22 @@ export class Helper {
             buttons.style.paddingBottom = "144px"
             buttons.style.overscrollBehavior = "none"
             overlay.append(buttons)
+
+            if (child.classList.contains("field")) {
+
+              // if child is an input element
+              // required
+              // accept
+
+              // do this for every child ???
+              // class
+              // id
+              // label
+              // no bulk action
+              // no javascript
+              // only dom maninpulation
+
+            }
 
             if (child.tagName === "TITLE") {
 
@@ -1224,6 +1822,90 @@ export class Helper {
               button.append(title)
 
               buttons.append(button)
+            }
+
+            {
+
+              const button = this.buttonPicker("left/right", buttons)
+              button.left.innerHTML = ".innerHTML"
+              button.right.innerHTML = "Element Inhalt ändern"
+
+              button.addEventListener("click", () => {
+
+                this.popup(overlay => {
+
+                  this.headerPicker("removeOverlay", overlay)
+
+                  const elementInfo = this.headerPicker("elementInfo", overlay)
+                  elementInfo.append(this.convert("element/alias", document.body))
+
+                  const span = document.createElement("span")
+                  span.textContent = ".innerHTML"
+                  span.style.fontSize = "13px"
+                  span.style.fontFamily = "monospace"
+
+                  elementInfo.append(span)
+
+                  {
+                    const funnel = document.createElement("div")
+                    funnel.style.overflowY = "auto"
+                    funnel.style.overscrollBehavior = "none"
+                    funnel.style.paddingBottom = "144px"
+                    overlay.append(funnel)
+
+                    const htmlField = new TextAreaField("html-input", funnel)
+                    htmlField.label.innerHTML = "HTML Element"
+                    htmlField.input.placeholder = `<div>..</div>`
+                    // if (child.tagName === "SCRIPT") {
+                    //   htmlField.label.innerHTML = "JavaScript"
+                    //   htmlField.input.placeholder = `document.getElementById(id) ..`
+                    // }
+                    htmlField.label.style.fontFamily = "sans-serif"
+                    htmlField.input.style.fontSize = "13px"
+                    htmlField.input.style.height = "89px"
+                    htmlField.input.addEventListener("input", () => {
+                      htmlField.verifyValue()
+                    })
+
+                    const button = document.createElement("div")
+                    button.innerHTML = "Jetzt anhängen"
+                    button.style.backgroundColor = "#f7aa20"
+                    button.style.cursor = "pointer"
+                    button.style.fontSize = "21px"
+                    button.style.fontFamily = "sans-serif"
+                    button.style.borderRadius = "13px"
+                    button.style.margin = "21px 34px"
+                    button.style.display = "flex"
+                    button.style.justifyContent = "center"
+                    button.style.alignItems = "center"
+                    button.style.height = "89px"
+                    button.style.color = "#000"
+                    button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                    button.addEventListener("click", async () => {
+
+                      const elementString = htmlField.validValue()
+
+                      child.innerHTML = elementString
+                      // const parser = document.createElement("div")
+                      // parser.innerHTML = elementString
+
+                      // while (parser.firstChild) {
+                      //   child.append(parser.firstChild)
+                      // }
+
+                      this.removeOverlay(overlay)
+
+                    })
+                    funnel.append(button)
+                  }
+
+
+
+                })
+
+
+              })
+
             }
 
             {

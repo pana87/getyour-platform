@@ -1,0 +1,903 @@
+<script id="getyour-default-body-dark-light-theme-event-script" alias="Skript verändert den Hintergrund deines Body Elements in die Getyour Standard Dark/Light Theme Farben">
+
+</script>
+
+<script id="click-funnel-start-event" alias="Skript startet jeden Klick Funnel in deinem Dokument">
+  import { Helper } from "/js/Helper.js"
+
+  {
+    document.querySelectorAll(".click-funnel").forEach(funnel => {
+
+      const startButton = funnel.querySelector(".start-click-funnel-button")
+
+      if (startButton.onclick === null) {
+        startButton.onclick = () => {
+          startButton.remove()
+
+          for (let i = 0; i < funnel.children.length; i++) {
+            const child = funnel.children[i]
+            if (child.classList.contains("click-field")) {
+              child.style.visibility = "visible"
+              child.style.position = "static"
+              break
+            }
+          }
+        }
+      }
+
+
+
+      for (let i = 0; i < funnel.children.length; i++) {
+        const child = funnel.children[i]
+
+        if (child.classList.contains("click-field")) {
+
+          child.querySelectorAll(".answer-box").forEach(box => {
+
+            if (box.onclick === null) {
+
+              box.onclick = () => {
+
+                child.style.visibility = "hidden"
+                child.style.position = "absolute"
+
+                box.querySelectorAll(".answer").forEach(answer => {
+                  answer.setAttribute("clicked", true)
+                })
+
+                if (child.nextSibling === null) {
+
+                  Helper.request("end-click-funnel", funnel)
+
+                  return
+
+                }
+
+                if (box.hasAttribute("condition")) {
+                  const condition = JSON.parse(box.getAttribute("condition"))
+
+                  if (condition.action === "skip") {
+                    try {
+                      Helper.skipSiblings(parseInt(condition.skip) + 1, child)
+
+                      return
+                    } catch (error) {
+
+                      Helper.request("end-click-funnel", funnel)
+
+                      return
+
+                    }
+                  }
+
+                  if (condition.action === "path") {
+                    window.location.assign(condition.path)
+                    return
+                  }
+
+                }
+
+                child.nextSibling.style.visibility = "visible"
+                child.nextSibling.style.position = "static"
+
+              }
+
+            }
+
+
+
+          })
+
+        }
+
+      }
+
+    })
+
+  }
+
+
+
+</script>
+
+<script id="create-click-funnel" alias="Klick Funnel erstellen">
+
+  import { Helper } from "/js/Helper.js"
+  import { Request } from "/js/Request.js"
+  import { FileField } from "/js/FileField.js"
+  import { TextAreaField } from "/js/TextAreaField.js"
+  import { SelectionField } from "/js/SelectionField.js"
+  import { TextField } from "/js/TextField.js"
+  import { TelField } from "/js/TelField.js"
+
+  {
+
+    const button = document.getElementById("create-click-funnel-button")
+
+    if (button !== null) {
+
+      if (button.onclick === null) {
+
+        button.onclick = () => {
+
+
+
+          Helper.popup(createFunnelOverlay => {
+            Helper.headerPicker("removeOverlay", createFunnelOverlay)
+
+            const content = Helper.headerPicker("scrollable", createFunnelOverlay)
+
+            const tagField = new TextField("click-funnel-id", content)
+            tagField.label.innerHTML = "Gebe deinem Funnel eine Id"
+            tagField.input.required = true
+            tagField.input.accept = "text/tag"
+            tagField.verifyValue()
+            tagField.input.addEventListener("input", () => tagField.verifyValue())
+
+            const nextJsField = new TextAreaField("next-js", content)
+            nextJsField.label.innerHTML = "Bestimme mit der Browser API, wie es für deine Nutzer, nach deinem Funnel, weiter gehen soll"
+            nextJsField.input.placeholder = "window.location.assign(path)\nwindow.location.assign('/platform/user/unit../')"
+            nextJsField.input.required = true
+            nextJsField.verifyValue()
+            nextJsField.input.addEventListener("input", () => nextJsField.verifyValue())
+
+
+            const createFunnelButton = Helper.buttonPicker("action", content)
+            createFunnelButton.innerHTML = "Funnel Toolbox beginnen"
+            createFunnelButton.addEventListener("click", () => {
+
+              const funnelTag = tagField.validValue()
+              const nextJs = nextJsField.validValue()
+
+              if (document.getElementById(funnelTag) === null) {
+
+                const questions = []
+                Helper.popup(questionsOverlay => {
+                  Helper.headerPicker("removeOverlay", questionsOverlay)
+                  const content = Helper.headerPicker("scrollable", questionsOverlay)
+
+                  const createQuestionButton = Helper.buttonPicker("left/right", content)
+                  createQuestionButton.left.innerHTML = ".questions"
+                  createQuestionButton.right.innerHTML = "Fragen definieren"
+                  createQuestionButton.addEventListener("click", () => {
+
+                    Helper.popup(questionFunnelOverlay => {
+                      Helper.headerPicker("removeOverlay", questionFunnelOverlay)
+                      const content = Helper.headerPicker("scrollable", questionFunnelOverlay)
+
+
+                      const questionField = new TextAreaField("question", content)
+                      questionField.label.innerHTML = "Stelle eine Frage an dein Netzwerk"
+                      questionField.input.required = true
+                      questionField.verifyValue()
+                      questionField.input.addEventListener("input", () => questionField.verifyValue())
+
+                      const tagField = new TextField("question-id", content)
+                      tagField.input.required = true
+                      tagField.input.accept = "text/tag"
+                      tagField.label.innerHTML = "Gebe deiner Frage eine Id"
+                      tagField.verifyValue()
+                      tagField.input.addEventListener("input", (event) => {
+
+                        const id = tagField.validValue()
+
+                        if (document.getElementById(id) !== null) {
+                          Helper.setNotValidStyle(tagField.input)
+                        }
+
+                        if (id === funnelTag) {
+                          Helper.setNotValidStyle(tagField.input)
+                        }
+
+                        for (let i = 0; i < questions.length; i++) {
+                          const question = questions[i]
+
+                          if (question.id === id) {
+                            Helper.setNotValidStyle(tagField.input)
+                          }
+
+                        }
+
+                      })
+
+                      const button = Helper.buttonPicker("action", content)
+                      button.innerHTML = "Weiter"
+                      button.addEventListener("click", () => {
+
+
+                        const question = {}
+
+                        question.id = tagField.validValue()
+
+                        if (funnelTag === question.id) {
+                          window.alert("Id existiert bereits.")
+                          tagField.field.scrollIntoView({behavior: "smooth"})
+                          Helper.setNotValidStyle(tagField.input)
+                          throw new Error("id exist")
+                        }
+
+                        if (document.getElementById(question.id) !== null) {
+                          window.alert("Id existiert bereits.")
+                          tagField.field.scrollIntoView({behavior: "smooth"})
+                          Helper.setNotValidStyle(tagField.input)
+                          throw new Error("id exist")
+                        }
+
+                        for (let i = 0; i < questions.length; i++) {
+
+                          if (question.id === questions[i].id) {
+                            window.alert("Diese Id wurde bereits vergeben.")
+                            Helper.setNotValidStyle(tagField.input)
+                            tagField.field.scrollIntoView({behavior: "smooth"})
+                            throw new Error("id exist")
+                          }
+
+                        }
+
+
+                        question.value = questionField.validValue()
+
+
+                        question.answers = []
+
+                        Helper.popup(answersOverlay => {
+                          Helper.headerPicker("removeOverlay", answersOverlay)
+                          const content = Helper.headerPicker("scrollable", answersOverlay)
+
+                          const optionsButton = Helper.buttonPicker("left/right", content)
+                          optionsButton.left.innerHTML = ".options"
+                          optionsButton.right.innerHTML = "Antwortmöglichkeiten definieren"
+                          optionsButton.addEventListener("click", () => {
+
+                            const answer = {}
+
+                            Helper.popup(answerFunnelOverlay => {
+
+                              Helper.headerPicker("removeOverlay", answerFunnelOverlay)
+                              const content = Helper.headerPicker("scrollable", answerFunnelOverlay)
+
+                              const answerField = new TextAreaField("answer", content)
+                              answerField.label.innerHTML = "Gebe deinem Netzwerk eine Antwortmöglichkeit"
+                              answerField.input.required = true
+                              answerField.verifyValue()
+                              answerField.input.addEventListener("input", () => answerField.verifyValue())
+
+                              const imageField = new FileField("image", content)
+                              imageField.input.accept = "image/png, image/jpeg"
+                              imageField.label.innerHTML = "Hilf deinem Netzwerk, mit einem Bild, die Antwortmöglichkeit besser zu verstehen"
+                              imageField.verifyValue()
+
+                              const selectedConditionButton = Helper.buttonPicker("left/right", content)
+                              selectedConditionButton.left.innerHTML = ".condition"
+                              selectedConditionButton.right.innerHTML = "Bedingung definieren"
+                              selectedConditionButton.addEventListener("click", () => {
+
+                                Helper.popup(conditionFunnelOverlay => {
+                                  Helper.headerPicker("removeOverlay", conditionFunnelOverlay)
+
+                                  const content = Helper.headerPicker("scrollable", conditionFunnelOverlay)
+
+                                  const actionField = new SelectionField("condition-action", content)
+                                  actionField.label.innerHTML = "Was soll passieren, wenn diese Option ausgewählt wird"
+                                  actionField.options(["skip", "path"])
+                                  actionField.verifyValue()
+                                  actionField.select.addEventListener("input", () => {
+
+                                    actionField.withOptionSelected(option => {
+
+                                      if (option.value === "skip") {
+
+                                        skipNumberField.input.disabled = false
+                                        skipNumberField.input.required = true
+                                        Helper.setNotValidStyle(skipNumberField.input)
+
+                                        pathField.input.disabled = true
+                                        pathField.input.required = false
+                                        Helper.setValidStyle(pathField.input)
+
+                                      }
+
+                                      if (option.value === "path") {
+
+                                        skipNumberField.input.disabled = true
+                                        skipNumberField.input.required = false
+                                        Helper.setValidStyle(skipNumberField.input)
+
+                                        pathField.input.disabled = false
+                                        pathField.input.required = true
+                                        Helper.setNotValidStyle(pathField.input)
+
+                                      }
+
+                                    })
+
+                                  })
+
+                                  const skipNumberField = new TelField("skip", content)
+                                  skipNumberField.input.disabled = false
+                                  skipNumberField.input.required = true
+                                  skipNumberField.input.pattern = "[1-9]"
+                                  skipNumberField.label.innerHTML = "Wieviele Fragen möchtest du überspringen"
+                                  skipNumberField.verifyValue()
+                                  skipNumberField.input.addEventListener("input", () => skipNumberField.verifyValue())
+
+                                  const pathField = new TextField("path", content)
+                                  pathField.input.disabled = true
+                                  pathField.input.required = false
+                                  pathField.input.accept = "text/path"
+                                  pathField.input.placeholder = "/meine-platform/mein-username/meine-werteinheit/"
+                                  pathField.label.innerHTML = "Gebe eine Pfad ein"
+                                  Helper.setValidStyle(pathField.input)
+                                  pathField.input.addEventListener("input", () => pathField.verifyValue())
+
+                                  const conditionSubmitButton = Helper.buttonPicker("action", content)
+                                  conditionSubmitButton.innerHTML = "Aktion hinzufügen"
+                                  conditionSubmitButton.addEventListener("click", () => {
+
+                                    answer.condition = {}
+                                    answer.condition.action = actionField.validValue()[0].value
+
+                                    if (skipNumberField.input.disabled === false) answer.condition.skip = skipNumberField.validValue()
+                                    if (pathField.input.disabled === false) answer.condition.path = pathField.validValue()
+
+                                    Helper.removeOverlay(conditionFunnelOverlay)
+                                  })
+
+                                })
+
+
+
+                              })
+
+                              const button = Helper.buttonPicker("action", content)
+                              button.innerHTML = "Antwort speichern"
+                              button.addEventListener("click", async () => {
+
+                                answer.value = answerField.validValue()
+
+                                let image
+                                const file = imageField.input.files[0]
+                                if (file !== undefined) {
+                                  image = await imageField.validImage(file)
+                                }
+
+                                if (image !== undefined) answer.image = image
+
+                                question.answers.push(answer)
+
+                                Helper.reset(answertButtons)
+                                Helper.render("question/answers", question.answers, answertButtons)
+
+                                Helper.removeOverlay(answerFunnelOverlay)
+                              })
+
+                            })
+                          })
+
+
+                          const answertButtons = Helper.render("question/answers", question.answers, content)
+
+
+                          const setAnswersButton = Helper.buttonPicker("action", content)
+                          setAnswersButton.innerHTML = "Frage erstellen"
+                          setAnswersButton.addEventListener("click", () => {
+
+                            if (question.answers.length > 0) {
+                              questions.push(question)
+
+                              Helper.reset(questionButtons)
+                              Helper.render("funnel/questions", questions, questionButtons)
+
+                              Helper.removeOverlay(answersOverlay)
+                              Helper.removeOverlay(questionFunnelOverlay)
+
+                            } else {
+                              window.alert("Es sind keine Optionen vorhanden.")
+                            }
+                          })
+
+
+
+                        })
+
+
+
+                      })
+
+                    })
+                  })
+
+
+                  const questionButtons = Helper.render("funnel/questions", questions, content)
+
+
+                  const createFunnelButton = Helper.buttonPicker("action", content)
+                  createFunnelButton.innerHTML = "Jetzt Funnel anwenden"
+                  createFunnelButton.addEventListener("click", () => {
+
+
+                    for (let i = 0; i < questions.length; i++) {
+                      const question = questions[i]
+
+                      if (document.getElementById(question.id) !== null) {
+                        window.alert(`Die Id '${question.id}' existiert bereits. Der Funnel kann nicht angewendet werden.`)
+                        throw new Error("id exist")
+                      }
+
+                    }
+
+                    if (questions.length > 0) {
+
+                      const clickFunnel = Helper.create("click-funnel", document.body)
+                      clickFunnel.id = funnelTag
+                      clickFunnel.setAttribute("next-js", nextJs)
+
+                      for (let i = 0; i < questions.length; i++) {
+                        const question = questions[i]
+
+                        const field = Helper.create("click/field", clickFunnel)
+                        field.id = question.id
+                        field.label.innerHTML = question.value
+
+                        for (let i = 0; i < question.answers.length; i++) {
+                          const answer = question.answers[i]
+
+                          const answerBox = Helper.create("image-left/text-right", field.input)
+                          answerBox.classList.add("answer-box")
+
+                          if (answer.condition !== undefined) {
+                            answerBox.setAttribute("condition", JSON.stringify(answer.condition))
+                          }
+
+                          answerBox.style.cursor = "pointer"
+
+                          if (answer.image !== undefined) {
+                            answerBox.image.src = answer.image.dataUrl
+                          } else answerBox.image.remove()
+
+                          answerBox.text.innerHTML = answer.value
+                          answerBox.text.classList.add("answer")
+                        }
+
+                      }
+
+                      Helper.removeOverlay(questionsOverlay)
+                      Helper.removeOverlay(createFunnelOverlay)
+                    } else {
+                      window.alert("Es sind keine Fragen vorhanden.")
+                    }
+                  })
+
+                })
+
+              } else {
+                window.alert("Funnel Id existiert bereits.")
+                Helper.setNotValidStyle(tagField.input)
+              }
+
+
+            })
+          })
+
+
+        }
+
+      }
+
+    }
+
+  }
+
+</script>
+
+
+<script id="create-field-funnel" alias="Field Funnel erstellen">
+
+
+
+  // submit button for field funnel
+
+
+
+  // field addons müssen als bulk scripte
+  // in templates angeboten werden
+  // script muss immer wieder neu geladen werden
+
+  // get funnel name on submit event
+
+
+  // maybe do this in extra button script
+  // submit fields button
+  // need to check if the user is allowed to save to funnel
+  // check in register if user has role of value unit or authorization
+  // expert needs to register platform roles
+  // expert needs to register user with role that he created
+
+  // append button that
+  // gets all fields
+  // gets all ids
+  // gets all selected answers by user
+  // register user tags himself
+  // with the platform from url
+  // in that platform it saves the tag of the funnel
+  // in that tag it saves all ids
+  // in ids it saves the input/selected option
+
+
+  import { Helper } from "/js/Helper.js"
+  import { Request } from "/js/Request.js"
+  import { CheckboxField } from "/js/CheckboxField.js"
+  import { DateField } from "/js/DateField.js"
+  import { EmailField } from "/js/EmailField.js"
+  import { FileField } from "/js/FileField.js"
+  import { NumberField } from "/js/NumberField.js"
+  import { PasswordField } from "/js/PasswordField.js"
+  import { RangeField } from "/js/RangeField.js"
+  import { SelectionField } from "/js/SelectionField.js"
+  import { TelField } from "/js/TelField.js"
+  import { TextAreaField } from "/js/TextAreaField.js"
+  import { TextField } from "/js/TextField.js"
+
+  {
+
+    const button = document.getElementById("create-field-funnel-button")
+
+    if (button !== null) {
+
+      if (button.onclick === null) {
+
+        button.onclick = () => {
+
+          Helper.popup(createFunnelOverlay => {
+            Helper.headerPicker("removeOverlay", createFunnelOverlay)
+
+            const content = Helper.headerPicker("scrollable", createFunnelOverlay)
+
+            const tagField = new TextField("field-funnel-id", content)
+            tagField.label.innerHTML = "Gebe deinem Funnel eine Id"
+            tagField.input.required = true
+            tagField.input.accept = "text/tag"
+            tagField.verifyValue()
+            tagField.input.addEventListener("input", () => tagField.verifyValue())
+
+            const createFunnelButton = Helper.buttonPicker("action", content)
+            createFunnelButton.innerHTML = "Funnel Toolbox beginnen"
+            createFunnelButton.addEventListener("click", () => {
+
+              const tag = tagField.validValue()
+
+              if (document.getElementById(tag) === null) {
+
+                const questions = []
+
+                Helper.popup(questionsOverlay => {
+                  Helper.headerPicker("removeOverlay", questionsOverlay)
+                  const content = Helper.headerPicker("scrollable", questionsOverlay)
+
+                  const createQuestionButton = Helper.buttonPicker("left/right", content)
+                  createQuestionButton.left.innerHTML = ".questions"
+                  createQuestionButton.right.innerHTML = "Fragen definieren"
+                  createQuestionButton.addEventListener("click", () => {
+
+                    Helper.popup(questionFunnelOverlay => {
+                      Helper.headerPicker("removeOverlay", questionFunnelOverlay)
+                      const content = Helper.headerPicker("scrollable", questionFunnelOverlay)
+
+
+                      const questionField = new TextAreaField("question", content)
+                      questionField.label.innerHTML = "Stelle eine Frage an dein Netzwerk"
+                      questionField.input.required = true
+                      questionField.verifyValue()
+                      questionField.input.addEventListener("input", () => questionField.verifyValue())
+
+                      const tagField = new TextField("tag", content)
+                      tagField.input.required = true
+                      tagField.input.accept = "text/tag"
+                      tagField.label.innerHTML = "Gebe deiner Frage eine Id"
+                      tagField.verifyValue()
+                      tagField.input.addEventListener("input", (event) => {
+
+                        const id = tagField.validValue()
+
+                        if (document.getElementById(id) !== null) {
+                          Helper.setNotValidStyle(tagField.input)
+                        }
+
+                        for (let i = 0; i < questions.length; i++) {
+                          const question = questions[i]
+
+                          if (question.id === id) {
+                            Helper.setNotValidStyle(tagField.input)
+                          }
+
+                        }
+
+
+
+                      })
+
+                      const selectField = new SelectionField("select", content)
+                      selectField.label.innerHTML = "Wie soll dein Netzwerk mit dieser Frage interagieren"
+                      selectField.options(["input", "select"])
+                      selectField.verifyValue()
+                      selectField.select.addEventListener("input", () => {
+
+                        selectField.withOptionSelected(option => {
+
+                          if (option.value === "input") {
+                            typeField.label.innerHTML = "Was soll dein Netzwerk eingeben"
+                            typeField.options(["text", "textarea", "email", "tel", "range", "password", "number", "file", "date", "checkbox"])
+                          }
+
+                          if (option.value === "select") {
+                            typeField.label.innerHTML = "Wie soll dein Netzwerk, deine Optionen, auswählen"
+                            typeField.options(["field"])
+                          }
+
+                        })
+                      })
+
+                      const typeField = new SelectionField("type", content)
+                      typeField.label.innerHTML = "Was soll dein Netzwerk eingeben"
+                      typeField.options(["text", "textarea", "email", "tel", "range", "password", "number", "file", "date", "checkbox"])
+                      typeField.verifyValue()
+
+                      const button = Helper.buttonPicker("action", content)
+                      button.innerHTML = "Weiter"
+                      button.addEventListener("click", () => {
+
+
+                        const question = {}
+
+                        question.id = tagField.validValue()
+
+                        if (document.getElementById(event.target.value) !== null) {
+                          window.alert("Id existiert bereits.")
+                          tagField.field.scrollIntoView({behavior: "smooth"})
+                          Helper.setNotValidStyle(tagField.input)
+                          throw new Error("id exist")
+                        }
+
+                        for (let i = 0; i < questions.length; i++) {
+
+                          if (question.id === questions[i].id) {
+                            window.alert("Diese Id wurde bereits vergeben.")
+                            Helper.setNotValidStyle(tagField.input)
+                            tagField.field.scrollIntoView({behavior: "smooth"})
+                            throw new Error("id exist")
+                          }
+
+                        }
+
+
+                        question.value = questionField.validValue()
+                        question.interaction = selectField.validValue()[0].value
+                        question.type = typeField.validValue()[0].value
+
+                        if (question.interaction === "input") {
+
+                          questions.push(question)
+
+                          Helper.reset(questionButtons)
+                          Helper.render("funnel/questions", questions, questionButtons)
+
+                          Helper.removeOverlay(questionFunnelOverlay)
+
+                        }
+
+
+                        if (question.interaction === "select") {
+
+                          question.answers = []
+
+                          Helper.popup(answersOverlay => {
+                            Helper.headerPicker("removeOverlay", answersOverlay)
+                            const content = Helper.headerPicker("scrollable", answersOverlay)
+
+                            const optionsButton = Helper.buttonPicker("left/right", content)
+                            optionsButton.left.innerHTML = ".options"
+                            optionsButton.right.innerHTML = "Antwortmöglichkeiten definieren"
+                            optionsButton.addEventListener("click", () => {
+
+                              Helper.popup(answerFunnelOverlay => {
+
+                                Helper.headerPicker("removeOverlay", answerFunnelOverlay)
+                                const content = Helper.headerPicker("scrollable", answerFunnelOverlay)
+
+                                const answerField = new TextAreaField("answer", content)
+                                answerField.label.innerHTML = "Gebe deinem Netzwerk eine Antwortmöglichkeit"
+                                answerField.input.required = true
+                                answerField.verifyValue()
+                                answerField.input.addEventListener("input", () => answerField.verifyValue())
+
+                                const button = Helper.buttonPicker("action", content)
+                                button.innerHTML = "Antwort speichern"
+                                button.addEventListener("click", async () => {
+
+                                  const answer = {}
+                                  answer.value = answerField.validValue()
+
+                                  question.answers.push(answer)
+
+                                  Helper.reset(answertButtons)
+                                  Helper.render("question/answers", question.answers, answertButtons)
+
+                                  Helper.removeOverlay(answerFunnelOverlay)
+                                })
+
+                              })
+                            })
+
+
+                            const answertButtons = Helper.render("question/answers", question.answers, content)
+
+
+                            const setAnswersButton = Helper.buttonPicker("action", content)
+                            setAnswersButton.innerHTML = "Frage erstellen"
+                            setAnswersButton.addEventListener("click", () => {
+
+                              if (question.answers.length > 0) {
+                                questions.push(question)
+
+                                Helper.reset(questionButtons)
+                                Helper.render("funnel/questions", questions, questionButtons)
+
+                                Helper.removeOverlay(answersOverlay)
+                                Helper.removeOverlay(questionFunnelOverlay)
+
+                              } else {
+                                window.alert("Es sind keine Optionen vorhanden.")
+                              }
+                            })
+
+
+
+                          })
+                        }
+
+                      })
+
+                    })
+                  })
+
+
+                  const questionButtons = Helper.render("funnel/questions", questions, content)
+
+                  const createFunnelButton = Helper.buttonPicker("action", content)
+                  createFunnelButton.innerHTML = "Jetzt Funnel anwenden"
+                  createFunnelButton.addEventListener("click", () => {
+
+
+                    for (let i = 0; i < questions.length; i++) {
+                      const question = questions[i]
+
+                      if (document.getElementById(question.id) !== null) {
+                        window.alert(`Das Feld mit der Id '${question.id}' existiert bereits. Der Funnel kann nicht angewendet werden.`)
+                        throw new Error("field id exist")
+                      }
+
+                    }
+
+
+
+                    if (questions.length > 0) {
+
+
+
+                      const fieldFunnel = Helper.headerPicker("scrollable", document.body)
+                      fieldFunnel.classList.add("field-funnel")
+                      fieldFunnel.id = tag
+
+                      for (let i = 0; i < questions.length; i++) {
+                        const question = questions[i]
+
+                        if (question.interaction === "input") {
+                          if (question.type === "text") {
+                            const text = new TextField(question.id, fieldFunnel)
+                            text.label.innerHTML = question.value
+                            text.field.id = question.id
+                          }
+
+                          if (question.type === "textarea") {
+                            const textarea = new TextAreaField(question.id, fieldFunnel)
+                            textarea.label.innerHTML = question.value
+                            textarea.field.id = question.id
+                          }
+
+                          if (question.type === "email") {
+                            const email = new EmailField(question.id, fieldFunnel)
+                            email.label.innerHTML = question.value
+                            email.field.id = question.id
+                          }
+
+                          if (question.type === "tel") {
+                            const tel = new TelField(question.id, fieldFunnel)
+                            tel.label.innerHTML = question.value
+                            tel.field.id = question.id
+                          }
+
+                          if (question.type === "range") {
+                            const range = new RangeField(question.id, fieldFunnel)
+                            range.label.innerHTML = question.value
+                            range.field.id = question.id
+                          }
+
+                          if (question.type === "password") {
+                            const password = new PasswordField(question.id, fieldFunnel)
+                            password.label.innerHTML = question.value
+                            password.field.id = question.id
+                          }
+
+                          if (question.type === "number") {
+                            const number = new NumberField(question.id, fieldFunnel)
+                            number.label.innerHTML = question.value
+                            number.field.id = question.id
+                          }
+
+                          if (question.type === "file") {
+                            const file = new FileField(question.id, fieldFunnel)
+                            file.label.innerHTML = question.value
+                            file.field.id = question.id
+                          }
+
+                          if (question.type === "date") {
+                            const date = new DateField(question.id, fieldFunnel)
+                            date.label.innerHTML = question.value
+                            date.field.id = question.id
+                          }
+
+                          if (question.type === "checkbox") {
+                            const checkbox = new CheckboxField(question.id, fieldFunnel)
+                            checkbox.label.innerHTML = question.value
+                            checkbox.field.id = question.id
+                          }
+
+                        }
+
+                        if (question.interaction === "select") {
+
+                          if (question.type === "field") {
+                            const select = new SelectionField(question.id, fieldFunnel)
+                            select.field.id = question.id
+                            select.label.innerHTML = question.value
+                            const options = []
+                            for (let i = 0; i < question.answers.length; i++) {
+                              const answer = question.answers[i]
+                              options.push(answer.value)
+                            }
+                            select.options(options)
+                          }
+
+                        }
+
+                      }
+
+                      Helper.removeOverlay(questionsOverlay)
+                      Helper.removeOverlay(createFunnelOverlay)
+                    } else {
+                      window.alert("Es sind keine Fragen vorhanden.")
+                    }
+                  })
+
+                })
+
+              } else {
+                window.alert("Funnel Id existiert bereits.")
+                Helper.setNotValidStyle(tagField.input)
+              }
+
+            })
+          })
+
+
+
+
+        }
+
+      }
+
+    }
+
+  }
+
+</script>

@@ -38,6 +38,9 @@ export class FunnelField {
       return
     }
 
+
+
+    // dom
     const container = document.createElement("div")
     // container.classList.add("question-container")
     container.style.backgroundColor = "#cecece"
@@ -53,6 +56,26 @@ export class FunnelField {
     questionText.innerHTML = this.questions[this.questionIndex].question
     questionText.style.textAlign = "center"
     questionText.style.lineHeight = "2"
+
+
+
+    // mark this as field or click-field in class
+    // every field needs id
+    // search in field for answers selected
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     const answerContainer = document.createElement("div")
     answerContainer.classList.add("answer-container")
@@ -79,6 +102,17 @@ export class FunnelField {
       answerBox.style.cursor = "pointer"
       // answerBox.style.padding = "21px"
 
+
+
+
+
+
+
+
+
+
+
+
       window.addEventListener("resize", () => {
         if (window.innerWidth < 767) {
           answerContainer.style.flexDirection = "column"
@@ -91,6 +125,12 @@ export class FunnelField {
       if (mql.matches) {
         answerBox.style.width = "100%"
       }
+
+
+
+
+
+
 
       answerBox.addEventListener("click", () => {
         // save to storage
@@ -108,6 +148,11 @@ export class FunnelField {
         this.#setFunnel(field)
 
       })
+
+
+
+
+
 
       const answerImage = document.createElement("img")
       // answerImage.classList.add("answer-image")

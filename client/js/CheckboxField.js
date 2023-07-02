@@ -43,8 +43,9 @@ export class CheckboxField {
       }
       Helper.setNotValidStyle(this.checkbox)
       const error = new Error(`field required: '${this.name}'`)
-      error.fieldName = this.name
-      throw new Error(error)
+      error.field = this.name
+      this.field.scrollIntoView({behavior: "smooth"})
+      throw error
     }
     Helper.setValidStyle(this.checkbox)
     return this.checkbox.checked
@@ -65,17 +66,26 @@ export class CheckboxField {
 
   #setCheckbox(field) {
     field.innerHTML = ""
-    field.id = this.name
+    field.classList.add("field")
     field.style.position = "relative"
-    field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
     field.style.borderRadius = "13px"
-    field.style.border = "0.3px solid black"
     field.style.display = "flex"
     field.style.flexDirection = "column"
     field.style.margin = "34px"
-    field.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
     field.style.justifyContent = "center"
     field.style.alignItems = "flex-start"
+
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      field.style.backgroundColor = Helper.colors.dark.foreground
+      field.style.border = Helper.colors.dark.border
+      field.style.boxShadow = Helper.colors.dark.boxShadow
+      field.style.color = Helper.colors.dark.text
+    } else {
+      field.style.backgroundColor = Helper.colors.light.foreground
+      field.style.border = Helper.colors.light.border
+      field.style.boxShadow = Helper.colors.light.boxShadow
+      field.style.color = Helper.colors.light.text
+    }
 
     const labelContainer = document.createElement("div")
     labelContainer.style.display = "flex"
@@ -91,8 +101,15 @@ export class CheckboxField {
     labelContainer.append(icon)
 
     const label = document.createElement("label")
-    label.style.color = "#707070"
+    label.style.fontFamily = "sans-serif"
     label.style.fontSize = "21px"
+
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      label.style.color = Helper.colors.dark.text
+    } else {
+      label.style.color = Helper.colors.light.text
+    }
+
     this.label = label
     labelContainer.append(label)
     field.append(labelContainer)
@@ -112,7 +129,15 @@ export class CheckboxField {
     checkboxContainer.append(checkbox)
 
     const afterCheckbox = document.createElement("div")
+    afterCheckbox.style.fontFamily = "sans-serif"
     afterCheckbox.style.fontSize = "21px"
+
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      afterCheckbox.style.color = Helper.colors.dark.text
+    } else {
+      afterCheckbox.style.color = Helper.colors.light.text
+    }
+
     this.afterCheckbox = afterCheckbox
     checkboxContainer.append(afterCheckbox)
     field.append(checkboxContainer)

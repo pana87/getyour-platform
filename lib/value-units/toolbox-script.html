@@ -868,9 +868,10 @@
                                         script.type = "module"
                                         script.append(`document.getElementById("${script.id}").remove()`)
                                         document.body.append(script)
+                                        // script.remove()
 
                                       } else {
-                                        alert("Template wurde bereits im Dokument eingesetzt.")
+                                        alert("Id existiert bereits.")
                                       }
 
                                     })
@@ -901,7 +902,7 @@
                                           itemState.style.backgroundColor = Helper.colors.light.success
                                         }
                                       } else {
-                                        alert("Template wurde bereits im Dokument eingesetzt.")
+                                        alert("Id existiert bereits.")
                                       }
 
                                     })
@@ -1437,18 +1438,18 @@
                 const mutation = mutations[i]
 
                 // on nodes added
-                mutation.addedNodes.forEach(node => {
-                  const nodes = document.querySelectorAll("*[id]")
-                  for (let i = 0; i < nodes.length; i++) {
-                    const element = nodes[i]
-                    if (element.id === node.id) {
-                      if (element.tagName === "SCRIPT") continue
-                      document.querySelectorAll(`#${node.id}`).forEach(element => {
-                        element.style.border = `2px dashed ${Helper.colors.matte.light.error}`
-                      })
-                    }
-                  }
-                })
+                // mutation.addedNodes.forEach(node => {
+                //   const nodes = document.querySelectorAll("*[id]")
+                //   for (let i = 0; i < nodes.length; i++) {
+                //     const element = nodes[i]
+                //     if (element.id === node.id) {
+                //       if (element.tagName === "SCRIPT") continue
+                //       document.querySelectorAll(`#${node.id}`).forEach(element => {
+                //         element.style.border = `2px dashed ${Helper.colors.matte.light.error}`
+                //       })
+                //     }
+                //   }
+                // })
 
                 // on id change
                 if (mutation.type === 'attributes' && mutation.attributeName === 'id') {

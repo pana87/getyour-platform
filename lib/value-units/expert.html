@@ -33,8 +33,8 @@
 
       // expert app
       {
-        const header = Helper.headerPicker("getyour", document.body)
-        header.info.append(document.location.href)
+        const header = Helper.headerPicker("app", document.body)
+        // header.info.append(document.location.href)
 
         header.addEventListener("click", () => {
 
@@ -76,284 +76,6 @@
 
                 if (res.status === 200) {
                     Helper.reset(button)
-
-                  // {
-                  //   button.style.display = "flex"
-                  //   button.style.flexWrap = "wrap"
-                  //   button.style.justifyContent = "space-between"
-                  //   button.style.alignItems = "center"
-                  //   button.style.margin = "21px 34px"
-                  //   button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                  //   button.style.borderRadius = "13px"
-                  //   button.style.border = "0.3px solid black"
-                  //   button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                  //   button.style.cursor = "pointer"
-                  //   button.addEventListener("click", () => {
-
-                  //     Helper.popup(async overlay => {
-
-                  //       {
-                  //         const header = document.createElement("div")
-                  //         header.style.position = "fixed"
-                  //         header.style.bottom = "0"
-                  //         header.style.left = "0"
-                  //         header.style.width = "100%"
-                  //         header.style.display = "flex"
-                  //         header.style.justifyContent = "flex-start"
-                  //         header.style.alignItems = "center"
-                  //         header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                  //         header.style.background = "white"
-                  //         header.style.zIndex = "1"
-                  //         header.style.cursor = "pointer"
-                  //         header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                  //         const logo = document.createElement("img")
-                  //         logo.src = "/public/getyour-logo.svg"
-                  //         logo.alt = "Logo"
-                  //         logo.style.width = "55px"
-                  //         logo.style.margin = "21px 34px"
-                  //         header.append(logo)
-                  //         const title = document.createElement("div")
-                  //         title.innerHTML = `Besitzerdaten`
-                  //         title.style.fontWeight = "bold"
-                  //         title.style.fontSize = "21px"
-                  //         header.append(title)
-                  //         overlay.append(header)
-                  //       }
-
-                  //       {
-                  //         const ownerList = document.createElement("div")
-                  //         ownerList.style.display = "flex"
-                  //         ownerList.style.justifyContent = "center"
-                  //         ownerList.style.alignItems = "center"
-                  //         ownerList.style.height = "55vh"
-                  //         const loading = document.createElement("img")
-                  //         loading.src = "/public/load.svg"
-                  //         loading.alt = "Bitte warten.."
-                  //         loading.style.width = "55px"
-                  //         ownerList.append(loading)
-                  //         overlay.append(ownerList)
-
-                  //         const get = {}
-                  //         get.url = "/get/owner/closed/2/"
-                  //         get.localStorageEmail = await Request.email()
-                  //         get.localStorageId = await Request.localStorageId()
-                  //         get.location = window.location.href
-                  //         get.referer = document.referrer
-                  //         const res = await Request.middleware(get)
-
-                  //         Helper.reset(ownerList)
-                  //         ownerList.style.overflowY = "auto"
-                  //         ownerList.style.paddingBottom = "144px"
-                  //         ownerList.style.overscrollBehavior = "none"
-
-                  //         const firstnameField = new TextField("firstname", ownerList)
-                  //         firstnameField.value(name => window.localStorage.getItem(name))
-                  //         if (res.status === 200) {
-                  //           const owner = JSON.parse(res.response)
-                  //           if (owner.firstname !== undefined) {
-                  //             firstnameField.value(name => owner.firstname)
-                  //           }
-                  //         }
-                  //         firstnameField.label.innerHTML = "Vorname"
-                  //         firstnameField.input.placeholder = "Huan"
-                  //         firstnameField.input.required = true
-                  //         firstnameField.input.maxLength = "34"
-                  //         firstnameField.input.addEventListener("input", () => {
-                  //           const value = firstnameField.validValue()
-                  //           window.localStorage.setItem(firstnameField.name, value)
-                  //         })
-                  //         firstnameField.verifyValue()
-
-                  //         const lastnameField = new TextField("lastname", ownerList)
-                  //         lastnameField.value(name => window.localStorage.getItem(name))
-                  //         if (res.status === 200) {
-                  //           const owner = JSON.parse(res.response)
-                  //           if (owner.lastname !== undefined) {
-                  //             lastnameField.value(name => owner.lastname)
-                  //           }
-                  //         }
-                  //         lastnameField.label.innerHTML = "Nachname"
-                  //         lastnameField.input.placeholder = "Solo"
-                  //         lastnameField.input.required = true
-                  //         lastnameField.input.maxLength = "34"
-                  //         lastnameField.input.addEventListener("input", () => {
-                  //           const value = lastnameField.validValue()
-                  //           window.localStorage.setItem(lastnameField.name, value)
-                  //         })
-                  //         lastnameField.verifyValue()
-
-                  //         const streetField = new TextField("street", ownerList)
-                  //         streetField.value(name => window.localStorage.getItem(name))
-                  //         if (res.status === 200) {
-                  //           const owner = JSON.parse(res.response)
-                  //           if (owner.street !== undefined) {
-                  //             streetField.value(name => owner.street)
-                  //           }
-                  //         }
-                  //         streetField.label.innerHTML = "Straße und Hausnummer"
-                  //         streetField.input.required = true
-                  //         streetField.input.placeholder = "Wiesentalstr. 21"
-                  //         streetField.input.maxLength = "34"
-                  //         streetField.input.addEventListener("input", () => {
-                  //           const value = streetField.validValue()
-                  //           window.localStorage.setItem(streetField.name, value)
-                  //         })
-                  //         streetField.verifyValue()
-
-                  //         const zipField = new TextField("zip", ownerList)
-                  //         zipField.value(name => window.localStorage.getItem(name))
-                  //         if (res.status === 200) {
-                  //           const owner = JSON.parse(res.response)
-                  //           if (owner.zip !== undefined) {
-                  //             zipField.value(name => owner.zip)
-                  //           }
-                  //         }
-                  //         zipField.label.innerHTML = "Postleitzahl und Ort"
-                  //         zipField.input.placeholder = "70184 Stuttgart"
-                  //         zipField.input.required = true
-                  //         zipField.input.maxLength = "34"
-                  //         zipField.input.addEventListener("input", () => {
-                  //           const value = zipField.validValue()
-                  //           window.localStorage.setItem(zipField.name, value)
-                  //         })
-                  //         zipField.verifyValue()
-
-                  //         const stateField = new SelectionField("state", ownerList)
-                  //         stateField.value(name => [window.localStorage.getItem(name)])
-                  //         if (res.status === 200) {
-                  //           const owner = JSON.parse(res.response)
-                  //           if (owner.state !== undefined) {
-                  //             stateField.value(name => [owner.state])
-                  //           }
-                  //         }
-                  //         stateField.label.innerHTML = "Bundesland oder Kanton"
-                  //         stateField.withOptionSelected(option => window.localStorage.setItem(stateField.name, option.value))
-                  //         stateField.verifyValue()
-
-                  //         const countryField = new SelectionField("country", ownerList)
-                  //         countryField.value(name => [window.localStorage.getItem(name)])
-                  //         if (res.status === 200) {
-                  //           const owner = JSON.parse(res.response)
-                  //           if (owner.country !== undefined) {
-                  //             countryField.value(name => [owner.country])
-                  //           }
-                  //         }
-                  //         countryField.label.innerHTML = "Land"
-                  //         countryField.options(["Deutschland", "Österreich", "Schweiz"])
-                  //         countryField.select.addEventListener("input", (event) => {
-                  //           countryField.withOptionSelected(option => {
-                  //             stateField.addStatesByCountry(option.value)
-                  //             window.localStorage.setItem(countryField.name, option.value)
-                  //           })
-                  //         })
-                  //         countryField.withOptionSelected(option => {
-                  //           stateField.addStatesByCountry(option.value)
-                  //           window.localStorage.setItem(countryField.name, option.value)
-                  //         })
-                  //         countryField.verifyValue()
-
-                  //         const phoneField = new TelField("phone", ownerList)
-                  //         phoneField.value(name => window.localStorage.getItem(name))
-                  //         if (res.status === 200) {
-                  //           const owner = JSON.parse(res.response)
-                  //           if (owner.phone !== undefined) {
-                  //             phoneField.value(name => owner.phone)
-                  //           }
-                  //         }
-                  //         phoneField.label.innerHTML = "Telefon"
-                  //         phoneField.input.required = true
-                  //         phoneField.input.maxLength = "21"
-                  //         phoneField.input.accept = "text/phone"
-                  //         phoneField.input.placeholder = "+49.."
-                  //         phoneField.input.addEventListener("input", () => {
-                  //           const value = phoneField.validValue()
-                  //           window.localStorage.setItem(phoneField.name, value)
-                  //         })
-                  //         phoneField.verifyValue()
-
-                  //         const submitButton = document.createElement("div")
-                  //         submitButton.innerHTML = "Speichern"
-                  //         submitButton.style.fontSize = "21px"
-                  //         submitButton.style.margin = "21px 34px"
-                  //         submitButton.style.backgroundColor = "#f7aa20"
-                  //         submitButton.style.borderRadius = "13px"
-                  //         submitButton.style.height = "89px"
-                  //         submitButton.style.display = "flex"
-                  //         submitButton.style.justifyContent = "center"
-                  //         submitButton.style.alignItems = "center"
-                  //         submitButton.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                  //         submitButton.style.cursor = "pointer"
-                  //         submitButton.addEventListener("click", async () => {
-
-                  //           let firstname
-                  //           let lastname
-                  //           let street
-                  //           let zip
-                  //           let state
-                  //           let country
-                  //           let phone
-                  //           try {
-                  //             firstname = firstnameField.validValue()
-                  //             lastname = lastnameField.validValue()
-                  //             street = streetField.validValue()
-                  //             zip = zipField.validValue()
-                  //             state = stateField.validValue()[0].value
-                  //             country = countryField.validValue()[0].value
-                  //             phone = phoneField.validValue()
-                  //           } catch (error) {
-                  //             alert(error.message)
-                  //             error.field.scrollIntoView({behavior: 'smooth'})
-                  //             throw error
-                  //           }
-
-
-                  //           Helper.addOverlay()
-                  //           Helper.setWaitCursor()
-                  //           try {
-
-                  //             const register = {}
-                  //             register.url = "/register/owner/closed/3/"
-                  //             register.firstname = firstname
-                  //             register.lastname = lastname
-                  //             register.street = street
-                  //             register.zip = zip
-                  //             register.country = country
-                  //             register.state = state
-                  //             register.phone = phone
-                  //             register.location = window.location.href
-                  //             register.referer = document.referrer
-                  //             register.localStorageEmail = await Request.email()
-                  //             register.localStorageId = await Request.localStorageId()
-                  //             await Request.sequence(register)
-
-                  //             alert("Speichern erfolgreich..")
-                  //           } catch (error) {
-                  //             alert("Fehler.. Bitte wiederholen.")
-                  //           }
-                  //           window.location.reload()
-                  //         })
-                  //         ownerList.append(submitButton)
-                  //       }
-
-
-
-                  //     })
-                  //   })
-
-                  //   const icon = document.createElement("img")
-                  //   icon.style.margin = "13px 34px"
-                  //   icon.style.width = "34px"
-                  //   icon.src = "/public/owner.svg"
-                  //   icon.alt = "Besitzer"
-                  //   button.append(icon)
-
-                  //   const title = document.createElement("div")
-                  //   title.innerHTML = "Besitzerdaten"
-                  //   title.style.margin = "21px 34px"
-                  //   title.style.fontSize = "21px"
-                  //   button.append(title)
-                  // }
 
                   {
 
@@ -931,7 +653,7 @@
 
                                         if (res.status === 200) {
                                           alert("Template Skript erfolgreich gespeichert.")
-                                          Helper.removeOverlay(overlay)
+                                          // Helper.removeOverlay(overlay)
                                           Helper.removeOverlay(securityOverlay)
                                         } else {
                                           alert("Fehler.. Bitte wiederholen.")
@@ -956,38 +678,68 @@
                                 button.right.innerHTML = "Template löschen"
 
                                 button.addEventListener("click", () => {
-                                  const confirm = window.confirm(`Du bist gerade dabei das Template '${template.id}' zu löschen. Dieses Template wird für alle Experten nicht mehr erreichbar sein und kann nicht mehr wiederhergestellt werden.\n\nMöchtest du dieses Template wirklich löschen?`)
 
-                                  if (confirm === true) {
-                                    const prompt = window.prompt("Bitte bestätige deine Template Id.")
 
-                                    if (Helper.stringIsEmpty(prompt)) {
+                                  Helper.popup(async securityOverlay => {
+                                    Helper.headerPicker("loading", securityOverlay)
+
+                                    const del = {}
+                                    del.url = "/delete/template/closed/3/"
+                                    del.id = template.id
+                                    const res = await Request.middleware(del)
+
+                                    if (res.status === 200) {
+                                      alert("Template erfolgreich gelöscht.")
+                                      Helper.removeOverlay(templatesOverlay)
+                                      Helper.removeOverlay(overlay)
+                                      Helper.removeOverlay(securityOverlay)
+                                    } else {
                                       alert("Fehler.. Bitte wiederholen.")
-                                      return
+                                      Helper.removeOverlay(securityOverlay)
                                     }
+                                  })
 
 
-                                    Helper.popup(async securityOverlay => {
-                                      Helper.headerPicker("loading", securityOverlay)
-
-                                      const del = {}
-                                      del.url = "/delete/template/closed/3/"
-                                      del.id = template.id
-                                      const res = await Request.middleware(del)
-
-                                      if (res.status === 200) {
-                                        alert("Template erfolgreich gelöscht.")
-                                        Helper.removeOverlay(templatesOverlay)
-                                        Helper.removeOverlay(securityOverlay)
-                                        Helper.removeOverlay(overlay)
-                                      } else {
-                                        alert("Fehler.. Bitte wiederholen.")
-                                        Helper.removeOverlay(securityOverlay)
-                                      }
-                                    })
 
 
-                                  }
+
+
+
+
+
+
+                                  // const confirm = window.confirm(`Du bist gerade dabei das Template '${template.id}' zu löschen. Dieses Template wird für alle Experten nicht mehr erreichbar sein und kann nicht mehr wiederhergestellt werden.\n\nMöchtest du dieses Template wirklich löschen?`)
+
+                                  // if (confirm === true) {
+                                  //   const prompt = window.prompt("Bitte bestätige deine Template Id.")
+
+                                  //   if (Helper.stringIsEmpty(prompt)) {
+                                  //     alert("Fehler.. Bitte wiederholen.")
+                                  //     return
+                                  //   }
+
+
+                                  //   Helper.popup(async securityOverlay => {
+                                  //     Helper.headerPicker("loading", securityOverlay)
+
+                                  //     const del = {}
+                                  //     del.url = "/delete/template/closed/3/"
+                                  //     del.id = template.id
+                                  //     const res = await Request.middleware(del)
+
+                                  //     if (res.status === 200) {
+                                  //       alert("Template erfolgreich gelöscht.")
+                                  //       Helper.removeOverlay(templatesOverlay)
+                                  //       Helper.removeOverlay(securityOverlay)
+                                  //       Helper.removeOverlay(overlay)
+                                  //     } else {
+                                  //       alert("Fehler.. Bitte wiederholen.")
+                                  //       Helper.removeOverlay(securityOverlay)
+                                  //     }
+                                  //   })
+
+
+                                  // }
                                 })
                               }
 

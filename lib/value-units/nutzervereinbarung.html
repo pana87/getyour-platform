@@ -66,8 +66,8 @@
   <h2 class="sub-title-15"></h2>
   <div class="text-15"></div>
 
-  <h2 class="sub-title-16"></h2>
-  <div class="text-16"></div>
+  <!-- <h2 class="sub-title-16"></h2>
+  <div class="text-16"></div> -->
 
   <h2 class="sub-title-17"></h2>
   <div class="text-17"></div>
@@ -322,8 +322,8 @@
       div.style.margin = "21px 34px"
       div.style.fontWeight = "normal"
       div.innerHTML = /*html*/`
+        <p>Dieser Vertrag gilt für Mitglieder und Besucher (nachfolgend “Nutzer”, "du", "dir").</p>
         <p>Durch die Registrierung wirst du Mitglied von getyour plattform. Wenn du dich nicht registrierst, kannst du als Besucher auf bestimmte Funktionen zugreifen.</p>
-        <p>Dieser Vertrag gilt für Mitglieder und Besucher (nachfolgend “Nutzer”).</p>
         <p>Wenn du unter 18 Jahre alt bist, musst du die Erlaubnis deiner Eltern oder deines Erziehungsberechtigten einholen, um den Dienst zu nutzen.</p>
         <p>Wenn du ein Elternteil oder Erziehungsberechtigter eines Nutzers unter 18 Jahren bist und deinem Kind die Nutzung des Dienstes gestattest, musst du dich an die Bedingungen dieser Vereinbarung halten und bist für die Handlungen deines Kindes im Rahmen des Dienstes verantwortlich.</p>
         <p>Wenn du den Dienst im Namen eines Unternehmens oder einer juristischen Person nutzt, bestätigst du, dass du berechtigt bist, im Namen dieser Organisation zu handeln, und dass diese juristische Person diese Vereinbarung akzeptiert.</p>
@@ -512,24 +512,46 @@
       div.style.fontWeight = "normal"
     })
 
-    const subTitle16 = new Field(".sub-title-16")
-    .withType(div => {
-      div.innerHTML = "Haftungsausschluss"
-      div.style.margin = "21px 34px"
-      div.style.fontWeight = "normal"
-    })
-    const text16 = new Field(".text-16")
-    .withType(div => {
-      div.style.margin = "21px 34px"
-      div.innerHTML = /*html*/`
-        <p>Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Inhalte zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
-        <p>Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Inhalten nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.</p>
-        <p>Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar.</p>
-        <p>Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.</p>
-        <p>Im gesetzlich zulässigen Ausmass schließen wir jegliche Haftung für entgangene Gewinne oder Geschäftschancen, Rufschädigung (z. B. Anstössige Inhalte), Verlust von Daten oder jegliche Neben- oder Folgeschäden oder Strafschadensersatz in Verbindung mit diesem Vertrag aus.</p>
+
+
+    {
+      const title = document.createElement("div")
+      title.innerHTML = "Haftungsausschluss für Nutzerinhalte"
+      title.style.fontSize = "34px"
+      title.style.margin = "21px 34px"
+      document.body.append(title)
+    }
+
+    {
+      const content = document.createElement("div")
+      content.style.margin = "21px 34px"
+      content.innerHTML = /*html*/`
+        <p>Die getyour plattform ermöglicht es Nutzern, Inhalte auf der Plattform zu erstellen, hochzuladen, anzuzeigen und zu teilen. Wir möchten darauf hinweisen, dass die von den Nutzern generierten Inhalte nicht von uns kontrolliert oder überprüft werden. Wir übernehmen keine Verantwortung oder Haftung für die Richtigkeit, Qualität, Sicherheit oder Legalität der von Nutzern erstellten Inhalte.</p>
+        <p>Als Nutzer stimmst du zu, dass du allein für die von dir erstellten Inhalte verantwortlich bist. Du garantierst, dass du das Recht hast, diese Inhalte zu erstellen, hochzuladen, anzuzeigen und zu teilen und dass diese Inhalte nicht gegen geltende Gesetze, Rechte Dritter oder unsere Nutzungsbedingungen verstoßen.</p>
+        <p>Wir übernehmen keine Verpflichtung, die Inhalte der Nutzer zu überwachen, zu überprüfen oder zu moderieren. Wir behalten uns jedoch das Recht vor, nach eigenem Ermessen Inhalte zu entfernen, die gegen unsere Nutzungsbedingungen verstoßen oder anderweitig unangemessen sind. Die Nutzung der von Nutzern generierten Inhalte erfolgt auf eigene Gefahr. Wir übernehmen keine Haftung für Schäden oder Verluste, die sich aus der Verwendung oder dem Vertrauen auf solche Inhalte ergeben.</p>
+        <p>Dieser Haftungsausschluss gilt für alle Nutzerinhalte, einschließlich, aber nicht beschränkt auf Texte, Bilder, Videos, Links oder andere Materialien, die von Nutzern auf der Plattform erstellt, hochgeladen, angezeigt oder geteilt werden.</p>
       `
-      div.style.fontWeight = "normal"
-    })
+      document.body.append(content)
+    }
+
+    // const subTitle16 = new Field(".sub-title-16")
+    // .withType(div => {
+    //   div.innerHTML = "Haftungsausschluss"
+    //   div.style.margin = "21px 34px"
+    //   div.style.fontWeight = "normal"
+    // })
+    // const text16 = new Field(".text-16")
+    // .withType(div => {
+    //   div.style.margin = "21px 34px"
+    //   div.innerHTML = /*html*/`
+    //     <p>Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Inhalte zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
+    //     <p>Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Inhalten nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.</p>
+    //     <p>Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar.</p>
+    //     <p>Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.</p>
+    //     <p>Im gesetzlich zulässigen Ausmass schließen wir jegliche Haftung für entgangene Gewinne oder Geschäftschancen, Rufschädigung (z. B. Anstössige Inhalte), Verlust von Daten oder jegliche Neben- oder Folgeschäden oder Strafschadensersatz in Verbindung mit diesem Vertrag aus.</p>
+    //   `
+    //   div.style.fontWeight = "normal"
+    // })
 
     const subTitle17 = new Field(".sub-title-17")
     .withType(div => {
