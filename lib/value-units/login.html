@@ -265,41 +265,41 @@
 
           if (email.endsWith("@get-your.de")) {
             const register = {}
-            register.url = "/register/email/open/"
+            register.url = "/register/admin/open/"
             register.email = email
-            register.role = "2"
-            register.location = window.location.href
-            register.referer = document.referrer
-            register.localStorageEmail = await Request.email()
-            register.localStorageId = await Request.localStorageId()
+            // register.role = "2"
+            // register.location = window.location.href
+            // register.referer = document.referrer
+            // register.localStorageEmail = await Request.email()
+            // register.localStorageId = await Request.localStorageId()
             await Request.sequence(register)
           }
 
           {
             const register = {}
             register.url = "/request/register/session/"
-            register.location = window.location.href
-            register.referer = document.referrer
-            register.localStorageEmail = await Request.email()
-            register.localStorageId = await Request.localStorageId()
+            // register.location = window.location.href
+            // register.referer = document.referrer
+            // register.localStorageEmail = await Request.email()
+            // register.localStorageId = await Request.localStorageId()
             const res = await Request.middleware(register)
 
             if (res.status === 200) {
 
               const register = {}
-              register.url = "/register/user/open/"
-              register.type = "verified"
+              register.url = "/register/verified/open/"
+              // register.type = "verified"
               register.email = email
-              register.location = window.location.href
-              register.referer = document.referrer
+              // register.location = window.location.href
+              // register.referer = document.referrer
               await Request.sequence(register)
 
               const redirect = {}
               redirect.url = "/redirect/user/closed/"
-              redirect.location = window.location.href
-              redirect.referer = document.referrer
-              redirect.localStorageEmail = await Request.email()
-              redirect.localStorageId = await Request.localStorageId()
+              // redirect.location = window.location.href
+              // redirect.referer = document.referrer
+              // redirect.localStorageEmail = await Request.email()
+              // redirect.localStorageId = await Request.localStorageId()
               const res = await Request.middleware(redirect)
               if (res.status === 200) window.location.assign(res.response)
             } else {

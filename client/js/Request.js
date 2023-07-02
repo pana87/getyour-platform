@@ -27,6 +27,9 @@ export class Request {
     return new Promise((resolve, reject) => {
       if (Helper.objectIsEmpty(options)) return reject(new Error(`expected options, found '${options}'`))
       if (Helper.stringIsEmpty(options.url)) return reject(new Error(`expected url, found '${options.url}'`))
+      options.location = window.location.href
+      options.referer = document.referrer
+
       const xhr = new XMLHttpRequest()
       xhr.open("POST", options.url)
       xhr.setRequestHeader("Accept", "application/json")
