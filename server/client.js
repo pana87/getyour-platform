@@ -517,9 +517,12 @@ app.post(`/:method/:type/:event/`,
 
   Request.verifyEvent,
 
+  Request.registerAdmin,
+  Request.registerVerified,
   Request.get,
   // you need to tag yourself and that is not possible without jwt
   // Request.register,
+  // register emmail open
 
 async(req, res, next) => {
   return next()
