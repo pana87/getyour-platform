@@ -308,8 +308,12 @@
                             Helper.headerPicker("removeOverlay", overlay)
 
                             const info = Helper.headerPicker("info", overlay)
-                            info.append(`.templates[${i}]`)
+                            info.append(`.templates`)
 
+                            const span = document.createElement("span")
+                            span.style.fontSize = "21px"
+                            span.innerHTML = `#${template.id}`
+                            info.append(span)
 
 
                             {
@@ -330,8 +334,20 @@
                                     Helper.headerPicker("removeOverlay", overlay)
 
                                     const info = Helper.headerPicker("info", overlay)
-                                    info.append(`.templates[${i}].id`)
+                                    info.append(`.templates`)
 
+                                    {
+                                      const span = document.createElement("span")
+                                      span.style.fontSize = "21px"
+                                      span.innerHTML = `#${template.id}`
+                                      info.append(span)
+                                    }
+
+                                    {
+                                      const span = document.createElement("span")
+                                      span.innerHTML = `.id`
+                                      info.append(span)
+                                    }
 
                                     const funnel = Helper.headerPicker("scrollable", overlay)
 
@@ -406,8 +422,20 @@
                                     Helper.headerPicker("removeOverlay", overlay)
 
                                     const info = Helper.headerPicker("info", overlay)
-                                    info.append(`.templates[${i}].alias`)
+                                    info.append(`.templates`)
 
+                                    {
+                                      const span = document.createElement("span")
+                                      span.style.fontSize = "21px"
+                                      span.innerHTML = `#${template.id}`
+                                      info.append(span)
+                                    }
+
+                                    {
+                                      const span = document.createElement("span")
+                                      span.innerHTML = `.alias`
+                                      info.append(span)
+                                    }
 
                                     const funnel = Helper.headerPicker("scrollable", overlay)
 
@@ -468,8 +496,22 @@
                                   Helper.popup(async overlay => {
                                     Helper.headerPicker("removeOverlay", overlay)
 
+
                                     const info = Helper.headerPicker("info", overlay)
-                                    info.append(`.templates[${i}].dependencies`)
+                                    info.append(`.templates`)
+
+                                    {
+                                      const span = document.createElement("span")
+                                      span.style.fontSize = "21px"
+                                      span.innerHTML = `#${template.id}`
+                                      info.append(span)
+                                    }
+
+                                    {
+                                      const span = document.createElement("span")
+                                      span.innerHTML = `.dependencies`
+                                      info.append(span)
+                                    }
 
 
                                     const funnel = Helper.headerPicker("scrollable", overlay)
@@ -540,7 +582,20 @@
                                     Helper.headerPicker("removeOverlay", overlay)
 
                                     const info = Helper.headerPicker("info", overlay)
-                                    info.append(`.templates[${i}].description`)
+                                    info.append(`.templates`)
+
+                                    {
+                                      const span = document.createElement("span")
+                                      span.style.fontSize = "21px"
+                                      span.innerHTML = `#${template.id}`
+                                      info.append(span)
+                                    }
+
+                                    {
+                                      const span = document.createElement("span")
+                                      span.innerHTML = `.description`
+                                      info.append(span)
+                                    }
 
 
                                     const funnel = Helper.headerPicker("scrollable", overlay)
@@ -612,8 +667,20 @@
                                     Helper.headerPicker("removeOverlay", overlay)
 
                                     const info = Helper.headerPicker("info", overlay)
-                                    info.append(`.templates[${i}].script`)
+                                    info.append(`.templates`)
 
+                                    {
+                                      const span = document.createElement("span")
+                                      span.style.fontSize = "21px"
+                                      span.innerHTML = `#${template.id}`
+                                      info.append(span)
+                                    }
+
+                                    {
+                                      const span = document.createElement("span")
+                                      span.innerHTML = `.script`
+                                      info.append(span)
+                                    }
 
                                     const funnel = Helper.headerPicker("scrollable", overlay)
 
@@ -699,47 +766,6 @@
                                     }
                                   })
 
-
-
-
-
-
-
-
-
-
-                                  // const confirm = window.confirm(`Du bist gerade dabei das Template '${template.id}' zu löschen. Dieses Template wird für alle Experten nicht mehr erreichbar sein und kann nicht mehr wiederhergestellt werden.\n\nMöchtest du dieses Template wirklich löschen?`)
-
-                                  // if (confirm === true) {
-                                  //   const prompt = window.prompt("Bitte bestätige deine Template Id.")
-
-                                  //   if (Helper.stringIsEmpty(prompt)) {
-                                  //     alert("Fehler.. Bitte wiederholen.")
-                                  //     return
-                                  //   }
-
-
-                                  //   Helper.popup(async securityOverlay => {
-                                  //     Helper.headerPicker("loading", securityOverlay)
-
-                                  //     const del = {}
-                                  //     del.url = "/delete/template/closed/3/"
-                                  //     del.id = template.id
-                                  //     const res = await Request.middleware(del)
-
-                                  //     if (res.status === 200) {
-                                  //       alert("Template erfolgreich gelöscht.")
-                                  //       Helper.removeOverlay(templatesOverlay)
-                                  //       Helper.removeOverlay(securityOverlay)
-                                  //       Helper.removeOverlay(overlay)
-                                  //     } else {
-                                  //       alert("Fehler.. Bitte wiederholen.")
-                                  //       Helper.removeOverlay(securityOverlay)
-                                  //     }
-                                  //   })
-
-
-                                  // }
                                 })
                               }
 
@@ -1001,7 +1027,7 @@
                               const contentField = new TextField("feedback", content)
                               contentField.label.innerHTML = "Feedback"
                               contentField.input.required = true
-                              contentField.input.maxLength = "55"
+                              contentField.input.maxLength = "377"
                               contentField.verifyValue()
                               contentField.input.addEventListener("input", () => contentField.verifyValue())
 
@@ -1919,40 +1945,1256 @@
 
                       Helper.popup(async overlay => {
 
-                        {
-                          const header = document.createElement("div")
-                          header.style.position = "fixed"
-                          header.style.bottom = "0"
-                          header.style.left = "0"
-                          header.style.width = "100%"
-                          header.style.display = "flex"
-                          header.style.justifyContent = "flex-start"
-                          header.style.alignItems = "center"
-                          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                          header.style.background = "white"
-                          header.style.zIndex = "1"
-                          header.style.cursor = "pointer"
-                          header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                          const logo = document.createElement("img")
-                          logo.src = platform.logo
-                          logo.alt = platform.name
-                          logo.style.width = "55px"
-                          logo.style.margin = "21px 34px"
-                          header.append(logo)
-                          const title = document.createElement("div")
-                          title.innerHTML = platform.name
-                          title.style.fontWeight = "bold"
-                          title.style.fontSize = "21px"
-                          header.append(title)
-                          overlay.append(header)
-                        }
+                        Helper.headerPicker("removeOverlay", overlay)
+                        const info = Helper.headerPicker("info", overlay)
+                        info.innerHTML = platform.name
 
                         {
                           const buttons = document.createElement("div")
                           buttons.style.overflow = "auto"
                           buttons.style.paddingBottom = "144px"
                           buttons.style.overscrollBehavior = "none"
+
+
+                          {
+                            const button = Helper.buttonPicker("left/right", buttons)
+                            button.left.innerHTML = ".create"
+                            button.right.innerHTML = "Neue Werteinheit erstellen"
+                            button.addEventListener("click", () => {
+
+                              Helper.popup(overlay => {
+
+
+                                Helper.headerPicker("removeOverlay", overlay)
+                                const info = Helper.headerPicker("info", overlay)
+                                info.innerHTML = platform.name
+
+                                {
+                                  const span = document.createElement("span")
+                                  span.innerHTML = `.create.value`
+                                  info.append(span)
+                                }
+
+
+
+                                {
+                                  const funnel = document.createElement("div")
+                                  funnel.style.paddingBottom = "144px"
+                                  funnel.style.overscrollBehavior = "none"
+                                  funnel.style.overflowY = "auto"
+                                  overlay.append(funnel)
+
+                                  const valuePathField = new TextField("valuePath", funnel)
+                                  valuePathField.label.innerHTML = "Pfad"
+                                  valuePathField.input.accept = "text/tag"
+                                  valuePathField.input.maxLength = "21"
+                                  valuePathField.input.required = true
+                                  valuePathField.input.placeholder = "meine-werteinheit"
+                                  valuePathField.input.addEventListener("input", (event) => {
+                                    valuePathField.verifyValue()
+                                  })
+                                  valuePathField.verifyValue()
+
+                                  const valueAliasField = new TextField("valueAlias", funnel)
+                                  valueAliasField.label.innerHTML = "Alias"
+                                  valueAliasField.input.maxLength = "21"
+                                  valueAliasField.input.required = true
+                                  valueAliasField.input.placeholder = "Meine Werteinheit"
+                                  valueAliasField.input.addEventListener("input", (event) => {
+                                    valueAliasField.verifyValue()
+                                  })
+                                  valueAliasField.verifyValue()
+
+                                  const logoSelectField = new SelectionField("logoSelect", funnel)
+                                  logoSelectField.label.textContent = "Logo Option"
+                                  logoSelectField.options(["Datei hochladen", "login.svg"])
+                                  logoSelectField.select.addEventListener("input", (event) => {
+                                    const selected = logoSelectField.validValue()[0].value
+
+                                    if (selected === "login.svg") {
+                                      logoSelectField.icon.style.display = "block"
+                                      logoSelectField.icon.src = "/public/login.svg"
+                                    } else {
+                                      logoSelectField.icon.style.display = "none"
+                                    }
+
+                                    if (selected !== "Datei hochladen") {
+                                      valueLogoField.input.disabled = true
+                                      valueLogoField.input.required = false
+                                      valueLogoField.input.accept = undefined
+                                      valueLogoField.verifyValue()
+                                    }
+
+                                    if (selected === "Datei hochladen") {
+                                      valueLogoField.input.disabled = false
+                                      valueLogoField.input.required = true
+                                      valueLogoField.input.accept = "image/jpeg, image/png"
+                                      valueLogoField.verifyValue()
+                                    }
+
+                                  })
+                                  logoSelectField.verifyValue()
+
+                                  const valueLogoField = new FileField("platformLogo", funnel)
+                                  valueLogoField.label.innerHTML = "Logo"
+                                  valueLogoField.input.accept = "image/jpeg, image/png"
+                                  valueLogoField.input.required = true
+                                  valueLogoField.input.addEventListener("input", async (event) => {
+                                    await valueLogoField.validImage(event.target.files[0])
+                                  })
+                                  Helper.setNotValidStyle(valueLogoField.input)
+
+                                  const valueLangField = new SelectionField("valueLang", funnel)
+                                  valueLangField.label.innerHTML = "Sprache"
+                                  const options = ["aa","ab","ae","af","ak","am","an","ar","as","av","ay","az","ba","be","bg","bh","bi","bm","bn","bo","br","bs","ca","ce","ch","co","cr","cs","cu","cv","cy","da","de","dv","dz","ee","el","en","eo","es","et","eu","fa","ff","fi","fj","fo","fr","fy","ga","gd","gl","gn","gu","gv","ha","he","hi","ho","hr","ht","hu","hy","hz","ia","id","ie","ig","ii","ik","io","is","it","iu","ja","jv","ka","kg","ki","kj","kk","kl","km","kn","ko","kr","ks","ku","kv","kw","ky","la","lb","lg","li","ln","lo","lt","lu","lv","mg","mh","mi","mk","ml","mn","mr","ms","mt","my","na","nb","nd","ne","ng","nl","nn","no","nr","nv","ny","oc","oj","om","or","os","pa","pi","pl","ps","pt","qu","rm","rn","ro","ru","rw","sa","sc","sd","se","sg","si","sk","sl","sm","sn","so","sq","sr","ss","st","su","sv","sw","ta","te","tg","th","ti","tk","tl","tn","to","tr","ts","tt","tw","ty","ug","uk","ur","uz","ve","vi","vo","wa","wo","xh","yi","yo","za","zh","zu"]
+                                  for (let i = 0; i < options.length; i++) {
+                                    const option = document.createElement("option")
+                                    option.value = options[i]
+                                    option.text = options[i]
+                                    valueLangField.select.append(option)
+                                  }
+                                  valueLangField.select.value = "de"
+                                  Helper.setValidStyle(valueLangField.select)
+
+                                  const button = document.createElement("div")
+                                  button.innerHTML = "Speichern"
+                                  button.style.backgroundColor = "#f7aa20"
+                                  button.style.cursor = "pointer"
+                                  button.style.fontSize = "21px"
+                                  button.style.borderRadius = "13px"
+                                  button.style.margin = "13px 34px"
+                                  button.style.display = "flex"
+                                  button.style.justifyContent = "center"
+                                  button.style.alignItems = "center"
+                                  button.style.height = "89px"
+                                  button.style.color = "#000"
+                                  button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+
+                                  button.addEventListener("click", async () => {
+                                    const selected = logoSelectField.validValue()[0].value
+
+                                    const valuePath = valuePathField.validValue()
+                                    const valueAlias = valueAliasField.validValue()
+
+                                    const verify = {}
+                                    verify.url = "/verify/platform-value/closed/3/"
+                                    verify.type = "path"
+                                    verify.platform = platform.name
+                                    verify.path = valuePath
+                                    verify.localStorageEmail = await Request.email()
+                                    verify.localStorageId = await Request.localStorageId()
+                                    verify.location = window.location.href
+                                    verify.referer = document.referrer
+                                    const res = await Request.middleware(verify)
+
+                                    if (res.status === 200) {
+                                      alert("Werteinheit existiert bereits.")
+                                      Helper.setNotValidStyle(valuePathField.input)
+                                      valuePathField.field.scrollIntoView({behavior: "smooth"})
+                                      throw new Error("path exist")
+                                    }
+
+                                    let valueLogo
+                                    if (selected === "Datei hochladen") {
+                                      valueLogo = await valueLogoField.validImage(valueLogoField.input.files[0])
+                                    } else {
+                                      valueLogo = new URL(logoSelectField.icon.src).pathname
+                                    }
+                                    if (valueLogo === undefined) throw new Error("logo is undefined")
+
+                                    const valueLang = valueLangField.validValue()[0].value
+
+                                    try {
+                                      Helper.addOverlay()
+                                      Helper.setWaitCursor()
+                                      const register = {}
+                                      register.url = "/register/platform-value/closed/3/"
+                                      register.type = "new"
+                                      register.logo = valueLogo
+                                      register.platform = platform.name
+                                      register.path = valuePath
+                                      register.alias = valueAlias
+                                      register.lang = valueLang
+                                      register.localStorageEmail = await Request.email()
+                                      register.localStorageId = await Request.localStorageId()
+                                      register.location = window.location.href
+                                      register.referer = document.referrer
+                                      await Request.sequence(register)
+                                      alert("Speichern erfolgreich..")
+                                    } catch (error) {
+                                      alert("Fehler.. Bitte wiederholen.")
+                                    }
+                                    window.location.reload()
+
+
+                                  })
+                                  funnel.append(button)
+
+                                }
+
+                              })
+
+                            })
+                          }
+
+                          {
+                            const button = Helper.buttonPicker("left/right", buttons)
+                            button.left.innerHTML = ".values"
+                            button.right.innerHTML = "Meine Werteinheiten"
+                            button.addEventListener("click", () => {
+
+                              Helper.popup(async overlay => {
+
+
+                                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                  overlay.style.backgroundColor = Helper.colors.matte.dark.background
+                                } else {
+                                  overlay.style.backgroundColor = Helper.colors.matte.light.background
+                                }
+
+
+
+                                Helper.headerPicker("removeOverlay", overlay)
+                                const info = Helper.headerPicker("info", overlay)
+                                info.innerHTML = platform.name
+
+                                {
+                                  const span = document.createElement("span")
+                                  span.innerHTML = `.values`
+                                  info.append(span)
+                                }
+
+                                {
+                                  const units = document.createElement("div")
+                                  units.style.display = "flex"
+                                  units.style.justifyContent = "center"
+                                  units.style.alignItems = "center"
+                                  units.style.height = "55vh"
+                                  const loading = document.createElement("img")
+                                  loading.src = "/public/load.svg"
+                                  loading.alt = "Bitte warten.."
+                                  loading.style.width = "55px"
+                                  units.append(loading)
+                                  overlay.append(units)
+
+
+                                  const get = {}
+                                  get.url = "/get/platforms/closed/3/"
+                                  get.type = "values"
+                                  get.platform = platform.name
+                                  get.location = window.location.href
+                                  get.referer = document.referrer
+                                  get.localStorageEmail = await Request.email()
+                                  get.localStorageId = await Request.localStorageId()
+                                  const res = await Request.middleware(get)
+
+                                  if (res.status !== 200) {
+                                    Helper.reset(units)
+                                    units.style.position = "absolute"
+                                    units.style.top = "0"
+                                    units.style.left = "0"
+                                    units.style.height = "89vh"
+                                    units.style.width = "100%"
+                                    units.style.display = "flex"
+                                    units.style.justifyContent = "center"
+                                    units.style.alignItems = "center"
+                                    units.style.zIndex = "-1"
+                                    units.style.color = "gray"
+                                    units.innerHTML = `<span style="margin: 21px 34px;">Keine Werteinheiten vorhanden.</span>`
+                                    throw new Error("platform values not found")
+                                  }
+
+                                  if (res.status === 200) {
+                                    const values = JSON.parse(res.response)
+
+                                    if (values.length === 0) {
+                                      Helper.reset(units)
+                                      units.style.position = "absolute"
+                                      units.style.top = "0"
+                                      units.style.left = "0"
+                                      units.style.height = "89vh"
+                                      units.style.width = "100%"
+                                      units.style.display = "flex"
+                                      units.style.justifyContent = "center"
+                                      units.style.alignItems = "center"
+                                      units.style.zIndex = "-1"
+                                      units.style.color = "gray"
+                                      units.innerHTML = `<span style="margin: 21px 34px;">Keine Werteinheiten vorhanden.</span>`
+                                      throw new Error("platform values is empty")
+                                    }
+
+                                    Helper.reset(units)
+                                    units.style.overflowY = "auto"
+                                    units.style.paddingBottom = "144px"
+                                    units.style.overscrollBehavior = "none"
+
+                                    for (let i = 0; i < values.length; i++) {
+                                      const value = values[i]
+
+                                      const item = document.createElement("div")
+                                      item.classList.add("checklist-item")
+                                      item.style.margin = "34px"
+
+                                      const itemHeader = document.createElement("div")
+                                      itemHeader.classList.add("item-header")
+                                      itemHeader.style.display = "flex"
+                                      itemHeader.style.borderTopRightRadius = "21px"
+                                      itemHeader.style.borderTopLeftRadius = "21px"
+                                      itemHeader.style.borderBottomLeftRadius = "21px"
+
+                                      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                        itemHeader.style.backgroundColor = Helper.colors.matte.charcoal
+                                      } else {
+
+                                        itemHeader.style.backgroundColor = Helper.colors.gray[1]
+                                      }
+
+                                      itemHeader.style.cursor = "pointer"
+
+                                      itemHeader.addEventListener("click", async () => {
+
+                                        Helper.popup(overlay => {
+
+                                          {
+                                            const header = document.createElement("div")
+                                            header.style.position = "fixed"
+                                            header.style.bottom = "0"
+                                            header.style.left = "0"
+                                            header.style.width = "100%"
+                                            header.style.display = "flex"
+                                            header.style.justifyContent = "flex-start"
+                                            header.style.alignItems = "center"
+                                            header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                                            header.style.background = "white"
+                                            header.style.zIndex = "1"
+                                            header.style.cursor = "pointer"
+                                            header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                                            const logo = document.createElement("img")
+                                            logo.src = platform.logo
+                                            logo.alt = "Logo"
+                                            logo.style.width = "55px"
+                                            logo.style.margin = "21px 34px"
+                                            header.append(logo)
+                                            const title = document.createElement("div")
+                                            title.innerHTML = `${value.path}`
+                                            title.style.fontWeight = "bold"
+                                            title.style.fontSize = "21px"
+                                            header.append(title)
+                                            overlay.append(header)
+                                          }
+
+                                          {
+                                            const buttons = document.createElement("div")
+                                            buttons.style.overflowY = "auto"
+                                            buttons.style.paddingBottom = "144px"
+                                            buttons.style.overscrollBehavior = "none"
+
+                                            overlay.append(buttons)
+
+                                            {
+                                              const button = document.createElement("div")
+                                              button.style.display = "flex"
+                                              button.style.flexWrap = "wrap"
+                                              button.style.justifyContent = "space-between"
+                                              button.style.alignItems = "center"
+                                              button.style.margin = "21px 34px"
+                                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                                              button.style.borderRadius = "13px"
+                                              button.style.border = "0.3px solid black"
+                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                                              button.style.cursor = "pointer"
+
+                                              button.addEventListener("click", () => window.location.assign(value.path))
+
+                                              const icon = document.createElement("img")
+                                              icon.style.margin = "13px 34px"
+                                              icon.style.width = "34px"
+                                              icon.src = "/public/tools-icon-1.svg"
+                                              icon.alt = "Icon"
+                                              button.append(icon)
+
+                                              const title = document.createElement("div")
+                                              title.innerHTML = "Toolbox"
+                                              title.style.margin = "21px 34px"
+                                              title.style.fontSize = "21px"
+                                              button.append(title)
+
+                                              buttons.append(button)
+                                            }
+
+
+                                            {
+                                              const button = document.createElement("div")
+                                              button.style.display = "flex"
+                                              button.style.flexWrap = "wrap"
+                                              button.style.justifyContent = "space-between"
+                                              button.style.alignItems = "center"
+                                              button.style.margin = "21px 34px"
+                                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                                              button.style.borderRadius = "13px"
+                                              button.style.border = "0.3px solid black"
+                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                                              button.style.cursor = "pointer"
+
+                                              button.addEventListener("click", () => {
+
+                                                Helper.popup(async overlay => {
+
+                                                  {
+                                                    const header = document.createElement("div")
+                                                    header.style.position = "fixed"
+                                                    header.style.bottom = "0"
+                                                    header.style.left = "0"
+                                                    header.style.width = "100%"
+                                                    header.style.display = "flex"
+                                                    header.style.justifyContent = "flex-start"
+                                                    header.style.alignItems = "center"
+                                                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                                                    header.style.background = "white"
+                                                    header.style.zIndex = "1"
+                                                    header.style.cursor = "pointer"
+                                                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                                                    const logo = document.createElement("img")
+                                                    logo.src = platform.logo
+                                                    logo.alt = "Logo"
+                                                    logo.style.width = "55px"
+                                                    logo.style.margin = "21px 34px"
+                                                    header.append(logo)
+                                                    const title = document.createElement("div")
+                                                    title.innerHTML = `Pfad`
+                                                    title.style.fontWeight = "bold"
+                                                    title.style.fontSize = "21px"
+                                                    header.append(title)
+                                                    overlay.append(header)
+                                                  }
+
+                                                  {
+                                                    const funnel = document.createElement("div")
+                                                    funnel.style.overflow = "auto"
+                                                    funnel.style.paddingBottom = "144px"
+                                                    funnel.style.overscrollBehavior = "none"
+
+                                                    const valuePathField = new TextField("valuePath", funnel)
+                                                    valuePathField.value(() => value.path.split("/")[3])
+                                                    valuePathField.label.innerHTML = "Name"
+                                                    valuePathField.input.accept = "text/tag"
+                                                    valuePathField.input.maxLength = "21"
+                                                    valuePathField.input.required = true
+                                                    valuePathField.input.placeholder = "Meine Werteinheit"
+                                                    valuePathField.input.addEventListener("input", (event) => {
+                                                      valuePathField.verifyValue()
+                                                    })
+                                                    valuePathField.verifyValue()
+
+                                                    const button = document.createElement("div")
+                                                    button.innerHTML = "Speichern"
+                                                    button.style.backgroundColor = "#f7aa20"
+                                                    button.style.cursor = "pointer"
+                                                    button.style.fontSize = "21px"
+                                                    button.style.borderRadius = "13px"
+                                                    button.style.margin = "13px 34px"
+                                                    button.style.display = "flex"
+                                                    button.style.justifyContent = "center"
+                                                    button.style.alignItems = "center"
+                                                    button.style.height = "89px"
+                                                    button.style.color = "#000"
+                                                    button.addEventListener("click", async () => {
+
+                                                      const valuePath = valuePathField.validValue()
+
+                                                      try {
+                                                        Helper.addOverlay()
+                                                        Helper.setWaitCursor()
+                                                        const register = {}
+                                                        register.url = "/register/platform-value/closed/3/"
+                                                        register.type = "path"
+                                                        register.platform = platform.name
+                                                        register.oldPath = value.path
+                                                        register.newPath = valuePath
+                                                        register.localStorageEmail = await Request.email()
+                                                        register.localStorageId = await Request.localStorageId()
+                                                        register.location = window.location.href
+                                                        register.referer = document.referrer
+                                                        await Request.sequence(register)
+                                                        alert("Speichern erfolgreich..")
+                                                      } catch (error) {
+                                                        alert("Fehler.. Bitte wiederholen.")
+                                                      }
+                                                      window.location.reload()
+
+
+                                                    })
+                                                    funnel.append(button)
+                                                    overlay.append(funnel)
+                                                  }
+
+                                                })
+                                              })
+
+                                              const icon = document.createElement("img")
+                                              icon.style.margin = "13px 34px"
+                                              icon.style.width = "34px"
+                                              icon.src = "/public/path.svg"
+                                              icon.alt = "Pfad"
+                                              button.append(icon)
+
+                                              const title = document.createElement("div")
+                                              title.innerHTML = "Pfad"
+                                              title.style.margin = "21px 34px"
+                                              title.style.fontSize = "21px"
+                                              button.append(title)
+
+                                              buttons.append(button)
+                                            }
+
+                                            {
+                                              const button = document.createElement("div")
+                                              button.style.display = "flex"
+                                              button.style.flexWrap = "wrap"
+                                              button.style.justifyContent = "space-between"
+                                              button.style.alignItems = "center"
+                                              button.style.margin = "21px 34px"
+                                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                                              button.style.borderRadius = "13px"
+                                              button.style.border = "0.3px solid black"
+                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                                              button.style.cursor = "pointer"
+
+                                              button.addEventListener("click", () => {
+
+                                                Helper.popup(async overlay => {
+
+                                                  {
+                                                    const header = document.createElement("div")
+                                                    header.style.position = "fixed"
+                                                    header.style.bottom = "0"
+                                                    header.style.left = "0"
+                                                    header.style.width = "100%"
+                                                    header.style.display = "flex"
+                                                    header.style.justifyContent = "flex-start"
+                                                    header.style.alignItems = "center"
+                                                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                                                    header.style.background = "white"
+                                                    header.style.zIndex = "1"
+                                                    header.style.cursor = "pointer"
+                                                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                                                    const logo = document.createElement("img")
+                                                    logo.src = platform.logo
+                                                    logo.alt = "Logo"
+                                                    logo.style.width = "55px"
+                                                    logo.style.margin = "21px 34px"
+                                                    header.append(logo)
+                                                    const title = document.createElement("div")
+                                                    title.innerHTML = `Alias`
+                                                    title.style.fontWeight = "bold"
+                                                    title.style.fontSize = "21px"
+                                                    header.append(title)
+                                                    overlay.append(header)
+                                                  }
+
+                                                  {
+                                                    const funnel = document.createElement("div")
+                                                    funnel.style.overflow = "auto"
+                                                    funnel.style.paddingBottom = "144px"
+                                                    funnel.style.overscrollBehavior = "none"
+
+                                                    const valueAliasField = new TextField("valueAlias", funnel)
+                                                    valueAliasField.value(() => value.alias)
+                                                    valueAliasField.label.innerHTML = "Name"
+                                                    valueAliasField.input.maxLength = "21"
+                                                    valueAliasField.input.required = true
+                                                    valueAliasField.input.placeholder = "Meine Werteinheit"
+                                                    valueAliasField.input.addEventListener("input", (event) => {
+                                                      valueAliasField.verifyValue()
+                                                    })
+                                                    valueAliasField.verifyValue()
+
+                                                    const button = document.createElement("div")
+                                                    button.innerHTML = "Speichern"
+                                                    button.style.backgroundColor = "#f7aa20"
+                                                    button.style.cursor = "pointer"
+                                                    button.style.fontSize = "21px"
+                                                    button.style.borderRadius = "13px"
+                                                    button.style.margin = "13px 34px"
+                                                    button.style.display = "flex"
+                                                    button.style.justifyContent = "center"
+                                                    button.style.alignItems = "center"
+                                                    button.style.height = "89px"
+                                                    button.style.color = "#000"
+                                                    button.addEventListener("click", async () => {
+
+                                                      const valueAlias = valueAliasField.validValue()
+
+                                                      try {
+                                                        Helper.addOverlay()
+                                                        Helper.setWaitCursor()
+                                                        const register = {}
+                                                        register.url = "/register/platform-value/closed/3/"
+                                                        register.type = "alias"
+                                                        register.alias = valueAlias
+                                                        register.platform = platform.name
+                                                        register.path = value.path
+                                                        register.localStorageEmail = await Request.email()
+                                                        register.localStorageId = await Request.localStorageId()
+                                                        register.location = window.location.href
+                                                        register.referer = document.referrer
+                                                        await Request.sequence(register)
+                                                        alert("Speichern erfolgreich..")
+                                                      } catch (error) {
+                                                        alert("Fehler.. Bitte wiederholen.")
+                                                      }
+                                                      window.location.reload()
+
+
+                                                    })
+                                                    funnel.append(button)
+                                                    overlay.append(funnel)
+                                                  }
+
+                                                })
+                                              })
+
+                                              const icon = document.createElement("img")
+                                              icon.style.margin = "13px 34px"
+                                              icon.style.width = "34px"
+                                              icon.src = "/public/alias.svg"
+                                              icon.alt = "Alias"
+                                              button.append(icon)
+
+                                              const title = document.createElement("div")
+                                              title.innerHTML = "Alias"
+                                              title.style.margin = "21px 34px"
+                                              title.style.fontSize = "21px"
+                                              button.append(title)
+
+                                              buttons.append(button)
+                                            }
+
+                                            {
+                                              const button = document.createElement("div")
+                                              button.style.display = "flex"
+                                              button.style.flexWrap = "wrap"
+                                              button.style.justifyContent = "space-between"
+                                              button.style.alignItems = "center"
+                                              button.style.margin = "21px 34px"
+                                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                                              button.style.borderRadius = "13px"
+                                              button.style.border = "0.3px solid black"
+                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                                              button.style.cursor = "pointer"
+
+                                              button.addEventListener("click", () => {
+
+                                                Helper.popup(async overlay => {
+
+                                                  {
+                                                    const header = document.createElement("div")
+                                                    header.style.position = "fixed"
+                                                    header.style.bottom = "0"
+                                                    header.style.left = "0"
+                                                    header.style.width = "100%"
+                                                    header.style.display = "flex"
+                                                    header.style.justifyContent = "flex-start"
+                                                    header.style.alignItems = "center"
+                                                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                                                    header.style.background = "white"
+                                                    header.style.zIndex = "1"
+                                                    header.style.cursor = "pointer"
+                                                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                                                    const logo = document.createElement("img")
+                                                    logo.src = platform.logo
+                                                    logo.alt = "Logo"
+                                                    logo.style.width = "55px"
+                                                    logo.style.margin = "21px 34px"
+                                                    header.append(logo)
+                                                    const title = document.createElement("div")
+                                                    title.innerHTML = `Icon`
+                                                    title.style.fontWeight = "bold"
+                                                    title.style.fontSize = "21px"
+                                                    header.append(title)
+                                                    overlay.append(header)
+                                                  }
+
+                                                  {
+                                                    const funnel = document.createElement("div")
+                                                    funnel.style.overflow = "auto"
+                                                    funnel.style.paddingBottom = "144px"
+                                                    funnel.style.overscrollBehavior = "none"
+
+                                                    const logoSelectField = new SelectionField("logoSelect", funnel)
+                                                    logoSelectField.label.textContent = "Logo Option"
+                                                    logoSelectField.options(["Datei hochladen", "login.svg"])
+                                                    logoSelectField.select.addEventListener("input", (event) => {
+                                                      const selected = logoSelectField.validValue()[0].value
+
+                                                      if (selected === "login.svg") {
+                                                        logoSelectField.icon.style.display = "block"
+                                                        logoSelectField.icon.src = "/public/login.svg"
+                                                      } else {
+                                                        logoSelectField.icon.style.display = "none"
+                                                      }
+
+                                                      if (selected !== "Datei hochladen") {
+                                                        valueLogoField.input.disabled = true
+                                                        valueLogoField.input.required = false
+                                                        valueLogoField.input.accept = undefined
+                                                        valueLogoField.verifyValue()
+                                                      }
+
+                                                      if (selected === "Datei hochladen") {
+                                                        valueLogoField.input.disabled = false
+                                                        valueLogoField.input.required = true
+                                                        valueLogoField.input.accept = "image/jpeg, image/png"
+                                                        valueLogoField.verifyValue()
+                                                      }
+
+                                                    })
+                                                    logoSelectField.verifyValue()
+
+                                                    const valueLogoField = new FileField("platformLogo", funnel)
+                                                    valueLogoField.label.innerHTML = "Logo"
+                                                    valueLogoField.input.accept = "image/jpeg, image/png"
+                                                    valueLogoField.input.required = true
+                                                    valueLogoField.input.addEventListener("input", async (event) => {
+                                                      await valueLogoField.validImage(event.target.files[0])
+                                                    })
+                                                    Helper.setNotValidStyle(valueLogoField.input)
+
+                                                    const button = document.createElement("div")
+                                                    button.innerHTML = "Speichern"
+                                                    button.style.backgroundColor = "#f7aa20"
+                                                    button.style.cursor = "pointer"
+                                                    button.style.fontSize = "21px"
+                                                    button.style.borderRadius = "13px"
+                                                    button.style.margin = "13px 34px"
+                                                    button.style.display = "flex"
+                                                    button.style.justifyContent = "center"
+                                                    button.style.alignItems = "center"
+                                                    button.style.height = "89px"
+                                                    button.style.color = "#000"
+                                                    button.addEventListener("click", async () => {
+                                                      const selected = logoSelectField.validValue()[0].value
+
+                                                      let valueLogo
+                                                      if (selected === "Datei hochladen") {
+                                                        valueLogo = await valueLogoField.validImage(valueLogoField.input.files[0])
+                                                      } else {
+                                                        valueLogo = new URL(logoSelectField.icon.src).pathname
+                                                      }
+                                                      if (valueLogo === undefined) throw new Error("logo is undefined")
+
+                                                      try {
+                                                        Helper.addOverlay()
+                                                        Helper.setWaitCursor()
+                                                        const register = {}
+                                                        register.url = "/register/platform-value/closed/3/"
+                                                        register.type = "logo"
+                                                        register.logo = valueLogo
+                                                        register.name = platform.name
+                                                        register.path = value.path
+                                                        register.localStorageEmail = await Request.email()
+                                                        register.localStorageId = await Request.localStorageId()
+                                                        register.location = window.location.href
+                                                        register.referer = document.referrer
+                                                        await Request.sequence(register)
+                                                        alert("Speichern erfolgreich..")
+                                                      } catch (error) {
+                                                        alert("Fehler.. Bitte wiederholen.")
+                                                      }
+                                                      window.location.reload()
+
+
+                                                    })
+                                                    funnel.append(button)
+
+                                                    overlay.append(funnel)
+                                                  }
+
+                                                })
+                                              })
+
+                                              const icon = document.createElement("img")
+                                              icon.style.margin = "13px 34px"
+                                              icon.style.width = "34px"
+                                              icon.src = "/public/logo.svg"
+                                              icon.alt = "Logo"
+                                              button.append(icon)
+
+                                              const title = document.createElement("div")
+                                              title.innerHTML = "Logo"
+                                              title.style.margin = "21px 34px"
+                                              title.style.fontSize = "21px"
+                                              button.append(title)
+
+                                              buttons.append(button)
+                                            }
+
+
+                                            {
+                                              const button = document.createElement("div")
+                                              button.style.display = "flex"
+                                              button.style.flexWrap = "wrap"
+                                              button.style.justifyContent = "space-between"
+                                              button.style.alignItems = "center"
+                                              button.style.margin = "21px 34px"
+                                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                                              button.style.borderRadius = "13px"
+                                              button.style.border = "0.3px solid black"
+                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                                              button.style.cursor = "pointer"
+
+                                              button.addEventListener("click", () => {
+
+                                                Helper.popup(async overlay => {
+
+                                                  {
+                                                    const header = document.createElement("div")
+                                                    header.style.position = "fixed"
+                                                    header.style.bottom = "0"
+                                                    header.style.left = "0"
+                                                    header.style.width = "100%"
+                                                    header.style.display = "flex"
+                                                    header.style.justifyContent = "flex-start"
+                                                    header.style.alignItems = "center"
+                                                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                                                    header.style.background = "white"
+                                                    header.style.zIndex = "1"
+                                                    header.style.cursor = "pointer"
+                                                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                                                    const logo = document.createElement("img")
+                                                    logo.src = platform.logo
+                                                    logo.alt = "Logo"
+                                                    logo.style.width = "55px"
+                                                    logo.style.margin = "21px 34px"
+                                                    header.append(logo)
+                                                    const title = document.createElement("div")
+                                                    title.innerHTML = `Sprache`
+                                                    title.style.fontWeight = "bold"
+                                                    title.style.fontSize = "21px"
+                                                    header.append(title)
+                                                    overlay.append(header)
+                                                  }
+
+                                                  {
+                                                    const funnel = document.createElement("div")
+                                                    funnel.style.overflow = "auto"
+                                                    funnel.style.paddingBottom = "144px"
+                                                    funnel.style.overscrollBehavior = "none"
+
+                                                    const valueLangField = new SelectionField("valueLang", funnel)
+                                                    valueLangField.label.innerHTML = "Sprache"
+                                                    const options = ["aa","ab","ae","af","ak","am","an","ar","as","av","ay","az","ba","be","bg","bh","bi","bm","bn","bo","br","bs","ca","ce","ch","co","cr","cs","cu","cv","cy","da","de","dv","dz","ee","el","en","eo","es","et","eu","fa","ff","fi","fj","fo","fr","fy","ga","gd","gl","gn","gu","gv","ha","he","hi","ho","hr","ht","hu","hy","hz","ia","id","ie","ig","ii","ik","io","is","it","iu","ja","jv","ka","kg","ki","kj","kk","kl","km","kn","ko","kr","ks","ku","kv","kw","ky","la","lb","lg","li","ln","lo","lt","lu","lv","mg","mh","mi","mk","ml","mn","mr","ms","mt","my","na","nb","nd","ne","ng","nl","nn","no","nr","nv","ny","oc","oj","om","or","os","pa","pi","pl","ps","pt","qu","rm","rn","ro","ru","rw","sa","sc","sd","se","sg","si","sk","sl","sm","sn","so","sq","sr","ss","st","su","sv","sw","ta","te","tg","th","ti","tk","tl","tn","to","tr","ts","tt","tw","ty","ug","uk","ur","uz","ve","vi","vo","wa","wo","xh","yi","yo","za","zh","zu"]
+                                                    for (let i = 0; i < options.length; i++) {
+                                                      const option = document.createElement("option")
+                                                      option.value = options[i]
+                                                      option.text = options[i]
+                                                      valueLangField.select.append(option)
+                                                    }
+                                                    valueLangField.select.value = value.lang
+                                                    Helper.setValidStyle(valueLangField.select)
+
+                                                    const button = document.createElement("div")
+                                                    button.innerHTML = "Speichern"
+                                                    button.style.backgroundColor = "#f7aa20"
+                                                    button.style.cursor = "pointer"
+                                                    button.style.fontSize = "21px"
+                                                    button.style.borderRadius = "13px"
+                                                    button.style.margin = "13px 34px"
+                                                    button.style.display = "flex"
+                                                    button.style.justifyContent = "center"
+                                                    button.style.alignItems = "center"
+                                                    button.style.height = "89px"
+                                                    button.style.color = "#000"
+                                                    button.addEventListener("click", async () => {
+
+                                                      const valueLang = valueLangField.validValue()[0].value
+
+                                                      try {
+                                                        Helper.addOverlay()
+                                                        Helper.setWaitCursor()
+                                                        const register = {}
+                                                        register.url = "/register/platform-value/closed/3/"
+                                                        register.type = "lang"
+                                                        register.lang = valueLang
+                                                        register.platform = platform.name
+                                                        register.path = value.path
+                                                        register.localStorageEmail = await Request.email()
+                                                        register.localStorageId = await Request.localStorageId()
+                                                        register.location = window.location.href
+                                                        register.referer = document.referrer
+                                                        await Request.sequence(register)
+                                                        alert("Speichern erfolgreich..")
+                                                      } catch (error) {
+                                                        alert("Fehler.. Bitte wiederholen.")
+                                                      }
+                                                      window.location.reload()
+
+
+                                                    })
+                                                    funnel.append(button)
+
+                                                    overlay.append(funnel)
+                                                  }
+
+                                                })
+                                              })
+
+                                              const icon = document.createElement("img")
+                                              icon.style.margin = "13px 34px"
+                                              icon.style.width = "34px"
+                                              icon.src = "/public/lang.svg"
+                                              icon.alt = "Sprache"
+                                              button.append(icon)
+
+                                              const title = document.createElement("div")
+                                              title.innerHTML = "Sprache"
+                                              title.style.margin = "21px 34px"
+                                              title.style.fontSize = "21px"
+                                              button.append(title)
+
+                                              buttons.append(button)
+                                            }
+
+
+                                            {
+                                              const button = document.createElement("div")
+                                              button.style.display = "flex"
+                                              button.style.flexWrap = "wrap"
+                                              button.style.justifyContent = "space-between"
+                                              button.style.alignItems = "center"
+                                              button.style.margin = "21px 34px"
+                                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                                              button.style.borderRadius = "13px"
+                                              button.style.border = "0.3px solid black"
+                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                                              button.style.cursor = "pointer"
+
+                                              button.addEventListener("click", () => {
+
+                                                Helper.popup(async overlay => {
+
+                                                  {
+                                                    const header = document.createElement("div")
+                                                    header.style.position = "fixed"
+                                                    header.style.bottom = "0"
+                                                    header.style.left = "0"
+                                                    header.style.width = "100%"
+                                                    header.style.display = "flex"
+                                                    header.style.justifyContent = "flex-start"
+                                                    header.style.alignItems = "center"
+                                                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                                                    header.style.background = "white"
+                                                    header.style.zIndex = "1"
+                                                    header.style.cursor = "pointer"
+                                                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
+
+                                                    const logo = document.createElement("img")
+                                                    logo.src = platform.logo
+                                                    logo.alt = "Logo"
+                                                    logo.style.width = "55px"
+                                                    logo.style.margin = "21px 34px"
+                                                    header.append(logo)
+                                                    const title = document.createElement("div")
+                                                    title.innerHTML = `Sichtbarkeit`
+                                                    title.style.fontWeight = "bold"
+                                                    title.style.fontSize = "21px"
+                                                    header.append(title)
+                                                    overlay.append(header)
+                                                  }
+
+                                                  {
+                                                    const funnel = document.createElement("div")
+                                                    funnel.style.overflow = "auto"
+                                                    funnel.style.paddingBottom = "144px"
+                                                    funnel.style.overscrollBehavior = "none"
+
+                                                    const valueVisibilityField = new SelectionField("valueVisibility", funnel)
+                                                    valueVisibilityField.label.innerHTML = "Sichtbarkeit"
+                                                    let options
+                                                    if (value.visibility === "open") {
+                                                      options = ["Für alle", "Nur für mich"]
+                                                    }
+                                                    if (value.visibility === "closed") {
+                                                      options = ["Nur für mich", "Für alle"]
+                                                    }
+                                                    for (let i = 0; i < options.length; i++) {
+                                                      const option = document.createElement("option")
+                                                      option.value = options[i]
+                                                      option.text = options[i]
+                                                      valueVisibilityField.select.append(option)
+                                                    }
+                                                    Helper.setValidStyle(valueVisibilityField.select)
+
+                                                    const button = document.createElement("div")
+                                                    button.innerHTML = "Speichern"
+                                                    button.style.backgroundColor = "#f7aa20"
+                                                    button.style.cursor = "pointer"
+                                                    button.style.fontSize = "21px"
+                                                    button.style.borderRadius = "13px"
+                                                    button.style.margin = "13px 34px"
+                                                    button.style.display = "flex"
+                                                    button.style.justifyContent = "center"
+                                                    button.style.alignItems = "center"
+                                                    button.style.height = "89px"
+                                                    button.style.color = "#000"
+                                                    button.addEventListener("click", async () => {
+
+                                                      const valueVisibility = valueVisibilityField.validValue()[0].value
+
+                                                      let visibility
+                                                      if (valueVisibility === "Nur für mich") {
+                                                        visibility = "closed"
+                                                      }
+                                                      if (valueVisibility === "Für alle") {
+                                                        visibility = "open"
+                                                      }
+
+                                                      try {
+                                                        Helper.addOverlay()
+                                                        Helper.setWaitCursor()
+                                                        const register = {}
+                                                        register.url = "/register/platform-value/closed/3/"
+                                                        register.type = "visibility"
+                                                        register.visibility = visibility
+                                                        register.name = platform.name
+                                                        register.path = value.path
+                                                        register.localStorageEmail = await Request.email()
+                                                        register.localStorageId = await Request.localStorageId()
+                                                        register.location = window.location.href
+                                                        register.referer = document.referrer
+                                                        await Request.sequence(register)
+                                                        alert("Speichern erfolgreich..")
+                                                      } catch (error) {
+                                                        alert("Fehler.. Bitte wiederholen.")
+                                                      }
+                                                      window.location.reload()
+
+
+                                                    })
+                                                    funnel.append(button)
+
+                                                    overlay.append(funnel)
+                                                  }
+
+                                                })
+                                              })
+
+                                              const icon = document.createElement("img")
+                                              icon.style.margin = "13px 34px"
+                                              icon.style.width = "34px"
+
+                                              if (value.visibility === "open") {
+                                                icon.src = "/public/open-dark.svg"
+                                              }
+                                              if (value.visibility === "closed") {
+                                                icon.src = "/public/closed.svg"
+                                              }
+
+                                              icon.alt = "Sichtbarkeit"
+                                              button.append(icon)
+
+                                              const title = document.createElement("div")
+                                              title.innerHTML = "Sichtbarkeit"
+                                              title.style.margin = "21px 34px"
+                                              title.style.fontSize = "21px"
+                                              button.append(title)
+
+                                              buttons.append(button)
+                                            }
+
+                                            {
+                                              const button = document.createElement("div")
+                                              button.style.display = "flex"
+                                              button.style.flexWrap = "wrap"
+                                              button.style.justifyContent = "space-between"
+                                              button.style.alignItems = "center"
+                                              button.style.margin = "21px 34px"
+                                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+
+                                              button.style.borderRadius = "13px"
+                                              button.style.border = "0.3px solid black"
+                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                                              button.style.cursor = "pointer"
+
+                                              button.addEventListener("click", async () => {
+
+                                                let securityOverlay
+                                                try {
+                                                  const confirm = window.confirm("Möchtest du die Werteinheit wirklich löschen? Alle enthaltenen Daten werden ebenfalls gelöscht.")
+                                                  if (confirm === true) {
+                                                    securityOverlay = Helper.addOverlay()
+                                                    Helper.setWaitCursor()
+                                                    {
+                                                      const del = {}
+                                                      del.url = "/delete/platform-value/closed/3/"
+                                                      del.platform = platform.name
+                                                      del.path = value.path
+                                                      del.localStorageId = await Request.localStorageId()
+                                                      del.localStorageEmail = await Request.email()
+                                                      del.location = window.location.href
+                                                      del.referer = document.referrer
+                                                      await Request.sequence(del)
+                                                    }
+                                                    alert("Werteinheit erfolgreich gelöscht.")
+                                                    window.location.reload()
+                                                  }
+                                                } catch (error) {
+                                                  alert("Fehler.. Bitte wiederholen.")
+                                                  Helper.removeOverlay(securityOverlay)
+                                                }
+
+                                              })
+
+                                              const icon = document.createElement("img")
+                                              icon.style.margin = "13px 34px"
+                                              icon.style.width = "34px"
+                                              icon.src = "/public/delete.svg"
+                                              icon.alt = "Löschen"
+                                              button.append(icon)
+
+                                              const title = document.createElement("div")
+                                              title.innerHTML = "Löschen"
+                                              title.style.margin = "21px 34px"
+                                              title.style.fontSize = "21px"
+                                              button.append(title)
+
+                                              buttons.append(button)
+                                            }
+
+                                          }
+
+                                        })
+                                      })
+
+                                      const itemState = document.createElement("div")
+                                      itemState.classList.add("item-state")
+                                      itemState.style.display = "flex"
+                                      itemState.style.justifyContent = "center"
+                                      itemState.style.alignItems = "center"
+                                      itemState.style.width = "89px"
+                                      itemState.style.height = "89px"
+                                      itemState.style.fontSize = "34px"
+
+
+                                      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                        itemState.style.backgroundColor = Helper.colors.matte.black
+                                      } else {
+                                        itemState.style.backgroundColor = Helper.colors.gray[2]
+                                      }
+
+                                      if (value.visibility === "closed") {
+                                        if (value.roles.length === 0) {
+                                          if (value.authorized.length === 0) {
+                                            const stateIcon = Helper.iconPicker("closed-eye")
+                                            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                              stateIcon.children[0].style.fill = Helper.colors.matte.dark.text
+                                            } else {
+                                              stateIcon.children[0].style.fill = Helper.colors.matte.light.text
+                                            }
+                                            stateIcon.style.width = "34px"
+                                            itemState.append(stateIcon)
+                                          }
+                                        }
+                                      }
+
+                                      if (value.visibility === "open") {
+                                        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                          itemState.style.backgroundColor = Helper.colors.matte.seaGreen
+                                        } else {
+                                          itemState.style.backgroundColor = Helper.colors.matte.lime
+                                        }
+
+                                        const stateIcon = Helper.iconPicker("open-eye")
+                                        stateIcon.style.width = "34px"
+                                        itemState.append(stateIcon)
+                                      }
+
+                                      if (value.visibility === "closed") {
+                                        if (value.roles.length !== 0 || value.authorized.length !== 0) {
+                                          itemState.style.backgroundColor = "#eed202"
+                                          const stateIcon = document.createElement("img")
+                                          stateIcon.src = "/public/locked.svg"
+                                          stateIcon.alt = "Nur für bestimmte"
+                                          stateIcon.style.width = "34px"
+                                          itemState.append(stateIcon)
+                                        }
+                                      }
+                                      itemState.style.borderTopLeftRadius = "21px"
+                                      itemState.style.borderBottomLeftRadius = "21px"
+
+                                      const itemTitle = document.createElement("div")
+                                      itemTitle.classList.add("item-title")
+                                      itemTitle.style.alignSelf = "center"
+                                      itemTitle.style.marginLeft = "13px"
+                                      itemTitle.innerHTML = `${value.alias}`
+                                      itemTitle.style.fontSize = "21px"
+
+
+                                      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                        itemTitle.style.color = Helper.colors.matte.dark.text
+                                      } else {
+                                        itemTitle.style.color = Helper.colors.matte.light.text
+                                      }
+
+                                      {
+                                        const path = document.createElement("div")
+                                        path.innerHTML = `${value.path}`
+                                        path.style.fontSize = "13px"
+                                        itemTitle.append(path)
+                                      }
+
+                                      itemHeader.append(itemState, itemTitle)
+                                      item.append(itemHeader)
+
+
+                                      const itemBody = document.createElement("div")
+                                      itemBody.classList.add("item-body")
+                                      itemBody.style.marginLeft = "8%"
+
+
+                                      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                        itemBody.style.backgroundColor = Helper.colors.matte.slate
+                                        itemBody.style.boxShadow = `0 1px ${Helper.colors.gray[4]}`
+                                      } else {
+                                        itemBody.style.boxShadow = `0 1px ${Helper.colors.gray[2]}`
+                                        itemBody.style.backgroundColor = Helper.colors.gray[0]
+                                      }
+
+                                      itemBody.style.borderBottomRightRadius = "21px"
+                                      itemBody.style.borderBottomLeftRadius = "21px"
+                                      itemBody.style.padding = "21px"
+                                      itemBody.style.display = "flex"
+                                      itemBody.style.flexDirection = "column"
+
+                                      const buttons = document.createElement("div")
+                                      buttons.style.display = "flex"
+                                      buttons.style.alignItems = "center"
+
+                                      {
+                                        const button = Helper.iconPicker("toolbox")
+                                        button.style.width = "55px"
+                                        button.style.cursor = "pointer"
+                                        button.addEventListener("click", () => window.location.assign(value.path))
+                                        buttons.append(button)
+                                      }
+
+                                      itemBody.append(buttons)
+                                      item.append(itemBody)
+                                      units.append(item)
+                                    }
+                                  }
+
+                                }
+
+                              })
+                            })
+                          }
+
 
                           {
                             const button = Helper.buttonPicker("left/right")
@@ -3411,1329 +4653,6 @@
 
                             const title = document.createElement("div")
                             title.innerHTML = "Neue Angebote"
-                            title.style.margin = "21px 34px"
-                            title.style.fontSize = "21px"
-                            button.append(title)
-
-                            buttons.append(button)
-                          }
-
-                          {
-                            const button = document.createElement("div")
-                            button.style.display = "flex"
-                            button.style.flexWrap = "wrap"
-                            button.style.justifyContent = "space-between"
-                            button.style.alignItems = "center"
-                            button.style.margin = "21px 34px"
-                            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                            button.style.borderRadius = "13px"
-                            button.style.border = "0.3px solid black"
-                            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                            button.style.cursor = "pointer"
-
-                            button.addEventListener("click", () => {
-
-                              Helper.popup(overlay => {
-
-                                {
-                                  const header = document.createElement("div")
-                                  header.style.position = "fixed"
-                                  header.style.bottom = "0"
-                                  header.style.left = "0"
-                                  header.style.width = "100%"
-                                  header.style.display = "flex"
-                                  header.style.justifyContent = "flex-start"
-                                  header.style.alignItems = "center"
-                                  header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                                  header.style.background = "white"
-                                  header.style.zIndex = "1"
-                                  header.style.cursor = "pointer"
-                                  header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                                  const logo = document.createElement("img")
-                                  logo.src = platform.logo
-                                  logo.alt = platform.name
-                                  logo.style.width = "55px"
-                                  logo.style.margin = "21px 34px"
-                                  header.append(logo)
-                                  const title = document.createElement("div")
-                                  title.innerHTML = "Neue Werteinheit"
-                                  title.style.fontWeight = "bold"
-                                  title.style.fontSize = "21px"
-                                  header.append(title)
-                                  overlay.append(header)
-                                }
-
-                                {
-                                  const funnel = document.createElement("div")
-                                  funnel.style.paddingBottom = "144px"
-                                  funnel.style.overscrollBehavior = "none"
-                                  funnel.style.overflowY = "auto"
-                                  overlay.append(funnel)
-
-                                  const valuePathField = new TextField("valuePath", funnel)
-                                  valuePathField.label.innerHTML = "Pfad"
-                                  valuePathField.input.accept = "text/tag"
-                                  valuePathField.input.maxLength = "21"
-                                  valuePathField.input.required = true
-                                  valuePathField.input.placeholder = "meine-werteinheit"
-                                  valuePathField.input.addEventListener("input", (event) => {
-                                    valuePathField.verifyValue()
-                                  })
-                                  valuePathField.verifyValue()
-
-                                  const valueAliasField = new TextField("valueAlias", funnel)
-                                  valueAliasField.label.innerHTML = "Alias"
-                                  valueAliasField.input.maxLength = "21"
-                                  valueAliasField.input.required = true
-                                  valueAliasField.input.placeholder = "Meine Werteinheit"
-                                  valueAliasField.input.addEventListener("input", (event) => {
-                                    valueAliasField.verifyValue()
-                                  })
-                                  valueAliasField.verifyValue()
-
-                                  const logoSelectField = new SelectionField("logoSelect", funnel)
-                                  logoSelectField.label.textContent = "Logo Option"
-                                  logoSelectField.options(["Datei hochladen", "login.svg"])
-                                  logoSelectField.select.addEventListener("input", (event) => {
-                                    const selected = logoSelectField.validValue()[0].value
-
-                                    if (selected === "login.svg") {
-                                      logoSelectField.icon.style.display = "block"
-                                      logoSelectField.icon.src = "/public/login.svg"
-                                    } else {
-                                      logoSelectField.icon.style.display = "none"
-                                    }
-
-                                    if (selected !== "Datei hochladen") {
-                                      valueLogoField.input.disabled = true
-                                      valueLogoField.input.required = false
-                                      valueLogoField.input.accept = undefined
-                                      valueLogoField.verifyValue()
-                                    }
-
-                                    if (selected === "Datei hochladen") {
-                                      valueLogoField.input.disabled = false
-                                      valueLogoField.input.required = true
-                                      valueLogoField.input.accept = "image/jpeg, image/png"
-                                      valueLogoField.verifyValue()
-                                    }
-
-                                  })
-                                  logoSelectField.verifyValue()
-
-                                  const valueLogoField = new FileField("platformLogo", funnel)
-                                  valueLogoField.label.innerHTML = "Logo"
-                                  valueLogoField.input.accept = "image/jpeg, image/png"
-                                  valueLogoField.input.required = true
-                                  valueLogoField.input.addEventListener("input", async (event) => {
-                                    await valueLogoField.validImage(event.target.files[0])
-                                  })
-                                  Helper.setNotValidStyle(valueLogoField.input)
-
-                                  const valueLangField = new SelectionField("valueLang", funnel)
-                                  valueLangField.label.innerHTML = "Sprache"
-                                  const options = ["aa","ab","ae","af","ak","am","an","ar","as","av","ay","az","ba","be","bg","bh","bi","bm","bn","bo","br","bs","ca","ce","ch","co","cr","cs","cu","cv","cy","da","de","dv","dz","ee","el","en","eo","es","et","eu","fa","ff","fi","fj","fo","fr","fy","ga","gd","gl","gn","gu","gv","ha","he","hi","ho","hr","ht","hu","hy","hz","ia","id","ie","ig","ii","ik","io","is","it","iu","ja","jv","ka","kg","ki","kj","kk","kl","km","kn","ko","kr","ks","ku","kv","kw","ky","la","lb","lg","li","ln","lo","lt","lu","lv","mg","mh","mi","mk","ml","mn","mr","ms","mt","my","na","nb","nd","ne","ng","nl","nn","no","nr","nv","ny","oc","oj","om","or","os","pa","pi","pl","ps","pt","qu","rm","rn","ro","ru","rw","sa","sc","sd","se","sg","si","sk","sl","sm","sn","so","sq","sr","ss","st","su","sv","sw","ta","te","tg","th","ti","tk","tl","tn","to","tr","ts","tt","tw","ty","ug","uk","ur","uz","ve","vi","vo","wa","wo","xh","yi","yo","za","zh","zu"]
-                                  for (let i = 0; i < options.length; i++) {
-                                    const option = document.createElement("option")
-                                    option.value = options[i]
-                                    option.text = options[i]
-                                    valueLangField.select.append(option)
-                                  }
-                                  valueLangField.select.value = "de"
-                                  Helper.setValidStyle(valueLangField.select)
-
-                                  const button = document.createElement("div")
-                                  button.innerHTML = "Speichern"
-                                  button.style.backgroundColor = "#f7aa20"
-                                  button.style.cursor = "pointer"
-                                  button.style.fontSize = "21px"
-                                  button.style.borderRadius = "13px"
-                                  button.style.margin = "13px 34px"
-                                  button.style.display = "flex"
-                                  button.style.justifyContent = "center"
-                                  button.style.alignItems = "center"
-                                  button.style.height = "89px"
-                                  button.style.color = "#000"
-                                  button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-
-                                  button.addEventListener("click", async () => {
-                                    const selected = logoSelectField.validValue()[0].value
-
-                                    const valuePath = valuePathField.validValue()
-                                    const valueAlias = valueAliasField.validValue()
-
-                                    const verify = {}
-                                    verify.url = "/verify/platform-value/closed/3/"
-                                    verify.type = "path"
-                                    verify.platform = platform.name
-                                    verify.path = valuePath
-                                    verify.localStorageEmail = await Request.email()
-                                    verify.localStorageId = await Request.localStorageId()
-                                    verify.location = window.location.href
-                                    verify.referer = document.referrer
-                                    const res = await Request.middleware(verify)
-
-                                    if (res.status === 200) {
-                                      alert("Werteinheit existiert bereits.")
-                                      Helper.setNotValidStyle(valuePathField.input)
-                                      valuePathField.field.scrollIntoView({behavior: "smooth"})
-                                      throw new Error("path exist")
-                                    }
-
-                                    let valueLogo
-                                    if (selected === "Datei hochladen") {
-                                      valueLogo = await valueLogoField.validImage(valueLogoField.input.files[0])
-                                    } else {
-                                      valueLogo = new URL(logoSelectField.icon.src).pathname
-                                    }
-                                    if (valueLogo === undefined) throw new Error("logo is undefined")
-
-                                    const valueLang = valueLangField.validValue()[0].value
-
-                                    try {
-                                      Helper.addOverlay()
-                                      Helper.setWaitCursor()
-                                      const register = {}
-                                      register.url = "/register/platform-value/closed/3/"
-                                      register.type = "new"
-                                      register.logo = valueLogo
-                                      register.platform = platform.name
-                                      register.path = valuePath
-                                      register.alias = valueAlias
-                                      register.lang = valueLang
-                                      register.localStorageEmail = await Request.email()
-                                      register.localStorageId = await Request.localStorageId()
-                                      register.location = window.location.href
-                                      register.referer = document.referrer
-                                      await Request.sequence(register)
-                                      alert("Speichern erfolgreich..")
-                                    } catch (error) {
-                                      alert("Fehler.. Bitte wiederholen.")
-                                    }
-                                    window.location.reload()
-
-
-                                  })
-                                  funnel.append(button)
-
-                                }
-
-                              })
-
-                            })
-
-                            const icon = document.createElement("img")
-                            icon.style.margin = "13px 34px"
-                            icon.style.width = "34px"
-                            icon.src = "/public/add-icon.svg"
-                            icon.alt = "Hinzufügen"
-                            button.append(icon)
-
-                            const title = document.createElement("div")
-                            title.innerHTML = "Neue Werteinheit"
-                            title.style.margin = "21px 34px"
-                            title.style.fontSize = "21px"
-                            button.append(title)
-                            buttons.append(button)
-                          }
-
-                          {
-                            const button = document.createElement("div")
-                            button.style.display = "flex"
-                            button.style.flexWrap = "wrap"
-                            button.style.justifyContent = "space-between"
-                            button.style.alignItems = "center"
-                            button.style.margin = "21px 34px"
-                            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                            button.style.borderRadius = "13px"
-                            button.style.border = "0.3px solid black"
-                            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                            button.style.cursor = "pointer"
-                            button.addEventListener("click", () => {
-
-                              Helper.popup(async overlay => {
-
-
-                                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                  overlay.style.backgroundColor = Helper.colors.matte.dark.background
-                                } else {
-                                  overlay.style.backgroundColor = Helper.colors.matte.light.background
-                                }
-
-
-
-
-
-
-                                {
-                                  const header = document.createElement("div")
-                                  header.style.position = "fixed"
-                                  header.style.bottom = "0"
-                                  header.style.left = "0"
-                                  header.style.width = "100%"
-                                  header.style.display = "flex"
-                                  header.style.justifyContent = "flex-start"
-                                  header.style.alignItems = "center"
-                                  header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                                  header.style.background = "white"
-                                  header.style.zIndex = "1"
-                                  header.style.cursor = "pointer"
-                                  header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                                  const logo = document.createElement("img")
-                                  logo.src = platform.logo
-                                  logo.alt = platform.name
-                                  logo.style.width = "55px"
-                                  logo.style.margin = "21px 34px"
-                                  header.append(logo)
-                                  const title = document.createElement("div")
-                                  title.innerHTML = "Werteinheiten"
-                                  title.style.fontWeight = "bold"
-                                  title.style.fontSize = "21px"
-                                  header.append(title)
-                                  overlay.append(header)
-                                }
-
-                                {
-                                  const units = document.createElement("div")
-                                  units.style.display = "flex"
-                                  units.style.justifyContent = "center"
-                                  units.style.alignItems = "center"
-                                  units.style.height = "55vh"
-                                  const loading = document.createElement("img")
-                                  loading.src = "/public/load.svg"
-                                  loading.alt = "Bitte warten.."
-                                  loading.style.width = "55px"
-                                  units.append(loading)
-                                  overlay.append(units)
-
-
-                                  const get = {}
-                                  get.url = "/get/platforms/closed/3/"
-                                  get.type = "values"
-                                  get.platform = platform.name
-                                  get.location = window.location.href
-                                  get.referer = document.referrer
-                                  get.localStorageEmail = await Request.email()
-                                  get.localStorageId = await Request.localStorageId()
-                                  const res = await Request.middleware(get)
-
-                                  if (res.status !== 200) {
-                                    Helper.reset(units)
-                                    units.style.position = "absolute"
-                                    units.style.top = "0"
-                                    units.style.left = "0"
-                                    units.style.height = "89vh"
-                                    units.style.width = "100%"
-                                    units.style.display = "flex"
-                                    units.style.justifyContent = "center"
-                                    units.style.alignItems = "center"
-                                    units.style.zIndex = "-1"
-                                    units.style.color = "gray"
-                                    units.innerHTML = `<span style="margin: 21px 34px;">Keine Werteinheiten vorhanden.</span>`
-                                    throw new Error("platform values not found")
-                                  }
-
-                                  if (res.status === 200) {
-                                    const values = JSON.parse(res.response)
-
-                                    if (values.length === 0) {
-                                      Helper.reset(units)
-                                      units.style.position = "absolute"
-                                      units.style.top = "0"
-                                      units.style.left = "0"
-                                      units.style.height = "89vh"
-                                      units.style.width = "100%"
-                                      units.style.display = "flex"
-                                      units.style.justifyContent = "center"
-                                      units.style.alignItems = "center"
-                                      units.style.zIndex = "-1"
-                                      units.style.color = "gray"
-                                      units.innerHTML = `<span style="margin: 21px 34px;">Keine Werteinheiten vorhanden.</span>`
-                                      throw new Error("platform values is empty")
-                                    }
-
-                                    Helper.reset(units)
-                                    units.style.overflowY = "auto"
-                                    units.style.paddingBottom = "144px"
-                                    units.style.overscrollBehavior = "none"
-
-                                    for (let i = 0; i < values.length; i++) {
-                                      const value = values[i]
-
-                                      const item = document.createElement("div")
-                                      item.classList.add("checklist-item")
-                                      item.style.margin = "34px"
-
-                                      const itemHeader = document.createElement("div")
-                                      itemHeader.classList.add("item-header")
-                                      itemHeader.style.display = "flex"
-                                      itemHeader.style.borderTopRightRadius = "21px"
-                                      itemHeader.style.borderTopLeftRadius = "21px"
-                                      itemHeader.style.borderBottomLeftRadius = "21px"
-
-                                      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                        itemHeader.style.backgroundColor = Helper.colors.matte.charcoal
-                                      } else {
-
-                                        itemHeader.style.backgroundColor = Helper.colors.gray[1]
-                                      }
-
-                                      itemHeader.style.cursor = "pointer"
-
-                                      itemHeader.addEventListener("click", async () => {
-
-                                        Helper.popup(overlay => {
-
-                                          {
-                                            const header = document.createElement("div")
-                                            header.style.position = "fixed"
-                                            header.style.bottom = "0"
-                                            header.style.left = "0"
-                                            header.style.width = "100%"
-                                            header.style.display = "flex"
-                                            header.style.justifyContent = "flex-start"
-                                            header.style.alignItems = "center"
-                                            header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                                            header.style.background = "white"
-                                            header.style.zIndex = "1"
-                                            header.style.cursor = "pointer"
-                                            header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                                            const logo = document.createElement("img")
-                                            logo.src = platform.logo
-                                            logo.alt = "Logo"
-                                            logo.style.width = "55px"
-                                            logo.style.margin = "21px 34px"
-                                            header.append(logo)
-                                            const title = document.createElement("div")
-                                            title.innerHTML = `${value.path}`
-                                            title.style.fontWeight = "bold"
-                                            title.style.fontSize = "21px"
-                                            header.append(title)
-                                            overlay.append(header)
-                                          }
-
-                                          {
-                                            const buttons = document.createElement("div")
-                                            buttons.style.overflowY = "auto"
-                                            buttons.style.paddingBottom = "144px"
-                                            buttons.style.overscrollBehavior = "none"
-
-                                            overlay.append(buttons)
-
-                                            {
-                                              const button = document.createElement("div")
-                                              button.style.display = "flex"
-                                              button.style.flexWrap = "wrap"
-                                              button.style.justifyContent = "space-between"
-                                              button.style.alignItems = "center"
-                                              button.style.margin = "21px 34px"
-                                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                                              button.style.borderRadius = "13px"
-                                              button.style.border = "0.3px solid black"
-                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                                              button.style.cursor = "pointer"
-
-                                              button.addEventListener("click", () => window.location.assign(value.path))
-
-                                              const icon = document.createElement("img")
-                                              icon.style.margin = "13px 34px"
-                                              icon.style.width = "34px"
-                                              icon.src = "/public/tools-icon-1.svg"
-                                              icon.alt = "Icon"
-                                              button.append(icon)
-
-                                              const title = document.createElement("div")
-                                              title.innerHTML = "Toolbox"
-                                              title.style.margin = "21px 34px"
-                                              title.style.fontSize = "21px"
-                                              button.append(title)
-
-                                              buttons.append(button)
-                                            }
-
-
-                                            {
-                                              const button = document.createElement("div")
-                                              button.style.display = "flex"
-                                              button.style.flexWrap = "wrap"
-                                              button.style.justifyContent = "space-between"
-                                              button.style.alignItems = "center"
-                                              button.style.margin = "21px 34px"
-                                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                                              button.style.borderRadius = "13px"
-                                              button.style.border = "0.3px solid black"
-                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                                              button.style.cursor = "pointer"
-
-                                              button.addEventListener("click", () => {
-
-                                                Helper.popup(async overlay => {
-
-                                                  {
-                                                    const header = document.createElement("div")
-                                                    header.style.position = "fixed"
-                                                    header.style.bottom = "0"
-                                                    header.style.left = "0"
-                                                    header.style.width = "100%"
-                                                    header.style.display = "flex"
-                                                    header.style.justifyContent = "flex-start"
-                                                    header.style.alignItems = "center"
-                                                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                                                    header.style.background = "white"
-                                                    header.style.zIndex = "1"
-                                                    header.style.cursor = "pointer"
-                                                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                                                    const logo = document.createElement("img")
-                                                    logo.src = platform.logo
-                                                    logo.alt = "Logo"
-                                                    logo.style.width = "55px"
-                                                    logo.style.margin = "21px 34px"
-                                                    header.append(logo)
-                                                    const title = document.createElement("div")
-                                                    title.innerHTML = `Pfad`
-                                                    title.style.fontWeight = "bold"
-                                                    title.style.fontSize = "21px"
-                                                    header.append(title)
-                                                    overlay.append(header)
-                                                  }
-
-                                                  {
-                                                    const funnel = document.createElement("div")
-                                                    funnel.style.overflow = "auto"
-                                                    funnel.style.paddingBottom = "144px"
-                                                    funnel.style.overscrollBehavior = "none"
-
-                                                    const valuePathField = new TextField("valuePath", funnel)
-                                                    valuePathField.value(() => value.path.split("/")[3])
-                                                    valuePathField.label.innerHTML = "Name"
-                                                    valuePathField.input.accept = "text/tag"
-                                                    valuePathField.input.maxLength = "21"
-                                                    valuePathField.input.required = true
-                                                    valuePathField.input.placeholder = "Meine Werteinheit"
-                                                    valuePathField.input.addEventListener("input", (event) => {
-                                                      valuePathField.verifyValue()
-                                                    })
-                                                    valuePathField.verifyValue()
-
-                                                    const button = document.createElement("div")
-                                                    button.innerHTML = "Speichern"
-                                                    button.style.backgroundColor = "#f7aa20"
-                                                    button.style.cursor = "pointer"
-                                                    button.style.fontSize = "21px"
-                                                    button.style.borderRadius = "13px"
-                                                    button.style.margin = "13px 34px"
-                                                    button.style.display = "flex"
-                                                    button.style.justifyContent = "center"
-                                                    button.style.alignItems = "center"
-                                                    button.style.height = "89px"
-                                                    button.style.color = "#000"
-                                                    button.addEventListener("click", async () => {
-
-                                                      const valuePath = valuePathField.validValue()
-
-                                                      try {
-                                                        Helper.addOverlay()
-                                                        Helper.setWaitCursor()
-                                                        const register = {}
-                                                        register.url = "/register/platform-value/closed/3/"
-                                                        register.type = "path"
-                                                        register.platform = platform.name
-                                                        register.oldPath = value.path
-                                                        register.newPath = valuePath
-                                                        register.localStorageEmail = await Request.email()
-                                                        register.localStorageId = await Request.localStorageId()
-                                                        register.location = window.location.href
-                                                        register.referer = document.referrer
-                                                        await Request.sequence(register)
-                                                        alert("Speichern erfolgreich..")
-                                                      } catch (error) {
-                                                        alert("Fehler.. Bitte wiederholen.")
-                                                      }
-                                                      window.location.reload()
-
-
-                                                    })
-                                                    funnel.append(button)
-                                                    overlay.append(funnel)
-                                                  }
-
-                                                })
-                                              })
-
-                                              const icon = document.createElement("img")
-                                              icon.style.margin = "13px 34px"
-                                              icon.style.width = "34px"
-                                              icon.src = "/public/path.svg"
-                                              icon.alt = "Pfad"
-                                              button.append(icon)
-
-                                              const title = document.createElement("div")
-                                              title.innerHTML = "Pfad"
-                                              title.style.margin = "21px 34px"
-                                              title.style.fontSize = "21px"
-                                              button.append(title)
-
-                                              buttons.append(button)
-                                            }
-
-                                            {
-                                              const button = document.createElement("div")
-                                              button.style.display = "flex"
-                                              button.style.flexWrap = "wrap"
-                                              button.style.justifyContent = "space-between"
-                                              button.style.alignItems = "center"
-                                              button.style.margin = "21px 34px"
-                                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                                              button.style.borderRadius = "13px"
-                                              button.style.border = "0.3px solid black"
-                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                                              button.style.cursor = "pointer"
-
-                                              button.addEventListener("click", () => {
-
-                                                Helper.popup(async overlay => {
-
-                                                  {
-                                                    const header = document.createElement("div")
-                                                    header.style.position = "fixed"
-                                                    header.style.bottom = "0"
-                                                    header.style.left = "0"
-                                                    header.style.width = "100%"
-                                                    header.style.display = "flex"
-                                                    header.style.justifyContent = "flex-start"
-                                                    header.style.alignItems = "center"
-                                                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                                                    header.style.background = "white"
-                                                    header.style.zIndex = "1"
-                                                    header.style.cursor = "pointer"
-                                                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                                                    const logo = document.createElement("img")
-                                                    logo.src = platform.logo
-                                                    logo.alt = "Logo"
-                                                    logo.style.width = "55px"
-                                                    logo.style.margin = "21px 34px"
-                                                    header.append(logo)
-                                                    const title = document.createElement("div")
-                                                    title.innerHTML = `Alias`
-                                                    title.style.fontWeight = "bold"
-                                                    title.style.fontSize = "21px"
-                                                    header.append(title)
-                                                    overlay.append(header)
-                                                  }
-
-                                                  {
-                                                    const funnel = document.createElement("div")
-                                                    funnel.style.overflow = "auto"
-                                                    funnel.style.paddingBottom = "144px"
-                                                    funnel.style.overscrollBehavior = "none"
-
-                                                    const valueAliasField = new TextField("valueAlias", funnel)
-                                                    valueAliasField.value(() => value.alias)
-                                                    valueAliasField.label.innerHTML = "Name"
-                                                    valueAliasField.input.maxLength = "21"
-                                                    valueAliasField.input.required = true
-                                                    valueAliasField.input.placeholder = "Meine Werteinheit"
-                                                    valueAliasField.input.addEventListener("input", (event) => {
-                                                      valueAliasField.verifyValue()
-                                                    })
-                                                    valueAliasField.verifyValue()
-
-                                                    const button = document.createElement("div")
-                                                    button.innerHTML = "Speichern"
-                                                    button.style.backgroundColor = "#f7aa20"
-                                                    button.style.cursor = "pointer"
-                                                    button.style.fontSize = "21px"
-                                                    button.style.borderRadius = "13px"
-                                                    button.style.margin = "13px 34px"
-                                                    button.style.display = "flex"
-                                                    button.style.justifyContent = "center"
-                                                    button.style.alignItems = "center"
-                                                    button.style.height = "89px"
-                                                    button.style.color = "#000"
-                                                    button.addEventListener("click", async () => {
-
-                                                      const valueAlias = valueAliasField.validValue()
-
-                                                      try {
-                                                        Helper.addOverlay()
-                                                        Helper.setWaitCursor()
-                                                        const register = {}
-                                                        register.url = "/register/platform-value/closed/3/"
-                                                        register.type = "alias"
-                                                        register.alias = valueAlias
-                                                        register.platform = platform.name
-                                                        register.path = value.path
-                                                        register.localStorageEmail = await Request.email()
-                                                        register.localStorageId = await Request.localStorageId()
-                                                        register.location = window.location.href
-                                                        register.referer = document.referrer
-                                                        await Request.sequence(register)
-                                                        alert("Speichern erfolgreich..")
-                                                      } catch (error) {
-                                                        alert("Fehler.. Bitte wiederholen.")
-                                                      }
-                                                      window.location.reload()
-
-
-                                                    })
-                                                    funnel.append(button)
-                                                    overlay.append(funnel)
-                                                  }
-
-                                                })
-                                              })
-
-                                              const icon = document.createElement("img")
-                                              icon.style.margin = "13px 34px"
-                                              icon.style.width = "34px"
-                                              icon.src = "/public/alias.svg"
-                                              icon.alt = "Alias"
-                                              button.append(icon)
-
-                                              const title = document.createElement("div")
-                                              title.innerHTML = "Alias"
-                                              title.style.margin = "21px 34px"
-                                              title.style.fontSize = "21px"
-                                              button.append(title)
-
-                                              buttons.append(button)
-                                            }
-
-                                            {
-                                              const button = document.createElement("div")
-                                              button.style.display = "flex"
-                                              button.style.flexWrap = "wrap"
-                                              button.style.justifyContent = "space-between"
-                                              button.style.alignItems = "center"
-                                              button.style.margin = "21px 34px"
-                                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                                              button.style.borderRadius = "13px"
-                                              button.style.border = "0.3px solid black"
-                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                                              button.style.cursor = "pointer"
-
-                                              button.addEventListener("click", () => {
-
-                                                Helper.popup(async overlay => {
-
-                                                  {
-                                                    const header = document.createElement("div")
-                                                    header.style.position = "fixed"
-                                                    header.style.bottom = "0"
-                                                    header.style.left = "0"
-                                                    header.style.width = "100%"
-                                                    header.style.display = "flex"
-                                                    header.style.justifyContent = "flex-start"
-                                                    header.style.alignItems = "center"
-                                                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                                                    header.style.background = "white"
-                                                    header.style.zIndex = "1"
-                                                    header.style.cursor = "pointer"
-                                                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                                                    const logo = document.createElement("img")
-                                                    logo.src = platform.logo
-                                                    logo.alt = "Logo"
-                                                    logo.style.width = "55px"
-                                                    logo.style.margin = "21px 34px"
-                                                    header.append(logo)
-                                                    const title = document.createElement("div")
-                                                    title.innerHTML = `Icon`
-                                                    title.style.fontWeight = "bold"
-                                                    title.style.fontSize = "21px"
-                                                    header.append(title)
-                                                    overlay.append(header)
-                                                  }
-
-                                                  {
-                                                    const funnel = document.createElement("div")
-                                                    funnel.style.overflow = "auto"
-                                                    funnel.style.paddingBottom = "144px"
-                                                    funnel.style.overscrollBehavior = "none"
-
-                                                    const logoSelectField = new SelectionField("logoSelect", funnel)
-                                                    logoSelectField.label.textContent = "Logo Option"
-                                                    logoSelectField.options(["Datei hochladen", "login.svg"])
-                                                    logoSelectField.select.addEventListener("input", (event) => {
-                                                      const selected = logoSelectField.validValue()[0].value
-
-                                                      if (selected === "login.svg") {
-                                                        logoSelectField.icon.style.display = "block"
-                                                        logoSelectField.icon.src = "/public/login.svg"
-                                                      } else {
-                                                        logoSelectField.icon.style.display = "none"
-                                                      }
-
-                                                      if (selected !== "Datei hochladen") {
-                                                        valueLogoField.input.disabled = true
-                                                        valueLogoField.input.required = false
-                                                        valueLogoField.input.accept = undefined
-                                                        valueLogoField.verifyValue()
-                                                      }
-
-                                                      if (selected === "Datei hochladen") {
-                                                        valueLogoField.input.disabled = false
-                                                        valueLogoField.input.required = true
-                                                        valueLogoField.input.accept = "image/jpeg, image/png"
-                                                        valueLogoField.verifyValue()
-                                                      }
-
-                                                    })
-                                                    logoSelectField.verifyValue()
-
-                                                    const valueLogoField = new FileField("platformLogo", funnel)
-                                                    valueLogoField.label.innerHTML = "Logo"
-                                                    valueLogoField.input.accept = "image/jpeg, image/png"
-                                                    valueLogoField.input.required = true
-                                                    valueLogoField.input.addEventListener("input", async (event) => {
-                                                      await valueLogoField.validImage(event.target.files[0])
-                                                    })
-                                                    Helper.setNotValidStyle(valueLogoField.input)
-
-                                                    const button = document.createElement("div")
-                                                    button.innerHTML = "Speichern"
-                                                    button.style.backgroundColor = "#f7aa20"
-                                                    button.style.cursor = "pointer"
-                                                    button.style.fontSize = "21px"
-                                                    button.style.borderRadius = "13px"
-                                                    button.style.margin = "13px 34px"
-                                                    button.style.display = "flex"
-                                                    button.style.justifyContent = "center"
-                                                    button.style.alignItems = "center"
-                                                    button.style.height = "89px"
-                                                    button.style.color = "#000"
-                                                    button.addEventListener("click", async () => {
-                                                      const selected = logoSelectField.validValue()[0].value
-
-                                                      let valueLogo
-                                                      if (selected === "Datei hochladen") {
-                                                        valueLogo = await valueLogoField.validImage(valueLogoField.input.files[0])
-                                                      } else {
-                                                        valueLogo = new URL(logoSelectField.icon.src).pathname
-                                                      }
-                                                      if (valueLogo === undefined) throw new Error("logo is undefined")
-
-                                                      try {
-                                                        Helper.addOverlay()
-                                                        Helper.setWaitCursor()
-                                                        const register = {}
-                                                        register.url = "/register/platform-value/closed/3/"
-                                                        register.type = "logo"
-                                                        register.logo = valueLogo
-                                                        register.name = platform.name
-                                                        register.path = value.path
-                                                        register.localStorageEmail = await Request.email()
-                                                        register.localStorageId = await Request.localStorageId()
-                                                        register.location = window.location.href
-                                                        register.referer = document.referrer
-                                                        await Request.sequence(register)
-                                                        alert("Speichern erfolgreich..")
-                                                      } catch (error) {
-                                                        alert("Fehler.. Bitte wiederholen.")
-                                                      }
-                                                      window.location.reload()
-
-
-                                                    })
-                                                    funnel.append(button)
-
-                                                    overlay.append(funnel)
-                                                  }
-
-                                                })
-                                              })
-
-                                              const icon = document.createElement("img")
-                                              icon.style.margin = "13px 34px"
-                                              icon.style.width = "34px"
-                                              icon.src = "/public/logo.svg"
-                                              icon.alt = "Logo"
-                                              button.append(icon)
-
-                                              const title = document.createElement("div")
-                                              title.innerHTML = "Logo"
-                                              title.style.margin = "21px 34px"
-                                              title.style.fontSize = "21px"
-                                              button.append(title)
-
-                                              buttons.append(button)
-                                            }
-
-
-                                            {
-                                              const button = document.createElement("div")
-                                              button.style.display = "flex"
-                                              button.style.flexWrap = "wrap"
-                                              button.style.justifyContent = "space-between"
-                                              button.style.alignItems = "center"
-                                              button.style.margin = "21px 34px"
-                                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                                              button.style.borderRadius = "13px"
-                                              button.style.border = "0.3px solid black"
-                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                                              button.style.cursor = "pointer"
-
-                                              button.addEventListener("click", () => {
-
-                                                Helper.popup(async overlay => {
-
-                                                  {
-                                                    const header = document.createElement("div")
-                                                    header.style.position = "fixed"
-                                                    header.style.bottom = "0"
-                                                    header.style.left = "0"
-                                                    header.style.width = "100%"
-                                                    header.style.display = "flex"
-                                                    header.style.justifyContent = "flex-start"
-                                                    header.style.alignItems = "center"
-                                                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                                                    header.style.background = "white"
-                                                    header.style.zIndex = "1"
-                                                    header.style.cursor = "pointer"
-                                                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                                                    const logo = document.createElement("img")
-                                                    logo.src = platform.logo
-                                                    logo.alt = "Logo"
-                                                    logo.style.width = "55px"
-                                                    logo.style.margin = "21px 34px"
-                                                    header.append(logo)
-                                                    const title = document.createElement("div")
-                                                    title.innerHTML = `Sprache`
-                                                    title.style.fontWeight = "bold"
-                                                    title.style.fontSize = "21px"
-                                                    header.append(title)
-                                                    overlay.append(header)
-                                                  }
-
-                                                  {
-                                                    const funnel = document.createElement("div")
-                                                    funnel.style.overflow = "auto"
-                                                    funnel.style.paddingBottom = "144px"
-                                                    funnel.style.overscrollBehavior = "none"
-
-                                                    const valueLangField = new SelectionField("valueLang", funnel)
-                                                    valueLangField.label.innerHTML = "Sprache"
-                                                    const options = ["aa","ab","ae","af","ak","am","an","ar","as","av","ay","az","ba","be","bg","bh","bi","bm","bn","bo","br","bs","ca","ce","ch","co","cr","cs","cu","cv","cy","da","de","dv","dz","ee","el","en","eo","es","et","eu","fa","ff","fi","fj","fo","fr","fy","ga","gd","gl","gn","gu","gv","ha","he","hi","ho","hr","ht","hu","hy","hz","ia","id","ie","ig","ii","ik","io","is","it","iu","ja","jv","ka","kg","ki","kj","kk","kl","km","kn","ko","kr","ks","ku","kv","kw","ky","la","lb","lg","li","ln","lo","lt","lu","lv","mg","mh","mi","mk","ml","mn","mr","ms","mt","my","na","nb","nd","ne","ng","nl","nn","no","nr","nv","ny","oc","oj","om","or","os","pa","pi","pl","ps","pt","qu","rm","rn","ro","ru","rw","sa","sc","sd","se","sg","si","sk","sl","sm","sn","so","sq","sr","ss","st","su","sv","sw","ta","te","tg","th","ti","tk","tl","tn","to","tr","ts","tt","tw","ty","ug","uk","ur","uz","ve","vi","vo","wa","wo","xh","yi","yo","za","zh","zu"]
-                                                    for (let i = 0; i < options.length; i++) {
-                                                      const option = document.createElement("option")
-                                                      option.value = options[i]
-                                                      option.text = options[i]
-                                                      valueLangField.select.append(option)
-                                                    }
-                                                    valueLangField.select.value = value.lang
-                                                    Helper.setValidStyle(valueLangField.select)
-
-                                                    const button = document.createElement("div")
-                                                    button.innerHTML = "Speichern"
-                                                    button.style.backgroundColor = "#f7aa20"
-                                                    button.style.cursor = "pointer"
-                                                    button.style.fontSize = "21px"
-                                                    button.style.borderRadius = "13px"
-                                                    button.style.margin = "13px 34px"
-                                                    button.style.display = "flex"
-                                                    button.style.justifyContent = "center"
-                                                    button.style.alignItems = "center"
-                                                    button.style.height = "89px"
-                                                    button.style.color = "#000"
-                                                    button.addEventListener("click", async () => {
-
-                                                      const valueLang = valueLangField.validValue()[0].value
-
-                                                      try {
-                                                        Helper.addOverlay()
-                                                        Helper.setWaitCursor()
-                                                        const register = {}
-                                                        register.url = "/register/platform-value/closed/3/"
-                                                        register.type = "lang"
-                                                        register.lang = valueLang
-                                                        register.platform = platform.name
-                                                        register.path = value.path
-                                                        register.localStorageEmail = await Request.email()
-                                                        register.localStorageId = await Request.localStorageId()
-                                                        register.location = window.location.href
-                                                        register.referer = document.referrer
-                                                        await Request.sequence(register)
-                                                        alert("Speichern erfolgreich..")
-                                                      } catch (error) {
-                                                        alert("Fehler.. Bitte wiederholen.")
-                                                      }
-                                                      window.location.reload()
-
-
-                                                    })
-                                                    funnel.append(button)
-
-                                                    overlay.append(funnel)
-                                                  }
-
-                                                })
-                                              })
-
-                                              const icon = document.createElement("img")
-                                              icon.style.margin = "13px 34px"
-                                              icon.style.width = "34px"
-                                              icon.src = "/public/lang.svg"
-                                              icon.alt = "Sprache"
-                                              button.append(icon)
-
-                                              const title = document.createElement("div")
-                                              title.innerHTML = "Sprache"
-                                              title.style.margin = "21px 34px"
-                                              title.style.fontSize = "21px"
-                                              button.append(title)
-
-                                              buttons.append(button)
-                                            }
-
-
-                                            {
-                                              const button = document.createElement("div")
-                                              button.style.display = "flex"
-                                              button.style.flexWrap = "wrap"
-                                              button.style.justifyContent = "space-between"
-                                              button.style.alignItems = "center"
-                                              button.style.margin = "21px 34px"
-                                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                                              button.style.borderRadius = "13px"
-                                              button.style.border = "0.3px solid black"
-                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                                              button.style.cursor = "pointer"
-
-                                              button.addEventListener("click", () => {
-
-                                                Helper.popup(async overlay => {
-
-                                                  {
-                                                    const header = document.createElement("div")
-                                                    header.style.position = "fixed"
-                                                    header.style.bottom = "0"
-                                                    header.style.left = "0"
-                                                    header.style.width = "100%"
-                                                    header.style.display = "flex"
-                                                    header.style.justifyContent = "flex-start"
-                                                    header.style.alignItems = "center"
-                                                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                                                    header.style.background = "white"
-                                                    header.style.zIndex = "1"
-                                                    header.style.cursor = "pointer"
-                                                    header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-                                                    const logo = document.createElement("img")
-                                                    logo.src = platform.logo
-                                                    logo.alt = "Logo"
-                                                    logo.style.width = "55px"
-                                                    logo.style.margin = "21px 34px"
-                                                    header.append(logo)
-                                                    const title = document.createElement("div")
-                                                    title.innerHTML = `Sichtbarkeit`
-                                                    title.style.fontWeight = "bold"
-                                                    title.style.fontSize = "21px"
-                                                    header.append(title)
-                                                    overlay.append(header)
-                                                  }
-
-                                                  {
-                                                    const funnel = document.createElement("div")
-                                                    funnel.style.overflow = "auto"
-                                                    funnel.style.paddingBottom = "144px"
-                                                    funnel.style.overscrollBehavior = "none"
-
-                                                    const valueVisibilityField = new SelectionField("valueVisibility", funnel)
-                                                    valueVisibilityField.label.innerHTML = "Sichtbarkeit"
-                                                    let options
-                                                    if (value.visibility === "open") {
-                                                      options = ["Für alle", "Nur für mich"]
-                                                    }
-                                                    if (value.visibility === "closed") {
-                                                      options = ["Nur für mich", "Für alle"]
-                                                    }
-                                                    for (let i = 0; i < options.length; i++) {
-                                                      const option = document.createElement("option")
-                                                      option.value = options[i]
-                                                      option.text = options[i]
-                                                      valueVisibilityField.select.append(option)
-                                                    }
-                                                    Helper.setValidStyle(valueVisibilityField.select)
-
-                                                    const button = document.createElement("div")
-                                                    button.innerHTML = "Speichern"
-                                                    button.style.backgroundColor = "#f7aa20"
-                                                    button.style.cursor = "pointer"
-                                                    button.style.fontSize = "21px"
-                                                    button.style.borderRadius = "13px"
-                                                    button.style.margin = "13px 34px"
-                                                    button.style.display = "flex"
-                                                    button.style.justifyContent = "center"
-                                                    button.style.alignItems = "center"
-                                                    button.style.height = "89px"
-                                                    button.style.color = "#000"
-                                                    button.addEventListener("click", async () => {
-
-                                                      const valueVisibility = valueVisibilityField.validValue()[0].value
-
-                                                      let visibility
-                                                      if (valueVisibility === "Nur für mich") {
-                                                        visibility = "closed"
-                                                      }
-                                                      if (valueVisibility === "Für alle") {
-                                                        visibility = "open"
-                                                      }
-
-                                                      try {
-                                                        Helper.addOverlay()
-                                                        Helper.setWaitCursor()
-                                                        const register = {}
-                                                        register.url = "/register/platform-value/closed/3/"
-                                                        register.type = "visibility"
-                                                        register.visibility = visibility
-                                                        register.name = platform.name
-                                                        register.path = value.path
-                                                        register.localStorageEmail = await Request.email()
-                                                        register.localStorageId = await Request.localStorageId()
-                                                        register.location = window.location.href
-                                                        register.referer = document.referrer
-                                                        await Request.sequence(register)
-                                                        alert("Speichern erfolgreich..")
-                                                      } catch (error) {
-                                                        alert("Fehler.. Bitte wiederholen.")
-                                                      }
-                                                      window.location.reload()
-
-
-                                                    })
-                                                    funnel.append(button)
-
-                                                    overlay.append(funnel)
-                                                  }
-
-                                                })
-                                              })
-
-                                              const icon = document.createElement("img")
-                                              icon.style.margin = "13px 34px"
-                                              icon.style.width = "34px"
-
-                                              if (value.visibility === "open") {
-                                                icon.src = "/public/open-dark.svg"
-                                              }
-                                              if (value.visibility === "closed") {
-                                                icon.src = "/public/closed.svg"
-                                              }
-
-                                              icon.alt = "Sichtbarkeit"
-                                              button.append(icon)
-
-                                              const title = document.createElement("div")
-                                              title.innerHTML = "Sichtbarkeit"
-                                              title.style.margin = "21px 34px"
-                                              title.style.fontSize = "21px"
-                                              button.append(title)
-
-                                              buttons.append(button)
-                                            }
-
-                                            {
-                                              const button = document.createElement("div")
-                                              button.style.display = "flex"
-                                              button.style.flexWrap = "wrap"
-                                              button.style.justifyContent = "space-between"
-                                              button.style.alignItems = "center"
-                                              button.style.margin = "21px 34px"
-                                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-
-                                              button.style.borderRadius = "13px"
-                                              button.style.border = "0.3px solid black"
-                                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                                              button.style.cursor = "pointer"
-
-                                              button.addEventListener("click", async () => {
-
-                                                let securityOverlay
-                                                try {
-                                                  const confirm = window.confirm("Möchtest du die Werteinheit wirklich löschen? Alle enthaltenen Daten werden ebenfalls gelöscht.")
-                                                  if (confirm === true) {
-                                                    securityOverlay = Helper.addOverlay()
-                                                    Helper.setWaitCursor()
-                                                    {
-                                                      const del = {}
-                                                      del.url = "/delete/platform-value/closed/3/"
-                                                      del.platform = platform.name
-                                                      del.path = value.path
-                                                      del.localStorageId = await Request.localStorageId()
-                                                      del.localStorageEmail = await Request.email()
-                                                      del.location = window.location.href
-                                                      del.referer = document.referrer
-                                                      await Request.sequence(del)
-                                                    }
-                                                    alert("Werteinheit erfolgreich gelöscht.")
-                                                    window.location.reload()
-                                                  }
-                                                } catch (error) {
-                                                  alert("Fehler.. Bitte wiederholen.")
-                                                  Helper.removeOverlay(securityOverlay)
-                                                }
-
-                                              })
-
-                                              const icon = document.createElement("img")
-                                              icon.style.margin = "13px 34px"
-                                              icon.style.width = "34px"
-                                              icon.src = "/public/delete.svg"
-                                              icon.alt = "Löschen"
-                                              button.append(icon)
-
-                                              const title = document.createElement("div")
-                                              title.innerHTML = "Löschen"
-                                              title.style.margin = "21px 34px"
-                                              title.style.fontSize = "21px"
-                                              button.append(title)
-
-                                              buttons.append(button)
-                                            }
-
-                                          }
-
-                                        })
-                                      })
-
-                                      const itemState = document.createElement("div")
-                                      itemState.classList.add("item-state")
-                                      itemState.style.display = "flex"
-                                      itemState.style.justifyContent = "center"
-                                      itemState.style.alignItems = "center"
-                                      itemState.style.width = "89px"
-                                      itemState.style.height = "89px"
-                                      itemState.style.fontSize = "34px"
-
-
-                                      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                        itemState.style.backgroundColor = Helper.colors.matte.black
-                                      } else {
-                                        itemState.style.backgroundColor = Helper.colors.gray[2]
-                                      }
-
-                                      if (value.visibility === "closed") {
-                                        if (value.roles.length === 0) {
-                                          if (value.authorized.length === 0) {
-                                            const stateIcon = Helper.iconPicker("closed-eye")
-                                            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                              stateIcon.children[0].style.fill = Helper.colors.matte.dark.text
-                                            } else {
-                                              stateIcon.children[0].style.fill = Helper.colors.matte.light.text
-                                            }
-                                            stateIcon.style.width = "34px"
-                                            itemState.append(stateIcon)
-                                          }
-                                        }
-                                      }
-
-                                      if (value.visibility === "open") {
-                                        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                          itemState.style.backgroundColor = Helper.colors.matte.seaGreen
-                                        } else {
-                                          itemState.style.backgroundColor = Helper.colors.matte.lime
-                                        }
-
-                                        const stateIcon = Helper.iconPicker("open-eye")
-                                        stateIcon.style.width = "34px"
-                                        itemState.append(stateIcon)
-                                      }
-
-                                      if (value.visibility === "closed") {
-                                        if (value.roles.length !== 0 || value.authorized.length !== 0) {
-                                          itemState.style.backgroundColor = "#eed202"
-                                          const stateIcon = document.createElement("img")
-                                          stateIcon.src = "/public/locked.svg"
-                                          stateIcon.alt = "Nur für bestimmte"
-                                          stateIcon.style.width = "34px"
-                                          itemState.append(stateIcon)
-                                        }
-                                      }
-                                      itemState.style.borderTopLeftRadius = "21px"
-                                      itemState.style.borderBottomLeftRadius = "21px"
-
-                                      const itemTitle = document.createElement("div")
-                                      itemTitle.classList.add("item-title")
-                                      itemTitle.style.alignSelf = "center"
-                                      itemTitle.style.marginLeft = "13px"
-                                      itemTitle.innerHTML = `${value.alias}`
-                                      itemTitle.style.fontSize = "21px"
-
-
-                                      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                        itemTitle.style.color = Helper.colors.matte.dark.text
-                                      } else {
-                                        itemTitle.style.color = Helper.colors.matte.light.text
-                                      }
-
-                                      {
-                                        const path = document.createElement("div")
-                                        path.innerHTML = `${value.path}`
-                                        path.style.fontSize = "13px"
-                                        itemTitle.append(path)
-                                      }
-
-                                      itemHeader.append(itemState, itemTitle)
-                                      item.append(itemHeader)
-
-
-                                      const itemBody = document.createElement("div")
-                                      itemBody.classList.add("item-body")
-                                      itemBody.style.marginLeft = "8%"
-
-
-                                      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                        itemBody.style.backgroundColor = Helper.colors.matte.slate
-                                        itemBody.style.boxShadow = `0 1px ${Helper.colors.gray[4]}`
-                                      } else {
-                                        itemBody.style.boxShadow = `0 1px ${Helper.colors.gray[2]}`
-                                        itemBody.style.backgroundColor = Helper.colors.gray[0]
-                                      }
-
-                                      itemBody.style.borderBottomRightRadius = "21px"
-                                      itemBody.style.borderBottomLeftRadius = "21px"
-                                      itemBody.style.padding = "21px"
-                                      itemBody.style.display = "flex"
-                                      itemBody.style.flexDirection = "column"
-
-                                      const buttons = document.createElement("div")
-                                      buttons.style.display = "flex"
-                                      buttons.style.alignItems = "center"
-
-                                      {
-                                        const button = Helper.iconPicker("toolbox")
-                                        button.style.width = "55px"
-                                        button.style.cursor = "pointer"
-                                        button.addEventListener("click", () => window.location.assign(value.path))
-                                        buttons.append(button)
-                                      }
-
-                                      itemBody.append(buttons)
-                                      item.append(itemBody)
-                                      units.append(item)
-                                    }
-                                  }
-
-                                }
-
-                              })
-                            })
-
-                            const icon = document.createElement("img")
-                            icon.style.margin = "13px 34px"
-                            icon.style.width = "34px"
-                            icon.src = "/public/value.svg"
-                            icon.alt = "Werteinheit"
-                            button.append(icon)
-
-                            const title = document.createElement("div")
-                            title.innerHTML = "Werteinheiten"
                             title.style.margin = "21px 34px"
                             title.style.fontSize = "21px"
                             button.append(title)

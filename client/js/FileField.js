@@ -2,6 +2,53 @@ import { Helper } from "/js/Helper.js"
 
 export class FileField {
 
+
+  validSvg(file) {
+
+    return new Promise(async (resolve, reject) => {
+      const allowedMimeTypes = ["image/svg+xml"]
+      const allowedExtensions = ["svg"]
+
+      if (allowedMimeTypes !== undefined) {
+        await Helper.verifyFileMimeTypes(file, allowedMimeTypes)
+        .catch(error => {
+          alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+          Helper.setNotValidStyle(this.input)
+          throw error
+        })
+      }
+
+      if (allowedExtensions !== undefined) {
+        await Helper.verifyFileExtension(file, allowedExtensions)
+        .catch(error => {
+          alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+          Helper.setNotValidStyle(this.input)
+          throw error
+        })
+      }
+
+      const fileReader = new FileReader()
+      fileReader.onload = () => {
+        if (Helper.verifyIs("image/svg+xml", fileReader.result) === false) reject(new Error("no svg"))
+
+        const newFile = {}
+        newFile.name = file.name
+        newFile.type = file.type
+        newFile.size = file.size
+        newFile.modified = Date.now()
+        newFile.svg = fileReader.result
+
+        Helper.setValidStyle(this.input)
+        return resolve(newFile)
+      }
+      fileReader.readAsText(file)
+
+    })
+
+
+  }
+
+
   validHtml(file) {
 
     return new Promise(async (resolve, reject) => {
@@ -108,8 +155,8 @@ export class FileField {
 
   async validImage(file) {
 
-    const allowedMimeTypes = ["image/jpeg", "image/png"]
-    const allowedExtensions = ["jpg", "jpeg", "png"]
+    const allowedMimeTypes = ["image/jpeg", "image/png", "image/svg+xml"]
+    const allowedExtensions = ["jpg", "jpeg", "png", "svg"]
 
     if (allowedMimeTypes !== undefined) {
       await Helper.verifyFileMimeTypes(file, allowedMimeTypes)
@@ -129,22 +176,44 @@ export class FileField {
       })
     }
 
-    const dataUrl = await Helper.convertImageFileToDataUrl(file)
-    const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
-    if (dataUrlSize > 1024 * 1024) {
-      alert("Datei ist zu groß.")
-      Helper.setNotValidStyle(this.input)
-      throw new Error("image too large")
+    // only if this.input.acceppt === ??
+    // console.log(file);
+    // if (this.input.accept.indexOf("image/svg+xml") >= 0) {
+    //   if (file.type === "image/svg+xml") {
+    //     // do svg like html
+    //   }
+    // }
+
+    if (this.input.accept.indexOf("image/png") >= 0 || this.input.accept.indexOf("image/jpeg") >= 0) {
+      if (file.type === "image/png" || file.type === "image/jpeg") {
+        const dataUrl = await Helper.convertImageFileToDataUrl(file)
+        const dataUrlSize = Helper.calculateDataUrlSize(dataUrl)
+        if (dataUrlSize > 1024 * 1024) {
+          alert("Datei ist zu groß.")
+          Helper.setNotValidStyle(this.input)
+          throw new Error("image too large")
+        }
+
+        const image = {}
+        image.name = file.name
+        image.type = file.type
+        image.size = dataUrlSize
+        image.modified = Date.now()
+        image.dataUrl = dataUrl
+        Helper.setValidStyle(this.input)
+        return image
+      }
     }
 
-    const image = {}
-    image.name = file.name
-    image.type = file.type
-    image.size = dataUrlSize
-    image.modified = Date.now()
-    image.dataUrl = dataUrl
-    Helper.setValidStyle(this.input)
-    return image
+    // if (this.input.accept === "image/jpeg" || this.input.accept === "image/png") {
+    // }
+
+    // if (this.input.accept === "image/svg+xml") {
+    //   const svg
+    // }
+
+
+
 
   }
 

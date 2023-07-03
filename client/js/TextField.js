@@ -26,11 +26,25 @@ export class TextField {
     if (input.accept === "text/tag") return true
     if (input.accept === "text/hex") return true
     if (input.accept === "text/path") return true
+    if (input.accept === "text/id") return true
     return false
   }
 
   #checkValidity(input) {
     if (input.checkValidity() === false) return false
+
+    if (input.accept === "text/id") {
+      if (typeof input.value !== "string") return false
+      input.value = input.value.replace(/ /g, "-")
+      if (/^[a-z](?:-?[a-z]+)*$/.test(input.value) === true) {
+        if (document.querySelectorAll(`#${input.value}`).length === 0) {
+          return true
+        } else {
+          return false
+        }
+      }
+      return false
+    }
 
     if (input.accept === "text/path") {
       if (typeof input.value !== "string") return false
