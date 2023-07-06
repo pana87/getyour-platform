@@ -1,10 +1,83 @@
 import {Request} from "/js/Request.js"
 import {TextField} from "/js/TextField.js"
 import {TextAreaField} from "/js/TextAreaField.js"
+import {SelectionField} from "/js/SelectionField.js"
+import {TelField} from "/js/TelField.js"
+import {FileField} from "/js/FileField.js"
 
 export class Helper {
 
+  static createOverlay(event, callback) {
+    if (event === "funnel/id") {
+      return this.popup(overlay => {
+        this.headerPicker("removeOverlay", overlay)
+        overlay.info = this.headerPicker("info", overlay)
+        // overlay.info.innerHTML = "document.body.click-funnel.append"
+
+        overlay.content = this.headerPicker("scrollable", overlay)
+
+        overlay.idField = new TextField("id", overlay.content)
+        overlay.idField.label.innerHTML = "Verwende eine individuelle Id, um dein Element eindeutig zu identifizieren"
+        overlay.idField.input.required = true
+        overlay.idField.input.accept = "text/id"
+        overlay.idField.verifyValue()
+        overlay.idField.input.addEventListener("input", () => overlay.idField.verifyValue())
+
+        overlay.submitButton = this.buttonPicker("action", overlay.content)
+        // overlay.submitButton.innerHTML = "Klick Funnel jetzt anhängen"
+        overlay.submitButton.addEventListener("click", () => {
+
+          const id = overlay.idField.validValue()
+
+          if (document.getElementById(id) === null) {
+
+            const element = callback() // this.create("click-funnel", document.body)
+            element.id = id
+
+            this.removeOverlay(overlay)
+
+          } else {
+            window.alert("Id existiert bereits.")
+            this.setNotValidStyle(overlay.idField.input)
+            overlay.idField.field.scrollIntoView({behavior: "smooth"})
+          }
+
+
+        })
+      })
+    }
+  }
+
   static request(event, input) {
+
+    if (event === "start-click-funnel") {
+      const startButton = input.querySelector(".start-click-funnel-button")
+
+      if (startButton.onclick === null) {
+        startButton.onclick = () => {
+
+          startButton.style.display = "none"
+
+          const questions = []
+          for (let i = 0; i < input.children.length; i++) {
+            const child = input.children[i]
+            if (child.classList.contains("click-field")) {
+              questions.push(child)
+
+              child.style.display = "flex"
+              break
+            }
+          }
+
+          if (questions.length <= 0) {
+            this.request("end-click-funnel", input)
+            return
+          }
+        }
+      }
+
+    }
+
     if (event === "end-click-funnel") {
 
       const endButton = input.querySelector(".end-click-funnel-button")
@@ -42,12 +115,11 @@ export class Helper {
 
             if (res.status === 200) {
 
-              endButton.onclick = null
-
               buttonIcon.innerHTML = ""
               buttonIcon.append(this.iconPicker("success"))
               buttonText.innerHTML = "Erfolgreich"
 
+              endButton.onclick = () => window.location.reload()
 
               const nextJs = input.getAttribute("next-js")
               if (!this.stringIsEmpty(nextJs)) {
@@ -60,6 +132,9 @@ export class Helper {
                   throw error
                 }
               }
+
+              window.alert("Ihre Daten wurden erfolgreich gespeichert.")
+              this.removeOverlay(securityOverlay)
 
 
             } else {
@@ -80,9 +155,7 @@ export class Helper {
 
       }
 
-
-      endButton.style.visibility = "visible"
-      endButton.style.position = "static"
+      endButton.style.display = "flex"
 
     }
   }
@@ -117,6 +190,60 @@ export class Helper {
 
   static create(event, parent) {
 
+    if (event === "answer-box") {
+
+      const answerBox = document.createElement("div")
+      answerBox.classList.add("answer-box")
+
+      answerBox.answer = document.createElement("div")
+      answerBox.answer.classList.add("answer")
+      answerBox.append(answerBox.answer)
+
+      if (parent !== undefined) parent.append(answerBox)
+
+
+
+      answerBox.style.cursor = "pointer"
+      answerBox.style.display = "flex"
+      answerBox.style.borderRadius = "13px"
+      answerBox.style.margin = "8px 0"
+      answerBox.style.overflow = "hidden"
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        answerBox.style.border = `1px solid ${this.colors.dark.text}`
+      } else {
+        answerBox.style.border = `1px solid ${this.colors.light.text}`
+      }
+
+      answerBox.answer.style.fontFamily = "sans-serif"
+      answerBox.answer.style.width = "100%"
+      answerBox.answer.style.overflow = "auto"
+      answerBox.answer.style.padding = "8px"
+      answerBox.answer.style.maxHeight = "89px"
+
+
+
+      return answerBox
+    }
+
+    if (event === "title") {
+      const title = document.createElement("div")
+      title.style.margin = "21px 34px"
+      title.style.fontSize = "21px"
+      title.style.fontFamily = "sans-serif"
+
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        title.style.color = this.colors.dark.text
+      } else {
+        title.style.color = this.colors.light.text
+      }
+
+      if (parent !== undefined) parent.append(title)
+
+      return title
+    }
+
     if (event === "click-funnel") {
       const clickFunnel = document.createElement("div")
       clickFunnel.classList.add("click-funnel")
@@ -126,59 +253,21 @@ export class Helper {
       clickFunnel.style.margin = "21px 34px"
 
       {
-        const button = document.createElement("div")
+        const button = this.buttonPicker("icon-top/text-bottom", clickFunnel)
         button.classList.add("start-click-funnel-button")
-        button.style.display = "flex"
-        button.style.flexDirection = "column"
-        button.style.justifyContent = "center"
-        button.style.alignItems = "center"
-        button.style.cursor = "pointer"
-
-        button.style.borderRadius = "50%"
-        button.style.width = "144px"
-        button.style.height = "144px"
-
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          button.style.background = this.colors.dark.foreground
-          button.style.border = this.colors.dark.border
-          button.style.boxShadow = this.colors.dark.boxShadow
-        } else {
-          button.style.background = this.colors.light.foreground
-          button.style.border = this.colors.light.border
-          button.style.boxShadow = this.colors.light.boxShadow
-        }
-        clickFunnel.append(button)
-
-        // wrap div
-        const icon = this.iconPicker("touch")
-        icon.style.width = "55px"
-        button.append(icon)
-
-        const text = document.createElement("div")
-        text.innerHTML = "Start"
-        text.style.fontFamily = "sans-serif"
-        text.style.fontSize = "21px"
-        text.style.margin = "13px"
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          text.style.color = this.colors.dark.text
-        } else {
-          text.style.color = this.colors.light.text
-        }
-        button.append(text)
+        button.icon.append(this.iconPicker("touch"))
+        button.text.innerHTML = "Start"
       }
-
-
 
       {
         const button = this.buttonPicker("icon-top/text-bottom", clickFunnel)
         button.classList.add("end-click-funnel-button")
-        button.style.visibility = "hidden"
+
+        button.style.display = "none"
+
         button.icon.append(this.iconPicker("touch"))
         button.text.innerHTML = "Speichern"
       }
-
-
-
 
       if (parent !== undefined) parent.append(clickFunnel)
 
@@ -189,7 +278,6 @@ export class Helper {
 
       const box = document.createElement("div")
       box.style.display = "flex"
-      box.style.maxHeight = "144px"
       box.style.borderRadius = "13px"
       box.style.margin = "8px 0"
 
@@ -199,13 +287,17 @@ export class Helper {
         box.style.border = `1px solid ${this.colors.light.text}`
       }
 
-      box.image = document.createElement("img")
-      box.image.style.width = "34%"
+      box.image = document.createElement("div")
+      box.image.classList.add("image")
+      box.image.style.display = "flex"
+      box.image.style.width = "144px"
       box.image.style.borderTopLeftRadius = "13px"
       box.image.style.borderBottomLeftRadius = "13px"
+      box.image.style.overflow = "hidden"
       box.append(box.image)
 
       box.text = document.createElement("div")
+      box.image.classList.add("text")
       box.text.style.fontFamily = "sans-serif"
       box.text.style.width = "100%"
       box.text.style.overflow = "auto"
@@ -218,18 +310,31 @@ export class Helper {
 
     }
 
-
-    if (event === "click/field") {
+    if (event === "click-field") {
 
       const field = document.createElement("div")
       field.classList.add("click-field")
-      field.style.position = "absolute"
+
+      field.question = document.createElement("label")
+      field.question.classList.add("question")
+      field.append(field.question)
+
+      field.answers = document.createElement("div")
+      field.answers.classList.add("answers")
+      field.append(field.answers)
+
+      if (parent !== undefined) parent.append(field)
+
+
+      // flexible css
+
       field.style.borderRadius = "13px"
-      field.style.display = "flex"
       field.style.flexDirection = "column"
       field.style.justifyContent = "center"
       field.style.width = "100%"
-      field.style.visibility = "hidden"
+
+      field.style.display = "none"
+
 
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         field.style.backgroundColor = this.colors.dark.foreground
@@ -243,22 +348,64 @@ export class Helper {
         field.style.color = this.colors.light.text
       }
 
-      field.label = document.createElement("label")
-      field.label.style.margin = "21px 34px"
-      field.label.style.fontFamily = "sans-serif"
-      field.label.style.fontSize = "21px"
+      field.question.style.margin = "21px 34px"
+      field.question.style.fontFamily = "sans-serif"
+      field.question.style.fontSize = "21px"
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        field.label.style.color = this.colors.dark.text
+        field.question.style.color = this.colors.dark.text
       } else {
-        field.label.style.color = this.colors.light.text
+        field.question.style.color = this.colors.light.text
       }
-      field.append(field.label)
 
-      field.input = document.createElement("div")
-      field.input.style.display = "flex"
-      field.input.style.flexDirection = "column"
-      field.input.style.margin = "21px 34px"
-      field.append(field.input)
+      field.answers.style.display = "flex"
+      field.answers.style.flexDirection = "column"
+      field.answers.style.margin = "21px 34px"
+
+      return field
+    }
+
+    if (event === "click/field") {
+
+
+      const field = document.createElement("div")
+      field.classList.add("click-field")
+      field.style.borderRadius = "13px"
+      field.style.flexDirection = "column"
+      field.style.justifyContent = "center"
+      field.style.width = "100%"
+
+      field.style.display = "none"
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+      } else {
+        field.style.backgroundColor = this.colors.light.foreground
+        field.style.border = this.colors.light.border
+        field.style.boxShadow = this.colors.light.boxShadow
+        field.style.color = this.colors.light.text
+      }
+
+      field.question = document.createElement("label")
+      field.question.classList.add("question")
+      field.question.style.margin = "21px 34px"
+      field.question.style.fontFamily = "sans-serif"
+      field.question.style.fontSize = "21px"
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.question.style.color = this.colors.dark.text
+      } else {
+        field.question.style.color = this.colors.light.text
+      }
+      field.append(field.question)
+
+      field.answers = document.createElement("div")
+      field.answers.classList.add("answers")
+      field.answers.style.display = "flex"
+      field.answers.style.flexDirection = "column"
+      field.answers.style.margin = "21px 34px"
+      field.append(field.answers)
 
       if (parent !== undefined) parent.append(field)
 
@@ -297,8 +444,1841 @@ export class Helper {
     }
   }
 
+  // event = class/algorithm
   static render(event, input, parent) {
 
+    if (event === "children") {
+
+      parent.innerHTML = ""
+      childrenLoop: for (let i = 0; i < input.children.length; i++) {
+        const child = input.children[i]
+
+        if (child.id === "toolbox") continue
+        if (child.id === "toolbox-getter") continue
+        if (child.getAttribute("data-id") === "toolbox") continue
+        if (child.classList.contains("overlay")) continue
+
+        for (let i = 0; i < child.classList.length; i++) {
+          if (child.classList[i].startsWith("overlay")) continue childrenLoop
+        }
+
+        const button = this.buttonPicker("left/right", parent)
+        button.left.append(this.convert("element/alias", child))
+        button.right.innerHTML = "Element bearbeiten"
+
+        button.addEventListener("click", () => {
+
+          this.popup(async overlay => {
+
+            overlay.classList.add("overlay-2")
+            const overlay2 = overlay
+
+            this.headerPicker("removeOverlay", overlay)
+
+            const elementInfoHeader = this.headerPicker("elementInfo", overlay)
+
+            const elementAlias = this.convert("element/alias", child)
+            elementAlias.classList.add("element-alias")
+
+            elementInfoHeader.append(elementAlias)
+
+            {
+              const buttons = document.createElement("div")
+              buttons.style.overflowY = "auto"
+              buttons.style.paddingBottom = "144px"
+              buttons.style.overscrollBehavior = "none"
+              overlay.append(buttons)
+
+
+              if (child.tagName !== "SCRIPT") {
+
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".children"
+                button.right.innerHTML = "Element Inhalt"
+
+                button.addEventListener("click", async () => {
+
+                  if (child.children.length > 0) {
+
+                    this.popup(overlay => {
+
+                      this.headerPicker("removeOverlay", overlay)
+
+                      const elementInfoHeader = this.headerPicker("elementInfo", overlay)
+
+                      elementInfoHeader.append(this.convert("element/alias", child))
+
+                      const span = document.createElement("span")
+                      span.innerHTML = ".children"
+                      span.style.fontSize = "13px"
+                      span.style.fontFamily = "monospace"
+                      elementInfoHeader.append(span)
+
+                      const childrenContainer = this.headerPicker("scrollable", overlay)
+                      this.render(event, child, childrenContainer)
+
+                    })
+
+                  } else alert("Das HTML Element ist leer.")
+
+
+                })
+
+              }
+
+
+              if (child.tagName === "BODY") {
+
+                {
+                  const button = this.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = ".templates"
+                  button.right.innerHTML = "Templates anhängen"
+
+                  button.addEventListener("click", () => {
+
+                    this.popup(async overlay => {
+
+                      this.headerPicker("removeOverlay", overlay)
+
+
+                      const elementInfo = this.headerPicker("elementInfo", overlay)
+
+                      elementInfo.append(this.convert("element/alias", document.body))
+
+                      const span = document.createElement("span")
+                      span.innerHTML = ".templates"
+                      span.style.fontSize = "13px"
+                      span.style.fontFamily = "monospace"
+                      elementInfo.append(span)
+
+                      {
+                        const units = this.headerPicker("loading", overlay)
+
+                        const get = {}
+                        get.url = "/get/templates/closed/3/"
+                        get.location = window.location.href
+                        get.referer = document.referrer
+                        get.localStorageEmail = await Request.email()
+                        get.localStorageId = await Request.localStorageId()
+                        const res = await Request.middleware(get)
+
+                        if (res.status !== 200) {
+                          this.reset(units)
+                          this.convert("element/center", units)
+                          units.style.zIndex = "-1"
+                          units.style.fontFamily = "sans-serif"
+                          units.innerHTML = `<span style="margin: 21px 34px;">Keine Templates gefunden.</span>`
+                          throw new Error("values not found")
+                        }
+
+                        if (res.status === 200) {
+                          const templates = JSON.parse(res.response)
+
+                          // console.log(templates);
+
+                          if (templates.length === 0) {
+                            this.reset(units)
+                            this.convert("element/center", units)
+                            units.style.zIndex = "-1"
+                            units.style.fontFamily = "sans-serif"
+                            units.innerHTML = `<span style="margin: 21px 34px;">Keine Templates gefunden.</span>`
+                            throw new Error("platform templates is empty")
+                          }
+
+                          this.reset(units)
+                          units.style.overflowY = "auto"
+                          units.style.paddingBottom = "144px"
+                          units.style.overscrollBehavior = "none"
+
+                          // sort with reputation best on top as default
+
+
+
+
+
+                          // this.render("templates", templates)
+                          for (let i = 0; i < templates.length; i++) {
+                            const template = templates[i]
+
+                            // console.log(template);
+
+                            const item = document.createElement("div")
+                            // item.classList.add("checklist-item")
+                            item.style.margin = "34px"
+
+                            const itemHeader = document.createElement("div")
+                            // itemHeader.classList.add("item-header")
+                            itemHeader.style.display = "flex"
+                            itemHeader.style.borderTopRightRadius = "21px"
+                            itemHeader.style.borderTopLeftRadius = "21px"
+                            itemHeader.style.borderBottomLeftRadius = "21px"
+                            itemHeader.style.fontFamily = "sans-serif"
+
+                            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                              itemHeader.style.backgroundColor = this.colors.matte.charcoal
+                              itemHeader.style.color = this.colors.matte.dark.text
+
+                            } else {
+                              itemHeader.style.color = this.colors.matte.light.text
+                              itemHeader.style.backgroundColor = this.colors.gray[1]
+                            }
+
+
+
+
+                            const itemState = document.createElement("div")
+                            itemState.classList.add("item-state")
+                            itemState.style.display = "flex"
+                            itemState.style.justifyContent = "center"
+                            itemState.style.alignItems = "center"
+                            itemState.style.width = "89px"
+                            itemState.style.height = "89px"
+                            itemState.style.fontSize = "34px"
+
+                            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                              itemState.style.backgroundColor = this.colors.dark.foreground
+                            } else {
+                              itemState.style.backgroundColor = this.colors.light.foreground
+                            }
+
+                            if (document.getElementById(template.id) !== null) {
+                              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                itemState.style.backgroundColor = this.colors.dark.success
+                              } else {
+                                itemState.style.backgroundColor = this.colors.light.success
+                              }
+                            }
+
+                            itemState.style.borderTopLeftRadius = "21px"
+                            itemState.style.borderBottomLeftRadius = "21px"
+
+                            // append reputation in state
+                            const reputation = document.createElement("div")
+                            reputation.innerHTML = template.reputation
+                            reputation.style.fontSize = "34px"
+                            // reputation.style.fontFamily = "sans-serfi"
+
+                            // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                            //   reputation.style.color = this.colors.matte.dark.text
+                            // } else {
+                            //   reputation.style.color = this.colors.matte.light.text
+                            // }
+
+                            itemState.append(reputation)
+
+
+                            const itemTitle = document.createElement("div")
+                            // itemTitle.classList.add("item-title")
+                            itemTitle.style.alignSelf = "center"
+                            itemTitle.style.marginLeft = "13px"
+                            // itemTitle.innerHTML = `${template.alias}`
+                            // itemTitle.style.fontSize = "21px"
+
+                            {
+                              const alias = document.createElement("div")
+                              alias.innerHTML = template.alias
+                              alias.style.fontSize = "21px"
+                              itemTitle.append(alias)
+                            }
+
+                            {
+                              const creator = document.createElement("div")
+                              creator.innerHTML = template.id
+                              creator.style.fontSize = "13px"
+                              itemTitle.append(creator)
+                            }
+
+                            // {
+                            //   const id = document.createElement("div")
+                            //   id.innerHTML = `${template.id}`
+                            //   id.style.fontSize = "13px"
+                            //   itemTitle.append(id)
+                            // }
+
+
+                            itemHeader.append(itemState, itemTitle)
+                            item.append(itemHeader)
+
+
+                            const itemBody = document.createElement("div")
+                            itemBody.classList.add("item-body")
+                            itemBody.style.marginLeft = "8%"
+
+
+                            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                              itemBody.style.backgroundColor = this.colors.matte.slate
+                              itemBody.style.boxShadow = `0 1px ${this.colors.gray[4]}`
+                            } else {
+                              itemBody.style.boxShadow = `0 1px ${this.colors.gray[2]}`
+                              itemBody.style.backgroundColor = this.colors.gray[0]
+                            }
+
+                            itemBody.style.borderBottomRightRadius = "21px"
+                            itemBody.style.borderBottomLeftRadius = "21px"
+                            itemBody.style.padding = "21px"
+                            itemBody.style.display = "flex"
+                            itemBody.style.flexDirection = "column"
+
+                            const buttons = document.createElement("div")
+                            buttons.style.display = "flex"
+                            buttons.style.alignItems = "center"
+
+
+                            // buttons for values
+                            // drop, preview, feedback, stats if exist
+
+
+                            {
+                              const button = this.iconPicker("repeat-once")
+                              button.style.width = "55px"
+                              button.style.padding = "8px"
+
+                              button.style.cursor = "pointer"
+                              button.addEventListener("click", () => {
+
+                                if (document.getElementById(template.id) === null) {
+                                  const parser = document.createElement("div")
+                                  parser.innerHTML = template.script
+                                  const node = parser.firstChild
+                                  const script = document.createElement("script")
+                                  script.id = template.id
+                                  script.innerHTML = node.innerHTML
+                                  script.type = "module"
+                                  script.append(`document.getElementById("${script.id}").remove()`)
+                                  document.body.append(script)
+                                  // script.remove()
+
+                                } else {
+                                  alert("Id existiert bereits.")
+                                }
+
+                              })
+                              buttons.append(button)
+                            }
+
+
+                            {
+                              const button = this.iconPicker("repeat-always")
+                              button.style.width = "55px"
+                              button.style.padding = "8px"
+                              button.style.cursor = "pointer"
+                              button.addEventListener("click", () => {
+
+
+                                if (document.getElementById(template.id) === null) {
+                                  const parser = document.createElement("div")
+                                  parser.innerHTML = template.script
+                                  const node = parser.firstChild
+                                  const script = document.createElement("script")
+                                  script.id = template.id
+                                  script.type = "module"
+                                  script.innerHTML = node.innerHTML
+                                  document.body.append(script)
+                                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                    itemState.style.backgroundColor = this.colors.dark.success
+                                  } else {
+                                    itemState.style.backgroundColor = this.colors.light.success
+                                  }
+                                } else {
+                                  alert("Id existiert bereits.")
+                                }
+
+                              })
+                              buttons.append(button)
+                            }
+
+                            {
+
+                              const button = document.createElement("div")
+                              button.style.cursor = "pointer"
+                              button.style.position = "relative"
+                              button.addEventListener("click", () => {
+
+                                this.popup(async overlay => {
+                                  const feedbackOverlay = overlay
+
+                                  this.headerPicker("removeOverlay", overlay)
+
+                                  const elementInfo = this.headerPicker("elementInfo", overlay)
+
+                                  elementInfo.append(this.convert("element/alias", document.body))
+
+                                  const span = document.createElement("span")
+                                  span.innerHTML = `.templates[${i}].feedback`
+                                  span.style.fontSize = "13px"
+                                  span.style.fontFamily = "monospace"
+                                  elementInfo.append(span)
+
+                                  const content = document.createElement("div")
+                                  content.style.overflowY = "auto"
+                                  content.style.overscrollBehavior = "none"
+                                  content.style.paddingBottom = "144px"
+                                  overlay.append(content)
+
+                                  const feedbackContainer = this.headerPicker("loading", content)
+                                  feedbackContainer.info.remove()
+
+                                  feedbackContainer.style.margin = "21px 34px"
+                                  feedbackContainer.style.overflowY = "auto"
+                                  feedbackContainer.style.overscrollBehavior = "none"
+                                  feedbackContainer.style.fontFamily = "monospace"
+                                  feedbackContainer.style.fontSize = "13px"
+                                  feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
+
+
+                                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                    feedbackContainer.style.color = this.colors.dark.text
+                                  } else {
+                                    feedbackContainer.style.color = this.colors.light.text
+                                  }
+
+                                  const get = {}
+                                  get.url = "/get/templates/closed/3/"
+                                  get.type = "feedback"
+                                  get.id = template.id
+                                  get.location = window.location.href
+                                  get.referer = document.referrer
+                                  get.localStorageEmail = await Request.email()
+                                  get.localStorageId = await Request.localStorageId()
+                                  const res = await Request.middleware(get)
+
+                                  if (res.status !== 200) {
+                                    feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
+                                    throw new Error("feedback not found")
+                                  }
+
+                                  getFeedbackSuccess: if (res.status === 200) {
+                                    const feedback = JSON.parse(res.response)
+
+                                    if (feedback.length === 0) {
+                                      feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
+                                      break getFeedbackSuccess
+                                    }
+
+                                    this.reset(feedbackContainer)
+                                    feedbackContainer.style.margin = "21px 34px"
+                                    feedbackContainer.style.overflowY = "auto"
+                                    feedbackContainer.style.overscrollBehavior = "none"
+                                    feedbackContainer.style.fontFamily = "monospace"
+                                    feedbackContainer.style.fontSize = "13px"
+                                    feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
+
+                                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                      feedbackContainer.style.color = this.colors.dark.text
+                                    } else {
+                                      feedbackContainer.style.color = this.colors.light.text
+                                    }
+
+
+                                    for (let i = 0; i < feedback.length; i++) {
+                                      const value = feedback[i]
+
+                                      const div = document.createElement("div")
+                                      div.style.display = "flex"
+                                      div.style.justifyContent = "space-between"
+                                      div.style.alignItems = "center"
+
+                                      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+
+                                        if (i % 2 === 0) {
+                                          div.style.background = this.colors.light.foreground
+                                          div.style.color = this.colors.light.text
+                                        } else {
+                                          div.style.background = this.colors.dark.foreground
+                                          div.style.color = this.colors.dark.text
+                                        }
+
+                                      } else {
+
+                                        if (i % 2 === 1) {
+                                          div.style.background = this.colors.light.foreground
+                                          div.style.color = this.colors.light.text
+                                        } else {
+                                          div.style.background = this.colors.dark.foreground
+                                          div.style.color = this.colors.dark.text
+                                        }
+
+                                      }
+
+                                      const left = document.createElement("span")
+                                      left.innerHTML = `${this.convert("millis/dd.mm.yyyy hh:mm", value.created)}`
+                                      div.append(left)
+
+                                      const nextToLeft = document.createElement("span")
+                                      nextToLeft.style.width = "100%"
+                                      nextToLeft.style.margin = "0 13px"
+                                      nextToLeft.innerHTML = value.content
+                                      div.append(nextToLeft)
+
+                                      const right = document.createElement("span")
+                                      right.style.padding = "13px"
+                                      right.innerHTML = value.importance
+                                      div.append(right)
+
+                                      feedbackContainer.append(div)
+
+                                      div.style.cursor = "pointer"
+                                      div.addEventListener("click", () => {
+
+                                        this.popup(overlay => {
+                                          this.headerPicker("removeOverlay", overlay)
+
+                                          const button = this.buttonPicker("left/right", overlay)
+                                          const icon = this.iconPicker("delete")
+                                          icon.style.width = "34px"
+                                          button.left.append(icon)
+                                          button.right.innerHTML = "Feedback löschen"
+
+                                          button.addEventListener("click", async () => {
+                                            const confirm = window.confirm("Möchtest du diesen Beitrag wirklich löschen?")
+
+                                            if (confirm === true) {
+                                              const del = {}
+                                              del.url = "/delete/feedback/closed/3/"
+                                              del.type = "template"
+                                              del.id = template.id
+                                              del.created = value.created
+                                              del.location = window.location.href
+                                              del.referer = document.referrer
+                                              del.localStorageEmail = await Request.email()
+                                              del.localStorageId = await Request.localStorageId()
+                                              const res = await Request.middleware(del)
+
+                                              if (res.status === 200) {
+                                                alert("Beitrag erfolgreich gelöscht.")
+                                                length.innerHTML = template.feedbackLength - 1
+                                                this.removeOverlay(overlay)
+                                                this.removeOverlay(feedbackOverlay)
+                                              } else {
+                                                alert("Fehler.. Bitte wiederholen.")
+                                                this.removeOverlay(overlay)
+                                              }
+
+
+                                            }
+
+                                          })
+                                        })
+
+                                      })
+                                    }
+
+
+                                  }
+
+                                  const contentField = new TextField("feedback", content)
+                                  contentField.label.innerHTML = "Feedback"
+                                  contentField.input.required = true
+                                  contentField.input.maxLength = "377"
+                                  contentField.verifyValue()
+                                  contentField.input.addEventListener("input", () => contentField.verifyValue())
+
+                                  const importanceField = new RangeField("importance", content)
+                                  importanceField.input.min = "0"
+                                  importanceField.input.max = "13"
+                                  importanceField.input.step = "1"
+                                  importanceField.input.value = "0"
+                                  importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
+                                  importanceField.verifyValue()
+                                  importanceField.input.addEventListener("input", (event) => {
+                                    importanceField.verifyValue()
+                                    importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
+                                  })
+
+                                  const button = this.buttonPicker("action", content)
+                                  button.innerHTML = "Jetzt speichern"
+                                  button.addEventListener("click", () => {
+
+                                    const importance = importanceField.validValue()
+                                    const content = contentField.validValue()
+
+
+                                    this.popup(async securityOverlay => {
+
+                                      this.headerPicker("loading", securityOverlay)
+
+                                      const register = {}
+                                      register.url = "/register/feedback/closed/3/"
+                                      register.type = "template"
+                                      register.id = template.id
+                                      register.importance = importance
+                                      register.content = content
+                                      register.location = window.location.href
+                                      register.referer = document.referrer
+                                      register.localStorageEmail = await Request.email()
+                                      register.localStorageId = await Request.localStorageId()
+                                      const res = await Request.middleware(register)
+
+                                      if (res.status === 200) {
+                                        alert("Feedback erfolgreich gespeichert.")
+                                        this.removeOverlay(securityOverlay)
+                                        this.removeOverlay(overlay)
+                                        length.innerHTML = template.feedbackLength + 1
+                                      } else {
+                                        alert("Fehler.. Bitte wiederholen.")
+                                        this.removeOverlay(securityOverlay)
+                                      }
+
+                                    })
+
+
+                                  })
+
+
+
+                                })
+
+                              })
+
+
+                              const icon = this.iconPicker("branch")
+                              icon.style.width = "55px"
+                              button.append(icon)
+
+                              const length = document.createElement("div")
+                              length.style.position = "absolute"
+                              length.style.top = "0"
+                              length.style.right = "0"
+                              length.style.fontFamily = "monospace"
+                              length.style.fontSize = "13px"
+                              length.style.borderRadius = "50%"
+                              length.style.padding = "3px 5px"
+                              length.innerHTML = template.feedbackLength
+
+                              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                length.style.color = this.colors.dark.text
+                                length.style.background = this.colors.dark.foreground
+                              } else {
+                                length.style.color = this.colors.light.text
+                                length.style.background = this.colors.light.foreground
+                              }
+                              button.append(length)
+                              buttons.append(button)
+                            }
+
+                            itemBody.append(buttons)
+                            item.append(itemBody)
+                            units.append(item)
+                          }
+
+
+
+                        }
+
+                      }
+
+                    })
+
+                  })
+
+                }
+
+              }
+
+              if (child.classList.contains("click-funnel")) {
+
+                {
+                  const button = this.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = ".questions"
+                  button.right.innerHTML = "Klick Funnel bearbeiten"
+                  button.addEventListener("click", () => {
+                    this.popup(questionsOverlay => {
+
+                      this.headerPicker("removeOverlay", questionsOverlay)
+                      const info = this.headerPicker("info",questionsOverlay)
+                      info.append(this.convert("element/alias", child))
+                      {
+                        const span = document.createElement("span")
+                        span.innerHTML = ".questions"
+                        info.append(span)
+                      }
+
+                      {
+                        const button = this.buttonPicker("left/right", questionsOverlay)
+                        button.left.innerHTML = ".append"
+                        button.right.innerHTML = "Neue Frage anhängen"
+                        button.addEventListener("click", () => {
+                          this.popup(appendQuestionOverlay => {
+                            this.headerPicker("removeOverlay", appendQuestionOverlay)
+
+                            const info = this.headerPicker("info",appendQuestionOverlay)
+                            info.append(this.convert("element/alias", child))
+                            {
+                              const span = document.createElement("span")
+                              span.innerHTML = ".append"
+                              info.append(span)
+                            }
+
+                            const appendQuestionFunnel = this.headerPicker("scrollable", appendQuestionOverlay)
+
+                            const idField = new TextField("questionId", appendQuestionFunnel)
+                            idField.label.innerHTML = "Gebe deiner Frage eine Id"
+                            idField.input.required = true
+                            idField.input.accept = "text/tag"
+                            idField.verifyValue()
+                            idField.input.addEventListener("input", () => {
+
+                              try {
+                                const value = idField.validValue()
+                                if (document.querySelectorAll(`#${value}`).length === 0) {
+                                  this.setValidStyle(idField.input)
+                                } else this.setNotValidStyle(idField.input)
+                              } catch (error) {
+                                this.setNotValidStyle(idField.input)
+                              }
+
+                            })
+
+                            const questionField = new TextAreaField("question", appendQuestionFunnel)
+                            questionField.label.innerHTML = "Stelle eine Frage an dein Netzwerk"
+                            questionField.input.required = true
+                            questionField.verifyValue()
+                            questionField.input.addEventListener("input", () => questionField.verifyValue())
+
+                            const appendQuestionButton = this.buttonPicker("action", appendQuestionFunnel)
+                            appendQuestionButton.innerHTML = "Jetzt anhängen"
+                            appendQuestionButton.addEventListener("click", () => {
+                              const question = questionField.validValue()
+                              const id = idField.validValue()
+
+                              if (document.getElementById(id) === null) {
+                                const clickField = this.create("click-field", child)
+                                clickField.id = id
+                                clickField.question.textContent = question
+                                this.removeOverlay(appendQuestionOverlay)
+                                this.render("click-funnel/questions", child, questions)
+                              } else {
+                                window.alert("Id existiert bereits.")
+                                this.setNotValidStyle(idField.input)
+                                idField.field.scrollIntoView({behavior: "smooth"})
+                              }
+
+
+                            })
+
+
+
+
+                          })
+                        })
+                      }
+
+
+                      // trennlinie
+                      // this.create("hr", questionsOverlay)
+
+                      const questions = this.headerPicker("scrollable", questionsOverlay)
+                      this.render("click-funnel/questions", child, questions)
+
+
+                    })
+                  })
+                }
+
+
+
+                {
+                  const button = this.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = ".reset"
+                  button.right.innerHTML = "Klick Funnel zurücksetzen"
+                  button.addEventListener("click", () => {
+
+                    for (let i = 0; i < child.children.length; i++) {
+                      const element = child.children[i]
+
+                      element.style.display = "none"
+
+                      if (element.classList.contains("start-click-funnel-button")) {
+                        element.style.display = "flex"
+                      }
+
+                    }
+                    window.alert("Funnel erfolgreich zurückgesetzt.")
+
+                  })
+                }
+
+
+              }
+
+              if (child.classList.contains("field")) {
+
+                // if child is an input element
+                // required
+                // accept
+
+                // do this for every child ???
+                // class
+                // id
+                // label
+                // no bulk action
+                // no javascript
+                // only dom maninpulation
+
+              }
+
+              if (child.tagName === "TITLE") {
+
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.flexWrap = "wrap"
+                button.style.justifyContent = "space-between"
+                button.style.alignItems = "center"
+                button.style.margin = "21px 34px"
+                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+
+                button.style.borderRadius = "13px"
+                button.style.border = "0.3px solid black"
+                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                button.style.cursor = "pointer"
+
+                button.addEventListener("click", async () => {
+
+                  this.popup(async overlay => {
+
+                    overlay.classList.add("overlay-3")
+                    const overlay3 = overlay
+
+                    this.headerPicker("removeOverlay", overlay)
+
+                    const elementInfoHeader = this.headerPicker("elementInfo", overlay)
+
+                    elementInfoHeader.append(this.convert("element/alias", child))
+
+
+                    const span = document.createElement("span")
+                    span.innerHTML = ".textContent"
+                    span.style.fontSize = "13px"
+                    span.style.fontFamily = "monospace"
+                    elementInfoHeader.append(span)
+
+                    const textFieldIdField = new TextField("textFieldId", overlay)
+                    textFieldIdField.label.innerHTML = "Dokumententitel"
+                    textFieldIdField.value(() => child.textContent)
+                    textFieldIdField.verifyValue()
+
+                    textFieldIdField.input.addEventListener("input", (event) => {
+
+                      child.textContent = event.target.value
+
+                    })
+
+                  })
+
+
+
+                })
+
+
+                const icon = document.createElement("div")
+                icon.innerHTML = ".textContent"
+                icon.style.margin = "13px 34px"
+                icon.style.fontSize = "21px"
+                icon.style.fontFamily = "sans-serif"
+                button.append(icon)
+
+                const title = document.createElement("div")
+                title.innerHTML = "Dokumententitel ändern"
+                title.style.margin = "21px 34px"
+                title.style.fontSize = "13px"
+                title.style.fontFamily = "sans-serif"
+                button.append(title)
+
+                buttons.append(button)
+
+              }
+
+              {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".id"
+                button.right.innerHTML = "Element Id ändern"
+                button.addEventListener("click", async () => {
+
+                  this.popup(async overlay => {
+
+                    overlay.classList.add("overlay-3")
+                    const overlay3 = overlay
+
+                    this.headerPicker("removeOverlay", overlay)
+
+                    const elementInfoHeader = this.headerPicker("info", overlay)
+
+                    const elementAlias = this.convert("element/alias", child)
+                    elementAlias.classList.add("element-alias")
+                    elementInfoHeader.append(elementAlias)
+
+                    const span = document.createElement("span")
+                    span.innerHTML = ".id"
+                    span.style.fontSize = "13px"
+                    span.style.fontFamily = "monospace"
+                    elementInfoHeader.append(span)
+
+                    const textFieldIdField = new TextField("elementId", overlay)
+                    textFieldIdField.label.innerHTML = "Element Id"
+                    textFieldIdField.input.accept = "text/tag"
+                    textFieldIdField.value(() => child.id)
+                    textFieldIdField.verifyValue()
+                    textFieldIdField.input.addEventListener("input", () => {
+
+                      try {
+                        const value = textFieldIdField.validValue()
+
+                        if (document.querySelectorAll(`#${value}`).length === 0) {
+                          this.setValidStyle(textFieldIdField.input)
+
+                          child.id = value
+                        } else this.setNotValidStyle(textFieldIdField.input)
+
+                        document.querySelectorAll(".element-alias").forEach(element => {
+                          element.innerHTML = ""
+                          element.append(this.convert("element/alias", child))
+                        })
+
+                        // this.renderChildren(from, to)
+                        this.render(event, input, parent)
+
+                      } catch (error) {
+                        this.setNotValidStyle(textFieldIdField.input)
+                      }
+
+                    })
+
+                  })
+
+
+
+                })
+              }
+
+
+              if (
+                child.tagName !== "SCRIPT" &&
+                child.tagName !== "BODY" &&
+                child.tagName !== "HEAD"
+              ) {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".style"
+                button.right.innerHTML = "Style anpassen"
+
+                button.addEventListener("click", () => {
+
+                  this.popup(overlay => {
+                    overlay.classList.add("overlay-3")
+                    const overlay3 = overlay
+
+                    this.headerPicker("removeOverlay", overlay)
+
+                    const elementInfo = this.headerPicker("elementInfo", overlay)
+
+                    elementInfo.append(this.convert("element/alias", child))
+
+                    const span = document.createElement("span")
+                    span.innerHTML = ".style"
+                    span.style.fontSize = "13px"
+                    span.style.fontFamily = "monospace"
+                    elementInfo.append(span)
+
+                    const content = document.createElement("div")
+                    content.style.overflowY = "auto"
+                    content.style.overscrollBehavior = "none"
+                    content.style.paddingBottom = "144px"
+                    overlay.append(content)
+
+                    {
+                      const preview = document.createElement("div")
+                      preview.style.height = `${window.innerHeight * 0.4}px`
+                      preview.style.overflow = "auto"
+                      const clone = child.cloneNode(true)
+                      clone.id = Date.now()
+                      clone.name = `${Date.now()}`
+                      preview.append(clone)
+                      content.append(preview)
+
+
+
+
+                      const text = document.createElement("div")
+                      text.innerHTML = "Vorschau"
+                      text.style.fontFamily = "sans-serif"
+                      text.style.fontSize = "13px"
+                      text.style.margin = "0 34px"
+                      content.append(text)
+
+                      const hr = document.createElement("hr")
+                      hr.style.margin = "0 21px"
+                      content.append(hr)
+
+
+                      // show list of css key values
+                      // for each create switch
+                      // for each on click create input funnel
+                      // this.render("css/values", child, content) ???
+
+                      // function getInlineStyles(element) {
+                      //   const styles = element.style;
+                      //   const inlineStyles = {};
+                      //   for (let i = 0; i < styles.length; i++) {
+                      //     const key = styles[i];
+                      //     const value = styles.getPropertyValue(key);
+                      //     inlineStyles[key] = value;
+                      //   }
+                      //   return inlineStyles;
+                      // }
+
+                      const divStylePropertyField = new TextField("divStyleProperty", content)
+                      divStylePropertyField.label.innerHTML = "CSS Eigenschaft"
+                      divStylePropertyField.input.required = true
+                      divStylePropertyField.verifyValue()
+                      divStylePropertyField.input.addEventListener("input", (event) => {
+                        if (event.target.style[event.target.value] !== undefined) {
+                          this.setValidStyle(event.target)
+                        } else {
+                          this.setNotValidStyle(event.target)
+                        }
+                      })
+
+                      const divStyleValueField = new TextField("divStyleValue", content)
+                      divStyleValueField.label.innerHTML = "CSS Wert"
+                      divStyleValueField.verifyValue()
+                      divStyleValueField.input.addEventListener("input", () => {
+                        divStyleValueField.verifyValue()
+                      })
+
+
+                      {
+                        const button = document.createElement("div")
+                        button.innerHTML = "CSS anwenden"
+                        button.style.backgroundColor = "#f7aa20"
+                        button.style.cursor = "pointer"
+                        button.style.fontSize = "21px"
+                        button.style.fontFamily = "sans-serif"
+                        button.style.borderRadius = "13px"
+                        button.style.margin = "21px 34px"
+                        button.style.display = "flex"
+                        button.style.justifyContent = "center"
+                        button.style.alignItems = "center"
+                        button.style.height = "89px"
+                        button.style.color = "#000"
+                        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                        button.addEventListener("click", () => {
+
+                          try {
+                            divStylePropertyField.validValue()
+                            if (divStylePropertyField.input.style[divStylePropertyField.input.value] === undefined) throw new Error("css property not found")
+                          } catch (error) {
+                            alert(`Die CSS Eigenschaft ist ungültig.`)
+                            this.setNotValidStyle(divStylePropertyField.input)
+                            throw error
+                          }
+
+                          const cssValue = divStyleValueField.validValue()
+
+                          clone.style[divStylePropertyField.input.value] = cssValue
+                          child.style[divStylePropertyField.input.value] = cssValue
+
+                          divStylePropertyField.input.value = ""
+                          this.setNotValidStyle(divStylePropertyField.input)
+                          divStyleValueField.input.value = ""
+
+                        })
+                        content.append(button)
+                      }
+
+                    }
+
+
+                  })
+                })
+
+              }
+
+              {
+
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".innerHTML"
+                button.right.innerHTML = "Element Inhalt ändern"
+
+                button.addEventListener("click", () => {
+
+                  this.popup(overlay => {
+
+                    this.headerPicker("removeOverlay", overlay)
+
+                    const elementInfo = this.headerPicker("elementInfo", overlay)
+                    elementInfo.append(this.convert("element/alias", document.body))
+
+                    const span = document.createElement("span")
+                    span.textContent = ".innerHTML"
+                    span.style.fontSize = "13px"
+                    span.style.fontFamily = "monospace"
+
+                    elementInfo.append(span)
+
+                    {
+                      const funnel = document.createElement("div")
+                      funnel.style.overflowY = "auto"
+                      funnel.style.overscrollBehavior = "none"
+                      funnel.style.paddingBottom = "144px"
+                      overlay.append(funnel)
+
+                      const htmlField = new TextAreaField("html-input", funnel)
+                      htmlField.label.innerHTML = "HTML Element"
+                      htmlField.input.placeholder = `<div>..</div>`
+                      // if (child.tagName === "SCRIPT") {
+                      //   htmlField.label.innerHTML = "JavaScript"
+                      //   htmlField.input.placeholder = `document.getElementById(id) ..`
+                      // }
+                      htmlField.label.style.fontFamily = "sans-serif"
+                      htmlField.input.style.fontSize = "13px"
+                      htmlField.input.style.height = "89px"
+                      htmlField.input.addEventListener("input", () => {
+                        htmlField.verifyValue()
+                      })
+
+                      const button = document.createElement("div")
+                      button.innerHTML = "Jetzt anhängen"
+                      button.style.backgroundColor = "#f7aa20"
+                      button.style.cursor = "pointer"
+                      button.style.fontSize = "21px"
+                      button.style.fontFamily = "sans-serif"
+                      button.style.borderRadius = "13px"
+                      button.style.margin = "21px 34px"
+                      button.style.display = "flex"
+                      button.style.justifyContent = "center"
+                      button.style.alignItems = "center"
+                      button.style.height = "89px"
+                      button.style.color = "#000"
+                      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                      button.addEventListener("click", async () => {
+
+                        const elementString = htmlField.validValue()
+
+                        child.innerHTML = elementString
+                        // const parser = document.createElement("div")
+                        // parser.innerHTML = elementString
+
+                        // while (parser.firstChild) {
+                        //   child.append(parser.firstChild)
+                        // }
+
+                        this.removeOverlay(overlay)
+
+                      })
+                      funnel.append(button)
+                    }
+
+
+
+                  })
+
+
+                })
+
+              }
+
+              {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".append"
+                button.right.innerHTML = "Element anhängen"
+                if (child.tagName === "SCRIPT") {
+                  button.right.innerHTML = "JavaScript anhängen"
+                }
+
+
+                button.addEventListener("click", () => {
+
+                  this.popup(overlay => {
+
+                    this.headerPicker("removeOverlay", overlay)
+
+                    const elementInfo = this.headerPicker("elementInfo", overlay)
+                    elementInfo.append(this.convert("element/alias", document.body))
+
+                    const span = document.createElement("span")
+                    span.textContent = ".append"
+                    span.style.fontSize = "13px"
+                    span.style.fontFamily = "monospace"
+                    elementInfo.append(span)
+
+
+
+
+
+
+                    {
+                      const funnel = document.createElement("div")
+                      funnel.style.overflowY = "auto"
+                      funnel.style.overscrollBehavior = "none"
+                      funnel.style.paddingBottom = "144px"
+                      overlay.append(funnel)
+
+
+                      if (child.tagName === "DIV" || child.tagName === "BODY") {
+                        const button = this.buttonPicker("left/right", funnel)
+                        button.left.innerHTML = ".click-funnel"
+                        button.right.innerHTML = "Klick Funnel anhängen"
+                        button.addEventListener("click", () => {
+                          const overlay = this.createOverlay("funnel/id", () => this.create("click-funnel", child))
+                          overlay.submitButton.innerHTML = "Klick Funnel jetzt anhängen"
+                          overlay.info.innerHTML = "click-funnel.append"
+                        })
+                      }
+
+
+
+
+
+                      const htmlField = new TextAreaField("html-input", funnel)
+                      htmlField.label.innerHTML = "HTML Element"
+                      htmlField.input.placeholder = `<div>..</div>`
+                      if (child.tagName === "SCRIPT") {
+                        htmlField.label.innerHTML = "JavaScript"
+                        htmlField.input.placeholder = `document.getElementById(id) ..`
+                      }
+                      htmlField.label.style.fontFamily = "sans-serif"
+                      htmlField.input.style.fontSize = "13px"
+                      htmlField.input.style.height = "89px"
+                      htmlField.input.addEventListener("input", () => {
+                        htmlField.verifyValue()
+                      })
+
+                      const button = document.createElement("div")
+                      button.innerHTML = "Jetzt anhängen"
+                      button.style.backgroundColor = "#f7aa20"
+                      button.style.cursor = "pointer"
+                      button.style.fontSize = "21px"
+                      button.style.fontFamily = "sans-serif"
+                      button.style.borderRadius = "13px"
+                      button.style.margin = "21px 34px"
+                      button.style.display = "flex"
+                      button.style.justifyContent = "center"
+                      button.style.alignItems = "center"
+                      button.style.height = "89px"
+                      button.style.color = "#000"
+                      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                      button.addEventListener("click", async () => {
+
+                        const elementString = htmlField.validValue()
+
+                        const parser = document.createElement("div")
+                        parser.innerHTML = elementString
+
+                        while (parser.firstChild) {
+                          child.append(parser.firstChild)
+                        }
+
+                        this.removeOverlay(overlay)
+
+                      })
+                      funnel.append(button)
+                    }
+
+
+
+                  })
+
+
+                })
+
+              }
+
+              {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".remove"
+                button.right.innerHTML = "Element entfernen"
+
+                button.addEventListener("click", async () => {
+
+                  child.remove()
+                  this.removeOverlay(overlay)
+
+                  this.render(event, input, parent)
+
+                })
+
+              }
+
+            }
+
+
+          })
+
+        })
+
+        // drag and drop
+        button.draggable = true
+
+        button.addEventListener("dragstart", (event) => {
+
+          event.dataTransfer.setData("id", child.id)
+
+        })
+
+        button.addEventListener("dragenter", (event) => {
+          event.target.style.border = `2px dashed ${this.colors.matte.red}`
+        })
+
+        button.addEventListener("dragleave", (event) => {
+
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            event.target.style.border = this.colors.dark.border
+          } else {
+            event.target.style.border = this.colors.light.border
+          }
+
+        })
+
+        button.addEventListener("dragover", (event) => {
+          event.preventDefault()
+        })
+
+        button.addEventListener("drop", (event) => {
+
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            event.target.style.border = this.colors.dark.border
+          } else {
+            event.target.style.border = this.colors.light.border
+          }
+
+          const draggedId = event.dataTransfer.getData("id")
+
+          let droppedId = child.id
+
+          if (this.stringIsEmpty(draggedId)) {
+            alert("Das ausgewählte Element hat keine Id. Wenn du es verschieben möchtest, dann vergebe dem Element eine Id.")
+            throw new Error("dragged id is empty")
+          }
+
+          if (this.stringIsEmpty(droppedId)) {
+            alert("Das zu tauschende Element hat keine Id. Wenn du es verschieben möchtest, dann vergebe dem Element eine Id.")
+            throw new Error("dropped id is empty")
+          }
+
+          let draggedElement = document.getElementById(draggedId)
+
+          let droppedElement = document.getElementById(droppedId)
+
+          droppedElement.before(draggedElement)
+
+          this.render("children", input, parent)
+
+        })
+        ///
+
+      }
+
+
+    }
+
+    if (event === "click-field/answers") {
+
+      if (input.classList.contains("click-field")) {
+
+        const container = input.querySelector(".answers")
+        if (container !== null) {
+          parent.innerHTML = ""
+          for (let i = 0; i < container.children.length; i++) {
+            const child = container.children[i]
+
+            if (child.classList.contains("answer-box")) {
+              const answer = child.querySelector(".answer")
+
+              const button = this.buttonPicker("left/right", parent)
+              button.left.innerHTML = `Option ${i + 1}`
+              button.right.textContent = answer.textContent
+              button.addEventListener("click", () => {
+                this.popup(answersFunnelOverlay => {
+                  this.headerPicker("removeOverlay", answersFunnelOverlay)
+
+                  const info = this.headerPicker("info", answersFunnelOverlay)
+                  info.append(this.convert("element/alias", child))
+
+
+                  const answerFunnel = this.headerPicker("scrollable", answersFunnelOverlay)
+
+                  const answerField = new TextAreaField("answer", answerFunnel)
+                  answerField.value(() => answer.textContent)
+                  answerField.label.innerHTML = "Antwortmöglichkeit ändern"
+                  answerField.input.required = true
+                  answerField.verifyValue()
+                  answerField.input.addEventListener("input", () => {
+
+                    try {
+                      const value = answerField.validValue()
+                      answer.textContent = value
+                    } catch (error) {
+                      this.setNotValidStyle(answerField.input)
+                    }
+
+                    this.render(event, input, parent)
+
+                  })
+
+                  const imageField = new FileField("image", answerFunnel)
+                  imageField.label.textContent = "Bild Upload (PNG, SVG, JPEG)"
+                  imageField.input.accept = "image/jpeg, image/png, image/svg+xml"
+                  imageField.verifyValue()
+                  imageField.input.addEventListener("input", async (event) => {
+
+                    const image = document.createElement("div")
+                    image.classList.add("image")
+                    image.style.width = "144px"
+                    image.style.display = "flex"
+                    image.style.overflow = "hidden"
+
+                    const imageContainer = child.querySelector(".image")
+                    imageContainer.innerHTML = ""
+                    imageContainer.append(image)
+
+                    if (event.target.files[0].type === "image/svg+xml") {
+
+                      const svgFile = await imageField.validSvg(event.target.files[0])
+                      const svg = this.convert("text/svg", svgFile.svg)
+                      image.append(svg)
+
+                    } else {
+
+                      const imageFile = await imageField.validImage(event.target.files[0])
+                      const img = document.createElement("img")
+                      img.style.width = "100%"
+                      img.src = imageFile.dataUrl
+                      img.alt = imageFile.name
+                      image.append(img)
+
+                    }
+
+                  })
+
+                  const selectedConditionButton = this.buttonPicker("left/right", answerFunnel)
+                  selectedConditionButton.left.innerHTML = ".onclick"
+                  selectedConditionButton.right.innerHTML = "Klick Bedingung definieren"
+                  selectedConditionButton.addEventListener("click", () => {
+
+                    this.popup(conditionFunnelOverlay => {
+                      this.headerPicker("removeOverlay", conditionFunnelOverlay)
+
+                      const info = this.headerPicker("info", conditionFunnelOverlay)
+                      info.append(this.convert("element/alias", child))
+                      {
+                        const span = document.createElement("span")
+                        span.innerHTML = `.onclick`
+                        info.append(span)
+                      }
+
+                      const content = this.headerPicker("scrollable", conditionFunnelOverlay)
+
+                      const actionField = new SelectionField("condition-action", content)
+                      actionField.label.innerHTML = "Wähle ein Event"
+                      actionField.options(["skip", "path"])
+                      if (answer.hasAttribute("onclick-condition")) {
+                        const condition = JSON.parse(answer.getAttribute("onclick-condition"))
+                        actionField.value(() => [condition.event])
+                      }
+                      actionField.verifyValue()
+                      actionField.select.addEventListener("input", () => {
+
+                        actionField.withOptionSelected(option => {
+
+                          if (option.value === "skip") {
+
+                            skipNumberField.input.disabled = false
+                            skipNumberField.input.required = true
+                            this.setNotValidStyle(skipNumberField.input)
+
+                            pathField.input.disabled = true
+                            pathField.input.required = false
+                            pathField.input.value = ""
+                            this.setValidStyle(pathField.input)
+
+                          }
+
+                          if (option.value === "path") {
+
+                            skipNumberField.input.disabled = true
+                            skipNumberField.input.required = false
+                            skipNumberField.input.value = ""
+                            this.setValidStyle(skipNumberField.input)
+
+                            pathField.input.disabled = false
+                            pathField.input.required = true
+                            this.setNotValidStyle(pathField.input)
+
+                          }
+
+                        })
+
+                      })
+
+                      const skipNumberField = new TelField("skip", content)
+                      skipNumberField.input.disabled = false
+                      skipNumberField.input.required = true
+                      skipNumberField.input.pattern = "[1-9]"
+                      skipNumberField.label.innerHTML = "Wieviele Fragen möchtest du überspringen"
+                      if (answer.hasAttribute("onclick-condition")) {
+                        const condition = JSON.parse(answer.getAttribute("onclick-condition"))
+                        if (condition.event === "skip") {
+                          skipNumberField.value(() => condition.skip)
+                        }
+                      }
+                      skipNumberField.verifyValue()
+                      skipNumberField.input.addEventListener("input", () => skipNumberField.verifyValue())
+
+                      const pathField = new TextField("path", content)
+                      pathField.input.disabled = true
+                      pathField.input.required = false
+                      pathField.input.accept = "text/path"
+                      pathField.input.placeholder = "/meine-platform/mein-username/meine-werteinheit/"
+                      pathField.label.innerHTML = "Gebe eine Pfad ein"
+                      if (answer.hasAttribute("onclick-condition")) {
+                        const condition = JSON.parse(answer.getAttribute("onclick-condition"))
+                        if (condition.event === "path") {
+                          pathField.value(() => condition.path)
+                        }
+                      }
+                      this.setValidStyle(pathField.input)
+                      pathField.input.addEventListener("input", () => pathField.verifyValue())
+
+                      const conditionSubmitButton = this.buttonPicker("action", content)
+                      conditionSubmitButton.innerHTML = "Klick Bedingung hinzufügen"
+                      conditionSubmitButton.addEventListener("click", () => {
+
+                        const condition = {}
+                        condition.event = actionField.validValue()[0].value
+
+                        if (condition.event === "skip") {
+                          condition.skip = skipNumberField.validValue()
+                        }
+
+                        if (condition.event === "path") {
+                          condition.path = pathField.validValue()
+                        }
+
+                        answer.setAttribute("onclick-condition", JSON.stringify(condition))
+
+                        this.removeOverlay(conditionFunnelOverlay)
+                      })
+
+                    })
+
+
+
+                  })
+
+                })
+              })
+            }
+
+          }
+        }
+
+
+
+      }
+
+    }
+
+    if (event === "click-funnel/questions") {
+
+      if (input.classList.contains("click-funnel")) {
+
+
+
+        parent.innerHTML = ""
+        for (let i = 0; i < input.children.length; i++) {
+          const child = input.children[i]
+
+          if (child.classList.contains("start-click-funnel-button")) continue
+          if (child.classList.contains("end-click-funnel-button")) continue
+
+          if (child.classList.contains("click-field")) {
+            const button = this.buttonPicker("left/right", parent)
+            button.left.innerHTML = child.id
+            button.right.innerHTML = "Frage bearbeiten"
+            button.addEventListener("click", () => {
+              this.popup(questionsFunnelOverlay => {
+                this.headerPicker("removeOverlay", questionsFunnelOverlay)
+
+                const info = this.headerPicker("info", questionsFunnelOverlay)
+                info.append(this.convert("element/alias", child))
+
+                const questionsFunnel = this.headerPicker("scrollable", questionsFunnelOverlay)
+
+                const idField = new TextField("id", questionsFunnel)
+                idField.value(() => child.id)
+                idField.label.innerHTML = "Id"
+                idField.input.required = true
+                idField.input.accept = "text/tag"
+                idField.verifyValue()
+                idField.input.addEventListener("input", () => {
+
+                  try {
+                    const value = idField.validValue()
+                    if (document.querySelectorAll(`#${value}`).length === 0) {
+                      child.id = value
+                    } else this.setNotValidStyle(idField.input)
+
+                    info.innerHTML = ""
+                    info.append(this.convert("element/alias", child))
+
+                    this.render(event, input, parent)
+
+                  } catch (error) {
+                    this.setNotValidStyle(idField.input)
+                  }
+
+                })
+
+
+                const question = child.querySelector(".question")
+                const labelField = new TextAreaField("label", questionsFunnel)
+                labelField.value(() => question.textContent)
+                labelField.label.innerHTML = "Frage"
+                labelField.input.required = true
+                labelField.verifyValue()
+                labelField.input.addEventListener("input", () => {
+
+                  try {
+                    const value = labelField.validValue()
+                    question.textContent = value
+                  } catch (error) {
+                    this.setNotValidStyle(labelField.input)
+                  }
+
+                })
+
+                const button = this.buttonPicker("left/right", questionsFunnel)
+                button.left.innerHTML = ".options"
+                button.right.innerHTML = "Antworten bearbeiten"
+                button.addEventListener("click", () => {
+                  this.popup(answersOverlay => {
+                    this.headerPicker("removeOverlay", answersOverlay)
+
+                    const info = this.headerPicker("info", answersOverlay)
+                    info.append(this.convert("element/alias", child))
+
+                    {
+                      const span = document.createElement("span")
+                      span.innerHTML = `.options`
+                      info.append(span)
+                    }
+
+                    {
+                      const button = this.buttonPicker("left/right", answersOverlay)
+                      button.left.innerHTML = ".append"
+                      button.right.innerHTML = "Neue Antwortmöglichkeit anhängen"
+                      button.addEventListener("click", () => {
+
+                        const answerBox = this.create("answer-box")
+
+                        this.popup(appendAnswerOverlay => {
+                          this.headerPicker("removeOverlay", appendAnswerOverlay)
+
+                          const info = this.headerPicker("info", appendAnswerOverlay)
+                          info.append(this.convert("element/alias", child))
+                          {
+                            const span = document.createElement("span")
+                            span.innerHTML = ".append"
+                            info.append(span)
+                          }
+
+                          const answerFunnel = this.headerPicker("scrollable", appendAnswerOverlay)
+
+                          const answerField = new TextAreaField("answer", answerFunnel)
+                          answerField.label.innerHTML = "Antwortmöglichkeit"
+                          answerField.input.required = true
+                          answerField.verifyValue()
+                          answerField.input.addEventListener("input", () => answerField.verifyValue())
+
+
+                          const imageField = new FileField("image", answerFunnel)
+                          imageField.label.textContent = "Bild Upload (PNG, SVG, JPEG)"
+                          imageField.input.accept = "image/jpeg, image/png, image/svg+xml"
+                          imageField.verifyValue()
+                          imageField.input.addEventListener("input", async (event) => {
+                            if (event.target.files[0].type === "image/svg+xml") {
+                              await imageField.validSvg(event.target.files[0])
+                            } else {
+                              await imageField.validImage(event.target.files[0])
+                            }
+                          })
+
+
+
+                          const selectedConditionButton = this.buttonPicker("left/right", answerFunnel)
+                          selectedConditionButton.left.innerHTML = ".onclick"
+                          selectedConditionButton.right.innerHTML = "Klick Bedingung definieren"
+                          selectedConditionButton.addEventListener("click", () => {
+
+                            this.popup(conditionFunnelOverlay => {
+                              this.headerPicker("removeOverlay", conditionFunnelOverlay)
+
+                              const info = this.headerPicker("info", conditionFunnelOverlay)
+                              info.append(this.convert("element/alias", child))
+                              {
+                                const span = document.createElement("span")
+                                span.innerHTML = `.onclick`
+                                info.append(span)
+                              }
+
+
+                              const content = this.headerPicker("scrollable", conditionFunnelOverlay)
+
+                              const actionField = new SelectionField("condition-action", content)
+                              actionField.label.innerHTML = "Wähle ein Event"
+                              actionField.options(["skip", "path"])
+                              actionField.verifyValue()
+                              actionField.select.addEventListener("input", () => {
+
+                                actionField.withOptionSelected(option => {
+
+                                  if (option.value === "skip") {
+
+                                    skipNumberField.input.disabled = false
+                                    skipNumberField.input.required = true
+                                    this.setNotValidStyle(skipNumberField.input)
+
+                                    pathField.input.disabled = true
+                                    pathField.input.required = false
+                                    pathField.input.value = ""
+                                    this.setValidStyle(pathField.input)
+
+                                  }
+
+                                  if (option.value === "path") {
+
+                                    skipNumberField.input.disabled = true
+                                    skipNumberField.input.required = false
+                                    skipNumberField.input.value = ""
+                                    this.setValidStyle(skipNumberField.input)
+
+                                    pathField.input.disabled = false
+                                    pathField.input.required = true
+                                    this.setNotValidStyle(pathField.input)
+
+                                  }
+
+                                })
+
+                              })
+
+                              const skipNumberField = new TelField("skip", content)
+                              skipNumberField.input.required = true
+                              skipNumberField.input.pattern = "[1-9]"
+                              skipNumberField.label.innerHTML = "Wieviele Fragen möchtest du überspringen"
+                              skipNumberField.verifyValue()
+                              skipNumberField.input.addEventListener("input", () => skipNumberField.verifyValue())
+
+                              const pathField = new TextField("path", content)
+                              pathField.input.disabled = true
+                              pathField.input.accept = "text/path"
+                              pathField.input.placeholder = "/meine-platform/mein-username/meine-werteinheit/"
+                              pathField.label.innerHTML = "Gebe eine Pfad ein"
+                              this.setValidStyle(pathField.input)
+                              pathField.input.addEventListener("input", () => pathField.verifyValue())
+
+                              const conditionSubmitButton = this.buttonPicker("action", content)
+                              conditionSubmitButton.innerHTML = "Klick Bedingung hinzufügen"
+                              conditionSubmitButton.addEventListener("click", () => {
+
+                                const condition = {}
+                                condition.event = actionField.validValue()[0].value
+
+                                if (condition.event === "skip") {
+                                  condition.skip = skipNumberField.validValue()
+                                  answerBox.answer.setAttribute("onclick-condition", JSON.stringify(condition))
+                                }
+
+                                if (condition.event === "path") {
+                                  condition.path = pathField.validValue()
+                                  answerBox.answer.setAttribute("onclick-condition", JSON.stringify(condition))
+                                }
+
+                                this.removeOverlay(conditionFunnelOverlay)
+                              })
+
+                            })
+
+
+
+                          })
+
+                          const appendAnswerButton = this.buttonPicker("action", answerFunnel)
+                          appendAnswerButton.innerHTML = "Option jetzt anhängen"
+                          appendAnswerButton.addEventListener("click", async () => {
+
+                            const answer = answerField.validValue()
+
+                            const file = imageField.validValue()[0]
+
+                            if (file !== undefined) {
+
+                              const image = document.createElement("div")
+                              image.classList.add("image")
+                              image.style.width = "144px"
+                              image.style.display = "flex"
+                              image.style.overflow = "hidden"
+                              answerBox.answer.before(image)
+
+                              if (file.type === "image/svg+xml") {
+
+                                const svgFile = await imageField.validSvg(file)
+                                const svg = this.convert("text/svg", svgFile.svg)
+                                image.append(svg)
+
+                              } else {
+
+                                const imageFile = await imageField.validImage(file)
+                                const img = document.createElement("img")
+                                img.style.width = "100%"
+                                img.src = imageFile.dataUrl
+                                img.alt = imageFile.name
+                                image.append(img)
+
+                              }
+                            }
+
+                            answerBox.answer.textContent = answer
+
+                            child.querySelector(".answers").append(answerBox)
+
+                            this.render("click-field/answers", document.getElementById(child.id), answers)
+
+                            this.removeOverlay(appendAnswerOverlay)
+
+                          })
+
+
+
+                        })
+                      })
+                    }
+
+
+
+
+                    const answers = this.headerPicker("scrollable", answersOverlay)
+                    this.render("click-field/answers", document.getElementById(child.id), answers)
+
+
+
+                  })
+                })
+
+
+
+
+              })
+            })
+          }
+
+        }
+
+
+
+
+
+      }
+    }
 
     if (event === "question/answers") {
 
@@ -320,12 +2300,10 @@ export class Helper {
         // button.right.append(right)
 
         // on click
-        // change id and value
+        // change id and value and image
         // delete
         // change answers if exist
         output.append(button)
-
-
       }
 
 
@@ -347,6 +2325,7 @@ export class Helper {
 
         // on click
         // change id and value
+        //
         // delete
         // change answers if exist
         output.append(button)
@@ -363,6 +2342,16 @@ export class Helper {
   }
 
   static verifyIs(type, input) {
+
+    if (type === "text/id") {
+      if (this.verifyIs("text/tag", input)) {
+        if (document.querySelectorAll(`#${input}`).length === 0) {
+          return true
+        } else {
+          return false
+        }
+      }
+    }
 
     if (type === "element/html") {
       const htmlString = input.outerHTML
@@ -499,6 +2488,7 @@ export class Helper {
       header.style.right = "0"
       header.style.zIndex = "1"
       header.style.maxWidth = "55vw"
+      header.style.overflowWrap = "anywhere"
 
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         header.style.boxShadow = this.colors.dark.boxShadow
@@ -578,7 +2568,7 @@ export class Helper {
 
     if (name === "elementInfo") {
 
-      // const header = Helper.iconPicker("getyour")
+      // const header = this.iconPicker("getyour")
       const header = document.createElement("div")
       header.style.position = "fixed"
       header.style.bottom = "0"
@@ -587,14 +2577,14 @@ export class Helper {
 
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         header.style.boxShadow = "0 3px 5px rgba(255, 255, 255, 0.13)"
-        header.style.border = `0.3px solid ${Helper.colors.matte.dark.accent}`
-        header.style.backgroundColor = Helper.colors.matte.dark.background
-        header.style.color = Helper.colors.matte.dark.text
+        header.style.border = `0.3px solid ${this.colors.matte.dark.accent}`
+        header.style.backgroundColor = this.colors.matte.dark.background
+        header.style.color = this.colors.matte.dark.text
       } else {
         header.style.boxShadow = "0 3px 5px rgba(0, 0, 0, 0.13)"
-        header.style.border = `0.3px solid ${Helper.colors.matte.light.accent}`
-        header.style.backgroundColor = Helper.colors.matte.light.background
-        header.style.color = Helper.colors.matte.light.text
+        header.style.border = `0.3px solid ${this.colors.matte.light.accent}`
+        header.style.backgroundColor = this.colors.matte.light.background
+        header.style.color = this.colors.matte.light.text
       }
 
       header.style.zIndex = "1"
@@ -643,7 +2633,7 @@ export class Helper {
       button.style.flexDirection = "column"
       button.style.justifyContent = "center"
       button.style.alignItems = "center"
-      button.style.position = "absolute"
+      // button.style.position = "absolute"
       button.style.cursor = "pointer"
       button.style.borderRadius = "50%"
       button.style.width = "144px"
@@ -1290,8 +3280,11 @@ export class Helper {
 
     if (event === "text/svg") {
       const container = document.createElement("div")
-      // sanatize svg
       container.innerHTML = input
+      // sanatize svg
+      container.children[0].removeAttribute("width")
+      container.children[0].removeAttribute("height")
+
       return container.children[0]
     }
 
@@ -1433,6 +3426,117 @@ export class Helper {
             buttons.style.paddingBottom = "144px"
             buttons.style.overscrollBehavior = "none"
             overlay.append(buttons)
+
+            if (child.classList.contains("click-funnel")) {
+
+
+              {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".restart"
+                button.right.innerHTML = "Klick Funnel zurücksetzen"
+              }
+
+              {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".questions"
+                button.right.innerHTML = "Klick Funnel bearbeiten"
+                button.addEventListener("click", () => {
+                  this.popup(questionsOverlay => {
+
+                    this.headerPicker("removeOverlay", questionsOverlay)
+                    const info = this.headerPicker("info",questionsOverlay)
+                    info.append(this.convert("element/alias", child))
+                    {
+                      const span = document.createElement("span")
+                      span.innerHTML = ".questions"
+                      info.append(span)
+                    }
+
+                    {
+                      const button = this.buttonPicker("left/right", questionsOverlay)
+                      button.left.innerHTML = ".append"
+                      button.right.innerHTML = "Neue Frage anhängen"
+                      button.addEventListener("click", () => {
+                        this.popup(appendQuestionOverlay => {
+                          this.headerPicker("removeOverlay", appendQuestionOverlay)
+
+                          const info = this.headerPicker("info",appendQuestionOverlay)
+                          info.append(this.convert("element/alias", child))
+                          {
+                            const span = document.createElement("span")
+                            span.innerHTML = ".append"
+                            info.append(span)
+                          }
+
+                          const appendQuestionFunnel = this.headerPicker("scrollable", appendQuestionOverlay)
+
+                          const idField = new TextField("questionId", appendQuestionFunnel)
+                          idField.label.innerHTML = "Gebe deiner Frage eine Id"
+                          idField.input.required = true
+                          idField.input.accept = "text/tag"
+                          idField.verifyValue()
+                          idField.input.addEventListener("input", () => {
+
+                            try {
+                              const value = idField.validValue()
+                              if (document.querySelectorAll(`#${value}`).length === 0) {
+                                this.setValidStyle(idField.input)
+                              } else this.setNotValidStyle(idField.input)
+                            } catch (error) {
+                              this.setNotValidStyle(idField.input)
+                            }
+
+                          })
+
+                          const questionField = new TextAreaField("question", appendQuestionFunnel)
+                          questionField.label.innerHTML = "Stelle eine Frage an dein Netzwerk"
+                          questionField.input.required = true
+                          questionField.verifyValue()
+                          questionField.input.addEventListener("input", () => questionField.verifyValue())
+
+                          const appendQuestionButton = this.buttonPicker("action", appendQuestionFunnel)
+                          appendQuestionButton.innerHTML = "Jetzt anhängen"
+                          appendQuestionButton.addEventListener("click", () => {
+                            const question = questionField.validValue()
+                            const id = idField.validValue()
+
+                            if (document.getElementById(id) === null) {
+                              const clickField = this.create("click-field", child)
+                              clickField.id = id
+                              clickField.question.innerHTML = question
+                              this.removeOverlay(appendQuestionOverlay)
+                              this.render("click-funnel/questions", child, questions)
+                            } else {
+                              window.alert("Id existiert bereits.")
+                              this.setNotValidStyle(idField.input)
+                              idField.field.scrollIntoView({behavior: "smooth"})
+                            }
+
+
+                          })
+
+
+
+
+                        })
+                      })
+                    }
+
+
+                    // trennlinie
+                    // this.create("hr", questionsOverlay)
+
+                    const questions = this.headerPicker("scrollable", questionsOverlay)
+                    this.render("click-funnel/questions", child, questions)
+
+
+                  })
+                })
+              }
+
+
+
+            }
 
             if (child.classList.contains("field")) {
 
@@ -1580,19 +3684,9 @@ export class Helper {
             }
 
             {
-              const button = document.createElement("div")
-              button.style.display = "flex"
-              button.style.flexWrap = "wrap"
-              button.style.justifyContent = "space-between"
-              button.style.alignItems = "center"
-              button.style.margin = "21px 34px"
-              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-
-              button.style.borderRadius = "13px"
-              button.style.border = "0.3px solid black"
-              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-              button.style.cursor = "pointer"
-
+              const button = this.buttonPicker("left/right", buttons)
+              button.left.innerHTML = ".id"
+              button.right.innerHTML = "Element Id ändern"
               button.addEventListener("click", async () => {
 
                 this.popup(async overlay => {
@@ -1602,7 +3696,7 @@ export class Helper {
 
                   this.headerPicker("removeOverlay", overlay)
 
-                  const elementInfoHeader = this.headerPicker("elementInfo", overlay)
+                  const elementInfoHeader = this.headerPicker("info", overlay)
 
                   const elementAlias = this.convert("element/alias", child)
                   elementAlias.classList.add("element-alias")
@@ -1614,41 +3708,21 @@ export class Helper {
                   span.style.fontFamily = "monospace"
                   elementInfoHeader.append(span)
 
-                  const textFieldIdField = new TextField("textFieldId", overlay)
-                  textFieldIdField.label.innerHTML = "Element ID"
-
-
-                  if (child.hasAttribute("data-id")) {
-                    textFieldIdField.value(() => child.getAttribute("data-id"))
-                  } else {
-                    textFieldIdField.value(() => child.id)
-                  }
-
-
+                  const textFieldIdField = new TextField("elementId", overlay)
+                  textFieldIdField.label.innerHTML = "Element Id"
+                  textFieldIdField.input.accept = "text/tag"
+                  textFieldIdField.value(() => child.id)
                   textFieldIdField.verifyValue()
                   textFieldIdField.input.addEventListener("input", () => {
 
                     try {
                       const value = textFieldIdField.validValue()
 
-                      if (child.hasAttribute("data-id")) {
+                      if (document.querySelectorAll(`#${value}`).length === 0) {
+                        this.setValidStyle(textFieldIdField.input)
 
-                        const script = document.getElementById(child.getAttribute("data-id"))
-
-                        if (document.querySelectorAll(`#${value}`).length === 0) {
-                          this.setValidStyle(textFieldIdField.input)
-                          child.setAttribute("data-id", value)
-                          script.id = value
-                        } else this.setNotValidStyle(textFieldIdField.input)
-
-
-                      } else {
-                        if (document.querySelectorAll(`#${value}`).length === 0) {
-                          this.setValidStyle(textFieldIdField.input)
-
-                          child.id = value
-                        } else this.setNotValidStyle(textFieldIdField.input)
-                      }
+                        child.id = value
+                      } else this.setNotValidStyle(textFieldIdField.input)
 
                       document.querySelectorAll(".element-alias").forEach(element => {
                         element.innerHTML = ""
@@ -1668,23 +3742,6 @@ export class Helper {
 
 
               })
-
-
-              const icon = document.createElement("div")
-              icon.innerHTML = ".id"
-              icon.style.margin = "13px 34px"
-              icon.style.fontSize = "21px"
-              icon.style.fontFamily = "sans-serif"
-              button.append(icon)
-
-              const title = document.createElement("div")
-              title.innerHTML = "ID vergeben"
-              title.style.margin = "21px 34px"
-              title.style.fontSize = "13px"
-              title.style.fontFamily = "sans-serif"
-              button.append(title)
-
-              buttons.append(button)
             }
 
             if (child.tagName !== "SCRIPT") {
@@ -1749,9 +3806,9 @@ export class Helper {
                     divStylePropertyField.input.required = true
                     divStylePropertyField.input.addEventListener("input", (event) => {
                       if (event.target.style[event.target.value] !== undefined) {
-                        Helper.setValidStyle(event.target)
+                        this.setValidStyle(event.target)
                       } else {
-                        Helper.setNotValidStyle(event.target)
+                        this.setNotValidStyle(event.target)
                       }
                     })
 
@@ -1784,7 +3841,7 @@ export class Helper {
                           if (divStylePropertyField.input.style[divStylePropertyField.input.value] === undefined) throw new Error("css property not found")
                         } catch (error) {
                           alert(`Die CSS Eigenschaft ist ungültig.`)
-                          Helper.setNotValidStyle(divStylePropertyField.input)
+                          this.setNotValidStyle(divStylePropertyField.input)
                           throw error
                         }
 
@@ -1794,7 +3851,7 @@ export class Helper {
                         child.style[divStylePropertyField.input.value] = cssValue
 
                         divStylePropertyField.input.value = ""
-                        Helper.setNotValidStyle(divStylePropertyField.input)
+                        this.setNotValidStyle(divStylePropertyField.input)
                         divStyleValueField.input.value = ""
 
                       })
@@ -1909,13 +3966,13 @@ export class Helper {
             }
 
             {
-
               const button = this.buttonPicker("left/right", buttons)
               button.left.innerHTML = ".append"
               button.right.innerHTML = "Element anhängen"
               if (child.tagName === "SCRIPT") {
                 button.right.innerHTML = "JavaScript anhängen"
               }
+
 
               button.addEventListener("click", () => {
 
@@ -1930,8 +3987,12 @@ export class Helper {
                   span.textContent = ".append"
                   span.style.fontSize = "13px"
                   span.style.fontFamily = "monospace"
-
                   elementInfo.append(span)
+
+
+
+
+
 
                   {
                     const funnel = document.createElement("div")
@@ -1939,6 +4000,22 @@ export class Helper {
                     funnel.style.overscrollBehavior = "none"
                     funnel.style.paddingBottom = "144px"
                     overlay.append(funnel)
+
+
+                    if (child.tagName === "DIV") {
+                      const button = this.buttonPicker("left/right", funnel)
+                      button.left.innerHTML = ".click-funnel"
+                      button.right.innerHTML = "Klick Funnel anhängen"
+                      button.addEventListener("click", () => {
+                        const overlay = this.createOverlay("funnel/id", () => this.create("click-funnel", child))
+                        overlay.submitButton.innerHTML = "Klick Funnel jetzt anhängen"
+                        overlay.info.innerHTML = "click-funnel.append"
+                      })
+                    }
+
+
+
+
 
                     const htmlField = new TextAreaField("html-input", funnel)
                     htmlField.label.innerHTML = "HTML Element"
@@ -2480,9 +4557,9 @@ export class Helper {
                     divStylePropertyField.input.required = true
                     divStylePropertyField.input.addEventListener("input", (event) => {
                       if (event.target.style[event.target.value] !== undefined) {
-                        Helper.setValidStyle(event.target)
+                        this.setValidStyle(event.target)
                       } else {
-                        Helper.setNotValidStyle(event.target)
+                        this.setNotValidStyle(event.target)
                       }
                     })
 
@@ -2515,7 +4592,7 @@ export class Helper {
                           if (divStylePropertyField.input.style[divStylePropertyField.input.value] === undefined) throw new Error("css property not found")
                         } catch (error) {
                           alert(`Die CSS Eigenschaft ist ungültig.`)
-                          Helper.setNotValidStyle(divStylePropertyField.input)
+                          this.setNotValidStyle(divStylePropertyField.input)
                           throw error
                         }
 
@@ -2525,7 +4602,7 @@ export class Helper {
                         child.style[divStylePropertyField.input.value] = cssValue
 
                         divStylePropertyField.input.value = ""
-                        Helper.setNotValidStyle(divStylePropertyField.input)
+                        this.setNotValidStyle(divStylePropertyField.input)
                         divStyleValueField.input.value = ""
 
                       })
@@ -2891,7 +4968,7 @@ export class Helper {
       firstRow.style.margin = "13px 0"
       firstRow.style.cursor = "pointer"
       firstRow.addEventListener("click", () => {
-        Helper.popup(overlay => {
+        this.popup(overlay => {
 
 
           const header = document.createElement("div")
@@ -2906,7 +4983,7 @@ export class Helper {
           header.style.background = "white"
           header.style.cursor = "pointer"
           header.style.zIndex = "1"
-          header.addEventListener("click", () => Helper.removeOverlay(overlay))
+          header.addEventListener("click", () => this.removeOverlay(overlay))
 
           const logo = document.createElement("img")
           logo.src = "/felix/shs/public/ep-logo.svg"
@@ -2937,8 +5014,8 @@ export class Helper {
             button.addEventListener("click", async () => {
 
               try {
-                const securityOverlay = Helper.addOverlay()
-                Helper.setWaitCursor()
+                const securityOverlay = this.addOverlay()
+                this.setWaitCursor()
                 {
                   const del = {}
                   del.url = "/delete/service/closed/5/"
@@ -2952,8 +5029,8 @@ export class Helper {
 
                 alert("Dienst erfolgreich gelöscht.")
                 item.remove()
-                Helper.removeOverlay(securityOverlay)
-                Helper.removeOverlay(overlay)
+                this.removeOverlay(securityOverlay)
+                this.removeOverlay(overlay)
               } catch (error) {
                 alert("Fehler.. Bitte wiederholen.")
                 window.location.reload()
