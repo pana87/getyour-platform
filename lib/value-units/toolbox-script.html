@@ -27,29 +27,13 @@
         if (res.status === 200) {
 
           {
-            const toolbox = Helper.iconPicker("getyour")
+            const back = Helper.headerPicker("back")
+            const toolbox = Helper.headerPicker("app")
+
+            back.setAttribute("data-id", "toolbox")
             toolbox.setAttribute("data-id", "toolbox")
-            toolbox.style.position = "fixed"
-            toolbox.style.bottom = "0"
-            toolbox.style.right = "0"
 
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              toolbox.style.boxShadow = "0 3px 5px rgba(255, 255, 255, 0.13)"
-              toolbox.style.border = `0.3px solid ${Helper.colors.matte.dark.accent}`
-              toolbox.style.backgroundColor = Helper.colors.matte.dark.background
-            } else {
-              toolbox.style.boxShadow = "0 3px 5px rgba(0, 0, 0, 0.13)"
-              toolbox.style.border = `0.3px solid ${Helper.colors.matte.light.accent}`
-              toolbox.style.backgroundColor = Helper.colors.matte.light.background
-            }
-
-            toolbox.style.width = "34px"
-            toolbox.style.height = "34px"
-            toolbox.style.borderRadius = "50%"
-            toolbox.style.margin = "21px 34px"
-            toolbox.style.padding = "21px"
-            toolbox.style.zIndex = "1"
-            toolbox.style.cursor = "pointer"
+            document.body.insertBefore(back, document.querySelector("#toolbox"))
             document.body.insertBefore(toolbox, document.querySelector("#toolbox"))
 
             toolbox.addEventListener("click", () => {
@@ -59,39 +43,10 @@
                 const overlay1 = overlay
 
                 {
-                  const show = document.createElement("img")
-                  show.src = "/public/show.svg"
-                  show.alt = "Vorschau"
-                  show.style.position = "absolute"
-                  show.style.left = "0"
-                  show.style.bottom = "0"
-                  show.style.width = "55px"
-                  show.style.padding = "13px"
-                  show.style.margin = "21px 34px"
-                  show.style.border = "0.3px solid black"
-                  show.style.borderRadius = "50%"
-                  show.style.backgroundColor = "#fff"
-                  show.style.boxShadow = "0px 5px 8px rgba(0, 0, 0, 0.21)"
-                  show.style.zIndex = "999"
-                  show.style.cursor = "pointer"
-                  show.addEventListener("click", () => Helper.removeOverlay(overlay))
-                  overlay.append(show)
+                  Helper.headerPicker("removeOverlay", overlay)
 
-                  const save = document.createElement("img")
-                  save.src = "/public/save.svg"
-                  save.alt = "Speichern"
-                  save.style.position = "absolute"
-                  save.style.right = "0"
-                  save.style.bottom = "0"
-                  save.style.width = "55px"
-                  save.style.padding = "13px"
-                  save.style.margin = "21px 34px"
-                  save.style.border = "0.3px solid black"
-                  save.style.backgroundColor = "#fff"
-                  save.style.borderRadius = "50%"
-                  save.style.boxShadow = "0px 5px 8px rgba(0, 0, 0, 0.21)"
-                  save.style.zIndex = "999"
-                  save.style.cursor = "pointer"
+                  const save = Helper.headerPicker("save", overlay)
+
                   save.addEventListener("click", async () => {
 
                     const toolboxScript = document.getElementById("toolbox")
@@ -125,7 +80,6 @@
                     }
 
                   })
-                  overlay.append(save)
 
                 }
 
