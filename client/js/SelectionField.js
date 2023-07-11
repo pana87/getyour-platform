@@ -114,6 +114,7 @@ export class SelectionField {
   }
 
   #isRequired(select) {
+    // if (this.select.required === true) return true
     if (this.requiredIndex !== undefined) {
       for (let i = 0; i < select.options.length; i++) {
         if (select.options[i].selected === true) {
