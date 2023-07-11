@@ -2140,13 +2140,17 @@ export class Helper {
                     image.style.overflow = "hidden"
 
                     const imageContainer = child.querySelector(".image")
-                    imageContainer.innerHTML = ""
+                    this.reset(imageContainer)
+                    imageContainer.style.width = "144px"
+                    imageContainer.style.display = "flex"
+                    imageContainer.style.overflow = "hidden"
                     imageContainer.append(image)
 
                     if (event.target.files[0].type === "image/svg+xml") {
 
                       const svgFile = await imageField.validSvg(event.target.files[0])
                       const svg = this.convert("text/svg", svgFile.svg)
+                      svg.setAttribute("width", "100%")
                       image.append(svg)
 
                     } else {
@@ -2523,19 +2527,23 @@ export class Helper {
 
                             const file = imageField.validValue()[0]
 
-                            if (file !== undefined) {
+                            const image = document.createElement("div")
+                            image.classList.add("image")
+                            answerBox.answer.before(image)
 
-                              const image = document.createElement("div")
-                              image.classList.add("image")
+
+                            if (file !== undefined) {
                               image.style.width = "144px"
                               image.style.display = "flex"
                               image.style.overflow = "hidden"
-                              answerBox.answer.before(image)
+
 
                               if (file.type === "image/svg+xml") {
 
                                 const svgFile = await imageField.validSvg(file)
                                 const svg = this.convert("text/svg", svgFile.svg)
+                                svg.setAttribute("width", "100%")
+
                                 image.append(svg)
 
                               } else {
