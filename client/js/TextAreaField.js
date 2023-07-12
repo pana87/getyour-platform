@@ -23,11 +23,51 @@ export class TextAreaField {
 
   #isRequired(input) {
     if (input.required === true) return true
+    if (input.accept === "string/array") return true
+    if (input.accept === "email/array") return true
     return false
   }
 
   #checkValidity(input) {
     if (input.checkValidity() === false) return false
+    if (input.accept === "email/array") {
+
+      if (!input.value.startsWith("[")) return false
+      if (!input.value.endsWith("]")) return false
+      try {
+        const array = JSON.parse(input.value)
+        for (let i = 0; i < array.length; i++) {
+          const email = array[i]
+
+          if (Helper.emailIsEmpty(email)) return false
+
+        }
+        return true
+      } catch (error) {
+        return false
+      }
+
+
+    }
+    if (input.accept === "string/array") {
+
+      if (!input.value.startsWith("[")) return false
+      if (!input.value.endsWith("]")) return false
+      try {
+        const array = JSON.parse(input.value)
+        for (let i = 0; i < array.length; i++) {
+          const string = array[i]
+
+          if (Helper.stringIsEmpty(string)) return false
+
+        }
+        return true
+      } catch (error) {
+        return false
+      }
+
+
+    }
     return true
   }
 

@@ -14,38 +14,15 @@
 
     </style>
 
-    <title>Meine erste Werteinheit</title>
   </head>
   <body>
 
     <script id="toolbox-getter" type="module">
-      import {Request} from "/js/Request.js"
+      import {Helper} from "/js/Helper.js"
 
-      const localStoragId = window.localStorage.getItem("localStorageId")
-      if (localStoragId !== null) {
-        const localStorageEmail = window.localStorage.getItem("email")
-        if (localStorageEmail !== null) {
+      document.querySelector("#toolbox-getter").remove()
 
-          const get = {}
-          get.url = "/get/toolbox/closed/3/"
-          get.localStorageId = await Request.localStorageId()
-          get.localStorageEmail = await Request.email()
-          get.location = window.location.href
-          get.referer = document.referrer
-          const res = await Request.middleware(get)
-
-          if (res.status === 200) {
-            const toolboxScript = new DOMParser().parseFromString(res.response, "text/html").getElementById("toolbox")
-            const script = document.createElement("script")
-            script.id = toolboxScript.id
-            script.type = toolboxScript.type
-            script.innerHTML = toolboxScript.innerHTML
-            document.body.append(script)
-          }
-
-        }
-      }
-
+      Helper.create("script/toolbox-getter", document.body)
     </script>
 
   </body>

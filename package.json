@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "jest": "^29.3.1",
-    "nodemon": "^2.0.20"
+    "nodemon": "^3.0.1"
   },
   "dependencies": {
     "@noble/ed25519": "^1.7.1",
