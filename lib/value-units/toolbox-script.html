@@ -8,6 +8,7 @@
   import {TextAreaField} from "/js/TextAreaField.js"
   import {RangeField} from "/js/RangeField.js"
 
+  // refactor toolbox
 
   const localStoragId = window.localStorage.getItem("localStorageId")
   if (localStoragId !== null) {
@@ -16,13 +17,8 @@
 
       {
         const verify = {}
-        verify.url = "/verify/expert/closed/3/"
-        verify.event = "toolbox"
-        verify.localStorageId = await Request.localStorageId()
-        verify.localStorageEmail = await Request.email()
-        verify.location = window.location.href
-        verify.referer = document.referrer
-        const res = await Request.middleware(verify)
+        verify.url = "/verify/expert/closed/"
+        const res = await Request.closed(verify)
 
         if (res.status === 200) {
 
@@ -39,55 +35,12 @@
             toolbox.addEventListener("click", () => {
 
               Helper.popup(async overlay => {
-                overlay.classList.add("overlay-1")
-                const overlay1 = overlay
 
-                {
-                  Helper.headerPicker("removeOverlay", overlay)
+                Helper.headerPicker("removeOverlay", overlay)
 
-                  const save = Helper.headerPicker("save", overlay)
+                Helper.buttonPicker("toolbox/register-html", overlay)
 
-                  save.addEventListener("click", async () => {
-
-                    const toolboxScript = document.getElementById("toolbox")
-                    const dataIds = document.querySelectorAll("[data-id]")
-                    try {
-
-                      dataIds.forEach(element => element.remove())
-                      toolboxScript.remove()
-                      overlay.remove()
-                      // document.body.removeAttribute("style")
-                      document.body.style.overscrollBehavior = null
-                      document.body.style.overflow = null
-
-                      const register = {}
-                      register.url = "/register/platform-value/closed/3/"
-                      register.type = "html"
-                      register.html = document.documentElement.outerHTML.replace(/<html>/, "<!DOCTYPE html><html>")
-                      register.localStorageId = await Request.localStorageId()
-                      register.localStorageEmail = await Request.email()
-                      register.location = window.location.href
-                      register.referer = document.referrer
-                      await Request.sequence(register)
-
-                      window.location.reload()
-                    } catch (error) {
-                      for (let i = 0; i < dataIds.length; i++) {
-                        const dataId = dataIds[i]
-                        document.body.insertBefore(dataId, document.querySelector(`script[id='${dataId.getAttribute("data-id")}']`))
-                      }
-                      alert("Fehler.. Bitte wiederholen.")
-                    }
-
-                  })
-
-                }
-
-                const buttons = document.createElement("div")
-                buttons.style.overflow = "auto"
-                buttons.style.overscrollBehavior = "none"
-                buttons.style.paddingBottom = "144px"
-                overlay.append(buttons)
+                const buttons = Helper.headerPicker("scrollable", overlay)
 
                 {
                   const button = Helper.buttonPicker("left/right", buttons)
@@ -98,6 +51,8 @@
                       Helper.headerPicker("removeOverlay", overlay)
                       const info = Helper.headerPicker("info", overlay)
                       info.innerHTML = "document.children"
+
+                      Helper.buttonPicker("toolbox/register-html", overlay)
 
 
                       const childrenContainer = Helper.headerPicker("scrollable", overlay)
@@ -119,65 +74,37 @@
 
                       Helper.headerPicker("removeOverlay", overlay)
 
-                      {
-                        const funnel = document.createElement("div")
-                        funnel.style.overflow = "auto"
-                        funnel.style.overscrollBehavior = "none"
-                        funnel.style.paddingBottom = "144px"
-                        overlay.append(funnel)
+                      const funnel = Helper.headerPicker("scrollable", overlay)
 
-                        const htmlField = new TextAreaField("htm-l", funnel)
-                        htmlField.label.innerHTML = "HTML Dokument"
-                        htmlField.label.style.fontFamily = "sans-serif"
-                        htmlField.input.style.fontSize = "13px"
-                        htmlField.input.style.height = "89px"
-                        htmlField.input.placeholder = `<html>..</html>`
-                        htmlField.input.addEventListener("input", () => {
-                          htmlField.verifyValue()
-                        })
+                      const htmlField = new TextAreaField("html", funnel)
+                      htmlField.label.innerHTML = "HTML Import"
+                      htmlField.input.style.fontFamily = "monospace"
+                      htmlField.input.style.fontSize = "13px"
+                      htmlField.input.style.height = "89px"
+                      htmlField.input.placeholder = `<html>..</html>`
+                      htmlField.input.addEventListener("input", () => htmlField.verifyValue())
+                      htmlField.verifyValue()
 
-                        const button = document.createElement("div")
-                        button.innerHTML = "Jetzt ersetzen"
-                        button.style.backgroundColor = "#f7aa20"
-                        button.style.cursor = "pointer"
-                        button.style.fontSize = "21px"
-                        button.style.fontFamily = "sans-serif"
-                        button.style.borderRadius = "13px"
-                        button.style.margin = "21px 34px"
-                        button.style.display = "flex"
-                        button.style.justifyContent = "center"
-                        button.style.alignItems = "center"
-                        button.style.height = "89px"
-                        button.style.color = "#000"
-                        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                        button.addEventListener("click", async () => {
+                      const button = Helper.buttonPicker("action", funnel)
+                      button.innerHTML = "Dokument jetzt ersetzen"
+                      button.addEventListener("click", async () => {
 
-                          const html = htmlField.validValue()
+                        const html = htmlField.validValue()
 
-                          const confirm = window.confirm("Achtung! Diese Funktion wird dein aktuelles HTML Dokument mit deinem neuen HTML Import ersetzen. Der Inhalt deines aktuellen Dokuments wird unwideruflich gelöscht, sobald du deine Werteinheit abspeicherst.\n\n Möchtest du dein aktuelles HTML Dokument wirklich ersetzen?")
-                          if (confirm === true) {
+                        const confirm = window.confirm("Achtung! Diese Funktion wird dein aktuelles HTML Dokument mit deinem neuen HTML Import ersetzen. Der Inhalt deines aktuellen Dokuments wird unwideruflich gelöscht, sobald du deine Werteinheit abspeicherst.\n\n Möchtest du dein aktuelles HTML Dokument wirklich ersetzen?")
+                        if (confirm === true) {
 
-                            const toolbox = document.getElementById("toolbox").cloneNode(true)
+                          document.open()
+                          document.write(html)
+                          document.close()
 
-                            document.open()
-                            document.write(html)
-                            document.close()
-
-                            const script = document.createElement("script")
-                            script.id = toolbox.id
-                            script.type = toolbox.type
-                            script.innerHTML = toolbox.innerHTML
-                            document.body.append(script)
-
-                          }
+                          Helper.create("script/toolbox-getter", document.body)
 
                           Helper.removeOverlay(overlay)
-
-                        })
-                        funnel.append(button)
-                      }
+                        }
 
 
+                      })
 
                     })
 
@@ -196,127 +123,96 @@
 
                       Helper.headerPicker("removeOverlay", overlay)
 
-                      {
-                        const funnel = document.createElement("div")
-                        funnel.style.overflow = "auto"
-                        funnel.style.overscrollBehavior = "none"
-                        funnel.style.paddingBottom = "144px"
-                        overlay.append(funnel)
+                      const funnel = Helper.headerPicker("scrollable", overlay)
 
-                        const htmlField = new TextAreaField("script-import", funnel)
-                        htmlField.label.innerHTML = "HTML Script Element"
-                        htmlField.label.style.fontFamily = "sans-serif"
-                        htmlField.input.required = true
-                        htmlField.input.style.fontSize = "13px"
-                        htmlField.input.style.height = "89px"
-                        htmlField.input.placeholder = `<script id=".." alias=".." >..</>`
-                        htmlField.input.addEventListener("input", () => {
-                          htmlField.verifyValue()
-                        })
+                      const htmlField = new TextAreaField("script-import", funnel)
+                      htmlField.label.innerHTML = "HTML Skript"
+                      htmlField.input.required = true
+                      htmlField.input.style.fontFamily = "monospace"
+                      htmlField.input.style.fontSize = "13px"
+                      htmlField.input.style.height = "89px"
+                      htmlField.input.placeholder = `<script id=".." alias=".." >..</>`
+                      htmlField.input.addEventListener("input", () => htmlField.verifyValue())
+                      htmlField.verifyValue()
 
-                        const button = document.createElement("div")
-                        button.innerHTML = "Jetzt als Template speichern"
-                        button.style.backgroundColor = "#f7aa20"
-                        button.style.cursor = "pointer"
-                        button.style.fontSize = "21px"
-                        button.style.fontFamily = "sans-serif"
-                        button.style.borderRadius = "13px"
-                        button.style.margin = "21px 34px"
-                        button.style.display = "flex"
-                        button.style.justifyContent = "center"
-                        button.style.alignItems = "center"
-                        button.style.height = "89px"
-                        button.style.color = "#000"
-                        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                        button.addEventListener("click", async () => {
+                      const button = Helper.buttonPicker("action", funnel)
+                      button.innerHTML = "Template jetzt importieren"
+                      button.addEventListener("click", async () => {
 
-                          const html = htmlField.validValue()
+                        const html = htmlField.validValue()
 
-                          const parser = document.createElement("div")
-                          parser.innerHTML = html
+                        const parser = document.createElement("div")
+                        parser.innerHTML = html
 
+                        if (parser.children.length > 1) {
+                          alert("Es kann nur ein HTML Script Element auf einmal gespeichert werden.")
+                          Helper.setNotValidStyle(htmlField.input)
+                          throw new Error(`too many children`)
+                        }
 
-                          if (parser.children.length > 1) {
-                            alert("Es kann nur ein HTML Script Element auf einmal gespeichert werden.")
-                            Helper.setNotValidStyle(htmlField.input)
-                            throw new Error(`too many children`)
-                          }
+                        const node = parser.firstChild
 
+                        if (node.tagName !== "SCRIPT") {
+                          alert("Es können nur HTML Script Elemente als Templates gespeichert werden. Der von dir bereitgestellte Code ist kein HTML Script Element.")
+                          Helper.setNotValidStyle(htmlField.input)
+                          throw new Error(`not a script`)
+                        }
 
+                        if (Helper.stringIsEmpty(node.id)) {
+                          alert("HTML Script Element benötigt eine Id.")
+                          Helper.setNotValidStyle(htmlField.input)
+                          throw new Error(`id is empty`)
+                        }
 
-                          const node = parser.firstChild
+                        if (!Helper.verifyIs("text/tag", node.id)) {
+                          alert("Id muss vom 'tag' Format sein. Es sind nur Kleinbuchstaben (a-z) und Bindestriche dazwischen erlaubt. (-)")
+                          Helper.setNotValidStyle(htmlField.input)
+                          throw new Error(`id is not a tag`)
+                        }
 
-                          if (node.tagName !== "SCRIPT") {
-                            alert("Es können nur HTML Script Elemente als Templates gespeichert werden. Der von dir bereitgestellte Code ist kein HTML Script Element.")
-                            Helper.setNotValidStyle(htmlField.input)
-                            throw new Error(`not a script`)
-                          }
+                        const verify = {}
+                        verify.url = "/verify/template/closed/"
+                        verify.type = "id"
+                        verify.id = node.id
+                        const res = await Request.closed(verify)
 
-                          if (Helper.stringIsEmpty(node.id)) {
-                            alert("HTML Script Element benötigt eine Id.")
-                            Helper.setNotValidStyle(htmlField.input)
-                            throw new Error(`id is empty`)
-                          }
+                        if (res.status === 200) {
+                          alert("Id existiert bereits.")
+                          Helper.setNotValidStyle(htmlField.input)
+                          throw new Error(`id exist`)
+                        }
 
-                          if (!Helper.verifyIs("text/tag", node.id)) {
-                            alert("Id muss vom 'tag' Format sein. Es sind nur Kleinbuchstaben (a-z) und Bindestriche dazwischen erlaubt. (-)")
-                            Helper.setNotValidStyle(htmlField.input)
-                            throw new Error(`id is not a tag`)
-                          }
+                        if (Helper.stringIsEmpty(node.getAttribute("alias"))) {
+                          alert("HTML Script Element benötigt eine Alias.")
+                          Helper.setNotValidStyle(htmlField.input)
+                          throw new Error(`alias is empty`)
+                        }
 
-                          const verify = {}
-                          verify.url = "/verify/template/closed/3/"
-                          verify.type = "id"
-                          verify.id = node.id
-                          verify.localStorageId = await Request.localStorageId()
-                          verify.localStorageEmail = await Request.email()
-                          verify.location = window.location.href
-                          verify.referer = document.referrer
-                          const res = await Request.middleware(verify)
+                        const script = document.createElement("script")
+                        script.innerHTML = node.innerHTML
+
+                        Helper.overlay("security", async securityOverlay => {
+
+                          const register = {}
+                          register.url = "/register/template/closed/"
+                          register.id = node.id
+                          register.alias = node.getAttribute("alias")
+                          register.script = script.outerHTML
+                          const res = await Request.closed(register)
 
                           if (res.status === 200) {
-                            alert("Id existiert bereits.")
+                            alert("Template erfolgreich gespeichert.")
+                            Helper.removeOverlay(securityOverlay)
+                            Helper.removeOverlay(overlay)
+                          } else {
+                            alert("Fehler.. Bitte wiederholen.")
+                            Helper.removeOverlay(securityOverlay)
                             Helper.setNotValidStyle(htmlField.input)
-                            throw new Error(`id exist`)
+                            throw new Error(`register template failed`)
                           }
-
-                          if (Helper.stringIsEmpty(node.getAttribute("alias"))) {
-                            alert("HTML Script Element benötigt eine Alias.")
-                            Helper.setNotValidStyle(htmlField.input)
-                            throw new Error(`alias is empty`)
-                          }
-
-                          const script = document.createElement("script")
-                          script.innerHTML = node.innerHTML
-
-                          Helper.popup(async securityOverlay => {
-                            Helper.headerPicker("loading", securityOverlay)
-                            const register = {}
-                            register.url = "/register/template/closed/3/"
-                            register.id = node.id
-                            register.alias = node.getAttribute("alias")
-                            register.script = script.outerHTML
-                            register.localStorageId = await Request.localStorageId()
-                            register.localStorageEmail = await Request.email()
-                            register.location = window.location.href
-                            register.referer = document.referrer
-                            const res = await Request.middleware(register)
-
-                            if (res.status === 200) {
-                              alert("Template erfolgreich gespeichert.")
-                              Helper.removeOverlay(securityOverlay)
-                              Helper.removeOverlay(overlay)
-                            } else {
-                              alert("Fehler.. Bitte wiederholen.")
-                              Helper.removeOverlay(securityOverlay)
-                              Helper.setNotValidStyle(htmlField.input)
-                              throw new Error(`register template failed`)
-                            }
-                          })
-
                         })
-                        funnel.append(button)
-                      }
+
+                      })
 
                     })
 
@@ -327,27 +223,10 @@
 
             })
 
-            // observe ids in document
-            const observer = new MutationObserver((mutations, observer) => {
 
+            const observer = new MutationObserver((mutations, observer) => {
               for (let i = 0; i < mutations.length; i++) {
                 const mutation = mutations[i]
-
-                // on nodes added
-                // mutation.addedNodes.forEach(node => {
-                //   const nodes = document.querySelectorAll("*[id]")
-                //   for (let i = 0; i < nodes.length; i++) {
-                //     const element = nodes[i]
-                //     if (element.id === node.id) {
-                //       if (element.tagName === "SCRIPT") continue
-                //       document.querySelectorAll(`#${node.id}`).forEach(element => {
-                //         element.style.border = `2px dashed ${Helper.colors.matte.light.error}`
-                //       })
-                //     }
-                //   }
-                // })
-
-                // on id change
                 if (mutation.type === 'attributes' && mutation.attributeName === 'id') {
                   const ids = document.querySelectorAll(`#${mutation.target.id}`)
                   if (ids[1] !== undefined) {
@@ -359,11 +238,8 @@
                     }
                   }
                 }
-
               }
-
             })
-
             observer.observe(document.documentElement, {
               childList: true,
               subtree: true,

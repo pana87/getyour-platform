@@ -261,8 +261,12 @@
         const email = emailField.validValue()
         const dsgvo = dsgvoField.validValue()
 
+
+        // this adds locals storage id when user provides correct pin
         await Request.withVerifiedEmail(email, async () => {
 
+
+          // this registers admin only
           if (email.endsWith("@get-your.de")) {
             const register = {}
             register.url = "/register/admin/open/"
@@ -276,6 +280,9 @@
           }
 
           {
+
+
+            // this registers the local storage id from browser
             const register = {}
             register.url = "/request/register/session/"
             // register.location = window.location.href
@@ -286,13 +293,13 @@
 
             if (res.status === 200) {
 
-              const register = {}
-              register.url = "/register/verified/open/"
-              // register.type = "verified"
-              register.email = email
-              // register.location = window.location.href
-              // register.referer = document.referrer
-              await Request.sequence(register)
+              // const register = {}
+              // register.url = "/register/verified/open/"
+              // // register.type = "verified"
+              // register.email = email
+              // // register.location = window.location.href
+              // // register.referer = document.referrer
+              // await Request.sequence(register)
 
               const redirect = {}
               redirect.url = "/redirect/user/closed/"

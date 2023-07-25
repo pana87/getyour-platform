@@ -34,32 +34,14 @@ app.use((req, res, next) => {
   next()
 })
 
-
-// create different logs for every request
-// and error logs
-
-// app.use(async(req, res, next) => {
-//   try {
-//     await Helper.logRequest(req)
-//     next()
-//   } catch (error) {
-//     await Helper.logError(error, req)
-//   }
-//   return res.sendStatus(404)
-// })
-
-
 app.use("/docs/", express.static(docsLocation.absolutePath))
 app.use(express.static(clientLocation.absolutePath))
-
-
-
 
 app.get("/logs/:type/",
   Request.verifyJwtToken,
   Request.verifySession,
   Request.verifyRoles([UserRole.ADMIN]),
-  Request.verifyJwtId,
+  Request.verifyVerified,
 async (req, res) => {
   try {
 
@@ -118,31 +100,12 @@ app.get("/", async (req, res, next) => {
   return res.sendStatus(404)
 })
 
-app.get("/:platform/", async (req, res, next) => {
-  try {
-    const doc = await nano.db.use("getyour").get("users")
-    if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
-    if (doc.users === undefined) throw new Error("users is undefined")
-
-    if (Helper.stringIsEmpty(req.params.platform)) throw new Error("req.params.platform is empty")
-    for (let i = 0; i < doc.users.length; i++) {
-      const user = doc.users[i]
-      if (user[req.params.platform] !== undefined) {
-        if (user[req.params.platform].stats !== undefined) {
-          return res.send(`<div style="display: flex; justify-content: center; align-items: center; height: 89vh; font-family: sans-serif;">Plattform Statistiken sind bald verfügbar.</div>`)
-        }
-      }
-    }
-
-    return next()
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
-})
-
 app.get("/:expert/", async (req, res, next) => {
   try {
+
+    if (req.params.expert === "login") return res.send(Helper.readFileSyncToString("../lib/value-units/login.html"))
+
+
     const doc = await nano.db.use("getyour").get("users")
     if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
     if (doc.users === undefined) throw new Error("users is undefined")
@@ -163,37 +126,37 @@ app.get("/:expert/", async (req, res, next) => {
   return res.sendStatus(404)
 })
 
-app.get("/getyour/pana/toolbox-contest/",
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyRoles([UserRole.ADMIN]),
-  Request.verifyJwtId,
-async(req, res) => {
-  try {
-    return res.send(Helper.readFileSyncToString("../lib/value-units/toolbox.html"))
+// app.get("/getyour/pana/toolbox-contest/",
+//   Request.verifyJwtToken,
+//   Request.verifySession,
+//   Request.verifyRoles([UserRole.ADMIN]),
+//   Request.verifyVerified,
+// async(req, res) => {
+//   try {
+//     return res.send(Helper.readFileSyncToString("../lib/value-units/toolbox.html"))
 
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
-})
+//   } catch (error) {
+//     await Helper.logError(error, req)
+//   }
+//   return res.sendStatus(404)
+// })
 
-app.get("/getyour/pana/admin/",
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyRoles([UserRole.ADMIN]),
-  Request.verifyJwtId,
-async(req, res) => {
-  try {
-    return res.send(Helper.readFileSyncToString("../lib/value-units/admin.html"))
+// app.get("/getyour/pana/admin/",
+//   Request.verifyJwtToken,
+//   Request.verifySession,
+//   Request.verifyRoles([UserRole.ADMIN]),
+//   Request.verifyVerified,
+// async(req, res) => {
+//   try {
+//     return res.send(Helper.readFileSyncToString("../lib/value-units/admin.html"))
 
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
-})
+//   } catch (error) {
+//     await Helper.logError(error, req)
+//   }
+//   return res.sendStatus(404)
+// })
 
-app.get("/:platform/:expert/:path/",
+app.get("/:expert/:platform/:path/",
 async(req, res, next) => {
   try {
     const doc = await nano.db.use("getyour").get("users")
@@ -202,7 +165,6 @@ async(req, res, next) => {
 
     if (req.params.expert === "pana") {
       if (req.params.platform === "getyour") {
-        if (req.params.path === "login") return res.send(Helper.readFileSyncToString(`../lib/value-units/login.html`))
         if (req.params.path === "nutzervereinbarung") return res.send(Helper.readFileSyncToString(`../lib/value-units/nutzervereinbarung.html`))
         if (req.params.path === "impressum") return res.send(Helper.readFileSyncToString(`../lib/value-units/impressum.html`))
         if (req.params.path === "datenschutz") return res.send(Helper.readFileSyncToString(`../lib/value-units/datenschutz.html`))
@@ -212,23 +174,47 @@ async(req, res, next) => {
     for (let i = 0; i < doc.users.length; i++) {
       const user = doc.users[i]
       if (user["getyour"] !== undefined) {
-        if (user["getyour"].expert.name === req.params.expert) {
-          for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
-            const platform = user["getyour"].expert.platforms[i]
-            if (platform.name === req.params.platform) {
-              if (platform.visibility === "open") {
-                for (let i = 0; i < platform.values.length; i++) {
-                  const value = platform.values[i]
-                  if (value.path.split("/")[3] === req.params.path) {
-                    if (value.visibility === "open") {
-                      return res.send(value.html)
+
+        if (user["getyour"].expert !== undefined) {
+
+          if (user["getyour"].expert.name === req.params.expert) {
+
+            if (user.verified === true) {
+
+              if (user["getyour"].expert.platforms !== undefined) {
+
+                for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
+                  const platform = user["getyour"].expert.platforms[i]
+                  if (platform.name === req.params.platform) {
+                    if (platform.visibility === "open") {
+
+
+                      if (platform.values !== undefined) {
+
+                        for (let i = 0; i < platform.values.length; i++) {
+                          const value = platform.values[i]
+                          if (value.path === `/${req.params.expert}/${req.params.platform}/${req.params.path}/`) {
+                            if (value.visibility === "open") {
+                              return res.send(value.html)
+                            }
+                          }
+                        }
+
+                      }
                     }
                   }
                 }
+
               }
+
             }
+
+
           }
+
         }
+
+
       }
     }
 
@@ -239,10 +225,10 @@ async(req, res, next) => {
   return res.sendStatus(404)
 })
 
-app.get("/:platform/:expert/:path/",
+app.get("/:expert/:platform/:path/",
   Request.verifyJwtToken,
-  Request.verifyJwtId,
   Request.verifySession,
+  // closed context
 async (req, res, next) => {
   try {
 
@@ -253,53 +239,25 @@ async (req, res, next) => {
     for (let i = 0; i < doc.users.length; i++) {
       const user = doc.users[i]
       if (user.id === req.jwt.id) {
+
         if (user["getyour"] !== undefined) {
+          if (user["getyour"].expert !== undefined) {
 
-          if (user["getyour"].expert.name === req.params.expert) {
-            for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
-              const platform = user["getyour"].expert.platforms[i]
-              if (platform.name === req.params.platform) {
-                for (let i = 0; i < platform.values.length; i++) {
-                  const value = platform.values[i]
-                  if (value.path === `/${req.params.platform}/${req.params.expert}/${req.params.path}/`) {
-                    return res.send(value.html)
-                  }
-                }
-              }
-            }
-          }
+            if (user["getyour"].expert.name === req.params.expert) {
 
-          if (user["getyour"].expert.name !== req.params.expert) {
-            for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
-              const platform = user["getyour"].expert.platforms[i]
+              if (user["getyour"].expert.platforms !== undefined) {
+
+                for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
+                  const platform = user["getyour"].expert.platforms[i]
+                  if (platform.name === req.params.platform) {
 
 
+                    if (platform.values !== undefined) {
 
-              if (platform.name === req.params.platform) {
-
-
-
-                if (platform.visibility === "open") {
-                  for (let i = 0; i < platform.values.length; i++) {
-                    const value = platform.values[i]
-                    if (value.path === `/${req.params.platform}/${req.params.expert}/${req.params.path}/`) {
-
-                      if (value.visibility === "closed") {
-                        for (let i = 0; i < value.authorized.length; i++) {
-                          const authorized = value.authorized[i]
-                          if (req.jwt.id === authorized) {
-                            return res.send(value.html)
-                          }
-                        }
-
-                        for (let i = 0; i < value.roles.length; i++) {
-                          const authorized = value.roles[i]
-                          for (let i = 0; i < user.roles.length; i++) {
-                            const role = user.roles[i]
-                            if (role === authorized) {
-                              return res.send(value.html)
-                            }
-                          }
+                      for (let i = 0; i < platform.values.length; i++) {
+                        const value = platform.values[i]
+                        if (value.path === `/${req.params.expert}/${req.params.platform}/${req.params.path}/`) {
+                          return res.send(value.html)
                         }
                       }
 
@@ -307,13 +265,78 @@ async (req, res, next) => {
                   }
                 }
 
+              }
 
 
+            }
+
+            if (user["getyour"].expert.name !== req.params.expert) {
+
+              if (user["getyour"].expert.platforms !== undefined) {
+
+                for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
+                  const platform = user["getyour"].expert.platforms[i]
+
+
+
+                  if (platform.name === req.params.platform) {
+
+
+
+                    if (platform.visibility === "open") {
+                      if (platform.values !== undefined) {
+
+                        for (let i = 0; i < platform.values.length; i++) {
+                          const value = platform.values[i]
+                          if (value.path === `/${req.params.platform}/${req.params.expert}/${req.params.path}/`) {
+
+                            if (value.visibility === "closed") {
+
+                              if (value.authorized !== undefined) {
+
+                                for (let i = 0; i < value.authorized.length; i++) {
+                                  const authorized = value.authorized[i]
+                                  if (user.id === authorized) {
+                                    return res.send(value.html)
+                                  }
+                                }
+
+                              }
+
+                              if (value.roles !== undefined) {
+
+                                for (let i = 0; i < value.roles.length; i++) {
+                                  const authorized = value.roles[i]
+                                  for (let i = 0; i < user.roles.length; i++) {
+                                    const role = user.roles[i]
+                                    if (role === authorized) {
+                                      return res.send(value.html)
+                                    }
+                                  }
+                                }
+
+                              }
+                            }
+
+                          }
+                        }
+
+                      }
+                    }
+
+
+
+
+                  }
+                }
 
               }
             }
+
           }
+
         }
+
       }
     }
 
@@ -327,130 +350,86 @@ app.post("/request/register/session/",
   Request.verifyLocation,
 async (req, res) => {
   try {
-    const {localStorageId, event} = req.body
-    const {doc, user} = await Helper.findUser(user => user.id === localStorageId)
-    if (Helper.objectIsEmpty(user)) throw new Error("user is empty")
-    if (Helper.stringIsEmpty(user.id)) throw new Error("user id is empty")
-    if (Helper.arrayIsEmpty(user.roles)) throw new Error("user roles is empty")
-
-    const salt = Helper.generateRandomBytes(32)
-    if (Helper.arrayIsEmpty(salt)) throw new Error("salt is empty")
-    const jwtToken = jwt.sign({
-      roles: user.roles,
-      id: user.id,
-    }, process.env.JWT_SECRET, { expiresIn: '2h' })
-    if (Helper.stringIsEmpty(jwtToken)) throw new Error("jwt token is empty")
-    const saltDigest = Helper.digest(JSON.stringify(salt))
-    if (Helper.stringIsEmpty(saltDigest)) throw new Error("salt digest is empty")
-    const jwtTokenDigest = Helper.digest(jwtToken)
-    if (Helper.stringIsEmpty(jwtTokenDigest)) throw new Error("jwt token digest is empty")
-    const sessionToken = Helper.digest(JSON.stringify({
-      id: user.id,
-      pin: randomPin,
-      salt: saltDigest,
-      jwt: jwtTokenDigest,
-    }))
-    if (Helper.stringIsEmpty(sessionToken)) throw new Error("session token is empty")
+    // const {localStorageId, event} = req.body
 
 
-    if (user.session === undefined) {
-      user.session = {}
-      user.session.pin = randomPin
-      user.session.salt = saltDigest
-      user.session.jwt = jwtTokenDigest
-      user.session.modified = Date.now()
-      user.session.counter = 1
-    } else {
-      user.session.pin = randomPin
-      user.session.salt = saltDigest
-      user.session.jwt = jwtTokenDigest
-      user.session.modified = Date.now()
-      user.session.counter = user.session.counter + 1
-    }
-    await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
 
-    const sessionLength = 120 * 60000
-    res.cookie("jwtToken", jwtToken, {
-      maxAge: sessionLength,
-      httpOnly: true,
-      sameSite: "Lax",
-    })
-    res.cookie("sessionToken", sessionToken, {
-      maxAge: sessionLength,
-      httpOnly: true,
-      sameSite: "Lax",
-    })
-    return res.sendStatus(200)
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
-})
 
-app.get("/getyour/pana/:randomDigest/",
-async (req, res) => {
-  try {
+    // const {doc, user} = await Helper.findUser(user => user.id === localStorageId)
 
-    if (EMAIL_TO_INVITE_TIMER < Date.now()) throw new Error("email to invite timer expired")
-    if (req.params.randomDigest === EMAIL_TO_INVITE_RANDOM_DIGEST) {
-      EMAIL_TO_INVITE_RANDOM_DIGEST = undefined
-      return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-einladung-verifizieren.html"))
-    }
 
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
-})
 
-let EMAIL_TO_INVITE_RANDOM_PIN
-let EMAIL_TO_INVITE_RANDOM_DIGEST
-let EMAIL_TO_INVITE_TIMER
-let EMAIL_TO_INVITE
-let ROLE_TO_INVITE
-let NAME_TO_INVITE
-app.post(`/invite/email/`,
+    const doc = await nano.db.use("getyour").get("users")
+    if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
+    if (doc.users === undefined) throw new Error("users is undefined")
 
-  Request.verifyLocation,
 
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyClosedPostRequest,
-  Request.verifyRoles([UserRole.ADMIN]),
-  Request.verifyAdmin,
 
-async(req, res) => {
-  try {
+    for (let i = 0; i < doc.users.length; i++) {
+      const user = doc.users[i]
 
-    const {emailToInvite, role} = req.body
-    if (Helper.stringIsEmpty(emailToInvite)) throw new Error("email to invite is empty")
-    if (Helper.numberIsEmpty(role)) throw new Error("role is empty")
+      if (user.id === req.body.localStorageId) {
 
-    if (role === UserRole.EXPERT) {
-      const {name} = req.body
-      if (Helper.stringIsEmpty(name)) throw new Error("name is empty")
+        if (Helper.objectIsEmpty(user)) throw new Error("user is empty")
+        if (Helper.stringIsEmpty(user.id)) throw new Error("user id is empty")
+        if (Helper.arrayIsEmpty(user.roles)) throw new Error("user roles is empty")
 
-      EMAIL_TO_INVITE_RANDOM_PIN = Helper.digest(crypto.randomBytes(32))
-      EMAIL_TO_INVITE_RANDOM_DIGEST = Helper.digest(crypto.randomBytes(32))
-      EMAIL_TO_INVITE_TIMER = Date.now() + (2 * 60 * 1000)
-      EMAIL_TO_INVITE = emailToInvite
-      ROLE_TO_INVITE = role
-      NAME_TO_INVITE = name
+        const salt = Helper.generateRandomBytes(32)
+        if (Helper.arrayIsEmpty(salt)) throw new Error("salt is empty")
+        const jwtToken = jwt.sign({
+          roles: user.roles,
+          id: user.id,
+        }, process.env.JWT_SECRET, { expiresIn: '2h' })
+        if (Helper.stringIsEmpty(jwtToken)) throw new Error("jwt token is empty")
+        const saltDigest = Helper.digest(JSON.stringify(salt))
+        if (Helper.stringIsEmpty(saltDigest)) throw new Error("salt digest is empty")
+        const jwtTokenDigest = Helper.digest(jwtToken)
+        if (Helper.stringIsEmpty(jwtTokenDigest)) throw new Error("jwt token digest is empty")
+        const sessionToken = Helper.digest(JSON.stringify({
+          id: user.id,
+          pin: randomPin,
+          salt: saltDigest,
+          jwt: jwtTokenDigest,
+        }))
+        if (Helper.stringIsEmpty(sessionToken)) throw new Error("session token is empty")
 
-      await Helper.sendEmailFromDroid({
-        from: "<droid@get-your.de>",
-        to: EMAIL_TO_INVITE,
-        subject: "[getyour plattform] Admin Einladung",
-        html: /*html*/`
-          <p>PIN: ${EMAIL_TO_INVITE_RANDOM_PIN}</p>
-          <p>Sie wurden von einem Admin eingeladen sich als Branchenexperte mit dem Namen '' auf der Getyour Plattform zu registrieren. Kopieren Sie den PIN und <a href="${clientLocation.origin}/pana/getyour/${EMAIL_TO_INVITE_RANDOM_DIGEST}/">klicken Sie hier, um Ihre PIN zu verifizieren.</a></p>
-          <p>Sollten Sie nicht wissen, warum Sie diese E-Mail erhalten, dann ignorieren Sie diese E-Mail. Sollte es öfters vorkommen, dann kontaktieren Sie uns bitte umgehend unter datenschutz@get-your.de</p>
-          <p>Sollte eine andere E-Mail Adresse als <a href="#" style="text-decoration: none; color: #d50000; font-weight: bold; cursor: default;">droid&#64;get-your&#46;de</a> als Absender erscheinen, dann versucht jemand sich als vertrauenswürdiger Absender auszugeben. Klicken Sie in dem Fall auf keine Links, antworten Sie nicht dem Absender und kontaktieren Sie uns sofort unter datenschutz@get-your.de</p>
-        `
-      })
-      return res.sendStatus(200)
+
+        if (user.session === undefined) {
+          user.session = {}
+          user.session.pin = randomPin
+          user.session.salt = saltDigest
+          user.session.jwt = jwtTokenDigest
+          user.session.modified = Date.now()
+          user.session.counter = 1
+        } else {
+          user.session.pin = randomPin
+          user.session.salt = saltDigest
+          user.session.jwt = jwtTokenDigest
+          user.session.modified = Date.now()
+          user.session.counter = user.session.counter + 1
+        }
+        await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
+
+        const sessionLength = 120 * 60000
+        res.cookie("jwtToken", jwtToken, {
+          maxAge: sessionLength,
+          httpOnly: true,
+          sameSite: "Lax",
+        })
+        res.cookie("sessionToken", sessionToken, {
+          maxAge: sessionLength,
+          httpOnly: true,
+          sameSite: "Lax",
+        })
+        return res.sendStatus(200)
+
+      }
 
     }
+
+
+
+
 
 
 
@@ -459,6 +438,79 @@ async(req, res) => {
   }
   return res.sendStatus(404)
 })
+
+// app.get("/getyour/pana/:randomDigest/",
+// async (req, res) => {
+//   try {
+
+//     if (EMAIL_TO_INVITE_TIMER < Date.now()) throw new Error("email to invite timer expired")
+//     if (req.params.randomDigest === EMAIL_TO_INVITE_RANDOM_DIGEST) {
+//       EMAIL_TO_INVITE_RANDOM_DIGEST = undefined
+//       return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-einladung-verifizieren.html"))
+//     }
+
+//   } catch (error) {
+//     await Helper.logError(error, req)
+//   }
+//   return res.sendStatus(404)
+// })
+
+// let EMAIL_TO_INVITE_RANDOM_PIN
+// let EMAIL_TO_INVITE_RANDOM_DIGEST
+// let EMAIL_TO_INVITE_TIMER
+// let EMAIL_TO_INVITE
+// let ROLE_TO_INVITE
+// let NAME_TO_INVITE
+// app.post(`/invite/email/`,
+
+//   Request.verifyLocation,
+
+//   Request.verifyJwtToken,
+//   Request.verifySession,
+//   Request.verifyClosedPostRequest,
+//   Request.verifyRoles([UserRole.ADMIN]),
+//   Request.verifyAdmin,
+
+// async(req, res) => {
+//   try {
+
+//     const {emailToInvite, role} = req.body
+//     if (Helper.stringIsEmpty(emailToInvite)) throw new Error("email to invite is empty")
+//     if (Helper.numberIsEmpty(role)) throw new Error("role is empty")
+
+//     if (role === UserRole.EXPERT) {
+//       const {name} = req.body
+//       if (Helper.stringIsEmpty(name)) throw new Error("name is empty")
+
+//       EMAIL_TO_INVITE_RANDOM_PIN = Helper.digest(crypto.randomBytes(32))
+//       EMAIL_TO_INVITE_RANDOM_DIGEST = Helper.digest(crypto.randomBytes(32))
+//       EMAIL_TO_INVITE_TIMER = Date.now() + (2 * 60 * 1000)
+//       EMAIL_TO_INVITE = emailToInvite
+//       ROLE_TO_INVITE = role
+//       NAME_TO_INVITE = name
+
+//       await Helper.sendEmailFromDroid({
+//         from: "<droid@get-your.de>",
+//         to: EMAIL_TO_INVITE,
+//         subject: "[getyour plattform] Admin Einladung",
+//         html: /*html*/`
+//           <p>PIN: ${EMAIL_TO_INVITE_RANDOM_PIN}</p>
+//           <p>Sie wurden von einem Admin eingeladen sich als Branchenexperte mit dem Namen '' auf der Getyour Plattform zu registrieren. Kopieren Sie den PIN und <a href="${clientLocation.origin}/pana/getyour/${EMAIL_TO_INVITE_RANDOM_DIGEST}/">klicken Sie hier, um Ihre PIN zu verifizieren.</a></p>
+//           <p>Sollten Sie nicht wissen, warum Sie diese E-Mail erhalten, dann ignorieren Sie diese E-Mail. Sollte es öfters vorkommen, dann kontaktieren Sie uns bitte umgehend unter datenschutz@get-your.de</p>
+//           <p>Sollte eine andere E-Mail Adresse als <a href="#" style="text-decoration: none; color: #d50000; font-weight: bold; cursor: default;">droid&#64;get-your&#46;de</a> als Absender erscheinen, dann versucht jemand sich als vertrauenswürdiger Absender auszugeben. Klicken Sie in dem Fall auf keine Links, antworten Sie nicht dem Absender und kontaktieren Sie uns sofort unter datenschutz@get-your.de</p>
+//         `
+//       })
+//       return res.sendStatus(200)
+
+//     }
+
+
+
+//   } catch (error) {
+//     await Helper.logError(error, req)
+//   }
+//   return res.sendStatus(404)
+// })
 
 app.post("/request/verify/pin/",
   Request.verifyLocation,
@@ -513,16 +565,25 @@ async (req, res) => {
 })
 
 app.post(`/:method/:type/:event/`,
-  Request.verifyLocation,
 
-  Request.verifyEvent,
+  // event defines context
+  // context = specific state of user
+
+  // open context
+  Request.verify,
+  Request.get,
+
+
+
+  Request.verifyReferer,
+  Request.verifyLocation,
+  // location context
+
 
   Request.registerAdmin,
-  Request.registerVerified,
+  // Request.registerEmail,
+
   Request.get,
-  // you need to tag yourself and that is not possible without jwt
-  // Request.register,
-  // register emmail open
 
 async(req, res, next) => {
   return next()
@@ -531,17 +592,40 @@ async(req, res, next) => {
 app.post(`/:method/:type/:event/`,
 
   Request.verifyJwtToken,
-  Request.verifyJwtId,
   Request.verifySession,
+  // jwt context
 
-  Request.redirect,
+  // Request.verifyRole, ???
+
+
+  Request.verify,
+
+
+  // closed and verified doing duplicate things
+  Request.verifyClosed,
+  // closed context
+
+
   Request.register,
+  Request.delete,
   Request.get,
+  Request.redirect,
+
+
+
+
+  Request.verifyVerified,
+  // verified context
+
+  Request.get,
+  Request.register,
+
 
 async(req, res) => {
   return res.sendStatus(404)
 })
 
+// deprecated
 app.post(`/:method/:type/:event/:role/`,
 
   Request.verifyLocation,
@@ -549,9 +633,11 @@ app.post(`/:method/:type/:event/:role/`,
   Request.verifyEvent,
 
   Request.verifyJwtToken,
-  Request.verifyJwtId,
+  Request.verifyVerified,
   Request.verifySession,
 
+
+  // check if jwt user role is in the html value allowed ???
   Request.verifyRole,
 
   Request.get,

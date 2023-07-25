@@ -7,46 +7,62 @@ import {FileField} from "/js/FileField.js"
 
 export class Helper {
 
-  static createOverlay(event, callback) {
-    if (event === "funnel/id") {
-      return this.popup(overlay => {
+  // event = input/algorithm
+  static verify(event, input) {
+
+    if (event === "input/validity") {
+      if (this.verifyIs("input/required", input)) {
+        if (this.verifyIs("input/valid", input)) {
+          this.setValidStyle(input)
+          return true
+        }
+        this.setNotValidStyle(input)
+        const field = input.parentElement
+        field.scrollIntoView({behavior: "smooth"})
+        throw new Error(`field '${field.id}' not valid`)
+      }
+    }
+
+  }
+
+  // event = tag/algorithm
+  static register(event, input) {
+
+    if (event === "path/visibility-closed") {
+
+      this.popup(async overlay => {
+
         this.headerPicker("removeOverlay", overlay)
-        overlay.info = this.headerPicker("info", overlay)
+        const info = this.headerPicker("info", overlay)
+        info.append(this.convert("text/span", input))
+        info.append(this.convert("text/span", ".visibility"))
 
-        overlay.content = this.headerPicker("scrollable", overlay)
+        const funnel = this.headerPicker("scrollable", overlay)
 
-        overlay.idField = new TextField("id", overlay.content)
-        overlay.idField.label.innerHTML = "Verwende eine individuelle Id, um dein Element eindeutig zu identifizieren"
-        overlay.idField.input.required = true
-        overlay.idField.input.accept = "text/id"
-        overlay.idField.verifyValue()
-        overlay.idField.input.addEventListener("input", () => overlay.idField.verifyValue())
 
-        overlay.submitButton = this.buttonPicker("action", overlay.content)
-        overlay.submitButton.addEventListener("click", () => {
+        {
+          const get = {}
+          get.url = "/get/platform-value/closed/"
+          get.type = "visibility"
+          get.path = input
+          const res = await Request.closed(get)
 
-          const id = overlay.idField.validValue()
+          if (res.status === 200) {
+            const map = JSON.parse(res.response)
+            map.path = input
 
-          if (document.getElementById(id) === null) {
-
-            const element = callback()
-            element.id = id
-
-            this.removeOverlay(overlay)
-
-          } else {
-            window.alert("Id existiert bereits.")
-            this.setNotValidStyle(overlay.idField.input)
-            overlay.idField.field.scrollIntoView({behavior: "smooth"})
+            this.render("visibility/platform-value-closed", map, funnel)
           }
 
 
-        })
+        }
+
       })
     }
+
   }
 
-  static request(event, input) {
+  static async request(event, input) {
 
     if (event === "start-click-funnel") {
       const startButton = input.querySelector(".start-click-funnel-button")
@@ -119,19 +135,12 @@ export class Helper {
 
               endButton.onclick = () => window.location.reload()
 
-              const nextJs = input.getAttribute("next-js")
-              if (!this.stringIsEmpty(nextJs)) {
-                try {
-                  eval(nextJs)
-                  return
-                } catch (error) {
-                  window.alert("Die Weiterleitung ist fehlgeschlagen. Ihre Daten wurden allerdings erfolgreich gespeichert. Für die nächsten Schritte kontaktieren Sie bitte Ihren verantwortlichen Experten.")
-                  this.removeOverlay(securityOverlay)
-                  throw error
-                }
+              window.alert("Ihre Daten wurden erfolgreich gespeichert.")
+
+              if (input.hasAttribute("next-path")) {
+                window.location.assign(input.getAttribute("next-path"))
               }
 
-              window.alert("Ihre Daten wurden erfolgreich gespeichert.")
               this.removeOverlay(securityOverlay)
 
 
@@ -187,6 +196,279 @@ export class Helper {
   }
 
   static create(event, parent) {
+
+
+    if (event === "script/submit-field-funnel-event") {
+
+      const text = /*html*/`
+<script id="submit-field-funnel-event" type="module">
+  import { Helper } from "/js/Helper.js"
+  import { Request } from "/js/Request.js"
+
+  document.querySelectorAll(".field-funnel").forEach(funnel => {
+
+    const submitButton = funnel.querySelector(".submit-field-funnel-button")
+
+    if (submitButton !== null) {
+
+      if (submitButton.onclick === null) {
+        submitButton.onclick = async () => {
+
+          if (Helper.tagIsEmpty(funnel.id)) {
+            window.alert("Funnel ist nicht gültig: id ist kein tag")
+            throw new Error("funnel tag is empty")
+          }
+
+          const map = await Helper.convert("field-funnel/map", funnel)
+
+          if (map !== undefined) {
+
+            Helper.overlay("security", async securityOverlay => {
+
+              const register = {}
+              register.url = "/register/funnel/closed/"
+              register.tag = funnel.id
+              register.funnel = map
+              const res = await Request.closed(register)
+
+              if (res.status === 200) {
+
+                window.alert("Ihre Daten wurden erfolgreich gespeichert.")
+
+                if (funnel.hasAttribute("next-path")) {
+                  window.location.assign(funnel.getAttribute("next-path"))
+                }
+
+                Helper.removeOverlay(securityOverlay)
+
+              } else {
+                window.alert("Fehler.. Bitte wiederholen.")
+
+                Helper.removeOverlay(securityOverlay)
+              }
+            })
+
+          }
+
+        }
+      }
+
+    }
+
+  })
+
+</script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      if (parent !== undefined) {
+        console.log(create.id);
+        if (parent.querySelector(`#${create.id}`) === null) {
+          parent.append(create)
+        }
+      }
+
+      return create
+    }
+
+
+    if (event === "script/click-funnel-start-event") {
+
+      const text = /*html*/`
+<script id="click-funnel-start-event" type="module">
+  import { Helper } from "/js/Helper.js"
+
+  {
+    document.querySelectorAll(".click-funnel").forEach(funnel => {
+
+      const startButton = funnel.querySelector(".start-click-funnel-button")
+
+      if (startButton.onclick === null) {
+        startButton.onclick = () => {
+
+          startButton.style.display = "none"
+
+          const questions = []
+          for (let i = 0; i < funnel.children.length; i++) {
+            const child = funnel.children[i]
+            if (child.classList.contains("click-field")) {
+              questions.push(child)
+              child.style.display = "flex"
+              break
+            }
+          }
+
+          if (questions.length <= 0) {
+            Helper.request("end-click-funnel", funnel)
+            return
+          }
+        }
+      }
+
+      for (let i = 0; i < funnel.children.length; i++) {
+        const child = funnel.children[i]
+
+        if (child.classList.contains("click-field")) {
+
+          child.querySelectorAll(".answer-box").forEach(box => {
+
+            if (box.onclick === null) {
+
+              box.onclick = () => {
+
+                child.style.display = "none"
+
+                box.querySelectorAll(".answer").forEach(answer => {
+                  answer.setAttribute("clicked", true)
+                })
+
+                if (child.nextSibling === null) {
+
+                  Helper.request("end-click-funnel", funnel)
+
+                  return
+
+                }
+
+                if (box.hasAttribute("onclick-condition")) {
+                  const condition = JSON.parse(box.getAttribute("onclick-condition"))
+
+                  if (condition.action === "skip") {
+                    try {
+                      Helper.skipSiblings(parseInt(condition.skip) + 1, child)
+
+                      return
+                    } catch (error) {
+
+                      Helper.request("end-click-funnel", funnel)
+
+                      return
+
+                    }
+                  }
+
+                  if (condition.action === "path") {
+                    window.location.assign(condition.path)
+                    return
+                  }
+
+                }
+
+                child.nextSibling.style.display = "flex"
+
+              }
+
+            }
+
+
+
+          })
+
+        }
+
+      }
+
+    })
+
+  }
+
+
+
+</script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      if (parent !== undefined) {
+        console.log(create.id);
+        if (parent.querySelector(`#${create.id}`) === null) {
+          parent.append(create)
+        }
+      }
+
+      return create
+    }
+
+    if (event === "script/toolbox-getter") {
+
+      const text = /*html*/`
+<script id="toolbox-getter" type="module">
+  import {Request} from "/js/Request.js"
+
+  const get = {}
+  get.url = "/get/toolbox/closed/"
+  const res = await Request.closed(get)
+
+  if (res.status === 200) {
+    const toolboxScript = new DOMParser().parseFromString(res.response, "text/html").getElementById("toolbox")
+    const script = document.createElement("script")
+    script.id = toolboxScript.id
+    script.type = toolboxScript.type
+    script.innerHTML = toolboxScript.innerHTML
+    document.body.append(script)
+  }
+</script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      if (parent !== undefined) parent.append(create)
+
+      return create
+    }
+
+    if (event === "field/lang") {
+
+      const langField = new SelectionField("lang", parent)
+      langField.label.innerHTML = "Sprache"
+      const options = ["aa","ab","ae","af","ak","am","an","ar","as","av","ay","az","ba","be","bg","bh","bi","bm","bn","bo","br","bs","ca","ce","ch","co","cr","cs","cu","cv","cy","da","de","dv","dz","ee","el","en","eo","es","et","eu","fa","ff","fi","fj","fo","fr","fy","ga","gd","gl","gn","gu","gv","ha","he","hi","ho","hr","ht","hu","hy","hz","ia","id","ie","ig","ii","ik","io","is","it","iu","ja","jv","ka","kg","ki","kj","kk","kl","km","kn","ko","kr","ks","ku","kv","kw","ky","la","lb","lg","li","ln","lo","lt","lu","lv","mg","mh","mi","mk","ml","mn","mr","ms","mt","my","na","nb","nd","ne","ng","nl","nn","no","nr","nv","ny","oc","oj","om","or","os","pa","pi","pl","ps","pt","qu","rm","rn","ro","ru","rw","sa","sc","sd","se","sg","si","sk","sl","sm","sn","so","sq","sr","ss","st","su","sv","sw","ta","te","tg","th","ti","tk","tl","tn","to","tr","ts","tt","tw","ty","ug","uk","ur","uz","ve","vi","vo","wa","wo","xh","yi","yo","za","zh","zu"]
+      for (let i = 0; i < options.length; i++) {
+        const option = document.createElement("option")
+        option.value = options[i]
+        option.text = options[i]
+        langField.select.append(option)
+      }
+      langField.select.value = "de"
+      this.setValidStyle(langField.select)
+
+      return langField
+
+    }
+
+
+    if (event === "field/image") {
+
+      const imageField = new FileField("image", parent)
+      imageField.label.textContent = "Bildupload (JPEG, PNG, SVG)"
+      imageField.input.accept = "image/jpeg, image/png, image/svg+xml"
+      imageField.verifyValue()
+      imageField.input.addEventListener("input", async (event) => {
+        if (event.target.files[0].type === "image/svg+xml") {
+          await imageField.validSvg(event.target.files[0])
+        } else {
+          await imageField.validImage(event.target.files[0])
+        }
+      })
+
+      return imageField
+
+    }
 
     if (event === "field-funnel") {
       const fieldFunnel = this.headerPicker("scrollable")
@@ -455,8 +737,2337 @@ export class Helper {
     }
   }
 
-  // event = class/algorithm
+  // event = input/algorithm
   static render(event, input, parent) {
+
+    if (event === "visibility/platform-value-closed") {
+
+      this.convert("parent/scrollable", parent)
+
+      const visibilityField = new SelectionField("visibility", parent)
+      visibilityField.label.innerHTML = "Sichtbarkeit"
+      visibilityField.verifyValue()
+      visibilityField.select.addEventListener("input", () => {
+        const value = visibilityField.validValue()[0].value
+        input.visibility = value
+        this.render(event, input, parent)
+      })
+
+      if (input.visibility === "open") {
+        visibilityField.options(["open", "closed"])
+
+        const button = this.buttonPicker("action", parent)
+        button.innerHTML = "Sichtbarkeit jetzt ändern"
+        button.addEventListener("click", async () => {
+
+          const visibility = visibilityField.validValue()[0].value
+
+          this.overlay("security", async securityOverlay => {
+
+            const register = {}
+            register.url = "/register/platform-value/closed/"
+            register.type = "visibility"
+            register.visibility = visibility
+            register.path = input.path
+            const res = await Request.closed(register)
+
+            if (res.status === 200) {
+              window.alert("Sichtbarkeit erfolgreich geändert.")
+              this.removeOverlay(parent.parentElement.previousSibling.previousSibling)
+              this.removeOverlay(parent.parentElement.previousSibling)
+              this.removeOverlay(parent.parentElement)
+              this.removeOverlay(securityOverlay)
+            } else {
+              window.alert("Fehler.. Bitte wiederholen.")
+              this.removeOverlay(securityOverlay)
+            }
+
+          })
+
+        })
+
+      }
+
+      if (input.visibility === "closed") {
+
+        visibilityField.options(["closed", "open"])
+
+        const rolesField = new SelectionField("roles", parent)
+        rolesField.label.innerHTML = "Nutzer mit diesen Rollen dürfen mit deiner Werteinheit interagieren"
+        rolesField.select.multiple = true
+
+        const array = []
+        for (let i = 0; i < input.roles.available.length; i++) {
+          const role = input.roles.available[i]
+          array.push(role.name)
+        }
+        rolesField.options(array)
+
+        rolesField.verifyValue()
+
+        const selected = []
+        for (let i = 0; i < input.roles.selected.length; i++) {
+          const roleId = input.roles.selected[i]
+
+          for (let i = 0; i < input.roles.available.length; i++) {
+            const role = input.roles.available[i]
+
+            if (role.id === roleId) {
+              selected.push(role.name)
+            }
+
+          }
+
+        }
+
+        for (let i = 0; i < selected.length; i++) {
+          const value = selected[i]
+
+          for (let i = 0; i < rolesField.select.options.length; i++) {
+            const option = rolesField.select.options[i]
+
+            if (option.value === value) {
+              option.selected = true
+            }
+
+          }
+
+        }
+
+        const authorizedField = new TextAreaField("authorized", parent)
+        authorizedField.label.innerHTML = "Nutzer mit diesen E-Mail Adressen dürfen mit deiner Werteinheit interagieren"
+        authorizedField.input.style.fontSize = "13px"
+        authorizedField.input.style.fontFamily = "monospace"
+        authorizedField.input.style.height = "89px"
+        authorizedField.input.required = true
+        authorizedField.input.accept = "email/array"
+        authorizedField.input.value = JSON.stringify(input.authorized)
+        authorizedField.verifyValue()
+        authorizedField.input.addEventListener("input", () => authorizedField.verifyValue())
+
+        const button = this.buttonPicker("action", parent)
+        button.innerHTML = "Sichtbarkeit jetzt ändern"
+        button.addEventListener("click", async () => {
+
+          const visibility = visibilityField.validValue()[0].value
+
+          const roles = []
+          for (let i = 0; i < rolesField.validValue().length; i++) {
+            const option = rolesField.validValue()[i]
+            for (let i = 0; i < input.roles.available.length; i++) {
+              const role = input.roles.available[i]
+              if (role.name === option.value) {
+                roles.push(role.id)
+              }
+            }
+          }
+
+          const authorized = JSON.parse(authorizedField.validValue())
+
+          this.overlay("security", async securityOverlay => {
+
+            const register = {}
+            register.url = "/register/platform-value/closed/"
+            register.type = "visibility"
+            register.visibility = visibility
+            register.roles = roles
+            register.authorized = authorized
+            register.path = input.path
+            const res = await Request.closed(register)
+
+            if (res.status === 200) {
+              window.alert("Sichtbarkeit erfolgreich geändert.")
+              this.removeOverlay(parent.parentElement.previousSibling.previousSibling)
+              this.removeOverlay(parent.parentElement.previousSibling)
+              this.removeOverlay(parent.parentElement)
+              this.removeOverlay(securityOverlay)
+            } else {
+              window.alert("Fehler.. Bitte wiederholen.")
+              this.removeOverlay(securityOverlay)
+            }
+
+          })
+
+
+        })
+      }
+
+    }
+
+    if (event === "experts/open") {
+      this.convert("parent/scrollable", parent)
+
+      for (let i = 0; i < input.length; i++) {
+        const expert = input[i]
+
+        const button = this.buttonPicker("left/right", parent)
+        button.left.innerHTML = expert
+        button.addEventListener("click", () => window.location.assign(`/${expert}/`))
+      }
+
+    }
+
+    if (event === "text/title") {
+      const title = document.createElement("div")
+      title.textContent = input
+      title.style.margin = "21px 34px"
+      title.style.fontSize = "21px"
+      title.style.fontFamily = "sans-serif"
+      title.style.color = this.colors.light.text
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        title.style.color = this.colors.dark.text
+      }
+
+      if (parent !== undefined) parent.append(title)
+
+      return title
+    }
+
+    if (event === "platform-values/closed") {
+
+      this.convert("parent/scrollable", parent)
+      for (let i = 0; i < input.length; i++) {
+        const value = input[i]
+
+        const item = document.createElement("div")
+        item.classList.add("checklist-item")
+        item.style.margin = "34px"
+
+        const itemHeader = document.createElement("div")
+        itemHeader.classList.add("item-header")
+        itemHeader.style.display = "flex"
+        itemHeader.style.borderTopRightRadius = "21px"
+        itemHeader.style.borderTopLeftRadius = "21px"
+        itemHeader.style.borderBottomLeftRadius = "21px"
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          itemHeader.style.backgroundColor = this.colors.matte.charcoal
+        } else {
+
+          itemHeader.style.backgroundColor = this.colors.gray[1]
+        }
+
+        itemHeader.style.cursor = "pointer"
+
+        itemHeader.addEventListener("click", async () => {
+
+          this.popup(overlay => {
+            this.headerPicker("removeOverlay", overlay)
+            const info = this.headerPicker("info", overlay)
+            info.append(this.convert("text/span", value.path))
+
+            {
+              const buttons = this.headerPicker("scrollable", overlay)
+
+              {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".toolbox"
+                button.right.innerHTML = "Bearbeite deine Werteinheit"
+                button.addEventListener("click", () => window.location.assign(value.path))
+              }
+
+              {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".path"
+                button.right.innerHTML = "Pfad ändern"
+
+                button.addEventListener("click", () => {
+
+                  this.popup(async overlay => {
+
+                    this.headerPicker("removeOverlay", overlay)
+                    const info = this.headerPicker("info", overlay)
+                    info.append(this.convert("text/span", ".value.path"))
+
+
+                    const funnel = this. headerPicker("scrollable", overlay)
+
+                    {
+                      const pathField = new TextField("path", funnel)
+                      pathField.value(() => value.path.split("/")[3])
+                      pathField.label.innerHTML = "Pfad"
+                      pathField.input.accept = "text/tag"
+                      pathField.input.maxLength = "21"
+                      pathField.input.required = true
+                      pathField.input.placeholder = "Meine Werteinheit"
+                      pathField.input.addEventListener("input", (event) => pathField.verifyValue())
+                      pathField.verifyValue()
+
+                      const button = this.buttonPicker("action", funnel)
+                      button.innerHTML = "Pfad jetzt ändern"
+                      button.addEventListener("click", async () => {
+
+                        const path = pathField.validValue()
+
+                        this.overlay("security", async securityOverlay => {
+
+                          {
+                            const verify = {}
+                            verify.url = "/verify/platform-value/open/"
+                            verify.type = "path"
+                            verify.path = `/${value.path.split("/")[1]}/${value.path.split("/")[2]}/${path}/`
+                            const res = await Request.middleware(verify)
+
+                            if (res.status === 200) {
+                              window.alert("Pfad existiert bereits.")
+                              this.setNotValidStyle(pathField.input)
+                              pathField.field.scrollIntoView({behavior: "smooth"})
+                              this.removeOverlay(securityOverlay)
+                              throw new Error("path exist")
+                            }
+                          }
+
+
+
+                          const register = {}
+                          register.url = "/register/platform-value/closed/"
+                          register.type = "path"
+                          register.oldPath = value.path
+                          register.newPath = path
+                          const res = await Request.middleware(register)
+
+                          if (res.status === 200) {
+                            window.alert("Pfad erfolgreich geändert..")
+
+                            this.removeOverlay(overlay.previousSibling.previousSibling)
+                            this.removeOverlay(overlay.previousSibling)
+                            this.removeOverlay(overlay)
+
+                            this.removeOverlay(securityOverlay)
+
+                          } else {
+                            window.alert("Fehler.. Bitte wiederholen.")
+                            this.removeOverlay(securityOverlay)
+                          }
+                        })
+
+                      })
+
+                    }
+
+                  })
+                })
+
+              }
+
+              {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".alias"
+                button.right.innerHTML = "Alias ändern"
+
+                button.addEventListener("click", () => {
+
+                  this.popup(async overlay => {
+
+                    this.headerPicker("removeOverlay", overlay)
+                    const info = this.headerPicker("info", overlay)
+                    info.append(this.convert("text/span", ".value.alias"))
+
+                    {
+                      const funnel = this.headerPicker("scrollable", overlay)
+
+                      const valueAliasField = new TextField("valueAlias", funnel)
+                      valueAliasField.value(() => value.alias)
+                      valueAliasField.label.innerHTML = "Alias"
+                      valueAliasField.input.maxLength = "21"
+                      valueAliasField.input.required = true
+                      valueAliasField.input.placeholder = "Meine Werteinheit"
+                      valueAliasField.input.addEventListener("input", () => valueAliasField.verifyValue())
+                      valueAliasField.verifyValue()
+
+                      const button = this.buttonPicker("action", funnel)
+                      button.innerHTML = "Alias jetzt ändern"
+                      button.addEventListener("click", async () => {
+
+                        const valueAlias = valueAliasField.validValue()
+
+                        this.overlay("security", async securityOverlay => {
+
+                          const register = {}
+                          register.url = "/register/platform-value/closed/"
+                          register.type = "alias"
+                          register.alias = valueAlias
+                          register.path = value.path
+                          const res = await Request.middleware(register)
+                          if (res.status === 200) {
+                            window.alert("Alias erfolgreich geändert..")
+
+                            this.removeOverlay(overlay.previousSibling.previousSibling)
+                            this.removeOverlay(overlay.previousSibling)
+                            this.removeOverlay(overlay)
+
+                            this.removeOverlay(securityOverlay)
+
+                          } else {
+                            alert("Fehler.. Bitte wiederholen.")
+                            this.removeOverlay(securityOverlay)
+                          }
+                        })
+
+
+                      })
+                    }
+
+                  })
+                })
+
+              }
+
+              {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".image"
+                button.right.innerHTML = "Bild ändern"
+
+                button.addEventListener("click", () => {
+
+                  this.popup(async overlay => {
+
+
+                    this.headerPicker("removeOverlay", overlay)
+                    const info = this.headerPicker("info", overlay)
+                    info.append(this.convert("text/span", ".value.image"))
+
+
+
+                    const funnel = this.headerPicker("scrollable", overlay)
+
+                    const imageField = this.create("field/image", funnel)
+                    imageField.input.required = true
+
+                    const button = this.buttonPicker("action", funnel)
+                    button.innerHTML = "Bild jetzt ändern"
+                    button.addEventListener("click", async () => {
+
+                      const imageFile = imageField.validValue()[0]
+
+                      this.overlay("security", async securityOverlay => {
+                        let image
+                        if (imageFile.type === "image/svg+xml") {
+
+                          image = await imageField.validSvg(imageFile)
+
+                        } else {
+
+                          image = await imageField.validImage(imageFile)
+
+                        }
+
+                        const register = {}
+                        register.url = "/register/platform-value/closed/"
+                        register.type = "image"
+                        register.image = image
+                        register.path = value.path
+                        const res = await Request.middleware(register)
+
+                        if (res.status === 200) {
+                          window.alert("Bild erfolgreich geändert..")
+
+                          this.removeOverlay(overlay)
+
+                          this.removeOverlay(securityOverlay)
+
+                        } else {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                          this.removeOverlay(securityOverlay)
+                        }
+
+                      })
+
+                    })
+
+                  })
+                })
+
+              }
+
+
+              {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".lang"
+                button.right.innerHTML = "Sprache ändern"
+
+                button.addEventListener("click", () => {
+
+                  this.popup(async overlay => {
+
+
+                    this.headerPicker("removeOverlay", overlay)
+                    const info = this.headerPicker("info", overlay)
+                    info.append(this.convert("text/span", ".value.lang"))
+
+                    const funnel = this.headerPicker("scrollable", overlay)
+
+                    const langField = this.create("field/lang", funnel)
+
+                    const button = this.buttonPicker("action", funnel)
+                    button.innerHTML = "Sprache jetzt ändern"
+                    button.addEventListener("click", async () => {
+
+                      const lang = langField.validValue()[0].value
+
+                      this.overlay("security", async securityOverlay => {
+
+                        const register = {}
+                        register.url = "/register/platform-value/closed/"
+                        register.type = "lang"
+                        register.lang = lang
+                        register.path = value.path
+                        const res = await Request.middleware(register)
+
+
+                        if (res.status === 200) {
+                          window.alert("Sprache erfolgreich geändert..")
+
+                          this.removeOverlay(overlay)
+
+                          this.removeOverlay(securityOverlay)
+
+                        } else {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                          this.removeOverlay(securityOverlay)
+                        }
+
+
+                      })
+
+                    })
+
+                  })
+                })
+
+              }
+
+
+              {
+
+                // Sichtbarkeits app für value units
+                // add platform roles
+                // roles will be shown when visibilty closed
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".visibility"
+                button.right.innerHTML = "Sichtbarkeit ändern"
+
+                button.addEventListener("click", () => {
+
+                  this.register("path/visibility-closed", value.path)
+
+                })
+
+              }
+
+              {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".delete"
+                button.right.innerHTML = "Werteinheit löschen"
+
+                button.addEventListener("click", async () => {
+
+                  const confirm = window.confirm("Möchtest du deine Werteinheit wirklich löschen? Alle enthaltenen Daten werden ebenfalls gelöscht.")
+                  if (confirm === true) {
+
+                    this.overlay("security", async securityOverlay => {
+                      const del = {}
+                      del.url = "/delete/platform-value/closed/"
+                      del.path = value.path
+                      const res = await Request.middleware(del)
+
+                      if (res.status === 200) {
+                        window.alert("Werteinheit erfolgreich gelöscht..")
+
+                        this.removeOverlay(overlay.previousSibling)
+                        this.removeOverlay(overlay)
+
+                        this.removeOverlay(securityOverlay)
+
+                      } else {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        this.removeOverlay(securityOverlay)
+                      }
+                    })
+
+                  }
+
+                })
+
+              }
+
+            }
+
+          })
+        })
+
+        const itemState = document.createElement("div")
+        itemState.classList.add("item-state")
+        itemState.style.display = "flex"
+        itemState.style.justifyContent = "center"
+        itemState.style.alignItems = "center"
+        itemState.style.width = "89px"
+        itemState.style.height = "89px"
+        itemState.style.fontSize = "34px"
+
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          itemState.style.backgroundColor = this.colors.matte.black
+        } else {
+          itemState.style.backgroundColor = this.colors.gray[2]
+        }
+
+        if (value.visibility === "closed") {
+          if (value.roles.length === 0) {
+            if (value.authorized.length === 0) {
+              const stateIcon = this.iconPicker("closed-eye")
+              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                stateIcon.children[0].style.fill = this.colors.matte.dark.text
+              } else {
+                stateIcon.children[0].style.fill = this.colors.matte.light.text
+              }
+              stateIcon.style.width = "34px"
+              itemState.append(stateIcon)
+            }
+          }
+        }
+
+        if (value.visibility === "open") {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            itemState.style.backgroundColor = this.colors.matte.seaGreen
+          } else {
+            itemState.style.backgroundColor = this.colors.matte.lime
+          }
+
+          const stateIcon = this.iconPicker("open-eye")
+          stateIcon.style.width = "34px"
+          itemState.append(stateIcon)
+        }
+
+        if (value.visibility === "closed") {
+          if (value.roles.length !== 0 || value.authorized.length !== 0) {
+            itemState.style.backgroundColor = "#eed202"
+            const stateIcon = document.createElement("img")
+            stateIcon.src = "/public/locked.svg"
+            stateIcon.alt = "Nur für bestimmte"
+            stateIcon.style.width = "34px"
+            itemState.append(stateIcon)
+          }
+        }
+        itemState.style.borderTopLeftRadius = "21px"
+        itemState.style.borderBottomLeftRadius = "21px"
+
+        const itemTitle = document.createElement("div")
+        itemTitle.classList.add("item-title")
+        itemTitle.style.alignSelf = "center"
+        itemTitle.style.marginLeft = "13px"
+        itemTitle.innerHTML = `${value.alias}`
+        itemTitle.style.fontSize = "21px"
+
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          itemTitle.style.color = this.colors.matte.dark.text
+        } else {
+          itemTitle.style.color = this.colors.matte.light.text
+        }
+
+        {
+          const path = document.createElement("div")
+          path.innerHTML = `${value.path}`
+          path.style.fontSize = "13px"
+          itemTitle.append(path)
+        }
+
+        itemHeader.append(itemState, itemTitle)
+        item.append(itemHeader)
+
+
+        const itemBody = document.createElement("div")
+        itemBody.classList.add("item-body")
+        itemBody.style.marginLeft = "8%"
+
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          itemBody.style.backgroundColor = this.colors.matte.slate
+          itemBody.style.boxShadow = `0 1px ${this.colors.gray[4]}`
+        } else {
+          itemBody.style.boxShadow = `0 1px ${this.colors.gray[2]}`
+          itemBody.style.backgroundColor = this.colors.gray[0]
+        }
+
+        itemBody.style.borderBottomRightRadius = "21px"
+        itemBody.style.borderBottomLeftRadius = "21px"
+        itemBody.style.padding = "21px"
+        itemBody.style.display = "flex"
+        itemBody.style.flexDirection = "column"
+
+        const buttons = document.createElement("div")
+        buttons.style.display = "flex"
+        buttons.style.alignItems = "center"
+
+        {
+          const button = this.iconPicker("toolbox")
+          button.style.width = "55px"
+          button.style.cursor = "pointer"
+          button.addEventListener("click", () => window.location.assign(value.path))
+          buttons.append(button)
+        }
+
+        itemBody.append(buttons)
+        item.append(itemBody)
+        parent.append(item)
+      }
+
+    }
+
+    if (event === "platform-values/location") {
+
+      this.convert("parent/scrollable", parent)
+      for (let i = 0; i < input.length; i++) {
+        const value = input[i]
+
+        const button = this.buttonPicker("left/right", parent)
+        button.right.innerHTML = value.alias
+
+        if (value.image !== undefined) {
+          button.left.style.width = "34px"
+
+          if (value.image.svg !== undefined) {
+            const svg = this.convert("text/svg", value.image.svg)
+            svg.setAttribute("width", "100%")
+            button.left.append(svg)
+          }
+
+          if (value.image.dataUrl !== undefined) {
+            const img = document.createElement("img")
+            img.src = value.image.dataUrl
+            img.alt = value.image.name
+            img.style.width = "100%"
+            button.left.append(img)
+          }
+
+        }
+
+        button.addEventListener("click", () => window.location.assign(value.path))
+
+      }
+
+    }
+
+    if (event === "platforms/closed") {
+
+
+      parent.innerHTML = ""
+
+      for (let i = 0; i < input.length; i++) {
+        const platform = input[i]
+
+        const button = this.buttonPicker("left/right", parent)
+        button.right.innerHTML = platform.name
+
+        if (platform.image !== undefined) {
+          button.left.style.width = "34px"
+
+          if (platform.image.svg !== undefined) {
+            const svg = this.convert("text/svg", platform.image.svg)
+            svg.setAttribute("width", "100%")
+            button.left.append(svg)
+          }
+
+          if (platform.image.dataUrl !== undefined) {
+            const img = document.createElement("img")
+            img.src = platform.image.dataUrl
+            img.alt = platform.image.name
+            img.style.width = "100%"
+            button.left.append(img)
+          }
+
+        }
+
+
+        button.addEventListener("click", () => {
+
+          this.popup(async overlay => {
+
+            this.headerPicker("removeOverlay", overlay)
+            const info = this.headerPicker("info", overlay)
+            info.innerHTML = platform.name
+
+            const buttons = this.headerPicker("scrollable", overlay)
+
+            {
+              const button = this.buttonPicker("left/right", buttons)
+              button.left.innerHTML = ".create"
+              button.right.innerHTML = "Neue Werteinheit erstellen"
+              button.addEventListener("click", () => {
+
+                this.popup(overlay => {
+
+
+                  this.headerPicker("removeOverlay", overlay)
+                  const info = this.headerPicker("info", overlay)
+                  info.innerHTML = platform.name
+
+                  {
+                    const span = document.createElement("span")
+                    span.innerHTML = `.value`
+                    info.append(span)
+                  }
+
+
+
+                  {
+                    const funnel = this.headerPicker("scrollable", overlay)
+
+                    const valuePathField = new TextField("valuePath", funnel)
+                    valuePathField.label.innerHTML = "Pfad"
+                    valuePathField.input.accept = "text/tag"
+                    valuePathField.input.maxLength = "21"
+                    valuePathField.input.required = true
+                    valuePathField.input.placeholder = "meine-werteinheit"
+                    valuePathField.input.addEventListener("input", () => valuePathField.verifyValue())
+                    valuePathField.verifyValue()
+
+                    const valueAliasField = new TextField("valueAlias", funnel)
+                    valueAliasField.label.innerHTML = "Alias"
+                    valueAliasField.input.maxLength = "21"
+                    valueAliasField.input.required = true
+                    valueAliasField.input.placeholder = "Meine Werteinheit"
+                    valueAliasField.input.addEventListener("input", () => valueAliasField.verifyValue())
+                    valueAliasField.verifyValue()
+
+                    const imageField = this.create("field/image", funnel)
+
+                    const valueLangField = new SelectionField("valueLang", funnel)
+                    valueLangField.label.innerHTML = "Sprache"
+                    const options = ["aa","ab","ae","af","ak","am","an","ar","as","av","ay","az","ba","be","bg","bh","bi","bm","bn","bo","br","bs","ca","ce","ch","co","cr","cs","cu","cv","cy","da","de","dv","dz","ee","el","en","eo","es","et","eu","fa","ff","fi","fj","fo","fr","fy","ga","gd","gl","gn","gu","gv","ha","he","hi","ho","hr","ht","hu","hy","hz","ia","id","ie","ig","ii","ik","io","is","it","iu","ja","jv","ka","kg","ki","kj","kk","kl","km","kn","ko","kr","ks","ku","kv","kw","ky","la","lb","lg","li","ln","lo","lt","lu","lv","mg","mh","mi","mk","ml","mn","mr","ms","mt","my","na","nb","nd","ne","ng","nl","nn","no","nr","nv","ny","oc","oj","om","or","os","pa","pi","pl","ps","pt","qu","rm","rn","ro","ru","rw","sa","sc","sd","se","sg","si","sk","sl","sm","sn","so","sq","sr","ss","st","su","sv","sw","ta","te","tg","th","ti","tk","tl","tn","to","tr","ts","tt","tw","ty","ug","uk","ur","uz","ve","vi","vo","wa","wo","xh","yi","yo","za","zh","zu"]
+                    for (let i = 0; i < options.length; i++) {
+                      const option = document.createElement("option")
+                      option.value = options[i]
+                      option.text = options[i]
+                      valueLangField.select.append(option)
+                    }
+                    valueLangField.select.value = "de"
+                    this.setValidStyle(valueLangField.select)
+
+
+                    const button = this.buttonPicker("action", funnel)
+                    button.innerHTML = "Werteinheit jetzt speichern"
+                    button.addEventListener("click", async () => {
+
+                      const valuePath = valuePathField.validValue()
+                      const valueAlias = valueAliasField.validValue()
+
+                      const verify = {}
+                      verify.url = "/verify/platform-value/open/"
+                      verify.type = "path"
+                      verify.path = `/${window.location.pathname.split("/")[1]}/${platform.name}/${valuePath}/`
+                      const res = await Request.middleware(verify)
+
+                      if (res.status === 200) {
+                        window.alert("Pfad existiert bereits.")
+                        this.setNotValidStyle(valuePathField.input)
+                        valuePathField.field.scrollIntoView({behavior: "smooth"})
+                        throw new Error("path exist")
+                      }
+
+                      const imageFile = imageField.input.files[0]
+
+                      let image
+                      if (imageFile !== undefined) {
+
+                        if (imageFile.type === "image/svg+xml") {
+
+                          image = await imageField.validSvg(imageFile)
+
+                        } else {
+
+                          image = await imageField.validImage(imageFile)
+
+                        }
+
+                      }
+
+                      const valueLang = valueLangField.validValue()[0].value
+
+                      this.popup(async securityOverlay => {
+                        this.headerPicker("loading", securityOverlay)
+
+                        const register = {}
+                        register.url = "/register/platform-value/closed/"
+                        if (image !== undefined) register.image = image
+                        register.platform = platform.name
+                        register.path = valuePath
+                        register.alias = valueAlias
+                        register.lang = valueLang
+                        const res = await Request.middleware(register)
+
+                        if (res.status === 200) {
+                          alert("Werteinheit erfolgreich gespeichert..")
+                          this.removeOverlay(securityOverlay)
+                          this.removeOverlay(overlay)
+                        } else {
+                          alert("Fehler.. Bitte wiederholen.")
+                          this.removeOverlay(securityOverlay)
+                        }
+
+
+
+                      })
+
+                    })
+
+                  }
+
+                })
+
+              })
+            }
+
+            {
+              const button = this.buttonPicker("left/right", buttons)
+              button.left.innerHTML = ".values"
+              button.right.innerHTML = "Meine Werteinheiten"
+              button.addEventListener("click", () => {
+
+                this.popup(async overlay => {
+
+
+                  this.headerPicker("removeOverlay", overlay)
+                  const info = this.headerPicker("info", overlay)
+                  info.innerHTML = platform.name
+                  info.append(this.convert("text/span", ".values"))
+
+
+                  const units = this.headerPicker("loading", overlay)
+                  const get = {}
+                  get.url = "/get/platform-values/closed/"
+                  get.platform = platform.name
+                  const res = await Request.closed(get)
+
+                  if (res.status !== 200) {
+                    window.location.assign("/login/")
+                  }
+
+                  if (res.status === 200) {
+                    const values = JSON.parse(res.response)
+
+                    if (values.length === 0) {
+                      this.convert("parent/info", units)
+                      units.innerHTML = `<span style="margin: 21px 34px;">Es wurden keine Werteinheiten gefunden.</span>`
+                      throw new Error("platform values is empty")
+                    }
+
+                    this.render("platform-values/closed", values, units)
+
+                  }
+
+                })
+              })
+            }
+
+            {
+              const button = this.buttonPicker("left/right", buttons)
+              button.right.innerHTML = "Namen ändern"
+              button.left.innerHTML = ".name"
+              button.addEventListener("click", () => {
+
+                this.popup(async overlay => {
+
+
+                  this.headerPicker("removeOverlay", overlay)
+                  const info = this.headerPicker("info", overlay)
+                  info.innerHTML = platform.name
+                  info.append(this.convert("text/span", ".name"))
+
+                  const funnel = this.headerPicker("scrollable", overlay)
+
+                  const platformNameField = new TextField("platformName", funnel)
+                  platformNameField.value(() => platform.name)
+                  platformNameField.label.innerHTML = "Plattform"
+                  platformNameField.input.accept = "text/tag"
+                  platformNameField.input.maxLength = "21"
+                  platformNameField.input.required = true
+                  platformNameField.input.placeholder = "meine-plattform"
+                  platformNameField.input.addEventListener("input", () => platformNameField.verifyValue())
+                  platformNameField.verifyValue()
+
+                  const button = this.buttonPicker("action", funnel)
+                  button.innerHTML = "Namen jetzt ändern"
+                  button.addEventListener("click", async () => {
+
+                    const platformName = platformNameField.validValue()
+
+
+                    this.overlay("security", async securityOverlay => {
+
+                      {
+
+                        const verify = {}
+                        verify.url = "/verify/platform/open/"
+                        verify.platform = platformName
+                        const res = await Request.middleware(verify)
+
+                        if (res.status === 200) {
+                          window.alert("Plattform existiert bereits.")
+                          this.setNotValidStyle(platformNameField.input)
+                          this.removeOverlay(securityOverlay)
+                          throw new Error("platform exist")
+                        }
+
+                      }
+
+
+                      const register = {}
+                      register.url = "/register/platform/closed/"
+                      register.type = "name"
+                      register.newPlatform = platformName
+                      register.oldPlatform = platform.name
+                      const res = await Request.middleware(register)
+
+                      if (res.status === 200) {
+                        window.alert("Platform erfolgreich geändert..")
+                        window.location.reload()
+                      } else {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        this.removeOverlay(securityOverlay)
+                      }
+                    })
+
+
+                  })
+
+                })
+              })
+            }
+
+            {
+              const button = this.buttonPicker("left/right", buttons)
+              button.right.innerHTML = "Bild ändern"
+              button.left.innerHTML = ".image"
+
+              button.addEventListener("click", () => {
+
+                this.popup(async overlay => {
+
+                  this.headerPicker("removeOverlay", overlay)
+                  const info = this.headerPicker("info", overlay)
+                  info.innerHTML = platform.name
+                  info.append(this.convert("text/span", ".image"))
+
+                  const funnel = this.headerPicker("scrollable", overlay)
+
+                  const imageField = this.create("field/image", funnel)
+                  imageField.input.required = true
+
+                  const button = this.buttonPicker("action", funnel)
+                  button.innerHTML = "Bild jetzt ändern"
+                  button.addEventListener("click", () => {
+
+                    const imageFile = imageField.validValue()[0]
+
+                    this.overlay("security", async securityOverlay => {
+
+                      let image
+                      if (imageFile !== undefined) {
+
+                        if (imageFile.type === "image/svg+xml") {
+
+                          image = await imageField.validSvg(imageFile)
+
+                        } else {
+
+                          image = await imageField.validImage(imageFile)
+
+                        }
+
+                      }
+
+                      const register = {}
+                      register.url = "/register/platform/closed/"
+                      register.type = "image"
+                      register.image = image
+                      register.platform = platform.name
+                      const res = await Request.middleware(register)
+
+                      if (res.status === 200) {
+                        window.alert("Bild erfolgreich geändert..")
+                        window.location.reload()
+                      } else {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        this.removeOverlay(securityOverlay)
+                      }
+
+                    })
+
+                  })
+
+                })
+              })
+
+            }
+
+            {
+              const button = this.buttonPicker("left/right", buttons)
+              button.right.innerHTML = "Sichtbarkeit ändern"
+              button.left.innerHTML = ".visibility"
+
+              button.addEventListener("click", () => {
+
+                this.popup(async overlay => {
+
+                  this.headerPicker("removeOverlay", overlay)
+                  const info = this.headerPicker("info", overlay)
+                  info.innerHTML = platform.name
+                  info.append(this.convert("text/span", ".visibility"))
+
+                  const funnel = this.headerPicker("scrollable", overlay)
+
+                  {
+                    const visibilityField = new SelectionField("visibility", funnel)
+                    visibilityField.label.innerHTML = "Sichtbarkeit"
+
+                    const get = {}
+                    get.url = "/get/platform/closed/"
+                    get.type = "visibility"
+                    get.platform = platform.name
+                    const res = await Request.closed(get)
+
+                    if (res.status === 200) {
+                      const visibility = res.response
+
+                      if (visibility === "open") {
+                        visibilityField.options(["open", "closed"])
+                      }
+                      if (visibility === "closed") {
+                        visibilityField.options(["closed", "open"])
+                      }
+                    }
+
+                    visibilityField.verifyValue()
+
+                    const button = this.buttonPicker("action", funnel)
+                    button.innerHTML = "Sichtbarkeit jetzt ändern"
+                    button.addEventListener("click", async () => {
+
+                      const visibility = visibilityField.validValue()[0].value
+
+                      this.overlay("security", async securityOverlay => {
+
+                        const register = {}
+                        register.url = "/register/platform/closed/"
+                        register.type = "visibility"
+                        register.visibility = visibility
+                        register.platform = platform.name
+                        const res = await Request.closed(register)
+
+                        if (res.status === 200) {
+                          window.alert("Sichtbarkeit erfolgreich geändert.")
+                          this.removeOverlay(overlay)
+                          this.removeOverlay(securityOverlay)
+                        } else {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                          this.removeOverlay(securityOverlay)
+                        }
+
+                      })
+
+                    })
+                  }
+
+                })
+              })
+
+            }
+
+            // Angeobt button refactor
+            // wer muss angebote für die plattform erstellen ??
+            // lieber als template für experten
+            {
+              const button = this.buttonPicker("left/right", buttons)
+              button.right.innerHTML = "Angebot erstellen"
+              button.left.innerHTML = ".offer"
+
+              button.addEventListener("click", () => {
+
+                return alert("Bald verfügbar..")
+
+                this.popup(async overlay => {
+
+                  {
+                    const header = document.createElement("div")
+                    header.style.position = "fixed"
+                    header.style.bottom = "0"
+                    header.style.left = "0"
+                    header.style.width = "100%"
+                    header.style.display = "flex"
+                    header.style.justifyContent = "flex-start"
+                    header.style.alignItems = "center"
+                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                    header.style.background = "white"
+                    header.style.zIndex = "1"
+                    header.style.cursor = "pointer"
+                    header.addEventListener("click", () => this.removeOverlay(overlay))
+
+                    const logo = document.createElement("img")
+                    logo.src = platform.logo
+                    logo.alt = platform.name
+                    logo.style.width = "55px"
+                    logo.style.margin = "21px 34px"
+                    header.append(logo)
+                    const title = document.createElement("div")
+                    title.innerHTML = "Angebote"
+                    title.style.fontWeight = "bold"
+                    title.style.fontSize = "21px"
+                    header.append(title)
+                    overlay.append(header)
+                  }
+
+
+                  const content = document.createElement("div")
+                  content.style.paddingBottom = "144px"
+                  content.style.overscrollBehavior = "none"
+
+                  content.style.overflow = "auto"
+                  content.style.display = "flex"
+                  content.style.justifyContent = "center"
+                  content.style.alignItems = "center"
+                  content.style.height = "89%"
+                  const loading = document.createElement("img")
+                  loading.src = "/public/load.svg"
+                  loading.alt = "Bitte warten.."
+                  loading.style.width = "55px"
+                  content.append(loading)
+                  overlay.append(content)
+
+
+                  {
+                    const get = {}
+                    get.url = "/get/offer/closed/3/"
+                    get.platformName = platform.name
+                    get.localStorageEmail = await Request.email()
+                    get.localStorageId = await Request.localStorageId()
+                    get.location = window.location.href
+                    get.referer = document.referrer
+                    const res = await Request.middleware(get)
+
+                    if (res.status !== 200) {
+                      alert("Im Moment gibt es keine Angebote zu prüfen.")
+                      this.removeOverlay(overlay)
+                      throw new Error("offer not found")
+                    }
+
+                    if (res.status === 200) {
+                      const offers = JSON.parse(res.response)
+                      console.log(offers);
+
+
+                      if (offers.length === 0) {
+                        alert("Im Moment gibt es keine Angebote zu prüfen.")
+                        this.removeOverlay(overlay)
+                        throw new Error("offer not found")
+                      }
+
+                      this.reset(content)
+                      content.style.overflowY = "auto"
+                      content.style.paddingBottom = "144px"
+                      content.style.overscrollBehavior = "none"
+
+                      for (let i = 0; i < offers.length; i++) {
+                        const get = offers[i]
+
+                        const box = document.createElement("div")
+                        box.style.backgroundColor = "white"
+                        box.style.borderRadius = "13px"
+                        box.style.margin = "34px"
+                        box.style.padding = "34px"
+                        box.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                        box.style.border = "0.3px solid black"
+
+                        const logo = document.createElement("img")
+                        logo.src = get.company.logo.dataUrl
+                        logo.alt = "Logo"
+                        logo.style.width = "55px"
+                        box.append(logo)
+
+                        const rightAlign = document.createElement("div")
+                        rightAlign.style.textAlign = "right"
+
+                        const companyName = document.createElement("div")
+                        companyName.innerHTML = get.company.name
+                        companyName.style.fontSize = "21px"
+                        rightAlign.append(companyName)
+
+                        const reputation = document.createElement("div")
+                        reputation.innerHTML = `Ruf: ${get.reputation}`
+                        reputation.style.fontSize = "13px"
+                        rightAlign.append(reputation)
+
+                        box.append(rightAlign)
+
+                        const website = document.createElement("div")
+                        website.style.display = "flex"
+                        website.style.alignItems = "center"
+
+                        const websiteIcon = document.createElement("img")
+                        websiteIcon.src = "/felix/shs/public/website-icon.svg"
+                        websiteIcon.alt = "Website Icon"
+
+                        const websiteText = document.createElement("a")
+                        websiteText.innerHTML = "Website"
+                        websiteText.href = get.company.website
+                        websiteText.target = "_blank"
+                        websiteText.style.textDecoration = "underline"
+                        websiteText.style.margin = "8px"
+                        websiteText.style.cursor = "pointer"
+                        website.append(websiteIcon, websiteText)
+                        box.append(website)
+
+                        const product = document.createElement("div")
+                        product.innerHTML = get.offer.title
+                        product.style.margin = "21px 0"
+                        product.style.fontSize = "21px"
+                        box.append(product)
+
+                        const description = document.createElement("div")
+                        description.innerHTML = get.offer.description
+                        description.style.marginTop = "13px"
+                        box.append(description)
+
+
+                        if (get.offer.productPdf !== undefined) {
+                          const button = document.createElement("div")
+                          button.style.display = "flex"
+                          button.style.margin = "21px 0"
+                          button.style.alignItems = "center"
+                          button.style.cursor = "pointer"
+                          button.addEventListener("click", () => {
+                            const a = document.createElement("a")
+                            a.href = get.offer.productPdf.dataUrl
+                            a.target = "_blank"
+                            a.dispatchEvent(new MouseEvent('click'))
+                          })
+
+                          const img = document.createElement("img")
+                          img.src = "/public/pdf.svg"
+                          img.alt = "PDF"
+                          img.style.marginRight = "13px"
+
+                          const title = document.createElement("div")
+                          title.innerHTML = "Produkt"
+
+                          button.append(img, title)
+                          box.append(button)
+                        }
+
+                        if (get.offer.companyPdf !== undefined) {
+                          const button = document.createElement("div")
+                          button.style.display = "flex"
+                          button.style.margin = "21px 0"
+                          button.style.alignItems = "center"
+                          button.style.cursor = "pointer"
+                          button.addEventListener("click", () => {
+                            const a = document.createElement("a")
+                            a.href = get.offer.companyPdf.dataUrl
+                            a.target = "_blank"
+                            a.dispatchEvent(new MouseEvent('click'))
+                          })
+
+                          const img = document.createElement("img")
+                          img.src = "/public/pdf.svg"
+                          img.alt = "PDF"
+                          img.style.marginRight = "13px"
+
+                          const title = document.createElement("div")
+                          title.innerHTML = "Unternehmen"
+
+                          button.append(img, title)
+                          box.append(button)
+                        }
+
+                        if (get.offer.termsPdf !== undefined) {
+                          const button = document.createElement("div")
+                          button.style.display = "flex"
+                          button.style.margin = "21px 0"
+                          button.style.alignItems = "center"
+                          button.style.cursor = "pointer"
+                          button.addEventListener("click", () => {
+                            const a = document.createElement("a")
+                            a.href = get.offer.termsPdf.dataUrl
+                            a.target = "_blank"
+                            a.dispatchEvent(new MouseEvent('click'))
+                          })
+
+                          const img = document.createElement("img")
+                          img.src = "/public/pdf.svg"
+                          img.alt = "PDF"
+                          img.style.marginRight = "13px"
+
+                          const title = document.createElement("div")
+                          title.innerHTML = "AGB"
+
+                          button.append(img, title)
+                          box.append(button)
+                        }
+
+                        const alignContainer = document.createElement("div")
+                        alignContainer.style.display = "flex"
+                        alignContainer.style.justifyContent = "flex-end"
+
+                        const priceContainer = document.createElement("div")
+                        priceContainer.style.width = "300px"
+                        priceContainer.style.marginTop = "21px"
+
+                        const priceTitle = document.createElement("div")
+                        priceTitle.innerHTML = "Preisübersicht"
+                        priceTitle.style.fontSize = "21px"
+                        priceTitle.style.margin = "21px 0"
+                        priceContainer.append(priceTitle)
+
+
+
+
+                        const netContainer = document.createElement("div")
+                        netContainer.style.display = "flex"
+                        netContainer.style.justifyContent = "space-between"
+                        netContainer.style.margin = "13px 0"
+
+                        const priceNetTitle = document.createElement("div")
+                        priceNetTitle.innerHTML = "Nettobetrag"
+
+                        const priceNetAmount = document.createElement("div")
+                        let netAmount = 0
+                        for (let i = 0; i < get.offer.services.length; i++) {
+                          const service = get.offer.services[i]
+                          if (service.selected === true) {
+                            netAmount = netAmount + Number(service.price)
+                          }
+                        }
+                        priceNetAmount.innerHTML = `${netAmount.toFixed(2).replace(".", ",")} €`
+
+                        netContainer.append(priceNetTitle, priceNetAmount)
+
+                        priceContainer.append(netContainer)
+
+                        const vatContainer = document.createElement("div")
+                        vatContainer.style.display = "flex"
+                        vatContainer.style.justifyContent = "space-between"
+                        vatContainer.style.margin = "13px 0"
+
+                        const priceVatTitle = document.createElement("div")
+                        priceVatTitle.innerHTML = `USt. ${Number(get.offer.vat).toFixed(2).replace(".", ",")} %`
+
+                        const priceVatAmount = document.createElement("div")
+                        priceVatAmount.innerHTML = `${(netAmount * (Number(get.offer.vat) / 100)).toFixed(2).replace(".", ",")} €`
+
+                        vatContainer.append(priceVatTitle, priceVatAmount)
+
+                        priceContainer.append(vatContainer)
+
+                        const line = document.createElement("hr")
+
+                        priceContainer.append(line)
+
+
+                        const grossContainer = document.createElement("div")
+                        grossContainer.style.display = "flex"
+                        grossContainer.style.justifyContent = "space-between"
+                        grossContainer.style.margin = "21px 0"
+
+                        const priceGrossTitle = document.createElement("div")
+                        priceGrossTitle.innerHTML = "Gesamt"
+
+                        const priceGrossAmount = document.createElement("div")
+                        priceGrossAmount.innerHTML = `${(netAmount * (1 + (Number(get.offer.vat) / 100))).toFixed(2).replace(".", ",")} €`
+
+                        grossContainer.append(priceGrossTitle, priceGrossAmount)
+
+                        priceContainer.append(grossContainer)
+
+
+                        const button = document.createElement("div")
+                        button.innerHTML = "Mehr"
+                        button.style.marginTop = "34px"
+                        button.style.height = "55px"
+                        button.style.backgroundColor = "#f7aa20"
+                        button.style.borderRadius = "13px"
+                        button.style.display = "flex"
+                        button.style.justifyContent = "center"
+                        button.style.alignItems = "center"
+                        button.style.cursor = "pointer"
+
+                        button.addEventListener("click", () => {
+
+                          this.popup(overlay => {
+                            {
+                              const header = document.createElement("div")
+                              header.style.position = "fixed"
+                              header.style.bottom = "0"
+                              header.style.left = "0"
+                              header.style.width = "100%"
+                              header.style.display = "flex"
+                              header.style.justifyContent = "flex-start"
+                              header.style.alignItems = "center"
+                              header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                              header.style.background = "white"
+                              header.style.zIndex = "1"
+                              header.style.cursor = "pointer"
+                              header.addEventListener("click", () => this.removeOverlay(overlay))
+
+                              const logo = document.createElement("img")
+                              logo.src = platform.logo
+                              logo.alt = platform.name
+                              logo.style.width = "55px"
+                              logo.style.margin = "21px 34px"
+                              header.append(logo)
+                              const title = document.createElement("div")
+                              title.innerHTML = `Angebot von ${get.company.name}`
+                              title.style.fontWeight = "bold"
+                              title.style.fontSize = "21px"
+                              header.append(title)
+                              overlay.append(header)
+                            }
+
+                            const buttons = document.createElement("div")
+                            buttons.style.overflowY = "auto"
+                            buttons.style.paddingBottom = "144px"
+                            buttons.style.overscrollBehavior = "none"
+
+
+                            {
+                              const button = document.createElement("div")
+                              button.style.display = "flex"
+                              button.style.flexWrap = "wrap"
+                              button.style.justifyContent = "space-between"
+                              button.style.alignItems = "center"
+                              button.style.margin = "21px 34px"
+                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                              button.style.borderRadius = "13px"
+                              button.style.border = "0.3px solid black"
+                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                              button.style.cursor = "pointer"
+                              button.addEventListener("click", () => {
+                                const a = document.createElement("a")
+                                a.href = `tel:${get.owner.phone}`
+                                a.dispatchEvent(new MouseEvent('click'))
+                              })
+
+                              const icon = document.createElement("img")
+                              icon.style.margin = "13px 34px"
+                              icon.style.width = "34px"
+                              icon.src = "/public/phone-out.svg"
+                              icon.alt = "Anrufen"
+                              button.append(icon)
+
+                              const title = document.createElement("div")
+                              title.innerHTML = "Anrufen"
+                              title.style.margin = "21px 34px"
+                              title.style.fontSize = "21px"
+                              button.append(title)
+
+                              buttons.append(button)
+                            }
+
+                            {
+                              const button = document.createElement("div")
+                              button.style.display = "flex"
+                              button.style.flexWrap = "wrap"
+                              button.style.justifyContent = "space-between"
+                              button.style.alignItems = "center"
+                              button.style.margin = "21px 34px"
+                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                              button.style.borderRadius = "13px"
+                              button.style.border = "0.3px solid black"
+                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                              button.style.cursor = "pointer"
+                              button.addEventListener("click", () => {
+                                const a = document.createElement("a")
+                                a.href = `mailto:${get.email}`
+                                a.dispatchEvent(new MouseEvent('click'))
+                              })
+
+                              const icon = document.createElement("img")
+                              icon.style.margin = "13px 34px"
+                              icon.style.width = "34px"
+                              icon.src = "/public/email-out.svg"
+                              icon.alt = "Anrufen"
+                              button.append(icon)
+
+                              const title = document.createElement("div")
+                              title.innerHTML = "E-Mail senden"
+                              title.style.margin = "21px 34px"
+                              title.style.fontSize = "21px"
+                              button.append(title)
+
+                              buttons.append(button)
+                            }
+
+                            {
+                              const button = document.createElement("div")
+                              button.style.display = "flex"
+                              button.style.flexWrap = "wrap"
+                              button.style.justifyContent = "space-between"
+                              button.style.alignItems = "center"
+                              button.style.margin = "21px 34px"
+                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                              button.style.borderRadius = "13px"
+                              button.style.border = "0.3px solid black"
+                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                              button.style.cursor = "pointer"
+                              button.addEventListener("click", () => {
+
+                                this.popup(async overlay => {
+
+                                  const header = document.createElement("div")
+                                  header.style.position = "fixed"
+                                  header.style.bottom = "0"
+                                  header.style.left = "0"
+                                  header.style.width = "100%"
+                                  header.style.display = "flex"
+                                  header.style.justifyContent = "flex-start"
+                                  header.style.alignItems = "center"
+                                  header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                                  header.style.background = "white"
+                                  header.style.zIndex = "1"
+                                  header.style.cursor = "pointer"
+                                  header.addEventListener("click", () => this.removeOverlay(overlay))
+
+                                  const logo = document.createElement("img")
+                                  logo.src = platform.logo
+                                  logo.alt = platform.name
+                                  logo.style.width = "55px"
+                                  logo.style.margin = "21px 34px"
+                                  header.append(logo)
+                                  const title = document.createElement("div")
+                                  title.innerHTML = "Angebot prüfen"
+                                  title.style.fontWeight = "bold"
+                                  title.style.fontSize = "21px"
+                                  header.append(title)
+                                  overlay.append(header)
+
+
+                                  const content = document.createElement("div")
+                                  content.style.overflowY = "auto"
+                                  content.style.paddingBottom = "144px"
+                                  content.style.overscrollBehavior = "none"
+
+                                  {
+                                    const title = document.createElement("div")
+                                    title.innerHTML = "Besitzerdaten"
+                                    title.style.margin = "21px 34px 0 34px"
+                                    title.style.fontSize = "21px"
+                                    content.append(title)
+                                  }
+
+                                  {
+                                    const hr = document.createElement("hr")
+                                    hr.style.margin = "0 34px"
+                                    content.append(hr)
+                                  }
+
+                                  {
+                                    const owner = document.createElement("div")
+                                    owner.style.margin = "21px 34px"
+                                    owner.innerHTML = `
+                                      ${get.owner.firstname} ${get.owner.lastname}<br/>
+                                      ${get.owner.street}<br/>
+                                      ${get.owner.zip}<br/>
+                                      ${get.owner.state}<br/>
+                                      ${get.owner.country}<br/>
+                                    `
+                                    content.append(owner)
+                                  }
+
+                                  {
+                                    const title = document.createElement("div")
+                                    title.innerHTML = "Unternehmensdaten"
+                                    title.style.margin = "21px 34px 0 34px"
+                                    title.style.fontSize = "21px"
+                                    content.append(title)
+                                  }
+
+                                  {
+                                    const hr = document.createElement("hr")
+                                    hr.style.margin = "0 34px"
+                                    content.append(hr)
+                                  }
+
+                                  {
+                                    const company = document.createElement("div")
+                                    company.style.margin = "21px 34px"
+                                    company.innerHTML = `
+                                      ${get.company.name}<br/>
+                                      ${get.company.sector}<br/>
+                                      <a href="${get.company.website}" target="_blank">${get.company.website}</a>
+                                    `
+                                    content.append(company)
+                                  }
+
+                                  {
+                                    const title = document.createElement("div")
+                                    title.innerHTML = "Angebotsdaten"
+                                    title.style.margin = "21px 34px 0 34px"
+                                    title.style.fontSize = "21px"
+                                    content.append(title)
+                                  }
+
+                                  {
+                                    const hr = document.createElement("hr")
+                                    hr.style.margin = "0 34px"
+                                    content.append(hr)
+                                  }
+
+                                  {
+                                    const offer = document.createElement("div")
+                                    offer.style.margin = "21px 34px"
+                                    offer.innerHTML = `
+                                      ${get.offer.tag}<br/>
+                                      Rabatt: ${get.offer.discount}<br/>
+                                      Steuer: ${Number(get.offer.vat)}<br/>
+                                      <a href="${get.offer.productPdf.dataUrl}" target="_blank">${get.offer.productPdf.name}</a><br/>
+                                      <a href="${get.offer.companyPdf.dataUrl}" target="_blank">${get.offer.companyPdf.name}</a><br/>
+                                      <a href="${get.offer.termsPdf.dataUrl}" target="_blank">${get.offer.termsPdf.name}</a><br/>
+                                      Bitte Beachten: ${get.offer.notes}<br/>
+                                    `
+                                    content.append(offer)
+                                  }
+
+                                  {
+                                    const title = document.createElement("div")
+                                    title.innerHTML = "Dienste"
+                                    title.style.margin = "21px 34px 0 34px"
+                                    title.style.fontSize = "21px"
+                                    content.append(title)
+                                  }
+
+                                  {
+                                    const hr = document.createElement("hr")
+                                    hr.style.margin = "0 34px"
+                                    content.append(hr)
+                                  }
+
+                                  for (let i = 0; i < get.offer.services.length; i++) {
+                                    const service = get.offer.services[i]
+
+                                    const item = document.createElement("div")
+                                    item.style.margin = "0 34px"
+                                    item.style.height = "34px"
+                                    item.style.display = "flex"
+                                    item.style.alignItems = "center"
+                                    item.style.justifyContent = "space-between"
+
+
+                                    const name = document.createElement("div")
+                                    name.innerHTML = service.name
+                                    item.append(name)
+
+                                    const price = document.createElement("div")
+                                    price.innerHTML = `${Number(service.price).toFixed(2).replace(".", ",")} €`
+                                    item.append(price)
+
+                                    const selected = document.createElement("input")
+                                    selected.type = "checkbox"
+                                    selected.checked = service.selected
+                                    selected.disabled = true
+                                    price.append(selected)
+
+                                    content.append(item)
+                                  }
+
+                                  {
+                                    const title = document.createElement("div")
+                                    title.innerHTML = "Status"
+                                    title.style.margin = "21px 34px 0 34px"
+                                    title.style.fontSize = "21px"
+                                    content.append(title)
+                                  }
+
+                                  {
+                                    const hr = document.createElement("hr")
+                                    hr.style.margin = "0 34px"
+                                    content.append(hr)
+                                  }
+
+
+                                  const status = document.createElement("div")
+                                  if (get.offer.verified !== undefined) {
+                                    status.style.margin = "21px 34px"
+                                    status.innerHTML = `
+                                      Status: ${get.offer.verified.status}<br/>
+                                      Grund: ${get.offer.verified.reason}<br/>
+                                    `
+
+                                    if (get.offer.verified.reason === "offer changed") {
+                                      status.innerHTML = `
+                                        Status: ${get.offer.verified.status}<br/>
+                                        Grund: Angebot wurde verändert<br/>
+                                      `
+                                    }
+
+                                    content.append(status)
+                                  } else {
+                                    status.style.margin = "21px 34px"
+                                    status.innerHTML = `
+                                      Status: 404<br/>
+                                      Grund: Experte muss das Angebot prüfen und freigeben.<br/>
+                                    `
+                                    content.append(status)
+                                  }
+
+                                  const options = ["Nicht OK", "OK"]
+                                  const verifiedStatusField = new SelectionField("verifiedStatus", content)
+                                  verifiedStatusField.label.innerHTML = "Status"
+                                  for (let i = 0; i < options.length; i++) {
+                                    const option = document.createElement("option")
+                                    option.value = options[i]
+                                    option.text = options[i]
+                                    verifiedStatusField.select.append(option)
+                                  }
+                                  this.setValidStyle(verifiedStatusField.select)
+
+
+                                  const verifiedReasonField = new TextAreaField("verifiedReason", content)
+                                  verifiedReasonField.label.innerHTML = "Grund"
+                                  verifiedReasonField.input.maxLength = "89"
+                                  verifiedReasonField.input.style.height = "89px"
+                                  verifiedReasonField.input.required = true
+                                  verifiedReasonField.input.placeholder = "Es fehlen noch folgende Informationen.."
+                                  verifiedReasonField.input.addEventListener("input", (event) => {
+                                    verifiedReasonField.withValidValue()
+                                  })
+                                  this.setNotValidStyle(verifiedReasonField.input)
+
+
+                                  {
+                                    const button = document.createElement("div")
+                                    button.innerHTML = "Status senden"
+                                    button.style.backgroundColor = "#c02221"
+                                    button.style.cursor = "pointer"
+                                    button.style.fontSize = "21px"
+                                    button.style.borderRadius = "13px"
+                                    button.style.margin = "13px 34px"
+                                    button.style.display = "flex"
+                                    button.style.justifyContent = "center"
+                                    button.style.alignItems = "center"
+                                    button.style.height = "89px"
+                                    button.style.color = "#fff"
+
+                                    button.addEventListener("click", async () => {
+
+                                      let status
+                                      let reason
+                                      try {
+                                        status = (await verifiedStatusField.withValidValue())[0].value
+                                        if (status === "OK") {
+                                          status = 200
+                                        }
+                                        if (status === "Nicht OK") {
+                                          status = 500
+                                        }
+
+                                        reason = await verifiedReasonField.withValidValue()
+                                      } catch (error) {
+                                        alert(error.message)
+                                        error.field.scrollIntoView({behavior: 'smooth'})
+                                        throw error
+                                      }
+
+                                      try {
+                                        this.addOverlay()
+                                        this.setWaitCursor()
+                                        {
+                                          const register = {}
+                                          register.url = "/register/offer/closed/3/"
+                                          register.type = "verified"
+                                          register.email = get.email
+                                          register.status = status
+                                          register.reason = reason
+                                          register.localStorageId = await Request.localStorageId()
+                                          register.localStorageEmail = await Request.email()
+                                          register.location = window.location.href
+                                          register.referer = document.referrer
+                                          const res = await Request.middleware(register)
+
+                                          if (res.status === 200) {
+                                            alert("Status erfolgreich gesendet..")
+                                          }
+                                        }
+                                      } catch (error) {
+                                        alert("Fehler.. Bitte wiederholen.")
+                                      }
+                                      window.location.reload()
+                                    })
+                                    content.append(button)
+                                  }
+
+                                  overlay.append(content)
+                                })
+                              })
+
+                              const icon = document.createElement("img")
+                              icon.style.margin = "13px 34px"
+                              icon.style.width = "34px"
+                              icon.src = "/public/verify.svg"
+                              icon.alt = "Prüfen"
+                              button.append(icon)
+
+                              const title = document.createElement("div")
+                              title.innerHTML = "Angebot prüfen"
+                              title.style.margin = "21px 34px"
+                              title.style.fontSize = "21px"
+                              button.append(title)
+
+                              buttons.append(button)
+                            }
+
+                            {
+                              const button = document.createElement("div")
+                              button.style.display = "flex"
+                              button.style.flexWrap = "wrap"
+                              button.style.justifyContent = "space-between"
+                              button.style.alignItems = "center"
+                              button.style.margin = "21px 34px"
+                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                              button.style.borderRadius = "13px"
+                              button.style.border = "0.3px solid black"
+                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                              button.style.cursor = "pointer"
+                              button.addEventListener("click", () => {
+
+                                this.popup(async overlay => {
+
+                                  const header = document.createElement("div")
+                                  header.style.position = "fixed"
+                                  header.style.bottom = "0"
+                                  header.style.left = "0"
+                                  header.style.width = "100%"
+                                  header.style.display = "flex"
+                                  header.style.justifyContent = "space-between"
+                                  header.style.alignItems = "center"
+                                  header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+                                  header.style.background = "white"
+                                  header.style.zIndex = "1"
+
+                                  const logo = document.createElement("img")
+                                  logo.src = platform.logo
+                                  logo.alt = platform.name
+                                  logo.style.width = "55px"
+                                  logo.style.margin = "21px 34px"
+                                  logo.style.cursor = "pointer"
+                                  logo.addEventListener("click", () => this.removeOverlay(overlay))
+                                  header.append(logo)
+
+                                  {
+                                    const form = document.createElement("div")
+                                    form.style.display = "flex"
+                                    form.style.justifyContent = "flex-end"
+                                    form.style.alignItems = "center"
+                                    form.style.marginRight = "34px"
+                                    form.style.width = "89%"
+
+                                    const input = document.createElement("input")
+                                    input.type = "text"
+                                    input.style.width = "100%"
+                                    input.style.height = "21px"
+                                    input.maxLength = "55"
+                                    input.placeholder = "Feedback zum Angebot.."
+                                    input.addEventListener("keyup", (event) => {
+                                      if (event.key === "Enter") {
+                                        document.querySelector(".submit-feedback").dispatchEvent(new MouseEvent("click"))
+                                      }
+                                    })
+                                    form.append(input)
+
+                                    const button = document.createElement("img")
+                                    button.classList.add("submit-feedback")
+                                    button.src = "/public/send.svg"
+                                    button.alt = "Senden"
+                                    button.style.width = "34px"
+                                    button.style.marginLeft = "13px"
+                                    button.style.cursor = "pointer"
+                                    button.addEventListener("click", async () => {
+
+                                      try {
+                                        const securityOverlay = this.addOverlay()
+                                        this.setWaitCursor()
+                                        const register = {}
+                                        register.url = "/register/feedback/closed/3/"
+                                        register.email = get.email
+                                        register.value = input.value
+                                        register.localStorageEmail = await Request.email()
+                                        register.localStorageId = await Request.localStorageId()
+                                        register.location = window.location.href
+                                        register.referer = document.referrer
+                                        await Request.sequence(register)
+
+
+                                        const getFeedback = {}
+                                        getFeedback.url = "/get/offer/closed/3/"
+                                        getFeedback.email = get.email
+                                        getFeedback.localStorageEmail = await Request.email()
+                                        getFeedback.localStorageId = await Request.localStorageId()
+                                        getFeedback.location = window.location.href
+                                        getFeedback.referer = document.referrer
+                                        const res = await Request.middleware(getFeedback)
+
+                                        if (res.status !== 200) {
+                                          const content = document.querySelector(".feedback-list")
+                                          content.removeAttribute("style")
+                                          content.innerHTML = ""
+                                          content.style.display = "flex"
+                                          content.style.justifyContent = "center"
+                                          content.style.alignItems = "center"
+                                          content.style.color = "gray"
+                                          content.style.height = "89vh"
+                                          content.innerHTML = "Feedbacks konnten nicht geladen werden."
+                                          overlay.append(content)
+                                          throw new Error("feedback not found")
+                                        }
+
+                                        if (res.status === 200) {
+                                          const feedbacks = JSON.parse(res.response)
+
+                                          if (feedbacks.length === 0) {
+                                            const content = document.querySelector(".feedback-list")
+                                            content.removeAttribute("style")
+                                            content.innerHTML = ""
+                                            content.style.display = "flex"
+                                            content.style.justifyContent = "center"
+                                            content.style.alignItems = "center"
+                                            content.style.color = "gray"
+                                            content.style.height = "89vh"
+                                            content.innerHTML = "Kein Feedback vorhanden."
+                                            overlay.append(content)
+                                            throw new Error("feedback is empty")
+                                          }
+
+                                          const content = document.querySelector(".feedback-list")
+                                          content.innerHTML = ""
+                                          for (let i = 0; i < feedbacks.length; i++) {
+                                            const feedback = feedbacks[i]
+                                            const p = document.createElement("p")
+                                            p.style.margin = "21px 34px"
+                                            if (feedback.owner === await Request.localStorageId()) {
+                                              p.innerHTML = `-> ${feedback.value}`
+                                            } else {
+                                              p.innerHTML = `<- ${feedback.value}`
+                                            }
+                                            content.append(p)
+                                          }
+                                          overlay.append(content)
+                                        }
+
+                                        this.removeOverlay(securityOverlay)
+
+                                      } catch (error) {
+                                        alert("Fehler.. Bitte wiederholen.")
+                                        window.location.reload()
+                                      }
+
+
+                                    })
+                                    form.append(button)
+
+                                    header.append(form)
+                                  }
+
+
+                                  overlay.append(header)
+
+                                  const content = document.createElement("div")
+                                  content.classList.add("feedback-list")
+                                  content.style.paddingBottom = "144px"
+                                  content.style.overscrollBehavior = "none"
+                                  content.style.overflow = "auto"
+                                  content.style.display = "flex"
+                                  content.style.justifyContent = "center"
+                                  content.style.alignItems = "center"
+                                  content.style.height = "89%"
+                                  const loading = document.createElement("img")
+                                  loading.src = "/public/load.svg"
+                                  loading.alt = "Bitte warten.."
+                                  loading.style.width = "55px"
+                                  content.append(loading)
+                                  overlay.append(content)
+
+                                  const getFeedback = {}
+                                  getFeedback.url = "/get/offer/closed/3/"
+                                  getFeedback.email = get.email
+                                  getFeedback.localStorageEmail = await Request.email()
+                                  getFeedback.localStorageId = await Request.localStorageId()
+                                  getFeedback.location = window.location.href
+                                  getFeedback.referer = document.referrer
+                                  const res = await Request.middleware(getFeedback)
+
+                                  if (res.status !== 200) {
+                                    const content = document.querySelector(".feedback-list")
+                                    content.removeAttribute("style")
+                                    content.innerHTML = ""
+
+                                    content.style.display = "flex"
+                                    content.style.justifyContent = "center"
+                                    content.style.alignItems = "center"
+                                    content.style.color = "gray"
+                                    content.style.height = "89vh"
+                                    content.innerHTML = "Feedbacks konnten nicht geladen werden."
+                                    throw new Error("feedback not found")
+                                  }
+
+                                  if (res.status === 200) {
+                                    const feedbacks = JSON.parse(res.response)
+
+                                    if (feedbacks.length === 0) {
+                                      const content = document.querySelector(".feedback-list")
+                                      content.removeAttribute("style")
+                                      content.innerHTML = ""
+
+                                      content.style.display = "flex"
+                                      content.style.justifyContent = "center"
+                                      content.style.alignItems = "center"
+                                      content.style.color = "gray"
+                                      content.style.height = "89vh"
+                                      content.innerHTML = "Kein Feedback vorhanden."
+                                      throw new Error("feedback is empty")
+                                    }
+
+                                    const content = document.querySelector(".feedback-list")
+                                    content.removeAttribute("style")
+                                    content.innerHTML = ""
+
+                                    content.style.overflowY = "auto"
+                                    content.style.paddingBottom = "144px"
+                                    content.style.overscrollBehavior = "none"
+
+                                    for (let i = 0; i < feedbacks.length; i++) {
+                                      const feedback = feedbacks[i]
+                                      const p = document.createElement("p")
+                                      p.style.margin = "21px 34px"
+                                      if (feedback.owner === await Request.localStorageId()) {
+                                        p.innerHTML = `-> ${feedback.value}`
+                                      } else {
+                                        p.innerHTML = `<- ${feedback.value}`
+                                      }
+                                      content.append(p)
+                                    }
+                                  }
+
+
+                                })
+                              })
+
+                              const icon = document.createElement("img")
+                              icon.style.margin = "13px 34px"
+                              icon.style.width = "34px"
+                              icon.src = "/public/feedback.svg"
+                              icon.alt = "Feedback"
+                              button.append(icon)
+
+                              const title = document.createElement("div")
+                              title.innerHTML = "Feedback zum Angebot"
+                              title.style.margin = "21px 34px"
+                              title.style.fontSize = "21px"
+                              button.append(title)
+
+                              buttons.append(button)
+                            }
+
+
+                            overlay.append(buttons)
+                          })
+
+
+                        })
+
+
+                        priceContainer.append(button)
+                        alignContainer.append(priceContainer)
+                        box.append(alignContainer)
+                        content.append(box)
+
+
+                      }
+
+
+                    }
+
+
+
+                  }
+
+
+                })
+
+              })
+            }
+
+            {
+              const button = this.buttonPicker("left/right", buttons)
+              button.left.innerHTML = ".roles"
+              button.right.innerHTML = "Rollen definieren"
+              button.addEventListener("click", () => {
+
+                this.popup(overlay => {
+                  this.headerPicker("removeOverlay", overlay)
+                  const info = this.headerPicker("info", overlay)
+                  info.innerHTML = `${platform.name}.role`
+
+                  const funnel = this.headerPicker("scrollable", overlay)
+
+                  const tagField = new TextField("role", funnel)
+                  tagField.label.textContent = "Rolle"
+                  tagField.input.required = true
+                  tagField.input.accept = "text/tag"
+                  tagField.input.placeholder = "meine-neue-rolle"
+                  tagField.verifyValue()
+                  tagField.input.addEventListener("input", () => tagField.verifyValue())
+
+                  const button = this.buttonPicker("action", funnel)
+                  button.innerHTML = "Rolle jetzt speichern"
+                  button.addEventListener("click", () => {
+
+                    const tag = tagField.validValue()
+
+                    this.overlay("security", async securityOverlay => {
+
+
+
+                      {
+
+                        const verify = {}
+                        verify.url = "/verify/platform/closed/"
+                        verify.type = "role"
+                        verify.tag = tag
+                        const res = await Request.closed(verify)
+
+                        if (res.status === 200) {
+                          window.alert("Rolle existiert bereits.")
+                          this.setNotValidStyle(tagField.input)
+                          this.removeOverlay(securityOverlay)
+                          throw new Error("role exist")
+                        }
+
+                      }
+
+
+
+                      const register = {}
+                      register.url = "/register/platform/closed/"
+                      register.type = "role"
+                      register.platform = platform.name
+                      register.tag = tag
+                      const res = await Request.closed(register)
+
+                      if (res.status === 200) {
+                        window.alert("Rolle erfolgreich gespeichert.")
+                        this.removeOverlay(overlay)
+                        this.removeOverlay(securityOverlay)
+                      }
+                    })
+
+                  })
+                })
+
+              })
+
+            }
+
+            {
+              const button = this.buttonPicker("left/right", buttons)
+              button.right.innerHTML = "Plattform löschen"
+              button.left.innerHTML = ".delete"
+
+              button.addEventListener("click", () => {
+
+                const confirm = window.confirm("Möchtest du deine Plattform wirklich löschen? Alle enthaltenen Dokumente werden ebenfalls gelöscht.")
+                if (confirm === true) {
+
+                  this.overlay("security", async securityOverlay => {
+                    const del = {}
+                    del.url = "/delete/platform/closed/"
+                    del.platform = platform.name
+                    const res = await Request.middleware(del)
+
+                    if (res.status === 200) {
+                      alert("Plattform erfolgreich gelöscht..")
+                      window.location.reload()
+                    } else {
+                      alert("Fehler.. Bitte wiederholen.")
+                      this.removeOverlay(securityOverlay)
+                    }
+                  })
+
+                }
+
+              })
+
+            }
+
+
+          })
+
+        })
+
+      }
+
+    }
+
+    if (event === "platforms/location") {
+
+      parent.innerHTML = ""
+      for (let i = 0; i < input.length; i++) {
+
+        const platform = input[i]
+
+        const button = this.buttonPicker("left/right", parent)
+
+        if (platform.image !== undefined) {
+          button.left.style.width = "34px"
+
+          if (platform.image.svg !== undefined) {
+            const svg = this.convert("text/svg", platform.image.svg)
+            svg.setAttribute("width", "100%")
+            button.left.append(svg)
+          }
+
+          if (platform.image.dataUrl !== undefined) {
+            const img = document.createElement("img")
+            img.src = platform.image.dataUrl
+            img.alt = platform.image.name
+            img.style.width = "100%"
+            button.left.append(img)
+          }
+
+
+
+        }
+
+        button.right.innerHTML = platform.name
+
+        button.addEventListener("click", () => {
+
+          this.popup(async overlay => {
+
+            this.headerPicker("removeOverlay", overlay)
+
+            {
+              const content = this.headerPicker("loading", overlay)
+
+              const ping = {}
+              ping.url = "/get/platform-values/location/"
+              ping.platform = platform.name
+              const res = await Request.location(ping)
+
+              if (res.status === 200) {
+                const values = JSON.parse(res.response)
+                this.render("platform-values/location", values, content)
+              }
+
+            }
+
+          })
+
+
+        })
+
+      }
+
+    }
 
     if (event === "field-funnel/fields") {
 
@@ -618,16 +3229,16 @@ export class Helper {
 
           this.popup(async overlay => {
 
-            overlay.classList.add("overlay")
-
             this.headerPicker("removeOverlay", overlay)
 
-            const elementInfoHeader = this.headerPicker("elementInfo", overlay)
+            this.buttonPicker("toolbox/register-html", overlay)
+
+            const info = this.headerPicker("info", overlay)
 
             const elementAlias = this.convert("element/alias", child)
             elementAlias.classList.add("element-alias")
 
-            elementInfoHeader.append(elementAlias)
+            info.append(elementAlias)
 
             {
               const buttons = this.headerPicker("scrollable", overlay)
@@ -645,16 +3256,11 @@ export class Helper {
                     this.popup(overlay => {
 
                       this.headerPicker("removeOverlay", overlay)
+                      this.buttonPicker("toolbox/register-html", overlay)
 
-                      const elementInfoHeader = this.headerPicker("elementInfo", overlay)
-
-                      elementInfoHeader.append(this.convert("element/alias", child))
-
-                      const span = document.createElement("span")
-                      span.innerHTML = ".children"
-                      span.style.fontSize = "13px"
-                      span.style.fontFamily = "monospace"
-                      elementInfoHeader.append(span)
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("element/alias", child))
+                      info.append(this.convert("text/span", ".children"))
 
                       const childrenContainer = this.headerPicker("scrollable", overlay)
                       this.render(event, child, childrenContainer)
@@ -663,161 +3269,171 @@ export class Helper {
 
                   } else alert("Das HTML Element ist leer.")
 
-
                 })
 
               }
 
               if (child.classList.contains("field-funnel")) {
-                const button = this.buttonPicker("left/right", buttons)
-                button.left.innerHTML = ".fields"
-                button.right.innerHTML = "Datenfelder anhängen"
-                button.addEventListener("click", () => {
 
-                  this.popup(overlay => {
-                    this.headerPicker("removeOverlay", overlay)
-                    const info = this.headerPicker("info", overlay)
-                    info.append(this.convert("element/alias", child))
-                    info.append(this.convert("text/span", ".fields"))
+                {
 
+                  const button = this.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = ".fields"
+                  button.right.innerHTML = "Datenfelder anhängen"
+                  button.addEventListener("click", () => {
 
-                    {
-                      const button = this.buttonPicker("left/right", overlay)
-                      button.left.innerHTML = ".append"
-                      button.right.innerHTML = "Neues Datenfeld erzeugen"
-                      button.addEventListener("click", () => {
+                    this.popup(overlay => {
+                      this.headerPicker("removeOverlay", overlay)
+                      this.buttonPicker("toolbox/register-html", overlay)
 
-                        this.popup(overlay => {
-                          this.headerPicker("removeOverlay", overlay)
-                          const info = this.headerPicker("info", overlay)
-                          info.append(this.convert("element/alias", child))
-                          info.append(this.convert("text/span", ".append"))
-
-                          const funnel = this.headerPicker("scrollable", overlay)
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("element/alias", child))
+                      info.append(this.convert("text/span", ".fields"))
 
 
+                      {
+                        const button = this.buttonPicker("left/right", overlay)
+                        button.left.innerHTML = ".append"
+                        button.right.innerHTML = "Neues Datenfeld erzeugen"
+                        button.addEventListener("click", () => {
 
-                          const labelField = new TextAreaField("question", funnel)
-                          labelField.label.innerHTML = "Beschreibe das Datenfeld für dein Netzwerk"
-                          labelField.input.required = true
-                          labelField.verifyValue()
-                          labelField.input.addEventListener("input", () => labelField.verifyValue())
+                          this.popup(overlay => {
+                            this.headerPicker("removeOverlay", overlay)
+                            this.buttonPicker("toolbox/register-html", overlay)
 
-                          const tagField = new TextField("tag", funnel)
-                          tagField.input.required = true
-                          tagField.input.accept = "text/tag"
-                          tagField.label.innerHTML = "Gebe deinem Datenfeld eine Id"
-                          tagField.verifyValue()
-                          tagField.input.addEventListener("input", (event) => {
+                            const info = this.headerPicker("info", overlay)
+                            info.append(this.convert("element/alias", child))
+                            info.append(this.convert("text/span", ".append"))
 
-                            const id = tagField.validValue()
+                            const funnel = this.headerPicker("scrollable", overlay)
 
-                            if (document.getElementById(id) !== null) {
-                              this.setNotValidStyle(tagField.input)
-                            }
+                            const labelField = new TextAreaField("question", funnel)
+                            labelField.label.innerHTML = "Beschreibe das Datenfeld für dein Netzwerk"
+                            labelField.input.required = true
+                            labelField.verifyValue()
+                            labelField.input.addEventListener("input", () => labelField.verifyValue())
+
+                            const tagField = new TextField("tag", funnel)
+                            tagField.input.required = true
+                            tagField.input.accept = "text/tag"
+                            tagField.label.innerHTML = "Gebe deinem Datenfeld eine Id"
+                            tagField.verifyValue()
+                            tagField.input.addEventListener("input", (event) => {
+
+                              const id = tagField.validValue()
+
+                              if (document.getElementById(id) !== null) {
+                                this.setNotValidStyle(tagField.input)
+                              }
+
+                            })
+
+                            const typeField = new SelectionField("type", funnel)
+                            typeField.label.innerHTML = "Welchen Datentyp soll dein Netzwerk eingeben können"
+                            typeField.options(["text", "textarea", "email", "tel", "range", "password", "number", "file", "date", "checkbox", "select"])
+                            typeField.verifyValue()
+
+                            const funnelSubmitButton = this.buttonPicker("action", funnel)
+                            funnelSubmitButton.innerHTML = "Datenfeld jetzt anhängen"
+                            funnelSubmitButton.addEventListener("click", () => {
+
+                              const id = tagField.validValue()
+                              const type = typeField.validValue()[0].value
+                              const label = labelField.validValue()
+
+                              if (document.getElementById(id) !== null) {
+                                window.alert("Id existiert bereits.")
+                                tagField.field.scrollIntoView({behavior: "smooth"})
+                                this.setNotValidStyle(tagField.input)
+                                throw new Error("id exist")
+                              }
+
+                              if (document.getElementById(id) === null) {
+
+                                const field = this.convert("text/field", type)
+                                field.id = id
+                                field.label.textContent = label
+
+                                child.querySelector(".submit-field-funnel-button").before(field)
+
+                                this.render("field-funnel/fields", child, fieldsContainer)
+
+                                this.removeOverlay(overlay)
+
+                              }
+
+                            })
+
 
                           })
-
-                          const typeField = new SelectionField("type", funnel)
-                          typeField.label.innerHTML = "Welchen Datentyp soll dein Netzwerk eingeben können"
-                          // typeField.select.required = true
-                          typeField.options(["text", "textarea", "email", "tel", "range", "password", "number", "file", "date", "checkbox", "select"])
-                          typeField.verifyValue()
-
-
-                          // put this in children
-                          // if child.tagName === "SELECT"
-
-                          // typeField.select.addEventListener("input", () => {
-
-                          //   typeField.withOptionSelected(option => {
-
-
-                          //     if (option.value === "select") {
-                          //       const button = this.buttonPicker("left/right")
-                          //       button.classList.add("create-options-button")
-                          //       button.left.innerHTML = ".options"
-                          //       button.right.innerHTML = "Auswahlmöglichkeiten definieren"
-                          //       funneSubmitButton.before(button)
-                          //     }
-
-                          //     if (option.value !== "select") {
-                          //       const button = funnel.querySelector(".create-options-button")
-                          //       if (button !== null) button.remove()
-                          //     }
-
-                          //   })
-                          // })
-
-
-
-
-                          const funnelSubmitButton = this.buttonPicker("action", funnel)
-                          funnelSubmitButton.innerHTML = "Datenfeld jetzt anhängen"
-                          funnelSubmitButton.addEventListener("click", () => {
-
-                            const id = tagField.validValue()
-                            const type = typeField.validValue()[0].value
-                            const label = labelField.validValue()
-
-                            if (document.getElementById(id) !== null) {
-                              window.alert("Id existiert bereits.")
-                              tagField.field.scrollIntoView({behavior: "smooth"})
-                              this.setNotValidStyle(tagField.input)
-                              throw new Error("id exist")
-                            }
-
-                            if (document.getElementById(id) === null) {
-
-                              const field = this.convert("text/field", type)
-                              field.id = id
-                              field.label.textContent = label
-
-                              child.querySelector(".submit-field-funnel-button").before(field)
-
-                              this.render("field-funnel/fields", child, fieldsContainer)
-
-                              this.removeOverlay(overlay)
-
-                            }
-
-                          })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                         })
-
-                      })
-                    }
+                      }
 
 
-                    overlay.append(this.convert("text/hr", "Datenfelder"))
+                      overlay.append(this.convert("text/hr", "Datenfelder"))
 
 
-                    const fieldsContainer = this.headerPicker("scrollable", overlay)
-                    this.render("field-funnel/fields", child, fieldsContainer)
+                      const fieldsContainer = this.headerPicker("scrollable", overlay)
+                      this.render("field-funnel/fields", child, fieldsContainer)
 
+                    })
+
+
+
+                    //
                   })
 
+                }
+
+                {
+                  const button = this.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = ".next-path"
+                  button.right.innerHTML = "Nach Abschluss, zur Werteinheit"
+                  button.addEventListener("click", () => {
+                    this.popup(overlay => {
+                      this.headerPicker("removeOverlay", overlay)
+                      this.buttonPicker("toolbox/register-html", overlay)
+
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("element/alias", child))
+                      info.append(this.convert("text/span", ".next-path"))
+
+                      const content = this.headerPicker("scrollable", overlay)
+
+                      const pathField = new TextField("path", content)
+                      pathField.input.placeholder = "/mein/pfad/"
+                      pathField.input.required = true
+                      pathField.label.textContent = "https://www.get-your.de"
+                      if (child.hasAttribute("next-path")) {
+                        pathField.value(() => child.getAttribute("next-path"))
+                          pathField.label.textContent = `https://www.get-your.de${child.getAttribute("next-path")}`
+                      }
+                      pathField.verifyValue()
+                      pathField.input.addEventListener("input", (event) => {
+
+                        if (this.stringIsEmpty(event.target.value)) {
+                          this.setNotValidStyle(event.target)
+                          child.removeAttribute("next-path")
+                        }
+
+                        // this.verifyIs("text/path", event.target.value)
+
+                        if (!this.stringIsEmpty(event.target.value)) {
+                          this.setValidStyle(event.target)
+                          pathField.label.textContent = `https://www.get-your.de${event.target.value}`
+                          child.setAttribute("next-path", event.target.value)
+                        }
+
+                      })
 
 
-                  //
-                })
+
+                    })
+                  })
+                }
+
+
               }
 
               if (child.tagName === "BODY") {
@@ -832,17 +3448,13 @@ export class Helper {
                     this.popup(async overlay => {
 
                       this.headerPicker("removeOverlay", overlay)
+                      this.buttonPicker("toolbox/register-html", overlay)
 
 
-                      const elementInfo = this.headerPicker("elementInfo", overlay)
+                      const info = this.headerPicker("info", overlay)
 
-                      elementInfo.append(this.convert("element/alias", document.body))
-
-                      const span = document.createElement("span")
-                      span.innerHTML = ".templates"
-                      span.style.fontSize = "13px"
-                      span.style.fontFamily = "monospace"
-                      elementInfo.append(span)
+                      info.append(this.convert("element/alias", document.body))
+                      info.append(this.convert("text/span", ".templates"))
 
                       {
                         const units = this.headerPicker("loading", overlay)
@@ -1092,21 +3704,23 @@ export class Helper {
 
                                   this.headerPicker("removeOverlay", overlay)
 
-                                  const elementInfo = this.headerPicker("elementInfo", overlay)
+                                  const info = this.headerPicker("info", overlay)
 
-                                  elementInfo.append(this.convert("element/alias", document.body))
+                                  info.append(this.convert("element/alias", document.body))
+                                  info.append(this.convert("text/span", `.templates[${i}].feedback`))
+                                  // const span = document.createElement("span")
+                                  // span.innerHTML = `.templates[${i}].feedback`
+                                  // span.style.fontSize = "13px"
+                                  // span.style.fontFamily = "monospace"
+                                  // info.append(span)
 
-                                  const span = document.createElement("span")
-                                  span.innerHTML = `.templates[${i}].feedback`
-                                  span.style.fontSize = "13px"
-                                  span.style.fontFamily = "monospace"
-                                  elementInfo.append(span)
 
-                                  const content = document.createElement("div")
-                                  content.style.overflowY = "auto"
-                                  content.style.overscrollBehavior = "none"
-                                  content.style.paddingBottom = "144px"
-                                  overlay.append(content)
+
+                                  const content = this.headerPicker("scrollable", overlay)
+                                  // content.style.overflowY = "auto"
+                                  // content.style.overscrollBehavior = "none"
+                                  // content.style.paddingBottom = "144px"
+                                  // overlay.append(content)
 
                                   const feedbackContainer = this.headerPicker("loading", content)
                                   feedbackContainer.info.remove()
@@ -1381,23 +3995,15 @@ export class Helper {
                   this.popup(overlay => {
 
                     this.headerPicker("removeOverlay", overlay)
+                    this.buttonPicker("toolbox/register-html", overlay)
 
-                    const elementInfo = this.headerPicker("elementInfo", overlay)
-                    elementInfo.append(this.convert("element/alias", document.body))
-
-                    const span = document.createElement("span")
-                    span.textContent = ".append"
-                    span.style.fontSize = "13px"
-                    span.style.fontFamily = "monospace"
-                    elementInfo.append(span)
+                    const info = this.headerPicker("info", overlay)
+                    info.append(this.convert("element/alias", document.body))
+                    info.append(this.convert("text/span", ".append"))
 
 
-
-
-
-
+                    const buttons = this.headerPicker("scrollable", overlay)
                     {
-                      const buttons = this.headerPicker("scrollable", overlay)
 
                       if (child.tagName === "DIV" || child.tagName === "BODY") {
 
@@ -1407,10 +4013,43 @@ export class Helper {
                           button.left.innerHTML = ".field-funnel"
                           button.right.innerHTML = "Field Funnel anhängen"
                           button.addEventListener("click", () => {
-                            const overlay = this.createOverlay("funnel/id", () => this.create("field-funnel", child))
-                            overlay.submitButton.innerHTML = "Field Funnel jetzt anhängen"
-                            overlay.info.append(this.convert("element/alias", child))
-                            overlay.info.append(".append.field-funnel")
+                            this.popup(overlay => {
+                              this.headerPicker("removeOverlay", overlay)
+                              this.buttonPicker("toolbox/register-html", overlay)
+
+                              const info = this.headerPicker("info", overlay)
+                              info.append(this.convert("element/alias", child))
+                              info.append(".field-funnel.append")
+
+                              const content = this.headerPicker("scrollable", overlay)
+
+                              const idField = new TextField("id", content)
+                              idField.label.innerHTML = "Verwende eine individuelle Id, um dein Element eindeutig zu identifizieren"
+                              idField.input.required = true
+                              idField.input.accept = "text/id"
+                              idField.verifyValue()
+                              idField.input.addEventListener("input", () => idField.verifyValue())
+
+                              const submitButton = this.buttonPicker("action", content)
+                              submitButton.innerHTML = "Datenfeld Funnel jetzt anhängen"
+                              submitButton.addEventListener("click", () => {
+
+                                const id = idField.validValue()
+
+                                if (document.getElementById(id) === null) {
+
+                                  const element = this.create("field-funnel", child)
+                                  element.id = id
+
+                                  this.create("script/submit-field-funnel-event", document.body)
+
+                                  this.removeOverlay(overlay)
+
+                                }
+
+                              })
+                            })
+
                           })
 
                         }
@@ -1421,13 +4060,97 @@ export class Helper {
                           button.left.innerHTML = ".click-funnel"
                           button.right.innerHTML = "Klick Funnel anhängen"
                           button.addEventListener("click", () => {
-                            const overlay = this.createOverlay("funnel/id", () => this.create("click-funnel", child))
-                            overlay.submitButton.innerHTML = "Klick Funnel jetzt anhängen"
-                            overlay.info.append(this.convert("element/alias", child))
-                            overlay.info.append(".append.click-funnel")
+                            this.popup(overlay => {
+                              this.headerPicker("removeOverlay", overlay)
+                              this.buttonPicker("toolbox/register-html", overlay)
+
+                              const info = this.headerPicker("info", overlay)
+                              info.append(this.convert("element/alias", child))
+                              info.append(".click-funnel.append")
+
+                              const content = this.headerPicker("scrollable", overlay)
+
+                              const idField = new TextField("id", content)
+                              idField.label.innerHTML = "Verwende eine individuelle Id, um dein Element eindeutig zu identifizieren"
+                              idField.input.required = true
+                              idField.input.accept = "text/id"
+                              idField.verifyValue()
+                              idField.input.addEventListener("input", () => idField.verifyValue())
+
+                              const submitButton = this.buttonPicker("action", content)
+                              submitButton.innerHTML = "Klick Funnel jetzt anhängen"
+                              submitButton.addEventListener("click", () => {
+
+                                const id = idField.validValue()
+
+                                if (document.getElementById(id) === null) {
+
+                                  const element = this.create("click-funnel", child)
+                                  element.id = id
+
+                                  this.create("script/click-funnel-start-event", document.body)
+
+                                  this.removeOverlay(overlay)
+
+                                }
+
+                              })
+                            })
 
                           })
 
+                        }
+
+
+                        {
+                          const button = this.buttonPicker("left/right", buttons)
+                          button.left.innerHTML = ".image"
+                          button.right.innerHTML = "Bild anhängen"
+
+                          button.addEventListener("click", () => {
+
+                            this.popup(async overlay => {
+
+                              this.headerPicker("removeOverlay", overlay)
+                              this.buttonPicker("toolbox/register-html", overlay)
+
+                              const info = this.headerPicker("info", overlay)
+                              info.append(this.convert("element/alias", child))
+                              info.append(this.convert("text/span", ".image"))
+
+
+
+                              const funnel = this.headerPicker("scrollable", overlay)
+
+                              const imageField = this.create("field/image", funnel)
+                              imageField.input.required = true
+
+                              const button = this.buttonPicker("action", funnel)
+                              button.innerHTML = "Bild jetzt anhängen"
+                              button.addEventListener("click", async () => {
+
+                                const imageFile = imageField.validValue()[0]
+
+                                const div = document.createElement("div")
+                                div.classList.add("image")
+                                if (imageFile.type === "image/svg+xml") {
+
+                                  const image = await imageField.validSvg(imageFile)
+                                  div.append(this.convert("text/svg", image.svg))
+                                  child.append(div)
+
+                                } else {
+
+                                  const image = await imageField.validImage(imageFile)
+                                  div.append(this.convert("text/img", image.dataUrl))
+                                  child.append(div)
+
+                                }
+
+                              })
+
+                            })
+                          })
                         }
 
                       }
@@ -1440,6 +4163,8 @@ export class Helper {
                         button.addEventListener("click", () => {
                           this.popup(overlay => {
                             this.headerPicker("removeOverlay", overlay)
+                            this.buttonPicker("toolbox/register-html", overlay)
+
                             const info = this.headerPicker("info", overlay)
                             info.append(this.convert("element/alias", child))
                             info.append(".append.html")
@@ -1447,29 +4172,27 @@ export class Helper {
                             const funnel = this.headerPicker("scrollable", overlay)
 
                             const htmlField = new TextAreaField("html-input", funnel)
-                            htmlField.label.innerHTML = "HTML Element"
+                            htmlField.label.innerHTML = "HTML Import"
                             htmlField.input.placeholder = `<div>..</div>`
                             if (child.tagName === "SCRIPT") {
                               htmlField.label.innerHTML = "JavaScript"
                               htmlField.input.placeholder = `document.getElementById(id) ..`
                             }
-                            htmlField.label.style.fontFamily = "sans-serif"
                             htmlField.input.style.fontSize = "13px"
+                            htmlField.input.style.fontFamily = `monospace`
                             htmlField.input.style.height = "89px"
+                            htmlField.input.required = true
+                            htmlField.verifyValue()
                             htmlField.input.addEventListener("input", () => htmlField.verifyValue())
 
                             const button = this.buttonPicker("action", funnel)
-                            button.innerHTML = "Jetzt anhängen"
+                            button.innerHTML = "Element jetzt anhängen"
                             button.addEventListener("click", async () => {
 
-                              const elementString = htmlField.validValue()
+                              const text = htmlField.validValue()
 
-                              const parser = document.createElement("div")
-                              parser.innerHTML = elementString
-
-                              while (parser.firstChild) {
-                                child.append(parser.firstChild)
-                              }
+                              const html = this.convert("text/html", text)
+                              child.append(html)
 
                               this.removeOverlay(overlay)
 
@@ -1592,6 +4315,53 @@ export class Helper {
                 }
 
 
+                {
+                  const button = this.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = ".next-path"
+                  button.right.innerHTML = "Nach Abschluss, zur Werteinheit"
+                  button.addEventListener("click", () => {
+                    this.popup(overlay => {
+                      this.headerPicker("removeOverlay", overlay)
+                      this.buttonPicker("toolbox/register-html", overlay)
+
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("element/alias", child))
+                      info.append(this.convert("text/span", ".next-path"))
+
+                      const content = this.headerPicker("scrollable", overlay)
+
+                      const pathField = new TextField("path", content)
+                      pathField.input.placeholder = "/mein/pfad/"
+                      pathField.input.required = true
+                      pathField.label.textContent = "https://www.get-your.de"
+                      if (child.hasAttribute("next-path")) {
+                        pathField.value(() => child.getAttribute("next-path"))
+                          pathField.label.textContent = `https://www.get-your.de${child.getAttribute("next-path")}`
+                      }
+                      pathField.verifyValue()
+                      pathField.input.addEventListener("input", (event) => {
+
+                        if (this.stringIsEmpty(event.target.value)) {
+                          this.setNotValidStyle(event.target)
+                          child.removeAttribute("next-path")
+                        }
+
+                        // this.verifyIs("text/path", event.target.value)
+
+                        if (!this.stringIsEmpty(event.target.value)) {
+                          this.setValidStyle(event.target)
+                          pathField.label.textContent = `https://www.get-your.de${event.target.value}`
+                          child.setAttribute("next-path", event.target.value)
+                        }
+
+                      })
+
+
+
+                    })
+                  })
+                }
+
 
                 {
                   const button = this.buttonPicker("left/right", buttons)
@@ -1635,38 +4405,22 @@ export class Helper {
 
               if (child.tagName === "TITLE") {
 
-                const button = document.createElement("div")
-                button.style.display = "flex"
-                button.style.flexWrap = "wrap"
-                button.style.justifyContent = "space-between"
-                button.style.alignItems = "center"
-                button.style.margin = "21px 34px"
-                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                const button = this.buttonPicker("left/right", buttons)
 
-                button.style.borderRadius = "13px"
-                button.style.border = "0.3px solid black"
-                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                button.style.cursor = "pointer"
+                button.left.innerHTML = ".textContent"
+                button.right.innerHTML = "Textinhalt ersetzen"
 
                 button.addEventListener("click", async () => {
 
                   this.popup(async overlay => {
 
-                    overlay.classList.add("overlay-3")
-                    const overlay3 = overlay
-
                     this.headerPicker("removeOverlay", overlay)
 
-                    const elementInfoHeader = this.headerPicker("elementInfo", overlay)
+                    this.buttonPicker("toolbox/register-html", overlay)
 
-                    elementInfoHeader.append(this.convert("element/alias", child))
-
-
-                    const span = document.createElement("span")
-                    span.innerHTML = ".textContent"
-                    span.style.fontSize = "13px"
-                    span.style.fontFamily = "monospace"
-                    elementInfoHeader.append(span)
+                    const info = this.headerPicker("info", overlay)
+                    info.append(this.convert("element/alias", child))
+                    info.append(this.convert("text/span", ".textContent"))
 
                     const textFieldIdField = new TextField("textFieldId", overlay)
                     textFieldIdField.label.innerHTML = "Dokumententitel"
@@ -1685,23 +4439,6 @@ export class Helper {
 
                 })
 
-
-                const icon = document.createElement("div")
-                icon.innerHTML = ".textContent"
-                icon.style.margin = "13px 34px"
-                icon.style.fontSize = "21px"
-                icon.style.fontFamily = "sans-serif"
-                button.append(icon)
-
-                const title = document.createElement("div")
-                title.innerHTML = "Dokumententitel ändern"
-                title.style.margin = "21px 34px"
-                title.style.fontSize = "13px"
-                title.style.fontFamily = "sans-serif"
-                button.append(title)
-
-                buttons.append(button)
-
               }
 
               {
@@ -1712,22 +4449,22 @@ export class Helper {
 
                   this.popup(async overlay => {
 
-                    overlay.classList.add("overlay-3")
-                    const overlay3 = overlay
-
                     this.headerPicker("removeOverlay", overlay)
 
-                    const elementInfoHeader = this.headerPicker("info", overlay)
+                    this.buttonPicker("toolbox/register-html", overlay)
+
+                    const info = this.headerPicker("info", overlay)
 
                     const elementAlias = this.convert("element/alias", child)
                     elementAlias.classList.add("element-alias")
-                    elementInfoHeader.append(elementAlias)
+                    info.append(elementAlias)
+                    info.append(this.convert("text/span", ".id"))
 
-                    const span = document.createElement("span")
-                    span.innerHTML = ".id"
-                    span.style.fontSize = "13px"
-                    span.style.fontFamily = "monospace"
-                    elementInfoHeader.append(span)
+                    // const span = document.createElement("span")
+                    // span.innerHTML = ".id"
+                    // span.style.fontSize = "13px"
+                    // span.style.fontFamily = "monospace"
+                    // info.append(span)
 
                     const textFieldIdField = new TextField("elementId", overlay)
                     textFieldIdField.label.innerHTML = "Element Id"
@@ -1766,6 +4503,169 @@ export class Helper {
                 })
               }
 
+              {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".class"
+                button.right.innerHTML = "Element Klassen definieren"
+                button.addEventListener("click", () => {
+
+                  this.popup(overlay => {
+
+                    this.headerPicker("removeOverlay", overlay)
+                    this.buttonPicker("toolbox/register-html", overlay)
+
+                    const info = this.headerPicker("info", overlay)
+
+                    const elementAlias = this.convert("element/alias", child)
+                    elementAlias.classList.add("element-alias")
+                    info.append(elementAlias)
+                    info.append(this.convert("text/span", ".class"))
+
+                    const content = this.headerPicker("scrollable", overlay)
+
+                    const classField = new TextAreaField("class", content)
+                    classField.label.innerHTML = "Element Klassen"
+                    classField.input.placeholder = "mehrere klassen werden mit einem leerzeichen getrennt"
+                    classField.input.style.fontFamily = "monospace"
+                    classField.input.style.fontSize = "13px"
+                    classField.input.style.height = "144px"
+                    classField.value(() => Array.from(child.classList).join(" "))
+                    classField.verifyValue()
+                    classField.input.addEventListener("input", (event) => {
+                      if (this.stringIsEmpty(event.target.value)) {
+                        child.removeAttribute("class")
+
+                        document.querySelectorAll(".element-alias").forEach(element => {
+                          element.innerHTML = ""
+                          element.append(this.convert("element/alias", child))
+                        })
+
+                        this.render(event, input, parent)
+                      }
+                      classField.verifyValue()
+                    })
+
+                    const button = this.buttonPicker("action", content)
+                    button.innerHTML = "Klassen jetzt speichern"
+                    button.addEventListener("click", () => {
+
+                      const classes = classField.validValue().split(" ")
+
+                      child.removeAttribute("class")
+                      try {
+                        child.classList.add(...classes)
+                      } catch (error) {
+                        this.setNotValidStyle(classField.input)
+                        throw error
+                      }
+
+                      document.querySelectorAll(".element-alias").forEach(element => {
+                        element.innerHTML = ""
+                        element.append(this.convert("element/alias", child))
+                      })
+
+
+                      this.render(event, input, parent)
+                      this.removeOverlay(overlay)
+                    })
+
+                  })
+
+
+
+                })
+              }
+
+              if (child.tagName === "HEAD") {
+
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".style"
+                button.right.innerHTML = "Design importieren"
+
+                button.addEventListener("click", () => {
+
+                  this.popup(overlay => {
+
+                    this.headerPicker("removeOverlay", overlay)
+                    this.buttonPicker("toolbox/register-html", overlay)
+
+                    const info = this.headerPicker("info", overlay)
+                    info.append(this.convert("element/alias", document.body))
+                    info.append(this.convert("text/span", ".style"))
+
+                    const funnel = this.headerPicker("scrollable", overlay)
+
+                    {
+                      const cssField = new TextAreaField("css", funnel)
+                      cssField.label.innerHTML = "CSS Import"
+                      cssField.input.placeholder = `.class {..}`
+                      cssField.input.style.fontFamily = "monospace"
+                      cssField.input.style.fontSize = "13px"
+                      cssField.input.style.height = "89px"
+                      cssField.input.addEventListener("input", () => cssField.verifyValue())
+                      cssField.verifyValue()
+
+                      const button = this.buttonPicker("action", funnel)
+                      button.innerHTML = "Inhalt jetzt ersetzen"
+                      button.addEventListener("click", async () => {
+
+                        const css = cssField.validValue()
+
+                        const style = document.createElement("style")
+                        style.textContent = css
+
+                        child.append(style)
+
+                        this.removeOverlay(overlay)
+
+                      })
+                    }
+
+
+
+                  })
+
+
+                })
+
+              }
+
+              if (child.tagName === "BODY") {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".style"
+                button.right.innerHTML = "Design anpassen"
+
+                button.addEventListener("click", () => {
+
+                  this.popup(overlay => {
+
+                    this.headerPicker("removeOverlay", overlay)
+                    this.buttonPicker("toolbox/register-html", overlay)
+
+                    const info = this.headerPicker("info", overlay)
+                    info.append(this.convert("element/alias", child))
+                    info.append(this.convert("text/span", ".style"))
+
+                    const content = this.headerPicker("scrollable", overlay)
+
+                    const cssField = new TextAreaField("css", content)
+                    cssField.label.textContent = "CSS Import"
+                    cssField.input.style.height = "55vh"
+                    cssField.input.style.fontFamily = "monospace"
+                    cssField.value(() => this.convert("styles/text", child))
+                    cssField.verifyValue()
+                    cssField.input.addEventListener("input", () => {
+
+                      const css = cssField.validValue()
+
+                      child.setAttribute("style", css)
+
+                    })
+
+                  })
+                })
+
+              }
 
               if (
                 child.tagName !== "SCRIPT" &&
@@ -1774,31 +4674,20 @@ export class Helper {
               ) {
                 const button = this.buttonPicker("left/right", buttons)
                 button.left.innerHTML = ".style"
-                button.right.innerHTML = "Style anpassen"
+                button.right.innerHTML = "Design anpassen"
 
                 button.addEventListener("click", () => {
 
                   this.popup(overlay => {
-                    overlay.classList.add("overlay-3")
-                    const overlay3 = overlay
 
                     this.headerPicker("removeOverlay", overlay)
+                    this.buttonPicker("toolbox/register-html", overlay)
 
-                    const elementInfo = this.headerPicker("elementInfo", overlay)
+                    const info = this.headerPicker("info", overlay)
+                    info.append(this.convert("element/alias", child))
+                    info.append(this.convert("text/span", ".style"))
 
-                    elementInfo.append(this.convert("element/alias", child))
-
-                    const span = document.createElement("span")
-                    span.innerHTML = ".style"
-                    span.style.fontSize = "13px"
-                    span.style.fontFamily = "monospace"
-                    elementInfo.append(span)
-
-                    const content = document.createElement("div")
-                    content.style.overflowY = "auto"
-                    content.style.overscrollBehavior = "none"
-                    content.style.paddingBottom = "144px"
-                    overlay.append(content)
+                    const content = this.headerPicker("scrollable", overlay)
 
                     {
                       const preview = document.createElement("div")
@@ -1810,95 +4699,23 @@ export class Helper {
                       preview.append(clone)
                       content.append(preview)
 
-
-
-
-                      const text = document.createElement("div")
-                      text.innerHTML = "Vorschau"
-                      text.style.fontFamily = "sans-serif"
-                      text.style.fontSize = "13px"
-                      text.style.margin = "0 34px"
-                      content.append(text)
-
-                      const hr = document.createElement("hr")
-                      hr.style.margin = "0 21px"
+                      const hr = this.convert("text/hr", "Vorschau")
                       content.append(hr)
 
+                      const cssField = new TextAreaField("css", content)
+                      cssField.label.textContent = "CSS Import"
+                      cssField.input.style.height = "233px"
+                      cssField.input.style.fontFamily = "monospace"
+                      cssField.value(() => this.convert("styles/text", child))
+                      cssField.verifyValue()
+                      cssField.input.addEventListener("input", () => {
 
-                      // show list of css key values
-                      // for each create switch
-                      // for each on click create input funnel
-                      // this.render("css/values", child, content) ???
+                        const css = cssField.validValue()
 
-                      // function getInlineStyles(element) {
-                      //   const styles = element.style;
-                      //   const inlineStyles = {};
-                      //   for (let i = 0; i < styles.length; i++) {
-                      //     const key = styles[i];
-                      //     const value = styles.getPropertyValue(key);
-                      //     inlineStyles[key] = value;
-                      //   }
-                      //   return inlineStyles;
-                      // }
+                        clone.setAttribute("style", css)
+                        child.setAttribute("style", css)
 
-                      const divStylePropertyField = new TextField("divStyleProperty", content)
-                      divStylePropertyField.label.innerHTML = "CSS Eigenschaft"
-                      divStylePropertyField.input.required = true
-                      divStylePropertyField.verifyValue()
-                      divStylePropertyField.input.addEventListener("input", (event) => {
-                        if (event.target.style[event.target.value] !== undefined) {
-                          this.setValidStyle(event.target)
-                        } else {
-                          this.setNotValidStyle(event.target)
-                        }
                       })
-
-                      const divStyleValueField = new TextField("divStyleValue", content)
-                      divStyleValueField.label.innerHTML = "CSS Wert"
-                      divStyleValueField.verifyValue()
-                      divStyleValueField.input.addEventListener("input", () => {
-                        divStyleValueField.verifyValue()
-                      })
-
-
-                      {
-                        const button = document.createElement("div")
-                        button.innerHTML = "CSS anwenden"
-                        button.style.backgroundColor = "#f7aa20"
-                        button.style.cursor = "pointer"
-                        button.style.fontSize = "21px"
-                        button.style.fontFamily = "sans-serif"
-                        button.style.borderRadius = "13px"
-                        button.style.margin = "21px 34px"
-                        button.style.display = "flex"
-                        button.style.justifyContent = "center"
-                        button.style.alignItems = "center"
-                        button.style.height = "89px"
-                        button.style.color = "#000"
-                        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                        button.addEventListener("click", () => {
-
-                          try {
-                            divStylePropertyField.validValue()
-                            if (divStylePropertyField.input.style[divStylePropertyField.input.value] === undefined) throw new Error("css property not found")
-                          } catch (error) {
-                            alert(`Die CSS Eigenschaft ist ungültig.`)
-                            this.setNotValidStyle(divStylePropertyField.input)
-                            throw error
-                          }
-
-                          const cssValue = divStyleValueField.validValue()
-
-                          clone.style[divStylePropertyField.input.value] = cssValue
-                          child.style[divStylePropertyField.input.value] = cssValue
-
-                          divStylePropertyField.input.value = ""
-                          this.setNotValidStyle(divStylePropertyField.input)
-                          divStyleValueField.input.value = ""
-
-                        })
-                        content.append(button)
-                      }
 
                     }
 
@@ -1912,75 +4729,47 @@ export class Helper {
 
                 const button = this.buttonPicker("left/right", buttons)
                 button.left.innerHTML = ".innerHTML"
-                button.right.innerHTML = "Element Inhalt ändern"
+                button.right.innerHTML = "Inhalt ersetzen"
 
                 button.addEventListener("click", () => {
 
                   this.popup(overlay => {
 
                     this.headerPicker("removeOverlay", overlay)
+                    this.buttonPicker("toolbox/register-html", overlay)
 
-                    const elementInfo = this.headerPicker("elementInfo", overlay)
-                    elementInfo.append(this.convert("element/alias", document.body))
+                    const info = this.headerPicker("info", overlay)
+                    info.append(this.convert("element/alias", document.body))
+                    info.append(this.convert("text/span", ".innerHTML"))
 
-                    const span = document.createElement("span")
-                    span.textContent = ".innerHTML"
-                    span.style.fontSize = "13px"
-                    span.style.fontFamily = "monospace"
-
-                    elementInfo.append(span)
+                    const funnel = this.headerPicker("scrollable", overlay)
 
                     {
-                      const funnel = document.createElement("div")
-                      funnel.style.overflowY = "auto"
-                      funnel.style.overscrollBehavior = "none"
-                      funnel.style.paddingBottom = "144px"
-                      overlay.append(funnel)
-
-                      const htmlField = new TextAreaField("html-input", funnel)
+                      const htmlField = new TextAreaField("html", funnel)
                       htmlField.label.innerHTML = "HTML Element"
                       htmlField.input.placeholder = `<div>..</div>`
-                      // if (child.tagName === "SCRIPT") {
-                      //   htmlField.label.innerHTML = "JavaScript"
-                      //   htmlField.input.placeholder = `document.getElementById(id) ..`
-                      // }
-                      htmlField.label.style.fontFamily = "sans-serif"
+                      htmlField.input.style.fontFamily = "monospace"
                       htmlField.input.style.fontSize = "13px"
                       htmlField.input.style.height = "89px"
-                      htmlField.input.addEventListener("input", () => {
-                        htmlField.verifyValue()
-                      })
+                      htmlField.input.addEventListener("input", () => htmlField.verifyValue())
+                      htmlField.verifyValue()
 
-                      const button = document.createElement("div")
-                      button.innerHTML = "Jetzt anhängen"
-                      button.style.backgroundColor = "#f7aa20"
-                      button.style.cursor = "pointer"
-                      button.style.fontSize = "21px"
-                      button.style.fontFamily = "sans-serif"
-                      button.style.borderRadius = "13px"
-                      button.style.margin = "21px 34px"
-                      button.style.display = "flex"
-                      button.style.justifyContent = "center"
-                      button.style.alignItems = "center"
-                      button.style.height = "89px"
-                      button.style.color = "#000"
-                      button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                      const button = this.buttonPicker("action", funnel)
+                      button.innerHTML = "Inhalt jetzt ersetzen"
                       button.addEventListener("click", async () => {
 
-                        const elementString = htmlField.validValue()
+                        const html = htmlField.validValue()
 
-                        child.innerHTML = elementString
-                        // const parser = document.createElement("div")
-                        // parser.innerHTML = elementString
 
-                        // while (parser.firstChild) {
-                        //   child.append(parser.firstChild)
-                        // }
+                        child.innerHTML = html
+
+                        if (child.tagName === "BODY") {
+                          this.create("script/toolbox-getter", child)
+                        }
 
                         this.removeOverlay(overlay)
 
                       })
-                      funnel.append(button)
                     }
 
 
@@ -2659,11 +5448,157 @@ export class Helper {
       return output
     }
 
-
-
   }
 
   static verifyIs(type, input) {
+
+    if (type === "text/path") {
+      if (typeof input !== "string") return false
+      if (/^\/[\w\-._~!$&'()*+,;=:@/]+\/$/.test(input) === true) return true
+      return false
+    }
+
+    if (type === "input/valid") {
+
+      if (input.accept === "text/email") {
+        if (typeof input.value !== "string") return false
+        if (/^(.+)@(.+)$/.test(input.value) === true) return true
+        return false
+      }
+
+      if (input.accept === "text/number") {
+        const value = input.value
+        if (typeof value !== "string") return false
+        if (value === "") return false
+        if (value.startsWith(".")) return false
+
+        const number = Number(input.value)
+        if (typeof number === "number") return true
+        return false
+      }
+
+      if (input.requiredIndex !== undefined) {
+        let selected = []
+        for (let i = 0; i < input.options.length; i++) {
+          const option = input.options[i]
+          if (option.selected === true) {
+            selected.push(option)
+          }
+        }
+        for (let i = 0; i < selected.length; i++) {
+          if (selected[i].value === input.options[input.requiredIndex].value) {
+            return true
+          }
+        }
+      }
+
+      if (input.accept === "text/phone") {
+        if (typeof input.value !== "string") return false
+        if (/^\+[0-9]+$/.test(input.value) === true) return true
+        return false
+      }
+
+      if (input.checkValidity() === true) return true
+
+      if (input.accept === "text/id") {
+        if (typeof input.value !== "string") return false
+        input.value = input.value.replace(/ /g, "-")
+        if (/^[a-z](?:-?[a-z]+)*$/.test(input.value) === true) {
+          if (document.querySelectorAll(`#${input.value}`).length === 0) {
+            return true
+          } else {
+            return false
+          }
+        }
+        return false
+      }
+
+      if (input.accept === "text/path") {
+        if (typeof input.value !== "string") return false
+        if (/^\/[\w\-._~!$&'()*+,;=:@/]+\/$/.test(input.value) === true) return true
+        return false
+      }
+
+      if (input.accept === "text/hex") {
+        if (typeof input.value !== "string") return false
+        if (/^[0-9A-Fa-f]+$/.test(input.value) === true) return true
+        return false
+      }
+
+      if (input.accept === "text/tag") {
+        if (typeof input.value !== "string") return false
+        input.value = input.value.replace(/ /g, "-")
+        if (/^[a-z](?:-?[a-z]+)*$/.test(input.value) === true) return true
+        return false
+      }
+
+      if (input.accept === "email/array") {
+
+        if (!input.value.startsWith("[")) return false
+        if (!input.value.endsWith("]")) return false
+        try {
+          const array = JSON.parse(input.value)
+          for (let i = 0; i < array.length; i++) {
+            const email = array[i]
+
+            if (Helper.emailIsEmpty(email)) return false
+
+          }
+          return true
+        } catch (error) {
+          return false
+        }
+
+
+      }
+
+      if (input.accept === "string/array") {
+
+        if (!input.value.startsWith("[")) return false
+        if (!input.value.endsWith("]")) return false
+        try {
+          const array = JSON.parse(input.value)
+          for (let i = 0; i < array.length; i++) {
+            const string = array[i]
+
+            if (Helper.stringIsEmpty(string)) return false
+
+          }
+          return true
+        } catch (error) {
+          return false
+        }
+
+
+      }
+
+      return false
+    }
+
+    if (type === "input/required") {
+      if (input.required === true) return true
+      if (input.accept === "text/tag") return true
+      if (input.accept === "text/hex") return true
+      if (input.accept === "text/path") return true
+      if (input.accept === "text/id") return true
+      if (input.accept === "text/email") return true
+      if (input.accept === "string/array") return true
+      if (input.accept === "email/array") return true
+      if (input.accept === "text/phone") return true
+      if (input.accept === "text/html") return true
+      if (input.accept === "text/number") return true
+      if (input.requiredIndex !== undefined) {
+        for (let i = 0; i < input.options.length; i++) {
+          const option = input.options[i]
+          if (option.selected === true) {
+            if (option.value !== input.options[input.requiredIndex].value) {
+              return true
+            }
+          }
+        }
+      }
+      return false
+    }
 
     if (type === "text/id") {
       if (this.verifyIs("text/tag", input)) {
@@ -2728,6 +5663,46 @@ export class Helper {
   static headerPicker(name, parent) {
 
 
+    if (name === "navigation-open") {
+
+      const header = this.iconPicker("getyour")
+      header.style.position = "fixed"
+      header.style.bottom = "0"
+      header.style.right = "0"
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        header.style.boxShadow = this.colors.dark.boxShadow
+        header.style.border = this.colors.dark.border
+        header.style.backgroundColor = this.colors.dark.foreground
+      } else {
+        header.style.boxShadow = this.colors.light.boxShadow
+        header.style.border = this.colors.light.border
+        header.style.backgroundColor = this.colors.light.foreground
+      }
+
+      header.style.width = "34px"
+      header.style.height = "34px"
+      header.style.borderRadius = "50%"
+      header.style.margin = "34px"
+      header.style.padding = "21px"
+      header.style.zIndex = "1"
+      header.style.cursor = "pointer"
+      header.addEventListener("click", () => {
+        this.popup(overlay => {
+          this.headerPicker("removeOverlay", overlay)
+          const info = this.headerPicker("info", overlay)
+          info.innerHTML = "open"
+          const content = this.headerPicker("loading", overlay)
+          this.convert("parent/navigation-open", content)
+        })
+      })
+
+      if (parent !== undefined) parent.append(header)
+
+      return header
+    }
+
+
     if (name === "save") {
 
       const header = this.iconPicker("save")
@@ -2748,7 +5723,7 @@ export class Helper {
       header.style.width = "34px"
       header.style.height = "34px"
       header.style.borderRadius = "50%"
-      header.style.margin = "21px 34px"
+      header.style.margin = "34px"
       header.style.padding = "21px"
       header.style.zIndex = "1"
       header.style.cursor = "pointer"
@@ -2778,7 +5753,7 @@ export class Helper {
       header.style.width = "34px"
       header.style.height = "34px"
       header.style.borderRadius = "50%"
-      header.style.margin = "21px 34px"
+      header.style.margin = "34px"
       header.style.padding = "21px"
       header.style.zIndex = "1"
       header.style.cursor = "pointer"
@@ -2807,7 +5782,7 @@ export class Helper {
 
       header.style.width = "34px"
       header.style.borderRadius = "50%"
-      header.style.margin = "21px 34px"
+      header.style.margin = "34px"
       header.style.padding = "21px"
       header.style.zIndex = "1"
       header.style.cursor = "pointer"
@@ -2835,11 +5810,11 @@ export class Helper {
       header.style.fontFamily = "monospace"
       header.style.fontSize = "13px"
       header.style.position = "fixed"
+      header.style.left = "0"
       header.style.bottom = "0"
-      header.style.right = "0"
       header.style.zIndex = "1"
-      header.style.maxWidth = "55vw"
-      header.style.overflowWrap = "anywhere"
+      header.style.maxWidth = "100%"
+      header.style.overflow = "auto"
 
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         header.style.boxShadow = this.colors.dark.boxShadow
@@ -2877,12 +5852,12 @@ export class Helper {
       header.style.width = "34px"
       header.style.height = "34px"
       header.style.borderRadius = "50%"
-      header.style.margin = "21px 34px"
+      header.style.margin = "34px"
       header.style.padding = "21px"
       header.style.zIndex = "1"
       header.style.cursor = "pointer"
 
-      header.info = this.headerPicker("elementInfo", parent)
+      header.info = this.headerPicker("info", parent)
 
       if (parent !== undefined) parent.append(header)
 
@@ -2916,6 +5891,7 @@ export class Helper {
       return header
     }
 
+    // deprecated - use info instead
     if (name === "elementInfo") {
 
       // const header = this.iconPicker("getyour")
@@ -2963,7 +5939,7 @@ export class Helper {
       header.style.width = "34px"
       header.style.height = "34px"
       header.style.borderRadius = "50%"
-      header.style.margin = "21px 34px"
+      header.style.margin = "34px"
       header.style.padding = "21px"
       header.style.zIndex = "1"
       header.style.cursor = "pointer"
@@ -2975,6 +5951,46 @@ export class Helper {
   }
 
   static buttonPicker(name, parent) {
+
+    if (name === "toolbox/register-html") {
+
+      const save = this.headerPicker("save", parent)
+
+      save.addEventListener("click", async () => {
+
+        this.overlay("security", async securityOverlay => {
+
+          // prepare html
+          document.getElementById("toolbox").remove()
+          document.querySelectorAll("[data-id]").forEach(element => element.remove())
+          document.querySelectorAll(".overlay").forEach(element => element.remove())
+
+          document.body.style.overscrollBehavior = null
+          document.body.style.overflow = null
+
+          // save html state
+          const register = {}
+          register.url = "/register/platform-value/closed/"
+          register.type = "html"
+          register.html = document.documentElement.outerHTML.replace(/<html>/, "<!DOCTYPE html><html>")
+          const res = await Request.closed(register)
+
+          if (res.status === 200) {
+            window.alert("Dokument erfolgreich gespeichert.")
+            window.location.reload()
+          } else {
+            // if error recreate state ??
+            window.alert("Fehler.. Bitte wiederholen.")
+            await this.request("toolbox/append", document.body)
+            this.removeOverlay(securityOverlay)
+          }
+
+        })
+
+
+      })
+
+    }
 
     if (name === "icon-top/text-bottom") {
 
@@ -3066,6 +6082,7 @@ export class Helper {
       button.left.style.margin = "21px 34px"
       button.left.style.fontSize = "21px"
       button.left.style.fontFamily = "sans-serif"
+      button.left.style.overflow = "auto"
       button.append(button.left)
 
       button.right = document.createElement("div")
@@ -3176,6 +6193,7 @@ export class Helper {
       const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 17L7 14L10 11" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14L13.5 14C15.433 14 17 12.433 17 10.5V10.5C17 8.567 15.433 7 13.5 7L12 7" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
       const svg = this.convert("text/svg", svgString)
 
+      // console.log(svg);
       return svg
     }
 
@@ -3593,6 +6611,314 @@ export class Helper {
   }
 
   static convert(event, input) {
+
+    if (event === "field-funnel/map") {
+      return new Promise((resolve, reject) => {
+        const map = {}
+        input.querySelectorAll(".field").forEach(field => {
+
+          if (this.tagIsEmpty(field.id)) {
+            window.alert("Datenfeld ist nicht gültig: id ist kein tag")
+            throw new Error("field tag is empty")
+          }
+
+          field.querySelectorAll(".field-input").forEach(async input => {
+
+            try {
+              this.verify("input/validity", input)
+            } catch (error) {
+              return reject(error)
+            }
+
+            if (input.tagName === "INPUT") {
+
+              if (input.type === "text") {
+                map[field.id] = input.value
+              }
+
+              if (input.type === "textarea") {
+                map[field.id] = input.value
+              }
+
+              if (input.type === "email") {
+                map[field.id] = input.value
+              }
+
+              if (input.type === "tel") {
+                map[field.id] = input.value
+              }
+
+              if (input.type === "range") {
+                map[field.id] = input.value
+              }
+
+              if (input.type === "password") {
+                map[field.id] = input.value
+              }
+
+              if (input.type === "number") {
+                map[field.id] = input.value
+              }
+
+              if (input.type === "file") {
+                const selected = []
+                for (let i = 0; i < input.files.length; i++) {
+                  const file = input.files[i]
+                  const map = await this.convert("file/type", file)
+                  selected.push(map)
+                }
+                map[field.id] = selected
+              }
+
+              if (input.type === "date") {
+                map[field.id] = input.value
+              }
+
+              if (input.type === "checkbox") {
+                map[field.id] = input.checked
+              }
+
+            }
+
+            if (input.tagName === "SELECT") {
+              const selected = []
+              for (let i = 0; i < input.options.length; i++) {
+                const option = input.options[i]
+                if (option.selected === true) {
+                  selected.push(option)
+                }
+              }
+              map[field.id] = selected
+            }
+
+          })
+
+        })
+        return resolve(map)
+      })
+    }
+
+    if (event === "file/type") {
+
+      if (input.type === "image/png") {
+        return new Promise(async (resolve, reject) => {
+          const allowedMimeTypes = ["image/png"]
+          const allowedExtensions = ["png"]
+
+          await this.verifyFileMimeTypes(input, allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            return reject(error)
+          })
+
+          await this.verifyFileExtension(input, allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            return reject(error)
+          })
+
+          const fileReader = new FileReader()
+          fileReader.onload = () => {
+
+            const dataUrlSize = this.calculateDataUrlSize(fileReader.result)
+            if (dataUrlSize > 5 * 1024 * 1024) {
+              window.alert("Datei ist zu groß: max 5MB")
+              return reject(new Error("file too large"))
+            }
+
+            const map = {}
+            map.name = file.name
+            map.type = file.type
+            map.size = dataUrlSize
+            map.modified = Date.now()
+            map.dataUrl = fileReader.result
+
+            return resolve(map)
+          }
+          fileReader.readAsDataURL(input)
+
+        })
+      }
+
+      if (input.type === "image/jpeg") {
+        return new Promise(async (resolve, reject) => {
+          const allowedMimeTypes = ["image/jpeg"]
+          const allowedExtensions = ["jpg", "jpeg"]
+
+          await this.verifyFileMimeTypes(input, allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            return reject(error)
+          })
+
+          await this.verifyFileExtension(input, allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            return reject(error)
+          })
+
+          const fileReader = new FileReader()
+          fileReader.onload = () => {
+
+            const dataUrlSize = this.calculateDataUrlSize(fileReader.result)
+            if (dataUrlSize > 5 * 1024 * 1024) {
+              window.alert("Datei ist zu groß: max 5MB")
+              return reject(new Error("file too large"))
+            }
+
+            const map = {}
+            map.name = file.name
+            map.type = file.type
+            map.size = dataUrlSize
+            map.modified = Date.now()
+            map.dataUrl = fileReader.result
+
+            return resolve(map)
+          }
+          fileReader.readAsDataURL(input)
+
+        })
+      }
+
+      if (input.type === "application/pdf") {
+        return new Promise(async (resolve, reject) => {
+          const allowedMimeTypes = ["application/pdf"]
+          const allowedExtensions = ["pdf"]
+
+          await this.verifyFileMimeTypes(input, allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            return reject(error)
+          })
+
+          await this.verifyFileExtension(input, allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            return reject(error)
+          })
+
+          const fileReader = new FileReader()
+          fileReader.onload = () => {
+
+            const dataUrlSize = this.calculateDataUrlSize(fileReader.result)
+            if (dataUrlSize > 5 * 1024 * 1024) {
+              window.alert("Datei ist zu groß: max 5MB")
+              return reject(new Error("file too large"))
+            }
+
+            const map = {}
+            map.name = file.name
+            map.type = file.type
+            map.size = dataUrlSize
+            map.modified = Date.now()
+            map.dataUrl = fileReader.result
+
+            return resolve(map)
+          }
+          fileReader.readAsDataURL(input)
+
+        })
+      }
+
+      if (input.type === "text/html") {
+        return new Promise(async (resolve, reject) => {
+          const allowedMimeTypes = ["text/html"]
+          const allowedExtensions = ["html"]
+
+          await this.verifyFileMimeTypes(input, allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            return reject(error)
+          })
+
+          await this.verifyFileExtension(input, allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            return reject(error)
+          })
+
+          const fileReader = new FileReader()
+          fileReader.onload = () => {
+
+            const map = {}
+            map.name = file.name
+            map.type = file.type
+            map.size = file.size
+            map.modified = Date.now()
+            map.html = this.sanitizeHtml(fileReader.result)
+
+            return resolve(map)
+          }
+          fileReader.readAsText(input)
+
+        })
+      }
+
+      if (input.type === "image/svg+xml") {
+        return new Promise(async (resolve, reject) => {
+          const allowedMimeTypes = ["image/svg+xml"]
+          const allowedExtensions = ["svg"]
+
+          await this.verifyFileMimeTypes(input, allowedMimeTypes)
+          .catch(error => {
+            window.alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            return reject(error)
+          })
+
+          await this.verifyFileExtension(input, allowedExtensions)
+          .catch(error => {
+            window.alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            return reject(error)
+          })
+
+          const fileReader = new FileReader()
+          fileReader.onload = () => {
+
+            const map = {}
+            map.name = input.name
+            map.type = input.type
+            map.size = input.size
+            map.modified = Date.now()
+            map.svg = this.sanitizeHtml(fileReader.result)
+
+            return resolve(map)
+          }
+          fileReader.readAsText(input)
+
+        })
+      }
+    }
+
+    if (event === "styles/text") {
+      const styles = input.style
+      const div = document.createElement("div")
+      for (let i = 0; i < styles.length; i++) {
+        const key = styles[i]
+        const value = styles.getPropertyValue(key)
+        div.append(`${key}: ${value};\n`)
+      }
+      return div.innerHTML
+
+    }
+
+    if (event === "text/script") {
+      const parser = document.createElement("div")
+      parser.innerHTML = input
+      return parser.children[0]
+    }
+
+    if (event === "text/html") {
+      const fragment = document.createDocumentFragment()
+
+      const parser = document.createElement("div")
+      parser.innerHTML = input
+
+      while (parser.firstChild) {
+        fragment.appendChild(parser.firstChild)
+      }
+
+      return fragment
+    }
 
     if (event === "text/field") {
       // console.log(input);
@@ -4170,6 +7496,1410 @@ export class Helper {
       return span
     }
 
+    if (event === "parent/dark") {
+
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        if (input.tagName === "BODY") {
+          input.style.background = this.colors.dark.background
+        }
+      }
+
+
+    }
+
+    if (event === "parent/scrollable") {
+      this.reset(input)
+      input.style.overflowY = "auto"
+      input.style.overscrollBehavior = "none"
+      input.style.paddingBottom = "144px"
+      return input
+    }
+
+    if (event === "parent/info") {
+      this.reset(input)
+      input.style.position = "absolute"
+      input.style.top = "0"
+      input.style.left = "0"
+      input.style.height = "89vh"
+      input.style.width = "100%"
+      input.style.display = "flex"
+      input.style.justifyContent = "center"
+      input.style.alignItems = "center"
+      input.style.zIndex = "-1"
+      input.style.fontFamily = "sans-serif"
+      input.style.textAlign = "center"
+
+      input.style.color = "gray"
+
+      return input
+    }
+
+    if (event === "parent/expert-closed") {
+      this.reset(input)
+      input.style.overflowY = "auto"
+      input.style.overscrollBehavior = "none"
+      input.style.paddingBottom = "144px"
+
+
+      {
+        const button = this.buttonPicker("left/right", input)
+        button.right.innerHTML = "Neue Plattform erstellen"
+        button.left.innerHTML = ".create"
+        button.addEventListener("click", () => {
+
+          this.popup(async overlay => {
+            this.headerPicker("removeOverlay", overlay)
+            const info = this.headerPicker("info", overlay)
+            info.innerHTML = ".platform"
+
+            {
+
+              const funnel = this.headerPicker("scrollable", overlay)
+
+              const platformNameField = new TextField("platformName", funnel)
+              platformNameField.label.innerHTML = "Plattform Name"
+              platformNameField.input.accept = "text/tag"
+              platformNameField.input.maxLength = "21"
+              platformNameField.input.required = true
+              platformNameField.input.placeholder = "meine-plattform"
+              platformNameField.input.addEventListener("input", (event) => platformNameField.verifyValue())
+              this.setNotValidStyle(platformNameField.input)
+
+
+
+              const imageField = this.create("field/image", funnel)
+
+              const button = this.buttonPicker("action", funnel)
+
+              button.innerHTML = "Jetzt hinzufügen"
+              button.addEventListener("click", async () => {
+
+                const imageFile = imageField.input.files[0]
+
+                let image
+                if (imageFile !== undefined) {
+
+                  if (imageFile.type === "image/svg+xml") {
+
+                    image = await imageField.validSvg(imageFile)
+
+                  } else {
+
+                    image = await imageField.validImage(imageFile)
+
+                  }
+
+                }
+
+                const platformName = platformNameField.validValue()
+
+                const verify = {}
+                verify.url = "/verify/platform/location/"
+                verify.platform = platformName
+                const res = await Request.middleware(verify)
+
+                if (res.status === 200) {
+                  alert("Plattform Name existiert bereits.")
+                  this.setNotValidStyle(platformNameField.input)
+                  throw new Error("platform exist")
+                }
+
+
+
+                this.popup(async securityOverlay => {
+
+                  const register = {}
+                  register.url = "/register/platform/closed/"
+                  register.platform = platformName
+                  register.image = image
+                  const res = await Request.middleware(register)
+
+                  if (res.status === 200) {
+                    alert("Plattform erfolgreich hinzugefügt..")
+                    window.location.reload()
+                  } else {
+                    alert("Fehler.. Bitte wiederholen.")
+                    this.removeOverlay(securityOverlay)
+                  }
+
+
+                })
+
+              })
+
+            }
+
+          })
+        })
+      }
+
+      {
+        const button = this.buttonPicker("left/right", input)
+        button.left.innerHTML = ".templates"
+        button.right.innerHTML = "Meine Templates"
+
+        button.addEventListener("click", async () => {
+
+          this.popup(async overlay => {
+            const templatesOverlay = overlay
+
+            this.headerPicker("removeOverlay", overlay)
+
+            const info = this.headerPicker("info", overlay)
+            info.append(".templates")
+
+            const content = this.headerPicker("loading", overlay)
+
+            const get = {}
+            get.url = "/get/templates/closed/3/"
+            get.type = "jwt"
+            const res = await Request.middleware(get)
+
+            if (res.status === 200) {
+              const templates = JSON.parse(res.response)
+
+              this.reset(content)
+              content.style.overflowY = "auto"
+              content.style.overscrollBehavior = "none"
+              content.style.paddingBottom = "144px"
+
+
+              for (let i = 0; i < templates.length; i++) {
+                const template = templates[i]
+
+                const item = document.createElement("div")
+                item.style.margin = "34px"
+
+                const itemHeader = document.createElement("div")
+                itemHeader.style.display = "flex"
+                itemHeader.style.borderTopRightRadius = "21px"
+                itemHeader.style.borderTopLeftRadius = "21px"
+                itemHeader.style.borderBottomLeftRadius = "21px"
+                itemHeader.style.fontFamily = "sans-serif"
+
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                  itemHeader.style.backgroundColor = this.colors.matte.charcoal
+                  itemHeader.style.color = this.colors.matte.dark.text
+
+                } else {
+                  itemHeader.style.color = this.colors.matte.light.text
+                  itemHeader.style.backgroundColor = this.colors.gray[1]
+                }
+
+
+                itemHeader.style.cursor = "pointer"
+                itemHeader.addEventListener("click", () => {
+                  this.popup(overlay => {
+                    const templateOverlay = overlay
+                    this.headerPicker("removeOverlay", overlay)
+
+                    const info = this.headerPicker("info", overlay)
+                    info.append(`.templates`)
+
+                    const span = document.createElement("span")
+                    span.style.fontSize = "21px"
+                    span.innerHTML = `#${template.id}`
+                    info.append(span)
+
+
+                    {
+
+                      const buttons = document.createElement("div")
+                      buttons.style.overflowY = "auto"
+                      buttons.style.paddingBottom = "144px"
+                      buttons.style.overscrollBehavior = "none"
+                      overlay.append(buttons)
+
+                      {
+                        const button = this.buttonPicker("left/right", buttons)
+                        button.left.innerHTML = ".id"
+                        button.right.innerHTML = "Id ändern"
+
+                        button.addEventListener("click", () => {
+                          this.popup(overlay => {
+                            this.headerPicker("removeOverlay", overlay)
+
+                            const info = this.headerPicker("info", overlay)
+                            info.append(`.templates`)
+
+                            {
+                              const span = document.createElement("span")
+                              span.style.fontSize = "21px"
+                              span.innerHTML = `#${template.id}`
+                              info.append(span)
+                            }
+
+                            {
+                              const span = document.createElement("span")
+                              span.innerHTML = `.id`
+                              info.append(span)
+                            }
+
+                            const funnel = this.headerPicker("scrollable", overlay)
+
+
+                            const idField = new TextField("id", funnel)
+                            idField.input.required = true
+                            idField.input.accept = "text/tag"
+                            idField.label.innerHTML = "Template Id"
+                            idField.label.placeholder = "meine-id"
+                            idField.value(() => template.id)
+                            idField.verifyValue()
+                            idField.input.addEventListener("input", () => idField.verifyValue())
+
+                            const button = this.buttonPicker("action", funnel)
+                            button.innerHTML = "Jetzt ändern"
+                            button.addEventListener("click", async () => {
+
+                              const id = idField.validValue()
+
+                              const verify = {}
+                              verify.url = "/verify/template/closed/3/"
+                              verify.type = "id"
+                              verify.id = id
+                              const res = await Request.middleware(verify)
+
+                              if (res.status === 200) {
+                                alert("Id existiert bereits.")
+                                this.setNotValidStyle(idField.input)
+                                throw new Error(`id exist`)
+                              }
+
+                              this.popup(async securityOverlay => {
+                                this.headerPicker("loading", securityOverlay)
+
+                                const register = {}
+                                register.url = "/register/template/closed/3/"
+                                register.type = "id"
+                                register.old = template.id
+                                register.new = id
+                                const res = await Request.middleware(register)
+
+                                if (res.status === 200) {
+                                  alert("Template Id erfolgreich gespeichert.")
+                                  this.removeOverlay(templatesOverlay)
+                                  this.removeOverlay(templateOverlay)
+                                  this.removeOverlay(overlay)
+                                  this.removeOverlay(securityOverlay)
+                                } else {
+                                  alert("Fehler.. Bitte wiederholen.")
+                                  this.removeOverlay(securityOverlay)
+                                  throw new Error(`register template id failed`)
+                                }
+                              })
+
+                            })
+
+
+
+
+                          })
+                        })
+
+                      }
+
+                      {
+                        const button = this.buttonPicker("left/right", buttons)
+                        button.left.innerHTML = ".alias"
+                        button.right.innerHTML = "Alias ändern"
+
+                        button.addEventListener("click", () => {
+                          this.popup(overlay => {
+                            this.headerPicker("removeOverlay", overlay)
+
+                            const info = this.headerPicker("info", overlay)
+                            info.append(`.templates`)
+
+                            {
+                              const span = document.createElement("span")
+                              span.style.fontSize = "21px"
+                              span.innerHTML = `#${template.id}`
+                              info.append(span)
+                            }
+
+                            {
+                              const span = document.createElement("span")
+                              span.innerHTML = `.alias`
+                              info.append(span)
+                            }
+
+                            const funnel = this.headerPicker("scrollable", overlay)
+
+
+                            const aliasField = new TextField("alias", funnel)
+                            aliasField.input.required = true
+                            aliasField.label.innerHTML = "Template Alias"
+                            aliasField.label.placeholder = "Mein Skript"
+                            aliasField.value(() => template.alias)
+                            aliasField.verifyValue()
+                            aliasField.input.addEventListener("input", () => aliasField.verifyValue())
+
+                            const button = this.buttonPicker("action", funnel)
+                            button.innerHTML = "Jetzt ändern"
+                            button.addEventListener("click", async () => {
+
+                              const alias = aliasField.validValue()
+
+                              this.popup(async securityOverlay => {
+                                this.headerPicker("loading", securityOverlay)
+
+                                const register = {}
+                                register.url = "/register/template/closed/3/"
+                                register.type = "alias"
+                                register.id = template.id
+                                register.alias = alias
+                                const res = await Request.middleware(register)
+
+                                if (res.status === 200) {
+                                  alert("Template Alias erfolgreich gespeichert.")
+                                  this.removeOverlay(templatesOverlay)
+                                  this.removeOverlay(templateOverlay)
+                                  this.removeOverlay(overlay)
+                                  this.removeOverlay(securityOverlay)
+                                } else {
+                                  alert("Fehler.. Bitte wiederholen.")
+                                  this.removeOverlay(securityOverlay)
+                                  throw new Error(`register template alias failed`)
+                                }
+                              })
+
+                            })
+
+
+
+
+                          })
+                        })
+
+                      }
+
+                      {
+                        const button = this.buttonPicker("left/right", buttons)
+                        button.left.innerHTML = ".dependencies"
+                        button.right.innerHTML = "Abhängigkeiten definieren"
+
+                        button.addEventListener("click", () => {
+                          this.popup(async overlay => {
+                            this.headerPicker("removeOverlay", overlay)
+
+
+                            const info = this.headerPicker("info", overlay)
+                            info.append(`.templates`)
+
+                            {
+                              const span = document.createElement("span")
+                              span.style.fontSize = "21px"
+                              span.innerHTML = `#${template.id}`
+                              info.append(span)
+                            }
+
+                            {
+                              const span = document.createElement("span")
+                              span.innerHTML = `.dependencies`
+                              info.append(span)
+                            }
+
+
+                            const funnel = this.headerPicker("scrollable", overlay)
+
+
+                            const dependenciesField = new TextAreaField("dependencies", funnel)
+                            dependenciesField.input.style.height = "144px"
+                            dependenciesField.input.required = true
+                            dependenciesField.label.innerHTML = "Template Abhängigkeiten"
+                            dependenciesField.input.addEventListener("input", () => dependenciesField.verifyValue())
+
+                            const get = {}
+                            get.url = "/get/templates/closed/3/"
+                            get.type = "dependencies"
+                            get.id = template.id
+                            const res = await Request.middleware(get)
+
+                            if (res.status === 200) {
+                              dependenciesField.value(() => res.response)
+                            }
+                            dependenciesField.verifyValue()
+
+                            const button = this.buttonPicker("action", funnel)
+                            button.innerHTML = "Jetzt ändern"
+                            button.addEventListener("click", async () => {
+
+                              const dependencies = dependenciesField.validValue()
+
+                              this.popup(async securityOverlay => {
+                                this.headerPicker("loading", securityOverlay)
+
+                                const register = {}
+                                register.url = "/register/template/closed/3/"
+                                register.type = "dependencies"
+                                register.id = template.id
+                                register.dependencies = dependencies
+                                const res = await Request.middleware(register)
+
+                                if (res.status === 200) {
+                                  alert("Template Abhängigkeiten erfolgreich gespeichert.")
+                                  this.removeOverlay(overlay)
+                                  this.removeOverlay(securityOverlay)
+                                } else {
+                                  alert("Fehler.. Bitte wiederholen.")
+                                  this.removeOverlay(securityOverlay)
+                                  throw new Error(`register template dependencies failed`)
+                                }
+                              })
+
+                            })
+
+
+
+
+                          })
+                        })
+
+                      }
+
+                      {
+                        const button = this.buttonPicker("left/right", buttons)
+                        button.left.innerHTML = ".description"
+                        button.right.innerHTML = "Template beschreiben"
+
+
+                        button.addEventListener("click", () => {
+                          this.popup(async overlay => {
+                            this.headerPicker("removeOverlay", overlay)
+
+                            const info = this.headerPicker("info", overlay)
+                            info.append(`.templates`)
+
+                            {
+                              const span = document.createElement("span")
+                              span.style.fontSize = "21px"
+                              span.innerHTML = `#${template.id}`
+                              info.append(span)
+                            }
+
+                            {
+                              const span = document.createElement("span")
+                              span.innerHTML = `.description`
+                              info.append(span)
+                            }
+
+
+                            const funnel = this.headerPicker("scrollable", overlay)
+
+
+                            const descriptionField = new TextAreaField("description", funnel)
+                            descriptionField.input.style.height = "144px"
+                            descriptionField.input.required = true
+                            descriptionField.label.innerHTML = "Template Beschreibung"
+                            descriptionField.input.addEventListener("input", () => descriptionField.verifyValue())
+
+                            const get = {}
+                            get.url = "/get/templates/closed/3/"
+                            get.type = "description"
+                            get.id = template.id
+                            const res = await Request.middleware(get)
+
+                            if (res.status === 200) {
+                              descriptionField.value(() => res.response)
+                            }
+                            descriptionField.verifyValue()
+
+                            const button = this.buttonPicker("action", funnel)
+                            button.innerHTML = "Jetzt ändern"
+                            button.addEventListener("click", async () => {
+
+                              const description = descriptionField.validValue()
+
+                              this.popup(async securityOverlay => {
+                                this.headerPicker("loading", securityOverlay)
+
+                                const register = {}
+                                register.url = "/register/template/closed/3/"
+                                register.type = "description"
+                                register.id = template.id
+                                register.description = description
+                                const res = await Request.middleware(register)
+
+                                if (res.status === 200) {
+                                  alert("Template Abhängigkeiten erfolgreich gespeichert.")
+                                  this.removeOverlay(overlay)
+                                  this.removeOverlay(securityOverlay)
+                                } else {
+                                  alert("Fehler.. Bitte wiederholen.")
+                                  this.removeOverlay(securityOverlay)
+                                  throw new Error(`register template description failed`)
+                                }
+                              })
+
+                            })
+
+
+
+
+                          })
+                        })
+
+                      }
+
+                      {
+                        const button = this.buttonPicker("left/right", buttons)
+                        button.left.innerHTML = ".script"
+                        button.right.innerHTML = "Skript ändern"
+
+
+
+                        button.addEventListener("click", () => {
+                          this.popup(async overlay => {
+                            this.headerPicker("removeOverlay", overlay)
+
+                            const info = this.headerPicker("info", overlay)
+                            info.append(`.templates`)
+
+                            {
+                              const span = document.createElement("span")
+                              span.style.fontSize = "21px"
+                              span.innerHTML = `#${template.id}`
+                              info.append(span)
+                            }
+
+                            {
+                              const span = document.createElement("span")
+                              span.innerHTML = `.script`
+                              info.append(span)
+                            }
+
+                            const funnel = this.headerPicker("scrollable", overlay)
+
+
+                            const scriptField = new TextAreaField("script", funnel)
+                            scriptField.input.style.height = "144px"
+                            scriptField.input.required = true
+                            scriptField.label.innerHTML = "Template Skript"
+                            scriptField.input.addEventListener("input", () => scriptField.verifyValue())
+
+                            const get = {}
+                            get.url = "/get/templates/closed/3/"
+                            get.type = "script"
+                            get.id = template.id
+                            const res = await Request.middleware(get)
+
+                            if (res.status === 200) {
+                              scriptField.value(() => res.response)
+                            }
+                            scriptField.verifyValue()
+
+                            const button = this.buttonPicker("action", funnel)
+                            button.innerHTML = "Jetzt ändern"
+                            button.addEventListener("click", async () => {
+
+                              const script = scriptField.validValue()
+
+                              this.popup(async securityOverlay => {
+                                this.headerPicker("loading", securityOverlay)
+
+                                const register = {}
+                                register.url = "/register/template/closed/3/"
+                                register.type = "script"
+                                register.id = template.id
+                                register.script = script
+                                const res = await Request.middleware(register)
+
+                                if (res.status === 200) {
+                                  alert("Template Skript erfolgreich gespeichert.")
+                                  // this.removeOverlay(overlay)
+                                  this.removeOverlay(securityOverlay)
+                                } else {
+                                  alert("Fehler.. Bitte wiederholen.")
+                                  this.removeOverlay(securityOverlay)
+                                  throw new Error(`register template script failed`)
+                                }
+                              })
+
+                            })
+
+
+
+
+                          })
+                        })
+
+                      }
+
+                      {
+                        const button = this.buttonPicker("left/right", buttons)
+                        button.left.innerHTML = ".remove"
+                        button.right.innerHTML = "Template löschen"
+
+                        button.addEventListener("click", () => {
+
+
+                          this.popup(async securityOverlay => {
+                            this.headerPicker("loading", securityOverlay)
+
+                            const del = {}
+                            del.url = "/delete/template/closed/3/"
+                            del.id = template.id
+                            const res = await Request.middleware(del)
+
+                            if (res.status === 200) {
+                              alert("Template erfolgreich gelöscht.")
+                              this.removeOverlay(templatesOverlay)
+                              this.removeOverlay(overlay)
+                              this.removeOverlay(securityOverlay)
+                            } else {
+                              alert("Fehler.. Bitte wiederholen.")
+                              this.removeOverlay(securityOverlay)
+                            }
+                          })
+
+                        })
+                      }
+
+
+                    }
+
+
+                  })
+                })
+
+                const itemState = document.createElement("div")
+                itemState.classList.add("item-state")
+                itemState.style.display = "flex"
+                itemState.style.justifyContent = "center"
+                itemState.style.alignItems = "center"
+                itemState.style.width = "89px"
+                itemState.style.height = "89px"
+                itemState.style.fontSize = "34px"
+
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                  itemState.style.backgroundColor = this.colors.dark.foreground
+                } else {
+                  itemState.style.backgroundColor = this.colors.light.foreground
+                }
+
+                itemState.style.borderTopLeftRadius = "21px"
+                itemState.style.borderBottomLeftRadius = "21px"
+
+                const reputation = document.createElement("div")
+                reputation.innerHTML = template.reputation
+                reputation.style.fontSize = "34px"
+
+                itemState.append(reputation)
+
+
+                const itemTitle = document.createElement("div")
+                itemTitle.style.alignSelf = "center"
+                itemTitle.style.marginLeft = "13px"
+
+                {
+                  const alias = document.createElement("div")
+                  alias.innerHTML = template.alias
+                  alias.style.fontSize = "21px"
+                  itemTitle.append(alias)
+                }
+
+                {
+                  const creator = document.createElement("div")
+                  creator.innerHTML = template.id
+                  creator.style.fontSize = "13px"
+                  itemTitle.append(creator)
+                }
+
+                itemHeader.append(itemState, itemTitle)
+                item.append(itemHeader)
+
+                const itemBody = document.createElement("div")
+                itemBody.classList.add("item-body")
+                itemBody.style.marginLeft = "8%"
+
+
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                  itemBody.style.backgroundColor = this.colors.matte.slate
+                  itemBody.style.boxShadow = this.colors.dark.boxShadow
+                } else {
+                  itemBody.style.boxShadow = this.colors.light.boxShadow
+                  itemBody.style.backgroundColor = this.colors.gray[0]
+                }
+
+                itemBody.style.borderBottomRightRadius = "21px"
+                itemBody.style.borderBottomLeftRadius = "21px"
+                itemBody.style.padding = "21px"
+                itemBody.style.display = "flex"
+                itemBody.style.flexDirection = "column"
+
+                const buttons = document.createElement("div")
+                buttons.style.display = "flex"
+                buttons.style.alignItems = "center"
+
+                {
+
+                  const button = document.createElement("div")
+                  button.style.cursor = "pointer"
+                  button.style.position = "relative"
+                  button.addEventListener("click", () => {
+
+                    this.popup(async overlay => {
+                      const feedbackOverlay = overlay
+
+                      this.headerPicker("removeOverlay", overlay)
+
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("element/alias", document.body))
+                      info.append(this.convert("text/span", `.templates[${i}].feedback`))
+
+                      // const span = document.createElement("span")
+                      // span.innerHTML = `.templates[${i}].feedback`
+                      // span.style.fontSize = "13px"
+                      // span.style.fontFamily = "monospace"
+                      // info.append(span)
+
+                      const content = this.headerPicker("scrollable", overlay)
+                      // content.style.overflowY = "auto"
+                      // content.style.overscrollBehavior = "none"
+                      // content.style.paddingBottom = "144px"
+                      // overlay.append(content)
+
+                      const feedbackContainer = this.headerPicker("loading", content)
+                      feedbackContainer.info.remove()
+
+                      feedbackContainer.style.margin = "21px 34px"
+                      feedbackContainer.style.overflowY = "auto"
+                      feedbackContainer.style.overscrollBehavior = "none"
+                      feedbackContainer.style.fontFamily = "monospace"
+                      feedbackContainer.style.fontSize = "13px"
+                      feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
+
+
+                      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        feedbackContainer.style.color = this.colors.dark.text
+                      } else {
+                        feedbackContainer.style.color = this.colors.light.text
+                      }
+
+                      const get = {}
+                      get.url = "/get/templates/closed/3/"
+                      get.type = "feedback"
+                      get.id = template.id
+                      get.location = window.location.href
+                      get.referer = document.referrer
+                      get.localStorageEmail = await Request.email()
+                      get.localStorageId = await Request.localStorageId()
+                      const res = await Request.middleware(get)
+
+                      if (res.status !== 200) {
+                        feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
+                        throw new Error("feedback not found")
+                      }
+
+                      getFeedbackSuccess: if (res.status === 200) {
+                        const feedback = JSON.parse(res.response)
+
+                        if (feedback.length === 0) {
+                          feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
+                          break getFeedbackSuccess
+                        }
+
+                        this.reset(feedbackContainer)
+                        feedbackContainer.style.margin = "21px 34px"
+                        feedbackContainer.style.overflowY = "auto"
+                        feedbackContainer.style.overscrollBehavior = "none"
+                        feedbackContainer.style.fontFamily = "monospace"
+                        feedbackContainer.style.fontSize = "13px"
+                        feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
+
+                        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                          feedbackContainer.style.color = this.colors.dark.text
+                        } else {
+                          feedbackContainer.style.color = this.colors.light.text
+                        }
+
+
+                        for (let i = 0; i < feedback.length; i++) {
+                          const value = feedback[i]
+
+                          const div = document.createElement("div")
+                          div.style.display = "flex"
+                          div.style.justifyContent = "space-between"
+                          div.style.alignItems = "center"
+
+                          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+
+                            if (i % 2 === 0) {
+                              div.style.background = this.colors.light.foreground
+                              div.style.color = this.colors.light.text
+                            } else {
+                              div.style.background = this.colors.dark.foreground
+                              div.style.color = this.colors.dark.text
+                            }
+
+                          } else {
+
+                            if (i % 2 === 1) {
+                              div.style.background = this.colors.light.foreground
+                              div.style.color = this.colors.light.text
+                            } else {
+                              div.style.background = this.colors.dark.foreground
+                              div.style.color = this.colors.dark.text
+                            }
+
+                          }
+
+                          const left = document.createElement("span")
+                          left.innerHTML = `${this.convert("millis/dd.mm.yyyy hh:mm", value.created)}`
+                          div.append(left)
+
+                          const nextToLeft = document.createElement("span")
+                          nextToLeft.style.width = "100%"
+                          nextToLeft.style.margin = "0 13px"
+                          nextToLeft.innerHTML = value.content
+                          div.append(nextToLeft)
+
+                          const right = document.createElement("span")
+                          right.style.padding = "13px"
+                          right.innerHTML = value.importance
+                          div.append(right)
+
+                          feedbackContainer.append(div)
+
+                          div.style.cursor = "pointer"
+                          div.addEventListener("click", () => {
+
+                            this.popup(overlay => {
+                              this.headerPicker("removeOverlay", overlay)
+
+                              const button = this.buttonPicker("left/right", overlay)
+                              const icon = this.iconPicker("delete")
+                              icon.style.width = "34px"
+                              button.left.append(icon)
+                              button.right.innerHTML = "Feedback löschen"
+
+                              button.addEventListener("click", async () => {
+                                const confirm = window.confirm("Möchtest du diesen Beitrag wirklich löschen?")
+
+                                if (confirm === true) {
+                                  const del = {}
+                                  del.url = "/delete/feedback/closed/3/"
+                                  del.type = "template"
+                                  del.id = template.id
+                                  del.created = value.created
+                                  del.location = window.location.href
+                                  del.referer = document.referrer
+                                  del.localStorageEmail = await Request.email()
+                                  del.localStorageId = await Request.localStorageId()
+                                  const res = await Request.middleware(del)
+
+                                  if (res.status === 200) {
+                                    alert("Beitrag erfolgreich gelöscht.")
+                                    length.innerHTML = template.feedbackLength - 1
+                                    this.removeOverlay(overlay)
+                                    this.removeOverlay(feedbackOverlay)
+                                  } else {
+                                    alert("Fehler.. Bitte wiederholen.")
+                                    this.removeOverlay(overlay)
+                                  }
+
+
+                                }
+
+                              })
+                            })
+
+                          })
+                        }
+
+
+                      }
+
+                      const contentField = new TextField("feedback", content)
+                      contentField.label.innerHTML = "Feedback"
+                      contentField.input.required = true
+                      contentField.input.maxLength = "377"
+                      contentField.verifyValue()
+                      contentField.input.addEventListener("input", () => contentField.verifyValue())
+
+                      const importanceField = new RangeField("importance", content)
+                      importanceField.input.min = "0"
+                      importanceField.input.max = "13"
+                      importanceField.input.step = "1"
+                      importanceField.input.value = "0"
+                      importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
+                      importanceField.verifyValue()
+                      importanceField.input.addEventListener("input", (event) => {
+                        importanceField.verifyValue()
+                        importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
+                      })
+
+                      const button = this.buttonPicker("action", content)
+                      button.innerHTML = "Jetzt speichern"
+                      button.addEventListener("click", () => {
+
+                        const importance = importanceField.validValue()
+                        const content = contentField.validValue()
+
+
+                        this.popup(async securityOverlay => {
+
+                          this.headerPicker("loading", securityOverlay)
+
+                          const register = {}
+                          register.url = "/register/feedback/closed/3/"
+                          register.type = "template"
+                          register.id = template.id
+                          register.importance = importance
+                          register.content = content
+                          register.location = window.location.href
+                          register.referer = document.referrer
+                          register.localStorageEmail = await Request.email()
+                          register.localStorageId = await Request.localStorageId()
+                          const res = await Request.middleware(register)
+
+                          if (res.status === 200) {
+                            alert("Feedback erfolgreich gespeichert.")
+                            this.removeOverlay(securityOverlay)
+                            this.removeOverlay(overlay)
+                            length.innerHTML = template.feedbackLength + 1
+                          } else {
+                            alert("Fehler.. Bitte wiederholen.")
+                            this.removeOverlay(securityOverlay)
+                          }
+
+                        })
+
+
+                      })
+
+
+
+                    })
+
+                  })
+
+
+                  const icon = this.iconPicker("branch")
+                  icon.style.width = "55px"
+                  button.append(icon)
+
+                  const length = document.createElement("div")
+                  length.style.position = "absolute"
+                  length.style.top = "0"
+                  length.style.right = "0"
+                  length.style.fontFamily = "monospace"
+                  length.style.fontSize = "13px"
+                  length.style.borderRadius = "50%"
+                  length.style.padding = "3px 5px"
+                  length.innerHTML = template.feedbackLength
+
+                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    length.style.color = this.colors.dark.text
+                    length.style.background = this.colors.dark.foreground
+                  } else {
+                    length.style.color = this.colors.light.text
+                    length.style.background = this.colors.light.foreground
+                  }
+                  button.append(length)
+                  buttons.append(button)
+                }
+
+                itemBody.append(buttons)
+                item.append(itemBody)
+                content.append(item)
+              }
+
+
+
+
+            } else {
+              alert("Fehler.. Bitte wiederholen.")
+              this.removeOverlay(overlay)
+            }
+
+
+
+          })
+
+        })
+
+      }
+
+      {
+        const button = this.buttonPicker("left/right", input)
+        button.right.innerHTML = "Mein persönlicher Datenspiegel"
+        button.left.innerHTML = ".database"
+        button.addEventListener("click", () => {
+          this.popup(async overlay => {
+            this.headerPicker("removeOverlay", overlay)
+            const info = this.headerPicker("info", overlay)
+            info.append("user")
+
+            const buttons = this.headerPicker("loading", overlay)
+
+            const get = {}
+            get.url = "/get/user/closed/3/"
+            get.type = "self"
+            get.location = window.location.href
+            get.referer = document.referrer
+            get.localStorageEmail = await Request.email()
+            get.localStorageId = await Request.localStorageId()
+            const res = await Request.middleware(get)
+
+            if (res.status === 200) {
+              const keys = JSON.parse(res.response)
+
+              this.reset(buttons)
+              buttons.style.overflowY = "auto"
+              buttons.style.overscrollBehavior = "none"
+              buttons.style.paddingBottom = "144px"
+
+              for (let i = 0; i < keys.length; i++) {
+                const key = keys[i]
+
+                const button = this.buttonPicker("left/right", buttons)
+                button.right.style.fontSize = "21px"
+                button.right.innerHTML = `.${key}`
+                const icon = this.iconPicker("delete")
+                button.left.append(icon)
+
+                button.addEventListener("click", () => {
+
+                  const confirm = window.confirm("Du bist gerade dabei einen Datensatz aus deiner persönlichen Datenbank zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden.\n\nMöchtest du deine Daten wirklich löschen?")
+                  if (confirm === true) {
+
+                    this.popup(async securityOverlay => {
+                      this.headerPicker("loading", securityOverlay)
+
+                      const del = {}
+                      del.url = "/delete/key/closed/"
+                      del.key = key
+                      const res = await Request.middleware(del)
+
+                      if (res.status === 200) {
+                        alert("Datensatz erfolgreich gelöscht.")
+                        this.removeOverlay(securityOverlay)
+                        this.removeOverlay(overlay)
+                      } else {
+                        alert("Fehler.. Bitte wiederholen.")
+                        this.removeOverlay(securityOverlay)
+                        this.removeOverlay(overlay)
+                      }
+
+                    })
+
+
+                  }
+
+                })
+
+
+              }
+
+
+
+            } else {
+              alert("Fehler.. Bitte wiederholen.")
+              this.removeOverlay(overlay)
+            }
+
+
+
+
+          })
+        })
+      }
+
+      {
+
+        const button = this.buttonPicker("left/right", input)
+        button.left.innerHTML = ".conflicts"
+        button.right.innerHTML = "Konflikte"
+
+        button.addEventListener("click", () => {
+
+          this.popup(overlay => {
+
+            {
+              const header = document.createElement("div")
+              header.style.position = "fixed"
+              header.style.bottom = "0"
+              header.style.left = "0"
+              header.style.width = "100%"
+              header.style.display = "flex"
+              header.style.justifyContent = "flex-start"
+              header.style.alignItems = "center"
+              header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
+              header.style.background = "white"
+              header.style.zIndex = "1"
+              header.style.cursor = "pointer"
+              header.addEventListener("click", () => this.removeOverlay(overlay))
+
+              const logo = document.createElement("img")
+              logo.src = "/public/getyour-logo.svg"
+              logo.alt = "Logo"
+              logo.style.width = "55px"
+              logo.style.margin = "21px 34px"
+              header.append(logo)
+              const title = document.createElement("div")
+              title.innerHTML = `Konflikte`
+              title.style.fontWeight = "bold"
+              title.style.fontSize = "21px"
+              header.append(title)
+              overlay.append(header)
+            }
+
+            {
+              const buttons = document.createElement("div")
+              buttons.style.overflowY = "auto"
+              buttons.style.overscrollBehavior = "none"
+              buttons.style.paddingBottom = "144px"
+              overlay.append(buttons)
+
+              {
+                const infoBox = document.createElement("div")
+
+                infoBox.style.display = "flex"
+
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                  infoBox.style.color = this.colors.matte.black
+                  infoBox.style.backgroundColor = this.colors.matte.celadon
+                  infoBox.style.border = `2px solid ${this.colors.matte.forest}`
+                } else {
+                  infoBox.style.color = this.colors.matte.black
+                  infoBox.style.backgroundColor = this.colors.matte.celadon
+                  infoBox.style.border = `2px solid ${this.colors.matte.forest}`
+                }
+
+                infoBox.style.fontSize = "13px"
+                infoBox.style.margin = "21px 34px"
+                infoBox.style.padding = "21px"
+                infoBox.style.borderRadius = "13px"
+
+                const icon = this.iconPicker("smiling-bear")
+                icon.style.width = "144px"
+                icon.style.fill = this.colors.matte.black
+                icon.style.marginRight = "8px"
+                infoBox.append(icon)
+
+                const message = document.createElement("div")
+                message.style.fontSize = "13px"
+
+                message.innerHTML = `
+                  <p>In unserer Gemeinschaft legen wir großen Wert auf Offenheit, Transparenz und ein harmonisches Miteinander. Wir möchten betonen, dass es vollkommen in Ordnung ist, Konflikte zu melden, und wir ermutigen dies sogar ausdrücklich. Konflikte sind ein natürlicher Bestandteil des menschlichen Zusammenlebens und können uns dabei helfen, Missverständnisse aufzuklären, Probleme zu lösen und eine Veränderung herbeizuführen, bei der sich alle Parteien verstanden fühlen.</p>
+                `
+
+                infoBox.append(message)
+
+                buttons.append(infoBox)
+              }
+
+              {
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.flexWrap = "wrap"
+                button.style.justifyContent = "space-between"
+                button.style.alignItems = "center"
+                button.style.margin = "21px 34px"
+                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                button.style.borderRadius = "13px"
+                button.style.border = "0.3px solid black"
+                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                button.style.cursor = "pointer"
+                // button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
+
+                const icon = document.createElement("img")
+                icon.style.margin = "13px 34px"
+                icon.style.width = "34px"
+                icon.src = "/public/add.svg"
+                icon.alt = "Hinzufügen"
+                button.append(icon)
+
+                const title = document.createElement("div")
+                title.innerHTML = "Neuen Konflikt melden"
+                title.style.margin = "21px 34px"
+                title.style.fontSize = "21px"
+                button.append(title)
+
+                buttons.append(button)
+              }
+
+              {
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.flexWrap = "wrap"
+                button.style.justifyContent = "space-between"
+                button.style.alignItems = "center"
+                button.style.margin = "21px 34px"
+                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                button.style.borderRadius = "13px"
+                button.style.border = "0.3px solid black"
+                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                button.style.cursor = "pointer"
+                // button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
+
+
+
+                /// icon picker
+
+                // const icon = this.iconPicker("open-eye")
+
+                const icon = document.createElement("img")
+                icon.style.margin = "13px 34px"
+                icon.style.width = "34px"
+                icon.src = "/public/open.svg"
+                icon.alt = "Offen"
+                button.append(icon)
+
+                const title = document.createElement("div")
+                title.innerHTML = "Offene Konflikte"
+                title.style.margin = "21px 34px"
+                title.style.fontSize = "21px"
+                button.append(title)
+
+                buttons.append(button)
+              }
+
+              {
+                const button = document.createElement("div")
+                button.style.display = "flex"
+                button.style.flexWrap = "wrap"
+                button.style.justifyContent = "space-between"
+                button.style.alignItems = "center"
+                button.style.margin = "21px 34px"
+                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+                button.style.borderRadius = "13px"
+                button.style.border = "0.3px solid black"
+                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+                button.style.cursor = "pointer"
+                // button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
+
+                const icon = document.createElement("img")
+                icon.style.margin = "13px 34px"
+                icon.style.width = "34px"
+                icon.src = "/public/solved.svg"
+                icon.alt = "Gelöst"
+                button.append(icon)
+
+                const title = document.createElement("div")
+                title.innerHTML = "Gelöste Konflikte"
+                title.style.margin = "21px 34px"
+                title.style.fontSize = "21px"
+                button.append(title)
+
+                buttons.append(button)
+              }
+
+            }
+
+          })
+
+        })
+
+      }
+
+      {
+        const button = this.buttonPicker("left/right", input)
+        button.right.innerHTML = "Konto löschen"
+        button.left.innerHTML = ".delete"
+        button.addEventListener("click", () => {
+
+          const confirm = window.confirm("Du bist gerade dabei deine persönliche Datenbank zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden. Du wirst abgemeldet und musst dich erneut registrieren lassen.\n\nMöchtest du alle deine Daten wirklich löschen?")
+
+          if (confirm === true) {
+            const prompt = window.prompt("Bitte bestätige deine E-Mail Adresse.")
+
+            if (this.stringIsEmpty(prompt)) {
+              alert("Fehler.. Bitte wiederholen.")
+              return
+            }
+
+            this.popup(async securityOverlay => {
+              this.headerPicker("loading", securityOverlay)
+
+              const verify = {}
+              verify.url = "/verify/email/closed/3/"
+              verify.type = "jwt"
+              verify.email = prompt
+              const res = await Request.middleware(verify)
+
+              if (res.status === 200) {
+                const del = {}
+                del.url = "/delete/user/closed/3/"
+                del.type = "jwt"
+                del.email = prompt
+                const res = await Request.middleware(del)
+
+                if (res.status === 200) {
+                  alert("Daten erfolgreich gelöscht.")
+                  this.removeOverlay(securityOverlay)
+                } else {
+                  alert("Fehler.. Bitte wiederholen.")
+                  this.removeOverlay(securityOverlay)
+                }
+
+
+              } else {
+                alert("Fehler.. Bitte wiederholen.")
+                this.removeOverlay(securityOverlay)
+              }
+
+            })
+
+
+          }
+
+
+        })
+      }
+
+
+
+      return input
+    }
+
+    if (event === "parent/navigation-open") {
+      this.reset(input)
+      input.style.overflowY = "auto"
+      input.style.overscrollBehavior = "none"
+      input.style.paddingBottom = "144px"
+
+      {
+        const button = this.buttonPicker("left/right", input)
+        button.left.innerHTML = ".login"
+        button.right.innerHTML = "Dein Zugang zur personalisierten Erfahrung"
+        button.addEventListener("click", () => window.location.assign("/login/"))
+      }
+
+      {
+        const button = this.buttonPicker("left/right", input)
+        button.left.innerHTML = ".browser"
+        button.right.innerHTML = "Dein Tor zur digitalen Freiheit!"
+        button.addEventListener("click", () => window.location.assign("/"))
+      }
+
+      {
+        const button = this.buttonPicker("left/right", input)
+        button.left.innerHTML = ".user-agreement"
+        button.right.innerHTML = "Deine Sicherheit im digitalen Raum"
+        button.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
+      }
+
+      {
+        const button = this.buttonPicker("left/right", input)
+        button.left.innerHTML = ".privacy-policy"
+        button.right.innerHTML = "Deine Daten, deine Privatsphäre"
+        button.addEventListener("click", () => window.location.assign("/datenschutz/"))
+      }
+
+      {
+        const button = this.buttonPicker("left/right", input)
+        button.left.innerHTML = ".imprint"
+        button.right.innerHTML = "Für Transparenz und Klarheit"
+        button.addEventListener("click", () => window.location.assign("/impressum/"))
+      }
+
+
+      return input
+    }
+
     if (event === "element/scrollable") {
       this.reset(input)
       input.style.overflowY = "auto"
@@ -4220,9 +8950,16 @@ export class Helper {
       return input
     }
 
+    if (event === "text/img") {
+      const img = document.createElement("img")
+      img.src = input
+      return img
+    }
+
     if (event === "text/svg") {
       const container = document.createElement("div")
       container.innerHTML = input
+
       // sanatize svg
       container.children[0].removeAttribute("width")
       container.children[0].removeAttribute("height")
@@ -4260,8 +8997,9 @@ export class Helper {
       const output = document.createElement("div")
       output.style.fontFamily = "monospace"
       output.style.fontSize = "13px"
+      output.style.overflow = "auto"
       output.style.display = "inline"
-      output.innerHTML = `&lt; ${input.tagName.toLowerCase()}`
+      output.innerHTML = `&lt;${input.tagName.toLowerCase()}`
 
       if (input.id !== "") {
         const id = document.createElement("span")
@@ -4598,6 +9336,49 @@ export class Helper {
   static removeOverlay(overlay) {
     document.body.style.overflow = "visible"
     overlay.remove()
+  }
+
+  static overlay(event, callback) {
+    if (callback !== undefined) {
+
+
+      if (event === "security") {
+        const overlay = document.createElement("div")
+        overlay.classList.add("overlay")
+
+        this.headerPicker("loading", overlay)
+
+        // mobile issues
+        overlay.style.height = "100%"
+        overlay.style.overscrollBehavior = "none"
+        document.body.style.overscrollBehavior = "none"
+        document.body.style.overflow = "hidden"
+
+        overlay.style.width = "100%"
+        overlay.style.zIndex = "1"
+        overlay.style.position = "fixed"
+        overlay.style.top = "0"
+        overlay.style.left = "0"
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          overlay.style.background = this.colors.matte.dark.background
+        } else {
+          overlay.style.background = this.colors.matte.light.background
+        }
+
+        overlay.style.display = "flex"
+        overlay.style.flexDirection = "column"
+
+        callback(overlay)
+
+        document.body.append(overlay)
+
+        return overlay
+      }
+
+
+
+    }
   }
 
   static popup(callback) {
@@ -5027,6 +9808,36 @@ export class Helper {
     object === undefined ||
     object === null ||
     Object.getOwnPropertyNames(object).length <= 0
+  }
+
+  static emailIsEmpty(string) {
+    return typeof string !== "string" ||
+    string === undefined ||
+    string === null ||
+    string === "" ||
+    string === "null" ||
+    string.replace(/\s/g, "") === "" ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(string)
+  }
+
+  static pathIsEmpty(string) {
+    return typeof string !== "string" ||
+    string === undefined ||
+    string === null ||
+    string === "" ||
+    string === "null" ||
+    string.replace(/\s/g, "") === "" ||
+    !/^\/[\w\-._~!$&'()*+,;=:@/]+\/$/.test(string)
+  }
+
+  static tagIsEmpty(string) {
+    return typeof string !== "string" ||
+    string === undefined ||
+    string === null ||
+    string === "" ||
+    string === "null" ||
+    string.replace(/\s/g, "") === "" ||
+    !/^[a-z](?:-?[a-z]+)*$/.test(string)
   }
 
   static stringIsEmpty(string) {
