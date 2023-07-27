@@ -128,10 +128,9 @@ export class Request {
 
     Helper.popup(async securityOverlay => {
 
+      securityOverlay.style.backgroundColor = Helper.colors.light.background
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        securityOverlay.style.backgroundColor = Helper.colors.matte.dark.background
-      } else {
-        securityOverlay.style.backgroundColor = Helper.colors.matte.light.background
+        securityOverlay.style.backgroundColor = Helper.colors.dark.background
       }
 
       document.body.style.overflow = "hidden"
@@ -148,10 +147,9 @@ export class Request {
 
       loading.style.width = "55px"
 
+      loading.style.fill = Helper.colors.light.error
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        loading.style.fill = Helper.colors.matte.dark.error
-      } else {
-        loading.style.fill = Helper.colors.matte.light.error
+        loading.style.fill = Helper.colors.dark.error
       }
 
       content.append(loading)
@@ -161,10 +159,9 @@ export class Request {
       const info = document.createElement("div")
       info.innerHTML = "Das kann einen Moment dauern .."
       info.style.fontSize = "13px"
+      info.style.color = Helper.colors.light.error
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        info.style.color = Helper.colors.matte.dark.error
-      } else {
-        info.style.color = Helper.colors.matte.light.error
+        info.style.color = Helper.colors.dark.error
       }
       info.style.margin = "13px"
       content.append(info)
@@ -190,26 +187,27 @@ export class Request {
           pinField.verifyValue()
         })
 
-        const button = document.createElement("div")
+        // const button = document.createElement("div")
+        const button = Helper.buttonPicker("action", content)
         button.innerHTML = "PIN bestätigen"
 
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          button.style.backgroundColor = Helper.colors.matte.orange
-          button.style.color = Helper.colors.matte.light.text
-        } else {
-          button.style.backgroundColor = Helper.colors.matte.sunflower
-          button.style.color = Helper.colors.matte.light.text
-        }
+        // button.style.backgroundColor = Helper.colors.matte.sunflower
+        // button.style.color = Helper.colors.light.text
+        // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        //   button.style.backgroundColor = Helper.colors.matte.orange
+        //   button.style.color = Helper.colors.light.text
+        // } else {
+        // }
 
-        button.style.cursor = "pointer"
-        button.style.fontSize = "21px"
-        button.style.borderRadius = "13px"
-        button.style.margin = "0 34px"
-        button.style.display = "flex"
-        button.style.justifyContent = "center"
-        button.style.alignItems = "center"
-        button.style.padding = "21px 0"
-        button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+        // button.style.cursor = "pointer"
+        // button.style.fontSize = "21px"
+        // button.style.borderRadius = "13px"
+        // button.style.margin = "0 34px"
+        // button.style.display = "flex"
+        // button.style.justifyContent = "center"
+        // button.style.alignItems = "center"
+        // button.style.padding = "21px 0"
+        // button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
 
         button.addEventListener("click", async () => {
 
@@ -288,7 +286,7 @@ export class Request {
 
 
         })
-        content.append(button)
+        // content.append(button)
 
         {
           const infoBox = document.createElement("div")

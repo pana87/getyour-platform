@@ -30,11 +30,9 @@
 
     {
 
-
+      document.body.style.background = Helper.colors.light.background
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.body.style.background = Helper.colors.dark.background
-      } else {
-        document.body.style.background = Helper.colors.light.background
       }
 
       Helper.headerPicker("back", document.body)
@@ -44,285 +42,21 @@
       app.addEventListener("click", () => {
 
         Helper.popup(overlay => {
-
-          const header = document.createElement("div")
-          header.style.position = "fixed"
-          header.style.bottom = "0"
-          header.style.left = "0"
-          header.style.width = "100%"
-          header.style.display = "flex"
-          header.style.justifyContent = "flex-start"
-          header.style.alignItems = "center"
-          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-          header.style.background = "white"
-          header.style.cursor = "pointer"
-          header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-          const logo = document.createElement("img")
-          logo.src = "/public/getyour-logo.svg"
-          logo.alt = "Getyour"
-          logo.style.width = "55px"
-          logo.style.margin = "21px 34px"
-          header.append(logo)
-          const title = document.createElement("div")
-          title.innerHTML = `/ ${window.location.pathname.split("/")[3]} /`
-          title.style.fontWeight = "bold"
-          title.style.fontSize = "21px"
-          header.append(title)
-          overlay.append(header)
-
-
-
-          const buttons = document.createElement("div")
-          buttons.style.overflow = "auto"
-          buttons.style.paddingBottom = "144px"
-          buttons.style.overscrollBehavior = "none"
-
-          {
-            const button = document.createElement("div")
-            button.style.display = "flex"
-            button.style.flexWrap = "wrap"
-            button.style.justifyContent = "space-between"
-            button.style.alignItems = "center"
-            button.style.margin = "21px 34px"
-            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-            button.style.borderRadius = "13px"
-            button.style.border = "0.3px solid black"
-            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-            button.style.cursor = "pointer"
-            button.addEventListener("click", () => window.location.assign("/"))
-
-            const icon = document.createElement("img")
-            icon.style.margin = "13px 34px"
-            icon.style.width = "34px"
-            icon.src = "/public/home.svg"
-            icon.alt = "Home"
-            button.append(icon)
-
-            const title = document.createElement("div")
-            title.innerHTML = "Startseite"
-            title.style.margin = "21px 34px"
-            title.style.fontSize = "21px"
-            button.append(title)
-
-            buttons.append(button)
-          }
-
-
-
-
-          {
-            const button = document.createElement("div")
-            button.style.display = "flex"
-            button.style.flexWrap = "wrap"
-            button.style.justifyContent = "space-between"
-            button.style.alignItems = "center"
-            button.style.margin = "21px 34px"
-            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-            button.style.borderRadius = "13px"
-            button.style.border = "0.3px solid black"
-            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-            button.style.cursor = "pointer"
-            button.addEventListener("click", () => window.location.assign("/getyour/pana/nutzervereinbarung/"))
-
-            const icon = document.createElement("img")
-            icon.style.margin = "13px 34px"
-            icon.style.width = "34px"
-            icon.src = "/public/handshake.svg"
-            icon.alt = "Nutzervereinbarung"
-            button.append(icon)
-
-            const title = document.createElement("div")
-            title.innerHTML = "Nutzervereinbarung"
-            title.style.margin = "21px 34px"
-            title.style.fontSize = "21px"
-            button.append(title)
-
-            buttons.append(button)
-          }
-
-          {
-            const button = document.createElement("div")
-            button.style.display = "flex"
-            button.style.flexWrap = "wrap"
-            button.style.justifyContent = "space-between"
-            button.style.alignItems = "center"
-            button.style.margin = "21px 34px"
-            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-            button.style.borderRadius = "13px"
-            button.style.border = "0.3px solid black"
-            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-            button.style.cursor = "pointer"
-            button.addEventListener("click", () => window.location.assign("/getyour/pana/datenschutz/"))
-
-            const icon = document.createElement("img")
-            icon.style.margin = "13px 34px"
-            icon.style.width = "34px"
-            icon.src = "/public/security.svg"
-            icon.alt = "Sicherheit"
-            button.append(icon)
-
-            const title = document.createElement("div")
-            title.innerHTML = "Datenschutz Richtilinien"
-            title.style.margin = "21px 34px"
-            title.style.fontSize = "21px"
-            button.append(title)
-
-            buttons.append(button)
-          }
-          {
-            const button = document.createElement("div")
-            button.style.display = "flex"
-            button.style.flexWrap = "wrap"
-            button.style.justifyContent = "space-between"
-            button.style.alignItems = "center"
-            button.style.margin = "21px 34px"
-            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-            button.style.borderRadius = "13px"
-            button.style.border = "0.3px solid black"
-            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-            button.style.cursor = "pointer"
-            button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
-
-            const icon = document.createElement("img")
-            icon.style.margin = "13px 34px"
-            icon.style.width = "34px"
-            icon.src = "/public/company.svg"
-            icon.alt = "Unternehmen"
-            button.append(icon)
-
-            const title = document.createElement("div")
-            title.innerHTML = "Impressum"
-            title.style.margin = "21px 34px"
-            title.style.fontSize = "21px"
-            button.append(title)
-
-            buttons.append(button)
-          }
-
-          overlay.append(buttons)
-        })
-
-
-      })
-
-    }
-
-
-    {
-      const title = document.createElement("h1")
-      title.innerHTML = "Login"
-
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        title.style.color = Helper.colors.dark.text
-      } else {
-        title.style.color = Helper.colors.light.text
-      }
-
-      title.style.margin = "21px 34px"
-      title.style.fontWeight = "normal"
-      document.body.append(title)
-    }
-
-
-    {
-      const emailField = new EmailField("email", document.body)
-      emailField.label.innerHTML = "E-Mail Adresse"
-      emailField.input.placeholder = "meine@email.de"
-      emailField.input.required = true
-      emailField.input.accept = "text/email"
-      emailField.input.addEventListener("input", () => {
-        const value = emailField.validValue()
-        window.localStorage.setItem(emailField.name, value)
-      })
-      emailField.value(name => window.localStorage.getItem(name))
-      emailField.verifyValue()
-
-      const dsgvoField = new CheckboxField("dsgvo", document.body)
-      dsgvoField.label.innerHTML = `<div style="font-size: 13px;">Ich habe die <a href="/getyour/pana/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/getyour/pana/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>`
-      dsgvoField.checkbox.required = true
-      dsgvoField.icon.style.display = "block"
-      dsgvoField.icon.src = "/public/info-gray.svg"
-      dsgvoField.icon.alt = "Info"
-      dsgvoField.value(name => window.localStorage.getItem(name))
-      dsgvoField.checkbox.addEventListener("input", () => {
-        const value = dsgvoField.validValue()
-        window.localStorage.setItem(dsgvoField.name, value)
-      })
-      dsgvoField.verifyValue()
-
-
-
-      const loginbutton = Helper.buttonPicker("action", document.body)
-      loginbutton.innerHTML = "Jetzt anmelden"
-
-      loginbutton.addEventListener("click", async () => {
-
-        const email = emailField.validValue()
-        const dsgvo = dsgvoField.validValue()
-
-
-        // this adds locals storage id when user provides correct pin
-        await Request.withVerifiedEmail(email, async () => {
-
-
-          // this registers admin only
-          if (email.endsWith("@get-your.de")) {
-            const register = {}
-            register.url = "/register/admin/open/"
-            register.email = email
-            // register.role = "2"
-            // register.location = window.location.href
-            // register.referer = document.referrer
-            // register.localStorageEmail = await Request.email()
-            // register.localStorageId = await Request.localStorageId()
-            await Request.sequence(register)
-          }
-
-          {
-
-
-            // this registers the local storage id from browser
-            const register = {}
-            register.url = "/request/register/session/"
-            // register.location = window.location.href
-            // register.referer = document.referrer
-            // register.localStorageEmail = await Request.email()
-            // register.localStorageId = await Request.localStorageId()
-            const res = await Request.middleware(register)
-
-            if (res.status === 200) {
-
-              // const register = {}
-              // register.url = "/register/verified/open/"
-              // // register.type = "verified"
-              // register.email = email
-              // // register.location = window.location.href
-              // // register.referer = document.referrer
-              // await Request.sequence(register)
-
-              const redirect = {}
-              redirect.url = "/redirect/user/closed/"
-              // redirect.location = window.location.href
-              // redirect.referer = document.referrer
-              // redirect.localStorageEmail = await Request.email()
-              // redirect.localStorageId = await Request.localStorageId()
-              const res = await Request.middleware(redirect)
-              if (res.status === 200) window.location.assign(res.response)
-            } else {
-              window.history.back()
-            }
-          }
-
-
-
+          Helper.headerPicker("removeOverlay", overlay)
+          const info = Helper.headerPicker("info", overlay)
+          info.append(Helper.convert("text/span", "open"))
+          Helper.create("open", overlay)
         })
 
       })
 
     }
 
+    Helper.render("text/h1", "Login", document.body)
 
+    Helper.create("login", document.body)
+
+    Helper.update("script/login", document.body)
 
     {
 

@@ -110,16 +110,15 @@ export class TextAreaField {
     field.style.margin = "34px"
     field.style.justifyContent = "center"
 
+    field.style.backgroundColor = Helper.colors.light.foreground
+    field.style.border = Helper.colors.light.border
+    field.style.boxShadow = Helper.colors.light.boxShadow
+    field.style.color = Helper.colors.light.text
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       field.style.backgroundColor = Helper.colors.dark.foreground
       field.style.border = Helper.colors.dark.border
       field.style.boxShadow = Helper.colors.dark.boxShadow
       field.style.color = Helper.colors.dark.text
-    } else {
-      field.style.backgroundColor = Helper.colors.light.foreground
-      field.style.border = Helper.colors.light.border
-      field.style.boxShadow = Helper.colors.light.boxShadow
-      field.style.color = Helper.colors.light.text
     }
 
     const labelContainer = document.createElement("div")
@@ -139,12 +138,10 @@ export class TextAreaField {
     label.style.fontFamily = "sans-serif"
     label.style.fontSize = "21px"
 
+    label.style.color = Helper.colors.light.text
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       label.style.color = Helper.colors.dark.text
-    } else {
-      label.style.color = Helper.colors.light.text
     }
-
 
     labelContainer.append(label)
     this.label = label
@@ -153,12 +150,11 @@ export class TextAreaField {
     const input = document.createElement("textarea")
     input.style.margin = "21px 89px 21px 34px"
 
+    input.style.backgroundColor = Helper.colors.light.background
+    input.style.color = Helper.colors.light.text
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       input.style.backgroundColor = Helper.colors.dark.background
       input.style.color = Helper.colors.dark.text
-    } else {
-      input.style.backgroundColor = Helper.colors.light.background
-      input.style.color = Helper.colors.light.text
     }
 
     this.input = input

@@ -4,8 +4,1461 @@ import {TextAreaField} from "/js/TextAreaField.js"
 import {SelectionField} from "/js/SelectionField.js"
 import {TelField} from "/js/TelField.js"
 import {FileField} from "/js/FileField.js"
+import {EmailField} from "/js/EmailField.js"
+import {CheckboxField} from "/js/CheckboxField.js"
 
 export class Helper {
+
+  static get(event, parent, input) {
+
+    if (event === "funnel/service-condition") {
+
+      const funnel = this.create("div/scrollable", parent)
+
+
+      this.render("text/title", "Wenn..", funnel)
+
+      const leftField = new TextField("left", funnel)
+      leftField.label.innerHTML = "Id"
+      leftField.input.maxLength = "55"
+      leftField.input.required = true
+      leftField.input.accept = "text/tag"
+      leftField.input.placeholder = "gas-preis"
+      leftField.verifyValue()
+      leftField.input.addEventListener("input", () => leftField.verifyValue())
+
+      const operatorField = new TextField("operator", funnel)
+      operatorField.label.innerHTML = "Operator"
+      operatorField.input.placeholder = ">="
+      operatorField.input.maxLength = "3"
+      operatorField.input.accept = "text/operator"
+      operatorField.input.required = true
+      operatorField.verifyValue()
+      operatorField.input.addEventListener("input", () => operatorField.verifyValue())
+
+      const rightField = new TextField("right", funnel)
+      rightField.label.innerHTML = "Vergleichswert"
+      rightField.input.maxLength = "21"
+      rightField.input.required = true
+      rightField.input.placeholder = "1989"
+      rightField.verifyValue()
+      rightField.input.addEventListener("input", () => rightField.verifyValue())
+
+      this.render("text/title", "Dann..", funnel)
+
+      const actionField = new TextAreaField("action", funnel)
+      actionField.label.innerHTML = "Verändere deine Servicewerte mit Javascript"
+      actionField.input.style.height = "144px"
+      actionField.input.required = true
+      // actionField.input.accept = "text/service"
+      actionField.input.placeholder = `service.selected = true\nservice.price = 3500\nservice.title = "Mein neuer Service"`
+      actionField.verifyValue()
+      actionField.input.addEventListener("input", () => actionField.verifyValue())
+
+
+      const button = this.buttonPicker("action", funnel)
+      button.innerHTML = "Bedingung jetzt speichern"
+      button.addEventListener("click", () => {
+
+        const condition = {}
+        condition.left = leftField.validValue()
+        condition.operator = operatorField.validValue()
+        condition.right = rightField.validValue()
+        condition.action = actionField.validValue()
+
+        if (input !== undefined) {
+          condition.service = input.service
+
+          if (!this.numberIsEmpty(input.id)) {
+            condition.id = input.id
+          }
+
+        }
+
+
+        this.overlay("security", async securityOverlay => {
+
+          await this.update("service-condition/closed", securityOverlay, condition)
+
+          if (input !== undefined) {
+            if (input.ok !== undefined) await input.ok()
+          }
+
+          this.removeOverlay(securityOverlay)
+
+        })
+
+      })
+
+      if (input !== undefined) {
+
+        if (!this.numberIsEmpty(input.id)) {
+
+          const button = this.buttonPicker("delete", funnel)
+          button.innerHTML = "Bedingung entfernen"
+          button.addEventListener("click", () => {
+
+            this.overlay("security", async securityOverlay => {
+              const del = {}
+              del.url = "/delete/service-condition/closed/"
+              del.id = input.id
+              del.service = input.service
+              const res = await Request.closed(del)
+
+              if (res.status === 200) {
+                window.alert("Bedingung erfolgreich gelöscht.")
+                if (input.ok !== undefined) await input.ok()
+                this.removeOverlay(securityOverlay)
+              } else {
+                this.redirect("session-expired")
+              }
+
+            })
+
+
+          })
+
+        }
+
+        leftField.value(() => input.left)
+        leftField.verifyValue()
+
+        operatorField.value(() => input.operator)
+        operatorField.verifyValue()
+
+        rightField.value(() => input.right)
+        rightField.verifyValue()
+
+        actionField.value(() => input.action)
+        actionField.verifyValue()
+
+      }
+
+    }
+
+    if (event === "service-conditions/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const content = this.headerPicker("loading", parent)
+
+        const get = {}
+        get.url = "/get/conditions/closed/"
+        get.service = input.service
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+          const conditions = JSON.parse(res.response)
+
+          this.convert("parent/scrollable", content)
+
+          for (let i = 0; i < conditions.length; i++) {
+            const condition = conditions[i]
+
+            const button = this.buttonPicker("left/right", content)
+            button.right.innerHTML = condition.left
+            button.left.innerHTML = `Bedingung ${conditions.length - i}`
+
+            button.addEventListener("click", () => {
+              this.popup(overlay => {
+                this.headerPicker("removeOverlay", overlay)
+                const info = this.headerPicker("info", overlay)
+                info.append(this.convert("text/span", ".condition"))
+
+                condition.service = input.service
+                condition.ok = async () => {
+
+                  this.reset(content)
+                  await this.get(event, content, condition)
+                  this.removeOverlay(overlay)
+
+                }
+
+                this.get("funnel/service-condition", overlay, condition)
+
+              })
+            })
+
+          }
+
+          return resolve(content)
+
+        }
+
+
+        if (res.status !== 200) {
+          this.redirect("session-expired")
+          return reject(new Error("get conditions failed"))
+        }
+
+      })
+
+    }
+
+    if (event === "funnel/service") {
+
+      const funnel = this.create("div/scrollable", parent)
+
+      if (input !== undefined) {
+        if (!this.numberIsEmpty(input.id)) {
+
+          const button = this.buttonPicker("left/right", funnel)
+          button.left.innerHTML = ".conditions"
+          button.right.innerHTML = "Bedingungen hinzufügen"
+
+          button.addEventListener("click", () => {
+            this.popup(async overlay => {
+
+              this.headerPicker("removeOverlay", overlay)
+              const info = this.headerPicker("info", overlay)
+              info.innerHTML = `.conditions`
+
+              const create = this.buttonPicker("left/right", overlay)
+              create.left.innerHTML = ".create"
+              create.right.innerHTML = "Neue Bedingung definieren"
+              create.addEventListener("click", () => {
+
+                this.popup(overlay => {
+                  this.headerPicker("removeOverlay", overlay)
+                  const info = this.headerPicker("info", overlay)
+                  info.append(this.convert("text/span", ".service"))
+
+                  this.get("funnel/service-condition", overlay, {service: input.id, ok: async () => {
+
+                    this.reset(container)
+                    await this.get("service-conditions/closed", container, {service: input.id})
+                    this.removeOverlay(overlay)
+
+                  }})
+
+                })
+
+              })
+
+              this.render("text/hr", "Meine Bedingungen", overlay)
+
+              const container = await this.get("service-conditions/closed", overlay, {service: input.id})
+
+            })
+          })
+
+        }
+      }
+
+      const quantityField = new TelField("quantity", funnel)
+      quantityField.label.innerHTML = "Menge"
+      quantityField.input.placeholder = "0"
+      quantityField.input.maxLength = "8"
+      quantityField.input.required = true
+      quantityField.input.accept = "text/+int"
+      quantityField.verifyValue()
+      quantityField.input.addEventListener("input", () => quantityField.verifyValue())
+
+      const unitField = new TextField("unit", funnel)
+      unitField.label.innerHTML = "Einheit"
+      unitField.input.maxLength = "8"
+      unitField.input.required = true
+      unitField.input.placeholder = "Stk."
+      unitField.verifyValue()
+      unitField.input.addEventListener("input", () => unitField.verifyValue())
+
+      const titleField = new TextField("title", funnel)
+      titleField.label.innerHTML = "Titel"
+      titleField.input.placeholder = "HIGH PERFORMANCE MODULE"
+      titleField.input.maxLength = "55"
+      titleField.input.required = true
+      titleField.verifyValue()
+      titleField.input.addEventListener("input", () => titleField.verifyValue())
+
+      const priceField = new TelField("price", funnel)
+      priceField.label.innerHTML = "Preis"
+      priceField.input.maxLength = "8"
+      priceField.input.required = true
+      priceField.input.accept = "text/+int"
+      priceField.input.placeholder = "3500"
+      priceField.verifyValue()
+      priceField.input.addEventListener("input", () => priceField.verifyValue())
+
+      const currencyField = new TextField("currency", funnel)
+      currencyField.label.innerHTML = "Währung"
+      currencyField.input.maxLength = "8"
+      currencyField.input.required = true
+      currencyField.input.placeholder = "Euro"
+      currencyField.verifyValue()
+      currencyField.input.addEventListener("input", () => currencyField.verifyValue())
+
+      const selectedField = new CheckboxField("selected", funnel)
+      selectedField.label.innerHTML = "Soll diese Leistung aktiv sein"
+      selectedField.verifyValue()
+      selectedField.input.addEventListener("input", () => selectedField.verifyValue())
+
+
+      const button = this.buttonPicker("action", funnel)
+      button.innerHTML = "Leistung jetzt speichern"
+      button.addEventListener("click", () => {
+
+        const service = {}
+        service.quantity = quantityField.validValue()
+        service.unit = unitField.validValue()
+        service.title = titleField.validValue()
+        service.price = priceField.validValue()
+        service.currency = currencyField.validValue()
+        service.selected = selectedField.validValue()
+
+
+        if (input !== undefined) {
+
+          if (!this.numberIsEmpty(input.id)) {
+            service.id = input.id
+          }
+
+        }
+
+
+        this.overlay("security", async securityOverlay => {
+
+          await this.update("service/closed", securityOverlay, service)
+
+          if (input !== undefined) {
+            if (input.ok !== undefined) await input.ok()
+          }
+
+          this.removeOverlay(securityOverlay)
+
+        })
+
+      })
+
+      if (input !== undefined) {
+
+        if (!this.numberIsEmpty(input.id)) {
+
+          const button = this.buttonPicker("delete", funnel)
+          button.innerHTML = "Leistung entfernen"
+          button.addEventListener("click", () => {
+
+            this.overlay("security", async securityOverlay => {
+              const del = {}
+              del.url = "/delete/service/closed/"
+              del.id = input.id
+              const res = await Request.closed(del)
+
+              if (res.status === 200) {
+                window.alert("Leistung erfolgreich gelöscht.")
+                if (input.ok !== undefined) await input.ok()
+                this.removeOverlay(securityOverlay)
+              } else {
+                this.redirect("session-expired")
+              }
+
+            })
+
+
+          })
+
+        }
+
+        quantityField.value(() => input.quantity)
+        quantityField.verifyValue()
+
+        unitField.value(() => input.unit)
+        unitField.verifyValue()
+
+        titleField.value(() => input.title)
+        titleField.verifyValue()
+
+        priceField.value(() => input.price)
+        priceField.verifyValue()
+
+        currencyField.value(() => input.currency)
+        currencyField.verifyValue()
+
+        selectedField.value(() => input.selected)
+        selectedField.verifyValue()
+
+      }
+
+    }
+
+    if (event === "services/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const content = this.headerPicker("loading", parent)
+
+        const get = {}
+        get.url = "/get/services/closed/"
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+          const services = JSON.parse(res.response)
+
+          this.convert("parent/scrollable", content)
+
+          for (let i = 0; i < services.length; i++) {
+            const service = services[i]
+
+            const button = this.buttonPicker("left/right", content)
+            button.right.innerHTML = service.title
+            button.left.innerHTML = `Leistung ${services.length - i}`
+
+            button.addEventListener("click", () => {
+              this.popup(overlay => {
+                this.headerPicker("removeOverlay", overlay)
+                const info = this.headerPicker("info", overlay)
+                info.append(this.convert("text/span", ".service"))
+
+                service.ok = async () => {
+
+                  this.reset(content)
+                  await this.get(event, content)
+                  this.removeOverlay(overlay)
+
+                }
+
+                this.get("funnel/service", overlay, service)
+
+              })
+            })
+
+          }
+
+          return resolve(content)
+
+        }
+
+
+        if (res.status !== 200) {
+          this.redirect("session-expired")
+          return reject(new Error("get services failed"))
+        }
+
+      })
+
+    }
+
+    if (event === "funnel/offer") {
+
+      this.convert("parent/scrollable", parent)
+
+      // preview html offer button
+      // if input != undefined
+      if (input !== undefined) {
+        const button = this.buttonPicker("left/right", parent)
+        button.left.innerHTML = ".preview"
+        button.right.innerHTML = "Angebot Vorschau"
+        button.addEventListener("click", () => {
+          window.alert("Bald verfügbar.")
+          // add popup with overlay as printable preview
+          // or new page with preview
+        })
+      }
+
+      const nameField = new TextField("name", parent)
+      nameField.label.innerHTML = "Name (text/tag)"
+      nameField.input.accept = "text/tag"
+      nameField.input.maxLength = "21"
+      nameField.input.required = true
+      nameField.input.placeholder = "mein-angebot"
+      nameField.verifyValue()
+      nameField.input.addEventListener("input", () => nameField.verifyValue())
+
+      const expiredField = new TelField("expired", parent)
+      expiredField.label.innerHTML = "Gültigkeit des Angebots in Wochen (1-9)"
+      expiredField.input.pattern = "[1-9]"
+      expiredField.input.placeholder = "2"
+      expiredField.input.required = true
+      expiredField.verifyValue()
+      expiredField.input.addEventListener("input", () => expiredField.verifyValue())
+
+      const titleField = new TextField("title", parent)
+      titleField.label.innerHTML = "Titel"
+      titleField.input.placeholder = "Mein Angebot"
+      titleField.input.maxLength = "55"
+      titleField.input.required = true
+      titleField.verifyValue()
+      titleField.input.addEventListener("input", () => titleField.verifyValue())
+
+      const linkField = new TextField("link", parent)
+      linkField.label.innerHTML = "Webseiten Link"
+      linkField.input.placeholder = "https://meine-webseite.info"
+      linkField.input.maxLength = "89"
+      linkField.input.required = true
+      linkField.verifyValue()
+      linkField.input.addEventListener("input", () => linkField.verifyValue())
+
+      const descriptionField = new TextAreaField("description", parent)
+      descriptionField.label.innerHTML = "Beschreibe dein Angebot"
+      descriptionField.input.maxLength = "144"
+      descriptionField.input.style.height = "144px"
+      descriptionField.input.required = true
+      descriptionField.input.placeholder = "Komplettpaket für die Montage Ihrer .."
+      descriptionField.verifyValue()
+      descriptionField.input.addEventListener("input", () => descriptionField.verifyValue())
+
+      const messageField = new TextAreaField("message", parent)
+      messageField.label.innerHTML = "Eine Begrüßungs-Nachricht im Angebotsschreiben"
+      messageField.input.maxLength = "987"
+      messageField.input.style.height = "144px"
+      messageField.input.placeholder = "Wir sind Ihnen schon jetzt für Ihr Vertrauen und Ihr Interesse an unserem System, zur Erzielung einer .., dankbar und freuen uns heute .."
+      messageField.input.required = true
+      messageField.verifyValue()
+      messageField.input.addEventListener("input", () => messageField.verifyValue())
+
+      const noteField = new TextAreaField("note", parent)
+      noteField.label.innerHTML = "Eine Bitte-Beachten-Notiz im Angebotsschreiben"
+      noteField.input.maxLength = "987"
+      noteField.input.style.height = "144px"
+      noteField.input.placeholder = "Befindet sich die Stellfläche des Gerüsts auf einem öffentlichen Gehweg, muss der .."
+      noteField.input.required = true
+      noteField.verifyValue()
+      noteField.input.addEventListener("input", () => noteField.verifyValue())
+
+      const companyField = new TextField("company", parent)
+      companyField.label.innerHTML = "Firma"
+      companyField.input.maxLength = "55"
+      companyField.input.placeholder = "Meine Firma"
+      companyField.input.required = true
+      companyField.verifyValue()
+      companyField.input.addEventListener("input", () => companyField.verifyValue())
+
+      const sectorField = new TextField("sector", parent)
+      sectorField.label.innerHTML = "Branche"
+      sectorField.input.maxLength = "55"
+      sectorField.input.placeholder = "Energie"
+      sectorField.input.required = true
+      sectorField.verifyValue()
+      sectorField.input.addEventListener("input", () => sectorField.verifyValue())
+
+      const streetField = new TextField("street", parent)
+      streetField.label.innerHTML = "Straße und Hausnummer"
+      streetField.input.maxLength = "55"
+      streetField.input.placeholder = "Wiesentalstr. 44c"
+      streetField.input.required = true
+      streetField.verifyValue()
+      streetField.input.addEventListener("input", () => streetField.verifyValue())
+
+      const zipField = new TelField("zip", parent)
+      zipField.label.innerHTML = "Postleitzahl"
+      zipField.input.maxLength = "13"
+      zipField.input.required = true
+      zipField.input.placeholder = "70184"
+      zipField.verifyValue()
+      zipField.input.addEventListener("input", () => zipField.verifyValue())
+
+      const cityField = new TextField("city", parent)
+      cityField.label.innerHTML = "Stadt"
+      cityField.input.maxLength = "55"
+      cityField.input.required = true
+      cityField.input.placeholder = "Stuttgart"
+      cityField.verifyValue()
+      cityField.input.addEventListener("input", () => cityField.verifyValue())
+
+      const termsField = new FileField("terms", parent)
+      termsField.label.innerHTML = "Lade deine AGBs als PDF hoch"
+      termsField.input.accept = "application/pdf"
+      termsField.input.required = true
+      termsField.verifyValue()
+      termsField.input.addEventListener("input", () => termsField.verifyValue())
+
+      const productInfoField = new FileField("productInfo", parent)
+      productInfoField.label.innerHTML = "Lade deine Produkt- und Dienstleistungs-Broschüre als PDF hoch"
+      productInfoField.input.accept = "application/pdf"
+      productInfoField.input.required = true
+      productInfoField.verifyValue()
+      productInfoField.input.addEventListener("input", () => productInfoField.verifyValue())
+
+      const companyInfoField = new FileField("companyInfo", parent)
+      companyInfoField.label.innerHTML = "Lade deine Unternehmens-Broschüre als PDF hoch"
+      companyInfoField.input.accept = "application/pdf"
+      companyInfoField.input.required = true
+      companyInfoField.verifyValue()
+      companyInfoField.input.addEventListener("input", () => companyInfoField.verifyValue())
+
+      const vatField = new TelField("vat", parent)
+      vatField.label.innerHTML = "Steuern in %"
+      vatField.input.required = true
+      vatField.input.accept = "text/+int"
+      vatField.verifyValue()
+      vatField.input.addEventListener("input", () => vatField.verifyValue())
+
+      const discountField = new TelField("discount", parent)
+      discountField.label.innerHTML = "Rabatt in %"
+      discountField.input.required = true
+      discountField.input.accept = "text/+int"
+      discountField.verifyValue()
+      discountField.input.addEventListener("input", () => discountField.verifyValue())
+
+      const button = this.buttonPicker("action", parent)
+      button.innerHTML = "Angebot jetzt speichern"
+      button.addEventListener("click", async () => {
+
+        const offer = {}
+        offer.name = nameField.validValue()
+        offer.expired = expiredField.validValue()
+        offer.title = titleField.validValue()
+        offer.link = linkField.validValue()
+        offer.description = descriptionField.validValue()
+        offer.message = messageField.validValue()
+        offer.note = noteField.validValue()
+        offer.company = companyField.validValue()
+        offer.sector = sectorField.validValue()
+        offer.street = streetField.validValue()
+        offer.zip = zipField.validValue()
+        offer.city = cityField.validValue()
+
+        const termsFile = termsField.validValue()[0]
+        const companyFile = companyInfoField.validValue()[0]
+        const productFile = productInfoField.validValue()[0]
+
+        if (termsFile !== undefined) {
+          offer.termsPdf = await termsField.validPdf(termsFile)
+        }
+
+        if (companyFile !== undefined) {
+          offer.companyPdf = await companyInfoField.validPdf(companyFile)
+        }
+
+        if (productFile !== undefined) {
+          offer.productPdf = await productInfoField.validPdf(productFile)
+        }
+
+        offer.vat = vatField.validValue()
+        offer.discount = discountField.validValue()
+
+
+
+        if (input !== undefined) {
+
+          if (!this.numberIsEmpty(input.id)) {
+            offer.id = input.id
+          }
+
+        }
+
+
+        this.overlay("security", async securityOverlay => {
+
+          await this.update("offer/closed", securityOverlay, offer)
+
+          if (input !== undefined) {
+            if (input.ok !== undefined) await input.ok()
+          }
+
+          this.removeOverlay(securityOverlay)
+
+        })
+
+      })
+
+
+
+
+
+      if (input !== undefined) {
+
+        if (!this.numberIsEmpty(input.id)) {
+
+          const button = this.buttonPicker("delete", parent)
+          button.innerHTML = "Angebot entfernen"
+          button.addEventListener("click", () => {
+
+            this.overlay("security", async securityOverlay => {
+              const del = {}
+              del.url = "/delete/offer/closed/"
+              del.id = input.id
+              const res = await Request.closed(del)
+
+              if (res.status === 200) {
+                window.alert("Angebot erfolgreich gelöscht.")
+                if (input.ok !== undefined) await input.ok()
+                this.removeOverlay(securityOverlay)
+              } else {
+                this.redirect("session-expired")
+              }
+
+            })
+
+
+          })
+
+        }
+
+        nameField.value(() => input.name)
+        nameField.verifyValue()
+
+        expiredField.value(() => input.expired)
+        expiredField.verifyValue()
+
+        titleField.value(() => input.title)
+        titleField.verifyValue()
+
+        linkField.value(() => input.link)
+        linkField.verifyValue()
+
+        descriptionField.value(() => input.description)
+        descriptionField.verifyValue()
+
+        messageField.value(() => input.message)
+        messageField.verifyValue()
+
+        noteField.value(() => input.note)
+        noteField.verifyValue()
+
+        companyField.value(() => input.company)
+        companyField.verifyValue()
+
+        sectorField.value(() => input.sector)
+        sectorField.verifyValue()
+
+        streetField.value(() => input.street)
+        streetField.verifyValue()
+
+        zipField.value(() => input.zip)
+        zipField.verifyValue()
+
+        cityField.value(() => input.city)
+        cityField.verifyValue()
+
+        if (input.termsPdf !== undefined) {
+          termsField.input.required = false
+          termsField.verifyValue()
+        }
+
+        if (input.productPdf !== undefined) {
+          productInfoField.input.required = false
+          productInfoField.verifyValue()
+        }
+
+        if (input.companyPdf !== undefined) {
+          companyInfoField.input.required = false
+          companyInfoField.verifyValue()
+        }
+
+        vatField.value(() => input.vat)
+        vatField.verifyValue()
+
+        discountField.value(() => input.discount)
+        discountField.verifyValue()
+      }
+
+    }
+
+    if (event === "offer/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const content = this.headerPicker("loading", parent)
+
+        const get = {}
+        get.url = "/get/offer/closed/"
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+          const offer = JSON.parse(res.response)
+
+          offer.ok = () => this.removeOverlay(parent)
+
+          this.get("funnel/offer", content, offer)
+
+          return resolve(content)
+        }
+
+
+        if (res.status !== 200) {
+          this.get("funnel/offer", content, {ok: () => this.removeOverlay(parent)})
+          return reject(new Error("get offer failed"))
+        }
+
+      })
+
+    }
+
+    if (event === "role-apps/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const content = this.headerPicker("loading", parent)
+
+        if (this.verifyIs("user/closed")) {
+
+          const get = {}
+          get.url = "/get/role-apps/closed/"
+          get.id = input
+          const res = await Request.closed(get)
+
+          if (res.status === 200) {
+            const apps = JSON.parse(res.response)
+
+            this.convert("parent/scrollable", content)
+
+            for (let i = 0; i < apps.length; i++) {
+              const app = apps[i]
+
+              const button = this.buttonPicker("left/right", content)
+              button.left.innerHTML = `.${app}`
+
+              if (app === "offer") {
+                button.right.innerHTML = "Angebot erstellen"
+
+                button.addEventListener("click", () => {
+                  this.popup(overlay => {
+                    this.headerPicker("removeOverlay", overlay)
+                    const info = this.headerPicker("info", overlay)
+                    info.append(this.convert("text/span", ".offer"))
+
+                    this.get("offer/closed", overlay)
+
+                  })
+                })
+              }
+
+
+              if (app === "services") {
+                button.right.innerHTML = "Leistungen definieren"
+
+
+                button.addEventListener("click", () => {
+                  this.popup(async overlay => {
+
+                    this.headerPicker("removeOverlay", overlay)
+                    const info = this.headerPicker("info", overlay)
+                    info.innerHTML = `.services`
+
+                    const create = this.buttonPicker("left/right", overlay)
+                    create.left.innerHTML = ".create"
+                    create.right.innerHTML = "Neue Leistung definieren"
+                    create.addEventListener("click", () => {
+
+                      this.popup(overlay => {
+                        this.headerPicker("removeOverlay", overlay)
+                        const info = this.headerPicker("info", overlay)
+                        info.append(this.convert("text/span", ".service"))
+
+                        this.get("funnel/service", overlay, {ok: async () => {
+
+                          this.reset(container)
+                          await this.get("services/closed", container)
+                          this.removeOverlay(overlay)
+
+                        }})
+
+                      })
+
+                    })
+
+                    this.render("text/hr", "Meine Leistungen", overlay)
+
+                    const container = await this.get("services/closed", overlay)
+
+                  })
+                })
+
+              }
+
+            }
+
+            return resolve(content)
+
+          }
+
+          if (res.status !== 200) {
+
+            this.convert("parent/navigation-open", content)
+
+          }
+
+        } else {
+
+          this.convert("parent/navigation-open", content)
+
+        }
+
+
+
+
+
+      })
+
+    }
+
+    if (event === "field/platform-value-path-select") {
+      return new Promise(async (resolve, reject) => {
+        const get = {}
+        get.url = "/get/platform-value/closed/"
+        get.type = "path"
+        get.platform = input.platform
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+          const paths = JSON.parse(res.response)
+
+          const pathsField = new SelectionField("paths", parent)
+          pathsField.label.innerHTML = "Wohin soll diese Rolle, nach dem Login, weitergeleitet werden"
+          pathsField.options(paths)
+          pathsField.verifyValue()
+
+          if (input.roleId !== undefined) {
+            const get = {}
+            get.url = "/get/platform/closed/"
+            get.type = "role/home"
+            get.id = input.roleId
+            get.platform = input.platform
+            const res = await Request.closed(get)
+
+            if (res.status === 200) {
+              pathsField.value(() => [res.response])
+            } else this.redirect("session-expired")
+
+          }
+
+          return resolve(pathsField)
+        } else this.redirect("session-expired")
+      })
+    }
+
+    if (event === "platform/roles") {
+
+      return new Promise(async (resolve, reject) => {
+
+
+        const content = this.headerPicker("loading", parent)
+
+        const {platform, onclick} = input
+
+        const get = {}
+        get.url = "/get/platform/closed/"
+        get.type = "roles"
+        get.platform = platform
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+          const roles = JSON.parse(res.response)
+
+          this.convert("parent/scrollable", content)
+
+          for (let i = 0; i < roles.length; i++) {
+            const role = roles[i]
+
+            const button = this.buttonPicker("left/right", content)
+            button.classList.add("role-button")
+            button.left.innerHTML = role.name
+            button.left.classList.add("button-left")
+            button.right.innerHTML = "Rolle"
+            button.right.classList.add("button-right")
+
+            if (onclick !== undefined) button.addEventListener("click", event => {
+              onclick(role, button, event)
+            })
+
+          }
+
+          return resolve(content)
+
+        }
+
+
+        if (res.status !== 200) {
+          this.redirect("session-expired")
+          return reject()
+        }
+
+      })
+    }
+
+  }
+
+  static redirect(event, input) {
+
+    if (event === "image-not-found") {
+      window.alert("Fehler..\n\nMögliche Fehlerquellen:\n\nSession abgelaufen\nPlattform Image nicht gefunden.\n\nSollte dieser Fehler weiterhin bestehen, dann melde bitte einen Konflikt.")
+      window.location.assign(`/${window.location.pathname.split("/")[1]}/`)
+      throw new Error("session-expired")
+    }
+
+
+
+    if (event === "session-expired") {
+      window.alert("Fehler..\n\nMögliche Fehlerquellen:\n\nSession abgelaufen\n\nDu wirst zum Login Bereich weitergeleitet. Sollte dieser Fehler weiterhin bestehen, dann melde bitte einen Konflikt.")
+      window.location.assign("/pana/getyour/login/")
+      throw new Error("session-expired")
+    }
+  }
+
+  static update(event, parent, input) {
+
+
+    if (event === "service-condition/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const update = {}
+        update.url = "/update/service-condition/closed/"
+        update.service = input.service
+        update.id = input.id
+        update.left = input.left
+        update.operator = input.operator
+        update.right = input.right
+        update.action = input.action
+        const res = await Request.closed(update)
+
+
+        if (res.status === 200) {
+          return resolve()
+        }
+
+
+        if (res.status !== 200) {
+          this.redirect("session-expired")
+          return reject()
+        }
+
+      })
+    }
+
+    if (event === "offer/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const update = {}
+        update.url = "/update/offer/closed/"
+        update.id = input.id
+        update.name = input.name
+        update.expired = input.expired
+        update.title = input.title
+        update.link = input.link
+        update.description = input.description
+        update.message = input.message
+        update.note = input.note
+        update.company = input.company
+        update.sector = input.sector
+        update.street = input.street
+        update.zip = input.zip
+        update.city = input.city
+        update.termsPdf = input.termsPdf
+        update.companyPdf = input.companyPdf
+        update.productPdf = input.productPdf
+        update.vat = input.vat
+        update.discount = input.discount
+        const res = await Request.closed(update)
+
+
+        if (res.status === 200) {
+          return resolve()
+        }
+
+
+        if (res.status !== 200) {
+          this.redirect("session-expired")
+          return reject()
+        }
+
+      })
+    }
+
+    if (event === "service/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const update = {}
+        update.url = "/update/service/closed/"
+        update.id = input.id
+        update.quantity = input.quantity
+        update.unit = input.unit
+        update.title = input.title
+        update.price = input.price
+        update.currency = input.currency
+        update.selected = input.selected
+        const res = await Request.closed(update)
+
+
+        if (res.status === 200) {
+          return resolve()
+        }
+
+
+        if (res.status !== 200) {
+          this.redirect("session-expired")
+          return reject()
+        }
+
+      })
+    }
+
+
+    if (event === "script/role-apps-event") {
+
+      if (input !== undefined) {
+
+        const text = /*html*/`
+        <script id="role-apps-event" type="module">
+          import { Helper } from "/js/Helper.js"
+          import { Request } from "/js/Request.js"
+
+          const button = document.querySelector(".role-apps-button")
+
+          if (button !== null) {
+
+            button.onclick = async () => {
+
+              Helper.popup(overlay => {
+                Helper.headerPicker("removeOverlay", overlay)
+                const info = Helper.headerPicker("info", overlay)
+                info.append(Helper.convert("text/span", "${input.name}"))
+
+                Helper.get("role-apps/closed", overlay, ${input.id})
+
+              })
+
+            }
+
+          }
+
+        </script>
+        `
+
+        const script = this.convert("text/script", text)
+
+        const create = document.createElement("script")
+        create.id = script.id
+        create.type = script.type
+        create.innerHTML = script.innerHTML
+
+        if (parent !== undefined) {
+
+          if (parent.querySelector(`#${create.id}`) !== null) {
+            parent.querySelector(`#${create.id}`).remove()
+          }
+
+          if (parent.querySelector(`#${create.id}`) === null) {
+            parent.append(create)
+          }
+
+        }
+
+        return create
+      }
+
+    }
+
+
+    if (event === "script/login") {
+
+      let text = /*html*/`
+      <script id="login-event" type="module">
+        import { Helper } from "/js/Helper.js"
+        import { Request } from "/js/Request.js"
+
+        const submit = document.querySelector(".start-login-event")
+
+        if (submit !== undefined) {
+          submit.addEventListener("click", async () => {
+            const email = document.querySelector(".email-input").value
+            const dsgvo = document.querySelector(".dsgvo-input").checked
+
+            if (dsgvo === false) throw new Error("dsgvo required")
+
+            await Request.withVerifiedEmail(email, async () => {
+
+              {
+                const register = {}
+                register.url = "/request/register/session/"
+                const res = await Request.closed(register)
+
+                if (res.status === 200) {
+                  const redirect = {}
+                  redirect.url = "/redirect/user/closed/"
+                  const res = await Request.closed(redirect)
+                  if (res.status === 200) window.location.assign(res.response)
+                } else {
+                  window.history.back()
+                }
+              }
+
+
+
+            })
+          })
+        }
+
+
+      </script>
+      `
+
+      if (input !== undefined) {
+
+        text = /*html*/`
+  <script id="login-event" type="module">
+    import { Helper } from "/js/Helper.js"
+    import { Request } from "/js/Request.js"
+
+    const submit = document.querySelector(".start-login-event")
+
+    if (submit !== undefined) {
+      submit.addEventListener("click", async () => {
+        const roleId = ${input.id}
+        const roleName = "${input.name}"
+
+        const email = document.querySelector(".email-input").value
+        const dsgvo = document.querySelector(".dsgvo-input").checked
+
+        if (dsgvo === false) throw new Error("dsgvo required")
+
+        await Request.withVerifiedEmail(email, async () => {
+
+          const register = {}
+          register.url = "/register/email/location/"
+          register.email = email
+          register.id = roleId
+          register.name = roleName
+          const res = await Request.location(register)
+
+          {
+            const register = {}
+            register.url = "/request/register/session/"
+            const res = await Request.closed(register)
+
+            if (res.status === 200) {
+              const redirect = {}
+              redirect.url = "/redirect/user/closed/"
+              const res = await Request.closed(redirect)
+              if (res.status === 200) window.location.assign(res.response)
+            } else {
+              window.history.back()
+            }
+          }
+
+        })
+      })
+    }
+
+
+  </script>
+        `
+
+      }
+
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      if (parent !== undefined) {
+        if (parent.querySelector(`#${create.id}`) === null) {
+          parent.append(create)
+        }
+      }
+
+      return create
+    }
+
+    if (event === "platform/roles") {
+
+      return new Promise(async (resolve, reject) => {
+
+
+        const content = this.headerPicker("loading", parent)
+
+
+        const get = {}
+        get.url = "/get/platform/closed"
+        get.type = "roles"
+        get.platform = input
+        const res = await Request.closed(get)
+
+
+        if (res.status === 200) {
+          const roles = JSON.parse(res.response)
+
+          this.convert("parent/scrollable", content)
+
+          for (let i = 0; i < roles.length; i++) {
+            const role = roles[i]
+
+            const button = this.buttonPicker("left/right", content)
+            button.left.innerHTML = role.name
+            button.right.innerHTML = "Rolle bearbeiten"
+
+            button.addEventListener("click", () => {
+
+              this.popup(async overlay => {
+
+                this.headerPicker("removeOverlay", overlay)
+                const info = this.headerPicker("info", overlay)
+                info.innerHTML = `${input}.roles`
+
+                await this.update("platform/role", overlay, {platform: input, roleId: role.id, ok: () => {
+                  this.reset(content)
+                  this.update(event, content, input)
+                  this.removeOverlay(overlay)
+                }})
+
+              })
+
+            })
+
+
+          }
+
+          return resolve(content)
+
+        }
+
+
+        if (res.status !== 200) {
+          this.redirect("session-expired")
+          return reject()
+        }
+
+      })
+    }
+
+    if (event === "platform/role") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const content = this.headerPicker("scrollable", parent)
+
+        const {platform, roleId, ok} = input
+
+        const nameField = new TextField("role", content)
+        nameField.label.textContent = "Rolle"
+        nameField.input.required = true
+        nameField.input.accept = "text/tag"
+        nameField.input.placeholder = "meine-neue-rolle"
+        nameField.verifyValue()
+        nameField.input.addEventListener("input", () => nameField.verifyValue())
+
+        const pathsField = await this.get("field/platform-value-path-select", content, input)
+
+        const appsField = new TextAreaField("apps", content)
+        appsField.label.innerHTML = "Schalte Anwendungen für deine Rolle frei (mit einer Javascript String Liste)"
+        appsField.input.style.height = "144px"
+        appsField.input.placeholder = `["offer", "funnel", ..]`
+        appsField.input.accept = `string/array`
+        appsField.input.required = true
+        appsField.value(() => JSON.stringify([]))
+        appsField.verifyValue()
+        appsField.input.addEventListener("input", () => appsField.verifyValue())
+
+        const button = this.buttonPicker("action", content)
+        button.innerHTML = "Rolle jetzt speichern"
+        button.addEventListener("click", async () => {
+
+          const name = nameField.validValue()
+          const path = pathsField.validValue()[0].value
+
+          if (roleId === undefined) {
+
+            const verify = {}
+            verify.url = "/verify/platform/closed/"
+            verify.type = "role/name"
+            verify.name = name
+            verify.platform = platform
+            const res = await Request.closed(verify)
+
+            if (res.status === 200) {
+              window.alert("Diese Rolle existiert bereits.")
+              this.setNotValidStyle(nameField.input)
+              throw new Error("name exist")
+            }
+
+          }
+
+          const apps = JSON.parse(appsField.validValue())
+
+          this.overlay("security", async securityOverlay => {
+
+            const register = {}
+            register.url = "/update/platform/closed/"
+            register.type = "role"
+
+            register.platform = platform
+
+            if (roleId !== undefined) {
+              register.id = roleId
+            }
+
+            register.name = name
+            register.apps = apps
+            register.home = path
+
+            const res = await Request.closed(register)
+
+            if (res.status === 200) {
+              window.alert("Rolle erfolgreich gespeichert.")
+              if (ok !== undefined) ok()
+              this.removeOverlay(securityOverlay)
+            } else {
+              this.redirect("session-expired")
+            }
+          })
+
+        })
+
+        if (roleId !== undefined) {
+
+          const get = {}
+          get.url = "/get/platform/closed/"
+          get.type = "role"
+          get.id = roleId
+          get.platform = platform
+          const res = await Request.closed(get)
+
+          if (res.status !== 200) {
+            this.redirect("session-expired")
+            return reject()
+          }
+
+          if (res.status === 200) {
+            const role = JSON.parse(res.response)
+
+            if (role.id !== roleId) throw new Error("somethng wrong here")
+
+            nameField.value(() => role.name)
+            nameField.verifyValue()
+
+            appsField.value(() => JSON.stringify(role.apps))
+            appsField.verifyValue()
+
+            const deleteButton = this.buttonPicker("delete", content)
+            deleteButton.innerHTML = "Rolle entfernen"
+            deleteButton.addEventListener("click", () => {
+
+              this.overlay("security", async securityOverlay => {
+                const del = {}
+                del.url = "/delete/platform/closed/"
+                del.type = "role"
+                del.id = role.id
+                del.platform = platform
+                const res = await Request.closed(del)
+
+                if (res.status === 200) {
+                  window.alert("Rolle erfolgreich gelöscht.")
+                  if (ok !== undefined) ok()
+                  this.removeOverlay(securityOverlay)
+                } else {
+                  this.redirect("session-expired")
+                }
+
+              })
+
+
+            })
+
+            return resolve()
+          }
+
+        }
+
+      })
+
+    }
+
+  }
 
   // event = input/algorithm
   static verify(event, input) {
@@ -197,6 +1650,158 @@ export class Helper {
 
   static create(event, parent) {
 
+    if (event === "div/scrollable") {
+      const div = document.createElement("div")
+      div.style.overflowY = "auto"
+      div.style.overscrollBehavior = "none"
+      div.style.paddingBottom = "144px"
+
+      if (parent !== undefined) parent.append(div)
+
+      return div
+    }
+
+    if (event === "role-apps-button") {
+
+      return new Promise(async (resolve, reject) => {
+        const get = {}
+        get.url = "/get/platform/closed/"
+        get.type = "image"
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+          const image = JSON.parse(res.response)
+
+          const button = document.createElement("div")
+          button.classList.add("role-apps-button")
+          button.style.position = "fixed"
+          button.style.bottom = "0"
+          button.style.right = "0"
+          button.style.boxShadow = this.colors.light.boxShadow
+          button.style.border = this.colors.light.border
+          button.style.backgroundColor = this.colors.light.foreground
+          // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          //   button.style.boxShadow = this.colors.dark.boxShadow
+          //   button.style.border = this.colors.dark.border
+          //   button.style.backgroundColor = this.colors.dark.foreground
+          // }
+          button.style.width = "34px"
+          button.style.height = "34px"
+          button.style.borderRadius = "50%"
+          button.style.margin = "34px"
+          button.style.padding = "21px"
+          button.style.cursor = "pointer"
+
+
+          if (image.dataUrl !== undefined) {
+            const img = document.createElement("img")
+            img.src = image.dataUrl
+            img.style.width = "100%"
+            button.append(img)
+          }
+
+          if (image.svg !== undefined) {
+            button.innerHTML = ""
+            const svg = this.convert("text/svg", image.svg)
+            button.append(svg)
+          }
+
+          if (parent !== undefined) {
+            if (document.querySelector(".role-apps-button") === null) {
+              parent.append(button)
+            }
+          }
+
+          return resolve(button)
+
+        } else {
+          this.redirect("image-not-found")
+          return reject(new Error("platform image not found"))
+        }
+      })
+
+    }
+
+    if (event === "open") {
+
+      const content = Helper.headerPicker("scrollable")
+
+      {
+        const button = this.buttonPicker("left/right", content)
+        button.left.innerHTML = ".login"
+        button.right.innerHTML = "Dein Zugang zur personalisierten Erfahrung"
+        button.addEventListener("click", () => window.location.assign("/pana/getyour/login/"))
+      }
+
+      {
+        const button = this.buttonPicker("left/right", content)
+        button.left.innerHTML = ".browser"
+        button.right.innerHTML = "Dein Tor zur digitalen Freiheit!"
+        button.addEventListener("click", () => window.location.assign("/"))
+      }
+
+      {
+        const button = this.buttonPicker("left/right", content)
+        button.left.innerHTML = ".user-agreement"
+        button.right.innerHTML = "Deine Sicherheit im digitalen Raum"
+        button.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
+      }
+
+      {
+        const button = this.buttonPicker("left/right", content)
+        button.left.innerHTML = ".privacy-policy"
+        button.right.innerHTML = "Deine Daten, deine Privatsphäre"
+        button.addEventListener("click", () => window.location.assign("/datenschutz/"))
+      }
+
+      {
+        const button = this.buttonPicker("left/right", content)
+        button.left.innerHTML = ".imprint"
+        button.right.innerHTML = "Für Transparenz und Klarheit"
+        button.addEventListener("click", () => window.location.assign("/impressum/"))
+      }
+
+      if (parent !== undefined) parent.append(content)
+
+
+      return content
+
+    }
+
+    if (event === "login") {
+
+      const emailField = new EmailField("email", parent)
+      emailField.input.classList.add("email-input")
+      emailField.label.innerHTML = "E-Mail Adresse"
+      emailField.input.placeholder = "meine@email.de"
+      emailField.input.required = true
+      emailField.input.accept = "text/email"
+      emailField.input.addEventListener("input", () => {
+        const value = emailField.validValue()
+        window.localStorage.setItem(emailField.name, value)
+      })
+      emailField.value(name => window.localStorage.getItem(name))
+      emailField.verifyValue()
+
+      const dsgvoField = new CheckboxField("dsgvo", parent)
+      dsgvoField.input.classList.add("dsgvo-input")
+      dsgvoField.label.innerHTML = `<div style="font-size: 13px;">Ich habe die <a href="/getyour/pana/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/getyour/pana/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>`
+      dsgvoField.input.required = true
+      dsgvoField.icon.style.display = "block"
+      dsgvoField.icon.src = "/public/info-gray.svg"
+      dsgvoField.icon.alt = "Info"
+      dsgvoField.value(name => window.localStorage.getItem(name))
+      dsgvoField.input.addEventListener("input", () => {
+        const value = dsgvoField.validValue()
+        window.localStorage.setItem(dsgvoField.name, value)
+      })
+      dsgvoField.verifyValue()
+
+      const loginbutton = Helper.buttonPicker("action", parent)
+      loginbutton.classList.add("start-login-event")
+      loginbutton.innerHTML = "Jetzt anmelden"
+
+    }
 
     if (event === "script/submit-field-funnel-event") {
 
@@ -268,7 +1873,6 @@ export class Helper {
       create.innerHTML = script.innerHTML
 
       if (parent !== undefined) {
-        console.log(create.id);
         if (parent.querySelector(`#${create.id}`) === null) {
           parent.append(create)
         }
@@ -276,7 +1880,6 @@ export class Helper {
 
       return create
     }
-
 
     if (event === "script/click-funnel-start-event") {
 
@@ -391,7 +1994,6 @@ export class Helper {
       create.innerHTML = script.innerHTML
 
       if (parent !== undefined) {
-        console.log(create.id);
         if (parent.querySelector(`#${create.id}`) === null) {
           parent.append(create)
         }
@@ -739,6 +2341,72 @@ export class Helper {
 
   // event = input/algorithm
   static render(event, input, parent) {
+
+    if (event === "text/h1") {
+
+      const h1 = document.createElement("h1")
+      h1.innerHTML = "Login"
+
+      h1.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        h1.style.color = this.colors.dark.text
+      }
+      h1.style.margin = "21px 34px"
+      h1.style.fontWeight = "normal"
+
+      if (parent !== undefined) parent.append(h1)
+
+    }
+
+    if (event === "platform/roles") {
+
+      return new Promise(async (resolve, reject) => {
+
+
+        const content = this.headerPicker("loading", parent)
+
+        const {platform, onclick} = input
+
+        const get = {}
+        get.url = "/get/platform/closed"
+        get.type = "roles"
+        get.platform = platform
+        const res = await Request.closed(get)
+
+
+        if (res.status === 200) {
+          const roles = JSON.parse(res.response)
+
+          this.convert("parent/scrollable", content)
+
+          for (let i = 0; i < roles.length; i++) {
+            const role = roles[i]
+
+            const button = this.buttonPicker("left/right", content)
+            button.left.innerHTML = role.name
+            button.right.innerHTML = "Rolle"
+
+            if (onclick !== undefined) button.addEventListener("click", event => onclick(role, event))
+
+
+          }
+
+          return resolve(content)
+
+        }
+
+
+        if (res.status !== 200) {
+          this.redirect("session-expired")
+          return reject()
+        }
+
+      })
+    }
+
+    if (event === "text/hr") {
+      if (parent !== undefined) parent.append(this.convert(event, input))
+    }
 
     if (event === "visibility/platform-value-closed") {
 
@@ -1642,7 +3310,7 @@ export class Helper {
                   const res = await Request.closed(get)
 
                   if (res.status !== 200) {
-                    window.location.assign("/login/")
+                    window.location.assign("/pana/getyour/login/")
                   }
 
                   if (res.status === 200) {
@@ -2900,69 +4568,41 @@ export class Helper {
               const button = this.buttonPicker("left/right", buttons)
               button.left.innerHTML = ".roles"
               button.right.innerHTML = "Rollen definieren"
-              button.addEventListener("click", () => {
 
-                this.popup(overlay => {
+              button.addEventListener("click", () => {
+                this.popup(async overlay => {
+
                   this.headerPicker("removeOverlay", overlay)
                   const info = this.headerPicker("info", overlay)
-                  info.innerHTML = `${platform.name}.role`
+                  info.innerHTML = `${platform.name}.roles`
 
-                  const funnel = this.headerPicker("scrollable", overlay)
+                  const create = this.buttonPicker("left/right", overlay)
+                  create.left.innerHTML = ".create"
+                  create.right.innerHTML = "Neue Rolle definieren"
+                  create.addEventListener("click", () => {
 
-                  const tagField = new TextField("role", funnel)
-                  tagField.label.textContent = "Rolle"
-                  tagField.input.required = true
-                  tagField.input.accept = "text/tag"
-                  tagField.input.placeholder = "meine-neue-rolle"
-                  tagField.verifyValue()
-                  tagField.input.addEventListener("input", () => tagField.verifyValue())
+                    this.popup(overlay => {
+                      this.headerPicker("removeOverlay", overlay)
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("text/span", "create.role"))
 
-                  const button = this.buttonPicker("action", funnel)
-                  button.innerHTML = "Rolle jetzt speichern"
-                  button.addEventListener("click", () => {
+                      this.update("platform/role", overlay, {platform: platform.name, ok: async () => {
 
-                    const tag = tagField.validValue()
-
-                    this.overlay("security", async securityOverlay => {
-
-
-
-                      {
-
-                        const verify = {}
-                        verify.url = "/verify/platform/closed/"
-                        verify.type = "role"
-                        verify.tag = tag
-                        const res = await Request.closed(verify)
-
-                        if (res.status === 200) {
-                          window.alert("Rolle existiert bereits.")
-                          this.setNotValidStyle(tagField.input)
-                          this.removeOverlay(securityOverlay)
-                          throw new Error("role exist")
-                        }
-
-                      }
-
-
-
-                      const register = {}
-                      register.url = "/register/platform/closed/"
-                      register.type = "role"
-                      register.platform = platform.name
-                      register.tag = tag
-                      const res = await Request.closed(register)
-
-                      if (res.status === 200) {
-                        window.alert("Rolle erfolgreich gespeichert.")
+                        this.reset(roleList)
+                        await this.update("platform/roles", roleList, platform.name)
                         this.removeOverlay(overlay)
-                        this.removeOverlay(securityOverlay)
-                      }
+
+                      }})
+
                     })
 
                   })
-                })
 
+                  this.render("text/hr", "Meine Rollen", overlay)
+
+                  const roleList = await this.update("platform/roles", overlay, platform.name)
+
+                })
               })
 
             }
@@ -4101,7 +5741,6 @@ export class Helper {
 
                         }
 
-
                         {
                           const button = this.buttonPicker("left/right", buttons)
                           button.left.innerHTML = ".image"
@@ -4153,7 +5792,68 @@ export class Helper {
                           })
                         }
 
+                        {
+                          const button = this.buttonPicker("left/right", buttons)
+                          button.left.innerHTML = ".access"
+                          button.right.innerHTML = "Zugang anhängen"
+                          button.addEventListener("click", () => {
+
+                            this.popup(async overlay => {
+                              this.headerPicker("removeOverlay", overlay)
+                              this.buttonPicker("toolbox/register-html", overlay)
+
+                              this.render("text/title", "Für welche Rolle möchtest du einen Zugang anhängen?", overlay)
+
+                              await this.get("platform/roles", overlay, {platform: window.location.pathname.split("/")[2], onclick: role => {
+
+                                this.create("login", document.body)
+                                this.update("script/login", document.body, role)
+
+                              }})
+
+                            })
+                          })
+
+                        }
+                          const button = this.buttonPicker("left/right", buttons)
+                          button.left.innerHTML = ".role-apps"
+                          button.right.innerHTML = "Rollenapps Freigabe Button anhängen"
+                          button.addEventListener("click", () => {
+
+                            this.popup(async overlay => {
+                              this.headerPicker("removeOverlay", overlay)
+                              this.buttonPicker("toolbox/register-html", overlay)
+
+
+                              this.render("text/title", "Für welche Rolle möchtest du den Button anhängen?", overlay)
+
+                              await this.get("platform/roles", overlay, {platform: window.location.pathname.split("/")[2], onclick: async (role, button, event) => {
+
+                                console.log(role);
+
+                                overlay.querySelectorAll(".role-button").forEach(button => {
+
+                                  const right = button.querySelector(".button-right")
+                                  this.convert("element/button-right", right)
+                                  right.innerHTML = "Rolle"
+
+                                })
+
+                                this.convert("element/checked", button.right)
+
+                                await this.create("role-apps-button", document.body)
+                                this.update("script/role-apps-event", document.body, role)
+
+                              }})
+
+                            })
+                          })
+                        {
+
+                        }
+
                       }
+
 
 
                       {
@@ -4785,6 +6485,63 @@ export class Helper {
                 child.tagName !== "BODY" &&
                 child.tagName !== "HEAD"
               ) {
+
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".copy"
+                button.right.innerHTML = "Element kopieren"
+                button.addEventListener("click", () => {
+                  window.sessionStorage.setItem("copied", child.outerHTML)
+                  window.alert("Element erfolgreich kopiert.")
+                })
+
+              }
+
+              if (
+                child.tagName !== "SCRIPT" &&
+                child.tagName !== "HEAD"
+              ) {
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".paste"
+                button.right.innerHTML = "Kopiertes Element anhängen"
+
+                button.addEventListener("click", () => {
+                  const elementString = window.sessionStorage.getItem("copied")
+
+                  if (elementString === null) {
+                    window.alert("Es wurde kein Element kopiert.")
+                    throw new Error("copied element not found")
+                  }
+
+                  const element = this.convert("text/html", elementString)
+
+                  if (element.hasAttribute("id")) {
+                    const id = element.getAttribute("id")
+
+                    const counter = document.querySelectorAll(`[id*='${id}']`).length
+
+                    let copyId
+                    if (!this.numberIsEmpty(counter)) {
+                      copyId = `${id}-${counter}`
+                    }
+
+                    if (copyId !== undefined) {
+                      element.setAttribute("id", copyId)
+                    }
+
+                  }
+
+                  window.alert(`Element '${this.convert("element/tagName", element)}' wurde erfolgreich in '${this.convert("element/tagName", child)}' kopiert.`)
+                  child.append(element)
+
+                })
+
+              }
+
+              if (
+                child.tagName !== "BODY" &&
+                child.tagName !== "HEAD"
+              ) {
+
                 const button = this.buttonPicker("left/right", buttons)
                 button.left.innerHTML = ".remove"
                 button.right.innerHTML = "Element entfernen"
@@ -4799,6 +6556,7 @@ export class Helper {
                 })
 
               }
+
 
             }
 
@@ -5452,6 +7210,19 @@ export class Helper {
 
   static verifyIs(type, input) {
 
+    if (type === "user/closed") {
+      if (window.localStorage.getItem("localStorageId") !== null) {
+        if (window.localStorage.getItem("email") !== null) {
+          return true
+        }
+      }
+      return false
+    }
+
+    if (type === "text/+int") {
+
+    }
+
     if (type === "text/path") {
       if (typeof input !== "string") return false
       if (/^\/[\w\-._~!$&'()*+,;=:@/]+\/$/.test(input) === true) return true
@@ -5705,23 +7476,23 @@ export class Helper {
 
     if (name === "save") {
 
-      const header = this.iconPicker("save")
+      const icon = this.iconPicker("save")
+      icon.style.width = "34px"
+      const header = document.createElement("div")
+      header.append(icon)
       header.style.position = "fixed"
       header.style.bottom = "0"
       header.style.right = "0"
 
+      header.style.boxShadow = this.colors.light.boxShadow
+      header.style.border = this.colors.light.border
+      header.style.backgroundColor = this.colors.light.foreground
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         header.style.boxShadow = this.colors.dark.boxShadow
         header.style.border = this.colors.dark.border
         header.style.backgroundColor = this.colors.dark.foreground
-      } else {
-        header.style.boxShadow = this.colors.light.boxShadow
-        header.style.border = this.colors.light.border
-        header.style.backgroundColor = this.colors.light.foreground
       }
 
-      header.style.width = "34px"
-      header.style.height = "34px"
       header.style.borderRadius = "50%"
       header.style.margin = "34px"
       header.style.padding = "21px"
@@ -5735,23 +7506,23 @@ export class Helper {
 
     if (name === "app") {
 
-      const header = this.iconPicker("getyour")
+      const icon = this.iconPicker("getyour")
+      icon.style.width = "34px"
+      const header = document.createElement("div")
+      header.append(icon)
       header.style.position = "fixed"
       header.style.bottom = "0"
       header.style.right = "0"
 
+      header.style.boxShadow = this.colors.light.boxShadow
+      header.style.border = this.colors.light.border
+      header.style.backgroundColor = this.colors.light.foreground
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         header.style.boxShadow = this.colors.dark.boxShadow
         header.style.border = this.colors.dark.border
         header.style.backgroundColor = this.colors.dark.foreground
-      } else {
-        header.style.boxShadow = this.colors.light.boxShadow
-        header.style.border = this.colors.light.border
-        header.style.backgroundColor = this.colors.light.foreground
       }
 
-      header.style.width = "34px"
-      header.style.height = "34px"
       header.style.borderRadius = "50%"
       header.style.margin = "34px"
       header.style.padding = "21px"
@@ -5765,22 +7536,24 @@ export class Helper {
 
     if (name === "back") {
 
-      const header = this.iconPicker("back")
+      const icon = this.iconPicker("back")
+      icon.style.width = "34px"
+      const header = document.createElement("div")
+      header.append(icon)
+
       header.style.position = "fixed"
       header.style.bottom = "0"
       header.style.left = "0"
 
+      header.style.boxShadow = this.colors.light.boxShadow
+      header.style.border = this.colors.light.border
+      header.style.backgroundColor = this.colors.light.foreground
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         header.style.boxShadow = this.colors.dark.boxShadow
         header.style.border = this.colors.dark.border
         header.style.backgroundColor = this.colors.dark.foreground
-      } else {
-        header.style.boxShadow = this.colors.light.boxShadow
-        header.style.border = this.colors.light.border
-        header.style.backgroundColor = this.colors.light.foreground
       }
 
-      header.style.width = "34px"
       header.style.borderRadius = "50%"
       header.style.margin = "34px"
       header.style.padding = "21px"
@@ -5921,23 +7694,23 @@ export class Helper {
 
     if (name === "removeOverlay") {
 
-      const header = this.iconPicker("back")
+      const icon = this.iconPicker("back")
+      icon.style.width = "34px"
+      const header = document.createElement("div")
+      header.append(icon)
       header.style.position = "fixed"
       header.style.bottom = "0"
       header.style.left = "0"
 
+      header.style.boxShadow = this.colors.light.boxShadow
+      header.style.border = this.colors.light.border
+      header.style.backgroundColor = this.colors.light.foreground
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         header.style.boxShadow = this.colors.dark.boxShadow
         header.style.border = this.colors.dark.border
         header.style.backgroundColor = this.colors.dark.foreground
-      } else {
-        header.style.boxShadow = this.colors.light.boxShadow
-        header.style.border = this.colors.light.border
-        header.style.backgroundColor = this.colors.light.foreground
       }
 
-      header.style.width = "34px"
-      header.style.height = "34px"
       header.style.borderRadius = "50%"
       header.style.margin = "34px"
       header.style.padding = "21px"
@@ -5951,6 +7724,26 @@ export class Helper {
   }
 
   static buttonPicker(name, parent) {
+
+
+    if (name === "delete") {
+      const button = document.createElement("div")
+
+      button.style.backgroundColor = this.colors.dark.error
+      button.style.color = this.colors.light.text
+      button.style.cursor = "pointer"
+      button.style.fontSize = "21px"
+      button.style.fontFamily = "sans-serif"
+      button.style.borderRadius = "13px"
+      button.style.margin = "21px 34px"
+      button.style.display = "flex"
+      button.style.justifyContent = "center"
+      button.style.alignItems = "center"
+      button.style.height = "89px"
+
+      if (parent !== undefined) parent.append(button)
+      return button
+    }
 
     if (name === "toolbox/register-html") {
 
@@ -6908,16 +8701,11 @@ export class Helper {
     }
 
     if (event === "text/html") {
-      const fragment = document.createDocumentFragment()
 
-      const parser = document.createElement("div")
-      parser.innerHTML = input
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(input, "text/html")
 
-      while (parser.firstChild) {
-        fragment.appendChild(parser.firstChild)
-      }
-
-      return fragment
+      return doc.body.firstChild
     }
 
     if (event === "text/field") {
@@ -8865,7 +10653,7 @@ export class Helper {
         const button = this.buttonPicker("left/right", input)
         button.left.innerHTML = ".login"
         button.right.innerHTML = "Dein Zugang zur personalisierten Erfahrung"
-        button.addEventListener("click", () => window.location.assign("/login/"))
+        button.addEventListener("click", () => window.location.assign("/pana/getyour/login/"))
       }
 
       {
@@ -8879,24 +10667,48 @@ export class Helper {
         const button = this.buttonPicker("left/right", input)
         button.left.innerHTML = ".user-agreement"
         button.right.innerHTML = "Deine Sicherheit im digitalen Raum"
-        button.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
+        button.addEventListener("click", () => window.location.assign("/pana/getyour/nutzervereinbarung/"))
       }
 
       {
         const button = this.buttonPicker("left/right", input)
         button.left.innerHTML = ".privacy-policy"
         button.right.innerHTML = "Deine Daten, deine Privatsphäre"
-        button.addEventListener("click", () => window.location.assign("/datenschutz/"))
+        button.addEventListener("click", () => window.location.assign("/pana/getyour/datenschutz/"))
       }
 
       {
         const button = this.buttonPicker("left/right", input)
         button.left.innerHTML = ".imprint"
         button.right.innerHTML = "Für Transparenz und Klarheit"
-        button.addEventListener("click", () => window.location.assign("/impressum/"))
+        button.addEventListener("click", () => window.location.assign("/pana/getyour/impressum/"))
       }
 
 
+      return input
+    }
+
+    if (event === "element/button-right") {
+      this.reset(input)
+      input.style.margin = "21px 34px"
+      input.style.fontSize = "13px"
+      input.style.fontFamily = "sans-serif"
+
+      input.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        input.style.color = this.colors.dark.text
+      }
+
+      return input
+    }
+
+    if (event === "element/checked") {
+      this.reset(input)
+      input.innerHTML = "✓"
+      input.style.margin = "21px 34px"
+      input.style.color = "#00c853"
+      input.style.fontSize = "34px"
+      input.style.fontFamily = "sans-serif"
       return input
     }
 
@@ -8990,6 +10802,12 @@ export class Helper {
       }
 
       return output
+    }
+
+    if (event === "element/tagName") {
+
+      return input.tagName
+
     }
 
     if (event === "element/alias") {
@@ -9339,8 +11157,8 @@ export class Helper {
   }
 
   static overlay(event, callback) {
-    if (callback !== undefined) {
 
+    if (callback !== undefined) {
 
       if (event === "security") {
         const overlay = document.createElement("div")
@@ -9355,15 +11173,14 @@ export class Helper {
         document.body.style.overflow = "hidden"
 
         overlay.style.width = "100%"
-        overlay.style.zIndex = "1"
+        overlay.style.zIndex = "99999999999999"
         overlay.style.position = "fixed"
         overlay.style.top = "0"
         overlay.style.left = "0"
 
+        overlay.style.background = this.colors.matte.light.background
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
           overlay.style.background = this.colors.matte.dark.background
-        } else {
-          overlay.style.background = this.colors.matte.light.background
         }
 
         overlay.style.display = "flex"
@@ -9393,15 +11210,14 @@ export class Helper {
       document.body.style.overflow = "hidden"
 
       overlay.style.width = "100%"
-      overlay.style.zIndex = "1"
+      overlay.style.zIndex = "99999999999999"
       overlay.style.position = "fixed"
       overlay.style.top = "0"
       overlay.style.left = "0"
 
+      overlay.style.background = this.colors.matte.light.background
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         overlay.style.background = this.colors.matte.dark.background
-      } else {
-        overlay.style.background = this.colors.matte.light.background
       }
 
       overlay.style.display = "flex"
@@ -9678,7 +11494,7 @@ export class Helper {
     else return window.history.back()
   }
 
-  // deprecated
+  // deprecated - use convert instead
   static millisToDateString(milliseconds) {
     const date = new Date(milliseconds)
     const day = date.getDate().toString().padStart(2, '0')
@@ -9827,7 +11643,7 @@ export class Helper {
     string === "" ||
     string === "null" ||
     string.replace(/\s/g, "") === "" ||
-    !/^\/[\w\-._~!$&'()*+,;=:@/]+\/$/.test(string)
+    !/^\/[\w\-._~!$&'()*+,;=:@/]+\/$/.test(string) // not working correct
   }
 
   static tagIsEmpty(string) {
@@ -9852,6 +11668,7 @@ export class Helper {
   static numberIsEmpty(number) {
     return number === undefined ||
     number === null ||
+    Number.isNaN(number) ||
     typeof number !== "number" ||
     number === ""
   }
