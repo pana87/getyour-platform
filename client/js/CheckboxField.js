@@ -16,7 +16,7 @@ export class CheckboxField {
 
   value(callback) {
     if (callback !== undefined) {
-      if (!Helper.stringIsEmpty(callback(this.name))) this.checkbox.checked = callback(this.name)
+      if (!Helper.booleanIsEmpty(callback(this.name))) this.input.checked = callback(this.name)
     }
     return this
   }
@@ -36,31 +36,31 @@ export class CheckboxField {
   }
 
   validValue() {
-    if (this.#isRequired(this.checkbox)) {
-      if (this.#checkValidity(this.checkbox)) {
-        Helper.setValidStyle(this.checkbox)
-        return this.checkbox.checked
+    if (this.#isRequired(this.input)) {
+      if (this.#checkValidity(this.input)) {
+        Helper.setValidStyle(this.input)
+        return this.input.checked
       }
-      Helper.setNotValidStyle(this.checkbox)
+      Helper.setNotValidStyle(this.input)
       const error = new Error(`field required: '${this.name}'`)
       error.field = this.name
       this.field.scrollIntoView({behavior: "smooth"})
       throw error
     }
-    Helper.setValidStyle(this.checkbox)
-    return this.checkbox.checked
+    Helper.setValidStyle(this.input)
+    return this.input.checked
   }
 
   verifyValue() {
-    if (this.#isRequired(this.checkbox)) {
-      if (this.#checkValidity(this.checkbox)) {
-        Helper.setValidStyle(this.checkbox)
+    if (this.#isRequired(this.input)) {
+      if (this.#checkValidity(this.input)) {
+        Helper.setValidStyle(this.input)
         return true
       }
-      Helper.setNotValidStyle(this.checkbox)
+      Helper.setNotValidStyle(this.input)
       return false
     }
-    Helper.setValidStyle(this.checkbox)
+    Helper.setValidStyle(this.input)
     return true
   }
 
@@ -75,16 +75,15 @@ export class CheckboxField {
     field.style.justifyContent = "center"
     field.style.alignItems = "flex-start"
 
+    field.style.backgroundColor = Helper.colors.light.foreground
+    field.style.border = Helper.colors.light.border
+    field.style.boxShadow = Helper.colors.light.boxShadow
+    field.style.color = Helper.colors.light.text
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       field.style.backgroundColor = Helper.colors.dark.foreground
       field.style.border = Helper.colors.dark.border
       field.style.boxShadow = Helper.colors.dark.boxShadow
       field.style.color = Helper.colors.dark.text
-    } else {
-      field.style.backgroundColor = Helper.colors.light.foreground
-      field.style.border = Helper.colors.light.border
-      field.style.boxShadow = Helper.colors.light.boxShadow
-      field.style.color = Helper.colors.light.text
     }
 
     const labelContainer = document.createElement("div")
@@ -104,10 +103,9 @@ export class CheckboxField {
     label.style.fontFamily = "sans-serif"
     label.style.fontSize = "21px"
 
+    label.style.color = Helper.colors.light.text
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       label.style.color = Helper.colors.dark.text
-    } else {
-      label.style.color = Helper.colors.light.text
     }
 
     this.label = label
@@ -119,23 +117,22 @@ export class CheckboxField {
     checkboxContainer.style.alignItems = "center"
     checkboxContainer.style.margin = "21px 89px 21px 34px"
 
-    const checkbox = document.createElement("input")
-    checkbox.classList.add(this.name)
-    checkbox.type = this.type
-    checkbox.style.marginRight = "34px"
-    checkbox.style.width = "21px"
-    checkbox.style.height = "21px"
-    this.checkbox = checkbox
-    checkboxContainer.append(checkbox)
+    const input = document.createElement("input")
+    input.classList.add(this.name)
+    input.type = this.type
+    input.style.marginRight = "34px"
+    input.style.width = "21px"
+    input.style.height = "21px"
+    this.input = input
+    checkboxContainer.append(input)
 
     const afterCheckbox = document.createElement("div")
     afterCheckbox.style.fontFamily = "sans-serif"
     afterCheckbox.style.fontSize = "21px"
 
+    afterCheckbox.style.color = Helper.colors.light.text
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       afterCheckbox.style.color = Helper.colors.dark.text
-    } else {
-      afterCheckbox.style.color = Helper.colors.light.text
     }
 
     this.afterCheckbox = afterCheckbox

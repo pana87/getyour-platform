@@ -112,44 +112,49 @@ export class FileField {
     return this
   }
 
-  async validPdf(file) {
+  validPdf(file) {
 
-    const allowedMimeTypes = ["application/pdf"]
-    const allowedExtensions = ["pdf"]
-    await Helper.verifyFileMimeTypes(file, allowedMimeTypes)
-    .catch(error => {
-      alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
-      Helper.setNotValidStyle(this.input)
-      throw error
-    })
+    return new Promise(async (resolve, reject) => {
 
-    await Helper.verifyFileExtension(file, allowedExtensions)
-    .catch(error => {
-      alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
-      Helper.setNotValidStyle(this.input)
-      throw error
-    })
-
-    const fileReader = new FileReader()
-    fileReader.onload = async(event) => {
-
-      const dataUrlSize = Helper.calculateDataUrlSize(fileReader.result)
-      if (dataUrlSize > 5 * 1024 * 1024) {
-        alert("PDF ist zu groß.")
+      const allowedMimeTypes = ["application/pdf"]
+      const allowedExtensions = ["pdf"]
+      await Helper.verifyFileMimeTypes(file, allowedMimeTypes)
+      .catch(error => {
+        alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
         Helper.setNotValidStyle(this.input)
-        throw new Error("pdf too large")
+        throw error
+      })
+
+      await Helper.verifyFileExtension(file, allowedExtensions)
+      .catch(error => {
+        alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
+        Helper.setNotValidStyle(this.input)
+        throw error
+      })
+
+      const fileReader = new FileReader()
+      fileReader.onload = async(event) => {
+
+        const dataUrlSize = Helper.calculateDataUrlSize(fileReader.result)
+        if (dataUrlSize > 5 * 1024 * 1024) {
+          alert("PDF ist zu groß.")
+          Helper.setNotValidStyle(this.input)
+          throw new Error("pdf too large")
+        }
+
+        const newFile = {}
+        newFile.name = file.name
+        newFile.type = file.type
+        newFile.size = dataUrlSize
+        newFile.modified = Date.now()
+        newFile.dataUrl = fileReader.result
+
+        return resolve(newFile)
       }
+      fileReader.readAsDataURL(file)
+    })
 
-      const newFile = {}
-      newFile.name = file.name
-      newFile.type = file.type
-      newFile.size = dataUrlSize
-      newFile.modified = Date.now()
-      newFile.dataUrl = fileReader.result
 
-      return resolve(newFile)
-    }
-    fileReader.readAsDataURL(file)
 
   }
 
@@ -267,16 +272,15 @@ export class FileField {
     field.style.margin = "34px"
     field.style.justifyContent = "center"
 
+    field.style.backgroundColor = Helper.colors.light.foreground
+    field.style.border = Helper.colors.light.border
+    field.style.boxShadow = Helper.colors.light.boxShadow
+    field.style.color = Helper.colors.light.text
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       field.style.backgroundColor = Helper.colors.dark.foreground
       field.style.border = Helper.colors.dark.border
       field.style.boxShadow = Helper.colors.dark.boxShadow
       field.style.color = Helper.colors.dark.text
-    } else {
-      field.style.backgroundColor = Helper.colors.light.foreground
-      field.style.border = Helper.colors.light.border
-      field.style.boxShadow = Helper.colors.light.boxShadow
-      field.style.color = Helper.colors.light.text
     }
 
     const labelContainer = document.createElement("div")
@@ -296,10 +300,9 @@ export class FileField {
     const label = document.createElement("label")
     label.style.fontFamily = "sans-serif"
 
+    label.style.color = Helper.colors.light.text
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       label.style.color = Helper.colors.dark.text
-    } else {
-      label.style.color = Helper.colors.light.text
     }
 
     label.style.fontSize = "21px"
@@ -309,12 +312,11 @@ export class FileField {
 
     const input = document.createElement("input")
 
+    input.style.backgroundColor = Helper.colors.light.background
+    input.style.color = Helper.colors.light.text
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       input.style.backgroundColor = Helper.colors.dark.background
       input.style.color = Helper.colors.dark.text
-    } else {
-      input.style.backgroundColor = Helper.colors.light.background
-      input.style.color = Helper.colors.light.text
     }
 
     input.type = this.type

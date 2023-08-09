@@ -1,162 +1,27 @@
-<script id="submit-field-funnel-event" type="module">
+
+<script id="role-apps-event" type="module">
   import { Helper } from "/js/Helper.js"
   import { Request } from "/js/Request.js"
 
-  document.querySelectorAll(".field-funnel").forEach(funnel => {
+  const button = document.querySelector(".role-apps-button")
 
-    const submitButton = funnel.querySelector(".submit-field-funnel-button")
+  if (button !== null) {
 
-    if (submitButton !== null) {
+    if (button.onclick === null) {
+      button.onclick = async () => {
 
-      if (submitButton.onclick === null) {
-        submitButton.onclick = async () => {
+        Helper.popup(overlay => {
+          Helper.headerPicker("removeOverlay", overlay)
+          const info = Helper.headerPicker("info", overlay)
+          info.append(this.convert("text/span", input.name))
 
-          if (Helper.tagIsEmpty(funnel.id)) {
-            window.alert("Funnel ist nicht gültig: id ist kein tag")
-            throw new Error("funnel tag is empty")
-          }
+          Helper.get("role-apps/closed", overlay)
 
-          const map = await Helper.convert("field-funnel/map", funnel)
+        })
 
-          if (map !== undefined) {
-
-            Helper.overlay("security", async securityOverlay => {
-
-              const register = {}
-              register.url = "/register/funnel/closed/"
-              register.tag = funnel.id
-              register.funnel = map
-              const res = await Request.closed(register)
-
-              if (res.status === 200) {
-
-                window.alert("Ihre Daten wurden erfolgreich gespeichert.")
-
-                if (funnel.hasAttribute("next-path")) {
-                  window.location.assign(funnel.getAttribute("next-path"))
-                }
-
-                Helper.removeOverlay(securityOverlay)
-
-              } else {
-                window.alert("Fehler.. Bitte wiederholen.")
-
-                Helper.removeOverlay(securityOverlay)
-              }
-            })
-
-          }
-
-        }
       }
-
     }
 
-  })
-
-</script>
-
-
-
-
-
-<script id="click-funnel-start-event" type="module">
-  import { Helper } from "/js/Helper.js"
-
-  {
-    document.querySelectorAll(".click-funnel").forEach(funnel => {
-
-      const startButton = funnel.querySelector(".start-click-funnel-button")
-
-      if (startButton.onclick === null) {
-        startButton.onclick = () => {
-
-          startButton.style.display = "none"
-
-          const questions = []
-          for (let i = 0; i < funnel.children.length; i++) {
-            const child = funnel.children[i]
-            if (child.classList.contains("click-field")) {
-              questions.push(child)
-              child.style.display = "flex"
-              break
-            }
-          }
-
-          if (questions.length <= 0) {
-            Helper.request("end-click-funnel", funnel)
-            return
-          }
-        }
-      }
-
-      for (let i = 0; i < funnel.children.length; i++) {
-        const child = funnel.children[i]
-
-        if (child.classList.contains("click-field")) {
-
-          child.querySelectorAll(".answer-box").forEach(box => {
-
-            if (box.onclick === null) {
-
-              box.onclick = () => {
-
-                child.style.display = "none"
-
-                box.querySelectorAll(".answer").forEach(answer => {
-                  answer.setAttribute("clicked", true)
-                })
-
-                if (child.nextSibling === null) {
-
-                  Helper.request("end-click-funnel", funnel)
-
-                  return
-
-                }
-
-                if (box.hasAttribute("onclick-condition")) {
-                  const condition = JSON.parse(box.getAttribute("onclick-condition"))
-
-                  if (condition.action === "skip") {
-                    try {
-                      Helper.skipSiblings(parseInt(condition.skip) + 1, child)
-
-                      return
-                    } catch (error) {
-
-                      Helper.request("end-click-funnel", funnel)
-
-                      return
-
-                    }
-                  }
-
-                  if (condition.action === "path") {
-                    window.location.assign(condition.path)
-                    return
-                  }
-
-                }
-
-                child.nextSibling.style.display = "flex"
-
-              }
-
-            }
-
-
-
-          })
-
-        }
-
-      }
-
-    })
-
   }
-
-
 
 </script>

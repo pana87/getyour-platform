@@ -103,9 +103,6 @@ app.get("/", async (req, res, next) => {
 app.get("/:expert/", async (req, res, next) => {
   try {
 
-    if (req.params.expert === "login") return res.send(Helper.readFileSyncToString("../lib/value-units/login.html"))
-
-
     const doc = await nano.db.use("getyour").get("users")
     if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
     if (doc.users === undefined) throw new Error("users is undefined")
@@ -165,6 +162,7 @@ async(req, res, next) => {
 
     if (req.params.expert === "pana") {
       if (req.params.platform === "getyour") {
+        if (req.params.path === "login") return res.send(Helper.readFileSyncToString("../lib/value-units/login.html"))
         if (req.params.path === "nutzervereinbarung") return res.send(Helper.readFileSyncToString(`../lib/value-units/nutzervereinbarung.html`))
         if (req.params.path === "impressum") return res.send(Helper.readFileSyncToString(`../lib/value-units/impressum.html`))
         if (req.params.path === "datenschutz") return res.send(Helper.readFileSyncToString(`../lib/value-units/datenschutz.html`))
@@ -579,8 +577,12 @@ app.post(`/:method/:type/:event/`,
   Request.verifyLocation,
   // location context
 
-
-  Request.registerAdmin,
+  // location register only for emails
+  // register needs role
+  // register needs platform
+  // copy from register admin
+  Request.register,
+  // Request.registerAdmin,
   // Request.registerEmail,
 
   Request.get,
@@ -605,7 +607,7 @@ app.post(`/:method/:type/:event/`,
   Request.verifyClosed,
   // closed context
 
-
+  Request.update,
   Request.register,
   Request.delete,
   Request.get,
