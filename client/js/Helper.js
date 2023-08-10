@@ -11,6 +11,408 @@ export class Helper {
 
   static get(event, parent, input) {
 
+    if (event === "funnel/select-option") {
+
+      const optionField = new TextField("option", parent)
+      optionField.label.innerHTML = "Antwortmöglichkeit"
+      optionField.input.required = true
+      optionField.verifyValue()
+      optionField.input.addEventListener("input", () => {
+
+        const value = optionField.validValue()
+
+        if (input !== undefined) {
+          if (input.tagName === "OPTION") {
+            input.value = value
+            input.text = value
+          }
+        }
+
+      })
+
+      if (input !== undefined) {
+        if (input.tagName === "OPTION") {
+          optionField.value(() => input.value)
+          optionField.verifyValue()
+        }
+      }
+
+      if (input !== undefined) {
+        if (input.tagName !== "OPTION") {
+          const submitButton = this.buttonPicker("action", parent)
+          submitButton.innerHTML = "Option jetzt anhängen"
+          submitButton.addEventListener("click", async () => {
+
+            const value = optionField.validValue()
+
+            const option = document.createElement("option")
+            option.value = value
+            option.text = value
+
+            input.append(option)
+
+            if (input.ok !== undefined) await input.ok()
+          })
+
+
+        }
+      }
+
+
+
+    }
+
+    if (event === "field-funnel/fields") {
+
+      if (input.classList.contains("field-funnel")) {
+
+
+
+
+        parent.innerHTML = ""
+        for (let i = 0; i < input.children.length; i++) {
+          const field = input.children[i]
+
+          if (field.classList.contains("submit-field-funnel-button")) continue
+
+          if (field.classList.contains("field")) {
+            const fieldInput = field.querySelector(".field-input")
+
+
+            const button = this.buttonPicker("left/right", parent)
+            button.left.innerHTML = field.id
+
+            button.right.append(this.convert("input/alias", fieldInput))
+            button.addEventListener("click", () => {
+              this.popup(overlay => {
+                this.headerPicker("removeOverlay", overlay)
+                this.buttonPicker("toolbox/register-html", overlay)
+
+                const info = this.headerPicker("info", overlay)
+                info.append(this.convert("input/alias", fieldInput))
+
+
+                const content = this.headerPicker("scrollable", overlay)
+
+
+
+                if (fieldInput.tagName === "SELECT") {
+
+
+                  {
+                    const button = this.buttonPicker("left/right", content)
+                    button.left.innerHTML = ".options"
+                    button.right.innerHTML = "Antwortmöglichkeiten definieren"
+                    button.addEventListener("click", () => {
+                      this.popup(overlay => {
+                        this.headerPicker("removeOverlay", overlay)
+
+                        const info = this.headerPicker("info", overlay)
+                        info.append(this.convert("input/alias", fieldInput))
+                        info.append(this.convert("text/span", ".options"))
+
+                        {
+                          const button = this.buttonPicker("left/right", overlay)
+                          button.left.innerHTML = ".append"
+                          button.right.innerHTML = "Neue Antwortmöglichkeit anhängen"
+                          button.addEventListener("click", () => {
+
+                            this.popup(overlay => {
+                              this.headerPicker("removeOverlay", overlay)
+
+                              const info = this.headerPicker("info", overlay)
+                              info.append(this.convert("input/alias", fieldInput))
+                              info.append(this.convert("text/span", ".option.append"))
+
+                              const optionFunnel = this.headerPicker("scrollable", overlay)
+
+                              const optionField = new TextAreaField("option", optionFunnel)
+                              optionField.label.innerHTML = "Antwortmöglichkeit"
+                              optionField.input.required = true
+                              optionField.verifyValue()
+                              optionField.input.addEventListener("input", () => optionField.verifyValue())
+
+                              const submitButton = this.buttonPicker("action", optionFunnel)
+                              submitButton.innerHTML = "Option jetzt anhängen"
+                              submitButton.addEventListener("click", async () => {
+
+                                const value = optionField.validValue()
+
+                                const option = document.createElement("option")
+                                option.value = value
+                                option.text = value
+                                fieldInput.appendChild(option)
+
+                                this.render("select/options", fieldInput, options)
+
+                                this.removeOverlay(overlay)
+
+                              })
+
+
+
+                            })
+                          })
+                        }
+
+
+
+                        overlay.append(this.convert("text/hr", "Optionen"))
+
+                        const options = this.headerPicker("scrollable", overlay)
+                        this.render("select/options", fieldInput, options)
+
+                      })
+                    })
+                  }
+
+                }
+
+                field.ok = () => {
+                  this.get(event, parent, input)
+                  this.removeOverlay(overlay)
+                }
+
+                this.get("funnel/field", content, field)
+
+
+
+
+
+
+              })
+            })
+          }
+
+        }
+
+
+
+
+
+      }
+
+    }
+
+    if (event === "funnel/field") {
+
+      const funnel = this.create("div/scrollable", parent)
+
+      const idField = new TextField("id", funnel)
+      idField.input.required = true
+      idField.input.accept = "text/tag"
+      idField.label.innerHTML = "Gebe deinem Datenfeld eine Id"
+      idField.verifyValue()
+      idField.input.addEventListener("input", () => {
+
+        const id = idField.validValue()
+
+        if (document.getElementById(id) !== null) {
+          this.setNotValidStyle(idField.input)
+        }
+
+
+        if (input !== undefined) {
+          if (input.classList.contains("field")) {
+            if (document.getElementById(id) === null) {
+              input.setAttribute("id", id)
+            }
+          }
+        }
+
+
+      })
+
+      if (input !== undefined) {
+        if (input.classList.contains("field")) {
+          if (input.hasAttribute("id")) {
+            idField.value(() => input.getAttribute("id"))
+            idField.verifyValue()
+          }
+        }
+      }
+
+
+      const labelField = new TextAreaField("question", funnel)
+      labelField.label.innerHTML = "Beschreibe das Datenfeld für dein Netzwerk"
+      labelField.input.required = true
+      labelField.verifyValue()
+      labelField.input.addEventListener("input", () => {
+
+        const label = input.querySelector(".field-label")
+        const value = labelField.validValue()
+        if (input !== undefined) {
+          if (input.classList.contains("field")) {
+            if (label !== null) {
+              label.innerHTML = value
+            }
+          }
+        }
+
+        labelField.verifyValue()
+      })
+
+      if (input !== undefined) {
+        if (input.classList.contains("field")) {
+          if (input.querySelector(".field-label") !== null) {
+            labelField.value(() => input.querySelector(".field-label").innerHTML)
+            labelField.verifyValue()
+          }
+        }
+      }
+
+
+
+      const infoField = new TextAreaField("info", funnel)
+      infoField.label.innerHTML = "Hier kannst du, wenn du möchtest, mehr Informationen zu diesem Datenfeld, als HTML, für deine Nutzer, bereitstellen"
+      infoField.input.style.height = "144px"
+      infoField.input.placeholder = "<div>..</div>"
+      infoField.input.style.fontFamily = "monospace"
+      infoField.input.style.fontSize = "13px"
+      infoField.verifyValue()
+
+      infoField.input.addEventListener("input", () => {
+        const info = infoField.validValue()
+
+        this.update("script/on-field-info-click-event", document.body)
+
+        if (this.stringIsEmpty(info)) return input.removeAttribute("on-info-click")
+
+        if (input !== undefined) {
+          if (input.classList.contains("field")) {
+            input.setAttribute("on-info-click", info)
+          }
+        }
+
+        infoField.verifyValue()
+      })
+
+      if (input !== undefined) {
+        if (input.classList.contains("field")) {
+          if (input.hasAttribute("on-info-click")) {
+            infoField.value(() => input.getAttribute("on-info-click"))
+          }
+        }
+      }
+
+      const typeField = new SelectionField("type", funnel)
+      typeField.label.innerHTML = "Welchen Datentyp soll dein Netzwerk eingeben können"
+      typeField.options(["text", "textarea", "email", "tel", "range", "password", "number", "file", "date", "checkbox", "select"])
+      typeField.verifyValue()
+      typeField.select.addEventListener("input", () => {
+        const value = typeField.validValue()[0].value
+
+        if (input !== undefined) {
+          if (input.classList.contains("field")) {
+            const fieldInput = input.querySelector(".field-input")
+
+            if (fieldInput !== null) {
+
+
+
+
+              this.update("field-input/type", fieldInput, value)
+
+
+            }
+          }
+        }
+
+        this.render("funnel/field-input", {type: value, field: input})
+
+        if (input.classList.contains("field-funnel")) {
+          this.render("field-funnel/fields", input)
+        } else {
+          this.render("field-funnel/fields", input.parentElement)
+        }
+
+      })
+
+      if (input !== undefined) {
+
+        if (input.classList.contains("field")) {
+          const fieldInput = input.querySelector(".field-input")
+
+          let type
+          if (fieldInput.tagName === "INPUT") {
+            type = fieldInput.getAttribute("type")
+          }
+          if (fieldInput.tagName === "SELECT") {
+            type = "select"
+          }
+          if (fieldInput.tagName === "TEXTAREA") {
+            type = "textarea"
+          }
+
+
+
+
+
+          if (fieldInput !== null) {
+            typeField.value(() => [type])
+
+            const fieldInputFunnel = this.create("div", funnel)
+            this.render("funnel/field-input", {type, field: input}, fieldInputFunnel)
+
+          }
+        }
+      }
+
+      if (input !== undefined) {
+        if (input.classList.contains("field-funnel")) {
+
+          const button = this.buttonPicker("action", funnel)
+          button.innerHTML = "Datenfeld jetzt anhängen"
+          button.addEventListener("click", async () => {
+
+            const id = idField.validValue()
+            const type = typeField.validValue()[0].value
+            const label = labelField.validValue()
+            const info = infoField.validValue()
+
+            if (document.getElementById(id) !== null) {
+              window.alert("Id existiert bereits.")
+              idField.field.scrollIntoView({behavior: "smooth"})
+              this.setNotValidStyle(idField.input)
+              throw new Error("id exist")
+            }
+
+            if (document.getElementById(id) === null) {
+
+              const field = this.convert("text/field", type)
+              field.id = id
+              field.label.textContent = label
+              field.setAttribute("on-info-click", info)
+
+              input.querySelector(".submit-field-funnel-button").before(field)
+              if (input.ok !== undefined) await input.ok()
+
+            }
+
+          })
+
+        }
+      }
+
+
+      if (input !== undefined) {
+        if (input.classList.contains("field")) {
+
+          const button = this.buttonPicker("delete", funnel)
+          button.innerHTML = "Datenfeld entfernen"
+          button.addEventListener("click", async () => {
+
+            input.remove()
+            if (input.ok !== undefined) await input.ok()
+
+
+          })
+
+        }
+      }
+
+    }
+
     if (event === "funnel/service-condition") {
 
       const funnel = this.create("div/scrollable", parent)
@@ -988,6 +1390,118 @@ export class Helper {
   static update(event, parent, input) {
 
 
+    if (event === "element/type") {
+
+      const create = document.createElement(input)
+
+      if (parent.hasAttribute("id")) {
+        create.setAttribute("id", parent.getAttribute("id"))
+      }
+
+      create.setAttribute("type", input)
+
+      if (parent.hasAttribute("class")) {
+        create.setAttribute("class", parent.getAttribute("class"))
+      }
+
+      if (parent.hasAttribute("style")) {
+        create.setAttribute("style", parent.getAttribute("style"))
+      }
+
+      parent.before(create)
+      parent.remove()
+    }
+
+    if (event === "input/type") {
+
+      const create = document.createElement("input")
+
+      if (parent.hasAttribute("id")) {
+        create.setAttribute("id", parent.getAttribute("id"))
+      }
+
+      create.setAttribute("type", input)
+
+      if (parent.hasAttribute("class")) {
+        create.setAttribute("class", parent.getAttribute("class"))
+      }
+
+      if (parent.hasAttribute("style")) {
+        create.setAttribute("style", parent.getAttribute("style"))
+      }
+
+      if (parent.hasAttribute("required")) {
+        create.setAttribute("required", parent.getAttribute("required"))
+      }
+
+      if (parent.hasAttribute("on-info-click")) {
+        create.setAttribute("on-info-click", parent.getAttribute("on-info-click"))
+      }
+
+      parent.before(create)
+      parent.remove()
+    }
+
+
+    if (event === "field-input/type") {
+
+      if (parent.tagName !== "TEXTAREA") {
+
+        if (input === "textarea") {
+          this.convert("element/textarea", parent)
+        }
+
+      }
+
+      if (parent.tagName !== "SELECT") {
+        if (input === "select") {
+          this.convert("element/select", parent)
+        }
+      }
+
+      this.update("input/type", parent, input)
+
+    }
+
+
+    if (event === "script/on-field-info-click-event") {
+
+      const text = /*html*/`
+      <script id="on-field-info-click-event" type="module">
+        import { Helper } from "/js/Helper.js"
+        import { Request } from "/js/Request.js"
+
+        document.querySelectorAll(".field").forEach(field => {
+          if (field.hasAttribute("on-info-click")) {
+            Helper.convert("field/on-info-click", field)
+          }
+        })
+
+
+      </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      if (parent !== undefined) {
+
+        if (parent.querySelector(`#${create.id}`) === null) {
+          parent.append(create)
+          this.render("children", parent)
+        }
+
+      }
+
+      return create
+
+    }
+
+
     if (event === "service-condition/closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -1650,6 +2164,14 @@ export class Helper {
 
   static create(event, parent) {
 
+    if (event === "div") {
+      const div = document.createElement("div")
+
+      if (parent !== undefined) parent.append(div)
+
+      return div
+    }
+
     if (event === "div/scrollable") {
       const div = document.createElement("div")
       div.style.overflowY = "auto"
@@ -1790,14 +2312,10 @@ export class Helper {
       dsgvoField.icon.style.display = "block"
       dsgvoField.icon.src = "/public/info-gray.svg"
       dsgvoField.icon.alt = "Info"
-      dsgvoField.value(name => window.localStorage.getItem(name))
-      dsgvoField.input.addEventListener("input", () => {
-        const value = dsgvoField.validValue()
-        window.localStorage.setItem(dsgvoField.name, value)
-      })
+      dsgvoField.input.addEventListener("input", () => dsgvoField.verifyValue())
       dsgvoField.verifyValue()
 
-      const loginbutton = Helper.buttonPicker("action", parent)
+      const loginbutton = this.buttonPicker("action", parent)
       loginbutton.classList.add("start-login-event")
       loginbutton.innerHTML = "Jetzt anmelden"
 
@@ -2341,6 +2859,55 @@ export class Helper {
 
   // event = input/algorithm
   static render(event, input, parent) {
+
+
+    if (event === "select/options") {
+
+      if (parent === undefined) {
+        document.querySelectorAll(".select-options").forEach(div => {
+          this.render(event, input, div)
+        })
+      }
+
+      if (parent !== undefined) {
+        if (!parent.classList.contains("select-options")) {
+          parent.classList.add("select-options")
+        }
+      }
+
+      if (parent !== undefined) {
+        parent.innerHTML = ""
+      }
+
+      for (let i = 0; i < input.children.length; i++) {
+        const option = input.children[i]
+
+        const button = this.buttonPicker("left/right", parent)
+        button.left.innerHTML = `Option ${i + 1}`
+        button.right.innerHTML = option.value
+
+        button.addEventListener("click", () => {
+          this.popup(overlay => {
+            this.headerPicker("removeOverlay", overlay)
+            this.buttonPicker("toolbox/register-html", overlay)
+
+            const info = this.headerPicker("info", overlay)
+            info.append(this.convert("element/alias", option))
+
+            option.ok = () => {
+              this.render("select/options", input)
+              this.removeOverlay(overlay)
+            }
+
+            this.get("funnel/select-option", overlay, option)
+
+          })
+        })
+
+      }
+
+
+    }
 
     if (event === "text/h1") {
 
@@ -4709,29 +5276,45 @@ export class Helper {
 
     }
 
+
     if (event === "field-funnel/fields") {
+
+      if (parent === undefined) {
+        document.querySelectorAll(".field-funnel-fields").forEach(div => {
+          this.render(event, input, div)
+        })
+      }
+
+      if (parent !== undefined) {
+        if (!parent.classList.contains("field-funnel-fields")) {
+          parent.classList.add("field-funnel-fields")
+        }
+      }
+
+      if (parent !== undefined) {
+        parent.innerHTML = ""
+      }
+
 
       if (input.classList.contains("field-funnel")) {
 
-
-
-        parent.innerHTML = ""
         for (let i = 0; i < input.children.length; i++) {
-          const child = input.children[i]
+          const field = input.children[i]
 
-          if (child.classList.contains("submit-field-funnel-button")) continue
+          if (field.classList.contains("submit-field-funnel-button")) continue
 
-          if (child.classList.contains("field")) {
-            const fieldInput = child.querySelector(".field-input")
+          if (field.classList.contains("field")) {
+            const fieldInput = field.querySelector(".field-input")
 
 
             const button = this.buttonPicker("left/right", parent)
-            button.left.innerHTML = child.id
+            button.left.innerHTML = field.id
 
             button.right.append(this.convert("input/alias", fieldInput))
             button.addEventListener("click", () => {
               this.popup(overlay => {
                 this.headerPicker("removeOverlay", overlay)
+                this.buttonPicker("toolbox/register-html", overlay)
 
                 const info = this.headerPicker("info", overlay)
                 info.append(this.convert("input/alias", fieldInput))
@@ -4740,94 +5323,14 @@ export class Helper {
                 const content = this.headerPicker("scrollable", overlay)
 
 
-
-                if (fieldInput.tagName === "SELECT") {
-
-
-                  {
-                    const button = this.buttonPicker("left/right", content)
-                    button.left.innerHTML = ".options"
-                    button.right.innerHTML = "Antwortmöglichkeiten definieren"
-                    button.addEventListener("click", () => {
-                      this.popup(overlay => {
-                        this.headerPicker("removeOverlay", overlay)
-
-                        const info = this.headerPicker("info", overlay)
-                        info.append(this.convert("input/alias", fieldInput))
-                        info.append(this.convert("text/span", ".options"))
-
-                        {
-                          const button = this.buttonPicker("left/right", overlay)
-                          button.left.innerHTML = ".append"
-                          button.right.innerHTML = "Neue Antwortmöglichkeit anhängen"
-                          button.addEventListener("click", () => {
-
-                            this.popup(overlay => {
-                              this.headerPicker("removeOverlay", overlay)
-
-                              const info = this.headerPicker("info", overlay)
-                              info.append(this.convert("input/alias", fieldInput))
-                              info.append(this.convert("text/span", ".option.append"))
-
-                              const optionFunnel = this.headerPicker("scrollable", overlay)
-
-                              const optionField = new TextAreaField("option", optionFunnel)
-                              optionField.label.innerHTML = "Antwortmöglichkeit"
-                              optionField.input.required = true
-                              optionField.verifyValue()
-                              optionField.input.addEventListener("input", () => optionField.verifyValue())
-
-                              const submitButton = this.buttonPicker("action", optionFunnel)
-                              submitButton.innerHTML = "Option jetzt anhängen"
-                              submitButton.addEventListener("click", async () => {
-
-                                const value = optionField.validValue()
-
-                                const option = document.createElement("option")
-                                option.value = value
-                                option.text = value
-                                fieldInput.appendChild(option)
-
-                                this.render("select/options", fieldInput, options)
-
-                                this.removeOverlay(overlay)
-
-                              })
-
-
-
-                            })
-                          })
-                        }
-
-
-
-                        overlay.append(this.convert("text/hr", "Optionen"))
-
-                        const options = this.headerPicker("scrollable", overlay)
-                        this.render("select/options", fieldInput, options)
-
-                      })
-                    })
-                  }
-
+                field.ok = () => {
+                  this.get(event, parent, input)
+                  this.removeOverlay(overlay)
                 }
 
+                this.get("funnel/field", content, field)
 
-                {
-                  const button = this.buttonPicker("left/right", content)
-                  button.left.innerHTML = ".remove"
-                  button.right.innerHTML = "Datenfeld entfernen"
-                  button.addEventListener("click", () => {
 
-                    child.remove()
-
-                    this.render(event, input, parent)
-
-                    this.removeOverlay(overlay)
-
-                  })
-                }
 
 
 
@@ -4848,7 +5351,26 @@ export class Helper {
 
     if (event === "children") {
 
-      parent.innerHTML = ""
+      if (parent === undefined) {
+        if (input.tagName === "BODY") {
+          document.querySelectorAll(".body-children").forEach(div => {
+            this.render(event, input, div)
+          })
+        }
+      }
+
+      if (input.tagName === "BODY") {
+        if (parent !== undefined) {
+          if (!parent.classList.contains("body-children")) {
+            parent.classList.add("body-children")
+          }
+        }
+      }
+
+      if (parent !== undefined) {
+        parent.innerHTML = ""
+      }
+
       childrenLoop: for (let i = 0; i < input.children.length; i++) {
         const child = input.children[i]
 
@@ -4945,65 +5467,12 @@ export class Helper {
                             info.append(this.convert("element/alias", child))
                             info.append(this.convert("text/span", ".append"))
 
-                            const funnel = this.headerPicker("scrollable", overlay)
+                            child.ok = () => {
+                              this.render("field-funnel/fields", child)
+                              this.removeOverlay(overlay)
+                            }
 
-                            const labelField = new TextAreaField("question", funnel)
-                            labelField.label.innerHTML = "Beschreibe das Datenfeld für dein Netzwerk"
-                            labelField.input.required = true
-                            labelField.verifyValue()
-                            labelField.input.addEventListener("input", () => labelField.verifyValue())
-
-                            const tagField = new TextField("tag", funnel)
-                            tagField.input.required = true
-                            tagField.input.accept = "text/tag"
-                            tagField.label.innerHTML = "Gebe deinem Datenfeld eine Id"
-                            tagField.verifyValue()
-                            tagField.input.addEventListener("input", (event) => {
-
-                              const id = tagField.validValue()
-
-                              if (document.getElementById(id) !== null) {
-                                this.setNotValidStyle(tagField.input)
-                              }
-
-                            })
-
-                            const typeField = new SelectionField("type", funnel)
-                            typeField.label.innerHTML = "Welchen Datentyp soll dein Netzwerk eingeben können"
-                            typeField.options(["text", "textarea", "email", "tel", "range", "password", "number", "file", "date", "checkbox", "select"])
-                            typeField.verifyValue()
-
-                            const funnelSubmitButton = this.buttonPicker("action", funnel)
-                            funnelSubmitButton.innerHTML = "Datenfeld jetzt anhängen"
-                            funnelSubmitButton.addEventListener("click", () => {
-
-                              const id = tagField.validValue()
-                              const type = typeField.validValue()[0].value
-                              const label = labelField.validValue()
-
-                              if (document.getElementById(id) !== null) {
-                                window.alert("Id existiert bereits.")
-                                tagField.field.scrollIntoView({behavior: "smooth"})
-                                this.setNotValidStyle(tagField.input)
-                                throw new Error("id exist")
-                              }
-
-                              if (document.getElementById(id) === null) {
-
-                                const field = this.convert("text/field", type)
-                                field.id = id
-                                field.label.textContent = label
-
-                                child.querySelector(".submit-field-funnel-button").before(field)
-
-                                this.render("field-funnel/fields", child, fieldsContainer)
-
-                                this.removeOverlay(overlay)
-
-                              }
-
-                            })
-
+                            this.get("funnel/field", overlay, child)
 
                           })
 
@@ -5011,17 +5480,14 @@ export class Helper {
                       }
 
 
-                      overlay.append(this.convert("text/hr", "Datenfelder"))
+                      overlay.append(this.convert("text/hr", "Meine Datenfelder"))
 
 
-                      const fieldsContainer = this.headerPicker("scrollable", overlay)
+                      const fieldsContainer = this.create("div/scrollable", overlay)
                       this.render("field-funnel/fields", child, fieldsContainer)
 
                     })
 
-
-
-                    //
                   })
 
                 }
@@ -7182,6 +7648,123 @@ export class Helper {
       return output
     }
 
+    if (event === "funnel/field-input") {
+
+      if (parent === undefined) {
+        document.querySelectorAll(".funnel-field-input").forEach(div => {
+          this.render(event, {type: input.type, field: input.field}, div)
+        })
+      }
+
+      if (parent !== undefined) {
+        if (!parent.classList.contains("funnel-field-input")) {
+          parent.classList.add("funnel-field-input")
+        }
+      }
+
+      if (parent !== undefined) {
+        parent.innerHTML = ""
+      }
+
+
+      if (input !== undefined) {
+
+        if (input.type !== "select") {
+
+          const requiredField = new CheckboxField("required", parent)
+          requiredField.label.innerHTML = "Dieses Datenfeld ist notwendig"
+          requiredField.verifyValue()
+          if (input.field !== undefined) {
+            if (input.field.classList.contains("field")) {
+              const fieldInput = input.field.querySelector(".field-input")
+              if (fieldInput.hasAttribute("required")) {
+                requiredField.input.checked = true
+              }
+            }
+          }
+          requiredField.input.addEventListener("input", (event) => {
+
+            if (input.field !== undefined) {
+              if (input.field.classList.contains("field")) {
+                const fieldInput = input.field.querySelector(".field-input")
+
+                if (event.target.checked === true) {
+                  fieldInput.setAttribute("required", true)
+                }
+
+                if (event.target.checked === false) {
+                  fieldInput.removeAttribute("required")
+                }
+
+              }
+            }
+
+
+          })
+
+        }
+
+        if (input.type === "select") {
+
+          {
+            const button = this.buttonPicker("left/right", parent)
+            button.left.innerHTML = ".options"
+            button.right.innerHTML = "Antwortmöglichkeiten definieren"
+            button.addEventListener("click", () => {
+
+              const fieldInput = input.field.querySelector(".field-input")
+
+              this.popup(overlay => {
+                this.headerPicker("removeOverlay", overlay)
+                this.buttonPicker("toolbox/register-html", overlay)
+
+                const info = this.headerPicker("info", overlay)
+                info.append(this.convert("input/alias", input.field))
+                info.append(this.convert("text/span", ".options"))
+
+                {
+                  const button = this.buttonPicker("left/right", overlay)
+                  button.left.innerHTML = ".append"
+                  button.right.innerHTML = "Neue Antwortmöglichkeit anhängen"
+                  button.addEventListener("click", () => {
+
+
+                    this.popup(overlay => {
+                      this.headerPicker("removeOverlay", overlay)
+
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("input/alias", fieldInput))
+                      info.append(this.convert("text/span", ".option.append"))
+
+                      fieldInput.ok = () => {
+                        this.render("select/options", fieldInput)
+                        this.removeOverlay(overlay)
+                      }
+
+                      this.get("funnel/select-option", overlay, fieldInput)
+
+                    })
+                  })
+                }
+
+                overlay.append(this.convert("text/hr", "Meine Optionen"))
+
+                const options = this.headerPicker("scrollable", overlay)
+                this.render("select/options", fieldInput, options)
+
+              })
+            })
+          }
+
+        }
+
+        // add more input dom functions
+
+
+      }
+
+    }
+
     if (event === "funnel/questions") {
 
       const output = document.createElement("div")
@@ -7933,6 +8516,18 @@ export class Helper {
   static iconPicker(name) {
 
 
+    if (name === "info") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+      const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 58.693 58.693"><defs><style>.a{fill:${primary};}</style></defs><g transform="translate(24.832 14.673)"><circle class="a" cx="2.822" cy="2.822" r="2.822" transform="translate(1.058)"/><path class="a" d="M230.772,234.059V216H224v1.129h2.257v16.931H224v1.129h9.03v-1.129Z" transform="translate(-224 -206.97)"/></g><path class="a" d="M77.347,48a29.347,29.347,0,1,0,29.347,29.347A29.342,29.342,0,0,0,77.347,48Zm0,56.253a26.906,26.906,0,1,1,26.906-26.906A26.937,26.937,0,0,1,77.347,104.253Z" transform="translate(-48 -48)"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+
+      return svg
+    }
+
     if (name === "save") {
 
       let primary
@@ -8404,6 +8999,87 @@ export class Helper {
   }
 
   static convert(event, input) {
+
+
+    if (event === "element/textarea") {
+
+      const create = document.createElement("textarea")
+
+      if (input.hasAttribute("id")) {
+        create.setAttribute("id", input.getAttribute("id"))
+      }
+
+      if (input.hasAttribute("class")) {
+        create.setAttribute("class", input.getAttribute("class"))
+      }
+
+      if (input.hasAttribute("style")) {
+        create.setAttribute("style", input.getAttribute("style"))
+      }
+
+      if (input.hasAttribute("required")) {
+        create.setAttribute("required", input.getAttribute("required"))
+      }
+
+      if (input.hasAttribute("on-info-click")) {
+        create.setAttribute("on-info-click", input.getAttribute("on-info-click"))
+      }
+
+      input.before(create)
+      input.remove()
+    }
+
+    if (event === "element/select") {
+
+      const create = document.createElement("select")
+
+      if (input.hasAttribute("id")) {
+        create.setAttribute("id", input.getAttribute("id"))
+      }
+
+      if (input.hasAttribute("class")) {
+        create.setAttribute("class", input.getAttribute("class"))
+      }
+
+      if (input.hasAttribute("style")) {
+        create.setAttribute("style", input.getAttribute("style"))
+      }
+
+      if (input.hasAttribute("on-info-click")) {
+        create.setAttribute("on-info-click", input.getAttribute("on-info-click"))
+      }
+
+      input.before(create)
+      input.remove()
+    }
+
+    if (event === "field/on-info-click") {
+
+      const labelContainer = input.querySelector(".field-label-container")
+      const label = input.querySelector(".field-label")
+
+      const image = document.createElement("div")
+      image.classList.add("field-image")
+      image.style.width = "34px"
+      image.style.marginRight = "21px"
+      image.append(this.iconPicker("info"))
+
+      if (input.querySelector(".field-image") === null) {
+        label.before(image)
+      }
+
+      labelContainer.style.cursor = "pointer"
+      labelContainer.childNodes.forEach(child => child.style.cursor = "pointer")
+      labelContainer.addEventListener("click", () => {
+
+        this.overlay("info", overlay => {
+          const content = this.create("div/scrollable", overlay)
+          content.innerHTML = input.getAttribute("on-info-click")
+        })
+
+      })
+
+    }
 
     if (event === "field-funnel/map") {
       return new Promise((resolve, reject) => {
@@ -11160,6 +11836,51 @@ export class Helper {
 
     if (callback !== undefined) {
 
+      if (event === "info") {
+
+        const overlay = document.createElement("div")
+        overlay.classList.add("overlay")
+
+        // mobile issues
+        overlay.style.height = "100%"
+        overlay.style.overscrollBehavior = "none"
+        document.body.style.overscrollBehavior = "none"
+        document.body.style.overflow = "hidden"
+
+        overlay.style.width = "100%"
+        overlay.style.zIndex = "99999999999999"
+        overlay.style.position = "fixed"
+        overlay.style.top = "0"
+        overlay.style.left = "0"
+        // overlay.style.overflow = "auto"
+
+
+        overlay.style.background = this.colors.matte.light.background
+
+
+        overlay.style.display = "flex"
+        overlay.style.flexDirection = "column"
+        overlay.style.opacity = 0
+
+        this.headerPicker("removeOverlay", overlay)
+
+        callback(overlay)
+
+        document.body.append(overlay)
+
+        const animation = overlay.animate([
+          { opacity: 0, transform: 'translateY(13px)' },
+          { opacity: 1, transform: 'translateY(0)' },
+        ], {
+          duration: 344,
+          easing: 'ease-in-out',
+          fill: "forwards"
+        })
+
+        return overlay
+
+      }
+
       if (event === "security") {
         const overlay = document.createElement("div")
         overlay.classList.add("overlay")
@@ -11192,8 +11913,6 @@ export class Helper {
 
         return overlay
       }
-
-
 
     }
   }
