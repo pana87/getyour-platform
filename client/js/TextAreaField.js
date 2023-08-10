@@ -2,6 +2,29 @@ import { Helper } from "/js/Helper.js"
 
 export class TextAreaField {
 
+  popupInfo(html) {
+
+    if (!Helper.stringIsEmpty(html)) {
+      this.icon.src = "/public/info-gray.svg"
+      this.icon.alt = "Mehr Infos"
+      this.icon.style.display = "block"
+      this.labelContainer.style.cursor = "pointer"
+      this.labelContainer.childNodes.forEach(child => child.style.cursor = "pointer")
+      this.labelContainer.addEventListener("click", () => {
+        Helper.popup(overlay => {
+          Helper.headerPicker("removeOverlay", overlay)
+
+          const content = Helper.create("div/scrollable", overlay)
+
+          content.append(Helper.convert("text/html", html))
+        })
+      })
+
+    }
+
+    return this
+  }
+
   withInfoClick(callback) {
     if (callback !== undefined) {
       this.icon.src = "/public/info-gray.svg"
