@@ -11,6 +11,27 @@ export class Helper {
 
   static get(event, parent, input) {
 
+    if (event === "funnel/onclick-assign-path") {
+
+      const pathField = new TextField("path", parent)
+      pathField.label.innerHTML = "Definiere den Pfad für deine Weiterleitung, sobald auf dieses Element geklickt wird"
+      pathField.input.required = true
+      pathField.input.accept = "text/path"
+      pathField.verifyValue()
+
+      pathField.input.addEventListener("input", (event) => {
+
+        if (this.stringIsEmpty(event.target.value)) input.removeAttribute("onclick")
+
+        const path = pathField.validValue()
+
+        input.setAttribute("onclick", `window.location.assign("${path}")`)
+
+      })
+
+
+    }
+
     if (event === "funnel/select-option") {
 
       const optionField = new TextField("option", parent)
@@ -1992,43 +2013,6 @@ export class Helper {
 
   }
 
-  // event = tag/algorithm
-  static register(event, input) {
-
-    if (event === "path/visibility-closed") {
-
-      this.popup(async overlay => {
-
-        this.headerPicker("removeOverlay", overlay)
-        const info = this.headerPicker("info", overlay)
-        info.append(this.convert("text/span", input))
-        info.append(this.convert("text/span", ".visibility"))
-
-        const funnel = this.headerPicker("scrollable", overlay)
-
-
-        {
-          const get = {}
-          get.url = "/get/platform-value/closed/"
-          get.type = "visibility"
-          get.path = input
-          const res = await Request.closed(get)
-
-          if (res.status === 200) {
-            const map = JSON.parse(res.response)
-            map.path = input
-
-            this.render("visibility/platform-value-closed", map, funnel)
-          }
-
-
-        }
-
-      })
-    }
-
-  }
-
   static async request(event, input) {
 
     if (event === "start-click-funnel") {
@@ -3032,10 +3016,19 @@ export class Helper {
         rolesField.select.multiple = true
 
         const array = []
-        for (let i = 0; i < input.roles.available.length; i++) {
-          const role = input.roles.available[i]
-          array.push(role.name)
+
+        if (input.roles !== undefined) {
+          if (input.roles.available !== undefined) {
+
+            for (let i = 0; i < input.roles.available.length; i++) {
+              const role = input.roles.available[i]
+              array.push(role.name)
+            }
+
+          }
         }
+
+
         rolesField.options(array)
 
         rolesField.verifyValue()
@@ -3044,14 +3037,19 @@ export class Helper {
         for (let i = 0; i < input.roles.selected.length; i++) {
           const roleId = input.roles.selected[i]
 
-          for (let i = 0; i < input.roles.available.length; i++) {
-            const role = input.roles.available[i]
+          if (input.roles !== undefined) {
+            if (input.roles.available !== undefined) {
+              for (let i = 0; i < input.roles.available.length; i++) {
+                const role = input.roles.available[i]
 
-            if (role.id === roleId) {
-              selected.push(role.name)
+                if (role.id === roleId) {
+                  selected.push(role.name)
+                }
+
+              }
             }
-
           }
+
 
         }
 
@@ -3089,12 +3087,18 @@ export class Helper {
           const roles = []
           for (let i = 0; i < rolesField.validValue().length; i++) {
             const option = rolesField.validValue()[i]
-            for (let i = 0; i < input.roles.available.length; i++) {
-              const role = input.roles.available[i]
-              if (role.name === option.value) {
-                roles.push(role.id)
+
+            if (input.roles !== undefined) {
+              if (input.roles.available !== undefined) {
+                for (let i = 0; i < input.roles.available.length; i++) {
+                  const role = input.roles.available[i]
+                  if (role.name === option.value) {
+                    roles.push(role.id)
+                  }
+                }
               }
             }
+
           }
 
           const authorized = JSON.parse(authorizedField.validValue())
@@ -3116,6 +3120,8 @@ export class Helper {
               this.removeOverlay(parent.parentElement.previousSibling)
               this.removeOverlay(parent.parentElement)
               this.removeOverlay(securityOverlay)
+
+              // ok callback ??
             } else {
               window.alert("Fehler.. Bitte wiederholen.")
               this.removeOverlay(securityOverlay)
@@ -3485,7 +3491,37 @@ export class Helper {
 
                 button.addEventListener("click", () => {
 
-                  this.register("path/visibility-closed", value.path)
+
+                  this.popup(async overlay => {
+
+                    this.headerPicker("removeOverlay", overlay)
+                    const info = this.headerPicker("info", overlay)
+                    // info.append(this.convert("text/span", input))
+                    info.append(this.convert("text/span", ".visibility"))
+
+                    const funnel = this.headerPicker("scrollable", overlay)
+
+
+
+
+                    {
+                      const get = {}
+                      get.url = "/get/platform-value/closed/"
+                      get.type = "visibility"
+                      get.path = value.path
+                      const res = await Request.closed(get)
+
+                      if (res.status === 200) {
+                        const map = JSON.parse(res.response)
+                        map.path = value.path
+
+                        this.render("visibility/platform-value-closed", map, funnel)
+                      }
+
+
+                    }
+
+                  })
 
                 })
 
@@ -6939,6 +6975,34 @@ export class Helper {
                     }
 
 
+
+                  })
+
+
+                })
+
+              }
+
+              if (child.tagName === "DIV") {
+
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".assign"
+                button.right.innerHTML = "Klick Weiterleitung definieren"
+
+                button.addEventListener("click", () => {
+
+                  this.popup(overlay => {
+
+                    this.headerPicker("removeOverlay", overlay)
+                    this.buttonPicker("toolbox/register-html", overlay)
+
+                    const info = this.headerPicker("info", overlay)
+                    info.append(this.convert("element/alias", document.body))
+                    info.append(this.convert("text/span", ".assing"))
+
+                    const funnel = this.headerPicker("scrollable", overlay)
+
+                    this.get("funnel/onclick-assign-path", funnel, child)
 
                   })
 

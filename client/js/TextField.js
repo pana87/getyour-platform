@@ -59,6 +59,9 @@ export class TextField {
 
     if (input.accept === "text/path") {
       if (typeof input.value !== "string") return false
+      if (!input.value.startsWith("/")) return false
+      if (input.value === "/") return true
+      if (!input.value.endsWith("/")) return false
       if (/^\/[\w\-._~!$&'()*+,;=:@/]+\/$/.test(input.value) === true) return true
       return false
     }
