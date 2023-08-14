@@ -496,6 +496,10 @@ export class Helper {
             condition.id = input.id
           }
 
+          if (!this.stringIsEmpty(input.platform)) {
+            condition.platform = input.platform
+          }
+
         }
 
 
@@ -524,8 +528,11 @@ export class Helper {
             this.overlay("security", async securityOverlay => {
               const del = {}
               del.url = "/delete/service-condition/closed/"
-              del.id = input.id
-              del.service = input.service
+              if (input !== undefined) {
+                del.id = input.id
+                del.service = input.service
+                del.platform = input.platform
+              }
               const res = await Request.closed(del)
 
               if (res.status === 200) {
@@ -567,7 +574,16 @@ export class Helper {
 
         const get = {}
         get.url = "/get/conditions/closed/"
-        get.service = input.service
+
+        if (input !== undefined) {
+          if (!this.numberIsEmpty(input.service)) {
+            get.service = input.service
+          }
+          if (!this.stringIsEmpty(input.platform)) {
+            get.platform = input.platform
+          }
+        }
+
         const res = await Request.closed(get)
 
         if (res.status === 200) {
@@ -588,7 +604,18 @@ export class Helper {
                 const info = this.headerPicker("info", overlay)
                 info.append(this.convert("text/span", ".condition"))
 
-                condition.service = input.service
+
+                if (input !== undefined) {
+                  if (!this.numberIsEmpty(input.service)) {
+                    condition.service = input.service
+                  }
+                  if (!this.stringIsEmpty(input.platform)) {
+                    condition.platform = input.platform
+                  }
+                }
+
+
+                // condition.service = input.service
                 condition.ok = async () => {
 
                   this.reset(content)
@@ -630,6 +657,22 @@ export class Helper {
           button.right.innerHTML = "Bedingungen hinzufügen"
 
           button.addEventListener("click", () => {
+
+            let map
+            if (input !== undefined) {
+              map = {}
+
+              if (!this.numberIsEmpty(input.id)) {
+                map.service = input.id
+              }
+
+              if (!this.stringIsEmpty(input.platform)) {
+                map.platform = input.platform
+              }
+
+            }
+
+
             this.popup(async overlay => {
 
               this.headerPicker("removeOverlay", overlay)
@@ -646,13 +689,15 @@ export class Helper {
                   const info = this.headerPicker("info", overlay)
                   info.append(this.convert("text/span", ".service"))
 
-                  this.get("funnel/service-condition", overlay, {service: input.id, ok: async () => {
+                  map.ok = async () => {
 
                     this.reset(container)
-                    await this.get("service-conditions/closed", container, {service: input.id})
+                    await this.get("service-conditions/closed", container, map)
                     this.removeOverlay(overlay)
 
-                  }})
+                  }
+
+                  this.get("funnel/service-condition", overlay, map)
 
                 })
 
@@ -660,7 +705,7 @@ export class Helper {
 
               this.render("text/hr", "Meine Bedingungen", overlay)
 
-              const container = await this.get("service-conditions/closed", overlay, {service: input.id})
+              const container = await this.get("service-conditions/closed", overlay, map)
 
             })
           })
@@ -716,6 +761,7 @@ export class Helper {
       selectedField.input.addEventListener("input", () => selectedField.verifyValue())
 
 
+      // console.log(input);
       const button = this.buttonPicker("action", funnel)
       button.innerHTML = "Leistung jetzt speichern"
       button.addEventListener("click", () => {
@@ -735,8 +781,16 @@ export class Helper {
             service.id = input.id
           }
 
+          // console.log(input.platform);
+
+          if (!this.stringIsEmpty(input.platform)) {
+            service.platform = input.platform
+          }
+
+
         }
 
+        // console.log(input);
 
         this.overlay("security", async securityOverlay => {
 
@@ -764,6 +818,9 @@ export class Helper {
               const del = {}
               del.url = "/delete/service/closed/"
               del.id = input.id
+              if (!this.stringIsEmpty(input.platform)) {
+                del.platform = input.platform
+              }
               const res = await Request.closed(del)
 
               if (res.status === 200) {
@@ -809,17 +866,31 @@ export class Helper {
 
         const content = this.headerPicker("loading", parent)
 
+        // console.log(input);
+
         const get = {}
         get.url = "/get/services/closed/"
+        if (input !== undefined) {
+          get.platform = input.platform
+        }
+        // console.log(get);
         const res = await Request.closed(get)
 
         if (res.status === 200) {
           const services = JSON.parse(res.response)
 
+          // console.log(services);
+
           this.convert("parent/scrollable", content)
 
           for (let i = 0; i < services.length; i++) {
             const service = services[i]
+
+            if (input !== undefined) {
+              if (!this.stringIsEmpty(input.platform)) {
+                service.platform = input.platform
+              }
+            }
 
             const button = this.buttonPicker("left/right", content)
             button.right.innerHTML = service.title
@@ -834,7 +905,7 @@ export class Helper {
                 service.ok = async () => {
 
                   this.reset(content)
-                  await this.get(event, content)
+                  await this.get(event, content, service)
                   this.removeOverlay(overlay)
 
                 }
@@ -864,17 +935,19 @@ export class Helper {
 
       this.convert("parent/scrollable", parent)
 
-      // preview html offer button
-      // if input != undefined
       if (input !== undefined) {
-        const button = this.buttonPicker("left/right", parent)
-        button.left.innerHTML = ".preview"
-        button.right.innerHTML = "Angebot Vorschau"
-        button.addEventListener("click", () => {
-          window.alert("Bald verfügbar.")
-          // add popup with overlay as printable preview
-          // or new page with preview
-        })
+
+        if (!this.numberIsEmpty(input.id)) {
+          const button = this.buttonPicker("left/right", parent)
+          button.left.innerHTML = ".preview"
+          button.right.innerHTML = "Angebot Vorschau"
+          button.addEventListener("click", () => {
+            window.alert("Bald verfügbar.")
+            // add popup with overlay as printable preview
+            // or new page with preview
+          })
+        }
+
       }
 
       const nameField = new TextField("name", parent)
@@ -1057,6 +1130,10 @@ export class Helper {
             offer.id = input.id
           }
 
+          if (!this.stringIsEmpty(input.platform)) {
+            offer.platform = input.platform
+          }
+
         }
 
 
@@ -1090,6 +1167,9 @@ export class Helper {
               const del = {}
               del.url = "/delete/offer/closed/"
               del.id = input.id
+              if (!this.stringIsEmpty(input.platform)) {
+                del.platform = input.platform
+              }
               const res = await Request.closed(del)
 
               if (res.status === 200) {
@@ -1175,12 +1255,20 @@ export class Helper {
 
         const get = {}
         get.url = "/get/offer/closed/"
+
+        if (input !== undefined) {
+          get.platform = input.platform
+        }
+
         const res = await Request.closed(get)
 
         if (res.status === 200) {
           const offer = JSON.parse(res.response)
 
           offer.ok = () => this.removeOverlay(parent)
+          if (input !== undefined) {
+            offer.platform = input.platform
+          }
 
           this.get("funnel/offer", content, offer)
 
@@ -1189,7 +1277,14 @@ export class Helper {
 
 
         if (res.status !== 200) {
-          this.get("funnel/offer", content, {ok: () => this.removeOverlay(parent)})
+
+          const offer = {}
+          offer.ok = () => this.removeOverlay(parent)
+          if (input !== undefined) {
+            offer.platform = input.platform
+          }
+
+          this.get("funnel/offer", content, offer)
           return reject(new Error("get offer failed"))
         }
 
@@ -1529,12 +1624,17 @@ export class Helper {
 
         const update = {}
         update.url = "/update/service-condition/closed/"
-        update.service = input.service
-        update.id = input.id
-        update.left = input.left
-        update.operator = input.operator
-        update.right = input.right
-        update.action = input.action
+
+        if (input !== undefined) {
+          update.platform = input.platform
+          update.service = input.service
+          update.id = input.id
+          update.left = input.left
+          update.operator = input.operator
+          update.right = input.right
+          update.action = input.action
+        }
+
         const res = await Request.closed(update)
 
 
@@ -1557,6 +1657,7 @@ export class Helper {
 
         const update = {}
         update.url = "/update/offer/closed/"
+        update.platform = input.platform
         update.id = input.id
         update.name = input.name
         update.expired = input.expired
@@ -1597,13 +1698,18 @@ export class Helper {
 
         const update = {}
         update.url = "/update/service/closed/"
-        update.id = input.id
-        update.quantity = input.quantity
-        update.unit = input.unit
-        update.title = input.title
-        update.price = input.price
-        update.currency = input.currency
-        update.selected = input.selected
+
+        if (input !== undefined) {
+          update.platform = input.platform
+          update.id = input.id
+          update.quantity = input.quantity
+          update.unit = input.unit
+          update.title = input.title
+          update.price = input.price
+          update.currency = input.currency
+          update.selected = input.selected
+        }
+
         const res = await Request.closed(update)
 
 
@@ -4147,1025 +4253,75 @@ export class Helper {
 
             }
 
-            // Angeobt button refactor
-            // wer muss angebote für die plattform erstellen ??
-            // lieber als template für experten
             {
               const button = this.buttonPicker("left/right", buttons)
               button.right.innerHTML = "Angebot erstellen"
               button.left.innerHTML = ".offer"
 
               button.addEventListener("click", () => {
-
-                return alert("Bald verfügbar..")
-
-                this.popup(async overlay => {
-
-                  {
-                    const header = document.createElement("div")
-                    header.style.position = "fixed"
-                    header.style.bottom = "0"
-                    header.style.left = "0"
-                    header.style.width = "100%"
-                    header.style.display = "flex"
-                    header.style.justifyContent = "flex-start"
-                    header.style.alignItems = "center"
-                    header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                    header.style.background = "white"
-                    header.style.zIndex = "1"
-                    header.style.cursor = "pointer"
-                    header.addEventListener("click", () => this.removeOverlay(overlay))
-
-                    const logo = document.createElement("img")
-                    logo.src = platform.logo
-                    logo.alt = platform.name
-                    logo.style.width = "55px"
-                    logo.style.margin = "21px 34px"
-                    header.append(logo)
-                    const title = document.createElement("div")
-                    title.innerHTML = "Angebote"
-                    title.style.fontWeight = "bold"
-                    title.style.fontSize = "21px"
-                    header.append(title)
-                    overlay.append(header)
-                  }
-
-
-                  const content = document.createElement("div")
-                  content.style.paddingBottom = "144px"
-                  content.style.overscrollBehavior = "none"
-
-                  content.style.overflow = "auto"
-                  content.style.display = "flex"
-                  content.style.justifyContent = "center"
-                  content.style.alignItems = "center"
-                  content.style.height = "89%"
-                  const loading = document.createElement("img")
-                  loading.src = "/public/load.svg"
-                  loading.alt = "Bitte warten.."
-                  loading.style.width = "55px"
-                  content.append(loading)
-                  overlay.append(content)
-
-
-                  {
-                    const get = {}
-                    get.url = "/get/offer/closed/3/"
-                    get.platformName = platform.name
-                    get.localStorageEmail = await Request.email()
-                    get.localStorageId = await Request.localStorageId()
-                    get.location = window.location.href
-                    get.referer = document.referrer
-                    const res = await Request.middleware(get)
-
-                    if (res.status !== 200) {
-                      alert("Im Moment gibt es keine Angebote zu prüfen.")
-                      this.removeOverlay(overlay)
-                      throw new Error("offer not found")
-                    }
-
-                    if (res.status === 200) {
-                      const offers = JSON.parse(res.response)
-                      console.log(offers);
-
-
-                      if (offers.length === 0) {
-                        alert("Im Moment gibt es keine Angebote zu prüfen.")
-                        this.removeOverlay(overlay)
-                        throw new Error("offer not found")
-                      }
-
-                      this.reset(content)
-                      content.style.overflowY = "auto"
-                      content.style.paddingBottom = "144px"
-                      content.style.overscrollBehavior = "none"
-
-                      for (let i = 0; i < offers.length; i++) {
-                        const get = offers[i]
-
-                        const box = document.createElement("div")
-                        box.style.backgroundColor = "white"
-                        box.style.borderRadius = "13px"
-                        box.style.margin = "34px"
-                        box.style.padding = "34px"
-                        box.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                        box.style.border = "0.3px solid black"
-
-                        const logo = document.createElement("img")
-                        logo.src = get.company.logo.dataUrl
-                        logo.alt = "Logo"
-                        logo.style.width = "55px"
-                        box.append(logo)
-
-                        const rightAlign = document.createElement("div")
-                        rightAlign.style.textAlign = "right"
-
-                        const companyName = document.createElement("div")
-                        companyName.innerHTML = get.company.name
-                        companyName.style.fontSize = "21px"
-                        rightAlign.append(companyName)
-
-                        const reputation = document.createElement("div")
-                        reputation.innerHTML = `Ruf: ${get.reputation}`
-                        reputation.style.fontSize = "13px"
-                        rightAlign.append(reputation)
-
-                        box.append(rightAlign)
-
-                        const website = document.createElement("div")
-                        website.style.display = "flex"
-                        website.style.alignItems = "center"
-
-                        const websiteIcon = document.createElement("img")
-                        websiteIcon.src = "/felix/shs/public/website-icon.svg"
-                        websiteIcon.alt = "Website Icon"
-
-                        const websiteText = document.createElement("a")
-                        websiteText.innerHTML = "Website"
-                        websiteText.href = get.company.website
-                        websiteText.target = "_blank"
-                        websiteText.style.textDecoration = "underline"
-                        websiteText.style.margin = "8px"
-                        websiteText.style.cursor = "pointer"
-                        website.append(websiteIcon, websiteText)
-                        box.append(website)
-
-                        const product = document.createElement("div")
-                        product.innerHTML = get.offer.title
-                        product.style.margin = "21px 0"
-                        product.style.fontSize = "21px"
-                        box.append(product)
-
-                        const description = document.createElement("div")
-                        description.innerHTML = get.offer.description
-                        description.style.marginTop = "13px"
-                        box.append(description)
-
-
-                        if (get.offer.productPdf !== undefined) {
-                          const button = document.createElement("div")
-                          button.style.display = "flex"
-                          button.style.margin = "21px 0"
-                          button.style.alignItems = "center"
-                          button.style.cursor = "pointer"
-                          button.addEventListener("click", () => {
-                            const a = document.createElement("a")
-                            a.href = get.offer.productPdf.dataUrl
-                            a.target = "_blank"
-                            a.dispatchEvent(new MouseEvent('click'))
-                          })
-
-                          const img = document.createElement("img")
-                          img.src = "/public/pdf.svg"
-                          img.alt = "PDF"
-                          img.style.marginRight = "13px"
-
-                          const title = document.createElement("div")
-                          title.innerHTML = "Produkt"
-
-                          button.append(img, title)
-                          box.append(button)
-                        }
-
-                        if (get.offer.companyPdf !== undefined) {
-                          const button = document.createElement("div")
-                          button.style.display = "flex"
-                          button.style.margin = "21px 0"
-                          button.style.alignItems = "center"
-                          button.style.cursor = "pointer"
-                          button.addEventListener("click", () => {
-                            const a = document.createElement("a")
-                            a.href = get.offer.companyPdf.dataUrl
-                            a.target = "_blank"
-                            a.dispatchEvent(new MouseEvent('click'))
-                          })
-
-                          const img = document.createElement("img")
-                          img.src = "/public/pdf.svg"
-                          img.alt = "PDF"
-                          img.style.marginRight = "13px"
-
-                          const title = document.createElement("div")
-                          title.innerHTML = "Unternehmen"
-
-                          button.append(img, title)
-                          box.append(button)
-                        }
-
-                        if (get.offer.termsPdf !== undefined) {
-                          const button = document.createElement("div")
-                          button.style.display = "flex"
-                          button.style.margin = "21px 0"
-                          button.style.alignItems = "center"
-                          button.style.cursor = "pointer"
-                          button.addEventListener("click", () => {
-                            const a = document.createElement("a")
-                            a.href = get.offer.termsPdf.dataUrl
-                            a.target = "_blank"
-                            a.dispatchEvent(new MouseEvent('click'))
-                          })
-
-                          const img = document.createElement("img")
-                          img.src = "/public/pdf.svg"
-                          img.alt = "PDF"
-                          img.style.marginRight = "13px"
-
-                          const title = document.createElement("div")
-                          title.innerHTML = "AGB"
-
-                          button.append(img, title)
-                          box.append(button)
-                        }
-
-                        const alignContainer = document.createElement("div")
-                        alignContainer.style.display = "flex"
-                        alignContainer.style.justifyContent = "flex-end"
-
-                        const priceContainer = document.createElement("div")
-                        priceContainer.style.width = "300px"
-                        priceContainer.style.marginTop = "21px"
-
-                        const priceTitle = document.createElement("div")
-                        priceTitle.innerHTML = "Preisübersicht"
-                        priceTitle.style.fontSize = "21px"
-                        priceTitle.style.margin = "21px 0"
-                        priceContainer.append(priceTitle)
-
-
-
-
-                        const netContainer = document.createElement("div")
-                        netContainer.style.display = "flex"
-                        netContainer.style.justifyContent = "space-between"
-                        netContainer.style.margin = "13px 0"
-
-                        const priceNetTitle = document.createElement("div")
-                        priceNetTitle.innerHTML = "Nettobetrag"
-
-                        const priceNetAmount = document.createElement("div")
-                        let netAmount = 0
-                        for (let i = 0; i < get.offer.services.length; i++) {
-                          const service = get.offer.services[i]
-                          if (service.selected === true) {
-                            netAmount = netAmount + Number(service.price)
-                          }
-                        }
-                        priceNetAmount.innerHTML = `${netAmount.toFixed(2).replace(".", ",")} €`
-
-                        netContainer.append(priceNetTitle, priceNetAmount)
-
-                        priceContainer.append(netContainer)
-
-                        const vatContainer = document.createElement("div")
-                        vatContainer.style.display = "flex"
-                        vatContainer.style.justifyContent = "space-between"
-                        vatContainer.style.margin = "13px 0"
-
-                        const priceVatTitle = document.createElement("div")
-                        priceVatTitle.innerHTML = `USt. ${Number(get.offer.vat).toFixed(2).replace(".", ",")} %`
-
-                        const priceVatAmount = document.createElement("div")
-                        priceVatAmount.innerHTML = `${(netAmount * (Number(get.offer.vat) / 100)).toFixed(2).replace(".", ",")} €`
-
-                        vatContainer.append(priceVatTitle, priceVatAmount)
-
-                        priceContainer.append(vatContainer)
-
-                        const line = document.createElement("hr")
-
-                        priceContainer.append(line)
-
-
-                        const grossContainer = document.createElement("div")
-                        grossContainer.style.display = "flex"
-                        grossContainer.style.justifyContent = "space-between"
-                        grossContainer.style.margin = "21px 0"
-
-                        const priceGrossTitle = document.createElement("div")
-                        priceGrossTitle.innerHTML = "Gesamt"
-
-                        const priceGrossAmount = document.createElement("div")
-                        priceGrossAmount.innerHTML = `${(netAmount * (1 + (Number(get.offer.vat) / 100))).toFixed(2).replace(".", ",")} €`
-
-                        grossContainer.append(priceGrossTitle, priceGrossAmount)
-
-                        priceContainer.append(grossContainer)
-
-
-                        const button = document.createElement("div")
-                        button.innerHTML = "Mehr"
-                        button.style.marginTop = "34px"
-                        button.style.height = "55px"
-                        button.style.backgroundColor = "#f7aa20"
-                        button.style.borderRadius = "13px"
-                        button.style.display = "flex"
-                        button.style.justifyContent = "center"
-                        button.style.alignItems = "center"
-                        button.style.cursor = "pointer"
-
-                        button.addEventListener("click", () => {
-
-                          this.popup(overlay => {
-                            {
-                              const header = document.createElement("div")
-                              header.style.position = "fixed"
-                              header.style.bottom = "0"
-                              header.style.left = "0"
-                              header.style.width = "100%"
-                              header.style.display = "flex"
-                              header.style.justifyContent = "flex-start"
-                              header.style.alignItems = "center"
-                              header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                              header.style.background = "white"
-                              header.style.zIndex = "1"
-                              header.style.cursor = "pointer"
-                              header.addEventListener("click", () => this.removeOverlay(overlay))
-
-                              const logo = document.createElement("img")
-                              logo.src = platform.logo
-                              logo.alt = platform.name
-                              logo.style.width = "55px"
-                              logo.style.margin = "21px 34px"
-                              header.append(logo)
-                              const title = document.createElement("div")
-                              title.innerHTML = `Angebot von ${get.company.name}`
-                              title.style.fontWeight = "bold"
-                              title.style.fontSize = "21px"
-                              header.append(title)
-                              overlay.append(header)
-                            }
-
-                            const buttons = document.createElement("div")
-                            buttons.style.overflowY = "auto"
-                            buttons.style.paddingBottom = "144px"
-                            buttons.style.overscrollBehavior = "none"
-
-
-                            {
-                              const button = document.createElement("div")
-                              button.style.display = "flex"
-                              button.style.flexWrap = "wrap"
-                              button.style.justifyContent = "space-between"
-                              button.style.alignItems = "center"
-                              button.style.margin = "21px 34px"
-                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                              button.style.borderRadius = "13px"
-                              button.style.border = "0.3px solid black"
-                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                              button.style.cursor = "pointer"
-                              button.addEventListener("click", () => {
-                                const a = document.createElement("a")
-                                a.href = `tel:${get.owner.phone}`
-                                a.dispatchEvent(new MouseEvent('click'))
-                              })
-
-                              const icon = document.createElement("img")
-                              icon.style.margin = "13px 34px"
-                              icon.style.width = "34px"
-                              icon.src = "/public/phone-out.svg"
-                              icon.alt = "Anrufen"
-                              button.append(icon)
-
-                              const title = document.createElement("div")
-                              title.innerHTML = "Anrufen"
-                              title.style.margin = "21px 34px"
-                              title.style.fontSize = "21px"
-                              button.append(title)
-
-                              buttons.append(button)
-                            }
-
-                            {
-                              const button = document.createElement("div")
-                              button.style.display = "flex"
-                              button.style.flexWrap = "wrap"
-                              button.style.justifyContent = "space-between"
-                              button.style.alignItems = "center"
-                              button.style.margin = "21px 34px"
-                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                              button.style.borderRadius = "13px"
-                              button.style.border = "0.3px solid black"
-                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                              button.style.cursor = "pointer"
-                              button.addEventListener("click", () => {
-                                const a = document.createElement("a")
-                                a.href = `mailto:${get.email}`
-                                a.dispatchEvent(new MouseEvent('click'))
-                              })
-
-                              const icon = document.createElement("img")
-                              icon.style.margin = "13px 34px"
-                              icon.style.width = "34px"
-                              icon.src = "/public/email-out.svg"
-                              icon.alt = "Anrufen"
-                              button.append(icon)
-
-                              const title = document.createElement("div")
-                              title.innerHTML = "E-Mail senden"
-                              title.style.margin = "21px 34px"
-                              title.style.fontSize = "21px"
-                              button.append(title)
-
-                              buttons.append(button)
-                            }
-
-                            {
-                              const button = document.createElement("div")
-                              button.style.display = "flex"
-                              button.style.flexWrap = "wrap"
-                              button.style.justifyContent = "space-between"
-                              button.style.alignItems = "center"
-                              button.style.margin = "21px 34px"
-                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                              button.style.borderRadius = "13px"
-                              button.style.border = "0.3px solid black"
-                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                              button.style.cursor = "pointer"
-                              button.addEventListener("click", () => {
-
-                                this.popup(async overlay => {
-
-                                  const header = document.createElement("div")
-                                  header.style.position = "fixed"
-                                  header.style.bottom = "0"
-                                  header.style.left = "0"
-                                  header.style.width = "100%"
-                                  header.style.display = "flex"
-                                  header.style.justifyContent = "flex-start"
-                                  header.style.alignItems = "center"
-                                  header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                                  header.style.background = "white"
-                                  header.style.zIndex = "1"
-                                  header.style.cursor = "pointer"
-                                  header.addEventListener("click", () => this.removeOverlay(overlay))
-
-                                  const logo = document.createElement("img")
-                                  logo.src = platform.logo
-                                  logo.alt = platform.name
-                                  logo.style.width = "55px"
-                                  logo.style.margin = "21px 34px"
-                                  header.append(logo)
-                                  const title = document.createElement("div")
-                                  title.innerHTML = "Angebot prüfen"
-                                  title.style.fontWeight = "bold"
-                                  title.style.fontSize = "21px"
-                                  header.append(title)
-                                  overlay.append(header)
-
-
-                                  const content = document.createElement("div")
-                                  content.style.overflowY = "auto"
-                                  content.style.paddingBottom = "144px"
-                                  content.style.overscrollBehavior = "none"
-
-                                  {
-                                    const title = document.createElement("div")
-                                    title.innerHTML = "Besitzerdaten"
-                                    title.style.margin = "21px 34px 0 34px"
-                                    title.style.fontSize = "21px"
-                                    content.append(title)
-                                  }
-
-                                  {
-                                    const hr = document.createElement("hr")
-                                    hr.style.margin = "0 34px"
-                                    content.append(hr)
-                                  }
-
-                                  {
-                                    const owner = document.createElement("div")
-                                    owner.style.margin = "21px 34px"
-                                    owner.innerHTML = `
-                                      ${get.owner.firstname} ${get.owner.lastname}<br/>
-                                      ${get.owner.street}<br/>
-                                      ${get.owner.zip}<br/>
-                                      ${get.owner.state}<br/>
-                                      ${get.owner.country}<br/>
-                                    `
-                                    content.append(owner)
-                                  }
-
-                                  {
-                                    const title = document.createElement("div")
-                                    title.innerHTML = "Unternehmensdaten"
-                                    title.style.margin = "21px 34px 0 34px"
-                                    title.style.fontSize = "21px"
-                                    content.append(title)
-                                  }
-
-                                  {
-                                    const hr = document.createElement("hr")
-                                    hr.style.margin = "0 34px"
-                                    content.append(hr)
-                                  }
-
-                                  {
-                                    const company = document.createElement("div")
-                                    company.style.margin = "21px 34px"
-                                    company.innerHTML = `
-                                      ${get.company.name}<br/>
-                                      ${get.company.sector}<br/>
-                                      <a href="${get.company.website}" target="_blank">${get.company.website}</a>
-                                    `
-                                    content.append(company)
-                                  }
-
-                                  {
-                                    const title = document.createElement("div")
-                                    title.innerHTML = "Angebotsdaten"
-                                    title.style.margin = "21px 34px 0 34px"
-                                    title.style.fontSize = "21px"
-                                    content.append(title)
-                                  }
-
-                                  {
-                                    const hr = document.createElement("hr")
-                                    hr.style.margin = "0 34px"
-                                    content.append(hr)
-                                  }
-
-                                  {
-                                    const offer = document.createElement("div")
-                                    offer.style.margin = "21px 34px"
-                                    offer.innerHTML = `
-                                      ${get.offer.tag}<br/>
-                                      Rabatt: ${get.offer.discount}<br/>
-                                      Steuer: ${Number(get.offer.vat)}<br/>
-                                      <a href="${get.offer.productPdf.dataUrl}" target="_blank">${get.offer.productPdf.name}</a><br/>
-                                      <a href="${get.offer.companyPdf.dataUrl}" target="_blank">${get.offer.companyPdf.name}</a><br/>
-                                      <a href="${get.offer.termsPdf.dataUrl}" target="_blank">${get.offer.termsPdf.name}</a><br/>
-                                      Bitte Beachten: ${get.offer.notes}<br/>
-                                    `
-                                    content.append(offer)
-                                  }
-
-                                  {
-                                    const title = document.createElement("div")
-                                    title.innerHTML = "Dienste"
-                                    title.style.margin = "21px 34px 0 34px"
-                                    title.style.fontSize = "21px"
-                                    content.append(title)
-                                  }
-
-                                  {
-                                    const hr = document.createElement("hr")
-                                    hr.style.margin = "0 34px"
-                                    content.append(hr)
-                                  }
-
-                                  for (let i = 0; i < get.offer.services.length; i++) {
-                                    const service = get.offer.services[i]
-
-                                    const item = document.createElement("div")
-                                    item.style.margin = "0 34px"
-                                    item.style.height = "34px"
-                                    item.style.display = "flex"
-                                    item.style.alignItems = "center"
-                                    item.style.justifyContent = "space-between"
-
-
-                                    const name = document.createElement("div")
-                                    name.innerHTML = service.name
-                                    item.append(name)
-
-                                    const price = document.createElement("div")
-                                    price.innerHTML = `${Number(service.price).toFixed(2).replace(".", ",")} €`
-                                    item.append(price)
-
-                                    const selected = document.createElement("input")
-                                    selected.type = "checkbox"
-                                    selected.checked = service.selected
-                                    selected.disabled = true
-                                    price.append(selected)
-
-                                    content.append(item)
-                                  }
-
-                                  {
-                                    const title = document.createElement("div")
-                                    title.innerHTML = "Status"
-                                    title.style.margin = "21px 34px 0 34px"
-                                    title.style.fontSize = "21px"
-                                    content.append(title)
-                                  }
-
-                                  {
-                                    const hr = document.createElement("hr")
-                                    hr.style.margin = "0 34px"
-                                    content.append(hr)
-                                  }
-
-
-                                  const status = document.createElement("div")
-                                  if (get.offer.verified !== undefined) {
-                                    status.style.margin = "21px 34px"
-                                    status.innerHTML = `
-                                      Status: ${get.offer.verified.status}<br/>
-                                      Grund: ${get.offer.verified.reason}<br/>
-                                    `
-
-                                    if (get.offer.verified.reason === "offer changed") {
-                                      status.innerHTML = `
-                                        Status: ${get.offer.verified.status}<br/>
-                                        Grund: Angebot wurde verändert<br/>
-                                      `
-                                    }
-
-                                    content.append(status)
-                                  } else {
-                                    status.style.margin = "21px 34px"
-                                    status.innerHTML = `
-                                      Status: 404<br/>
-                                      Grund: Experte muss das Angebot prüfen und freigeben.<br/>
-                                    `
-                                    content.append(status)
-                                  }
-
-                                  const options = ["Nicht OK", "OK"]
-                                  const verifiedStatusField = new SelectionField("verifiedStatus", content)
-                                  verifiedStatusField.label.innerHTML = "Status"
-                                  for (let i = 0; i < options.length; i++) {
-                                    const option = document.createElement("option")
-                                    option.value = options[i]
-                                    option.text = options[i]
-                                    verifiedStatusField.select.append(option)
-                                  }
-                                  this.setValidStyle(verifiedStatusField.select)
-
-
-                                  const verifiedReasonField = new TextAreaField("verifiedReason", content)
-                                  verifiedReasonField.label.innerHTML = "Grund"
-                                  verifiedReasonField.input.maxLength = "89"
-                                  verifiedReasonField.input.style.height = "89px"
-                                  verifiedReasonField.input.required = true
-                                  verifiedReasonField.input.placeholder = "Es fehlen noch folgende Informationen.."
-                                  verifiedReasonField.input.addEventListener("input", (event) => {
-                                    verifiedReasonField.withValidValue()
-                                  })
-                                  this.setNotValidStyle(verifiedReasonField.input)
-
-
-                                  {
-                                    const button = document.createElement("div")
-                                    button.innerHTML = "Status senden"
-                                    button.style.backgroundColor = "#c02221"
-                                    button.style.cursor = "pointer"
-                                    button.style.fontSize = "21px"
-                                    button.style.borderRadius = "13px"
-                                    button.style.margin = "13px 34px"
-                                    button.style.display = "flex"
-                                    button.style.justifyContent = "center"
-                                    button.style.alignItems = "center"
-                                    button.style.height = "89px"
-                                    button.style.color = "#fff"
-
-                                    button.addEventListener("click", async () => {
-
-                                      let status
-                                      let reason
-                                      try {
-                                        status = (await verifiedStatusField.withValidValue())[0].value
-                                        if (status === "OK") {
-                                          status = 200
-                                        }
-                                        if (status === "Nicht OK") {
-                                          status = 500
-                                        }
-
-                                        reason = await verifiedReasonField.withValidValue()
-                                      } catch (error) {
-                                        alert(error.message)
-                                        error.field.scrollIntoView({behavior: 'smooth'})
-                                        throw error
-                                      }
-
-                                      try {
-                                        this.addOverlay()
-                                        this.setWaitCursor()
-                                        {
-                                          const register = {}
-                                          register.url = "/register/offer/closed/3/"
-                                          register.type = "verified"
-                                          register.email = get.email
-                                          register.status = status
-                                          register.reason = reason
-                                          register.localStorageId = await Request.localStorageId()
-                                          register.localStorageEmail = await Request.email()
-                                          register.location = window.location.href
-                                          register.referer = document.referrer
-                                          const res = await Request.middleware(register)
-
-                                          if (res.status === 200) {
-                                            alert("Status erfolgreich gesendet..")
-                                          }
-                                        }
-                                      } catch (error) {
-                                        alert("Fehler.. Bitte wiederholen.")
-                                      }
-                                      window.location.reload()
-                                    })
-                                    content.append(button)
-                                  }
-
-                                  overlay.append(content)
-                                })
-                              })
-
-                              const icon = document.createElement("img")
-                              icon.style.margin = "13px 34px"
-                              icon.style.width = "34px"
-                              icon.src = "/public/verify.svg"
-                              icon.alt = "Prüfen"
-                              button.append(icon)
-
-                              const title = document.createElement("div")
-                              title.innerHTML = "Angebot prüfen"
-                              title.style.margin = "21px 34px"
-                              title.style.fontSize = "21px"
-                              button.append(title)
-
-                              buttons.append(button)
-                            }
-
-                            {
-                              const button = document.createElement("div")
-                              button.style.display = "flex"
-                              button.style.flexWrap = "wrap"
-                              button.style.justifyContent = "space-between"
-                              button.style.alignItems = "center"
-                              button.style.margin = "21px 34px"
-                              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                              button.style.borderRadius = "13px"
-                              button.style.border = "0.3px solid black"
-                              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                              button.style.cursor = "pointer"
-                              button.addEventListener("click", () => {
-
-                                this.popup(async overlay => {
-
-                                  const header = document.createElement("div")
-                                  header.style.position = "fixed"
-                                  header.style.bottom = "0"
-                                  header.style.left = "0"
-                                  header.style.width = "100%"
-                                  header.style.display = "flex"
-                                  header.style.justifyContent = "space-between"
-                                  header.style.alignItems = "center"
-                                  header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-                                  header.style.background = "white"
-                                  header.style.zIndex = "1"
-
-                                  const logo = document.createElement("img")
-                                  logo.src = platform.logo
-                                  logo.alt = platform.name
-                                  logo.style.width = "55px"
-                                  logo.style.margin = "21px 34px"
-                                  logo.style.cursor = "pointer"
-                                  logo.addEventListener("click", () => this.removeOverlay(overlay))
-                                  header.append(logo)
-
-                                  {
-                                    const form = document.createElement("div")
-                                    form.style.display = "flex"
-                                    form.style.justifyContent = "flex-end"
-                                    form.style.alignItems = "center"
-                                    form.style.marginRight = "34px"
-                                    form.style.width = "89%"
-
-                                    const input = document.createElement("input")
-                                    input.type = "text"
-                                    input.style.width = "100%"
-                                    input.style.height = "21px"
-                                    input.maxLength = "55"
-                                    input.placeholder = "Feedback zum Angebot.."
-                                    input.addEventListener("keyup", (event) => {
-                                      if (event.key === "Enter") {
-                                        document.querySelector(".submit-feedback").dispatchEvent(new MouseEvent("click"))
-                                      }
-                                    })
-                                    form.append(input)
-
-                                    const button = document.createElement("img")
-                                    button.classList.add("submit-feedback")
-                                    button.src = "/public/send.svg"
-                                    button.alt = "Senden"
-                                    button.style.width = "34px"
-                                    button.style.marginLeft = "13px"
-                                    button.style.cursor = "pointer"
-                                    button.addEventListener("click", async () => {
-
-                                      try {
-                                        const securityOverlay = this.addOverlay()
-                                        this.setWaitCursor()
-                                        const register = {}
-                                        register.url = "/register/feedback/closed/3/"
-                                        register.email = get.email
-                                        register.value = input.value
-                                        register.localStorageEmail = await Request.email()
-                                        register.localStorageId = await Request.localStorageId()
-                                        register.location = window.location.href
-                                        register.referer = document.referrer
-                                        await Request.sequence(register)
-
-
-                                        const getFeedback = {}
-                                        getFeedback.url = "/get/offer/closed/3/"
-                                        getFeedback.email = get.email
-                                        getFeedback.localStorageEmail = await Request.email()
-                                        getFeedback.localStorageId = await Request.localStorageId()
-                                        getFeedback.location = window.location.href
-                                        getFeedback.referer = document.referrer
-                                        const res = await Request.middleware(getFeedback)
-
-                                        if (res.status !== 200) {
-                                          const content = document.querySelector(".feedback-list")
-                                          content.removeAttribute("style")
-                                          content.innerHTML = ""
-                                          content.style.display = "flex"
-                                          content.style.justifyContent = "center"
-                                          content.style.alignItems = "center"
-                                          content.style.color = "gray"
-                                          content.style.height = "89vh"
-                                          content.innerHTML = "Feedbacks konnten nicht geladen werden."
-                                          overlay.append(content)
-                                          throw new Error("feedback not found")
-                                        }
-
-                                        if (res.status === 200) {
-                                          const feedbacks = JSON.parse(res.response)
-
-                                          if (feedbacks.length === 0) {
-                                            const content = document.querySelector(".feedback-list")
-                                            content.removeAttribute("style")
-                                            content.innerHTML = ""
-                                            content.style.display = "flex"
-                                            content.style.justifyContent = "center"
-                                            content.style.alignItems = "center"
-                                            content.style.color = "gray"
-                                            content.style.height = "89vh"
-                                            content.innerHTML = "Kein Feedback vorhanden."
-                                            overlay.append(content)
-                                            throw new Error("feedback is empty")
-                                          }
-
-                                          const content = document.querySelector(".feedback-list")
-                                          content.innerHTML = ""
-                                          for (let i = 0; i < feedbacks.length; i++) {
-                                            const feedback = feedbacks[i]
-                                            const p = document.createElement("p")
-                                            p.style.margin = "21px 34px"
-                                            if (feedback.owner === await Request.localStorageId()) {
-                                              p.innerHTML = `-> ${feedback.value}`
-                                            } else {
-                                              p.innerHTML = `<- ${feedback.value}`
-                                            }
-                                            content.append(p)
-                                          }
-                                          overlay.append(content)
-                                        }
-
-                                        this.removeOverlay(securityOverlay)
-
-                                      } catch (error) {
-                                        alert("Fehler.. Bitte wiederholen.")
-                                        window.location.reload()
-                                      }
-
-
-                                    })
-                                    form.append(button)
-
-                                    header.append(form)
-                                  }
-
-
-                                  overlay.append(header)
-
-                                  const content = document.createElement("div")
-                                  content.classList.add("feedback-list")
-                                  content.style.paddingBottom = "144px"
-                                  content.style.overscrollBehavior = "none"
-                                  content.style.overflow = "auto"
-                                  content.style.display = "flex"
-                                  content.style.justifyContent = "center"
-                                  content.style.alignItems = "center"
-                                  content.style.height = "89%"
-                                  const loading = document.createElement("img")
-                                  loading.src = "/public/load.svg"
-                                  loading.alt = "Bitte warten.."
-                                  loading.style.width = "55px"
-                                  content.append(loading)
-                                  overlay.append(content)
-
-                                  const getFeedback = {}
-                                  getFeedback.url = "/get/offer/closed/3/"
-                                  getFeedback.email = get.email
-                                  getFeedback.localStorageEmail = await Request.email()
-                                  getFeedback.localStorageId = await Request.localStorageId()
-                                  getFeedback.location = window.location.href
-                                  getFeedback.referer = document.referrer
-                                  const res = await Request.middleware(getFeedback)
-
-                                  if (res.status !== 200) {
-                                    const content = document.querySelector(".feedback-list")
-                                    content.removeAttribute("style")
-                                    content.innerHTML = ""
-
-                                    content.style.display = "flex"
-                                    content.style.justifyContent = "center"
-                                    content.style.alignItems = "center"
-                                    content.style.color = "gray"
-                                    content.style.height = "89vh"
-                                    content.innerHTML = "Feedbacks konnten nicht geladen werden."
-                                    throw new Error("feedback not found")
-                                  }
-
-                                  if (res.status === 200) {
-                                    const feedbacks = JSON.parse(res.response)
-
-                                    if (feedbacks.length === 0) {
-                                      const content = document.querySelector(".feedback-list")
-                                      content.removeAttribute("style")
-                                      content.innerHTML = ""
-
-                                      content.style.display = "flex"
-                                      content.style.justifyContent = "center"
-                                      content.style.alignItems = "center"
-                                      content.style.color = "gray"
-                                      content.style.height = "89vh"
-                                      content.innerHTML = "Kein Feedback vorhanden."
-                                      throw new Error("feedback is empty")
-                                    }
-
-                                    const content = document.querySelector(".feedback-list")
-                                    content.removeAttribute("style")
-                                    content.innerHTML = ""
-
-                                    content.style.overflowY = "auto"
-                                    content.style.paddingBottom = "144px"
-                                    content.style.overscrollBehavior = "none"
-
-                                    for (let i = 0; i < feedbacks.length; i++) {
-                                      const feedback = feedbacks[i]
-                                      const p = document.createElement("p")
-                                      p.style.margin = "21px 34px"
-                                      if (feedback.owner === await Request.localStorageId()) {
-                                        p.innerHTML = `-> ${feedback.value}`
-                                      } else {
-                                        p.innerHTML = `<- ${feedback.value}`
-                                      }
-                                      content.append(p)
-                                    }
-                                  }
-
-
-                                })
-                              })
-
-                              const icon = document.createElement("img")
-                              icon.style.margin = "13px 34px"
-                              icon.style.width = "34px"
-                              icon.src = "/public/feedback.svg"
-                              icon.alt = "Feedback"
-                              button.append(icon)
-
-                              const title = document.createElement("div")
-                              title.innerHTML = "Feedback zum Angebot"
-                              title.style.margin = "21px 34px"
-                              title.style.fontSize = "21px"
-                              button.append(title)
-
-                              buttons.append(button)
-                            }
-
-
-                            overlay.append(buttons)
-                          })
-
-
-                        })
-
-
-                        priceContainer.append(button)
-                        alignContainer.append(priceContainer)
-                        box.append(alignContainer)
-                        content.append(box)
-
-
-                      }
-
-
-                    }
-
-
-
-                  }
-
+                this.popup(overlay => {
+                  this.headerPicker("removeOverlay", overlay)
+                  const info = this.headerPicker("info", overlay)
+                  info.append(this.convert("text/span", ".offer"))
+
+                  const input = {}
+                  input.ok = () => window.alert("Angebot erfolgreich gespeichert.")
+                  input.platform = platform.name
+
+                  this.get("offer/closed", overlay, input)
 
                 })
-
               })
             }
+
+            {
+              const button = this.buttonPicker("left/right", buttons)
+              button.left.innerHTML = ".services"
+              button.right.innerHTML = "Leistungen definieren"
+
+              button.addEventListener("click", () => {
+                const input = {}
+                input.platform = platform.name
+                this.popup(async overlay => {
+
+                  this.headerPicker("removeOverlay", overlay)
+                  const info = this.headerPicker("info", overlay)
+                  info.innerHTML = `.services`
+
+                  const create = this.buttonPicker("left/right", overlay)
+                  create.left.innerHTML = ".create"
+                  create.right.innerHTML = "Neue Leistung definieren"
+                  create.addEventListener("click", () => {
+
+
+                    this.popup(overlay => {
+                      this.headerPicker("removeOverlay", overlay)
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("text/span", ".service"))
+
+                      input.ok = async () => {
+
+                        this.reset(container)
+                        await this.get("services/closed", container, input)
+                        this.removeOverlay(overlay)
+
+                      }
+
+                      this.get("funnel/service", overlay, input)
+
+                    })
+
+                  })
+
+                  this.render("text/hr", "Meine Leistungen", overlay)
+
+                  const container = await this.get("services/closed", overlay, input)
+
+                })
+              })
+
+            }
+
 
             {
               const button = this.buttonPicker("left/right", buttons)
