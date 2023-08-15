@@ -4468,7 +4468,6 @@ export class Helper {
 
     }
 
-
     if (event === "field-funnel/fields") {
 
       if (parent === undefined) {

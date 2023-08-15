@@ -123,35 +123,20 @@ app.get("/:expert/", async (req, res, next) => {
   return res.sendStatus(404)
 })
 
-// app.get("/getyour/pana/toolbox-contest/",
-//   Request.verifyJwtToken,
-//   Request.verifySession,
-//   Request.verifyRoles([UserRole.ADMIN]),
-//   Request.verifyVerified,
-// async(req, res) => {
-//   try {
-//     return res.send(Helper.readFileSyncToString("../lib/value-units/toolbox.html"))
+app.get("/pana/getyour/admin/",
+  Request.verifyJwtToken,
+  Request.verifySession,
+  Request.verifyRoles([UserRole.ADMIN]),
+  Request.verifyVerified,
+async(req, res) => {
+  try {
+    return res.send(Helper.readFileSyncToString("../lib/value-units/admin.html"))
 
-//   } catch (error) {
-//     await Helper.logError(error, req)
-//   }
-//   return res.sendStatus(404)
-// })
-
-// app.get("/getyour/pana/admin/",
-//   Request.verifyJwtToken,
-//   Request.verifySession,
-//   Request.verifyRoles([UserRole.ADMIN]),
-//   Request.verifyVerified,
-// async(req, res) => {
-//   try {
-//     return res.send(Helper.readFileSyncToString("../lib/value-units/admin.html"))
-
-//   } catch (error) {
-//     await Helper.logError(error, req)
-//   }
-//   return res.sendStatus(404)
-// })
+  } catch (error) {
+    await Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
+})
 
 app.get("/:expert/:platform/:path/",
 async(req, res, next) => {
