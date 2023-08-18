@@ -48,6 +48,7 @@ export class TextAreaField {
     if (input.required === true) return true
     if (input.accept === "string/array") return true
     if (input.accept === "email/array") return true
+    if (input.accept === "text/json") return true
     return false
   }
 
@@ -90,6 +91,15 @@ export class TextAreaField {
       }
 
 
+    }
+    if (input.accept === "text/json") {
+      try {
+        const json = JSON.parse(input.value)
+        return true
+      } catch (error) {
+        return false
+      }
+      return false
     }
     return true
   }

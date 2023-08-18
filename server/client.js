@@ -111,8 +111,10 @@ app.get("/:expert/", async (req, res, next) => {
     for (let i = 0; i < doc.users.length; i++) {
       const user = doc.users[i]
       if (user["getyour"] !== undefined) {
-        if (user["getyour"].expert.name === req.params.expert) {
-          return res.send(Helper.readFileSyncToString("../lib/value-units/expert.html"))
+        if (user["getyour"].expert !== undefined) {
+          if (user["getyour"].expert.name === req.params.expert) {
+            return res.send(Helper.readFileSyncToString("../lib/value-units/expert.html"))
+          }
         }
       }
     }
@@ -154,6 +156,7 @@ async(req, res, next) => {
       }
     }
 
+    // is all open algo
     for (let i = 0; i < doc.users.length; i++) {
       const user = doc.users[i]
       if (user["getyour"] !== undefined) {
@@ -219,6 +222,7 @@ async (req, res, next) => {
     if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
     if (doc.users === undefined) throw new Error("users is undefined")
 
+    // is expert algo
     for (let i = 0; i < doc.users.length; i++) {
       const user = doc.users[i]
       if (user.id === req.jwt.id) {
@@ -253,74 +257,96 @@ async (req, res, next) => {
 
             }
 
-            if (user["getyour"].expert.name !== req.params.expert) {
-
-              if (user["getyour"].expert.platforms !== undefined) {
-
-                for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
-                  const platform = user["getyour"].expert.platforms[i]
-
-
-
-                  if (platform.name === req.params.platform) {
-
-
-
-                    if (platform.visibility === "open") {
-                      if (platform.values !== undefined) {
-
-                        for (let i = 0; i < platform.values.length; i++) {
-                          const value = platform.values[i]
-                          if (value.path === `/${req.params.platform}/${req.params.expert}/${req.params.path}/`) {
-
-                            if (value.visibility === "closed") {
-
-                              if (value.authorized !== undefined) {
-
-                                for (let i = 0; i < value.authorized.length; i++) {
-                                  const authorized = value.authorized[i]
-                                  if (user.id === authorized) {
-                                    return res.send(value.html)
-                                  }
-                                }
-
-                              }
-
-                              if (value.roles !== undefined) {
-
-                                for (let i = 0; i < value.roles.length; i++) {
-                                  const authorized = value.roles[i]
-                                  for (let i = 0; i < user.roles.length; i++) {
-                                    const role = user.roles[i]
-                                    if (role === authorized) {
-                                      return res.send(value.html)
-                                    }
-                                  }
-                                }
-
-                              }
-                            }
-
-                          }
-                        }
-
-                      }
-                    }
-
-
-
-
-                  }
-                }
-
-              }
-            }
-
           }
 
         }
 
       }
+    }
+
+    // is unknown algo
+    for (let i = 0; i < doc.users.length; i++) {
+      const user = doc.users[i]
+
+      if (user["getyour"] !== undefined) {
+        if (user["getyour"].expert !== undefined) {
+
+          if (user["getyour"].expert.name === req.params.expert) {
+
+            if (user["getyour"].expert.platforms !== undefined) {
+
+              for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
+                const platform = user["getyour"].expert.platforms[i]
+
+
+
+                if (platform.name === req.params.platform) {
+
+
+
+                  if (platform.visibility === "open") {
+                    if (platform.values !== undefined) {
+
+                      for (let i = 0; i < platform.values.length; i++) {
+                        const value = platform.values[i]
+                        if (value.path === `/${req.params.expert}/${req.params.platform}/${req.params.path}/`) {
+
+                          if (value.visibility === "closed") {
+
+                            if (value.authorized !== undefined) {
+
+                              for (let i = 0; i < value.authorized.length; i++) {
+                                const authorized = value.authorized[i]
+
+                                for (let i = 0; i < doc.users.length; i++) {
+                                  const user = doc.users[i]
+
+                                  if (user.id === req.jwt.id) {
+
+                                    if (user.email === authorized) {
+                                      return res.send(value.html)
+                                    }
+
+                                  }
+
+                                }
+                              }
+
+                            }
+
+                            if (value.roles !== undefined) {
+
+                              for (let i = 0; i < value.roles.length; i++) {
+                                const authorized = value.roles[i]
+                                for (let i = 0; i < user.roles.length; i++) {
+                                  const role = user.roles[i]
+                                  if (role === authorized) {
+                                    return res.send(value.html)
+                                  }
+                                }
+                              }
+
+                            }
+                          }
+
+                        }
+                      }
+
+                    }
+                  }
+
+
+
+
+                }
+              }
+
+            }
+          }
+
+        }
+      }
+
     }
 
   } catch (error) {
@@ -601,11 +627,11 @@ app.post(`/:method/:type/:event/`,
 
 
 
-  Request.verifyVerified,
+  // Request.verifyVerified,
   // verified context
 
-  Request.get,
-  Request.register,
+  // Request.get,
+  // Request.register,
 
 
 async(req, res) => {
@@ -617,14 +643,12 @@ app.post(`/:method/:type/:event/:role/`,
 
   Request.verifyLocation,
 
-  Request.verifyEvent,
+  // Request.verifyEvent,
 
   Request.verifyJwtToken,
   Request.verifyVerified,
   Request.verifySession,
 
-
-  // check if jwt user role is in the html value allowed ???
   Request.verifyRole,
 
   Request.get,
@@ -632,8 +656,8 @@ app.post(`/:method/:type/:event/:role/`,
   Request.send,
   Request.redirect,
   Request.delete,
-
   Request.verify,
+  Request.update,
 async(req, res) => {
   return res.sendStatus(404)
 })
