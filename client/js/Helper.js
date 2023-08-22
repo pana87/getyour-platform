@@ -1852,6 +1852,10 @@ export class Helper {
                 await Request.withVerifiedEmail(emailInput.value, async () => {
 
                   await Request.ping("/register/admin/location/", emailInput.value)
+                  .catch(error => {
+                    window.alert("Fehler.s. Bitte wiederholen.")
+                    window.location.assign("/")
+                  })
 
                   {
                     const register = {}
@@ -9656,7 +9660,7 @@ export class Helper {
           })
         }
 
-        const dataUrl = await this.convertImageFileToDataUrl(file)
+        const dataUrl = await this.convertImageFileToDataUrl(file, 2584)
         const dataUrlSize = this.calculateDataUrlSize(dataUrl)
         if (dataUrlSize > 1024 * 1024) {
           alert("Datei ist zu groß.")
@@ -11812,7 +11816,7 @@ export class Helper {
     return dataSize
   }
 
-  static convertImageFileToDataUrl(file) {
+  static convertImageFileToDataUrl(file, size) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
       reader.readAsDataURL(file)
@@ -11822,8 +11826,8 @@ export class Helper {
         const image = document.createElement("img")
         image.src = reader.result
         image.onload = () => {
-          const width = 377
-          const height = 377 * image.height / image.width
+          const width = size
+          const height = size * image.height / image.width
           canvas.width = width
           canvas.height = height
           ctx.drawImage(image, 0, 0, width, height)
