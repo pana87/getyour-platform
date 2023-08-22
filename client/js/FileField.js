@@ -112,6 +112,10 @@ export class FileField {
     return this
   }
 
+  valid(event, input) {
+
+  }
+
   validPdf(file) {
 
     return new Promise(async (resolve, reject) => {

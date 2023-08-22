@@ -3,6 +3,57 @@ import { TextField } from "/js/TextField.js"
 
 export class Request {
 
+  static ping(event, input) {
+
+    if (event === "/update/user-json/verified/2/") {
+
+      return new Promise(async(resolve, reject) => {
+
+        const map = {}
+        map.url = event
+        map.email = input.email
+        map.user = input.json
+        const res = await this.closed(map)
+
+        if (res.status === 200) {
+          return resolve(res)
+        }
+
+        if (res.status !== 200) {
+          return reject(res)
+        }
+        return reject()
+      })
+
+    }
+
+    if (event === "/register/admin/location/") {
+
+
+      return new Promise(async(resolve, reject) => {
+        if (input.endsWith("@get-your.de")) {
+
+          const map = {}
+          map.url = event
+          map.email = input
+          const res = await this.closed(map)
+
+          if (res.status === 200) {
+            return resolve(res)
+          }
+
+          if (res.status !== 200) {
+            return reject(res)
+          }
+
+        }
+        return reject()
+      })
+
+    }
+
+  }
+
   static open(req) {
 
     if (req !== undefined) {

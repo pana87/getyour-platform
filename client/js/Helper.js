@@ -9,6 +9,26 @@ import {CheckboxField} from "/js/CheckboxField.js"
 
 export class Helper {
 
+  // event = input/algorithm
+  static add(event, input) {
+
+    if (event === "user-json/keydown-event") {
+
+      if (input.classList.contains("user-json")) {
+
+        input.onkeydown = (ev) => {
+          if (ev.key === 'Enter') {
+            ev.preventDefault()
+            if (input.onenter !== undefined) input.onenter(ev)
+          }
+        }
+
+      }
+
+    }
+
+  }
+
   static get(event, parent, input) {
 
     if (event === "funnel/onclick-assign-path") {
@@ -1411,10 +1431,15 @@ export class Helper {
         if (res.status === 200) {
           const paths = JSON.parse(res.response)
 
+
           const pathsField = new SelectionField("paths", parent)
           pathsField.label.innerHTML = "Wohin soll diese Rolle, nach dem Login, weitergeleitet werden"
           pathsField.options(paths)
           pathsField.verifyValue()
+
+          if (paths.length <= 0) {
+            this.setNotValidStyle(pathsField.select)
+          }
 
           if (input.roleId !== undefined) {
             const get = {}
@@ -1792,33 +1817,72 @@ export class Helper {
 
         const submit = document.querySelector(".start-login-event")
 
+        const emailInput = document.querySelector(".email-input")
+        const dsgvoInput = document.querySelector(".dsgvo-input")
+
+        if (window.localStorage.getItem("email") !== null) {
+          emailInput.value = window.localStorage.getItem("email")
+          Helper.verify("input/validity", emailInput)
+        }
+
+        if (emailInput !== null) {
+          if (dsgvoInput !== null) {
+            emailInput.addEventListener("input", (event) => {
+              Helper.verify("input/validity", event.target)
+            })
+
+            dsgvoInput.addEventListener("input", (event) => {
+              Helper.verify("input/validity", event.target)
+            })
+          }
+        }
+
         if (submit !== undefined) {
           submit.addEventListener("click", async () => {
-            const email = document.querySelector(".email-input").value
-            const dsgvo = document.querySelector(".dsgvo-input").checked
 
-            if (dsgvo === false) throw new Error("dsgvo required")
+            const emailInput = document.querySelector(".email-input")
+            const dsgvoInput = document.querySelector(".dsgvo-input")
 
-            await Request.withVerifiedEmail(email, async () => {
+            if (emailInput !== null) {
+              if (dsgvoInput !== null) {
 
-              {
-                const register = {}
-                register.url = "/request/register/session/"
-                const res = await Request.closed(register)
+                Helper.verify("input/validity", emailInput)
+                Helper.verify("input/validity", dsgvoInput)
 
-                if (res.status === 200) {
-                  const redirect = {}
-                  redirect.url = "/redirect/user/closed/"
-                  const res = await Request.closed(redirect)
-                  if (res.status === 200) window.location.assign(res.response)
-                } else {
-                  window.history.back()
-                }
+                await Request.withVerifiedEmail(emailInput.value, async () => {
+
+                  await Request.ping("/register/admin/location/", emailInput.value)
+
+                  {
+                    const register = {}
+                    register.url = "/request/register/session/"
+                    const res = await Request.closed(register)
+
+                    if (res.status === 200) {
+                      const redirect = {}
+                      redirect.url = "/redirect/user/closed/"
+                      const res = await Request.closed(redirect)
+
+                      if (res.status === 200) {
+                        window.location.assign(res.response)
+                      } else if (!Helper.stringIsEmpty(document.referrer)) {
+                        window.location.assign(document.referrer)
+                      } else {
+                        window.history.back()
+                      }
+
+                    } else {
+                      window.history.back()
+                    }
+                  }
+
+                })
+
+
+
               }
+            }
 
-
-
-            })
           })
         }
 
@@ -1835,41 +1899,68 @@ export class Helper {
 
     const submit = document.querySelector(".start-login-event")
 
+    const emailInput = document.querySelector(".email-input")
+    const dsgvoInput = document.querySelector(".dsgvo-input")
+
+    if (window.localStorage.getItem("email") !== null) {
+      emailInput.value = window.localStorage.getItem("email")
+      Helper.verify("input/validity", emailInput)
+    }
+
+    if (emailInput !== null) {
+      if (dsgvoInput !== null) {
+        emailInput.addEventListener("input", (event) => {
+          Helper.verify("input/validity", event.target)
+        })
+
+        dsgvoInput.addEventListener("input", (event) => {
+          Helper.verify("input/validity", event.target)
+        })
+      }
+    }
+
     if (submit !== undefined) {
       submit.addEventListener("click", async () => {
         const roleId = ${input.id}
         const roleName = "${input.name}"
 
-        const email = document.querySelector(".email-input").value
-        const dsgvo = document.querySelector(".dsgvo-input").checked
+        const emailInput = document.querySelector(".email-input")
+        const dsgvoInput = document.querySelector(".dsgvo-input")
 
-        if (dsgvo === false) throw new Error("dsgvo required")
+        if (emailInput !== null) {
+          if (dsgvoInput !== null) {
 
-        await Request.withVerifiedEmail(email, async () => {
+            Helper.verify("input/validity", emailInput)
+            Helper.verify("input/validity", dsgvoInput)
 
-          const register = {}
-          register.url = "/register/email/location/"
-          register.email = email
-          register.id = roleId
-          register.name = roleName
-          const res = await Request.location(register)
+            await Request.withVerifiedEmail(emailInput.value, async () => {
 
-          {
-            const register = {}
-            register.url = "/request/register/session/"
-            const res = await Request.closed(register)
+              const register = {}
+              register.url = "/register/email/location/"
+              register.email = emailInput.value
+              register.id = roleId
+              register.name = roleName
+              const res = await Request.location(register)
 
-            if (res.status === 200) {
-              const redirect = {}
-              redirect.url = "/redirect/user/closed/"
-              const res = await Request.closed(redirect)
-              if (res.status === 200) window.location.assign(res.response)
-            } else {
-              window.history.back()
-            }
+              {
+                const register = {}
+                register.url = "/request/register/session/"
+                const res = await Request.closed(register)
+
+                if (res.status === 200) {
+                  const redirect = {}
+                  redirect.url = "/redirect/user/closed/"
+                  const res = await Request.closed(redirect)
+                  if (res.status === 200) window.location.assign(res.response)
+                } else {
+                  window.history.back()
+                }
+              }
+
+            })
           }
+        }
 
-        })
       })
     }
 
@@ -1990,7 +2081,14 @@ export class Helper {
         button.addEventListener("click", async () => {
 
           const name = nameField.validValue()
-          const path = pathsField.validValue()[0].value
+
+          let path
+          try {
+            path = pathsField.validValue()[0].value
+          } catch (error) {
+            this.setNotValidStyle(pathsField.select)
+            throw error
+          }
 
           if (roleId === undefined) {
 
@@ -2032,6 +2130,7 @@ export class Helper {
             if (res.status === 200) {
               window.alert("Rolle erfolgreich gespeichert.")
               if (ok !== undefined) ok()
+              this.removeOverlay(parent)
               this.removeOverlay(securityOverlay)
             } else {
               this.redirect("session-expired")
@@ -2254,6 +2353,28 @@ export class Helper {
 
   static create(event, parent) {
 
+
+    if (event === "div/action") {
+      const div = document.createElement("div")
+
+      div.style.backgroundColor = this.colors.matte.sunflower
+      div.style.color = this.colors.matte.black
+      div.style.boxShadow = this.colors.light.boxShadow
+      div.style.cursor = "pointer"
+      div.style.fontSize = "21px"
+      div.style.fontFamily = "sans-serif"
+      div.style.borderRadius = "13px"
+      div.style.margin = "21px 34px"
+      div.style.display = "flex"
+      div.style.justifyContent = "center"
+      div.style.alignItems = "center"
+      div.style.height = "55px"
+      div.style.width = "89px"
+
+      if (parent !== undefined) parent.append(div)
+      return div
+    }
+
     if (event === "div") {
       const div = document.createElement("div")
 
@@ -2382,28 +2503,38 @@ export class Helper {
 
     if (event === "login") {
 
-      const emailField = new EmailField("email", parent)
-      emailField.input.classList.add("email-input")
-      emailField.label.innerHTML = "E-Mail Adresse"
-      emailField.input.placeholder = "meine@email.de"
-      emailField.input.required = true
-      emailField.input.accept = "text/email"
-      emailField.input.addEventListener("input", () => {
-        const value = emailField.validValue()
-        window.localStorage.setItem(emailField.name, value)
-      })
-      emailField.value(name => window.localStorage.getItem(name))
-      emailField.verifyValue()
+      // create should not
+      // make events
+      // make dark
+      // write to dom
+      // use emailField?
 
-      const dsgvoField = new CheckboxField("dsgvo", parent)
-      dsgvoField.input.classList.add("dsgvo-input")
-      dsgvoField.label.innerHTML = `<div style="font-size: 13px;">Ich habe die <a href="/getyour/pana/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/getyour/pana/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>`
-      dsgvoField.input.required = true
-      dsgvoField.icon.style.display = "block"
-      dsgvoField.icon.src = "/public/info-gray.svg"
-      dsgvoField.icon.alt = "Info"
-      dsgvoField.input.addEventListener("input", () => dsgvoField.verifyValue())
-      dsgvoField.verifyValue()
+      this.create("field/email", parent) // only dom write
+
+      // const emailField = new EmailField("email", parent)
+      // emailField.input.classList.add("email-input")
+      // emailField.label.innerHTML = "E-Mail Adresse"
+      // emailField.input.placeholder = "meine@email.de"
+      // emailField.input.required = true
+      // emailField.input.accept = "text/email"
+      // emailField.input.addEventListener("input", () => {
+      //   const value = emailField.validValue()
+      //   window.localStorage.setItem(emailField.name, value)
+      // })
+      // emailField.value(name => window.localStorage.getItem(name))
+      // emailField.verifyValue()
+
+      this.create("field/dsgvo", parent)
+
+      // const dsgvoField = new CheckboxField("dsgvo", parent)
+      // dsgvoField.input.classList.add("dsgvo-input")
+      // dsgvoField.label.innerHTML = `<div style="font-size: 13px;">Ich habe die <a href="/getyour/pana/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/getyour/pana/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>`
+      // dsgvoField.input.required = true
+      // dsgvoField.icon.style.display = "block"
+      // dsgvoField.icon.src = "/public/info-gray.svg"
+      // dsgvoField.icon.alt = "Info"
+      // dsgvoField.input.addEventListener("input", () => dsgvoField.verifyValue())
+      // dsgvoField.verifyValue()
 
       const loginbutton = this.buttonPicker("action", parent)
       loginbutton.classList.add("start-login-event")
@@ -2643,6 +2774,197 @@ export class Helper {
       return create
     }
 
+    if (event === "field/dsgvo") {
+
+
+
+      const field = document.createElement("div")
+      field.id = "email-field"
+      field.classList.add("field")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+      field.style.alignItems = "flex-start"
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      //   field.style.backgroundColor = Helper.colors.dark.foreground
+      //   field.style.border = Helper.colors.dark.border
+      //   field.style.boxShadow = Helper.colors.dark.boxShadow
+      //   field.style.color = Helper.colors.dark.text
+      // }
+
+      field.labelContainer = document.createElement("div")
+      field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.display = "flex"
+      field.labelContainer.style.alignItems = "center"
+      field.labelContainer.style.margin = "21px 89px 0 34px"
+      // this.labelContainer = labelContainer
+      field.append(field.labelContainer)
+
+
+      // create image and append to container
+      field.image = document.createElement("div")
+      field.image.classList.add("field-label-image")
+      field.image.style.width = "89px"
+      field.image.style.marginRight = "21px"
+      const icon = this.iconPicker("info")
+      field.image.append(icon)
+      // image.style.display = "none"
+      // this.image = image
+      field.labelContainer.append(field.image)
+
+      field.label = document.createElement("label")
+      field.label.classList.add("field-label")
+      field.label.innerHTML = `<div style="font-size: 13px;">Ich habe die <a href="/pana/getyour/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/pana/getyour/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>`
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "21px"
+      field.label.style.color = this.colors.light.text
+      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      //   label.style.color = Helper.colors.dark.text
+      // }
+
+      // this.label = label
+      field.labelContainer.append(field.label)
+
+      field.checkboxContainer = document.createElement("div")
+      field.checkboxContainer.classList.add("field-input-container")
+      field.checkboxContainer.style.display = "flex"
+      field.checkboxContainer.style.alignItems = "center"
+      field.checkboxContainer.style.margin = "21px 89px 21px 34px"
+      field.append(field.checkboxContainer)
+
+      field.input = document.createElement("input")
+      field.input.classList.add("field-input")
+      field.input.classList.add("dsgvo-input")
+      // field.input.classList.add(this.name)
+      field.input.type = "checkbox"
+      field.input.style.marginRight = "34px"
+      field.input.style.width = "21px"
+      field.input.style.height = "21px"
+      field.input.required = true
+      // this.input = input
+      field.checkboxContainer.append(field.input)
+
+      field.afterCheckbox = document.createElement("div")
+      field.afterCheckbox.classList.add("field-after-input")
+
+      field.afterCheckbox.style.fontFamily = "sans-serif"
+      field.afterCheckbox.style.fontSize = "21px"
+      field.afterCheckbox.style.color = this.colors.light.text
+      field.checkboxContainer.append(field.afterCheckbox)
+      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      //   afterCheckbox.style.color = Helper.colors.dark.text
+      // }
+
+      // this.afterCheckbox = afterCheckbox
+      // return field
+
+
+
+
+      this.setNotValidStyle(field.input)
+
+
+      // const dsgvoField = new CheckboxField("dsgvo", parent)
+      // dsgvoField.icon.style.display = "block"
+      // dsgvoField.icon.src = "/public/info-gray.svg"
+      // dsgvoField.icon.alt = "Info"
+      // // dsgvoField.input.addEventListener("input", () => dsgvoField.verifyValue())
+      // dsgvoField.verifyValue()
+
+
+      if (parent !== undefined) parent.append(field)
+      return field
+    }
+
+    if (event === "field/email") {
+
+      const field = document.createElement("div")
+      field.id = "dsgvo-field"
+      // field.innerHTML = ""
+      field.classList.add("field")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+
+      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      //   field.style.backgroundColor = Helper.colors.dark.foreground
+      //   field.style.border = Helper.colors.dark.border
+      //   field.style.boxShadow = Helper.colors.dark.boxShadow
+      //   field.style.color = Helper.colors.dark.text
+      // }
+
+      field.labelContainer = document.createElement("div")
+      field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.display = "flex"
+      field.labelContainer.style.alignItems = "center"
+      field.labelContainer.style.margin = "21px 89px 0 34px"
+      field.label = document.createElement("label")
+      field.label.classList.add("field-label")
+      field.label.innerHTML = "E-Mail Adresse"
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "21px"
+      field.label.style.color = this.colors.light.text
+      field.labelContainer.append(field.label)
+      field.append(field.labelContainer)
+      // this.labelContainer = labelContainer
+
+      // const icon = document.createElement("img")
+      // icon.style.width = "34px"
+      // icon.style.marginRight = "21px"
+      // icon.style.display = "none"
+      // this.icon = icon
+      // labelContainer.append(icon)
+
+
+      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      //   label.style.color = Helper.colors.dark.text
+      // }
+
+      // this.label = label
+
+      field.input = document.createElement("input")
+      field.input.classList.add("field-input")
+      field.input.classList.add("email-input")
+      // field.input.classList.add("email")
+      field.input.type = "email"
+      field.input.placeholder = "meine@email.de"
+      field.input.style.margin = "21px 89px 21px 34px"
+      field.input.style.fontSize = "21px"
+      field.input.style.backgroundColor = this.colors.light.background
+      field.input.style.color = this.colors.light.text
+      field.append(field.input)
+      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      //   input.style.backgroundColor = Helper.colors.dark.background
+      //   input.style.color = Helper.colors.dark.text
+      // }
+      field.input.required = true
+      field.input.accept = "text/email"
+
+      // this.input = input
+      // return field
+
+
+      // const field = new EmailField("email", parent)
+      this.setNotValidStyle(field.input)
+
+      if (parent !== undefined) parent.append(field)
+      return field
+    }
+
     if (event === "field/lang") {
 
       const langField = new SelectionField("lang", parent)
@@ -2736,10 +3058,9 @@ export class Helper {
       title.style.fontFamily = "sans-serif"
 
 
+      title.style.color = this.colors.light.text
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         title.style.color = this.colors.dark.text
-      } else {
-        title.style.color = this.colors.light.text
       }
 
       if (parent !== undefined) parent.append(title)
@@ -2950,6 +3271,1020 @@ export class Helper {
   // event = input/algorithm
   static render(event, input, parent) {
 
+    if (event === "/get/user-json/verified/2/") {
+
+      // if (parent === undefined) {
+      //   document.querySelectorAll(".user-json").forEach(div => {
+      //     this.render(event, input, div)
+      //   })
+      // }
+
+      // if (parent !== undefined) {
+      //   if (!parent.classList.contains("user-json")) {
+      //     parent.classList.add("user-json")
+      //   }
+      // }
+
+      // if (parent !== undefined) {
+      //   parent.innerHTML = ""
+      // }
+
+
+      return new Promise(async (resolve, reject) => {
+
+        const get = {}
+        get.url = event
+        get.email = input
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+
+          const div = this.convert("json/div", res.response)
+          div.classList.add("user-json")
+          parent.append(div)
+
+          div.onenter = async () => {
+
+            // this.overlay("security", async securityOverlay => {
+
+              const json = this.convert("div/map", div)
+              console.log("div/map", json);
+
+              // await Request.ping("/update/user-json/verified/2/", {email: input, json})
+
+              // this.removeOverlay(parent)
+              // this.removeOverlay(securityOverlay)
+            // })
+
+
+          }
+          this.add("user-json/keydown-event", div)
+
+          return resolve()
+
+        } else {
+          return reject()
+        }
+
+      })
+
+
+
+    }
+
+
+
+    if (event === "user-keys/closed") {
+
+
+      if (parent === undefined) {
+        document.querySelectorAll(".expert-templates").forEach(div => {
+          this.render(event, input, div)
+        })
+      }
+
+      if (parent !== undefined) {
+        if (!parent.classList.contains("expert-templates")) {
+          parent.classList.add("expert-templates")
+        }
+      }
+
+      if (parent !== undefined) {
+        parent.innerHTML = ""
+      }
+
+
+      return new Promise(async (resolve, reject) => {
+
+        const get = {}
+        get.url = "/get/user-keys/closed/"
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+          const keys = JSON.parse(res.response)
+
+          this.convert("parent/scrollable", parent)
+
+          for (let i = 0; i < keys.length; i++) {
+            const key = keys[i]
+
+            const button = this.buttonPicker("left/right", parent)
+            button.right.style.fontSize = "21px"
+            button.right.innerHTML = `.${key}`
+            const icon = this.iconPicker("delete")
+            button.left.append(icon)
+
+            if (input !== undefined) {
+              if (input.onclick !== undefined) {
+                button.onclick = (ev) => {
+                  ev.key = key
+                  input.onclick(ev)
+                }
+              }
+            }
+
+          }
+
+          return resolve()
+
+        } else {
+          return reject()
+        }
+
+
+
+
+
+
+      })
+
+
+
+    }
+
+    if (event === "expert-templates/closed") {
+
+
+      if (parent === undefined) {
+        document.querySelectorAll(".expert-templates").forEach(div => {
+          this.render(event, input, div)
+        })
+      }
+
+      if (parent !== undefined) {
+        if (!parent.classList.contains("expert-templates")) {
+          parent.classList.add("expert-templates")
+        }
+      }
+
+      if (parent !== undefined) {
+        parent.innerHTML = ""
+      }
+
+
+      return new Promise(async (resolve, reject) => {
+
+        const get = {}
+        get.url = "/get/expert-templates/closed/"
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+          const templates = JSON.parse(res.response)
+
+          this.convert("parent/scrollable", parent)
+
+          for (let i = 0; i < templates.length; i++) {
+            const template = templates[i]
+
+            const item = document.createElement("div")
+            item.style.margin = "34px"
+
+            const itemHeader = document.createElement("div")
+            itemHeader.style.display = "flex"
+            itemHeader.style.borderTopRightRadius = "21px"
+            itemHeader.style.borderTopLeftRadius = "21px"
+            itemHeader.style.borderBottomLeftRadius = "21px"
+            itemHeader.style.fontFamily = "sans-serif"
+
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              itemHeader.style.backgroundColor = this.colors.matte.charcoal
+              itemHeader.style.color = this.colors.matte.dark.text
+
+            } else {
+              itemHeader.style.color = this.colors.matte.light.text
+              itemHeader.style.backgroundColor = this.colors.gray[1]
+            }
+
+
+            itemHeader.style.cursor = "pointer"
+            itemHeader.addEventListener("click", () => {
+              this.popup(overlay => {
+                const templateOverlay = overlay
+                this.headerPicker("removeOverlay", overlay)
+
+                const info = this.headerPicker("info", overlay)
+                info.append(`.templates`)
+
+                const span = document.createElement("span")
+                span.style.fontSize = "21px"
+                span.innerHTML = `#${template.id}`
+                info.append(span)
+
+
+                {
+
+                  const buttons = document.createElement("div")
+                  buttons.style.overflowY = "auto"
+                  buttons.style.paddingBottom = "144px"
+                  buttons.style.overscrollBehavior = "none"
+                  overlay.append(buttons)
+
+                  {
+                    const button = this.buttonPicker("left/right", buttons)
+                    button.left.innerHTML = ".id"
+                    button.right.innerHTML = "Id ändern"
+
+                    button.addEventListener("click", () => {
+                      this.popup(overlay => {
+                        this.headerPicker("removeOverlay", overlay)
+
+                        const info = this.headerPicker("info", overlay)
+                        info.append(`.templates`)
+
+                        {
+                          const span = document.createElement("span")
+                          span.style.fontSize = "21px"
+                          span.innerHTML = `#${template.id}`
+                          info.append(span)
+                        }
+
+                        {
+                          const span = document.createElement("span")
+                          span.innerHTML = `.id`
+                          info.append(span)
+                        }
+
+                        const funnel = this.headerPicker("scrollable", overlay)
+
+
+                        const idField = new TextField("id", funnel)
+                        idField.input.required = true
+                        idField.input.accept = "text/tag"
+                        idField.label.innerHTML = "Template Id"
+                        idField.label.placeholder = "meine-id"
+                        idField.value(() => template.id)
+                        idField.verifyValue()
+                        idField.input.addEventListener("input", () => idField.verifyValue())
+
+                        const button = this.buttonPicker("action", funnel)
+                        button.innerHTML = "Jetzt ändern"
+                        button.addEventListener("click", async () => {
+
+                          const id = idField.validValue()
+
+                          const verify = {}
+                          verify.url = "/verify/template/closed/3/"
+                          verify.type = "id"
+                          verify.id = id
+                          const res = await Request.middleware(verify)
+
+                          if (res.status === 200) {
+                            alert("Id existiert bereits.")
+                            this.setNotValidStyle(idField.input)
+                            throw new Error(`id exist`)
+                          }
+
+                          this.popup(async securityOverlay => {
+                            this.headerPicker("loading", securityOverlay)
+
+                            const register = {}
+                            register.url = "/register/template/closed/3/"
+                            register.type = "id"
+                            register.old = template.id
+                            register.new = id
+                            const res = await Request.middleware(register)
+
+                            if (res.status === 200) {
+                              alert("Template Id erfolgreich gespeichert.")
+                              this.removeOverlay(templatesOverlay)
+                              this.removeOverlay(templateOverlay)
+                              this.removeOverlay(overlay)
+                              this.removeOverlay(securityOverlay)
+                            } else {
+                              alert("Fehler.. Bitte wiederholen.")
+                              this.removeOverlay(securityOverlay)
+                              throw new Error(`register template id failed`)
+                            }
+                          })
+
+                        })
+
+
+
+
+                      })
+                    })
+
+                  }
+
+                  {
+                    const button = this.buttonPicker("left/right", buttons)
+                    button.left.innerHTML = ".alias"
+                    button.right.innerHTML = "Alias ändern"
+
+                    button.addEventListener("click", () => {
+                      this.popup(overlay => {
+                        this.headerPicker("removeOverlay", overlay)
+
+                        const info = this.headerPicker("info", overlay)
+                        info.append(`.templates`)
+
+                        {
+                          const span = document.createElement("span")
+                          span.style.fontSize = "21px"
+                          span.innerHTML = `#${template.id}`
+                          info.append(span)
+                        }
+
+                        {
+                          const span = document.createElement("span")
+                          span.innerHTML = `.alias`
+                          info.append(span)
+                        }
+
+                        const funnel = this.headerPicker("scrollable", overlay)
+
+
+                        const aliasField = new TextField("alias", funnel)
+                        aliasField.input.required = true
+                        aliasField.label.innerHTML = "Template Alias"
+                        aliasField.label.placeholder = "Mein Skript"
+                        aliasField.value(() => template.alias)
+                        aliasField.verifyValue()
+                        aliasField.input.addEventListener("input", () => aliasField.verifyValue())
+
+                        const button = this.buttonPicker("action", funnel)
+                        button.innerHTML = "Jetzt ändern"
+                        button.addEventListener("click", async () => {
+
+                          const alias = aliasField.validValue()
+
+                          this.popup(async securityOverlay => {
+                            this.headerPicker("loading", securityOverlay)
+
+                            const register = {}
+                            register.url = "/register/template/closed/3/"
+                            register.type = "alias"
+                            register.id = template.id
+                            register.alias = alias
+                            const res = await Request.middleware(register)
+
+                            if (res.status === 200) {
+                              alert("Template Alias erfolgreich gespeichert.")
+                              this.removeOverlay(templatesOverlay)
+                              this.removeOverlay(templateOverlay)
+                              this.removeOverlay(overlay)
+                              this.removeOverlay(securityOverlay)
+                            } else {
+                              alert("Fehler.. Bitte wiederholen.")
+                              this.removeOverlay(securityOverlay)
+                              throw new Error(`register template alias failed`)
+                            }
+                          })
+
+                        })
+
+
+
+
+                      })
+                    })
+
+                  }
+
+                  {
+                    const button = this.buttonPicker("left/right", buttons)
+                    button.left.innerHTML = ".dependencies"
+                    button.right.innerHTML = "Abhängigkeiten definieren"
+
+                    button.addEventListener("click", () => {
+                      this.popup(async overlay => {
+                        this.headerPicker("removeOverlay", overlay)
+
+
+                        const info = this.headerPicker("info", overlay)
+                        info.append(`.templates`)
+
+                        {
+                          const span = document.createElement("span")
+                          span.style.fontSize = "21px"
+                          span.innerHTML = `#${template.id}`
+                          info.append(span)
+                        }
+
+                        {
+                          const span = document.createElement("span")
+                          span.innerHTML = `.dependencies`
+                          info.append(span)
+                        }
+
+
+                        const funnel = this.headerPicker("scrollable", overlay)
+
+
+                        const dependenciesField = new TextAreaField("dependencies", funnel)
+                        dependenciesField.input.style.height = "144px"
+                        dependenciesField.input.required = true
+                        dependenciesField.label.innerHTML = "Template Abhängigkeiten"
+                        dependenciesField.input.addEventListener("input", () => dependenciesField.verifyValue())
+
+                        const get = {}
+                        get.url = "/get/templates/closed/3/"
+                        get.type = "dependencies"
+                        get.id = template.id
+                        const res = await Request.middleware(get)
+
+                        if (res.status === 200) {
+                          dependenciesField.value(() => res.response)
+                        }
+                        dependenciesField.verifyValue()
+
+                        const button = this.buttonPicker("action", funnel)
+                        button.innerHTML = "Jetzt ändern"
+                        button.addEventListener("click", async () => {
+
+                          const dependencies = dependenciesField.validValue()
+
+                          this.popup(async securityOverlay => {
+                            this.headerPicker("loading", securityOverlay)
+
+                            const register = {}
+                            register.url = "/register/template/closed/3/"
+                            register.type = "dependencies"
+                            register.id = template.id
+                            register.dependencies = dependencies
+                            const res = await Request.middleware(register)
+
+                            if (res.status === 200) {
+                              alert("Template Abhängigkeiten erfolgreich gespeichert.")
+                              this.removeOverlay(overlay)
+                              this.removeOverlay(securityOverlay)
+                            } else {
+                              alert("Fehler.. Bitte wiederholen.")
+                              this.removeOverlay(securityOverlay)
+                              throw new Error(`register template dependencies failed`)
+                            }
+                          })
+
+                        })
+
+
+
+
+                      })
+                    })
+
+                  }
+
+                  {
+                    const button = this.buttonPicker("left/right", buttons)
+                    button.left.innerHTML = ".description"
+                    button.right.innerHTML = "Template beschreiben"
+
+
+                    button.addEventListener("click", () => {
+                      this.popup(async overlay => {
+                        this.headerPicker("removeOverlay", overlay)
+
+                        const info = this.headerPicker("info", overlay)
+                        info.append(`.templates`)
+
+                        {
+                          const span = document.createElement("span")
+                          span.style.fontSize = "21px"
+                          span.innerHTML = `#${template.id}`
+                          info.append(span)
+                        }
+
+                        {
+                          const span = document.createElement("span")
+                          span.innerHTML = `.description`
+                          info.append(span)
+                        }
+
+
+                        const funnel = this.headerPicker("scrollable", overlay)
+
+
+                        const descriptionField = new TextAreaField("description", funnel)
+                        descriptionField.input.style.height = "144px"
+                        descriptionField.input.required = true
+                        descriptionField.label.innerHTML = "Template Beschreibung"
+                        descriptionField.input.addEventListener("input", () => descriptionField.verifyValue())
+
+                        const get = {}
+                        get.url = "/get/templates/closed/3/"
+                        get.type = "description"
+                        get.id = template.id
+                        const res = await Request.middleware(get)
+
+                        if (res.status === 200) {
+                          descriptionField.value(() => res.response)
+                        }
+                        descriptionField.verifyValue()
+
+                        const button = this.buttonPicker("action", funnel)
+                        button.innerHTML = "Jetzt ändern"
+                        button.addEventListener("click", async () => {
+
+                          const description = descriptionField.validValue()
+
+                          this.popup(async securityOverlay => {
+                            this.headerPicker("loading", securityOverlay)
+
+                            const register = {}
+                            register.url = "/register/template/closed/3/"
+                            register.type = "description"
+                            register.id = template.id
+                            register.description = description
+                            const res = await Request.middleware(register)
+
+                            if (res.status === 200) {
+                              alert("Template Abhängigkeiten erfolgreich gespeichert.")
+                              this.removeOverlay(overlay)
+                              this.removeOverlay(securityOverlay)
+                            } else {
+                              alert("Fehler.. Bitte wiederholen.")
+                              this.removeOverlay(securityOverlay)
+                              throw new Error(`register template description failed`)
+                            }
+                          })
+
+                        })
+
+
+
+
+                      })
+                    })
+
+                  }
+
+                  {
+                    const button = this.buttonPicker("left/right", buttons)
+                    button.left.innerHTML = ".script"
+                    button.right.innerHTML = "Skript ändern"
+
+
+
+                    button.addEventListener("click", () => {
+                      this.popup(async overlay => {
+                        this.headerPicker("removeOverlay", overlay)
+
+                        const info = this.headerPicker("info", overlay)
+                        info.append(`.templates`)
+
+                        {
+                          const span = document.createElement("span")
+                          span.style.fontSize = "21px"
+                          span.innerHTML = `#${template.id}`
+                          info.append(span)
+                        }
+
+                        {
+                          const span = document.createElement("span")
+                          span.innerHTML = `.script`
+                          info.append(span)
+                        }
+
+                        const funnel = this.headerPicker("scrollable", overlay)
+
+
+                        const scriptField = new TextAreaField("script", funnel)
+                        scriptField.input.style.height = "144px"
+                        scriptField.input.required = true
+                        scriptField.label.innerHTML = "Template Skript"
+                        scriptField.input.addEventListener("input", () => scriptField.verifyValue())
+
+                        const get = {}
+                        get.url = "/get/templates/closed/3/"
+                        get.type = "script"
+                        get.id = template.id
+                        const res = await Request.middleware(get)
+
+                        if (res.status === 200) {
+                          scriptField.value(() => res.response)
+                        }
+                        scriptField.verifyValue()
+
+                        const button = this.buttonPicker("action", funnel)
+                        button.innerHTML = "Jetzt ändern"
+                        button.addEventListener("click", async () => {
+
+                          const script = scriptField.validValue()
+
+                          this.popup(async securityOverlay => {
+                            this.headerPicker("loading", securityOverlay)
+
+                            const register = {}
+                            register.url = "/register/template/closed/3/"
+                            register.type = "script"
+                            register.id = template.id
+                            register.script = script
+                            const res = await Request.middleware(register)
+
+                            if (res.status === 200) {
+                              alert("Template Skript erfolgreich gespeichert.")
+                              // this.removeOverlay(overlay)
+                              this.removeOverlay(securityOverlay)
+                            } else {
+                              alert("Fehler.. Bitte wiederholen.")
+                              this.removeOverlay(securityOverlay)
+                              throw new Error(`register template script failed`)
+                            }
+                          })
+
+                        })
+
+
+
+
+                      })
+                    })
+
+                  }
+
+                  {
+                    const button = this.buttonPicker("left/right", buttons)
+                    button.left.innerHTML = ".remove"
+                    button.right.innerHTML = "Template löschen"
+
+                    button.addEventListener("click", () => {
+
+
+                      this.popup(async securityOverlay => {
+                        this.headerPicker("loading", securityOverlay)
+
+                        const del = {}
+                        del.url = "/delete/template/closed/3/"
+                        del.id = template.id
+                        const res = await Request.middleware(del)
+
+                        if (res.status === 200) {
+                          alert("Template erfolgreich gelöscht.")
+                          this.removeOverlay(templatesOverlay)
+                          this.removeOverlay(overlay)
+                          this.removeOverlay(securityOverlay)
+                        } else {
+                          alert("Fehler.. Bitte wiederholen.")
+                          this.removeOverlay(securityOverlay)
+                        }
+                      })
+
+                    })
+                  }
+
+
+                }
+
+
+              })
+            })
+
+            const itemState = document.createElement("div")
+            itemState.classList.add("item-state")
+            itemState.style.display = "flex"
+            itemState.style.justifyContent = "center"
+            itemState.style.alignItems = "center"
+            itemState.style.width = "89px"
+            itemState.style.height = "89px"
+            itemState.style.fontSize = "34px"
+
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              itemState.style.backgroundColor = this.colors.dark.foreground
+            } else {
+              itemState.style.backgroundColor = this.colors.light.foreground
+            }
+
+            itemState.style.borderTopLeftRadius = "21px"
+            itemState.style.borderBottomLeftRadius = "21px"
+
+            const reputation = document.createElement("div")
+            reputation.innerHTML = template.reputation
+            reputation.style.fontSize = "34px"
+
+            itemState.append(reputation)
+
+
+            const itemTitle = document.createElement("div")
+            itemTitle.style.alignSelf = "center"
+            itemTitle.style.marginLeft = "13px"
+
+            {
+              const alias = document.createElement("div")
+              alias.innerHTML = template.alias
+              alias.style.fontSize = "21px"
+              itemTitle.append(alias)
+            }
+
+            {
+              const creator = document.createElement("div")
+              creator.innerHTML = template.id
+              creator.style.fontSize = "13px"
+              itemTitle.append(creator)
+            }
+
+            itemHeader.append(itemState, itemTitle)
+            item.append(itemHeader)
+
+            const itemBody = document.createElement("div")
+            itemBody.classList.add("item-body")
+            itemBody.style.marginLeft = "8%"
+
+
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              itemBody.style.backgroundColor = this.colors.matte.slate
+              itemBody.style.boxShadow = this.colors.dark.boxShadow
+            } else {
+              itemBody.style.boxShadow = this.colors.light.boxShadow
+              itemBody.style.backgroundColor = this.colors.gray[0]
+            }
+
+            itemBody.style.borderBottomRightRadius = "21px"
+            itemBody.style.borderBottomLeftRadius = "21px"
+            itemBody.style.padding = "21px"
+            itemBody.style.display = "flex"
+            itemBody.style.flexDirection = "column"
+
+            const buttons = document.createElement("div")
+            buttons.style.display = "flex"
+            buttons.style.alignItems = "center"
+
+            {
+
+              const button = document.createElement("div")
+              button.style.cursor = "pointer"
+              button.style.position = "relative"
+              button.addEventListener("click", () => {
+
+                this.popup(async overlay => {
+                  const feedbackOverlay = overlay
+
+                  this.headerPicker("removeOverlay", overlay)
+
+                  const info = this.headerPicker("info", overlay)
+                  info.append(this.convert("element/alias", document.body))
+                  info.append(this.convert("text/span", `.templates[${i}].feedback`))
+
+                  // const span = document.createElement("span")
+                  // span.innerHTML = `.templates[${i}].feedback`
+                  // span.style.fontSize = "13px"
+                  // span.style.fontFamily = "monospace"
+                  // info.append(span)
+
+                  const content = this.headerPicker("scrollable", overlay)
+                  // content.style.overflowY = "auto"
+                  // content.style.overscrollBehavior = "none"
+                  // content.style.paddingBottom = "144px"
+                  // overlay.append(content)
+
+                  const feedbackContainer = this.headerPicker("loading", content)
+                  feedbackContainer.info.remove()
+
+                  feedbackContainer.style.margin = "21px 34px"
+                  feedbackContainer.style.overflowY = "auto"
+                  feedbackContainer.style.overscrollBehavior = "none"
+                  feedbackContainer.style.fontFamily = "monospace"
+                  feedbackContainer.style.fontSize = "13px"
+                  feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
+
+
+                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    feedbackContainer.style.color = this.colors.dark.text
+                  } else {
+                    feedbackContainer.style.color = this.colors.light.text
+                  }
+
+                  const get = {}
+                  get.url = "/get/templates/closed/3/"
+                  get.type = "feedback"
+                  get.id = template.id
+                  get.location = window.location.href
+                  get.referer = document.referrer
+                  get.localStorageEmail = await Request.email()
+                  get.localStorageId = await Request.localStorageId()
+                  const res = await Request.middleware(get)
+
+                  if (res.status !== 200) {
+                    feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
+                    throw new Error("feedback not found")
+                  }
+
+                  getFeedbackSuccess: if (res.status === 200) {
+                    const feedback = JSON.parse(res.response)
+
+                    if (feedback.length === 0) {
+                      feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
+                      break getFeedbackSuccess
+                    }
+
+                    this.reset(feedbackContainer)
+                    feedbackContainer.style.margin = "21px 34px"
+                    feedbackContainer.style.overflowY = "auto"
+                    feedbackContainer.style.overscrollBehavior = "none"
+                    feedbackContainer.style.fontFamily = "monospace"
+                    feedbackContainer.style.fontSize = "13px"
+                    feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
+
+                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                      feedbackContainer.style.color = this.colors.dark.text
+                    } else {
+                      feedbackContainer.style.color = this.colors.light.text
+                    }
+
+
+                    for (let i = 0; i < feedback.length; i++) {
+                      const value = feedback[i]
+
+                      const div = document.createElement("div")
+                      div.style.display = "flex"
+                      div.style.justifyContent = "space-between"
+                      div.style.alignItems = "center"
+
+                      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+
+                        if (i % 2 === 0) {
+                          div.style.background = this.colors.light.foreground
+                          div.style.color = this.colors.light.text
+                        } else {
+                          div.style.background = this.colors.dark.foreground
+                          div.style.color = this.colors.dark.text
+                        }
+
+                      } else {
+
+                        if (i % 2 === 1) {
+                          div.style.background = this.colors.light.foreground
+                          div.style.color = this.colors.light.text
+                        } else {
+                          div.style.background = this.colors.dark.foreground
+                          div.style.color = this.colors.dark.text
+                        }
+
+                      }
+
+                      const left = document.createElement("span")
+                      left.innerHTML = `${this.convert("millis/dd.mm.yyyy hh:mm", value.created)}`
+                      div.append(left)
+
+                      const nextToLeft = document.createElement("span")
+                      nextToLeft.style.width = "100%"
+                      nextToLeft.style.margin = "0 13px"
+                      nextToLeft.innerHTML = value.content
+                      div.append(nextToLeft)
+
+                      const right = document.createElement("span")
+                      right.style.padding = "13px"
+                      right.innerHTML = value.importance
+                      div.append(right)
+
+                      feedbackContainer.append(div)
+
+                      div.style.cursor = "pointer"
+                      div.addEventListener("click", () => {
+
+                        this.popup(overlay => {
+                          this.headerPicker("removeOverlay", overlay)
+
+                          const button = this.buttonPicker("left/right", overlay)
+                          const icon = this.iconPicker("delete")
+                          icon.style.width = "34px"
+                          button.left.append(icon)
+                          button.right.innerHTML = "Feedback löschen"
+
+                          button.addEventListener("click", async () => {
+                            const confirm = window.confirm("Möchtest du diesen Beitrag wirklich löschen?")
+
+                            if (confirm === true) {
+                              const del = {}
+                              del.url = "/delete/feedback/closed/3/"
+                              del.type = "template"
+                              del.id = template.id
+                              del.created = value.created
+                              del.location = window.location.href
+                              del.referer = document.referrer
+                              del.localStorageEmail = await Request.email()
+                              del.localStorageId = await Request.localStorageId()
+                              const res = await Request.middleware(del)
+
+                              if (res.status === 200) {
+                                alert("Beitrag erfolgreich gelöscht.")
+                                length.innerHTML = template.feedbackLength - 1
+                                this.removeOverlay(overlay)
+                                this.removeOverlay(feedbackOverlay)
+                              } else {
+                                alert("Fehler.. Bitte wiederholen.")
+                                this.removeOverlay(overlay)
+                              }
+
+
+                            }
+
+                          })
+                        })
+
+                      })
+                    }
+
+
+                  }
+
+                  const contentField = new TextField("feedback", content)
+                  contentField.label.innerHTML = "Feedback"
+                  contentField.input.required = true
+                  contentField.input.maxLength = "377"
+                  contentField.verifyValue()
+                  contentField.input.addEventListener("input", () => contentField.verifyValue())
+
+                  const importanceField = new RangeField("importance", content)
+                  importanceField.input.min = "0"
+                  importanceField.input.max = "13"
+                  importanceField.input.step = "1"
+                  importanceField.input.value = "0"
+                  importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
+                  importanceField.verifyValue()
+                  importanceField.input.addEventListener("input", (event) => {
+                    importanceField.verifyValue()
+                    importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
+                  })
+
+                  const button = this.buttonPicker("action", content)
+                  button.innerHTML = "Jetzt speichern"
+                  button.addEventListener("click", () => {
+
+                    const importance = importanceField.validValue()
+                    const content = contentField.validValue()
+
+
+                    this.popup(async securityOverlay => {
+
+                      this.headerPicker("loading", securityOverlay)
+
+                      const register = {}
+                      register.url = "/register/feedback/closed/3/"
+                      register.type = "template"
+                      register.id = template.id
+                      register.importance = importance
+                      register.content = content
+                      register.location = window.location.href
+                      register.referer = document.referrer
+                      register.localStorageEmail = await Request.email()
+                      register.localStorageId = await Request.localStorageId()
+                      const res = await Request.middleware(register)
+
+                      if (res.status === 200) {
+                        alert("Feedback erfolgreich gespeichert.")
+                        this.removeOverlay(securityOverlay)
+                        this.removeOverlay(overlay)
+                        length.innerHTML = template.feedbackLength + 1
+                      } else {
+                        alert("Fehler.. Bitte wiederholen.")
+                        this.removeOverlay(securityOverlay)
+                      }
+
+                    })
+
+
+                  })
+
+
+
+                })
+
+              })
+
+
+              const icon = this.iconPicker("branch")
+              icon.style.width = "55px"
+              button.append(icon)
+
+              const length = document.createElement("div")
+              length.style.position = "absolute"
+              length.style.top = "0"
+              length.style.right = "0"
+              length.style.fontFamily = "monospace"
+              length.style.fontSize = "13px"
+              length.style.borderRadius = "50%"
+              length.style.padding = "3px 5px"
+              length.innerHTML = template.feedbackLength
+
+              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                length.style.color = this.colors.dark.text
+                length.style.background = this.colors.dark.foreground
+              } else {
+                length.style.color = this.colors.light.text
+                length.style.background = this.colors.light.foreground
+              }
+              button.append(length)
+              buttons.append(button)
+            }
+
+            itemBody.append(buttons)
+            item.append(itemBody)
+            parent.append(item)
+          }
+
+          return resolve()
+
+
+        } else {
+          return reject()
+        }
+      })
+
+
+
+    }
 
     if (event === "select/options") {
 
@@ -2999,10 +4334,48 @@ export class Helper {
 
     }
 
+    if (event === "text/error-stack") {
+
+      const code = this.convert("error-stack-text/div", input)
+
+      code.style.fontSize = "13px"
+      code.style.fontFamily = "monospace"
+      code.style.margin = "21px 34px"
+      code.style.overflow = "auto"
+
+      code.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        code.style.color = this.colors.dark.text
+      }
+
+      if (parent !== undefined) parent.append(code)
+      return code
+    }
+
+
+    if (event === "text/code") {
+
+      const code = document.createElement("div")
+      code.innerHTML = input
+      code.style.fontSize = "13px"
+      code.style.fontFamily = "monospace"
+      code.style.margin = "21px 34px"
+      code.style.overflow = "auto"
+
+      code.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        code.style.color = this.colors.dark.text
+      }
+
+      if (parent !== undefined) parent.append(code)
+      return code
+    }
+
+
     if (event === "text/h1") {
 
       const h1 = document.createElement("h1")
-      h1.innerHTML = "Login"
+      h1.textContent = input
 
       h1.style.color = this.colors.light.text
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -3012,7 +4385,7 @@ export class Helper {
       h1.style.fontWeight = "normal"
 
       if (parent !== undefined) parent.append(h1)
-
+      return h1
     }
 
     if (event === "platform/roles") {
@@ -4041,6 +5414,117 @@ export class Helper {
 
             {
               const button = this.buttonPicker("left/right", buttons)
+              button.left.innerHTML = ".roles"
+              button.right.innerHTML = "Rollen definieren"
+
+              button.addEventListener("click", () => {
+                this.popup(async overlay => {
+
+                  this.headerPicker("removeOverlay", overlay)
+                  const info = this.headerPicker("info", overlay)
+                  info.innerHTML = `${platform.name}.roles`
+
+                  const create = this.buttonPicker("left/right", overlay)
+                  create.left.innerHTML = ".create"
+                  create.right.innerHTML = "Neue Rolle definieren"
+                  create.addEventListener("click", () => {
+
+                    this.popup(overlay => {
+                      this.headerPicker("removeOverlay", overlay)
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("text/span", "create.role"))
+
+                      this.update("platform/role", overlay, {platform: platform.name, ok: async () => {
+
+                        this.reset(roleList)
+                        await this.update("platform/roles", roleList, platform.name)
+
+                      }})
+
+                    })
+
+                  })
+
+                  this.render("text/hr", "Meine Rollen", overlay)
+
+                  const roleList = await this.update("platform/roles", overlay, platform.name)
+
+                })
+              })
+
+            }
+
+            {
+              const button = this.buttonPicker("left/right", buttons)
+              button.right.innerHTML = "Angebot erstellen"
+              button.left.innerHTML = ".offer"
+
+              button.addEventListener("click", () => {
+                this.popup(overlay => {
+                  this.headerPicker("removeOverlay", overlay)
+                  const info = this.headerPicker("info", overlay)
+                  info.append(this.convert("text/span", ".offer"))
+
+                  const input = {}
+                  input.ok = () => window.alert("Angebot erfolgreich gespeichert.")
+                  input.platform = platform.name
+
+                  this.get("offer/closed", overlay, input)
+
+                })
+              })
+            }
+
+            {
+              const button = this.buttonPicker("left/right", buttons)
+              button.left.innerHTML = ".services"
+              button.right.innerHTML = "Leistungen definieren"
+
+              button.addEventListener("click", () => {
+                const input = {}
+                input.platform = platform.name
+                this.popup(async overlay => {
+
+                  this.headerPicker("removeOverlay", overlay)
+                  const info = this.headerPicker("info", overlay)
+                  info.innerHTML = `.services`
+
+                  const create = this.buttonPicker("left/right", overlay)
+                  create.left.innerHTML = ".create"
+                  create.right.innerHTML = "Neue Leistung definieren"
+                  create.addEventListener("click", () => {
+
+
+                    this.popup(overlay => {
+                      this.headerPicker("removeOverlay", overlay)
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("text/span", ".service"))
+
+                      input.ok = async () => {
+
+                        this.reset(container)
+                        await this.get("services/closed", container, input)
+                        this.removeOverlay(overlay)
+
+                      }
+
+                      this.get("funnel/service", overlay, input)
+
+                    })
+
+                  })
+
+                  this.render("text/hr", "Meine Leistungen", overlay)
+
+                  const container = await this.get("services/closed", overlay, input)
+
+                })
+              })
+
+            }
+
+            {
+              const button = this.buttonPicker("left/right", buttons)
               button.right.innerHTML = "Namen ändern"
               button.left.innerHTML = ".name"
               button.addEventListener("click", () => {
@@ -4247,119 +5731,6 @@ export class Helper {
 
                     })
                   }
-
-                })
-              })
-
-            }
-
-            {
-              const button = this.buttonPicker("left/right", buttons)
-              button.right.innerHTML = "Angebot erstellen"
-              button.left.innerHTML = ".offer"
-
-              button.addEventListener("click", () => {
-                this.popup(overlay => {
-                  this.headerPicker("removeOverlay", overlay)
-                  const info = this.headerPicker("info", overlay)
-                  info.append(this.convert("text/span", ".offer"))
-
-                  const input = {}
-                  input.ok = () => window.alert("Angebot erfolgreich gespeichert.")
-                  input.platform = platform.name
-
-                  this.get("offer/closed", overlay, input)
-
-                })
-              })
-            }
-
-            {
-              const button = this.buttonPicker("left/right", buttons)
-              button.left.innerHTML = ".services"
-              button.right.innerHTML = "Leistungen definieren"
-
-              button.addEventListener("click", () => {
-                const input = {}
-                input.platform = platform.name
-                this.popup(async overlay => {
-
-                  this.headerPicker("removeOverlay", overlay)
-                  const info = this.headerPicker("info", overlay)
-                  info.innerHTML = `.services`
-
-                  const create = this.buttonPicker("left/right", overlay)
-                  create.left.innerHTML = ".create"
-                  create.right.innerHTML = "Neue Leistung definieren"
-                  create.addEventListener("click", () => {
-
-
-                    this.popup(overlay => {
-                      this.headerPicker("removeOverlay", overlay)
-                      const info = this.headerPicker("info", overlay)
-                      info.append(this.convert("text/span", ".service"))
-
-                      input.ok = async () => {
-
-                        this.reset(container)
-                        await this.get("services/closed", container, input)
-                        this.removeOverlay(overlay)
-
-                      }
-
-                      this.get("funnel/service", overlay, input)
-
-                    })
-
-                  })
-
-                  this.render("text/hr", "Meine Leistungen", overlay)
-
-                  const container = await this.get("services/closed", overlay, input)
-
-                })
-              })
-
-            }
-
-
-            {
-              const button = this.buttonPicker("left/right", buttons)
-              button.left.innerHTML = ".roles"
-              button.right.innerHTML = "Rollen definieren"
-
-              button.addEventListener("click", () => {
-                this.popup(async overlay => {
-
-                  this.headerPicker("removeOverlay", overlay)
-                  const info = this.headerPicker("info", overlay)
-                  info.innerHTML = `${platform.name}.roles`
-
-                  const create = this.buttonPicker("left/right", overlay)
-                  create.left.innerHTML = ".create"
-                  create.right.innerHTML = "Neue Rolle definieren"
-                  create.addEventListener("click", () => {
-
-                    this.popup(overlay => {
-                      this.headerPicker("removeOverlay", overlay)
-                      const info = this.headerPicker("info", overlay)
-                      info.append(this.convert("text/span", "create.role"))
-
-                      this.update("platform/role", overlay, {platform: platform.name, ok: async () => {
-
-                        this.reset(roleList)
-                        await this.update("platform/roles", roleList, platform.name)
-                        this.removeOverlay(overlay)
-
-                      }})
-
-                    })
-
-                  })
-
-                  this.render("text/hr", "Meine Rollen", overlay)
-
-                  const roleList = await this.update("platform/roles", overlay, platform.name)
 
                 })
               })
@@ -5442,6 +6813,43 @@ export class Helper {
                                   child.append(div)
 
                                 }
+
+                              })
+
+                            })
+                          })
+                        }
+
+                        {
+                          const button = this.buttonPicker("left/right", buttons)
+                          button.left.innerHTML = ".background-image"
+                          button.right.innerHTML = "Hintergrund Bild anhängen"
+
+                          button.addEventListener("click", () => {
+
+                            this.popup(async overlay => {
+
+                              this.headerPicker("removeOverlay", overlay)
+                              this.buttonPicker("toolbox/register-html", overlay)
+
+                              const info = this.headerPicker("info", overlay)
+                              info.append(this.convert("element/alias", child))
+                              info.append(this.convert("text/span", ".image"))
+
+
+
+                              const funnel = this.headerPicker("scrollable", overlay)
+
+                              const imageField = this.create("field/image", funnel)
+                              imageField.input.required = true
+
+                              const button = this.buttonPicker("action", funnel)
+                              button.innerHTML = "Bild jetzt anhängen"
+                              button.addEventListener("click", async () => {
+
+                                const image = await this.convert("input/image", imageField.input)
+
+                                child.style.background = `url("${image.dataUrl}")`
 
                               })
 
@@ -7012,6 +8420,9 @@ export class Helper {
 
   static verifyIs(type, input) {
 
+    // is user/admin then callback
+    // async promise verify/admin/closed
+
     if (type === "user/closed") {
       if (window.localStorage.getItem("localStorageId") !== null) {
         if (window.localStorage.getItem("email") !== null) {
@@ -7635,15 +9046,15 @@ export class Helper {
     if (name === "action") {
       const button = document.createElement("div")
 
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        button.style.backgroundColor = this.colors.matte.orange
-        button.style.color = this.colors.matte.black
-        button.style.boxShadow = this.colors.dark.boxShadow
-      } else {
-        button.style.backgroundColor = this.colors.matte.sunflower
-        button.style.color = this.colors.matte.black
-        button.style.boxShadow = this.colors.light.boxShadow
-      }
+      button.style.backgroundColor = this.colors.matte.sunflower
+      button.style.color = this.colors.matte.black
+      button.style.boxShadow = this.colors.light.boxShadow
+      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      //   button.style.backgroundColor = this.colors.matte.orange
+      //   button.style.color = this.colors.matte.black
+      //   button.style.boxShadow = this.colors.dark.boxShadow
+      // } else {
+      // }
 
       button.style.cursor = "pointer"
       button.style.fontSize = "21px"
@@ -7671,9 +9082,9 @@ export class Helper {
       button.style.cursor = "pointer"
 
       button.left = document.createElement("div")
-      button.left.style.display = "flex"
-      button.left.style.justifyContent = "center"
-      button.left.style.alignItems = "center"
+      // button.left.style.display = "flex"
+      // button.left.style.justifyContent = "center"
+      // button.left.style.alignItems = "center"
       button.left.style.margin = "21px 34px"
       button.left.style.fontSize = "21px"
       button.left.style.fontFamily = "sans-serif"
@@ -7738,9 +9149,9 @@ export class Helper {
     if (name === "info") {
 
       let primary = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        primary = this.colors.dark.text
-      }
+      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      //   primary = this.colors.dark.text
+      // }
       const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 58.693 58.693"><defs><style>.a{fill:${primary};}</style></defs><g transform="translate(24.832 14.673)"><circle class="a" cx="2.822" cy="2.822" r="2.822" transform="translate(1.058)"/><path class="a" d="M230.772,234.059V216H224v1.129h2.257v16.931H224v1.129h9.03v-1.129Z" transform="translate(-224 -206.97)"/></g><path class="a" d="M77.347,48a29.347,29.347,0,1,0,29.347,29.347A29.342,29.342,0,0,0,77.347,48Zm0,56.253a26.906,26.906,0,1,1,26.906-26.906A26.937,26.937,0,0,1,77.347,104.253Z" transform="translate(-48 -48)"/></svg>`
       const svg = this.convert("text/svg", svgString)
 
@@ -8219,6 +9630,314 @@ export class Helper {
 
   static convert(event, input) {
 
+    if (event === "input/image") {
+
+      return new Promise(async(resolve, reject) => {
+        const file = input.files[0]
+
+        const allowedMimeTypes = ["image/jpeg", "image/png"]
+        const allowedExtensions = ["jpg", "jpeg", "png"]
+
+        if (allowedMimeTypes !== undefined) {
+          await this.verifyFileMimeTypes(file, allowedMimeTypes)
+          .catch(error => {
+            alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            this.setNotValidStyle(input)
+            throw error
+          })
+        }
+
+        if (allowedExtensions !== undefined) {
+          await this.verifyFileExtension(file, allowedExtensions)
+          .catch(error => {
+            alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            this.setNotValidStyle(input)
+            throw error
+          })
+        }
+
+        const dataUrl = await this.convertImageFileToDataUrl(file)
+        const dataUrlSize = this.calculateDataUrlSize(dataUrl)
+        if (dataUrlSize > 1024 * 1024) {
+          alert("Datei ist zu groß.")
+          this.setNotValidStyle(input)
+          throw new Error("image too large")
+        }
+
+        const image = {}
+        image.name = file.name
+        image.type = file.type
+        image.size = dataUrlSize
+        image.modified = Date.now()
+        image.dataUrl = dataUrl
+        this.setValidStyle(input)
+        return resolve(image)
+
+      })
+
+
+    }
+
+    if (event === "div/map") {
+
+
+      if (input.classList.contains("user-json")) {
+
+        const map = {}
+
+        function processJsonKey(container) {
+            container.querySelectorAll('.json-key').forEach(element => {
+
+              const keyName = element.querySelector(".key-name")
+              const keyValue = element.querySelector(".key-value")
+
+              // check key value
+              // if not json key inside
+
+              // if json key inside
+              // do it again
+              // break until there is no json key inside
+              // console.log(keyName.textContent);
+              // console.log(JSON.parse(keyName.textContent));
+              // let key
+              if (keyValue.querySelector(".json-key") !== null) {
+                const json = `{${keyName.textContent}: {}}`
+                // const json = `{${keyName.textContent}: {${keyValue.textContent}: }}`
+                // console.log("value has key", json);
+
+                // try json parse here
+                key = JSON.parse(keyName.textContent)
+                map[key] = {}
+                // console.log("map has key", map);
+
+                // try {
+                //   const test = JSON.parse(json)
+                //   console.log(test);
+                //   processJsonKey(keyValue.querySelector(".json-key"))
+                // } catch (error) {
+                //   console.log(error);
+                // }
+
+              } else {
+                const json = `{${keyName.textContent}:${keyValue.textContent}}`
+                // console.log("value has value", json);
+
+                if (key !== undefined) {
+                  map[key] = keyValue.textContent
+
+                }
+                // console.log("map has value", map);
+                // map[JSON.parse(keyName.textContent)] = keyValue.textContent
+
+              }
+
+              // tell the json key what type he contains
+
+            })
+        }
+
+        // console.log("key", key);
+        // console.log("value", value);
+
+        processJsonKey(input)
+
+        console.log("map", map);
+
+
+      }
+
+    }
+
+    if (event === "key/div") {
+      const div = document.createElement("div");
+      div.classList.add("json-key")
+      div.setAttribute("contenteditable", true)
+      div.style.fontFamily = "monospace";
+      div.style.cursor = "pointer";
+      div.style.fontWeight = "bold";
+      div.style.color = "#2e95d3";
+      div.style.fontSize = "21px";
+      // div.addEventListener("click", toggleValue);
+      console.log("key", input);
+
+
+      return div
+    }
+
+    if (event === "value/div") {
+      const div = document.createElement("div");
+      div.classList.add("key-value")
+      div.style.display = "none";
+      div.style.marginLeft = "21px";
+      div.style.whiteSpace = "pre-wrap";
+      div.style.color = "#ce9178"
+      div.style.fontFamily = "monospace"
+
+      div.setAttribute("contenteditable", true)
+
+      // check for input
+      console.log("value", input);
+
+      return div
+    }
+
+    if (event === "json/div") {
+
+      const div = this.create("div/scrollable")
+      div.classList.add("json")
+      div.style.margin = "21px 34px"
+
+      const buttons = document.createElement("div")
+      buttons.classList.add("buttons")
+      buttons.style.display = "flex"
+      buttons.style.justifyContent = "space-between"
+      buttons.style.alignItems = "center"
+      div.append(buttons)
+
+      const foldAllButton = this.create("div/action", buttons)
+      foldAllButton.innerHTML = "fold"
+
+      foldAllButton.addEventListener("click", function() {
+        toggleAllValues("none");
+      });
+
+      const unfoldAllButton = this.create("div/action", buttons)
+      unfoldAllButton.innerHTML = "unfold"
+      unfoldAllButton.addEventListener("click", function() {
+        toggleAllValues("block");
+      });
+
+      function toggleAllValues(displayValue) {
+        const valueElements = div.querySelectorAll(".key-value");
+        valueElements.forEach(element => {
+          element.style.display = displayValue;
+        });
+      }
+
+      const jsonObject = JSON.parse(input);
+
+      function toggleValue(event) {
+        const element = event.target.nextSibling
+        if (element !== null) {
+          element.style.display = element.style.display === "none" ? "block" : "none";
+        }
+      }
+
+      // function createKeyValueElement(key, value) {
+      //   const keyElement = document.createElement("div");
+      //   keyElement.classList.add("json-key")
+      //   keyElement.setAttribute("contenteditable", true)
+      //   keyElement.style.fontFamily = "monospace";
+      //   keyElement.style.cursor = "pointer";
+      //   keyElement.style.fontWeight = "bold";
+      //   keyElement.style.color = "#2e95d3";
+      //   keyElement.style.fontSize = "21px";
+
+      //   const valueElement = document.createElement("div");
+      //   valueElement.classList.add("key-value")
+      //   // valueElement.style.display = "none"; // Start with values hidden
+      //   valueElement.style.display = "none";
+      //   valueElement.style.marginLeft = "21px";
+      //   valueElement.style.whiteSpace = "pre-wrap";
+      //   valueElement.style.color = "#ce9178"
+      //   valueElement.style.fontFamily = "monospace"
+
+      //   valueElement.setAttribute("contenteditable", true)
+
+      //   return { keyElement, valueElement };
+      // }
+
+      function processObject(container, obj) {
+        for (const key in obj) {
+          const value = obj[key];
+
+
+          // const { keyElement } = createKeyValueElement(key, value);
+          // console.log("obj", obj);
+          // console.log("key", key);
+          // console.log("value", value);
+                  // check object key and value
+          // provide meta data to the div elements
+          // what type the key contains
+          // create different elements attributes
+          const keyElement = Helper.convert("key/div", key)
+          const valueElement = Helper.convert("value/div", value)
+
+
+          if (Helper.verifyIs("string", value)) {
+            valueElement.setAttribute("value-type", "string")
+          }
+
+
+          if (Helper.verifyIs("boolean", value)) {
+            valueElement.setAttribute("value-type", "boolean")
+          }
+
+
+
+
+          const keyName = document.createElement("div")
+          keyName.classList.add("key-name")
+          keyName.textContent = key
+          // keyName.textContent = JSON.stringify(key)
+
+          keyElement.appendChild(keyName)
+          container.appendChild(keyElement);
+          keyElement.appendChild(valueElement);
+
+          keyElement.addEventListener("click", toggleValue);
+
+          if (typeof value === "object") {
+            processObject(valueElement, value);
+            valueElement.addEventListener("click", toggleValue);
+
+          } else {
+            valueElement.textContent = JSON.stringify(value);
+          }
+        }
+      }
+
+      processObject(div, jsonObject);
+
+      return div
+
+    }
+
+    if (event === "map/json") {
+      return JSON.stringify(input, null, 2)
+    }
+
+    // convert text/map ???
+    // input regex pattern
+    if (event === "error-stack-text/div") {
+
+      // Extract function name, file path, line number, and column number
+      const regex = /at (.*) \((.*):(\d*):(\d*)\)/g;
+      const matches = [...input.matchAll(regex)];
+
+      if (matches.length === 0) {
+        return 'Invalid error stack format';
+      }
+
+      const formattedStack = matches.map(match => {
+        const [_, functionName, filePath, lineNumber, columnNumber] = match;
+        return `
+          <div class="error-line">
+            <span class="function-name">${functionName}</span>
+            <span class="file-path">${filePath}:${lineNumber}:${columnNumber}</span>
+          </div>
+        `;
+      }).join('');
+
+      const div = document.createElement("div")
+      div.innerHTML = `
+        <div class="error-stack">
+          ${formattedStack}
+        </div>
+      `;
+      return div
+
+    }
 
     if (event === "element/textarea") {
 
@@ -9325,7 +11044,6 @@ export class Helper {
         button.addEventListener("click", async () => {
 
           this.popup(async overlay => {
-            const templatesOverlay = overlay
 
             this.headerPicker("removeOverlay", overlay)
 
@@ -9334,869 +11052,11 @@ export class Helper {
 
             const content = this.headerPicker("loading", overlay)
 
-            const get = {}
-            get.url = "/get/templates/closed/3/"
-            get.type = "jwt"
-            const res = await Request.middleware(get)
-
-            if (res.status === 200) {
-              const templates = JSON.parse(res.response)
-
-              this.reset(content)
-              content.style.overflowY = "auto"
-              content.style.overscrollBehavior = "none"
-              content.style.paddingBottom = "144px"
-
-
-              for (let i = 0; i < templates.length; i++) {
-                const template = templates[i]
-
-                const item = document.createElement("div")
-                item.style.margin = "34px"
-
-                const itemHeader = document.createElement("div")
-                itemHeader.style.display = "flex"
-                itemHeader.style.borderTopRightRadius = "21px"
-                itemHeader.style.borderTopLeftRadius = "21px"
-                itemHeader.style.borderBottomLeftRadius = "21px"
-                itemHeader.style.fontFamily = "sans-serif"
-
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                  itemHeader.style.backgroundColor = this.colors.matte.charcoal
-                  itemHeader.style.color = this.colors.matte.dark.text
-
-                } else {
-                  itemHeader.style.color = this.colors.matte.light.text
-                  itemHeader.style.backgroundColor = this.colors.gray[1]
-                }
-
-
-                itemHeader.style.cursor = "pointer"
-                itemHeader.addEventListener("click", () => {
-                  this.popup(overlay => {
-                    const templateOverlay = overlay
-                    this.headerPicker("removeOverlay", overlay)
-
-                    const info = this.headerPicker("info", overlay)
-                    info.append(`.templates`)
-
-                    const span = document.createElement("span")
-                    span.style.fontSize = "21px"
-                    span.innerHTML = `#${template.id}`
-                    info.append(span)
-
-
-                    {
-
-                      const buttons = document.createElement("div")
-                      buttons.style.overflowY = "auto"
-                      buttons.style.paddingBottom = "144px"
-                      buttons.style.overscrollBehavior = "none"
-                      overlay.append(buttons)
-
-                      {
-                        const button = this.buttonPicker("left/right", buttons)
-                        button.left.innerHTML = ".id"
-                        button.right.innerHTML = "Id ändern"
-
-                        button.addEventListener("click", () => {
-                          this.popup(overlay => {
-                            this.headerPicker("removeOverlay", overlay)
-
-                            const info = this.headerPicker("info", overlay)
-                            info.append(`.templates`)
-
-                            {
-                              const span = document.createElement("span")
-                              span.style.fontSize = "21px"
-                              span.innerHTML = `#${template.id}`
-                              info.append(span)
-                            }
-
-                            {
-                              const span = document.createElement("span")
-                              span.innerHTML = `.id`
-                              info.append(span)
-                            }
-
-                            const funnel = this.headerPicker("scrollable", overlay)
-
-
-                            const idField = new TextField("id", funnel)
-                            idField.input.required = true
-                            idField.input.accept = "text/tag"
-                            idField.label.innerHTML = "Template Id"
-                            idField.label.placeholder = "meine-id"
-                            idField.value(() => template.id)
-                            idField.verifyValue()
-                            idField.input.addEventListener("input", () => idField.verifyValue())
-
-                            const button = this.buttonPicker("action", funnel)
-                            button.innerHTML = "Jetzt ändern"
-                            button.addEventListener("click", async () => {
-
-                              const id = idField.validValue()
-
-                              const verify = {}
-                              verify.url = "/verify/template/closed/3/"
-                              verify.type = "id"
-                              verify.id = id
-                              const res = await Request.middleware(verify)
-
-                              if (res.status === 200) {
-                                alert("Id existiert bereits.")
-                                this.setNotValidStyle(idField.input)
-                                throw new Error(`id exist`)
-                              }
-
-                              this.popup(async securityOverlay => {
-                                this.headerPicker("loading", securityOverlay)
-
-                                const register = {}
-                                register.url = "/register/template/closed/3/"
-                                register.type = "id"
-                                register.old = template.id
-                                register.new = id
-                                const res = await Request.middleware(register)
-
-                                if (res.status === 200) {
-                                  alert("Template Id erfolgreich gespeichert.")
-                                  this.removeOverlay(templatesOverlay)
-                                  this.removeOverlay(templateOverlay)
-                                  this.removeOverlay(overlay)
-                                  this.removeOverlay(securityOverlay)
-                                } else {
-                                  alert("Fehler.. Bitte wiederholen.")
-                                  this.removeOverlay(securityOverlay)
-                                  throw new Error(`register template id failed`)
-                                }
-                              })
-
-                            })
-
-
-
-
-                          })
-                        })
-
-                      }
-
-                      {
-                        const button = this.buttonPicker("left/right", buttons)
-                        button.left.innerHTML = ".alias"
-                        button.right.innerHTML = "Alias ändern"
-
-                        button.addEventListener("click", () => {
-                          this.popup(overlay => {
-                            this.headerPicker("removeOverlay", overlay)
-
-                            const info = this.headerPicker("info", overlay)
-                            info.append(`.templates`)
-
-                            {
-                              const span = document.createElement("span")
-                              span.style.fontSize = "21px"
-                              span.innerHTML = `#${template.id}`
-                              info.append(span)
-                            }
-
-                            {
-                              const span = document.createElement("span")
-                              span.innerHTML = `.alias`
-                              info.append(span)
-                            }
-
-                            const funnel = this.headerPicker("scrollable", overlay)
-
-
-                            const aliasField = new TextField("alias", funnel)
-                            aliasField.input.required = true
-                            aliasField.label.innerHTML = "Template Alias"
-                            aliasField.label.placeholder = "Mein Skript"
-                            aliasField.value(() => template.alias)
-                            aliasField.verifyValue()
-                            aliasField.input.addEventListener("input", () => aliasField.verifyValue())
-
-                            const button = this.buttonPicker("action", funnel)
-                            button.innerHTML = "Jetzt ändern"
-                            button.addEventListener("click", async () => {
-
-                              const alias = aliasField.validValue()
-
-                              this.popup(async securityOverlay => {
-                                this.headerPicker("loading", securityOverlay)
-
-                                const register = {}
-                                register.url = "/register/template/closed/3/"
-                                register.type = "alias"
-                                register.id = template.id
-                                register.alias = alias
-                                const res = await Request.middleware(register)
-
-                                if (res.status === 200) {
-                                  alert("Template Alias erfolgreich gespeichert.")
-                                  this.removeOverlay(templatesOverlay)
-                                  this.removeOverlay(templateOverlay)
-                                  this.removeOverlay(overlay)
-                                  this.removeOverlay(securityOverlay)
-                                } else {
-                                  alert("Fehler.. Bitte wiederholen.")
-                                  this.removeOverlay(securityOverlay)
-                                  throw new Error(`register template alias failed`)
-                                }
-                              })
-
-                            })
-
-
-
-
-                          })
-                        })
-
-                      }
-
-                      {
-                        const button = this.buttonPicker("left/right", buttons)
-                        button.left.innerHTML = ".dependencies"
-                        button.right.innerHTML = "Abhängigkeiten definieren"
-
-                        button.addEventListener("click", () => {
-                          this.popup(async overlay => {
-                            this.headerPicker("removeOverlay", overlay)
-
-
-                            const info = this.headerPicker("info", overlay)
-                            info.append(`.templates`)
-
-                            {
-                              const span = document.createElement("span")
-                              span.style.fontSize = "21px"
-                              span.innerHTML = `#${template.id}`
-                              info.append(span)
-                            }
-
-                            {
-                              const span = document.createElement("span")
-                              span.innerHTML = `.dependencies`
-                              info.append(span)
-                            }
-
-
-                            const funnel = this.headerPicker("scrollable", overlay)
-
-
-                            const dependenciesField = new TextAreaField("dependencies", funnel)
-                            dependenciesField.input.style.height = "144px"
-                            dependenciesField.input.required = true
-                            dependenciesField.label.innerHTML = "Template Abhängigkeiten"
-                            dependenciesField.input.addEventListener("input", () => dependenciesField.verifyValue())
-
-                            const get = {}
-                            get.url = "/get/templates/closed/3/"
-                            get.type = "dependencies"
-                            get.id = template.id
-                            const res = await Request.middleware(get)
-
-                            if (res.status === 200) {
-                              dependenciesField.value(() => res.response)
-                            }
-                            dependenciesField.verifyValue()
-
-                            const button = this.buttonPicker("action", funnel)
-                            button.innerHTML = "Jetzt ändern"
-                            button.addEventListener("click", async () => {
-
-                              const dependencies = dependenciesField.validValue()
-
-                              this.popup(async securityOverlay => {
-                                this.headerPicker("loading", securityOverlay)
-
-                                const register = {}
-                                register.url = "/register/template/closed/3/"
-                                register.type = "dependencies"
-                                register.id = template.id
-                                register.dependencies = dependencies
-                                const res = await Request.middleware(register)
-
-                                if (res.status === 200) {
-                                  alert("Template Abhängigkeiten erfolgreich gespeichert.")
-                                  this.removeOverlay(overlay)
-                                  this.removeOverlay(securityOverlay)
-                                } else {
-                                  alert("Fehler.. Bitte wiederholen.")
-                                  this.removeOverlay(securityOverlay)
-                                  throw new Error(`register template dependencies failed`)
-                                }
-                              })
-
-                            })
-
-
-
-
-                          })
-                        })
-
-                      }
-
-                      {
-                        const button = this.buttonPicker("left/right", buttons)
-                        button.left.innerHTML = ".description"
-                        button.right.innerHTML = "Template beschreiben"
-
-
-                        button.addEventListener("click", () => {
-                          this.popup(async overlay => {
-                            this.headerPicker("removeOverlay", overlay)
-
-                            const info = this.headerPicker("info", overlay)
-                            info.append(`.templates`)
-
-                            {
-                              const span = document.createElement("span")
-                              span.style.fontSize = "21px"
-                              span.innerHTML = `#${template.id}`
-                              info.append(span)
-                            }
-
-                            {
-                              const span = document.createElement("span")
-                              span.innerHTML = `.description`
-                              info.append(span)
-                            }
-
-
-                            const funnel = this.headerPicker("scrollable", overlay)
-
-
-                            const descriptionField = new TextAreaField("description", funnel)
-                            descriptionField.input.style.height = "144px"
-                            descriptionField.input.required = true
-                            descriptionField.label.innerHTML = "Template Beschreibung"
-                            descriptionField.input.addEventListener("input", () => descriptionField.verifyValue())
-
-                            const get = {}
-                            get.url = "/get/templates/closed/3/"
-                            get.type = "description"
-                            get.id = template.id
-                            const res = await Request.middleware(get)
-
-                            if (res.status === 200) {
-                              descriptionField.value(() => res.response)
-                            }
-                            descriptionField.verifyValue()
-
-                            const button = this.buttonPicker("action", funnel)
-                            button.innerHTML = "Jetzt ändern"
-                            button.addEventListener("click", async () => {
-
-                              const description = descriptionField.validValue()
-
-                              this.popup(async securityOverlay => {
-                                this.headerPicker("loading", securityOverlay)
-
-                                const register = {}
-                                register.url = "/register/template/closed/3/"
-                                register.type = "description"
-                                register.id = template.id
-                                register.description = description
-                                const res = await Request.middleware(register)
-
-                                if (res.status === 200) {
-                                  alert("Template Abhängigkeiten erfolgreich gespeichert.")
-                                  this.removeOverlay(overlay)
-                                  this.removeOverlay(securityOverlay)
-                                } else {
-                                  alert("Fehler.. Bitte wiederholen.")
-                                  this.removeOverlay(securityOverlay)
-                                  throw new Error(`register template description failed`)
-                                }
-                              })
-
-                            })
-
-
-
-
-                          })
-                        })
-
-                      }
-
-                      {
-                        const button = this.buttonPicker("left/right", buttons)
-                        button.left.innerHTML = ".script"
-                        button.right.innerHTML = "Skript ändern"
-
-
-
-                        button.addEventListener("click", () => {
-                          this.popup(async overlay => {
-                            this.headerPicker("removeOverlay", overlay)
-
-                            const info = this.headerPicker("info", overlay)
-                            info.append(`.templates`)
-
-                            {
-                              const span = document.createElement("span")
-                              span.style.fontSize = "21px"
-                              span.innerHTML = `#${template.id}`
-                              info.append(span)
-                            }
-
-                            {
-                              const span = document.createElement("span")
-                              span.innerHTML = `.script`
-                              info.append(span)
-                            }
-
-                            const funnel = this.headerPicker("scrollable", overlay)
-
-
-                            const scriptField = new TextAreaField("script", funnel)
-                            scriptField.input.style.height = "144px"
-                            scriptField.input.required = true
-                            scriptField.label.innerHTML = "Template Skript"
-                            scriptField.input.addEventListener("input", () => scriptField.verifyValue())
-
-                            const get = {}
-                            get.url = "/get/templates/closed/3/"
-                            get.type = "script"
-                            get.id = template.id
-                            const res = await Request.middleware(get)
-
-                            if (res.status === 200) {
-                              scriptField.value(() => res.response)
-                            }
-                            scriptField.verifyValue()
-
-                            const button = this.buttonPicker("action", funnel)
-                            button.innerHTML = "Jetzt ändern"
-                            button.addEventListener("click", async () => {
-
-                              const script = scriptField.validValue()
-
-                              this.popup(async securityOverlay => {
-                                this.headerPicker("loading", securityOverlay)
-
-                                const register = {}
-                                register.url = "/register/template/closed/3/"
-                                register.type = "script"
-                                register.id = template.id
-                                register.script = script
-                                const res = await Request.middleware(register)
-
-                                if (res.status === 200) {
-                                  alert("Template Skript erfolgreich gespeichert.")
-                                  // this.removeOverlay(overlay)
-                                  this.removeOverlay(securityOverlay)
-                                } else {
-                                  alert("Fehler.. Bitte wiederholen.")
-                                  this.removeOverlay(securityOverlay)
-                                  throw new Error(`register template script failed`)
-                                }
-                              })
-
-                            })
-
-
-
-
-                          })
-                        })
-
-                      }
-
-                      {
-                        const button = this.buttonPicker("left/right", buttons)
-                        button.left.innerHTML = ".remove"
-                        button.right.innerHTML = "Template löschen"
-
-                        button.addEventListener("click", () => {
-
-
-                          this.popup(async securityOverlay => {
-                            this.headerPicker("loading", securityOverlay)
-
-                            const del = {}
-                            del.url = "/delete/template/closed/3/"
-                            del.id = template.id
-                            const res = await Request.middleware(del)
-
-                            if (res.status === 200) {
-                              alert("Template erfolgreich gelöscht.")
-                              this.removeOverlay(templatesOverlay)
-                              this.removeOverlay(overlay)
-                              this.removeOverlay(securityOverlay)
-                            } else {
-                              alert("Fehler.. Bitte wiederholen.")
-                              this.removeOverlay(securityOverlay)
-                            }
-                          })
-
-                        })
-                      }
-
-
-                    }
-
-
-                  })
-                })
-
-                const itemState = document.createElement("div")
-                itemState.classList.add("item-state")
-                itemState.style.display = "flex"
-                itemState.style.justifyContent = "center"
-                itemState.style.alignItems = "center"
-                itemState.style.width = "89px"
-                itemState.style.height = "89px"
-                itemState.style.fontSize = "34px"
-
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                  itemState.style.backgroundColor = this.colors.dark.foreground
-                } else {
-                  itemState.style.backgroundColor = this.colors.light.foreground
-                }
-
-                itemState.style.borderTopLeftRadius = "21px"
-                itemState.style.borderBottomLeftRadius = "21px"
-
-                const reputation = document.createElement("div")
-                reputation.innerHTML = template.reputation
-                reputation.style.fontSize = "34px"
-
-                itemState.append(reputation)
-
-
-                const itemTitle = document.createElement("div")
-                itemTitle.style.alignSelf = "center"
-                itemTitle.style.marginLeft = "13px"
-
-                {
-                  const alias = document.createElement("div")
-                  alias.innerHTML = template.alias
-                  alias.style.fontSize = "21px"
-                  itemTitle.append(alias)
-                }
-
-                {
-                  const creator = document.createElement("div")
-                  creator.innerHTML = template.id
-                  creator.style.fontSize = "13px"
-                  itemTitle.append(creator)
-                }
-
-                itemHeader.append(itemState, itemTitle)
-                item.append(itemHeader)
-
-                const itemBody = document.createElement("div")
-                itemBody.classList.add("item-body")
-                itemBody.style.marginLeft = "8%"
-
-
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                  itemBody.style.backgroundColor = this.colors.matte.slate
-                  itemBody.style.boxShadow = this.colors.dark.boxShadow
-                } else {
-                  itemBody.style.boxShadow = this.colors.light.boxShadow
-                  itemBody.style.backgroundColor = this.colors.gray[0]
-                }
-
-                itemBody.style.borderBottomRightRadius = "21px"
-                itemBody.style.borderBottomLeftRadius = "21px"
-                itemBody.style.padding = "21px"
-                itemBody.style.display = "flex"
-                itemBody.style.flexDirection = "column"
-
-                const buttons = document.createElement("div")
-                buttons.style.display = "flex"
-                buttons.style.alignItems = "center"
-
-                {
-
-                  const button = document.createElement("div")
-                  button.style.cursor = "pointer"
-                  button.style.position = "relative"
-                  button.addEventListener("click", () => {
-
-                    this.popup(async overlay => {
-                      const feedbackOverlay = overlay
-
-                      this.headerPicker("removeOverlay", overlay)
-
-                      const info = this.headerPicker("info", overlay)
-                      info.append(this.convert("element/alias", document.body))
-                      info.append(this.convert("text/span", `.templates[${i}].feedback`))
-
-                      // const span = document.createElement("span")
-                      // span.innerHTML = `.templates[${i}].feedback`
-                      // span.style.fontSize = "13px"
-                      // span.style.fontFamily = "monospace"
-                      // info.append(span)
-
-                      const content = this.headerPicker("scrollable", overlay)
-                      // content.style.overflowY = "auto"
-                      // content.style.overscrollBehavior = "none"
-                      // content.style.paddingBottom = "144px"
-                      // overlay.append(content)
-
-                      const feedbackContainer = this.headerPicker("loading", content)
-                      feedbackContainer.info.remove()
-
-                      feedbackContainer.style.margin = "21px 34px"
-                      feedbackContainer.style.overflowY = "auto"
-                      feedbackContainer.style.overscrollBehavior = "none"
-                      feedbackContainer.style.fontFamily = "monospace"
-                      feedbackContainer.style.fontSize = "13px"
-                      feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
-
-
-                      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                        feedbackContainer.style.color = this.colors.dark.text
-                      } else {
-                        feedbackContainer.style.color = this.colors.light.text
-                      }
-
-                      const get = {}
-                      get.url = "/get/templates/closed/3/"
-                      get.type = "feedback"
-                      get.id = template.id
-                      get.location = window.location.href
-                      get.referer = document.referrer
-                      get.localStorageEmail = await Request.email()
-                      get.localStorageId = await Request.localStorageId()
-                      const res = await Request.middleware(get)
-
-                      if (res.status !== 200) {
-                        feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
-                        throw new Error("feedback not found")
-                      }
-
-                      getFeedbackSuccess: if (res.status === 200) {
-                        const feedback = JSON.parse(res.response)
-
-                        if (feedback.length === 0) {
-                          feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
-                          break getFeedbackSuccess
-                        }
-
-                        this.reset(feedbackContainer)
-                        feedbackContainer.style.margin = "21px 34px"
-                        feedbackContainer.style.overflowY = "auto"
-                        feedbackContainer.style.overscrollBehavior = "none"
-                        feedbackContainer.style.fontFamily = "monospace"
-                        feedbackContainer.style.fontSize = "13px"
-                        feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
-
-                        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                          feedbackContainer.style.color = this.colors.dark.text
-                        } else {
-                          feedbackContainer.style.color = this.colors.light.text
-                        }
-
-
-                        for (let i = 0; i < feedback.length; i++) {
-                          const value = feedback[i]
-
-                          const div = document.createElement("div")
-                          div.style.display = "flex"
-                          div.style.justifyContent = "space-between"
-                          div.style.alignItems = "center"
-
-                          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-
-                            if (i % 2 === 0) {
-                              div.style.background = this.colors.light.foreground
-                              div.style.color = this.colors.light.text
-                            } else {
-                              div.style.background = this.colors.dark.foreground
-                              div.style.color = this.colors.dark.text
-                            }
-
-                          } else {
-
-                            if (i % 2 === 1) {
-                              div.style.background = this.colors.light.foreground
-                              div.style.color = this.colors.light.text
-                            } else {
-                              div.style.background = this.colors.dark.foreground
-                              div.style.color = this.colors.dark.text
-                            }
-
-                          }
-
-                          const left = document.createElement("span")
-                          left.innerHTML = `${this.convert("millis/dd.mm.yyyy hh:mm", value.created)}`
-                          div.append(left)
-
-                          const nextToLeft = document.createElement("span")
-                          nextToLeft.style.width = "100%"
-                          nextToLeft.style.margin = "0 13px"
-                          nextToLeft.innerHTML = value.content
-                          div.append(nextToLeft)
-
-                          const right = document.createElement("span")
-                          right.style.padding = "13px"
-                          right.innerHTML = value.importance
-                          div.append(right)
-
-                          feedbackContainer.append(div)
-
-                          div.style.cursor = "pointer"
-                          div.addEventListener("click", () => {
-
-                            this.popup(overlay => {
-                              this.headerPicker("removeOverlay", overlay)
-
-                              const button = this.buttonPicker("left/right", overlay)
-                              const icon = this.iconPicker("delete")
-                              icon.style.width = "34px"
-                              button.left.append(icon)
-                              button.right.innerHTML = "Feedback löschen"
-
-                              button.addEventListener("click", async () => {
-                                const confirm = window.confirm("Möchtest du diesen Beitrag wirklich löschen?")
-
-                                if (confirm === true) {
-                                  const del = {}
-                                  del.url = "/delete/feedback/closed/3/"
-                                  del.type = "template"
-                                  del.id = template.id
-                                  del.created = value.created
-                                  del.location = window.location.href
-                                  del.referer = document.referrer
-                                  del.localStorageEmail = await Request.email()
-                                  del.localStorageId = await Request.localStorageId()
-                                  const res = await Request.middleware(del)
-
-                                  if (res.status === 200) {
-                                    alert("Beitrag erfolgreich gelöscht.")
-                                    length.innerHTML = template.feedbackLength - 1
-                                    this.removeOverlay(overlay)
-                                    this.removeOverlay(feedbackOverlay)
-                                  } else {
-                                    alert("Fehler.. Bitte wiederholen.")
-                                    this.removeOverlay(overlay)
-                                  }
-
-
-                                }
-
-                              })
-                            })
-
-                          })
-                        }
-
-
-                      }
-
-                      const contentField = new TextField("feedback", content)
-                      contentField.label.innerHTML = "Feedback"
-                      contentField.input.required = true
-                      contentField.input.maxLength = "377"
-                      contentField.verifyValue()
-                      contentField.input.addEventListener("input", () => contentField.verifyValue())
-
-                      const importanceField = new RangeField("importance", content)
-                      importanceField.input.min = "0"
-                      importanceField.input.max = "13"
-                      importanceField.input.step = "1"
-                      importanceField.input.value = "0"
-                      importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
-                      importanceField.verifyValue()
-                      importanceField.input.addEventListener("input", (event) => {
-                        importanceField.verifyValue()
-                        importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
-                      })
-
-                      const button = this.buttonPicker("action", content)
-                      button.innerHTML = "Jetzt speichern"
-                      button.addEventListener("click", () => {
-
-                        const importance = importanceField.validValue()
-                        const content = contentField.validValue()
-
-
-                        this.popup(async securityOverlay => {
-
-                          this.headerPicker("loading", securityOverlay)
-
-                          const register = {}
-                          register.url = "/register/feedback/closed/3/"
-                          register.type = "template"
-                          register.id = template.id
-                          register.importance = importance
-                          register.content = content
-                          register.location = window.location.href
-                          register.referer = document.referrer
-                          register.localStorageEmail = await Request.email()
-                          register.localStorageId = await Request.localStorageId()
-                          const res = await Request.middleware(register)
-
-                          if (res.status === 200) {
-                            alert("Feedback erfolgreich gespeichert.")
-                            this.removeOverlay(securityOverlay)
-                            this.removeOverlay(overlay)
-                            length.innerHTML = template.feedbackLength + 1
-                          } else {
-                            alert("Fehler.. Bitte wiederholen.")
-                            this.removeOverlay(securityOverlay)
-                          }
-
-                        })
-
-
-                      })
-
-
-
-                    })
-
-                  })
-
-
-                  const icon = this.iconPicker("branch")
-                  icon.style.width = "55px"
-                  button.append(icon)
-
-                  const length = document.createElement("div")
-                  length.style.position = "absolute"
-                  length.style.top = "0"
-                  length.style.right = "0"
-                  length.style.fontFamily = "monospace"
-                  length.style.fontSize = "13px"
-                  length.style.borderRadius = "50%"
-                  length.style.padding = "3px 5px"
-                  length.innerHTML = template.feedbackLength
-
-                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    length.style.color = this.colors.dark.text
-                    length.style.background = this.colors.dark.foreground
-                  } else {
-                    length.style.color = this.colors.light.text
-                    length.style.background = this.colors.light.foreground
-                  }
-                  button.append(length)
-                  buttons.append(button)
-                }
-
-                itemBody.append(buttons)
-                item.append(itemBody)
-                content.append(item)
-              }
-
-
-
-
-            } else {
-              alert("Fehler.. Bitte wiederholen.")
-              this.removeOverlay(overlay)
-            }
-
+            const map = {}
+            // add buttons callback
+            // add click on header callback
+            // add data callback for design
+            await this.render("expert-templates/closed", map, content)
 
 
           })
@@ -10217,73 +11077,36 @@ export class Helper {
 
             const buttons = this.headerPicker("loading", overlay)
 
-            const get = {}
-            get.url = "/get/user/closed/3/"
-            get.type = "self"
-            get.location = window.location.href
-            get.referer = document.referrer
-            get.localStorageEmail = await Request.email()
-            get.localStorageId = await Request.localStorageId()
-            const res = await Request.middleware(get)
+            const map = {}
+            // ok callback
+            map.onclick = (ev) => {
 
-            if (res.status === 200) {
-              const keys = JSON.parse(res.response)
+              const confirm = window.confirm("Du bist gerade dabei einen Datensatz aus deiner persönlichen Datenbank zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden.\n\nMöchtest du deine Daten wirklich löschen?")
+              if (confirm === true) {
 
-              this.reset(buttons)
-              buttons.style.overflowY = "auto"
-              buttons.style.overscrollBehavior = "none"
-              buttons.style.paddingBottom = "144px"
+                this.overlay("security", async securityOverlay => {
 
-              for (let i = 0; i < keys.length; i++) {
-                const key = keys[i]
+                  const del = {}
+                  del.url = "/delete/key/closed/"
+                  del.key = ev.key
+                  const res = await Request.middleware(del)
 
-                const button = this.buttonPicker("left/right", buttons)
-                button.right.style.fontSize = "21px"
-                button.right.innerHTML = `.${key}`
-                const icon = this.iconPicker("delete")
-                button.left.append(icon)
-
-                button.addEventListener("click", () => {
-
-                  const confirm = window.confirm("Du bist gerade dabei einen Datensatz aus deiner persönlichen Datenbank zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden.\n\nMöchtest du deine Daten wirklich löschen?")
-                  if (confirm === true) {
-
-                    this.popup(async securityOverlay => {
-                      this.headerPicker("loading", securityOverlay)
-
-                      const del = {}
-                      del.url = "/delete/key/closed/"
-                      del.key = key
-                      const res = await Request.middleware(del)
-
-                      if (res.status === 200) {
-                        alert("Datensatz erfolgreich gelöscht.")
-                        this.removeOverlay(securityOverlay)
-                        this.removeOverlay(overlay)
-                      } else {
-                        alert("Fehler.. Bitte wiederholen.")
-                        this.removeOverlay(securityOverlay)
-                        this.removeOverlay(overlay)
-                      }
-
-                    })
-
-
+                  if (res.status === 200) {
+                    alert("Datensatz erfolgreich gelöscht.")
+                    this.removeOverlay(securityOverlay)
+                    this.removeOverlay(overlay)
+                  } else {
+                    alert("Fehler.. Bitte wiederholen.")
+                    this.removeOverlay(securityOverlay)
+                    this.removeOverlay(overlay)
                   }
 
                 })
 
-
               }
 
-
-
-            } else {
-              alert("Fehler.. Bitte wiederholen.")
-              this.removeOverlay(overlay)
             }
-
-
+            await this.render("user-keys/closed", map, buttons)
 
 
           })
@@ -10494,25 +11317,22 @@ export class Helper {
               return
             }
 
-            this.popup(async securityOverlay => {
-              this.headerPicker("loading", securityOverlay)
+            this.overlay("security", async securityOverlay => {
 
               const verify = {}
-              verify.url = "/verify/email/closed/3/"
-              verify.type = "jwt"
+              verify.url = "/verify/email/closed/"
               verify.email = prompt
-              const res = await Request.middleware(verify)
+              const res = await Request.closed(verify)
 
               if (res.status === 200) {
                 const del = {}
-                del.url = "/delete/user/closed/3/"
-                del.type = "jwt"
+                del.url = "/delete/user/closed/"
                 del.email = prompt
-                const res = await Request.middleware(del)
+                const res = await Request.closed(del)
 
                 if (res.status === 200) {
                   alert("Daten erfolgreich gelöscht.")
-                  this.removeOverlay(securityOverlay)
+                  window.location.reload()
                 } else {
                   alert("Fehler.. Bitte wiederholen.")
                   this.removeOverlay(securityOverlay)
