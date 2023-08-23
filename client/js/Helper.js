@@ -1531,6 +1531,178 @@ export class Helper {
   static update(event, parent, input) {
 
 
+    if (event === "image/onclick") {
+
+      const funnel = this.create("div/scrollable", parent)
+
+      const urlField = this.create("field/url", funnel)
+      urlField.input.required = true
+      urlField.input.accept = "text/https"
+      urlField.label.innerHTML = "Gebe hier die Quell-Url für dein Bild ein"
+      urlField.input.placeholder = "https://www.meine-quelle.de"
+
+      this.verify("input/validity", urlField.input)
+      urlField.input.addEventListener("input", () => this.verify("input/validity", urlField.input))
+
+      const button = this.buttonPicker("action", funnel)
+      button.innerHTML = "Bild jetzt ändern"
+      button.addEventListener("click", async () => {
+
+        if (this.verify("input/validity", urlField.input)) {
+
+          const url = urlField.input.value
+
+          if (input !== undefined) {
+            if (input.ok !== undefined) await input.ok(url)
+          }
+        }
+
+      })
+
+    }
+
+    if (event === "image/platform-value/closed") {
+
+      const funnel = this.create("div/scrollable", parent)
+
+      const urlField = this.create("field/url", funnel)
+      urlField.input.required = true
+      urlField.input.accept = "text/https"
+      urlField.label.innerHTML = "Gebe hier die Quell-Url für dein Bild ein"
+      urlField.input.placeholder = "https://www.meine-quelle.de"
+      // this.setNotValidStyle(urlField.input)
+      // urlField
+      this.verify("input/validity", urlField.input)
+      urlField.input.addEventListener("input", () => this.verify("input/validity", urlField.input))
+
+      const button = this.buttonPicker("action", funnel)
+      button.innerHTML = "Bild jetzt ändern"
+      button.addEventListener("click", () => {
+
+        if (this.verify("input/validity", urlField.input)) {
+
+          const url = urlField.input.value
+
+          this.overlay("security", async securityOverlay => {
+
+            // let image
+            // if (imageFile !== undefined) {
+
+            //   if (imageFile.type === "image/svg+xml") {
+
+            //     image = await imageField.validSvg(imageFile)
+
+            //   } else {
+
+            //     image = await imageField.validImage(imageFile)
+
+            //   }
+
+            // }
+
+
+            // quick update
+            // on success no message
+            // just remove security overlay
+            const register = {}
+            register.url = "/update/platform-value-image/closed/"
+            // register.type = "image"
+            register.image = url
+            register.path = input.path
+            const res = await Request.closed(register)
+            // const res = await Request.ping("")
+
+            if (res.status === 200) {
+              // window.alert("Bild erfolgreich geändert..")
+              // window.location.reload()
+              this.removeOverlay(parent)
+              this.removeOverlay(securityOverlay)
+
+            } else {
+              window.alert("Fehler.. Bitte wiederholen.")
+              this.removeOverlay(securityOverlay)
+            }
+
+          })
+
+        }
+
+      })
+
+    }
+
+    // event = this/on/algorithm
+    if (event === "image/platform/closed") {
+
+      const funnel = this.create("div/scrollable", parent)
+
+      const urlField = this.create("field/url", funnel)
+      urlField.input.required = true
+      urlField.input.accept = "text/https"
+      urlField.label.innerHTML = "Gebe hier die Quell-Url für dein Bild ein"
+      urlField.input.placeholder = "https://www.meine-quelle.de"
+      // this.setNotValidStyle(urlField.input)
+      // urlField
+      this.verify("input/validity", urlField.input)
+      urlField.input.addEventListener("input", () => this.verify("input/validity", urlField.input))
+
+      const button = this.buttonPicker("action", funnel)
+      button.innerHTML = "Bild jetzt ändern"
+      button.addEventListener("click", () => {
+
+        if (this.verify("input/validity", urlField.input)) {
+
+          const url = urlField.input.value
+
+          this.overlay("security", async securityOverlay => {
+
+            // let image
+            // if (imageFile !== undefined) {
+
+            //   if (imageFile.type === "image/svg+xml") {
+
+            //     image = await imageField.validSvg(imageFile)
+
+            //   } else {
+
+            //     image = await imageField.validImage(imageFile)
+
+            //   }
+
+            // }
+
+
+            // quick update
+            // on success no message
+            // just remove security overlay
+            const register = {}
+            register.url = "/update/platform-image/closed/"
+            // register.type = "image"
+            register.image = url
+            register.platform = input
+            const res = await Request.closed(register)
+            // const res = await Request.ping("")
+
+            if (res.status === 200) {
+              // window.alert("Bild erfolgreich geändert..")
+              // window.location.reload()
+              this.removeOverlay(parent)
+              this.removeOverlay(securityOverlay)
+
+            } else {
+              window.alert("Fehler.. Bitte wiederholen.")
+              this.removeOverlay(securityOverlay)
+            }
+
+          })
+
+        }
+
+      })
+
+    }
+
+
     if (event === "element/type") {
 
       const create = document.createElement(input)
@@ -1851,11 +2023,15 @@ export class Helper {
 
                 await Request.withVerifiedEmail(emailInput.value, async () => {
 
-                  await Request.ping("/register/admin/location/", emailInput.value)
-                  .catch(error => {
-                    window.alert("Fehler.s. Bitte wiederholen.")
-                    window.location.assign("/")
-                  })
+                  if (emailInput.value.endsWith("@get-your.de")) {
+
+                    await Request.ping("/register/admin/location/", emailInput.value)
+                    .catch(error => {
+                      window.alert("Fehler.. Bitte wiederholen.")
+                      window.location.assign("/")
+                    })
+
+                  }
 
                   {
                     const register = {}
@@ -2216,8 +2392,10 @@ export class Helper {
         this.setNotValidStyle(input)
         const field = input.parentElement
         field.scrollIntoView({behavior: "smooth"})
-        throw new Error(`field '${field.id}' not valid`)
+        return false
       }
+      this.setValidStyle(input)
+      return true
     }
 
   }
@@ -2778,12 +2956,92 @@ export class Helper {
       return create
     }
 
+
+    if (event === "field/url") {
+
+      const field = document.createElement("div")
+      // field.id = "url-field"
+      // field.innerHTML = ""
+      field.classList.add("field")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+
+      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      //   field.style.backgroundColor = Helper.colors.dark.foreground
+      //   field.style.border = Helper.colors.dark.border
+      //   field.style.boxShadow = Helper.colors.dark.boxShadow
+      //   field.style.color = Helper.colors.dark.text
+      // }
+
+      field.labelContainer = document.createElement("div")
+      field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.display = "flex"
+      field.labelContainer.style.alignItems = "center"
+      field.labelContainer.style.margin = "21px 89px 0 34px"
+      field.label = document.createElement("label")
+      field.label.classList.add("field-label")
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "21px"
+      field.label.style.color = this.colors.light.text
+      field.labelContainer.append(field.label)
+      field.append(field.labelContainer)
+      // this.labelContainer = labelContainer
+
+      // const icon = document.createElement("img")
+      // icon.style.width = "34px"
+      // icon.style.marginRight = "21px"
+      // icon.style.display = "none"
+      // this.icon = icon
+      // labelContainer.append(icon)
+
+
+      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      //   label.style.color = Helper.colors.dark.text
+      // }
+
+      // this.label = label
+
+      field.input = document.createElement("input")
+      field.input.classList.add("field-input")
+      // field.input.classList.add("email-input")
+      // field.input.classList.add("email")
+      field.input.type = "url"
+      field.input.style.margin = "21px 89px 21px 34px"
+      field.input.style.fontSize = "21px"
+      field.input.style.backgroundColor = this.colors.light.background
+      field.input.style.color = this.colors.light.text
+      field.append(field.input)
+      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      //   input.style.backgroundColor = Helper.colors.dark.background
+      //   input.style.color = Helper.colors.dark.text
+      // }
+      // field.input.required = true
+      // field.input.accept = "text/email"
+
+      // this.input = input
+      // return field
+
+
+      // const field = new EmailField("email", parent)
+
+      if (parent !== undefined) parent.append(field)
+      return field
+    }
+
     if (event === "field/dsgvo") {
 
 
 
       const field = document.createElement("div")
-      field.id = "email-field"
+      // field.id = "email-field"
       field.classList.add("field")
       field.style.position = "relative"
       field.style.borderRadius = "13px"
@@ -2890,7 +3148,7 @@ export class Helper {
     if (event === "field/email") {
 
       const field = document.createElement("div")
-      field.id = "dsgvo-field"
+      // field.id = "dsgvo-field"
       // field.innerHTML = ""
       field.classList.add("field")
       field.style.position = "relative"
@@ -3275,6 +3533,91 @@ export class Helper {
   // event = input/algorithm
   static render(event, input, parent) {
 
+
+    if (event === "value/button") {
+      // console.log(input);
+
+      const button = this.buttonPicker("left/right", parent)
+      button.right.innerHTML = input.alias
+
+      if (input.image !== undefined) {
+        button.left.style.margin = "0"
+        button.left.style.overflow = "hidden"
+        button.left.style.borderRadius = "13px"
+        button.left.classList.add("image")
+
+        if (input.image.svg !== undefined) {
+          const svg = this.convert("text/svg", input.image.svg)
+          svg.setAttribute("width", "100%")
+          button.left.append(svg)
+        }
+
+        if (input.image.dataUrl !== undefined) {
+          const img = document.createElement("img")
+          img.src = input.image.dataUrl
+          img.alt = input.image.name
+          img.style.width = "100%"
+          button.left.append(img)
+        }
+
+        if (input.image.url !== undefined) {
+          const img = document.createElement("img")
+          img.src = input.image.url
+          img.style.width = "100%"
+          img.style.overflow = "hidden"
+          button.left.append(img)
+        }
+
+
+
+
+      }
+
+      return button
+    }
+
+    if (event === "platform/button") {
+      // console.log(input);
+
+      const button = this.buttonPicker("left/right", parent)
+      button.right.innerHTML = input.name
+
+      if (input.image !== undefined) {
+        button.left.style.margin = "0"
+        button.left.style.overflow = "hidden"
+        button.left.style.borderRadius = "13px"
+        button.left.classList.add("image")
+
+        if (input.image.svg !== undefined) {
+          const svg = this.convert("text/svg", input.image.svg)
+          svg.setAttribute("width", "100%")
+          button.left.append(svg)
+        }
+
+        if (input.image.dataUrl !== undefined) {
+          const img = document.createElement("img")
+          img.src = input.image.dataUrl
+          img.alt = input.image.name
+          img.style.width = "100%"
+          button.left.append(img)
+        }
+
+        if (input.image.url !== undefined) {
+          const img = document.createElement("img")
+          img.src = input.image.url
+          img.style.width = "100%"
+          img.style.overflow = "hidden"
+          button.left.append(img)
+        }
+
+
+
+
+      }
+
+      return button
+    }
+
     if (event === "/get/user-json/verified/2/") {
 
       // if (parent === undefined) {
@@ -3335,8 +3678,6 @@ export class Helper {
 
 
     }
-
-
 
     if (event === "user-keys/closed") {
 
@@ -4847,58 +5188,11 @@ export class Helper {
 
                   this.popup(async overlay => {
 
-
                     this.headerPicker("removeOverlay", overlay)
                     const info = this.headerPicker("info", overlay)
                     info.append(this.convert("text/span", ".value.image"))
 
-
-
-                    const funnel = this.headerPicker("scrollable", overlay)
-
-                    const imageField = this.create("field/image", funnel)
-                    imageField.input.required = true
-
-                    const button = this.buttonPicker("action", funnel)
-                    button.innerHTML = "Bild jetzt ändern"
-                    button.addEventListener("click", async () => {
-
-                      const imageFile = imageField.validValue()[0]
-
-                      this.overlay("security", async securityOverlay => {
-                        let image
-                        if (imageFile.type === "image/svg+xml") {
-
-                          image = await imageField.validSvg(imageFile)
-
-                        } else {
-
-                          image = await imageField.validImage(imageFile)
-
-                        }
-
-                        const register = {}
-                        register.url = "/register/platform-value/closed/"
-                        register.type = "image"
-                        register.image = image
-                        register.path = value.path
-                        const res = await Request.middleware(register)
-
-                        if (res.status === 200) {
-                          window.alert("Bild erfolgreich geändert..")
-
-                          this.removeOverlay(overlay)
-
-                          this.removeOverlay(securityOverlay)
-
-                        } else {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          this.removeOverlay(securityOverlay)
-                        }
-
-                      })
-
-                    })
+                    this.update("image/platform-value/closed", overlay, value)
 
                   })
                 })
@@ -4981,6 +5275,8 @@ export class Helper {
                     const info = this.headerPicker("info", overlay)
                     // info.append(this.convert("text/span", input))
                     info.append(this.convert("text/span", ".visibility"))
+
+                    // this.update("visibility/platform-value/closed")
 
                     const funnel = this.headerPicker("scrollable", overlay)
 
@@ -5176,27 +5472,7 @@ export class Helper {
       for (let i = 0; i < input.length; i++) {
         const value = input[i]
 
-        const button = this.buttonPicker("left/right", parent)
-        button.right.innerHTML = value.alias
-
-        if (value.image !== undefined) {
-          button.left.style.width = "34px"
-
-          if (value.image.svg !== undefined) {
-            const svg = this.convert("text/svg", value.image.svg)
-            svg.setAttribute("width", "100%")
-            button.left.append(svg)
-          }
-
-          if (value.image.dataUrl !== undefined) {
-            const img = document.createElement("img")
-            img.src = value.image.dataUrl
-            img.alt = value.image.name
-            img.style.width = "100%"
-            button.left.append(img)
-          }
-
-        }
+        const button = this.render("value/button", value, parent)
 
         button.addEventListener("click", () => window.location.assign(value.path))
 
@@ -5212,28 +5488,7 @@ export class Helper {
       for (let i = 0; i < input.length; i++) {
         const platform = input[i]
 
-        const button = this.buttonPicker("left/right", parent)
-        button.right.innerHTML = platform.name
-
-        if (platform.image !== undefined) {
-          button.left.style.width = "34px"
-
-          if (platform.image.svg !== undefined) {
-            const svg = this.convert("text/svg", platform.image.svg)
-            svg.setAttribute("width", "100%")
-            button.left.append(svg)
-          }
-
-          if (platform.image.dataUrl !== undefined) {
-            const img = document.createElement("img")
-            img.src = platform.image.dataUrl
-            img.alt = platform.image.name
-            img.style.width = "100%"
-            button.left.append(img)
-          }
-
-        }
-
+        const button = this.render("platform/button", platform, parent)
 
         button.addEventListener("click", () => {
 
@@ -5616,52 +5871,7 @@ export class Helper {
                   info.innerHTML = platform.name
                   info.append(this.convert("text/span", ".image"))
 
-                  const funnel = this.headerPicker("scrollable", overlay)
-
-                  const imageField = this.create("field/image", funnel)
-                  imageField.input.required = true
-
-                  const button = this.buttonPicker("action", funnel)
-                  button.innerHTML = "Bild jetzt ändern"
-                  button.addEventListener("click", () => {
-
-                    const imageFile = imageField.validValue()[0]
-
-                    this.overlay("security", async securityOverlay => {
-
-                      let image
-                      if (imageFile !== undefined) {
-
-                        if (imageFile.type === "image/svg+xml") {
-
-                          image = await imageField.validSvg(imageFile)
-
-                        } else {
-
-                          image = await imageField.validImage(imageFile)
-
-                        }
-
-                      }
-
-                      const register = {}
-                      register.url = "/register/platform/closed/"
-                      register.type = "image"
-                      register.image = image
-                      register.platform = platform.name
-                      const res = await Request.middleware(register)
-
-                      if (res.status === 200) {
-                        window.alert("Bild erfolgreich geändert..")
-                        window.location.reload()
-                      } else {
-                        window.alert("Fehler.. Bitte wiederholen.")
-                        this.removeOverlay(securityOverlay)
-                      }
-
-                    })
-
-                  })
+                  this.update("image/platform/closed", overlay, platform.name)
 
                 })
               })
@@ -5788,30 +5998,7 @@ export class Helper {
 
         const platform = input[i]
 
-        const button = this.buttonPicker("left/right", parent)
-
-        if (platform.image !== undefined) {
-          button.left.style.width = "34px"
-
-          if (platform.image.svg !== undefined) {
-            const svg = this.convert("text/svg", platform.image.svg)
-            svg.setAttribute("width", "100%")
-            button.left.append(svg)
-          }
-
-          if (platform.image.dataUrl !== undefined) {
-            const img = document.createElement("img")
-            img.src = platform.image.dataUrl
-            img.alt = platform.image.name
-            img.style.width = "100%"
-            button.left.append(img)
-          }
-
-
-
-        }
-
-        button.right.innerHTML = platform.name
+        const button = this.render("platform/button", platform, parent)
 
         button.addEventListener("click", () => {
 
@@ -6791,34 +6978,9 @@ export class Helper {
 
 
 
-                              const funnel = this.headerPicker("scrollable", overlay)
-
-                              const imageField = this.create("field/image", funnel)
-                              imageField.input.required = true
-
-                              const button = this.buttonPicker("action", funnel)
-                              button.innerHTML = "Bild jetzt anhängen"
-                              button.addEventListener("click", async () => {
-
-                                const imageFile = imageField.validValue()[0]
-
-                                const div = document.createElement("div")
-                                div.classList.add("image")
-                                if (imageFile.type === "image/svg+xml") {
-
-                                  const image = await imageField.validSvg(imageFile)
-                                  div.append(this.convert("text/svg", image.svg))
-                                  child.append(div)
-
-                                } else {
-
-                                  const image = await imageField.validImage(imageFile)
-                                  div.append(this.convert("text/img", image.dataUrl))
-                                  child.append(div)
-
-                                }
-
-                              })
+                              this.update("image/onclick", overlay, {ok: (url) => {
+                                child.append(this.convert("text/img", url))
+                              }})
 
                             })
                           })
@@ -6841,21 +7003,9 @@ export class Helper {
                               info.append(this.convert("text/span", ".image"))
 
 
-
-                              const funnel = this.headerPicker("scrollable", overlay)
-
-                              const imageField = this.create("field/image", funnel)
-                              imageField.input.required = true
-
-                              const button = this.buttonPicker("action", funnel)
-                              button.innerHTML = "Bild jetzt anhängen"
-                              button.addEventListener("click", async () => {
-
-                                const image = await this.convert("input/image", imageField.input)
-
-                                child.style.background = `url("${image.dataUrl}")`
-
-                              })
+                              this.update("image/onclick", overlay, {ok: (url) => {
+                                child.style.background = `url("${url}")`
+                              }})
 
                             })
                           })
@@ -8486,8 +8636,6 @@ export class Helper {
         return false
       }
 
-      if (input.checkValidity() === true) return true
-
       if (input.accept === "text/id") {
         if (typeof input.value !== "string") return false
         input.value = input.value.replace(/ /g, "-")
@@ -8518,6 +8666,13 @@ export class Helper {
         input.value = input.value.replace(/ /g, "-")
         if (/^[a-z](?:-?[a-z]+)*$/.test(input.value) === true) return true
         return false
+      }
+
+      if (input.accept === "text/https") {
+
+        if (input.value.startsWith("https://")) return true
+        return false
+
       }
 
       if (input.accept === "email/array") {
@@ -8560,6 +8715,10 @@ export class Helper {
 
       }
 
+      if (input.required === true) {
+        return !this.stringIsEmpty(input.value)
+      }
+
       return false
     }
 
@@ -8575,6 +8734,7 @@ export class Helper {
       if (input.accept === "text/phone") return true
       if (input.accept === "text/html") return true
       if (input.accept === "text/number") return true
+      if (input.accept === "text/https") return true
       if (input.requiredIndex !== undefined) {
         for (let i = 0; i < input.options.length; i++) {
           const option = input.options[i]
@@ -11000,17 +11160,12 @@ export class Helper {
 
                 const platformName = platformNameField.validValue()
 
-                const verify = {}
-                verify.url = "/verify/platform/location/"
-                verify.platform = platformName
-                const res = await Request.middleware(verify)
-
-                if (res.status === 200) {
-                  alert("Plattform Name existiert bereits.")
-                  this.setNotValidStyle(platformNameField.input)
-                  throw new Error("platform exist")
-                }
-
+                Request.ping("/verify/platform/open/", platformName)
+                // then(res =>  {
+                //   window.alert("Plattform Name existiert bereits.")
+                //   this.setNotValidStyle(platformNameField.input)
+                //   throw new Error("platform exist")
+                // }
 
 
                 this.popup(async securityOverlay => {
@@ -11040,85 +11195,85 @@ export class Helper {
         })
       }
 
+      // {
+      //   const button = this.buttonPicker("left/right", input)
+      //   button.left.innerHTML = ".templates"
+      //   button.right.innerHTML = "Meine Templates"
+
+      //   button.addEventListener("click", async () => {
+
+      //     this.popup(async overlay => {
+
+      //       this.headerPicker("removeOverlay", overlay)
+
+      //       const info = this.headerPicker("info", overlay)
+      //       info.append(".templates")
+
+      //       const content = this.headerPicker("loading", overlay)
+
+      //       const map = {}
+      //       // add buttons callback
+      //       // add click on header callback
+      //       // add data callback for design
+      //       await this.render("expert-templates/closed", map, content)
+
+
+      //     })
+
+      //   })
+
+      // }
+
+      // {
+      //   const button = this.buttonPicker("left/right", input)
+      //   button.right.innerHTML = "Mein persönlicher Datenspiegel"
+      //   button.left.innerHTML = ".database"
+      //   button.addEventListener("click", () => {
+      //     this.popup(async overlay => {
+      //       this.headerPicker("removeOverlay", overlay)
+      //       const info = this.headerPicker("info", overlay)
+      //       info.append("user")
+
+      //       const buttons = this.headerPicker("loading", overlay)
+
+      //       const map = {}
+      //       // ok callback
+      //       map.onclick = (ev) => {
+
+      //         const confirm = window.confirm("Du bist gerade dabei einen Datensatz aus deiner persönlichen Datenbank zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden.\n\nMöchtest du deine Daten wirklich löschen?")
+      //         if (confirm === true) {
+
+      //           this.overlay("security", async securityOverlay => {
+
+      //             const del = {}
+      //             del.url = "/delete/key/closed/"
+      //             del.key = ev.key
+      //             const res = await Request.middleware(del)
+
+      //             if (res.status === 200) {
+      //               alert("Datensatz erfolgreich gelöscht.")
+      //               this.removeOverlay(securityOverlay)
+      //               this.removeOverlay(overlay)
+      //             } else {
+      //               alert("Fehler.. Bitte wiederholen.")
+      //               this.removeOverlay(securityOverlay)
+      //               this.removeOverlay(overlay)
+      //             }
+
+      //           })
+
+      //         }
+
+      //       }
+      //       await this.render("user-keys/closed", map, buttons)
+
+
+      //     })
+      //   })
+      // }
+
       {
-        const button = this.buttonPicker("left/right", input)
-        button.left.innerHTML = ".templates"
-        button.right.innerHTML = "Meine Templates"
-
-        button.addEventListener("click", async () => {
-
-          this.popup(async overlay => {
-
-            this.headerPicker("removeOverlay", overlay)
-
-            const info = this.headerPicker("info", overlay)
-            info.append(".templates")
-
-            const content = this.headerPicker("loading", overlay)
-
-            const map = {}
-            // add buttons callback
-            // add click on header callback
-            // add data callback for design
-            await this.render("expert-templates/closed", map, content)
-
-
-          })
-
-        })
-
-      }
-
-      {
-        const button = this.buttonPicker("left/right", input)
-        button.right.innerHTML = "Mein persönlicher Datenspiegel"
-        button.left.innerHTML = ".database"
-        button.addEventListener("click", () => {
-          this.popup(async overlay => {
-            this.headerPicker("removeOverlay", overlay)
-            const info = this.headerPicker("info", overlay)
-            info.append("user")
-
-            const buttons = this.headerPicker("loading", overlay)
-
-            const map = {}
-            // ok callback
-            map.onclick = (ev) => {
-
-              const confirm = window.confirm("Du bist gerade dabei einen Datensatz aus deiner persönlichen Datenbank zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden.\n\nMöchtest du deine Daten wirklich löschen?")
-              if (confirm === true) {
-
-                this.overlay("security", async securityOverlay => {
-
-                  const del = {}
-                  del.url = "/delete/key/closed/"
-                  del.key = ev.key
-                  const res = await Request.middleware(del)
-
-                  if (res.status === 200) {
-                    alert("Datensatz erfolgreich gelöscht.")
-                    this.removeOverlay(securityOverlay)
-                    this.removeOverlay(overlay)
-                  } else {
-                    alert("Fehler.. Bitte wiederholen.")
-                    this.removeOverlay(securityOverlay)
-                    this.removeOverlay(overlay)
-                  }
-
-                })
-
-              }
-
-            }
-            await this.render("user-keys/closed", map, buttons)
-
-
-          })
-        })
-      }
-
-      {
-
+        // refactor this before use it - in progress
         const button = this.buttonPicker("left/right", input)
         button.left.innerHTML = ".conflicts"
         button.right.innerHTML = "Konflikte"
