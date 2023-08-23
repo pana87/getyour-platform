@@ -158,7 +158,7 @@
 
                 const get = {}
                 get.url = "/get/platforms/closed/"
-                const res = await Request.middleware(get)
+                const res = await Request.closed(get)
 
                 if (res.status !== 200) {
 

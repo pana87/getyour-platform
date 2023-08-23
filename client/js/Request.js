@@ -5,6 +5,28 @@ export class Request {
 
   static ping(event, input) {
 
+
+    if (event === "/verify/platform/location/") {
+
+      return new Promise(async(resolve, reject) => {
+
+        const verify = {}
+        verify.url = "/verify/platform/open/"
+        verify.platform = input
+        const res = await this.open(verify)
+
+        if (res.status === 200) {
+          return reject(res)
+        }
+
+        if (res.status !== 200) {
+          return resolve(res)
+        }
+
+      })
+
+    }
+
     if (event === "/update/user-json/verified/2/") {
 
       return new Promise(async(resolve, reject) => {
@@ -31,23 +53,18 @@ export class Request {
 
 
       return new Promise(async(resolve, reject) => {
-        if (input.endsWith("@get-your.de")) {
+        const map = {}
+        map.url = event
+        map.email = input
+        const res = await this.closed(map)
 
-          const map = {}
-          map.url = event
-          map.email = input
-          const res = await this.closed(map)
-
-          if (res.status === 200) {
-            return resolve(res)
-          }
-
-          if (res.status !== 200) {
-            return reject(res)
-          }
-
+        if (res.status === 200) {
+          return resolve(res)
         }
-        return reject()
+
+        if (res.status !== 200) {
+          return reject(res)
+        }
       })
 
     }
