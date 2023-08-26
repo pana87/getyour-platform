@@ -10,7 +10,147 @@ import {CheckboxField} from "/js/CheckboxField.js"
 export class Helper {
 
   // event = input/algorithm
+  // no dom creation, only events
   static add(event, input) {
+
+    if (event === "button/on-role-login-click") {
+
+      input.button.onclick = async () => {
+
+        const emailInput = document.querySelector(".email-input")
+        const dsgvoInput = document.querySelector(".dsgvo-input")
+
+        if (emailInput !== null) {
+          if (dsgvoInput !== null) {
+
+            if (Helper.verify("input/validity", emailInput) === false) throw new Error("email invalid")
+            if (Helper.verify("input/validity", dsgvoInput) === false) throw new Error("dsgvo invalid")
+
+            await Request.withVerifiedEmail(emailInput.value, async () => {
+
+              const register = {}
+              register.url = "/register/email/location/"
+              register.email = emailInput.value
+              register.id = input.roleId
+              register.name = input.roleName
+              const res = await Request.location(register)
+
+              {
+                const register = {}
+                register.url = "/request/register/session/"
+                const res = await Request.closed(register)
+
+                if (res.status === 200) {
+                  const redirect = {}
+                  redirect.url = "/redirect/user/closed/"
+                  const res = await Request.closed(redirect)
+                  if (res.status === 200) window.location.assign(res.response)
+                } else {
+                  window.history.back()
+                }
+              }
+
+            })
+          }
+        }
+
+      }
+
+    }
+
+    if (event === "button/on-login-click") {
+
+      input.onclick = async () => {
+
+        const emailInput = document.querySelector(".email-input")
+        const dsgvoInput = document.querySelector(".dsgvo-input")
+
+        if (emailInput !== null) {
+          if (dsgvoInput !== null) {
+
+            if (Helper.verify("input/validity", emailInput) === false) throw new Error("email invalid")
+            if (Helper.verify("input/validity", dsgvoInput) === false) throw new Error("dsgvo invalid")
+
+            await Request.withVerifiedEmail(emailInput.value, async () => {
+
+              if (emailInput.value.endsWith("@get-your.de")) {
+
+                await Request.ping("/register/admin/location/", emailInput.value)
+                .catch(error => {
+                  window.alert("Fehler.. Bitte wiederholen.")
+                  window.location.assign("/")
+                })
+
+              }
+
+              {
+                const register = {}
+                register.url = "/request/register/session/"
+                const res = await Request.closed(register)
+
+                if (res.status === 200) {
+                  const redirect = {}
+                  redirect.url = "/redirect/user/closed/"
+                  const res = await Request.closed(redirect)
+
+                  if (res.status === 200) {
+                    window.location.assign(res.response)
+                  } else if (!Helper.stringIsEmpty(document.referrer)) {
+                    window.location.assign(document.referrer)
+                  } else {
+                    window.history.back()
+                  }
+
+                } else {
+                  window.history.back()
+                }
+              }
+
+            })
+
+
+
+          }
+        }
+
+      }
+
+    }
+
+    if (event === "input/oninput") {
+      if (input.type === "email") {
+        input.oninput = (ev) => {
+          this.verify("input/validity", ev.target)
+        }
+
+      }
+
+      if (input.type === "checkbox") {
+        input.oninput = (ev) => {
+
+          if (ev.target.checked === true) {
+            ev.target.setAttribute("checked", "true")
+          } else {
+            ev.target.removeAttribute("checked")
+          }
+
+          this.verify("input/validity", ev.target)
+        }
+      }
+    }
+
+    if (event === "input/value") {
+
+      if (input.type === "email") {
+
+        if (window.localStorage.getItem("email") !== null) {
+          input.value = window.localStorage.getItem("email")
+          this.verify("input/validity", input)
+        }
+
+      }
+
+    }
 
     if (event === "user-json/keydown-event") {
 
@@ -30,6 +170,39 @@ export class Helper {
   }
 
   static get(event, parent, input) {
+
+
+    if (event === "toolbox/closed") {
+
+      return new Promise(async(resolve, reject) => {
+
+        const get = {}
+        get.url = "/get/toolbox/closed/"
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+          const toolboxScript = new DOMParser().parseFromString(res.response, "text/html").getElementById("toolbox")
+          const script = document.createElement("script")
+          script.id = toolboxScript.id
+          script.type = toolboxScript.type
+          script.innerHTML = toolboxScript.innerHTML
+
+          document.querySelectorAll("#toolbox").forEach(toolbox => toolbox.remove())
+
+          if (document.getElementById("#toolbox") === null) {
+            document.body.append(script)
+            return resolve(res)
+          }
+
+        }
+
+        if (res.status !== 200) {
+          return reject(res)
+        }
+
+      })
+
+    }
 
     if (event === "funnel/onclick-assign-path") {
 
@@ -665,6 +838,165 @@ export class Helper {
 
     }
 
+
+    if (event === "script/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const get = {}
+        get.url = "/get/script/closed/"
+        // console.log(input);
+        get.id = input
+
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+          const script = JSON.parse(res.response)
+          return resolve(script)
+        }
+
+
+        if (res.status !== 200) {
+          return reject(new Error("script not found"))
+        }
+
+      })
+
+    }
+
+    if (event === "funnel/script") {
+
+      const funnel = this.create("div/scrollable", parent)
+
+      if (input !== undefined) {
+        if (!this.numberIsEmpty(input.id)) {
+
+          const button = this.buttonPicker("left/right", funnel)
+          button.left.innerHTML = ".preview"
+          button.right.innerHTML = "Skript laden"
+
+          const feedbackButton = this.buttonPicker("left/right", funnel)
+          feedbackButton.left.innerHTML = ".feedback"
+          this.update("feedback/script/location", feedbackButton, input)
+
+          this.get("script/closed", null, input.id).then(res => {
+            feedbackButton.counter = document.createElement("div")
+            feedbackButton.counter.innerHTML = res.feedbackLength
+            feedbackButton.right.append(feedbackButton.counter)
+
+            scriptField.input.value = res.script
+
+            if (res.name !== undefined) {
+              nameField.input.value = res.name
+            }
+
+            this.verify("funnel/validity", funnel)
+
+
+            button.addEventListener("click", () => {
+
+              try {
+                const html = this.convert("text/dom", res.script)
+
+                if (html.tagName === "SCRIPT") {
+
+                  const script = this.convert("js/script", html.innerHTML)
+                  script.id = "script-for-testing"
+
+                  if (document.getElementById("script-for-testing") !== null) {
+                    document.getElementById("script-for-testing").remove()
+                  }
+
+                  console.log("hi");
+                  if (document.getElementById("script-for-testing") === null) {
+                    document.body.append(script)
+                    document.querySelectorAll(".overlay").forEach(overlay => overlay.remove())
+                  }
+
+                }
+
+              } catch (error) {
+                console.error(error)
+              }
+
+            })
+          })
+
+        }
+      }
+
+      const nameField = this.create("field/name", funnel)
+      nameField.input.placeholder = "mein-skript"
+
+      const scriptField = this.create("field/script", funnel)
+
+      const button = this.buttonPicker("action", funnel)
+      button.innerHTML = "Skript jetzt speichern"
+      button.addEventListener("click", async () => {
+
+        if (await this.verify("funnel/validity", funnel) === true) {
+          const map = {}
+          map.script = scriptField.input.value
+          map.name = nameField.input.value
+
+          if (input !== undefined) {
+
+            if (!this.numberIsEmpty(input.id)) {
+              map.id = input.id
+            }
+
+          }
+
+          this.overlay("security", async securityOverlay => {
+
+            await this.update("script/closed", securityOverlay, map)
+
+            if (input !== undefined) {
+              if (input.ok !== undefined) await input.ok()
+            }
+
+            this.removeOverlay(securityOverlay)
+
+          })
+
+        }
+
+
+      })
+
+      if (input !== undefined) {
+
+        if (!this.numberIsEmpty(input.id)) {
+
+          const button = this.buttonPicker("delete", funnel)
+          button.innerHTML = "Skript entfernen"
+          button.addEventListener("click", () => {
+
+            this.overlay("security", async securityOverlay => {
+              const del = {}
+              del.url = "/delete/script/closed/"
+              del.id = input.id
+              const res = await Request.closed(del)
+
+              if (res.status === 200) {
+                if (input.ok !== undefined) await input.ok()
+                this.removeOverlay(securityOverlay)
+              } else {
+                this.redirect("session-expired")
+              }
+
+            })
+
+
+          })
+
+        }
+
+      }
+
+    }
+
+
     if (event === "funnel/service") {
 
       const funnel = this.create("div/scrollable", parent)
@@ -880,6 +1212,112 @@ export class Helper {
 
     }
 
+    if (event === "toolbox-scripts/closed"){
+
+      return new Promise(async(resolve, reject) => {
+
+        const units = this.headerPicker("loading", parent)
+        {
+
+          const get = {}
+          get.url = "/get/toolbox-scripts/closed/"
+          const res = await Request.closed(get)
+
+          if (res.status !== 200) {
+            this.reset(units)
+            this.convert("element/center", units)
+            units.style.zIndex = "-1"
+            units.style.fontFamily = "sans-serif"
+            units.innerHTML = `<span style="margin: 21px 34px;">Keine Skripte gefunden.</span>`
+            throw new Error("values not found")
+          }
+
+          if (res.status === 200) {
+            const scripts = JSON.parse(res.response)
+
+            if (scripts.length === 0) {
+              this.reset(units)
+              this.convert("element/center", units)
+              units.style.zIndex = "-1"
+              units.style.fontFamily = "sans-serif"
+              units.innerHTML = `<span style="margin: 21px 34px;">Keine Skripte gefunden.</span>`
+              throw new Error("platform scripts is empty")
+            }
+
+            this.convert("parent/scrollable", units)
+
+            this.render("scripts/toolbox", scripts, units)
+
+            return resolve()
+
+          }
+
+        }
+
+      })
+
+
+    }
+
+    if (event === "scripts/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const content = this.headerPicker("loading", parent)
+
+        const get = {}
+        get.url = "/get/scripts/closed/"
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+          const scripts = JSON.parse(res.response)
+
+          this.convert("parent/scrollable", content)
+
+          for (let i = 0; i < scripts.length; i++) {
+            const script = scripts[i]
+
+            const button = this.buttonPicker("left/right", content)
+            if (script.name !== undefined) {
+              button.right.innerHTML = script.name
+            }
+            button.left.innerHTML = `Skript ${scripts.length - i}`
+
+            button.addEventListener("click", () => {
+              this.popup(overlay => {
+                this.headerPicker("removeOverlay", overlay)
+                const info = this.headerPicker("info", overlay)
+                info.append(this.convert("text/span", ".script"))
+
+                script.ok = async () => {
+
+                  this.reset(content)
+                  await this.get(event, content, script)
+                  this.removeOverlay(overlay)
+
+                }
+
+                this.get("funnel/script", overlay, script)
+
+              })
+            })
+
+          }
+
+          return resolve(content)
+
+        }
+
+
+        if (res.status !== 200) {
+          this.redirect("session-expired")
+          return reject(new Error("get scripts failed"))
+        }
+
+      })
+
+    }
+
     if (event === "services/closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -1070,26 +1508,52 @@ export class Helper {
       cityField.verifyValue()
       cityField.input.addEventListener("input", () => cityField.verifyValue())
 
-      const termsField = new FileField("terms", parent)
+
+
+
+
+      const termsField = this.create("field/url", parent)
       termsField.label.innerHTML = "Lade deine AGBs als PDF hoch"
-      termsField.input.accept = "application/pdf"
+      termsField.input.placeholder = "https://nft-storage.link"
+      termsField.input.accept = "text/https"
       termsField.input.required = true
-      termsField.verifyValue()
-      termsField.input.addEventListener("input", () => termsField.verifyValue())
 
-      const productInfoField = new FileField("productInfo", parent)
+      if (input.termsPdf !== undefined) {
+        termsField.input.value = input.termsPdf
+      }
+
+      this.verify("input/validity", termsField.input)
+      termsField.input.addEventListener("input", () => this.verify("input/validity", termsField.input))
+
+
+      const productInfoField = this.create("field/url", parent)
       productInfoField.label.innerHTML = "Lade deine Produkt- und Dienstleistungs-Broschüre als PDF hoch"
-      productInfoField.input.accept = "application/pdf"
+      productInfoField.input.accept = "text/https"
       productInfoField.input.required = true
-      productInfoField.verifyValue()
-      productInfoField.input.addEventListener("input", () => productInfoField.verifyValue())
+      productInfoField.input.placeholder = "https://nft-storage.link"
 
-      const companyInfoField = new FileField("companyInfo", parent)
+      if (input.productPdf !== undefined) {
+        productInfoField.input.value = input.termsPdf
+      }
+
+      this.verify("input/validity", productInfoField.input)
+      productInfoField.input.addEventListener("input", () => this.verify("input/validity", productInfoField.input))
+
+      const companyInfoField = this.create("field/url", parent)
       companyInfoField.label.innerHTML = "Lade deine Unternehmens-Broschüre als PDF hoch"
-      companyInfoField.input.accept = "application/pdf"
+      companyInfoField.input.accept = "text/https"
       companyInfoField.input.required = true
-      companyInfoField.verifyValue()
-      companyInfoField.input.addEventListener("input", () => companyInfoField.verifyValue())
+      companyInfoField.input.placeholder = "https://nft-storage.link"
+
+      if (input.companyPdf !== undefined) {
+        companyInfoField.input.value = input.termsPdf
+      }
+
+      this.verify("input/validity", companyInfoField.input)
+      companyInfoField.input.addEventListener("input", () => this.verify("input/validity", companyInfoField.input))
+
+
+
 
       const vatField = new TelField("vat", parent)
       vatField.label.innerHTML = "Steuern in %"
@@ -1123,20 +1587,17 @@ export class Helper {
         offer.zip = zipField.validValue()
         offer.city = cityField.validValue()
 
-        const termsFile = termsField.validValue()[0]
-        const companyFile = companyInfoField.validValue()[0]
-        const productFile = productInfoField.validValue()[0]
 
-        if (termsFile !== undefined) {
-          offer.termsPdf = await termsField.validPdf(termsFile)
+        if (this.verify("input/validity", termsField.input)) {
+          offer.termsPdf = termsField.input.value
         }
 
-        if (companyFile !== undefined) {
-          offer.companyPdf = await companyInfoField.validPdf(companyFile)
+        if (this.verify("input/validity", companyInfoField.input)) {
+          offer.companyPdf = companyInfoField.input.value
         }
 
-        if (productFile !== undefined) {
-          offer.productPdf = await productInfoField.validPdf(productFile)
+        if (this.verify("input/validity", productInfoField.input)) {
+          offer.productPdf = productInfoField.input.value
         }
 
         offer.vat = vatField.validValue()
@@ -1243,20 +1704,20 @@ export class Helper {
         cityField.value(() => input.city)
         cityField.verifyValue()
 
-        if (input.termsPdf !== undefined) {
-          termsField.input.required = false
-          termsField.verifyValue()
-        }
+        // if (input.termsPdf !== undefined) {
+        //   termsField.input.required = false
+        //   termsField.verifyValue()
+        // }
 
-        if (input.productPdf !== undefined) {
-          productInfoField.input.required = false
-          productInfoField.verifyValue()
-        }
+        // if (input.productPdf !== undefined) {
+        //   productInfoField.input.required = false
+        //   productInfoField.verifyValue()
+        // }
 
-        if (input.companyPdf !== undefined) {
-          companyInfoField.input.required = false
-          companyInfoField.verifyValue()
-        }
+        // if (input.companyPdf !== undefined) {
+        //   companyInfoField.input.required = false
+        //   companyInfoField.verifyValue()
+        // }
 
         vatField.value(() => input.vat)
         vatField.verifyValue()
@@ -1394,6 +1855,50 @@ export class Helper {
 
               }
 
+
+              if (app === "scripts") {
+                button.right.innerHTML = "Meine HTML Skripte"
+
+
+                button.addEventListener("click", () => {
+                  this.popup(async overlay => {
+
+                    this.headerPicker("removeOverlay", overlay)
+                    const info = this.headerPicker("info", overlay)
+                    info.innerHTML = `.scripts`
+
+                    const create = this.buttonPicker("left/right", overlay)
+                    create.left.innerHTML = ".create"
+                    create.right.innerHTML = "Neues Skript hochladen"
+                    create.addEventListener("click", () => {
+
+                      this.popup(overlay => {
+                        this.headerPicker("removeOverlay", overlay)
+                        const info = this.headerPicker("info", overlay)
+                        info.append(this.convert("text/span", ".script"))
+
+                        this.get("funnel/script", overlay, {ok: async () => {
+
+                          this.reset(container)
+                          await this.get("scripts/closed", container)
+                          this.removeOverlay(overlay)
+
+                        }})
+
+                      })
+
+                    })
+
+                    this.render("text/hr", "Meine Skripte", overlay)
+
+                    const container = await this.get("scripts/closed", overlay)
+
+                  })
+                })
+
+              }
+
+
             }
 
             return resolve(content)
@@ -1528,8 +2033,281 @@ export class Helper {
     }
   }
 
+  // event = tag/on/algorithm
   static update(event, parent, input) {
 
+    if (event === "name/expert/closed") {
+      const funnel = this.create("div/scrollable", parent)
+
+      const nameField = this.create("field/name", funnel)
+      nameField.input.value = window.location.pathname.split("/")[1]
+      nameField.input.placeholder = "mein-neuer-experten-name"
+      nameField.input.maxLength = "21"
+      this.verify("input/validity", nameField.input)
+
+      const button = this.buttonPicker("action", funnel)
+      button.innerHTML = "Name jetzt ändern"
+      button.addEventListener("click", () => {
+        if (this.verify("input/validity", nameField.input) === false) throw new Error("name invalid")
+
+
+        this.overlay("security", async securityOverlay => {
+
+          const map = {}
+          map.type = "name"
+          map.name = nameField.input.value
+          const res = await Request.ping("/update/expert/closed/", map)
+
+          if (res.status === 200) {
+            if (input !== undefined) {
+              if (input.ok !== undefined) await input.ok()
+            }
+            this.removeOverlay(securityOverlay)
+            window.location.assign(`/${nameField.input.value}/`)
+          }
+
+        })
+
+
+
+      })
+
+    }
+
+    if (event === "feedback/script/location") {
+
+      parent.onclick = () => {
+
+        this.popup(async overlay => {
+          const feedbackOverlay = overlay
+
+          this.headerPicker("removeOverlay", overlay)
+
+          const info = this.headerPicker("info", overlay)
+
+          info.append(this.convert("element/alias", document.body))
+          info.append(this.convert("text/span", `.${input.name}.feedback`))
+
+          const content = this.headerPicker("scrollable", overlay)
+
+          const feedbackContainer = this.headerPicker("loading", content)
+          feedbackContainer.info.remove()
+
+          feedbackContainer.style.margin = "21px 34px"
+          feedbackContainer.style.overflowY = "auto"
+          feedbackContainer.style.overscrollBehavior = "none"
+          feedbackContainer.style.fontFamily = "monospace"
+          feedbackContainer.style.fontSize = "13px"
+          feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
+
+
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            feedbackContainer.style.color = this.colors.dark.text
+          } else {
+            feedbackContainer.style.color = this.colors.light.text
+          }
+
+          const get = {}
+          get.url = "/get/feedback/location/"
+          get.type = "script"
+          get.id = input.id
+          const res = await Request.location(get)
+
+          if (res.status !== 200) {
+            feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
+          }
+
+          getFeedbackSuccess: if (res.status === 200) {
+            const feedback = JSON.parse(res.response)
+
+            if (feedback.length === 0) {
+              feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
+              break getFeedbackSuccess
+            }
+
+            this.reset(feedbackContainer)
+            feedbackContainer.style.margin = "21px 34px"
+            feedbackContainer.style.overflowY = "auto"
+            feedbackContainer.style.overscrollBehavior = "none"
+            feedbackContainer.style.fontFamily = "monospace"
+            feedbackContainer.style.fontSize = "13px"
+            feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
+
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              feedbackContainer.style.color = this.colors.dark.text
+            } else {
+              feedbackContainer.style.color = this.colors.light.text
+            }
+
+
+            for (let i = 0; i < feedback.length; i++) {
+              const value = feedback[i]
+
+              const div = document.createElement("div")
+              div.style.display = "flex"
+              div.style.justifyContent = "space-between"
+              div.style.alignItems = "center"
+
+              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+
+                if (i % 2 === 0) {
+                  div.style.background = this.colors.light.foreground
+                  div.style.color = this.colors.light.text
+                } else {
+                  div.style.background = this.colors.dark.foreground
+                  div.style.color = this.colors.dark.text
+                }
+
+              } else {
+
+                if (i % 2 === 1) {
+                  div.style.background = this.colors.light.foreground
+                  div.style.color = this.colors.light.text
+                } else {
+                  div.style.background = this.colors.dark.foreground
+                  div.style.color = this.colors.dark.text
+                }
+
+              }
+
+              const left = document.createElement("span")
+              left.innerHTML = `${this.convert("millis/dd.mm.yyyy hh:mm", value.id)}`
+              div.append(left)
+
+              const nextToLeft = document.createElement("span")
+              nextToLeft.style.width = "100%"
+              nextToLeft.style.margin = "0 13px"
+              nextToLeft.innerHTML = value.content
+              div.append(nextToLeft)
+
+              const right = document.createElement("span")
+              right.style.padding = "13px"
+              right.innerHTML = value.importance
+              div.append(right)
+
+              feedbackContainer.append(div)
+
+              div.style.cursor = "pointer"
+              div.addEventListener("click", () => {
+
+                this.popup(overlay => {
+                  this.headerPicker("removeOverlay", overlay)
+
+                  const button = this.buttonPicker("left/right", overlay)
+                  const icon = this.iconPicker("delete")
+                  icon.style.width = "34px"
+                  button.left.append(icon)
+                  button.right.innerHTML = "Feedback löschen"
+
+                  button.addEventListener("click", async () => {
+                    const confirm = window.confirm("Möchtest du diesen Beitrag wirklich löschen?")
+
+                    if (confirm === true) {
+                      const del = {}
+                      del.url = "/delete/feedback/location/"
+                      del.type = "script"
+                      del.scriptId = input.id
+                      del.feedbackId = value.id
+                      const res = await Request.location(del)
+
+                      if (res.status === 200) {
+                        parent.counter.innerHTML = parseInt(parent.counter.innerHTML) - 1
+                        this.removeOverlay(overlay)
+                        this.removeOverlay(feedbackOverlay)
+                      } else {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        this.removeOverlay(overlay)
+                      }
+
+
+                    }
+
+                  })
+                })
+
+              })
+            }
+
+
+          }
+
+          const contentField = this.create("field/textarea", content)
+          contentField.label.innerHTML = "Feedback"
+          contentField.input.required = true
+          contentField.input.maxLength = "377"
+          contentField.input.style.fontSize = "13px"
+          contentField.input.placeholder = "Schreibe ein Feedback an unsere Web-Entwickler"
+          this.verify("input/value", contentField.input)
+
+          const importanceField = this.create("field/range", content)
+          importanceField.input.min = "0"
+          importanceField.input.max = "13"
+          importanceField.input.step = "1"
+          importanceField.input.value = "0"
+          importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
+          this.verify("input/value", importanceField.input)
+
+          importanceField.input.addEventListener("input", (event) => {
+            this.verify("input/value", importanceField.input)
+            importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
+          })
+
+          const button = this.buttonPicker("action", content)
+          button.innerHTML = "Feedback jetzt speichern"
+          button.addEventListener("click", () => {
+
+            if (this.verify("input/validity", contentField.input) === true) {
+              const content = contentField.input.value
+              const importance = importanceField.input.value
+
+              this.popup(async securityOverlay => {
+
+                this.headerPicker("loading", securityOverlay)
+
+                const register = {}
+                register.url = "/register/feedback/location/"
+                register.type = "script"
+                register.id = input.id
+                register.importance = importance
+                register.content = content
+                const res = await Request.location(register)
+
+                if (res.status === 200) {
+                  this.removeOverlay(securityOverlay)
+                  this.removeOverlay(overlay)
+                  parent.counter.innerHTML = parseInt(parent.counter.innerHTML) + 1
+                } else {
+                  window.alert("Fehler.. Bitte wiederholen.")
+                  this.removeOverlay(securityOverlay)
+                }
+
+              })
+            }
+
+
+
+
+
+          })
+
+
+
+        })
+
+      }
+
+    }
+
+    if (event === "toolbox-getter") {
+      document.querySelectorAll("#toolbox-getter").forEach(getter => getter.remove())
+      document.querySelectorAll("#toolbox").forEach(toolbox => toolbox.remove())
+      document.querySelectorAll("[data-id='toolbox']").forEach(toolbox => toolbox.remove())
+
+      if (document.getElementById("#toolbox-getter") === null) {
+        this.create("script/toolbox-getter", document.body)
+      }
+
+    }
 
     if (event === "image/onclick") {
 
@@ -1631,7 +2409,6 @@ export class Helper {
 
     }
 
-    // event = this/on/algorithm
     if (event === "image/platform/closed") {
 
       const funnel = this.create("div/scrollable", parent)
@@ -1889,6 +2666,39 @@ export class Helper {
       })
     }
 
+
+    if (event === "script/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const update = {}
+        update.url = "/update/script/closed/"
+        update.script = input.script
+
+        if (input.id !== undefined) {
+          update.id = input.id
+        }
+
+
+        if (input.name !== undefined) {
+          update.name = input.name
+        }
+
+        const res = await Request.closed(update)
+
+
+        if (res.status === 200) {
+          return resolve()
+        }
+
+
+        if (res.status !== 200) {
+          return reject()
+        }
+
+      })
+    }
+
     if (event === "service/closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -1983,169 +2793,47 @@ export class Helper {
     if (event === "script/login") {
 
       let text = /*html*/`
-      <script id="login-event" type="module">
-        import { Helper } from "/js/Helper.js"
-        import { Request } from "/js/Request.js"
+        <script id="login-event" type="module">
+          import { Helper } from "/js/Helper.js"
 
-        const submit = document.querySelector(".start-login-event")
+          const submit = document.querySelector(".start-login-event")
+          const emailInput = document.querySelector(".email-input")
+          const dsgvoInput = document.querySelector(".dsgvo-input")
 
-        const emailInput = document.querySelector(".email-input")
-        const dsgvoInput = document.querySelector(".dsgvo-input")
-
-        if (window.localStorage.getItem("email") !== null) {
-          emailInput.value = window.localStorage.getItem("email")
           Helper.verify("input/validity", emailInput)
-        }
+          Helper.verify("input/validity", dsgvoInput)
 
-        if (emailInput !== null) {
-          if (dsgvoInput !== null) {
-            emailInput.addEventListener("input", (event) => {
-              Helper.verify("input/validity", event.target)
-            })
-
-            dsgvoInput.addEventListener("input", (event) => {
-              Helper.verify("input/validity", event.target)
-            })
-          }
-        }
-
-        if (submit !== undefined) {
-          submit.addEventListener("click", async () => {
-
-            const emailInput = document.querySelector(".email-input")
-            const dsgvoInput = document.querySelector(".dsgvo-input")
-
-            if (emailInput !== null) {
-              if (dsgvoInput !== null) {
-
-                Helper.verify("input/validity", emailInput)
-                Helper.verify("input/validity", dsgvoInput)
-
-                await Request.withVerifiedEmail(emailInput.value, async () => {
-
-                  if (emailInput.value.endsWith("@get-your.de")) {
-
-                    await Request.ping("/register/admin/location/", emailInput.value)
-                    .catch(error => {
-                      window.alert("Fehler.. Bitte wiederholen.")
-                      window.location.assign("/")
-                    })
-
-                  }
-
-                  {
-                    const register = {}
-                    register.url = "/request/register/session/"
-                    const res = await Request.closed(register)
-
-                    if (res.status === 200) {
-                      const redirect = {}
-                      redirect.url = "/redirect/user/closed/"
-                      const res = await Request.closed(redirect)
-
-                      if (res.status === 200) {
-                        window.location.assign(res.response)
-                      } else if (!Helper.stringIsEmpty(document.referrer)) {
-                        window.location.assign(document.referrer)
-                      } else {
-                        window.history.back()
-                      }
-
-                    } else {
-                      window.history.back()
-                    }
-                  }
-
-                })
-
-
-
-              }
-            }
-
-          })
-        }
-
-
-      </script>
+          Helper.add("input/value", emailInput)
+          Helper.add("input/oninput", emailInput)
+          Helper.add("input/oninput", dsgvoInput)
+          Helper.add("button/on-login-click", submit)
+        </script>
       `
 
       if (input !== undefined) {
 
         text = /*html*/`
-  <script id="login-event" type="module">
-    import { Helper } from "/js/Helper.js"
-    import { Request } from "/js/Request.js"
+          <script id="login-event" type="module">
+            import { Helper } from "/js/Helper.js"
+            import { Request } from "/js/Request.js"
 
-    const submit = document.querySelector(".start-login-event")
-
-    const emailInput = document.querySelector(".email-input")
-    const dsgvoInput = document.querySelector(".dsgvo-input")
-
-    if (window.localStorage.getItem("email") !== null) {
-      emailInput.value = window.localStorage.getItem("email")
-      Helper.verify("input/validity", emailInput)
-    }
-
-    if (emailInput !== null) {
-      if (dsgvoInput !== null) {
-        emailInput.addEventListener("input", (event) => {
-          Helper.verify("input/validity", event.target)
-        })
-
-        dsgvoInput.addEventListener("input", (event) => {
-          Helper.verify("input/validity", event.target)
-        })
-      }
-    }
-
-    if (submit !== undefined) {
-      submit.addEventListener("click", async () => {
-        const roleId = ${input.id}
-        const roleName = "${input.name}"
-
-        const emailInput = document.querySelector(".email-input")
-        const dsgvoInput = document.querySelector(".dsgvo-input")
-
-        if (emailInput !== null) {
-          if (dsgvoInput !== null) {
+            const submit = document.querySelector(".start-login-event")
+            const emailInput = document.querySelector(".email-input")
+            const dsgvoInput = document.querySelector(".dsgvo-input")
 
             Helper.verify("input/validity", emailInput)
             Helper.verify("input/validity", dsgvoInput)
 
-            await Request.withVerifiedEmail(emailInput.value, async () => {
+            Helper.add("input/value", emailInput)
+            Helper.add("input/oninput", emailInput)
+            Helper.add("input/oninput", dsgvoInput)
 
-              const register = {}
-              register.url = "/register/email/location/"
-              register.email = emailInput.value
-              register.id = roleId
-              register.name = roleName
-              const res = await Request.location(register)
-
-              {
-                const register = {}
-                register.url = "/request/register/session/"
-                const res = await Request.closed(register)
-
-                if (res.status === 200) {
-                  const redirect = {}
-                  redirect.url = "/redirect/user/closed/"
-                  const res = await Request.closed(redirect)
-                  if (res.status === 200) window.location.assign(res.response)
-                } else {
-                  window.history.back()
-                }
-              }
-
-            })
-          }
-        }
-
-      })
-    }
-
-
-  </script>
+            const map = {}
+            map.button = submit
+            map.roleId = ${input.id}
+            map.roleName = "${input.name}"
+            Helper.add("button/on-role-login-click", map)
+          </script>
         `
 
       }
@@ -2383,6 +3071,56 @@ export class Helper {
   // event = input/algorithm
   static verify(event, input) {
 
+    if (event === "input/value") {
+      this.verify("input/validity", input)
+      input.oninput = () => this.verify("input/validity", input)
+    }
+
+
+    if (event === "funnel/validity") {
+
+      return new Promise((resolve, reject) => {
+
+        input.querySelectorAll(".field").forEach(async field => {
+          try {
+            const input = field.querySelector(".field-input")
+            await this.verify("input", input)
+            return resolve(true)
+          } catch (error) {
+            return reject(error)
+          }
+        })
+
+      })
+
+
+
+    }
+
+
+    if (event === "input") {
+
+      return new Promise((resolve, reject) => {
+
+        if (this.verifyIs("input/required", input)) {
+          if (this.verifyIs("input/valid", input)) {
+            this.setValidStyle(input)
+            return resolve(input)
+          }
+          this.setNotValidStyle(input)
+          const field = input.parentElement
+          field.scrollIntoView({behavior: "smooth"})
+          return reject(new Error("input invalid"))
+        }
+        this.setValidStyle(input)
+        return resolve(input)
+
+      })
+
+    }
+
+
+
     if (event === "input/validity") {
       if (this.verifyIs("input/required", input)) {
         if (this.verifyIs("input/valid", input)) {
@@ -2533,6 +3271,7 @@ export class Helper {
 
   }
 
+  // no events, only dom creation
   static create(event, parent) {
 
 
@@ -2576,65 +3315,63 @@ export class Helper {
       return div
     }
 
-    if (event === "role-apps-button") {
+    if (event === "button/branch") {
 
-      return new Promise(async (resolve, reject) => {
-        const get = {}
-        get.url = "/get/platform/closed/"
-        get.type = "image"
-        const res = await Request.closed(get)
+      const button = document.createElement("div")
+      button.style.cursor = "pointer"
+      button.style.position = "relative"
 
-        if (res.status === 200) {
-          const image = JSON.parse(res.response)
+      button.icon = this.iconPicker("branch")
+      button.icon.style.width = "55px"
+      button.append(button.icon)
 
-          const button = document.createElement("div")
-          button.classList.add("role-apps-button")
-          button.style.position = "fixed"
-          button.style.bottom = "0"
-          button.style.right = "0"
-          button.style.boxShadow = this.colors.light.boxShadow
-          button.style.border = this.colors.light.border
-          button.style.backgroundColor = this.colors.light.foreground
-          // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          //   button.style.boxShadow = this.colors.dark.boxShadow
-          //   button.style.border = this.colors.dark.border
-          //   button.style.backgroundColor = this.colors.dark.foreground
-          // }
-          button.style.width = "34px"
-          button.style.height = "34px"
-          button.style.borderRadius = "50%"
-          button.style.margin = "34px"
-          button.style.padding = "21px"
-          button.style.cursor = "pointer"
+      button.counter = document.createElement("div")
+      button.counter.style.position = "absolute"
+      button.counter.style.top = "0"
+      button.counter.style.right = "0"
+      button.counter.style.fontFamily = "monospace"
+      button.counter.style.fontSize = "13px"
+      button.counter.style.borderRadius = "50%"
+      button.counter.style.padding = "3px 5px"
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        button.counter.style.color = this.colors.dark.text
+        button.counter.style.background = this.colors.dark.foreground
+      } else {
+        button.counter.style.color = this.colors.light.text
+        button.counter.style.background = this.colors.light.foreground
+      }
+      button.append(button.counter)
+
+      if (parent !== undefined) parent.append(button)
+      return button
+    }
+
+    if (event === "button/role-apps") {
 
 
-          if (image.dataUrl !== undefined) {
-            const img = document.createElement("img")
-            img.src = image.dataUrl
-            img.style.width = "100%"
-            button.append(img)
-          }
+      const button = document.createElement("div")
+      button.classList.add("role-apps-button")
+      button.style.position = "fixed"
+      button.style.bottom = "0"
+      button.style.right = "0"
+      button.style.boxShadow = this.colors.light.boxShadow
+      button.style.border = this.colors.light.border
+      button.style.backgroundColor = this.colors.light.foreground
+      button.style.width = "34px"
+      button.style.height = "34px"
+      button.style.borderRadius = "50%"
+      button.style.margin = "34px"
+      button.style.padding = "21px"
+      button.style.cursor = "pointer"
 
-          if (image.svg !== undefined) {
-            button.innerHTML = ""
-            const svg = this.convert("text/svg", image.svg)
-            button.append(svg)
-          }
-
-          if (parent !== undefined) {
-            if (document.querySelector(".role-apps-button") === null) {
-              parent.append(button)
-            }
-          }
-
-          return resolve(button)
-
-        } else {
-          this.redirect("image-not-found")
-          return reject(new Error("platform image not found"))
+      if (parent !== undefined) {
+        if (document.querySelector(".role-apps-button") === null) {
+          parent.append(button)
         }
-      })
+      }
 
+      return button
     }
 
     if (event === "open") {
@@ -2685,38 +3422,9 @@ export class Helper {
 
     if (event === "login") {
 
-      // create should not
-      // make events
-      // make dark
-      // write to dom
-      // use emailField?
-
-      this.create("field/email", parent) // only dom write
-
-      // const emailField = new EmailField("email", parent)
-      // emailField.input.classList.add("email-input")
-      // emailField.label.innerHTML = "E-Mail Adresse"
-      // emailField.input.placeholder = "meine@email.de"
-      // emailField.input.required = true
-      // emailField.input.accept = "text/email"
-      // emailField.input.addEventListener("input", () => {
-      //   const value = emailField.validValue()
-      //   window.localStorage.setItem(emailField.name, value)
-      // })
-      // emailField.value(name => window.localStorage.getItem(name))
-      // emailField.verifyValue()
+      this.create("field/email", parent)
 
       this.create("field/dsgvo", parent)
-
-      // const dsgvoField = new CheckboxField("dsgvo", parent)
-      // dsgvoField.input.classList.add("dsgvo-input")
-      // dsgvoField.label.innerHTML = `<div style="font-size: 13px;">Ich habe die <a href="/getyour/pana/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/getyour/pana/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>`
-      // dsgvoField.input.required = true
-      // dsgvoField.icon.style.display = "block"
-      // dsgvoField.icon.src = "/public/info-gray.svg"
-      // dsgvoField.icon.alt = "Info"
-      // dsgvoField.input.addEventListener("input", () => dsgvoField.verifyValue())
-      // dsgvoField.verifyValue()
 
       const loginbutton = this.buttonPicker("action", parent)
       loginbutton.classList.add("start-login-event")
@@ -2927,20 +3635,9 @@ export class Helper {
 
       const text = /*html*/`
 <script id="toolbox-getter" type="module">
-  import {Request} from "/js/Request.js"
+  import {Helper} from "/js/Helper.js"
 
-  const get = {}
-  get.url = "/get/toolbox/closed/"
-  const res = await Request.closed(get)
-
-  if (res.status === 200) {
-    const toolboxScript = new DOMParser().parseFromString(res.response, "text/html").getElementById("toolbox")
-    const script = document.createElement("script")
-    script.id = toolboxScript.id
-    script.type = toolboxScript.type
-    script.innerHTML = toolboxScript.innerHTML
-    document.body.append(script)
-  }
+  await Helper.get("toolbox/closed", document.body)
 </script>
       `
 
@@ -2956,12 +3653,9 @@ export class Helper {
       return create
     }
 
-
-    if (event === "field/url") {
+    if (event === "field/range") {
 
       const field = document.createElement("div")
-      // field.id = "url-field"
-      // field.innerHTML = ""
       field.classList.add("field")
       field.style.position = "relative"
       field.style.borderRadius = "13px"
@@ -2973,13 +3667,6 @@ export class Helper {
       field.style.border = this.colors.light.border
       field.style.boxShadow = this.colors.light.boxShadow
       field.style.color = this.colors.light.text
-
-      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      //   field.style.backgroundColor = Helper.colors.dark.foreground
-      //   field.style.border = Helper.colors.dark.border
-      //   field.style.boxShadow = Helper.colors.dark.boxShadow
-      //   field.style.color = Helper.colors.dark.text
-      // }
 
       field.labelContainer = document.createElement("div")
       field.labelContainer.classList.add("field-label-container")
@@ -2993,44 +3680,127 @@ export class Helper {
       field.label.style.color = this.colors.light.text
       field.labelContainer.append(field.label)
       field.append(field.labelContainer)
-      // this.labelContainer = labelContainer
-
-      // const icon = document.createElement("img")
-      // icon.style.width = "34px"
-      // icon.style.marginRight = "21px"
-      // icon.style.display = "none"
-      // this.icon = icon
-      // labelContainer.append(icon)
-
-
-      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      //   label.style.color = Helper.colors.dark.text
-      // }
-
-      // this.label = label
 
       field.input = document.createElement("input")
       field.input.classList.add("field-input")
-      // field.input.classList.add("email-input")
-      // field.input.classList.add("email")
+      field.input.type = "range"
+      field.input.style.margin = "21px 89px 21px 34px"
+      field.input.style.fontSize = "21px"
+      field.input.style.backgroundColor = this.colors.light.background
+      field.input.style.color = this.colors.light.text
+      field.append(field.input)
+
+      if (parent !== undefined) parent.append(field)
+      return field
+    }
+
+    if (event === "field/name") {
+
+      const field = this.create("field/text")
+
+      field.label.innerHTML = "Name"
+      field.input.required = true
+      field.input.accept = "text/tag"
+
+      this.verify("input/validity", field.input)
+      field.input.addEventListener("input", () => this.verify("input/validity", field.input))
+
+      if (parent !== undefined) parent.append(field)
+      return field
+    }
+
+    if (event === "field/script") {
+
+      const field = this.create("field/textarea")
+
+      field.label.innerHTML = "HTML Skript"
+      field.input.required = true
+      field.input.accept = "text/script"
+      field.input.placeholder = "<script>..</script>"
+
+      this.verify("input/validity", field.input)
+      field.input.addEventListener("input", () => this.verify("input/validity", field.input))
+
+      if (parent !== undefined) parent.append(field)
+      return field
+    }
+
+    if (event === "field/textarea") {
+
+      const field = document.createElement("div")
+      field.classList.add("field")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+
+      field.labelContainer = document.createElement("div")
+      field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.display = "flex"
+      field.labelContainer.style.alignItems = "center"
+      field.labelContainer.style.margin = "21px 89px 0 34px"
+      field.label = document.createElement("label")
+      field.label.classList.add("field-label")
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "21px"
+      field.label.style.color = this.colors.light.text
+      field.labelContainer.append(field.label)
+      field.append(field.labelContainer)
+
+      field.input = document.createElement("textarea")
+      field.input.classList.add("field-input")
+      field.input.style.margin = "21px 89px 21px 34px"
+      field.input.style.fontSize = "21px"
+      field.input.style.backgroundColor = this.colors.light.background
+      field.input.style.color = this.colors.light.text
+      field.append(field.input)
+
+      if (parent !== undefined) parent.append(field)
+      return field
+    }
+
+    if (event === "field/url") {
+
+      const field = document.createElement("div")
+      field.classList.add("field")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+
+      field.labelContainer = document.createElement("div")
+      field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.display = "flex"
+      field.labelContainer.style.alignItems = "center"
+      field.labelContainer.style.margin = "21px 89px 0 34px"
+      field.label = document.createElement("label")
+      field.label.classList.add("field-label")
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "21px"
+      field.label.style.color = this.colors.light.text
+      field.labelContainer.append(field.label)
+      field.append(field.labelContainer)
+
+      field.input = document.createElement("input")
+      field.input.classList.add("field-input")
       field.input.type = "url"
       field.input.style.margin = "21px 89px 21px 34px"
       field.input.style.fontSize = "21px"
       field.input.style.backgroundColor = this.colors.light.background
       field.input.style.color = this.colors.light.text
       field.append(field.input)
-      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      //   input.style.backgroundColor = Helper.colors.dark.background
-      //   input.style.color = Helper.colors.dark.text
-      // }
-      // field.input.required = true
-      // field.input.accept = "text/email"
-
-      // this.input = input
-      // return field
-
-
-      // const field = new EmailField("email", parent)
 
       if (parent !== undefined) parent.append(field)
       return field
@@ -3038,10 +3808,7 @@ export class Helper {
 
     if (event === "field/dsgvo") {
 
-
-
       const field = document.createElement("div")
-      // field.id = "email-field"
       field.classList.add("field")
       field.style.position = "relative"
       field.style.borderRadius = "13px"
@@ -3054,31 +3821,20 @@ export class Helper {
       field.style.border = this.colors.light.border
       field.style.boxShadow = this.colors.light.boxShadow
       field.style.color = this.colors.light.text
-      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      //   field.style.backgroundColor = Helper.colors.dark.foreground
-      //   field.style.border = Helper.colors.dark.border
-      //   field.style.boxShadow = Helper.colors.dark.boxShadow
-      //   field.style.color = Helper.colors.dark.text
-      // }
 
       field.labelContainer = document.createElement("div")
       field.labelContainer.classList.add("field-label-container")
       field.labelContainer.style.display = "flex"
       field.labelContainer.style.alignItems = "center"
       field.labelContainer.style.margin = "21px 89px 0 34px"
-      // this.labelContainer = labelContainer
       field.append(field.labelContainer)
 
-
-      // create image and append to container
       field.image = document.createElement("div")
       field.image.classList.add("field-label-image")
       field.image.style.width = "89px"
       field.image.style.marginRight = "21px"
       const icon = this.iconPicker("info")
       field.image.append(icon)
-      // image.style.display = "none"
-      // this.image = image
       field.labelContainer.append(field.image)
 
       field.label = document.createElement("label")
@@ -3087,11 +3843,7 @@ export class Helper {
       field.label.style.fontFamily = "sans-serif"
       field.label.style.fontSize = "21px"
       field.label.style.color = this.colors.light.text
-      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      //   label.style.color = Helper.colors.dark.text
-      // }
 
-      // this.label = label
       field.labelContainer.append(field.label)
 
       field.checkboxContainer = document.createElement("div")
@@ -3104,13 +3856,11 @@ export class Helper {
       field.input = document.createElement("input")
       field.input.classList.add("field-input")
       field.input.classList.add("dsgvo-input")
-      // field.input.classList.add(this.name)
       field.input.type = "checkbox"
       field.input.style.marginRight = "34px"
       field.input.style.width = "21px"
       field.input.style.height = "21px"
-      field.input.required = true
-      // this.input = input
+      field.input.setAttribute("required", true)
       field.checkboxContainer.append(field.input)
 
       field.afterCheckbox = document.createElement("div")
@@ -3120,36 +3870,28 @@ export class Helper {
       field.afterCheckbox.style.fontSize = "21px"
       field.afterCheckbox.style.color = this.colors.light.text
       field.checkboxContainer.append(field.afterCheckbox)
-      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      //   afterCheckbox.style.color = Helper.colors.dark.text
-      // }
-
-      // this.afterCheckbox = afterCheckbox
-      // return field
 
 
-
-
-      this.setNotValidStyle(field.input)
-
-
-      // const dsgvoField = new CheckboxField("dsgvo", parent)
-      // dsgvoField.icon.style.display = "block"
-      // dsgvoField.icon.src = "/public/info-gray.svg"
-      // dsgvoField.icon.alt = "Info"
-      // // dsgvoField.input.addEventListener("input", () => dsgvoField.verifyValue())
-      // dsgvoField.verifyValue()
-
+      // this is event
+      // need to be in login event
+      // this.verify("input/validity", field.input)
+      // field.input.addEventListener("input", (ev) => {
+      //   if (ev.target.checked === true) {
+      //     ev.target.setAttribute("checked", true)
+      //   } else {
+      //     ev.target.removeAttribute("checked")
+      //   }
+      //   this.verify("input/validity", field.input)
+      // })
 
       if (parent !== undefined) parent.append(field)
       return field
     }
 
-    if (event === "field/email") {
+
+    if (event === "field/text") {
 
       const field = document.createElement("div")
-      // field.id = "dsgvo-field"
-      // field.innerHTML = ""
       field.classList.add("field")
       field.style.position = "relative"
       field.style.borderRadius = "13px"
@@ -3162,12 +3904,46 @@ export class Helper {
       field.style.boxShadow = this.colors.light.boxShadow
       field.style.color = this.colors.light.text
 
-      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      //   field.style.backgroundColor = Helper.colors.dark.foreground
-      //   field.style.border = Helper.colors.dark.border
-      //   field.style.boxShadow = Helper.colors.dark.boxShadow
-      //   field.style.color = Helper.colors.dark.text
-      // }
+      field.labelContainer = document.createElement("div")
+      field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.display = "flex"
+      field.labelContainer.style.alignItems = "center"
+      field.labelContainer.style.margin = "21px 89px 0 34px"
+      field.label = document.createElement("label")
+      field.label.classList.add("field-label")
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "21px"
+      field.label.style.color = this.colors.light.text
+      field.labelContainer.append(field.label)
+      field.append(field.labelContainer)
+
+      field.input = document.createElement("input")
+      field.input.classList.add("field-input")
+      field.input.type = "text"
+      field.input.style.margin = "21px 89px 21px 34px"
+      field.input.style.fontSize = "21px"
+      field.input.style.backgroundColor = this.colors.light.background
+      field.input.style.color = this.colors.light.text
+      field.append(field.input)
+
+      if (parent !== undefined) parent.append(field)
+      return field
+    }
+
+    if (event === "field/email") {
+
+      const field = document.createElement("div")
+      field.classList.add("field")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
 
       field.labelContainer = document.createElement("div")
       field.labelContainer.classList.add("field-label-container")
@@ -3182,26 +3958,10 @@ export class Helper {
       field.label.style.color = this.colors.light.text
       field.labelContainer.append(field.label)
       field.append(field.labelContainer)
-      // this.labelContainer = labelContainer
-
-      // const icon = document.createElement("img")
-      // icon.style.width = "34px"
-      // icon.style.marginRight = "21px"
-      // icon.style.display = "none"
-      // this.icon = icon
-      // labelContainer.append(icon)
-
-
-      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      //   label.style.color = Helper.colors.dark.text
-      // }
-
-      // this.label = label
 
       field.input = document.createElement("input")
       field.input.classList.add("field-input")
       field.input.classList.add("email-input")
-      // field.input.classList.add("email")
       field.input.type = "email"
       field.input.placeholder = "meine@email.de"
       field.input.style.margin = "21px 89px 21px 34px"
@@ -3209,19 +3969,12 @@ export class Helper {
       field.input.style.backgroundColor = this.colors.light.background
       field.input.style.color = this.colors.light.text
       field.append(field.input)
-      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      //   input.style.backgroundColor = Helper.colors.dark.background
-      //   input.style.color = Helper.colors.dark.text
-      // }
-      field.input.required = true
+
+      field.input.setAttribute("required", true)
       field.input.accept = "text/email"
 
-      // this.input = input
-      // return field
-
-
-      // const field = new EmailField("email", parent)
-      this.setNotValidStyle(field.input)
+      // this.verify("input/validity", field.input)
+      // field.input.addEventListener("input", () => this.verify("input/validity", field.input))
 
       if (parent !== undefined) parent.append(field)
       return field
@@ -3533,6 +4286,173 @@ export class Helper {
   // event = input/algorithm
   static render(event, input, parent) {
 
+    if (event === "scripts/toolbox") {
+      for (let i = 0; i < input.length; i++) {
+        const script = input[i]
+
+        const item = document.createElement("div")
+        item.style.margin = "34px"
+
+        const itemHeader = document.createElement("div")
+        itemHeader.style.display = "flex"
+        itemHeader.style.borderTopRightRadius = "21px"
+        itemHeader.style.borderTopLeftRadius = "21px"
+        itemHeader.style.borderBottomLeftRadius = "21px"
+        itemHeader.style.fontFamily = "sans-serif"
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          itemHeader.style.backgroundColor = this.colors.matte.charcoal
+          itemHeader.style.color = this.colors.matte.dark.text
+
+        } else {
+          itemHeader.style.color = this.colors.matte.light.text
+          itemHeader.style.backgroundColor = this.colors.gray[1]
+        }
+
+        const itemState = document.createElement("div")
+        itemState.classList.add("item-state")
+        itemState.style.display = "flex"
+        itemState.style.justifyContent = "center"
+        itemState.style.alignItems = "center"
+        itemState.style.width = "89px"
+        itemState.style.height = "89px"
+        itemState.style.fontSize = "34px"
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          itemState.style.backgroundColor = this.colors.dark.foreground
+        } else {
+          itemState.style.backgroundColor = this.colors.light.foreground
+        }
+
+        if (document.getElementById(script.name) !== null) {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            itemState.style.backgroundColor = this.colors.dark.success
+          } else {
+            itemState.style.backgroundColor = this.colors.light.success
+          }
+        }
+
+        itemState.style.borderTopLeftRadius = "21px"
+        itemState.style.borderBottomLeftRadius = "21px"
+
+        const itemTitle = document.createElement("div")
+        itemTitle.style.alignSelf = "center"
+        itemTitle.style.marginLeft = "13px"
+
+        {
+          const name = document.createElement("div")
+          name.innerHTML = script.name
+          name.style.fontSize = "21px"
+          itemTitle.append(name)
+        }
+
+        itemHeader.append(itemState, itemTitle)
+        item.append(itemHeader)
+
+
+        const itemBody = document.createElement("div")
+        itemBody.classList.add("item-body")
+        itemBody.style.marginLeft = "8%"
+
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          itemBody.style.backgroundColor = this.colors.matte.slate
+          itemBody.style.boxShadow = `0 1px ${this.colors.gray[4]}`
+        } else {
+          itemBody.style.boxShadow = `0 1px ${this.colors.gray[2]}`
+          itemBody.style.backgroundColor = this.colors.gray[0]
+        }
+
+        itemBody.style.borderBottomRightRadius = "21px"
+        itemBody.style.borderBottomLeftRadius = "21px"
+        itemBody.style.padding = "21px"
+        itemBody.style.display = "flex"
+        itemBody.style.flexDirection = "column"
+
+        const buttons = document.createElement("div")
+        buttons.style.display = "flex"
+        buttons.style.alignItems = "center"
+        buttons.style.justifyContent = "space-around"
+
+
+        {
+          const button = this.iconPicker("repeat-once")
+          button.style.width = "55px"
+          button.style.cursor = "pointer"
+          button.addEventListener("click", () => {
+
+            if (document.getElementById(script.name) === null) {
+              const parser = document.createElement("div")
+              parser.innerHTML = script.script
+              const node = parser.firstChild
+
+              const create = document.createElement("script")
+              create.id = script.name
+              create.innerHTML = node.innerHTML
+              create.type = "module"
+
+              const removeScript = document.createElement("script")
+              removeScript.id = "remove-script"
+              removeScript.textContent = `
+                document.getElementById("${create.id}").remove()
+                document.getElementById("remove-script").remove()
+              `
+
+              document.body.append(create)
+              document.body.append(removeScript)
+
+            } else {
+              alert("Id existiert bereits.")
+            }
+
+          })
+          buttons.append(button)
+        }
+
+
+        {
+          const button = this.iconPicker("repeat-always")
+          button.style.width = "55px"
+          button.style.cursor = "pointer"
+          button.addEventListener("click", () => {
+
+
+            if (document.getElementById(script.name) === null) {
+              const parser = document.createElement("div")
+              parser.innerHTML = script.script
+              const node = parser.firstChild
+              const tag = document.createElement("script")
+              tag.id = script.name
+              tag.type = "module"
+              tag.innerHTML = node.innerHTML
+              document.body.append(tag)
+              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                itemState.style.backgroundColor = this.colors.dark.success
+              } else {
+                itemState.style.backgroundColor = this.colors.light.success
+              }
+            } else {
+              alert("Id existiert bereits.")
+            }
+
+          })
+          buttons.append(button)
+        }
+
+        {
+          const button = this.create("button/branch", buttons)
+          button.counter.innerHTML = script.feedbackLength
+          this.update("feedback/script/location", button, script)
+        }
+
+
+        itemBody.append(buttons)
+        item.append(itemBody)
+        parent.append(item)
+      }
+
+
+    }
 
     if (event === "value/button") {
       // console.log(input);
@@ -6299,8 +7219,8 @@ export class Helper {
 
                 {
                   const button = this.buttonPicker("left/right", buttons)
-                  button.left.innerHTML = ".templates"
-                  button.right.innerHTML = "Templates anhängen"
+                  button.left.innerHTML = ".scripts"
+                  button.right.innerHTML = "Nutze, von unseren Web-Entwickler, geprüfte HTML Sktipte"
 
                   button.addEventListener("click", () => {
 
@@ -6312,526 +7232,9 @@ export class Helper {
 
                       const info = this.headerPicker("info", overlay)
 
-                      info.append(this.convert("element/alias", document.body))
-                      info.append(this.convert("text/span", ".templates"))
+                      info.append(this.convert("text/span", ".scripts"))
 
-                      {
-                        const units = this.headerPicker("loading", overlay)
-
-                        const get = {}
-                        get.url = "/get/templates/closed/3/"
-                        get.location = window.location.href
-                        get.referer = document.referrer
-                        get.localStorageEmail = await Request.email()
-                        get.localStorageId = await Request.localStorageId()
-                        const res = await Request.middleware(get)
-
-                        if (res.status !== 200) {
-                          this.reset(units)
-                          this.convert("element/center", units)
-                          units.style.zIndex = "-1"
-                          units.style.fontFamily = "sans-serif"
-                          units.innerHTML = `<span style="margin: 21px 34px;">Keine Templates gefunden.</span>`
-                          throw new Error("values not found")
-                        }
-
-                        if (res.status === 200) {
-                          const templates = JSON.parse(res.response)
-
-                          // console.log(templates);
-
-                          if (templates.length === 0) {
-                            this.reset(units)
-                            this.convert("element/center", units)
-                            units.style.zIndex = "-1"
-                            units.style.fontFamily = "sans-serif"
-                            units.innerHTML = `<span style="margin: 21px 34px;">Keine Templates gefunden.</span>`
-                            throw new Error("platform templates is empty")
-                          }
-
-                          this.reset(units)
-                          units.style.overflowY = "auto"
-                          units.style.paddingBottom = "144px"
-                          units.style.overscrollBehavior = "none"
-
-                          // sort with reputation best on top as default
-
-
-
-
-
-                          // this.render("templates", templates)
-                          for (let i = 0; i < templates.length; i++) {
-                            const template = templates[i]
-
-                            // console.log(template);
-
-                            const item = document.createElement("div")
-                            // item.classList.add("checklist-item")
-                            item.style.margin = "34px"
-
-                            const itemHeader = document.createElement("div")
-                            // itemHeader.classList.add("item-header")
-                            itemHeader.style.display = "flex"
-                            itemHeader.style.borderTopRightRadius = "21px"
-                            itemHeader.style.borderTopLeftRadius = "21px"
-                            itemHeader.style.borderBottomLeftRadius = "21px"
-                            itemHeader.style.fontFamily = "sans-serif"
-
-                            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                              itemHeader.style.backgroundColor = this.colors.matte.charcoal
-                              itemHeader.style.color = this.colors.matte.dark.text
-
-                            } else {
-                              itemHeader.style.color = this.colors.matte.light.text
-                              itemHeader.style.backgroundColor = this.colors.gray[1]
-                            }
-
-
-
-
-                            const itemState = document.createElement("div")
-                            itemState.classList.add("item-state")
-                            itemState.style.display = "flex"
-                            itemState.style.justifyContent = "center"
-                            itemState.style.alignItems = "center"
-                            itemState.style.width = "89px"
-                            itemState.style.height = "89px"
-                            itemState.style.fontSize = "34px"
-
-                            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                              itemState.style.backgroundColor = this.colors.dark.foreground
-                            } else {
-                              itemState.style.backgroundColor = this.colors.light.foreground
-                            }
-
-                            if (document.getElementById(template.id) !== null) {
-                              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                itemState.style.backgroundColor = this.colors.dark.success
-                              } else {
-                                itemState.style.backgroundColor = this.colors.light.success
-                              }
-                            }
-
-                            itemState.style.borderTopLeftRadius = "21px"
-                            itemState.style.borderBottomLeftRadius = "21px"
-
-                            // append reputation in state
-                            const reputation = document.createElement("div")
-                            reputation.innerHTML = template.reputation
-                            reputation.style.fontSize = "34px"
-                            // reputation.style.fontFamily = "sans-serfi"
-
-                            // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                            //   reputation.style.color = this.colors.matte.dark.text
-                            // } else {
-                            //   reputation.style.color = this.colors.matte.light.text
-                            // }
-
-                            itemState.append(reputation)
-
-
-                            const itemTitle = document.createElement("div")
-                            // itemTitle.classList.add("item-title")
-                            itemTitle.style.alignSelf = "center"
-                            itemTitle.style.marginLeft = "13px"
-                            // itemTitle.innerHTML = `${template.alias}`
-                            // itemTitle.style.fontSize = "21px"
-
-                            {
-                              const alias = document.createElement("div")
-                              alias.innerHTML = template.alias
-                              alias.style.fontSize = "21px"
-                              itemTitle.append(alias)
-                            }
-
-                            {
-                              const creator = document.createElement("div")
-                              creator.innerHTML = template.id
-                              creator.style.fontSize = "13px"
-                              itemTitle.append(creator)
-                            }
-
-                            // {
-                            //   const id = document.createElement("div")
-                            //   id.innerHTML = `${template.id}`
-                            //   id.style.fontSize = "13px"
-                            //   itemTitle.append(id)
-                            // }
-
-
-                            itemHeader.append(itemState, itemTitle)
-                            item.append(itemHeader)
-
-
-                            const itemBody = document.createElement("div")
-                            itemBody.classList.add("item-body")
-                            itemBody.style.marginLeft = "8%"
-
-
-                            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                              itemBody.style.backgroundColor = this.colors.matte.slate
-                              itemBody.style.boxShadow = `0 1px ${this.colors.gray[4]}`
-                            } else {
-                              itemBody.style.boxShadow = `0 1px ${this.colors.gray[2]}`
-                              itemBody.style.backgroundColor = this.colors.gray[0]
-                            }
-
-                            itemBody.style.borderBottomRightRadius = "21px"
-                            itemBody.style.borderBottomLeftRadius = "21px"
-                            itemBody.style.padding = "21px"
-                            itemBody.style.display = "flex"
-                            itemBody.style.flexDirection = "column"
-
-                            const buttons = document.createElement("div")
-                            buttons.style.display = "flex"
-                            buttons.style.alignItems = "center"
-
-
-                            // buttons for values
-                            // drop, preview, feedback, stats if exist
-
-
-                            {
-                              const button = this.iconPicker("repeat-once")
-                              button.style.width = "55px"
-                              button.style.padding = "8px"
-
-                              button.style.cursor = "pointer"
-                              button.addEventListener("click", () => {
-
-                                if (document.getElementById(template.id) === null) {
-                                  const parser = document.createElement("div")
-                                  parser.innerHTML = template.script
-                                  const node = parser.firstChild
-                                  const script = document.createElement("script")
-                                  script.id = template.id
-                                  script.innerHTML = node.innerHTML
-                                  script.type = "module"
-                                  script.append(`document.getElementById("${script.id}").remove()`)
-                                  document.body.append(script)
-                                  // script.remove()
-
-                                } else {
-                                  alert("Id existiert bereits.")
-                                }
-
-                              })
-                              buttons.append(button)
-                            }
-
-
-                            {
-                              const button = this.iconPicker("repeat-always")
-                              button.style.width = "55px"
-                              button.style.padding = "8px"
-                              button.style.cursor = "pointer"
-                              button.addEventListener("click", () => {
-
-
-                                if (document.getElementById(template.id) === null) {
-                                  const parser = document.createElement("div")
-                                  parser.innerHTML = template.script
-                                  const node = parser.firstChild
-                                  const script = document.createElement("script")
-                                  script.id = template.id
-                                  script.type = "module"
-                                  script.innerHTML = node.innerHTML
-                                  document.body.append(script)
-                                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                    itemState.style.backgroundColor = this.colors.dark.success
-                                  } else {
-                                    itemState.style.backgroundColor = this.colors.light.success
-                                  }
-                                } else {
-                                  alert("Id existiert bereits.")
-                                }
-
-                              })
-                              buttons.append(button)
-                            }
-
-                            {
-
-                              const button = document.createElement("div")
-                              button.style.cursor = "pointer"
-                              button.style.position = "relative"
-                              button.addEventListener("click", () => {
-
-                                this.popup(async overlay => {
-                                  const feedbackOverlay = overlay
-
-                                  this.headerPicker("removeOverlay", overlay)
-
-                                  const info = this.headerPicker("info", overlay)
-
-                                  info.append(this.convert("element/alias", document.body))
-                                  info.append(this.convert("text/span", `.templates[${i}].feedback`))
-                                  // const span = document.createElement("span")
-                                  // span.innerHTML = `.templates[${i}].feedback`
-                                  // span.style.fontSize = "13px"
-                                  // span.style.fontFamily = "monospace"
-                                  // info.append(span)
-
-
-
-                                  const content = this.headerPicker("scrollable", overlay)
-                                  // content.style.overflowY = "auto"
-                                  // content.style.overscrollBehavior = "none"
-                                  // content.style.paddingBottom = "144px"
-                                  // overlay.append(content)
-
-                                  const feedbackContainer = this.headerPicker("loading", content)
-                                  feedbackContainer.info.remove()
-
-                                  feedbackContainer.style.margin = "21px 34px"
-                                  feedbackContainer.style.overflowY = "auto"
-                                  feedbackContainer.style.overscrollBehavior = "none"
-                                  feedbackContainer.style.fontFamily = "monospace"
-                                  feedbackContainer.style.fontSize = "13px"
-                                  feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
-
-
-                                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                    feedbackContainer.style.color = this.colors.dark.text
-                                  } else {
-                                    feedbackContainer.style.color = this.colors.light.text
-                                  }
-
-                                  const get = {}
-                                  get.url = "/get/templates/closed/3/"
-                                  get.type = "feedback"
-                                  get.id = template.id
-                                  get.location = window.location.href
-                                  get.referer = document.referrer
-                                  get.localStorageEmail = await Request.email()
-                                  get.localStorageId = await Request.localStorageId()
-                                  const res = await Request.middleware(get)
-
-                                  if (res.status !== 200) {
-                                    feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
-                                    throw new Error("feedback not found")
-                                  }
-
-                                  getFeedbackSuccess: if (res.status === 200) {
-                                    const feedback = JSON.parse(res.response)
-
-                                    if (feedback.length === 0) {
-                                      feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
-                                      break getFeedbackSuccess
-                                    }
-
-                                    this.reset(feedbackContainer)
-                                    feedbackContainer.style.margin = "21px 34px"
-                                    feedbackContainer.style.overflowY = "auto"
-                                    feedbackContainer.style.overscrollBehavior = "none"
-                                    feedbackContainer.style.fontFamily = "monospace"
-                                    feedbackContainer.style.fontSize = "13px"
-                                    feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
-
-                                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                      feedbackContainer.style.color = this.colors.dark.text
-                                    } else {
-                                      feedbackContainer.style.color = this.colors.light.text
-                                    }
-
-
-                                    for (let i = 0; i < feedback.length; i++) {
-                                      const value = feedback[i]
-
-                                      const div = document.createElement("div")
-                                      div.style.display = "flex"
-                                      div.style.justifyContent = "space-between"
-                                      div.style.alignItems = "center"
-
-                                      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-
-                                        if (i % 2 === 0) {
-                                          div.style.background = this.colors.light.foreground
-                                          div.style.color = this.colors.light.text
-                                        } else {
-                                          div.style.background = this.colors.dark.foreground
-                                          div.style.color = this.colors.dark.text
-                                        }
-
-                                      } else {
-
-                                        if (i % 2 === 1) {
-                                          div.style.background = this.colors.light.foreground
-                                          div.style.color = this.colors.light.text
-                                        } else {
-                                          div.style.background = this.colors.dark.foreground
-                                          div.style.color = this.colors.dark.text
-                                        }
-
-                                      }
-
-                                      const left = document.createElement("span")
-                                      left.innerHTML = `${this.convert("millis/dd.mm.yyyy hh:mm", value.created)}`
-                                      div.append(left)
-
-                                      const nextToLeft = document.createElement("span")
-                                      nextToLeft.style.width = "100%"
-                                      nextToLeft.style.margin = "0 13px"
-                                      nextToLeft.innerHTML = value.content
-                                      div.append(nextToLeft)
-
-                                      const right = document.createElement("span")
-                                      right.style.padding = "13px"
-                                      right.innerHTML = value.importance
-                                      div.append(right)
-
-                                      feedbackContainer.append(div)
-
-                                      div.style.cursor = "pointer"
-                                      div.addEventListener("click", () => {
-
-                                        this.popup(overlay => {
-                                          this.headerPicker("removeOverlay", overlay)
-
-                                          const button = this.buttonPicker("left/right", overlay)
-                                          const icon = this.iconPicker("delete")
-                                          icon.style.width = "34px"
-                                          button.left.append(icon)
-                                          button.right.innerHTML = "Feedback löschen"
-
-                                          button.addEventListener("click", async () => {
-                                            const confirm = window.confirm("Möchtest du diesen Beitrag wirklich löschen?")
-
-                                            if (confirm === true) {
-                                              const del = {}
-                                              del.url = "/delete/feedback/closed/3/"
-                                              del.type = "template"
-                                              del.id = template.id
-                                              del.created = value.created
-                                              del.location = window.location.href
-                                              del.referer = document.referrer
-                                              del.localStorageEmail = await Request.email()
-                                              del.localStorageId = await Request.localStorageId()
-                                              const res = await Request.middleware(del)
-
-                                              if (res.status === 200) {
-                                                alert("Beitrag erfolgreich gelöscht.")
-                                                length.innerHTML = template.feedbackLength - 1
-                                                this.removeOverlay(overlay)
-                                                this.removeOverlay(feedbackOverlay)
-                                              } else {
-                                                alert("Fehler.. Bitte wiederholen.")
-                                                this.removeOverlay(overlay)
-                                              }
-
-
-                                            }
-
-                                          })
-                                        })
-
-                                      })
-                                    }
-
-
-                                  }
-
-                                  const contentField = new TextField("feedback", content)
-                                  contentField.label.innerHTML = "Feedback"
-                                  contentField.input.required = true
-                                  contentField.input.maxLength = "377"
-                                  contentField.verifyValue()
-                                  contentField.input.addEventListener("input", () => contentField.verifyValue())
-
-                                  const importanceField = new RangeField("importance", content)
-                                  importanceField.input.min = "0"
-                                  importanceField.input.max = "13"
-                                  importanceField.input.step = "1"
-                                  importanceField.input.value = "0"
-                                  importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
-                                  importanceField.verifyValue()
-                                  importanceField.input.addEventListener("input", (event) => {
-                                    importanceField.verifyValue()
-                                    importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
-                                  })
-
-                                  const button = this.buttonPicker("action", content)
-                                  button.innerHTML = "Jetzt speichern"
-                                  button.addEventListener("click", () => {
-
-                                    const importance = importanceField.validValue()
-                                    const content = contentField.validValue()
-
-
-                                    this.popup(async securityOverlay => {
-
-                                      this.headerPicker("loading", securityOverlay)
-
-                                      const register = {}
-                                      register.url = "/register/feedback/closed/3/"
-                                      register.type = "template"
-                                      register.id = template.id
-                                      register.importance = importance
-                                      register.content = content
-                                      register.location = window.location.href
-                                      register.referer = document.referrer
-                                      register.localStorageEmail = await Request.email()
-                                      register.localStorageId = await Request.localStorageId()
-                                      const res = await Request.middleware(register)
-
-                                      if (res.status === 200) {
-                                        alert("Feedback erfolgreich gespeichert.")
-                                        this.removeOverlay(securityOverlay)
-                                        this.removeOverlay(overlay)
-                                        length.innerHTML = template.feedbackLength + 1
-                                      } else {
-                                        alert("Fehler.. Bitte wiederholen.")
-                                        this.removeOverlay(securityOverlay)
-                                      }
-
-                                    })
-
-
-                                  })
-
-
-
-                                })
-
-                              })
-
-
-                              const icon = this.iconPicker("branch")
-                              icon.style.width = "55px"
-                              button.append(icon)
-
-                              const length = document.createElement("div")
-                              length.style.position = "absolute"
-                              length.style.top = "0"
-                              length.style.right = "0"
-                              length.style.fontFamily = "monospace"
-                              length.style.fontSize = "13px"
-                              length.style.borderRadius = "50%"
-                              length.style.padding = "3px 5px"
-                              length.innerHTML = template.feedbackLength
-
-                              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                length.style.color = this.colors.dark.text
-                                length.style.background = this.colors.dark.foreground
-                              } else {
-                                length.style.color = this.colors.light.text
-                                length.style.background = this.colors.light.foreground
-                              }
-                              button.append(length)
-                              buttons.append(button)
-                            }
-
-                            itemBody.append(buttons)
-                            item.append(itemBody)
-                            units.append(item)
-                          }
-
-
-
-                        }
-
-                      }
+                      this.get("toolbox-scripts/closed", overlay)
 
                     })
 
@@ -7048,8 +7451,6 @@ export class Helper {
 
                               await this.get("platform/roles", overlay, {platform: window.location.pathname.split("/")[2], onclick: async (role, button, event) => {
 
-                                console.log(role);
-
                                 overlay.querySelectorAll(".role-button").forEach(button => {
 
                                   const right = button.querySelector(".button-right")
@@ -7060,7 +7461,7 @@ export class Helper {
 
                                 this.convert("element/checked", button.right)
 
-                                await this.create("role-apps-button", document.body)
+                                this.create("button/role-apps", document.body)
                                 this.update("script/role-apps-event", document.body, role)
 
                               }})
@@ -8715,14 +9116,31 @@ export class Helper {
 
       }
 
-      if (input.required === true) {
-        return !this.stringIsEmpty(input.value)
+      if (input.accept === "text/script") {
+        const script = this.convert("text/dom", input.value)
+        if (script === undefined) return false
+        if (script.tagName === "SCRIPT") return true
+        return false
+      }
+
+      if (input.getAttribute("required") === "true") {
+
+        if (input.getAttribute("type") === "checkbox") {
+          if (input.getAttribute("checked") === "true") {
+            return true
+          } else {
+            return false
+          }
+        }
+        if (!this.stringIsEmpty(input.value)) return true
+        return false
       }
 
       return false
     }
 
     if (type === "input/required") {
+      if (input.getAttribute("required") === "true") return true
       if (input.required === true) return true
       if (input.accept === "text/tag") return true
       if (input.accept === "text/hex") return true
@@ -8735,6 +9153,7 @@ export class Helper {
       if (input.accept === "text/html") return true
       if (input.accept === "text/number") return true
       if (input.accept === "text/https") return true
+      if (input.accept === "text/script") return true
       if (input.requiredIndex !== undefined) {
         for (let i = 0; i < input.options.length; i++) {
           const option = input.options[i]
@@ -10472,10 +10891,27 @@ export class Helper {
 
     }
 
-    if (event === "text/script") {
+    if (event === "text/dom") {
       const parser = document.createElement("div")
       parser.innerHTML = input
       return parser.children[0]
+    }
+
+
+    if (event === "text/script") {
+
+      const container = document.createElement("div")
+      container.innerHTML = input
+      return container.children[0]
+
+    }
+
+    if (event === "js/script") {
+
+      const script = document.createElement("script")
+      script.innerHTML = input
+      return script
+
     }
 
     if (event === "text/html") {
@@ -11110,8 +11546,22 @@ export class Helper {
 
       {
         const button = this.buttonPicker("left/right", input)
+        button.right.innerHTML = "Experten Name ändern"
+        button.left.innerHTML = ".name"
+        button.addEventListener("click", () => {
+          this.popup(overlay => {
+            this.headerPicker("removeOverlay", overlay)
+
+            this.update("name/expert/closed", overlay, {ok: () => this.removeOverlay(overlay)})
+          })
+        })
+
+      }
+
+      {
+        const button = this.buttonPicker("left/right", input)
         button.right.innerHTML = "Neue Plattform erstellen"
-        button.left.innerHTML = ".create"
+        button.left.innerHTML = ".platform"
         button.addEventListener("click", () => {
 
           this.popup(async overlay => {

@@ -6,6 +6,28 @@ export class Request {
   static ping(event, input) {
 
 
+    if (event === "/update/expert/closed/") {
+
+      return new Promise(async(resolve, reject) => {
+
+        const map = {}
+        map.url = event
+        map.type = input.type
+        map.name = input.name
+        const res = await this.closed(map)
+
+        if (res.status === 200) {
+          return resolve(res)
+        }
+
+        if (res.status !== 200) {
+          return reject(res)
+        }
+
+      })
+
+    }
+
     if (event === "/verify/platform/location/") {
 
       return new Promise(async(resolve, reject) => {

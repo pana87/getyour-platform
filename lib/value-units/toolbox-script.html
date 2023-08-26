@@ -29,6 +29,8 @@
             back.setAttribute("data-id", "toolbox")
             toolbox.setAttribute("data-id", "toolbox")
 
+
+
             document.body.insertBefore(back, document.querySelector("#toolbox"))
             document.body.insertBefore(toolbox, document.querySelector("#toolbox"))
 
@@ -114,108 +116,118 @@
                 }
 
                 {
+                  // const button = Helper.buttonPicker("left/right", buttons)
+                  // button.left.innerHTML = "template.import"
+                  // button.right.innerHTML = "HTML Script importieren"
+                  // button.addEventListener("click", () => {
+
+                  //   Helper.popup(overlay => {
+
+                  //     Helper.headerPicker("removeOverlay", overlay)
+
+                  //     const funnel = Helper.headerPicker("scrollable", overlay)
+
+                  //     const htmlField = new TextAreaField("script-import", funnel)
+                  //     htmlField.label.innerHTML = "HTML Skript"
+                  //     htmlField.input.required = true
+                  //     htmlField.input.style.fontFamily = "monospace"
+                  //     htmlField.input.style.fontSize = "13px"
+                  //     htmlField.input.style.height = "89px"
+                  //     htmlField.input.placeholder = `<script id=".." alias=".." >..</>`
+                  //     htmlField.input.addEventListener("input", () => htmlField.verifyValue())
+                  //     htmlField.verifyValue()
+
+                  //     const button = Helper.buttonPicker("action", funnel)
+                  //     button.innerHTML = "Template jetzt importieren"
+                  //     button.addEventListener("click", async () => {
+
+                  //       const html = htmlField.validValue()
+
+                  //       const parser = document.createElement("div")
+                  //       parser.innerHTML = html
+
+                  //       if (parser.children.length > 1) {
+                  //         alert("Es kann nur ein HTML Script Element auf einmal gespeichert werden.")
+                  //         Helper.setNotValidStyle(htmlField.input)
+                  //         throw new Error(`too many children`)
+                  //       }
+
+                  //       const node = parser.firstChild
+
+                  //       if (node.tagName !== "SCRIPT") {
+                  //         alert("Es können nur HTML Script Elemente als Templates gespeichert werden. Der von dir bereitgestellte Code ist kein HTML Script Element.")
+                  //         Helper.setNotValidStyle(htmlField.input)
+                  //         throw new Error(`not a script`)
+                  //       }
+
+                  //       if (Helper.stringIsEmpty(node.id)) {
+                  //         alert("HTML Script Element benötigt eine Id.")
+                  //         Helper.setNotValidStyle(htmlField.input)
+                  //         throw new Error(`id is empty`)
+                  //       }
+
+                  //       if (!Helper.verifyIs("text/tag", node.id)) {
+                  //         alert("Id muss vom 'tag' Format sein. Es sind nur Kleinbuchstaben (a-z) und Bindestriche dazwischen erlaubt. (-)")
+                  //         Helper.setNotValidStyle(htmlField.input)
+                  //         throw new Error(`id is not a tag`)
+                  //       }
+
+                  //       const verify = {}
+                  //       verify.url = "/verify/template/closed/"
+                  //       verify.type = "id"
+                  //       verify.id = node.id
+                  //       const res = await Request.closed(verify)
+
+                  //       if (res.status === 200) {
+                  //         alert("Id existiert bereits.")
+                  //         Helper.setNotValidStyle(htmlField.input)
+                  //         throw new Error(`id exist`)
+                  //       }
+
+                  //       if (Helper.stringIsEmpty(node.getAttribute("alias"))) {
+                  //         alert("HTML Script Element benötigt eine Alias.")
+                  //         Helper.setNotValidStyle(htmlField.input)
+                  //         throw new Error(`alias is empty`)
+                  //       }
+
+                  //       const script = document.createElement("script")
+                  //       script.innerHTML = node.innerHTML
+
+                  //       Helper.overlay("security", async securityOverlay => {
+
+                  //         const register = {}
+                  //         register.url = "/register/template/closed/"
+                  //         register.id = node.id
+                  //         register.alias = node.getAttribute("alias")
+                  //         register.script = script.outerHTML
+                  //         const res = await Request.closed(register)
+
+                  //         if (res.status === 200) {
+                  //           alert("Template erfolgreich gespeichert.")
+                  //           Helper.removeOverlay(securityOverlay)
+                  //           Helper.removeOverlay(overlay)
+                  //         } else {
+                  //           alert("Fehler.. Bitte wiederholen.")
+                  //           Helper.removeOverlay(securityOverlay)
+                  //           Helper.setNotValidStyle(htmlField.input)
+                  //           throw new Error(`register template failed`)
+                  //         }
+                  //       })
+
+                  //     })
+
+                  //   })
+
+                  // })
+                }
+
+
+                {
                   const button = Helper.buttonPicker("left/right", buttons)
-                  button.left.innerHTML = "template.import"
-                  button.right.innerHTML = "HTML Script importieren"
+                  button.left.innerHTML = "update.toolbox"
+                  button.right.innerHTML = "Mit nur einem Klick erhälst du die aktuellste Version unserer Toolbox"
                   button.addEventListener("click", () => {
-
-                    Helper.popup(overlay => {
-
-                      Helper.headerPicker("removeOverlay", overlay)
-
-                      const funnel = Helper.headerPicker("scrollable", overlay)
-
-                      const htmlField = new TextAreaField("script-import", funnel)
-                      htmlField.label.innerHTML = "HTML Skript"
-                      htmlField.input.required = true
-                      htmlField.input.style.fontFamily = "monospace"
-                      htmlField.input.style.fontSize = "13px"
-                      htmlField.input.style.height = "89px"
-                      htmlField.input.placeholder = `<script id=".." alias=".." >..</>`
-                      htmlField.input.addEventListener("input", () => htmlField.verifyValue())
-                      htmlField.verifyValue()
-
-                      const button = Helper.buttonPicker("action", funnel)
-                      button.innerHTML = "Template jetzt importieren"
-                      button.addEventListener("click", async () => {
-
-                        const html = htmlField.validValue()
-
-                        const parser = document.createElement("div")
-                        parser.innerHTML = html
-
-                        if (parser.children.length > 1) {
-                          alert("Es kann nur ein HTML Script Element auf einmal gespeichert werden.")
-                          Helper.setNotValidStyle(htmlField.input)
-                          throw new Error(`too many children`)
-                        }
-
-                        const node = parser.firstChild
-
-                        if (node.tagName !== "SCRIPT") {
-                          alert("Es können nur HTML Script Elemente als Templates gespeichert werden. Der von dir bereitgestellte Code ist kein HTML Script Element.")
-                          Helper.setNotValidStyle(htmlField.input)
-                          throw new Error(`not a script`)
-                        }
-
-                        if (Helper.stringIsEmpty(node.id)) {
-                          alert("HTML Script Element benötigt eine Id.")
-                          Helper.setNotValidStyle(htmlField.input)
-                          throw new Error(`id is empty`)
-                        }
-
-                        if (!Helper.verifyIs("text/tag", node.id)) {
-                          alert("Id muss vom 'tag' Format sein. Es sind nur Kleinbuchstaben (a-z) und Bindestriche dazwischen erlaubt. (-)")
-                          Helper.setNotValidStyle(htmlField.input)
-                          throw new Error(`id is not a tag`)
-                        }
-
-                        const verify = {}
-                        verify.url = "/verify/template/closed/"
-                        verify.type = "id"
-                        verify.id = node.id
-                        const res = await Request.closed(verify)
-
-                        if (res.status === 200) {
-                          alert("Id existiert bereits.")
-                          Helper.setNotValidStyle(htmlField.input)
-                          throw new Error(`id exist`)
-                        }
-
-                        if (Helper.stringIsEmpty(node.getAttribute("alias"))) {
-                          alert("HTML Script Element benötigt eine Alias.")
-                          Helper.setNotValidStyle(htmlField.input)
-                          throw new Error(`alias is empty`)
-                        }
-
-                        const script = document.createElement("script")
-                        script.innerHTML = node.innerHTML
-
-                        Helper.overlay("security", async securityOverlay => {
-
-                          const register = {}
-                          register.url = "/register/template/closed/"
-                          register.id = node.id
-                          register.alias = node.getAttribute("alias")
-                          register.script = script.outerHTML
-                          const res = await Request.closed(register)
-
-                          if (res.status === 200) {
-                            alert("Template erfolgreich gespeichert.")
-                            Helper.removeOverlay(securityOverlay)
-                            Helper.removeOverlay(overlay)
-                          } else {
-                            alert("Fehler.. Bitte wiederholen.")
-                            Helper.removeOverlay(securityOverlay)
-                            Helper.setNotValidStyle(htmlField.input)
-                            throw new Error(`register template failed`)
-                          }
-                        })
-
-                      })
-
-                    })
-
+                    Helper.update("toolbox-getter", document.body)
                   })
                 }
 

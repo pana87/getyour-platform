@@ -588,15 +588,9 @@ app.post(`/:method/:type/:event/`,
   Request.verifyLocation,
   // location context
 
-  // location register only for emails
-  // register needs role
-  // register needs platform
-  // copy from register admin
   Request.register,
-  // Request.registerAdmin,
-  // Request.registerEmail,
-
   Request.get,
+  Request.delete,
 
 async(req, res, next) => {
   return next()
@@ -623,15 +617,6 @@ app.post(`/:method/:type/:event/`,
   Request.delete,
   Request.get,
   Request.redirect,
-
-
-
-
-  // Request.verifyVerified,
-  // verified context
-
-  // Request.get,
-  // Request.register,
 
 
 async(req, res) => {
