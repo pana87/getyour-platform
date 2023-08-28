@@ -20,9 +20,12 @@
     <script id="toolbox-getter" type="module">
       import {Helper} from "/js/Helper.js"
 
-      document.querySelector("#toolbox-getter").remove()
+      document.querySelectorAll("#toolbox-getter").forEach(getter => getter.remove())
 
-      Helper.create("script/toolbox-getter", document.body)
+      if (document.getElementById("toolbox-getter") === null) {
+        Helper.create("script/toolbox-getter", document.body)
+      }
+
     </script>
 
   </body>
