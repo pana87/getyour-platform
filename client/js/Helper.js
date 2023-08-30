@@ -902,15 +902,16 @@ export class Helper {
 
                   const script = this.convert("js/script", html.innerHTML)
                   script.id = "script-for-testing"
+                  script.type = "module"
 
                   if (document.getElementById("script-for-testing") !== null) {
                     document.getElementById("script-for-testing").remove()
                   }
 
-                  console.log("hi");
                   if (document.getElementById("script-for-testing") === null) {
-                    document.body.append(script)
+                    document.body.removeAttribute("style")
                     document.querySelectorAll(".overlay").forEach(overlay => overlay.remove())
+                    document.body.append(script)
                   }
 
                 }
@@ -3275,6 +3276,114 @@ export class Helper {
   static create(event, parent) {
 
 
+    if (event === "header/nav") {
+
+      const header = document.createElement("div")
+      header.style.display = "flex"
+      header.style.justifyContent = "space-around"
+      header.style.alignItems = "center"
+      header.style.boxShadow = "0 3px 5px rgba(0, 0, 0, 0.13)"
+
+      header.nav = document.createElement("div")
+      header.nav.style.display = "flex"
+      header.nav.style.flexDirection = "column"
+      header.nav.style.alignItems = "center"
+      header.nav.style.width = "89px"
+      header.nav.style.cursor = "pointer"
+      header.append(header.nav)
+
+      header.nav.text = document.createElement("div")
+      header.nav.text.innerHTML = "Mein Link"
+      header.nav.append(header.nav.text)
+
+      header.nav.state = document.createElement("div")
+      header.nav.state.style.display = "flex"
+      header.nav.state.style.justifyContent = "center"
+      header.nav.state.style.alignItems = "center"
+      header.nav.state.style.width = "55px"
+      header.nav.state.style.height = "34px"
+      header.nav.state.style.margin = "13px 0"
+      header.nav.state.style.backgroundColor = "#cfd4e2"
+      header.nav.append(header.nav.state)
+
+      header.nav.state.index = document.createElement("div")
+      header.nav.state.index.innerHTML = "1"
+      header.nav.state.index.style.color = "white"
+      header.nav.state.append(header.nav.state.index)
+
+      if (parent !== undefined) parent.append(header)
+      return header
+    }
+
+    if (event === "header/left-right") {
+
+      const header = document.createElement("div")
+      header.style.display = "flex"
+      header.style.justifyContent = "space-between"
+      header.style.alignItems = "center"
+      // header.style.boxShadow = "0 3px 5px rgba(0, 0, 0, 0.13)"
+
+      header.left = document.createElement("div")
+      header.left.classList.add("left")
+      header.left.style.margin = "21px 34px"
+      header.left.style.width = "55px"
+      header.append(header.left)
+
+      header.left.image = document.createElement("img")
+      header.left.image.src = "https://bafybeiefo3y5hr4yb7gad55si2x6ovvoqteqlbxaoqyvlc37bm2ktrruu4.ipfs.nftstorage.link"
+      header.left.image.alt = "Mein Logo"
+      header.left.image.style.width = "100%"
+      header.left.append(header.left.image)
+
+      header.right = document.createElement("div")
+      header.right.classList.add("right")
+      header.right.style.margin = "21px 34px"
+      header.right.innerHTML = "Login"
+      header.append(header.right)
+
+      if (parent !== undefined) parent.append(header)
+      return header
+    }
+
+    if (event === "header/right") {
+
+      const header = document.createElement("div")
+      header.classList.add("header")
+      header.style.display = "flex"
+      header.style.justifyContent = "flex-end"
+
+      header.right = document.createElement("div")
+      header.right.classList.add("right")
+      header.right.style.margin = "21px 34px"
+      header.right.innerHTML = "Login"
+      header.append(header.right)
+
+      if (parent !== undefined) parent.append(header)
+      return header
+    }
+
+    if (event === "header/left") {
+
+      const header = document.createElement("div")
+      header.classList.add("header")
+      header.style.display = "flex"
+
+      header.left = document.createElement("div")
+      header.left.classList.add("left")
+      header.left.style.margin = "21px 34px"
+      header.left.style.width = "55px"
+      header.append(header.left)
+
+      header.left.image = document.createElement("img")
+      header.left.image.src = "https://bafybeiefo3y5hr4yb7gad55si2x6ovvoqteqlbxaoqyvlc37bm2ktrruu4.ipfs.nftstorage.link"
+      header.left.image.alt = "Mein Logo"
+      header.left.image.style.width = "100%"
+      header.left.append(header.left.image)
+
+      if (parent !== undefined) parent.append(header)
+      return header
+    }
+
     if (event === "div/action") {
       const div = document.createElement("div")
 
@@ -3300,7 +3409,6 @@ export class Helper {
       const div = document.createElement("div")
 
       if (parent !== undefined) parent.append(div)
-
       return div
     }
 
@@ -4253,6 +4361,22 @@ export class Helper {
       return field
     }
 
+    if (event === "info/warning") {
+      const element = document.createElement("div")
+      element.style.fontSize = "13px"
+      element.style.fontFamily = "sans-serif"
+      element.style.margin = "21px 34px"
+      element.style.padding = "21px 34px"
+      element.style.borderRadius = "13px"
+
+      element.style.color = this.colors.light.text
+      element.style.backgroundColor = this.colors.light.error
+
+      if (parent !== undefined) parent.append(element)
+
+      return element
+    }
+
     if (event === "info/success") {
       const element = document.createElement("div")
       element.style.fontSize = "13px"
@@ -4261,21 +4385,8 @@ export class Helper {
       element.style.padding = "21px 34px"
       element.style.borderRadius = "13px"
 
-
-
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        // element.style.boxShadow = this.colors.dark.boxShadow
-        element.style.color = this.colors.dark.text
-        // element.style. border = this.colors.dark.border
-        element.style.backgroundColor = this.colors.dark.success
-      } else {
-        element.style.color = this.colors.light.text
-
-        // element.style.boxShadow = this.colors.light.boxShadow
-        // element.style.border = this.colors.light.border
-        element.style.backgroundColor = this.colors.light.success
-      }
-
+      element.style.color = this.colors.light.text
+      element.style.backgroundColor = this.colors.light.success
 
       if (parent !== undefined) parent.append(element)
 
@@ -4285,6 +4396,103 @@ export class Helper {
 
   // event = input/algorithm
   static render(event, input, parent) {
+
+    if (event === "checklist/items") {
+      const checklist = this.create("div/scrollable", parent)
+      checklist.id = "checklist"
+
+      for (let i = 0; i < input.length; i++) {
+        const item = input[i]
+
+        item.index = i + 1
+        this.render("checklist/item", item, checklist)
+
+      }
+
+
+      return checklist
+    }
+
+    if (event === "checklist/item") {
+
+      const item = document.createElement("div")
+      item.classList.add("item")
+      item.style.margin = "34px"
+
+      item.header = document.createElement("div")
+      item.header.classList.add("header")
+      item.header.style.display = "flex"
+      item.header.style.borderTopRightRadius = "21px"
+      item.header.style.borderTopLeftRadius = "21px"
+      item.header.style.borderBottomLeftRadius = "21px"
+      item.header.style.backgroundColor = "#d1d0d0"
+      item.append(item.header)
+
+      item.header.state = document.createElement("div")
+      item.header.state.classList.add("state")
+      item.header.state.style.display = "flex"
+      item.header.state.style.justifyContent = "center"
+      item.header.state.style.alignItems = "center"
+      item.header.state.style.width = "89px"
+      item.header.state.style.height = "89px"
+      item.header.state.style.backgroundColor = "#c6c6c6"
+      item.header.state.style.fontSize = "34px"
+      item.header.state.style.borderTopLeftRadius = "21px"
+      item.header.state.style.borderBottomLeftRadius = "21px"
+      item.header.append(item.header.state)
+
+      item.header.state.index = document.createElement("div")
+      item.header.state.index.classList.add("index")
+      item.header.state.index.innerHTML = input.index
+      item.header.state.append(item.header.state.index)
+
+      item.header.text = document.createElement("div")
+      item.header.text.classList.add("title")
+      item.header.text.style.alignSelf = "center"
+      item.header.text.style.marginLeft = "13px"
+      item.header.text.innerHTML = input.title
+      item.header.text.style.fontSize = "21px"
+      item.header.append(item.header.text)
+
+      item.body = document.createElement("div")
+      item.body.classList.add("body")
+      item.body.style.marginLeft = "8%"
+      item.body.style.backgroundColor = "#dbdbdb"
+      item.body.style.borderBottomRightRadius = "21px"
+      item.body.style.borderBottomLeftRadius = "21px"
+      item.body.style.padding = "21px"
+      item.body.style.display = "flex"
+      item.body.style.flexDirection = "column"
+      item.body.style.boxShadow = "0 3px 5px rgba(0, 0, 0, 0.13)"
+      item.append(item.body)
+
+      item.body.text = document.createElement("div")
+      item.body.text.classList.add("description")
+      item.body.text.innerHTML = input.description
+      item.body.text.style.marginBottom = "34px"
+      item.body.append(item.body.text)
+
+      item.body.button = document.createElement("div")
+      item.body.button.classList.add("button")
+      item.body.button.innerHTML = "Zur Übersicht"
+      item.body.button.style.borderRadius = "13px"
+      item.body.button.style.width = "233px"
+      item.body.button.style.height = "55px"
+      item.body.button.style.display = "flex"
+      item.body.button.style.justifyContent = "center"
+      item.body.button.style.alignItems = "center"
+      item.body.button.style.alignSelf = "flex-end"
+      item.body.button.style.backgroundColor = "#f7aa20"
+      item.body.button.style.fontSize = "21px"
+      item.body.button.style.margin = "8px"
+      item.body.button.style.cursor = "pointer"
+      item.body.append(item.body.button)
+
+      item.body.button.setAttribute("onclick", "console.log('hi')")
+
+      parent.append(item)
+      return item
+    }
 
     if (event === "scripts/toolbox") {
       for (let i = 0; i < input.length; i++) {
