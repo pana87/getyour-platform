@@ -41,17 +41,17 @@ export class HeaderField {
     // header.style.top = "0"
     // header.style.left = "0"
 
-    if (this.withImageCallback !== undefined) {
-      const image = document.createElement("img")
-      // image.classList.add("logo")
-      image.style.marginLeft = "8%"
-      image.style.padding = "8px"
-      // image.style.cursor = "pointer"
+    // if (this.withImageCallback !== undefined) {
+    //   const image = document.createElement("img")
+    //   // image.classList.add("logo")
+    //   image.style.marginLeft = "8%"
+    //   image.style.padding = "8px"
+    //   // image.style.cursor = "pointer"
 
-      this.withImageCallback(image)
+    //   this.withImageCallback(image)
 
-      header.append(image)
-    }
+    //   header.append(image)
+    // }
 
     if (this.withProfileCallback !== undefined) {
       const profile = document.createElement("div")
@@ -87,9 +87,9 @@ export class HeaderField {
         button.style.width = "89px"
         button.style.cursor = "pointer"
 
-        if (this.withNavigationList[i].onclick !== undefined) {
-          button.addEventListener("click", () => this.withNavigationList[i].onclick())
-        }
+        // if (this.withNavigationList[i].onclick !== undefined) {
+        //   button.addEventListener("click", () => this.withNavigationList[i].onclick())
+        // }
 
 
         const title = document.createElement("div")
