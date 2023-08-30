@@ -320,6 +320,8 @@ async (req, res, next) => {
                                 const authorized = value.roles[i]
                                 for (let i = 0; i < user.roles.length; i++) {
                                   const role = user.roles[i]
+                                  console.log(role);
+                                  console.log(authorized);
                                   if (role === authorized) {
                                     return res.send(value.html)
                                   }
