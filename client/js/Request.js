@@ -5,6 +5,25 @@ export class Request {
 
   static ping(event, input) {
 
+    if (event === "/delete/logs/closed/2/") {
+
+      return new Promise(async(resolve, reject) => {
+
+        const map = {}
+        map.url = event
+        const res = await this.closed(map)
+
+        if (res.status === 200) {
+          return resolve(res)
+        }
+
+        if (res.status !== 200) {
+          return reject(res)
+        }
+
+      })
+
+    }
 
     if (event === "/update/expert/closed/") {
 
@@ -28,22 +47,16 @@ export class Request {
 
     }
 
-    if (event === "/verify/platform/location/") {
+    if (event === "/verify/platform/open/") {
 
       return new Promise(async(resolve, reject) => {
 
         const verify = {}
-        verify.url = "/verify/platform/open/"
+        verify.url = event
         verify.platform = input
         const res = await this.open(verify)
 
-        if (res.status === 200) {
-          return reject(res)
-        }
-
-        if (res.status !== 200) {
-          return resolve(res)
-        }
+        return resolve(res)
 
       })
 

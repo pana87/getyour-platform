@@ -42,9 +42,8 @@
 
         Helper.popup(overlay => {
           Helper.headerPicker("removeOverlay", overlay)
-          const info = Helper.headerPicker("info", overlay)
-          info.append(Helper.convert("text/span", "open"))
-          Helper.create("open", overlay)
+
+          Helper.create("nav/open", overlay)
         })
 
       })

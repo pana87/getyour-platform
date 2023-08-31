@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="shortcut icon" href="/public/getyour-logo.svg" />
-    <title>Plattform Experten</title>
+    <title>Startseite</title>
 
     <style>
       body {
@@ -30,7 +30,7 @@
       Helper.headerPicker("navigation-open", document.body)
 
 
-      Helper.render("text/title", "Experten", document.body)
+      Helper.render("text/title", "Zugangspunkte", document.body)
 
       {
         const buttons = Helper.headerPicker("loading", document.body)
@@ -43,7 +43,7 @@
 
           Helper.convert("parent/info", buttons)
 
-          buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Experten für dich zur Verfügung stehen.</span>`
+          buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Zugänge für dich zur Verfügung stehen.</span>`
           throw new Error("expert not found")
 
         }
@@ -55,7 +55,7 @@
 
             Helper.convert("parent/info", buttons)
 
-            buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Experten für dich zur Verfügung stehen.</span>`
+            buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Zugänge für dich zur Verfügung stehen.</span>`
             throw new Error("expert not found")
 
           }

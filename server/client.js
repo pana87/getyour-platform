@@ -100,8 +100,28 @@ app.get("/", async (req, res, next) => {
   return res.sendStatus(404)
 })
 
+app.get("/admin/",
+  Request.verifyJwtToken,
+  Request.verifySession,
+  Request.verifyRoles([UserRole.ADMIN]),
+  Request.verifyVerified,
+async(req, res) => {
+  try {
+    return res.send(Helper.readFileSyncToString("../lib/value-units/admin.html"))
+
+  } catch (error) {
+    await Helper.logError(error, req)
+  }
+  return res.sendStatus(404)
+})
+
 app.get("/:expert/", async (req, res, next) => {
   try {
+
+    if (req.params.expert === "login") return res.send(Helper.readFileSyncToString("../lib/value-units/login.html"))
+    if (req.params.expert === "nutzervereinbarung") return res.send(Helper.readFileSyncToString(`../lib/value-units/nutzervereinbarung.html`))
+    if (req.params.expert === "impressum") return res.send(Helper.readFileSyncToString(`../lib/value-units/impressum.html`))
+    if (req.params.expert === "datenschutz") return res.send(Helper.readFileSyncToString(`../lib/value-units/datenschutz.html`))
 
     const doc = await nano.db.use("getyour").get("users")
     if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
@@ -125,36 +145,12 @@ app.get("/:expert/", async (req, res, next) => {
   return res.sendStatus(404)
 })
 
-app.get("/pana/getyour/admin/",
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyRoles([UserRole.ADMIN]),
-  Request.verifyVerified,
-async(req, res) => {
-  try {
-    return res.send(Helper.readFileSyncToString("../lib/value-units/admin.html"))
-
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-  return res.sendStatus(404)
-})
-
 app.get("/:expert/:platform/:path/",
 async(req, res, next) => {
   try {
     const doc = await nano.db.use("getyour").get("users")
     if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
     if (doc.users === undefined) throw new Error("users is undefined")
-
-    if (req.params.expert === "pana") {
-      if (req.params.platform === "getyour") {
-        if (req.params.path === "login") return res.send(Helper.readFileSyncToString("../lib/value-units/login.html"))
-        if (req.params.path === "nutzervereinbarung") return res.send(Helper.readFileSyncToString(`../lib/value-units/nutzervereinbarung.html`))
-        if (req.params.path === "impressum") return res.send(Helper.readFileSyncToString(`../lib/value-units/impressum.html`))
-        if (req.params.path === "datenschutz") return res.send(Helper.readFileSyncToString(`../lib/value-units/datenschutz.html`))
-      }
-    }
 
     // is all open algo
     for (let i = 0; i < doc.users.length; i++) {
@@ -318,14 +314,26 @@ async (req, res, next) => {
 
                               for (let i = 0; i < value.roles.length; i++) {
                                 const authorized = value.roles[i]
-                                for (let i = 0; i < user.roles.length; i++) {
-                                  const role = user.roles[i]
-                                  console.log(role);
-                                  console.log(authorized);
-                                  if (role === authorized) {
-                                    return res.send(value.html)
+
+                                for (let i = 0; i < doc.users.length; i++) {
+                                  const user = doc.users[i]
+
+                                  if (user.id === req.jwt.id) {
+
+                                    for (let i = 0; i < user.roles.length; i++) {
+                                      const role = user.roles[i]
+
+                                      if (role === authorized) {
+                                        return res.send(value.html)
+                                      }
+                                    }
+
                                   }
+
                                 }
+
+
+
                               }
 
                             }
@@ -506,7 +514,7 @@ async (req, res) => {
 //         subject: "[getyour plattform] Admin Einladung",
 //         html: /*html*/`
 //           <p>PIN: ${EMAIL_TO_INVITE_RANDOM_PIN}</p>
-//           <p>Sie wurden von einem Admin eingeladen sich als Branchenexperte mit dem Namen '' auf der Getyour Plattform zu registrieren. Kopieren Sie den PIN und <a href="${clientLocation.origin}/pana/getyour/${EMAIL_TO_INVITE_RANDOM_DIGEST}/">klicken Sie hier, um Ihre PIN zu verifizieren.</a></p>
+//           <p>Sie wurden von einem Admin eingeladen sich als Branchenexperte mit dem Namen '' auf der Getyour Plattform zu registrieren. Kopieren Sie den PIN und <a href="${clientLocation.origin}/${EMAIL_TO_INVITE_RANDOM_DIGEST}/">klicken Sie hier, um Ihre PIN zu verifizieren.</a></p>
 //           <p>Sollten Sie nicht wissen, warum Sie diese E-Mail erhalten, dann ignorieren Sie diese E-Mail. Sollte es öfters vorkommen, dann kontaktieren Sie uns bitte umgehend unter datenschutz@get-your.de</p>
 //           <p>Sollte eine andere E-Mail Adresse als <a href="#" style="text-decoration: none; color: #d50000; font-weight: bold; cursor: default;">droid&#64;get-your&#46;de</a> als Absender erscheinen, dann versucht jemand sich als vertrauenswürdiger Absender auszugeben. Klicken Sie in dem Fall auf keine Links, antworten Sie nicht dem Absender und kontaktieren Sie uns sofort unter datenschutz@get-your.de</p>
 //         `
@@ -625,7 +633,6 @@ async(req, res) => {
   return res.sendStatus(404)
 })
 
-// deprecated
 app.post(`/:method/:type/:event/:role/`,
 
   Request.verifyLocation,
