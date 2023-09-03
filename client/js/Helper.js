@@ -1137,6 +1137,7 @@ export class Helper {
       nameField.input.placeholder = "mein-skript"
 
       const scriptField = this.create("field/script", funnel)
+      scriptField.input.style.height = "100vh"
 
       const button = this.buttonPicker("action", funnel)
       button.innerHTML = "Skript jetzt speichern"
@@ -6047,14 +6048,16 @@ export class Helper {
     if (event === "text/h1") {
 
       const h1 = document.createElement("h1")
-      h1.textContent = input
+      h1.innerHTML = input
+      h1.style.margin = "21px 34px"
+      h1.style.fontSize = "34px"
+      h1.style.fontFamily = "sans-serif"
+      h1.style.fontWeight = "normal"
 
       h1.style.color = this.colors.light.text
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         h1.style.color = this.colors.dark.text
       }
-      h1.style.margin = "21px 34px"
-      h1.style.fontWeight = "normal"
 
       if (parent !== undefined) parent.append(h1)
       return h1
@@ -6299,6 +6302,23 @@ export class Helper {
 
     }
 
+    if (event === "text/p") {
+      const p = document.createElement("p")
+      p.innerHTML = input
+      p.style.margin = "21px 34px"
+      p.style.fontSize = "21px"
+      p.style.fontFamily = "sans-serif"
+      p.style.color = this.colors.light.text
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        p.style.color = this.colors.dark.text
+      }
+
+      if (parent !== undefined) parent.append(p)
+
+      return p
+    }
+
     if (event === "text/title") {
       const title = document.createElement("div")
       title.textContent = input
@@ -6332,6 +6352,7 @@ export class Helper {
         itemHeader.style.borderTopRightRadius = "21px"
         itemHeader.style.borderTopLeftRadius = "21px"
         itemHeader.style.borderBottomLeftRadius = "21px"
+        // itemHeader.style.height = "89px"
 
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
           itemHeader.style.backgroundColor = this.colors.matte.charcoal
@@ -6380,7 +6401,7 @@ export class Helper {
                       pathField.value(() => value.path.split("/")[3])
                       pathField.label.innerHTML = "Pfad"
                       pathField.input.accept = "text/tag"
-                      pathField.input.maxLength = "21"
+                      pathField.input.maxLength = "144"
                       pathField.input.required = true
                       pathField.input.placeholder = "Meine Werteinheit"
                       pathField.input.addEventListener("input", (event) => pathField.verifyValue())
@@ -6462,7 +6483,7 @@ export class Helper {
                       const valueAliasField = new TextField("valueAlias", funnel)
                       valueAliasField.value(() => value.alias)
                       valueAliasField.label.innerHTML = "Alias"
-                      valueAliasField.input.maxLength = "21"
+                      valueAliasField.input.maxLength = "144"
                       valueAliasField.input.required = true
                       valueAliasField.input.placeholder = "Meine Werteinheit"
                       valueAliasField.input.addEventListener("input", () => valueAliasField.verifyValue())
@@ -6679,8 +6700,7 @@ export class Helper {
         itemState.style.display = "flex"
         itemState.style.justifyContent = "center"
         itemState.style.alignItems = "center"
-        itemState.style.width = "89px"
-        itemState.style.height = "89px"
+        itemState.style.minWidth = "89px"
         itemState.style.fontSize = "34px"
 
 
@@ -6732,10 +6752,11 @@ export class Helper {
 
         const itemTitle = document.createElement("div")
         itemTitle.classList.add("item-title")
-        itemTitle.style.alignSelf = "center"
-        itemTitle.style.marginLeft = "13px"
-        itemTitle.innerHTML = `${value.alias}`
+        itemTitle.style.padding = "21px 34px"
         itemTitle.style.fontSize = "21px"
+        itemTitle.style.overflow = "auto"
+        itemTitle.style.height = "55px"
+        itemTitle.style.width = "100%"
 
 
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -6745,7 +6766,16 @@ export class Helper {
         }
 
         {
+          const alias = document.createElement("div")
+          alias.innerHTML = `${value.alias}`
+          alias.classList.add("alias")
+          alias.style.fontSize = "21px"
+          itemTitle.append(alias)
+        }
+
+        {
           const path = document.createElement("div")
+          path.classList.add("path")
           path.innerHTML = `${value.path}`
           path.style.fontSize = "13px"
           itemTitle.append(path)
