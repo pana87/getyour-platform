@@ -28,6 +28,45 @@ export class Helper {
   // no dom creation, only events
   static add(event, input) {
 
+    if (event === "timeout") {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          return resolve()
+        }, input)
+      })
+    }
+
+    if (event === "script/toolbox-getter") {
+
+      return new Promise(async(resolve) => {
+
+        const text = /*html*/`
+          <script id="toolbox-getter" type="module">
+            import {Helper} from "/js/Helper.js"
+
+            await Helper.get("toolbox/closed", document.body)
+          </script>
+        `
+
+        const script = this.convert("text/script", text)
+
+        const create = document.createElement("script")
+        create.id = script.id
+        create.type = script.type
+        create.innerHTML = script.innerHTML
+
+        if (document.body) {
+          document.body.append(create)
+          return resolve(create)
+        } else {
+          await this.add("timeout", 3000)
+          await this.add("script/toolbox-getter")
+        }
+
+      })
+
+    }
+
     if (event === "script/always") {
       return new Promise((resolve, reject) => {
 
@@ -2466,13 +2505,19 @@ export class Helper {
     }
 
     if (event === "toolbox-getter") {
-      document.querySelectorAll("#toolbox-getter").forEach(getter => getter.remove())
-      document.querySelectorAll("#toolbox").forEach(toolbox => toolbox.remove())
-      document.querySelectorAll("[data-id='toolbox']").forEach(toolbox => toolbox.remove())
 
-      if (document.getElementById("#toolbox-getter") === null) {
-        this.create("script/toolbox-getter")
-      }
+      return new Promise(async resolve => {
+
+        document.querySelectorAll("#toolbox-getter").forEach(getter => getter.remove())
+        document.querySelectorAll("#toolbox").forEach(toolbox => toolbox.remove())
+        document.querySelectorAll("[data-id='toolbox']").forEach(toolbox => toolbox.remove())
+
+        if (document.getElementById("#toolbox-getter") === null) {
+          await this.add("script/toolbox-getter")
+          return resolve()
+        }
+
+      })
 
     }
 
@@ -6809,7 +6854,7 @@ export class Helper {
                     const valuePathField = new TextField("valuePath", funnel)
                     valuePathField.label.innerHTML = "Pfad"
                     valuePathField.input.accept = "text/tag"
-                    valuePathField.input.maxLength = "21"
+                    valuePathField.input.maxLength = "144"
                     valuePathField.input.required = true
                     valuePathField.input.placeholder = "meine-werteinheit"
                     valuePathField.input.addEventListener("input", () => valuePathField.verifyValue())
@@ -6817,7 +6862,7 @@ export class Helper {
 
                     const valueAliasField = new TextField("valueAlias", funnel)
                     valueAliasField.label.innerHTML = "Alias"
-                    valueAliasField.input.maxLength = "21"
+                    valueAliasField.input.maxLength = "144"
                     valueAliasField.input.required = true
                     valueAliasField.input.placeholder = "Meine Werteinheit"
                     valueAliasField.input.addEventListener("input", () => valueAliasField.verifyValue())
@@ -8407,7 +8452,7 @@ export class Helper {
                         child.innerHTML = html
 
                         if (child.tagName === "BODY") {
-                          this.create("script/toolbox-getter")
+                          await this.add("script/toolbox-getter")
                         }
 
                         this.removeOverlay(overlay)
