@@ -37,37 +37,6 @@ app.use((req, res, next) => {
 app.use("/docs/", express.static(docsLocation.absolutePath))
 app.use(express.static(clientLocation.absolutePath))
 
-app.get("/logs/:type/",
-  Request.verifyJwtToken,
-  Request.verifySession,
-  Request.verifyRoles([UserRole.ADMIN]),
-  Request.verifyVerified,
-async (req, res) => {
-  try {
-
-    if (req.params.type === "error") {
-      const doc = await nano.db.use("getyour").get("logs")
-      const errors = []
-      for (let i = 0; i < doc.logs.length; i++) {
-        if (doc.logs[i].type === req.params.type) {
-          errors.push(doc.logs[i])
-        }
-      }
-      return res.send(errors)
-    }
-
-    if (req.params.type === "user") {
-      const doc = await nano.db.use("getyour").get("users")
-      return res.send(doc.users)
-    }
-
-  } catch (error) {
-    await Helper.logError(error, req)
-  }
-
-  return res.sendStatus(404)
-})
-
 app.get("/cookies/anzeigen/", async (req, res) => {
   try {
     return res.send(req.cookies)
@@ -457,79 +426,6 @@ async (req, res) => {
   }
   return res.sendStatus(404)
 })
-
-// app.get("/getyour/pana/:randomDigest/",
-// async (req, res) => {
-//   try {
-
-//     if (EMAIL_TO_INVITE_TIMER < Date.now()) throw new Error("email to invite timer expired")
-//     if (req.params.randomDigest === EMAIL_TO_INVITE_RANDOM_DIGEST) {
-//       EMAIL_TO_INVITE_RANDOM_DIGEST = undefined
-//       return res.send(Helper.readFileSyncToString("../lib/value-units/getyour-einladung-verifizieren.html"))
-//     }
-
-//   } catch (error) {
-//     await Helper.logError(error, req)
-//   }
-//   return res.sendStatus(404)
-// })
-
-// let EMAIL_TO_INVITE_RANDOM_PIN
-// let EMAIL_TO_INVITE_RANDOM_DIGEST
-// let EMAIL_TO_INVITE_TIMER
-// let EMAIL_TO_INVITE
-// let ROLE_TO_INVITE
-// let NAME_TO_INVITE
-// app.post(`/invite/email/`,
-
-//   Request.verifyLocation,
-
-//   Request.verifyJwtToken,
-//   Request.verifySession,
-//   Request.verifyClosedPostRequest,
-//   Request.verifyRoles([UserRole.ADMIN]),
-//   Request.verifyAdmin,
-
-// async(req, res) => {
-//   try {
-
-//     const {emailToInvite, role} = req.body
-//     if (Helper.stringIsEmpty(emailToInvite)) throw new Error("email to invite is empty")
-//     if (Helper.numberIsEmpty(role)) throw new Error("role is empty")
-
-//     if (role === UserRole.EXPERT) {
-//       const {name} = req.body
-//       if (Helper.stringIsEmpty(name)) throw new Error("name is empty")
-
-//       EMAIL_TO_INVITE_RANDOM_PIN = Helper.digest(crypto.randomBytes(32))
-//       EMAIL_TO_INVITE_RANDOM_DIGEST = Helper.digest(crypto.randomBytes(32))
-//       EMAIL_TO_INVITE_TIMER = Date.now() + (2 * 60 * 1000)
-//       EMAIL_TO_INVITE = emailToInvite
-//       ROLE_TO_INVITE = role
-//       NAME_TO_INVITE = name
-
-//       await Helper.sendEmailFromDroid({
-//         from: "<droid@get-your.de>",
-//         to: EMAIL_TO_INVITE,
-//         subject: "[getyour plattform] Admin Einladung",
-//         html: /*html*/`
-//           <p>PIN: ${EMAIL_TO_INVITE_RANDOM_PIN}</p>
-//           <p>Sie wurden von einem Admin eingeladen sich als Branchenexperte mit dem Namen '' auf der Getyour Plattform zu registrieren. Kopieren Sie den PIN und <a href="${clientLocation.origin}/${EMAIL_TO_INVITE_RANDOM_DIGEST}/">klicken Sie hier, um Ihre PIN zu verifizieren.</a></p>
-//           <p>Sollten Sie nicht wissen, warum Sie diese E-Mail erhalten, dann ignorieren Sie diese E-Mail. Sollte es öfters vorkommen, dann kontaktieren Sie uns bitte umgehend unter datenschutz@get-your.de</p>
-//           <p>Sollte eine andere E-Mail Adresse als <a href="#" style="text-decoration: none; color: #d50000; font-weight: bold; cursor: default;">droid&#64;get-your&#46;de</a> als Absender erscheinen, dann versucht jemand sich als vertrauenswürdiger Absender auszugeben. Klicken Sie in dem Fall auf keine Links, antworten Sie nicht dem Absender und kontaktieren Sie uns sofort unter datenschutz@get-your.de</p>
-//         `
-//       })
-//       return res.sendStatus(200)
-
-//     }
-
-
-
-//   } catch (error) {
-//     await Helper.logError(error, req)
-//   }
-//   return res.sendStatus(404)
-// })
 
 app.post("/request/verify/pin/",
   Request.verifyLocation,

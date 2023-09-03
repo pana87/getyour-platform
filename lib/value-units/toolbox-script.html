@@ -96,11 +96,9 @@
                         const confirm = window.confirm("Achtung! Diese Funktion wird dein aktuelles HTML Dokument mit deinem neuen HTML Import ersetzen. Der Inhalt deines aktuellen Dokuments wird unwideruflich gelöscht, sobald du deine Werteinheit abspeicherst.\n\n Möchtest du dein aktuelles HTML Dokument wirklich ersetzen?")
                         if (confirm === true) {
 
-                          document.open()
-                          document.write(html)
-                          document.close()
+                          await Helper.convert("text/document", html)
 
-                          Helper.create("script/toolbox-getter", document.body)
+                          Helper.create("script/toolbox-getter")
 
                           Helper.removeOverlay(overlay)
                         }

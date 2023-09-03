@@ -10,6 +10,15 @@ import {CheckboxField} from "/js/CheckboxField.js"
 export class Helper {
 
   static remove(event, input) {
+
+    if (event === "element") {
+      input.remove()
+    }
+
+    if (event === "event-listener") {
+      Array.from(document.querySelectorAll('*')).forEach(element => element.replaceWith(element.cloneNode(true)));
+    }
+
     if (event === "overlay") {
       input.remove()
     }
@@ -18,6 +27,43 @@ export class Helper {
   // event = input/algorithm
   // no dom creation, only events
   static add(event, input) {
+
+    if (event === "script/always") {
+      return new Promise((resolve, reject) => {
+
+        try {
+          const html = this.convert("text/dom", input.script)
+
+          if (html.tagName === "SCRIPT") {
+
+            const node = this.convert("js/script", html.innerHTML)
+            node.id = input.name
+            node.type = "module"
+
+            document.querySelectorAll(`#${node.id}`).forEach(element => element.remove())
+
+            if (document.getElementById(node.id) === null) {
+              document.body.append(node)
+            }
+
+
+          }
+
+          return resolve()
+        } catch (error) {
+          return reject(error)
+        }
+
+      })
+    }
+
+    if (event === "script/once") {
+
+      if (document.getElementById(input.id) === null) {
+        document.body.append(input)
+      }
+
+    }
 
     if (event === "button/on-role-login-click") {
 
@@ -1303,7 +1349,8 @@ export class Helper {
                 if (input.ok !== undefined) await input.ok()
                 this.removeOverlay(securityOverlay)
               } else {
-                this.redirect("session-expired")
+                window.alert("Fehler.. Bitte wiederholen.")
+                this.removeOverlay(securityOverlay)
               }
 
             })
@@ -2424,7 +2471,7 @@ export class Helper {
       document.querySelectorAll("[data-id='toolbox']").forEach(toolbox => toolbox.remove())
 
       if (document.getElementById("#toolbox-getter") === null) {
-        this.create("script/toolbox-getter", document.body)
+        this.create("script/toolbox-getter")
       }
 
     }
@@ -3541,6 +3588,40 @@ export class Helper {
       return div
     }
 
+    if (event === "button/top-bottom") {
+
+      const button = document.createElement("div")
+      button.classList.add("button")
+      button.style.display = "flex"
+      button.style.flexDirection = "column"
+      button.style.margin = "21px 34px"
+      button.style.borderRadius = "13px"
+      button.style.overflow = "hidden"
+      button.style.cursor = "pointer"
+
+      button.top = document.createElement("div")
+      button.top.classList.add("top")
+      button.append(button.top)
+
+      button.bottom = document.createElement("div")
+      button.bottom.classList.add("bottom")
+      button.append(button.bottom)
+
+      button.style.backgroundColor = this.colors.gray[0]
+      button.style.border = this.colors.light.border
+      button.style.color = this.colors.light.text
+      button.style.boxShadow = this.colors.light.boxShadow
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        button.style.backgroundColor = this.colors.matte.black
+        button.style.border = this.colors.dark.border
+        button.style.boxShadow = this.colors.dark.boxShadow
+        button.style.color = this.colors.dark.text
+      }
+
+      if (parent !== undefined) parent.append(button)
+      return button
+    }
+
     if (event === "button/remove-overlay") {
 
       const icon = this.iconPicker("back")
@@ -3870,11 +3951,11 @@ export class Helper {
     if (event === "script/toolbox-getter") {
 
       const text = /*html*/`
-<script id="toolbox-getter" type="module">
-  import {Helper} from "/js/Helper.js"
+        <script id="toolbox-getter" type="module">
+          import {Helper} from "/js/Helper.js"
 
-  await Helper.get("toolbox/closed", document.body)
-</script>
+          await Helper.get("toolbox/closed", document.body)
+        </script>
       `
 
       const script = this.convert("text/script", text)
@@ -3884,7 +3965,7 @@ export class Helper {
       create.type = script.type
       create.innerHTML = script.innerHTML
 
-      if (parent !== undefined) parent.append(create)
+      document.body.append(create)
 
       return create
     }
@@ -4713,60 +4794,43 @@ export class Helper {
           const button = this.iconPicker("repeat-once")
           button.style.width = "55px"
           button.style.cursor = "pointer"
-          button.addEventListener("click", () => {
+          button.addEventListener("click", async () => {
 
-            if (document.getElementById(script.name) === null) {
-              const parser = document.createElement("div")
-              parser.innerHTML = script.script
-              const node = parser.firstChild
+            await this.add("script/always", script)
 
-              const create = document.createElement("script")
-              create.id = script.name
-              create.innerHTML = node.innerHTML
-              create.type = "module"
+            const removalScript = document.createElement("script")
+            removalScript.id = "script-to-remove"
+            removalScript.textContent = `
+              document.getElementById("${script.name}").remove();
+              document.getElementById("${removalScript.id}").remove();
+            `
+            document.body.appendChild(removalScript)
+            itemState.style.backgroundColor = this.colors.matte.black
 
-              const removeScript = document.createElement("script")
-              removeScript.id = "remove-script"
-              removeScript.textContent = `
-                document.getElementById("${create.id}").remove()
-                document.getElementById("remove-script").remove()
-              `
-
-              document.body.append(create)
-              document.body.append(removeScript)
-
-            } else {
-              alert("Id existiert bereits.")
-            }
 
           })
           buttons.append(button)
         }
 
-
         {
           const button = this.iconPicker("repeat-always")
           button.style.width = "55px"
           button.style.cursor = "pointer"
-          button.addEventListener("click", () => {
+          button.addEventListener("click", async () => {
 
 
             if (document.getElementById(script.name) === null) {
-              const parser = document.createElement("div")
-              parser.innerHTML = script.script
-              const node = parser.firstChild
-              const tag = document.createElement("script")
-              tag.id = script.name
-              tag.type = "module"
-              tag.innerHTML = node.innerHTML
-              document.body.append(tag)
+              await this.add("script/always", script)
+            } else {
+              window.alert("Skript existiert bereits.")
+            }
+
+            if (document.getElementById(script.name) !== null) {
               if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                 itemState.style.backgroundColor = this.colors.dark.success
               } else {
                 itemState.style.backgroundColor = this.colors.light.success
               }
-            } else {
-              alert("Id existiert bereits.")
             }
 
           })
@@ -4789,21 +4853,22 @@ export class Helper {
     }
 
     if (event === "value/button") {
-      // console.log(input);
 
-      const button = this.buttonPicker("left/right", parent)
-      button.right.innerHTML = input.alias
+      const button = this.create("button/top-bottom", parent)
+      button.bottom.innerHTML = input.alias
+      button.bottom.classList.add("value")
+      button.bottom.style.margin = "21px 34px"
+      button.bottom.style.textAlign = "center"
+      button.bottom.style.fontSize = "13px"
+      button.bottom.style.fontFamily = "sans-serif"
 
       if (input.image !== undefined) {
-        button.left.style.margin = "0"
-        button.left.style.overflow = "hidden"
-        button.left.style.borderRadius = "13px"
-        button.left.classList.add("image")
+        button.top.classList.add("image")
 
         if (input.image.svg !== undefined) {
           const svg = this.convert("text/svg", input.image.svg)
           svg.setAttribute("width", "100%")
-          button.left.append(svg)
+          button.top.append(svg)
         }
 
         if (input.image.dataUrl !== undefined) {
@@ -4811,15 +4876,14 @@ export class Helper {
           img.src = input.image.dataUrl
           img.alt = input.image.name
           img.style.width = "100%"
-          button.left.append(img)
+          button.top.append(img)
         }
 
         if (input.image.url !== undefined) {
           const img = document.createElement("img")
           img.src = input.image.url
           img.style.width = "100%"
-          img.style.overflow = "hidden"
-          button.left.append(img)
+          button.top.append(img)
         }
 
 
@@ -4831,21 +4895,22 @@ export class Helper {
     }
 
     if (event === "platform/button") {
-      // console.log(input);
 
-      const button = this.buttonPicker("left/right", parent)
-      button.right.innerHTML = input.name
+      const button = this.create("button/top-bottom", parent)
+      button.bottom.classList.add("platform")
+      button.bottom.innerHTML = input.name
+      button.bottom.style.margin = "21px 34px"
+      button.bottom.style.textAlign = "center"
+      button.bottom.style.fontSize = "13px"
+      button.bottom.style.fontFamily = "sans-serif"
 
       if (input.image !== undefined) {
-        button.left.style.margin = "0"
-        button.left.style.overflow = "hidden"
-        button.left.style.borderRadius = "13px"
-        button.left.classList.add("image")
+        button.top.classList.add("image")
 
         if (input.image.svg !== undefined) {
           const svg = this.convert("text/svg", input.image.svg)
           svg.setAttribute("width", "100%")
-          button.left.append(svg)
+          button.top.append(svg)
         }
 
         if (input.image.dataUrl !== undefined) {
@@ -4853,15 +4918,14 @@ export class Helper {
           img.src = input.image.dataUrl
           img.alt = input.image.name
           img.style.width = "100%"
-          button.left.append(img)
+          button.top.append(img)
         }
 
         if (input.image.url !== undefined) {
           const img = document.createElement("img")
           img.src = input.image.url
           img.style.width = "100%"
-          img.style.overflow = "hidden"
-          button.left.append(img)
+          button.top.append(img)
         }
 
 
@@ -7481,7 +7545,7 @@ export class Helper {
                 {
                   const button = this.buttonPicker("left/right", buttons)
                   button.left.innerHTML = ".scripts"
-                  button.right.innerHTML = "Nutze, von unseren Web-Entwickler, geprüfte HTML Sktipte"
+                  button.right.innerHTML = "Nutze geprüfte HTML Sktipte"
 
                   button.addEventListener("click", () => {
 
@@ -7490,12 +7554,10 @@ export class Helper {
                       this.headerPicker("removeOverlay", overlay)
                       this.buttonPicker("toolbox/register-html", overlay)
 
-
                       const info = this.headerPicker("info", overlay)
-
                       info.append(this.convert("text/span", ".scripts"))
 
-                      this.get("toolbox-scripts/closed", overlay)
+                      await this.get("toolbox-scripts/closed", overlay)
 
                     })
 
@@ -8345,7 +8407,7 @@ export class Helper {
                         child.innerHTML = html
 
                         if (child.tagName === "BODY") {
-                          this.create("script/toolbox-getter", child)
+                          this.create("script/toolbox-getter")
                         }
 
                         this.removeOverlay(overlay)
@@ -9644,6 +9706,7 @@ export class Helper {
       header.style.bottom = "0"
       header.style.zIndex = "1"
       header.style.maxWidth = "100%"
+      header.style.maxHeight = "21px"
       header.style.overflow = "auto"
 
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -11104,6 +11167,21 @@ export class Helper {
       }
       return div.innerHTML
 
+    }
+
+    if (event === "text/document") {
+      return new Promise((resolve, reject) => {
+
+        try {
+          document.open()
+          document.write(input)
+          document.close()
+          return resolve()
+        } catch (error) {
+          return reject(error)
+        }
+
+      })
     }
 
     if (event === "text/dom") {
