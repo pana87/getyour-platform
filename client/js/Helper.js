@@ -3486,6 +3486,39 @@ export class Helper {
   // no events, only dom creation
   static create(event, parent) {
 
+    if (event === "back") {
+
+      const icon = this.iconPicker("back")
+      icon.style.width = "34px"
+      const header = document.createElement("div")
+      header.append(icon)
+
+      header.style.position = "fixed"
+      header.style.bottom = "0"
+      header.style.left = "0"
+
+      header.style.boxShadow = this.colors.light.boxShadow
+      header.style.border = this.colors.light.border
+      header.style.backgroundColor = this.colors.light.foreground
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        header.style.boxShadow = this.colors.dark.boxShadow
+        header.style.border = this.colors.dark.border
+        header.style.backgroundColor = this.colors.dark.foreground
+      }
+
+      header.style.borderRadius = "50%"
+      header.style.margin = "34px"
+      header.style.padding = "21px"
+      header.style.zIndex = "1"
+      header.style.cursor = "pointer"
+
+
+      header.addEventListener("click", () => window.history.back())
+
+      if (parent !== undefined) parent.append(header)
+
+      return header
+    }
 
     if (event === "header/nav") {
 
@@ -3666,6 +3699,46 @@ export class Helper {
 
       if (parent !== undefined) parent.append(button)
       return button
+    }
+
+    if (event === "button/register-html") {
+
+      const save = this.headerPicker("save", parent)
+
+      save.addEventListener("click", async () => {
+
+        this.overlay("security", async securityOverlay => {
+
+          // prepare html
+          document.getElementById("toolbox").remove()
+          document.querySelectorAll("[data-id]").forEach(element => element.remove())
+          document.querySelectorAll(".overlay").forEach(element => element.remove())
+
+          document.body.style.overscrollBehavior = null
+          document.body.style.overflow = null
+
+          // save html state
+          const register = {}
+          register.url = "/register/platform-value/closed/"
+          register.type = "html"
+          register.html = document.documentElement.outerHTML.replace(/<html>/, "<!DOCTYPE html><html>")
+          const res = await Request.closed(register)
+
+          if (res.status === 200) {
+            window.alert("Dokument erfolgreich gespeichert.")
+            window.location.reload()
+          } else {
+            // if error recreate state ??
+            window.alert("Fehler.. Bitte wiederholen.")
+            await this.request("toolbox/append", document.body)
+            this.removeOverlay(securityOverlay)
+          }
+
+        })
+
+
+      })
+
     }
 
     if (event === "button/remove-overlay") {
@@ -4402,27 +4475,20 @@ export class Helper {
 
       if (parent !== undefined) parent.append(answerBox)
 
-
-
       answerBox.style.cursor = "pointer"
       answerBox.style.display = "flex"
+      answerBox.style.flexDirection = "column"
       answerBox.style.borderRadius = "13px"
       answerBox.style.margin = "8px 0"
       answerBox.style.overflow = "hidden"
 
       answerBox.style.border = `1px solid ${this.colors.light.text}`
-      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      //   answerBox.style.border = `1px solid ${this.colors.dark.text}`
-      // } else {
-      // }
 
       answerBox.answer.style.fontFamily = "sans-serif"
-      answerBox.answer.style.width = "100%"
       answerBox.answer.style.overflow = "auto"
-      answerBox.answer.style.padding = "8px"
+      answerBox.answer.style.margin = "21px 34px"
       answerBox.answer.style.maxHeight = "89px"
-
-
+      answerBox.answer.style.textAlign = "center"
 
       return answerBox
     }
@@ -7957,6 +8023,7 @@ export class Helper {
                         button.addEventListener("click", () => {
                           this.popup(appendQuestionOverlay => {
                             this.headerPicker("removeOverlay", appendQuestionOverlay)
+                            this.create("button/register-html", appendQuestionOverlay)
 
                             const info = this.headerPicker("info",appendQuestionOverlay)
                             info.append(this.convert("element/alias", child))
@@ -8019,10 +8086,6 @@ export class Helper {
                           })
                         })
                       }
-
-
-                      // trennlinie
-                      // this.create("hr", questionsOverlay)
 
                       const questions = this.headerPicker("scrollable", questionsOverlay)
                       this.render("click-funnel/questions", child, questions)
@@ -8962,6 +9025,7 @@ export class Helper {
                 button.addEventListener("click", () => {
                   this.popup(answersOverlay => {
                     this.headerPicker("removeOverlay", answersOverlay)
+                    this.create("button/register-html", answersOverlay)
 
                     const info = this.headerPicker("info", answersOverlay)
                     info.append(this.convert("element/alias", child))
@@ -8998,21 +9062,6 @@ export class Helper {
                           answerField.input.required = true
                           answerField.verifyValue()
                           answerField.input.addEventListener("input", () => answerField.verifyValue())
-
-
-                          const imageField = new FileField("image", answerFunnel)
-                          imageField.label.textContent = "Bild Upload (PNG, SVG, JPEG)"
-                          imageField.input.accept = "image/jpeg, image/png, image/svg+xml"
-                          imageField.verifyValue()
-                          imageField.input.addEventListener("input", async (event) => {
-                            if (event.target.files[0].type === "image/svg+xml") {
-                              await imageField.validSvg(event.target.files[0])
-                            } else {
-                              await imageField.validImage(event.target.files[0])
-                            }
-                          })
-
-
 
                           const selectedConditionButton = this.buttonPicker("left/right", answerFunnel)
                           selectedConditionButton.left.innerHTML = ".onclick"
@@ -9118,39 +9167,6 @@ export class Helper {
 
                             const answer = answerField.validValue()
 
-                            const file = imageField.validValue()[0]
-
-                            const image = document.createElement("div")
-                            image.classList.add("image")
-                            answerBox.answer.before(image)
-
-
-                            if (file !== undefined) {
-                              image.style.width = "144px"
-                              image.style.display = "flex"
-                              image.style.overflow = "hidden"
-
-
-                              if (file.type === "image/svg+xml") {
-
-                                const svgFile = await imageField.validSvg(file)
-                                const svg = this.convert("text/svg", svgFile.svg)
-                                svg.setAttribute("width", "100%")
-
-                                image.append(svg)
-
-                              } else {
-
-                                const imageFile = await imageField.validImage(file)
-                                const img = document.createElement("img")
-                                img.style.width = "100%"
-                                img.src = imageFile.dataUrl
-                                img.alt = imageFile.name
-                                image.append(img)
-
-                              }
-                            }
-
                             answerBox.answer.textContent = answer
 
                             child.querySelector(".answers").append(answerBox)
@@ -9167,13 +9183,8 @@ export class Helper {
                       })
                     }
 
-
-
-
                     const answers = this.headerPicker("scrollable", answersOverlay)
                     this.render("click-field/answers", document.getElementById(child.id), answers)
-
-
 
                   })
                 })
