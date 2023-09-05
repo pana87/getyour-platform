@@ -5,10 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
-
     <link rel="shortcut icon" type="image/png" href="/public/getyour-logo.svg" />
-    <title>Getyour Plattform Dokumentation</title>
+    <title>Plattformen und ihre unglaublich Anziehungskraft</title>
 
     <style>
 
@@ -22,16 +20,13 @@
         list-style: none;
         padding-left: 10px;
       }
+
     </style>
   </head>
   <body>
 
-    <header></header>
-
-
-
-    <h1 class="title" style="margin: 144px 34px;">Plattformen und ihre unglaubliche Anziehungskraft</h1>
-    <p class="sub-title" style="margin: 34px;">Die offizielle Dokumentation von getyour plattform. Bitte beachtet die Urheberrechte der Autoren. <a href="/docs/release-notes/">Die aktuellen Release notes findet ihr hier.</a></p>
+    <h1 class="title" style="margin: 21px 34px;">Plattformen und ihre unglaubliche Anziehungskraft</h1>
+    <p class="sub-title" style="margin: 21px 34px;">Die offizielle Dokumentation von getyour plattform. Bitte beachtet die Urheberrechte der Autoren. <a href="/docs/release-notes/">Die aktuellen Release notes findet ihr hier.</a></p>
 
     <div class="table-of-contents" style="margin: 34px;">
 
@@ -271,62 +266,10 @@
       </ul>
     </div>
 
-    <footer></footer>
-
     <script type="module">
-      import {HeaderField} from "/js/HeaderField.js"
-      import {FooterField} from "/js/FooterField.js"
+      import {Helper} from "/js/Helper.js"
 
-      new HeaderField()
-      .withType(header => {
-        header.style.backgroundColor = "white"
-        header.style.width = "100%"
-        header.style.position = "fixed"
-        header.style.top = "0"
-        header.style.left = "0"
-        header.style.zIndex = "1"
-      })
-      .withImage(img => {
-        img.style.width = "89px"
-        img.src = "/public/getyour-logo.svg"
-        img.alt = "Getyour Plattform Logo"
-        img.style.cursor = "pointer"
-        img.addEventListener("click", () => window.location.assign("/home/"))
-      })
-      .build()
-
-
-
-      const footerField = new FooterField()
-      .withType(footer => {
-        footer.style.backgroundColor = "#781717"
-        footer.style.padding = "21px 34px"
-        footer.style.marginTop = "144px"
-        footer.style.color = "#d1d1d1"
-
-        const impressum = document.createElement("div")
-        impressum.innerHTML = "IMPRESSUM"
-        impressum.style.cursor = "pointer"
-        impressum.style.padding = "13px"
-        impressum.addEventListener("click", () => window.location.assign("/impressum/"))
-        footer.append(impressum)
-
-        const dsgvo = document.createElement("div")
-        dsgvo.innerHTML = "DATENSCHUTZ"
-        dsgvo.style.cursor = "pointer"
-        dsgvo.style.padding = "13px"
-        dsgvo.addEventListener("click", () => window.location.assign("/datenschutz/"))
-        footer.append(dsgvo)
-
-        const userAgreement = document.createElement("div")
-        userAgreement.innerHTML = "NUTZERVEREINBARUNG"
-        userAgreement.style.cursor = "pointer"
-        userAgreement.style.padding = "13px"
-        userAgreement.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
-        footer.append(userAgreement)
-      })
-
-
+      Helper.create("button/back", document.body)
     </script>
 
 </body>
