@@ -1,0 +1,43 @@
+<script>
+  import {Helper} from "/js/Helper.js"
+
+  Helper.popup(overlay => {
+    Helper.create("button/remove-overlay", overlay)
+
+    Helper.render("text/title", "Definiere eine Liste, mit der sich deine Nutzer selber markieren können", overlay)
+
+    const funnel = Helper.create("div/scrollable", overlay)
+
+    const tagField = Helper.create("field/tag", funnel)
+    tagField.label.innerHTML = "Name der Liste (json-tag)"
+    tagField.input.placeholder = "pv-module"
+    Helper.verifyIs("input/valid", tagField.input)
+    tagField.input.addEventListener("input", () => Helper.verifyIs("input/valid", tagField.input))
+
+    const fieldFunnelField = Helper.create("field/field-funnel", funnel)
+    Helper.verifyIs("input/valid", fieldFunnelField.input)
+    fieldFunnelField.input.addEventListener("input", () => Helper.verifyIs("input/valid", fieldFunnelField.input))
+
+    const submitButton = Helper.create("button/action", funnel)
+    submitButton.innerHTML = "HTML Skript laden"
+    submitButton.onclick = async () => {
+
+      await Helper.verify("field-funnel/validity", funnel)
+
+      const map = {}
+      map.tag = tagField.input.value
+      map.funnel = fieldFunnelField.input.value
+
+      const script = Helper.create("script/open-popup-list-mirror-event", map)
+
+      await Helper.render("script/onbody", script)
+
+      const button = Helper.create("button/icon-box", document.body)
+      button.id = `${map.tag}-mirror-button`
+
+      Helper.remove("overlay", overlay)
+    }
+
+
+  })
+</script>

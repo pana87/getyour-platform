@@ -28,7 +28,60 @@ export class Helper {
   // no dom creation, only events
   static add(event, input) {
 
-    if (event === "timeout") {
+    if (event === "field-funnel/oninput-sign-support") {
+      input.querySelectorAll(".field").forEach(field => {
+        const input = field.querySelector(".field-input")
+        input.oninput = () => this.verifyIs("input/valid", input)
+      })
+    }
+
+    if (event === "script/field-funnel-sign-support") {
+
+      return new Promise(async(resolve) => {
+
+        const text = /*html*/`
+          <script id="field-funnel-sign-support" type="module">
+            import {Helper} from "/js/Helper.js"
+
+            document.querySelectorAll(".field-funnel").forEach(funnel => {
+              Helper.verifyIs("field-funnel/valid", funnel)
+            })
+
+            document.querySelectorAll(".field-funnel").forEach(funnel => {
+              funnel.querySelectorAll(".field").forEach(field => {
+                const input = field.querySelector(".field-input")
+                input.oninput = () => Helper.verifyIs("input/valid", input)
+              })
+            })
+
+          </script>
+        `
+
+        const script = this.convert("text/script", text)
+
+        const create = document.createElement("script")
+        create.id = script.id
+        create.type = script.type
+        create.innerHTML = script.innerHTML
+
+        if (document.body) {
+          document.querySelectorAll(`#${create.id}`).forEach(script => script.remove())
+
+          if (document.getElementById(create.id) === null) {
+            document.body.append(create)
+            return resolve(create)
+          }
+
+        } else {
+          await this.add("ms/timeout", 3000)
+          await this.add(event)
+        }
+
+      })
+
+    }
+
+    if (event === "ms/timeout") {
       return new Promise(resolve => {
         setTimeout(() => {
           return resolve()
@@ -59,7 +112,7 @@ export class Helper {
           document.body.append(create)
           return resolve(create)
         } else {
-          await this.add("timeout", 3000)
+          await this.add("ms/timeout", 3000)
           await this.add("script/toolbox-getter")
         }
 
@@ -208,6 +261,21 @@ export class Helper {
 
     }
 
+    if (event === "input/onchecked") {
+
+      if (input.type === "checkbox") {
+        input.oninput = (ev) => {
+
+          if (ev.target.checked === true) {
+            ev.target.setAttribute("checked", "true")
+          } else {
+            ev.target.removeAttribute("checked")
+          }
+
+        }
+      }
+    }
+
     if (event === "input/oninput") {
       if (input.type === "email") {
         input.oninput = (ev) => {
@@ -262,6 +330,139 @@ export class Helper {
 
   static get(event, parent, input) {
 
+    if (event === "location-list-funnel/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const get = {}
+        get.url = "/get/location-list-funnel/closed/"
+        get.tag = input.tag
+        get.id = input.id
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+
+          try {
+            const map = JSON.parse(res.response)
+
+            await this.render("map/div", map, parent)
+
+            return resolve()
+          } catch (error) {
+            window.alert("Fehler.. Daten sind fehlerhaft.")
+            this.remove("element", parent)
+            return reject(new Error("funnel invalid"))
+          }
+        }
+
+
+        if (res.status !== 200) {
+          return reject()
+        }
+
+      })
+
+    }
+
+    if (event === "location-list/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        if (!parent.classList.contains("location-list")) parent.classList.add("location-list")
+
+        const get = {}
+        get.url = "/get/location-list/closed/"
+        get.tag = input.tag
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+          const list = JSON.parse(res.response)
+
+          this.convert("parent/scrollable", parent)
+
+          for (let i = 0; i < list.length; i++) {
+            const map = list[i]
+
+            const mapButton = this.create("button/left-right", parent)
+            mapButton.left.innerHTML = `${map.tag}-${i + 1}`
+            mapButton.right.innerHTML = map.id
+            mapButton.addEventListener("click", () => {
+
+              this.popup(overlay => {
+
+                this.create("button/remove-overlay", overlay)
+
+
+                const buttons = this.create("div/scrollable", overlay)
+
+                {
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = ".update"
+                  button.onclick = () => {
+
+                    this.popup(async overlay => {
+                      this.create("button/remove-overlay", overlay)
+
+                      this.render("text/title", `${map.tag}-${i + 1}`, overlay)
+
+                      const content = this.create("div/scrollable", overlay)
+
+                      await this.get("location-list-funnel/closed", content, map)
+
+                      map.funnel = input.funnel
+                      map.ok = () => this.remove("overlay", overlay)
+                      this.update("funnel/location-list/closed", content, map)
+
+                    })
+
+                  }
+                }
+
+                {
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = ".delete"
+                  button.onclick = () => {
+                    this.overlay("security", async securityOverlay => {
+                      const del = {}
+                      del.url = "/delete/location-list-funnel/closed/"
+                      del.tag = map.tag
+                      del.id = map.id
+                      const res = await Request.closed(del)
+
+                      if (res.status === 200) {
+                        window.alert("Daten erfolgreich entfernt.")
+                        this.remove("element", mapButton)
+                        this.remove("overlay", overlay)
+                        this.remove("overlay", securityOverlay)
+                      }
+
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        this.remove("overlay", securityOverlay)
+                      }
+
+                    })
+                  }
+                }
+
+              })
+
+            })
+
+
+          }
+
+          return resolve()
+        }
+
+
+        if (res.status !== 200) {
+          return reject()
+        }
+
+      })
+
+    }
 
     if (event === "logs/error") {
 
@@ -682,8 +883,6 @@ export class Helper {
         }
       }
 
-
-
       const infoField = new TextAreaField("info", funnel)
       infoField.label.innerHTML = "Hier kannst du, wenn du möchtest, mehr Informationen zu diesem Datenfeld, als HTML, für deine Nutzer, bereitstellen"
       infoField.input.style.height = "144px"
@@ -712,6 +911,7 @@ export class Helper {
         if (input.classList.contains("field")) {
           if (input.hasAttribute("on-info-click")) {
             infoField.value(() => input.getAttribute("on-info-click"))
+            infoField.verifyValue()
           }
         }
       }
@@ -729,11 +929,7 @@ export class Helper {
 
             if (fieldInput !== null) {
 
-
-
-
               this.update("field-input/type", fieldInput, value)
-
 
             }
           }
@@ -764,10 +960,6 @@ export class Helper {
           if (fieldInput.tagName === "TEXTAREA") {
             type = "textarea"
           }
-
-
-
-
 
           if (fieldInput !== null) {
             typeField.value(() => [type])
@@ -803,7 +995,11 @@ export class Helper {
               const field = this.convert("text/field", type)
               field.id = id
               field.label.textContent = label
-              field.setAttribute("on-info-click", info)
+
+              if (!this.stringIsEmpty(info)) {
+                field.setAttribute("on-info-click", info)
+                this.update("script/on-field-info-click-event", document.body)
+              }
 
               input.querySelector(".submit-field-funnel-button").before(field)
               if (input.ok !== undefined) await input.ok()
@@ -1092,17 +1288,15 @@ export class Helper {
             feedbackButton.right.append(feedbackButton.counter)
 
             scriptField.input.value = res.script
+            nameField.input.value = res.name
 
-            if (res.name !== undefined) {
-              nameField.input.value = res.name
-            }
+            this.verify("field-funnel/validity", funnel)
 
-            this.verify("funnel/validity", funnel)
+            button.addEventListener("click", async () => {
 
-
-            button.addEventListener("click", () => {
-
+              await this.verify("field-funnel/validity", funnel)
               try {
+
                 const html = this.convert("text/dom", res.script)
 
                 if (html.tagName === "SCRIPT") {
@@ -1135,41 +1329,44 @@ export class Helper {
 
       const nameField = this.create("field/name", funnel)
       nameField.input.placeholder = "mein-skript"
+      this.verify("input/validity", nameField.input)
+      nameField.input.addEventListener("input", () => this.verify("input/validity", nameField.input))
 
       const scriptField = this.create("field/script", funnel)
       scriptField.input.style.height = "100vh"
+      this.verify("input/validity", scriptField.input)
+      scriptField.input.addEventListener("input", () => this.verify("input/validity", scriptField.input))
+
 
       const button = this.buttonPicker("action", funnel)
       button.innerHTML = "Skript jetzt speichern"
       button.addEventListener("click", async () => {
 
-        if (await this.verify("funnel/validity", funnel) === true) {
-          const map = {}
-          map.script = scriptField.input.value
-          map.name = nameField.input.value
+        await this.verify("field-funnel/validity", funnel)
 
-          if (input !== undefined) {
+        const map = {}
+        map.script = scriptField.input.value
+        map.name = nameField.input.value
 
-            if (!this.numberIsEmpty(input.id)) {
-              map.id = input.id
-            }
+        if (input !== undefined) {
 
+          if (!this.numberIsEmpty(input.id)) {
+            map.id = input.id
           }
-
-          this.overlay("security", async securityOverlay => {
-
-            await this.update("script/closed", securityOverlay, map)
-
-            if (input !== undefined) {
-              if (input.ok !== undefined) await input.ok()
-            }
-
-            this.removeOverlay(securityOverlay)
-
-          })
 
         }
 
+        this.overlay("security", async securityOverlay => {
+
+          await this.update("script/closed", securityOverlay, map)
+
+          if (input !== undefined) {
+            if (input.ok !== undefined) await input.ok()
+          }
+
+          this.removeOverlay(securityOverlay)
+
+        })
 
       })
 
@@ -2246,6 +2443,48 @@ export class Helper {
   // event = tag/on/algorithm
   static update(event, parent, input) {
 
+    if (event === "funnel/location-list/closed") {
+
+      const fieldFunnel = this.convert("text/dom", input.funnel)
+      parent.append(fieldFunnel)
+
+      this.add("field-funnel/oninput-sign-support", fieldFunnel)
+
+      const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
+      submitButton.innerHTML = `${input.tag} jetzt speichern`
+      submitButton.onclick = async () => {
+
+        await this.verify("field-funnel/validity", fieldFunnel)
+
+        const map = await this.convert("field-funnel/map", fieldFunnel)
+
+        this.overlay("security", async securityOverlay => {
+          const update = {}
+          update.url = "/update/location-list/closed/"
+          update.tag = input.tag
+          update.id = input.id
+          update.map = map
+          const res = await Request.closed(update)
+
+          if (res.status === 200) {
+            window.alert("Daten erfolgreich gespeichert.")
+            if (input.ok !== undefined) await input.ok()
+            this.remove("overlay", parent)
+            this.remove("overlay", securityOverlay)
+          }
+
+          if (res.status !== 200) {
+            window.alert("Fehler.. Bitte wiederholen.")
+            this.remove("overlay", securityOverlay)
+          }
+
+        })
+
+      }
+
+      return parent
+    }
+
     if (event === "name/expert/closed") {
       const funnel = this.create("div/scrollable", parent)
 
@@ -2447,7 +2686,10 @@ export class Helper {
           contentField.input.maxLength = "377"
           contentField.input.style.fontSize = "13px"
           contentField.input.placeholder = "Schreibe ein Feedback an unsere Web-Entwickler"
-          this.verify("input/value", contentField.input)
+
+          this.verify("input/validity", contentField.input)
+          contentField.input.addEventListener("input", () => this.verify("input/validity", contentField.input))
+
 
           const importanceField = this.create("field/range", content)
           importanceField.input.min = "0"
@@ -2455,10 +2697,11 @@ export class Helper {
           importanceField.input.step = "1"
           importanceField.input.value = "0"
           importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
-          this.verify("input/value", importanceField.input)
+
+          this.verify("input/validity", importanceField.input)
 
           importanceField.input.addEventListener("input", (event) => {
-            this.verify("input/value", importanceField.input)
+            this.verify("input/validity", importanceField.input)
             importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
           })
 
@@ -2466,33 +2709,37 @@ export class Helper {
           button.innerHTML = "Feedback jetzt speichern"
           button.addEventListener("click", async () => {
 
-            await this.verify("input", contentField.input)
+            const res = await this.verifyIs("input/valid", contentField.input)
 
-            const content = contentField.input.value
-            const importance = importanceField.input.value
+            if (res === true) {
 
-            this.popup(async securityOverlay => {
+              const content = contentField.input.value
+              const importance = importanceField.input.value
 
-              this.headerPicker("loading", securityOverlay)
+              this.popup(async securityOverlay => {
 
-              const register = {}
-              register.url = "/register/feedback/location/"
-              register.type = "script"
-              register.id = input.id
-              register.importance = importance
-              register.content = content
-              const res = await Request.location(register)
+                this.headerPicker("loading", securityOverlay)
 
-              if (res.status === 200) {
-                this.removeOverlay(securityOverlay)
-                this.removeOverlay(overlay)
-                parent.counter.innerHTML = parseInt(parent.counter.innerHTML) + 1
-              } else {
-                window.alert("Fehler.. Bitte wiederholen.")
-                this.removeOverlay(securityOverlay)
-              }
+                const register = {}
+                register.url = "/register/feedback/location/"
+                register.type = "script"
+                register.id = input.id
+                register.importance = importance
+                register.content = content
+                const res = await Request.location(register)
 
-            })
+                if (res.status === 200) {
+                  this.removeOverlay(securityOverlay)
+                  this.removeOverlay(overlay)
+                  parent.counter.innerHTML = parseInt(parent.counter.innerHTML) + 1
+                } else {
+                  window.alert("Fehler.. Bitte wiederholen.")
+                  this.removeOverlay(securityOverlay)
+                }
+
+              })
+
+            }
 
 
           })
@@ -2691,7 +2938,6 @@ export class Helper {
 
     }
 
-
     if (event === "element/type") {
 
       const create = document.createElement(input)
@@ -2744,7 +2990,6 @@ export class Helper {
       parent.remove()
     }
 
-
     if (event === "field-input/type") {
 
       if (parent.tagName !== "TEXTAREA") {
@@ -2765,20 +3010,17 @@ export class Helper {
 
     }
 
-
     if (event === "script/on-field-info-click-event") {
 
       const text = /*html*/`
       <script id="on-field-info-click-event" type="module">
         import { Helper } from "/js/Helper.js"
-        import { Request } from "/js/Request.js"
 
         document.querySelectorAll(".field").forEach(field => {
           if (field.hasAttribute("on-info-click")) {
             Helper.convert("field/on-info-click", field)
           }
         })
-
 
       </script>
       `
@@ -2802,7 +3044,6 @@ export class Helper {
       return create
 
     }
-
 
     if (event === "service-condition/closed") {
 
@@ -2878,7 +3119,6 @@ export class Helper {
       })
     }
 
-
     if (event === "script/closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -2945,7 +3185,6 @@ export class Helper {
       })
     }
 
-
     if (event === "script/role-apps-event") {
 
       if (input !== undefined) {
@@ -3000,7 +3239,6 @@ export class Helper {
       }
 
     }
-
 
     if (event === "script/login") {
 
@@ -3283,59 +3521,28 @@ export class Helper {
   // event = input/algorithm
   static verify(event, input) {
 
-    if (event === "input/value") {
-      this.verify("input/validity", input)
-      input.oninput = () => this.verify("input/validity", input)
-    }
+    if (event === "field-funnel/validity") {
 
+      return new Promise(async(resolve, reject) => {
 
-    if (event === "funnel/validity") {
+        try {
 
-      return new Promise((resolve, reject) => {
+          const res = await this.verifyIs("field-funnel/valid", input)
 
-        input.querySelectorAll(".field").forEach(async field => {
-          try {
-            const input = field.querySelector(".field-input")
-            await this.verify("input", input)
-            return resolve(true)
-          } catch (error) {
-            return reject(error)
-          }
-        })
+          if (res === true) return resolve()
 
-      })
-
-
-
-    }
-
-
-    if (event === "input") {
-
-      return new Promise((resolve, reject) => {
-
-        if (this.verifyIs("input/required", input)) {
-          if (this.verifyIs("input/valid", input)) {
-            this.setValidStyle(input)
-            return resolve(input)
-          }
-          this.setNotValidStyle(input)
-          const field = input.parentElement
-          field.scrollIntoView({behavior: "smooth"})
-          return reject(new Error("input invalid"))
+          return reject(new Error("funnel invalid"))
+        } catch (error) {
+          return reject(error)
         }
-        this.setValidStyle(input)
-        return resolve(input)
 
       })
 
     }
-
-
 
     if (event === "input/validity") {
       if (this.verifyIs("input/required", input)) {
-        if (this.verifyIs("input/valid", input)) {
+        if (this.verifyIs("input/accepted", input)) {
           this.setValidStyle(input)
           return true
         }
@@ -3484,7 +3691,72 @@ export class Helper {
   }
 
   // no events, only dom creation
-  static create(event, parent) {
+  static create(event, input) {
+
+    if (event === "script/open-popup-list-mirror-event") {
+
+      const scriptText = /*html*/`
+        <script id="${input.tag}-list-mirror-event" type="module">
+          import { Helper } from "/js/Helper.js"
+
+          const map = {}
+          map.tag = '${input.tag}'
+          map.funnel = '${input.funnel}'
+
+          const button = document.getElementById("${input.tag}-mirror-button")
+
+          if (button !== null) {
+            button.onclick = () => {
+
+              Helper.popup(async overlay => {
+
+                Helper.headerPicker("removeOverlay", overlay)
+                const info = Helper.headerPicker("info", overlay)
+                info.innerHTML = "." + map.tag
+
+                const create = Helper.buttonPicker("left/right", overlay)
+                create.left.innerHTML = ".create"
+                create.right.innerHTML = map.tag + " definieren"
+                create.addEventListener("click", () => {
+
+                  Helper.popup(overlay => {
+                    Helper.headerPicker("removeOverlay", overlay)
+                    const info = Helper.headerPicker("info", overlay)
+                    info.append(Helper.convert("text/span", map.tag + ".create"))
+
+                    map.ok = async () => {
+
+                      await Helper.get("location-list/closed", locationList, map)
+
+                    }
+
+                    Helper.render("field-funnel/location-list-tagger", map, overlay)
+
+                  })
+
+                })
+
+                Helper.render("text/hr", "Meine " + map.tag, overlay)
+
+                const locationList = Helper.headerPicker("loading", overlay)
+                await Helper.get("location-list/closed", locationList, map)
+
+              })
+
+            }
+          }
+        </script>
+      `
+
+      const script = this.convert("text/script", scriptText)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
+    }
 
     if (event === "back") {
 
@@ -3515,7 +3787,7 @@ export class Helper {
 
       header.addEventListener("click", () => window.history.back())
 
-      if (parent !== undefined) parent.append(header)
+      if (input !== undefined) input.append(header)
 
       return header
     }
@@ -3555,7 +3827,7 @@ export class Helper {
       header.nav.state.index.style.color = "white"
       header.nav.state.append(header.nav.state.index)
 
-      if (parent !== undefined) parent.append(header)
+      if (input !== undefined) input.append(header)
       return header
     }
 
@@ -3585,7 +3857,7 @@ export class Helper {
       header.right.innerHTML = "Login"
       header.append(header.right)
 
-      if (parent !== undefined) parent.append(header)
+      if (input !== undefined) input.append(header)
       return header
     }
 
@@ -3602,7 +3874,7 @@ export class Helper {
       header.right.innerHTML = "Login"
       header.append(header.right)
 
-      if (parent !== undefined) parent.append(header)
+      if (input !== undefined) input.append(header)
       return header
     }
 
@@ -3624,7 +3896,7 @@ export class Helper {
       header.left.image.style.width = "100%"
       header.left.append(header.left.image)
 
-      if (parent !== undefined) parent.append(header)
+      if (input !== undefined) input.append(header)
       return header
     }
 
@@ -3645,14 +3917,14 @@ export class Helper {
       div.style.height = "55px"
       div.style.width = "89px"
 
-      if (parent !== undefined) parent.append(div)
+      if (input !== undefined) input.append(div)
       return div
     }
 
     if (event === "div") {
       const div = document.createElement("div")
 
-      if (parent !== undefined) parent.append(div)
+      if (input !== undefined) input.append(div)
       return div
     }
 
@@ -3662,8 +3934,53 @@ export class Helper {
       div.style.overscrollBehavior = "none"
       div.style.paddingBottom = "144px"
 
-      if (parent !== undefined) parent.append(div)
+      if (input !== undefined) input.append(div)
 
+      return div
+    }
+
+    if (event === "button/icon-box") {
+
+      const button = this.create("button/top-bottom")
+      button.style.justifyContent = "center"
+      button.style.alignItems = "center"
+
+      const icon = document.createElement("img")
+      icon.src = "https://bafybeiefo3y5hr4yb7gad55si2x6ovvoqteqlbxaoqyvlc37bm2ktrruu4.ipfs.nftstorage.link"
+      icon.alt = "Mein Icon"
+      button.top.append(icon)
+      button.top.classList.add("icon")
+      button.top.style.width = "55px"
+      button.top.style.margin = "21px 34px"
+
+      button.bottom.innerHTML = "Button"
+      button.bottom.classList.add("info")
+      button.bottom.style.margin = "21px 34px"
+      button.bottom.style.textAlign = "center"
+      button.bottom.style.fontSize = "13px"
+      button.bottom.style.fontFamily = "sans-serif"
+
+      if (input !== undefined) input.append(button)
+      return button
+    }
+
+    if (event === "button/action") {
+      const div = document.createElement("div")
+
+      div.style.backgroundColor = this.colors.matte.sunflower
+      div.style.color = this.colors.matte.black
+      div.style.boxShadow = this.colors.light.boxShadow
+      div.style.cursor = "pointer"
+      div.style.fontSize = "21px"
+      div.style.fontFamily = "sans-serif"
+      div.style.borderRadius = "13px"
+      div.style.margin = "21px 34px"
+      div.style.display = "flex"
+      div.style.justifyContent = "center"
+      div.style.alignItems = "center"
+      div.style.height = "89px"
+
+      if (input !== undefined) input.append(div)
       return div
     }
 
@@ -3697,13 +4014,56 @@ export class Helper {
         button.style.color = this.colors.dark.text
       }
 
-      if (parent !== undefined) parent.append(button)
+      if (input !== undefined) input.append(button)
+      return button
+    }
+
+    if (event === "button/left-right") {
+
+      const button = document.createElement("div")
+      button.classList.add("button")
+      button.style.display = "flex"
+      button.style.flexWrap = "wrap"
+      button.style.justifyContent = "space-between"
+      button.style.alignItems = "center"
+      button.style.margin = "21px 34px"
+      button.style.borderRadius = "13px"
+      button.style.cursor = "pointer"
+
+      button.left = document.createElement("div")
+      button.left.classList.add("left")
+      button.left.style.margin = "21px 34px"
+      button.left.style.fontSize = "21px"
+      button.left.style.fontFamily = "sans-serif"
+      button.left.style.overflow = "auto"
+      button.append(button.left)
+
+      button.right = document.createElement("div")
+      button.right.classList.add("right")
+      button.right.style.margin = "21px 34px"
+      button.right.style.fontSize = "13px"
+      button.right.style.fontFamily = "sans-serif"
+      button.append(button.right)
+
+      button.style.backgroundColor = this.colors.gray[0]
+      button.style.border = this.colors.light.border
+      button.style.color = this.colors.light.text
+      button.style.boxShadow = this.colors.light.boxShadow
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        button.style.backgroundColor = this.colors.matte.black
+        button.style.border = this.colors.dark.border
+        button.style.boxShadow = this.colors.dark.boxShadow
+        button.style.color = this.colors.dark.text
+      }
+
+      if (input !== undefined) input.append(button)
+
       return button
     }
 
     if (event === "button/register-html") {
 
-      const save = this.headerPicker("save", parent)
+      const save = this.headerPicker("save", input)
 
       save.addEventListener("click", async () => {
 
@@ -3766,9 +4126,9 @@ export class Helper {
       header.style.zIndex = "1"
       header.style.cursor = "pointer"
 
-      header.addEventListener("click", () => this.remove("overlay", parent))
+      header.addEventListener("click", () => this.remove("overlay", input))
 
-      parent.append(header)
+      input.append(header)
       return header
     }
 
@@ -3800,7 +4160,7 @@ export class Helper {
       }
       button.append(button.counter)
 
-      if (parent !== undefined) parent.append(button)
+      if (input !== undefined) input.append(button)
       return button
     }
 
@@ -3822,9 +4182,9 @@ export class Helper {
       button.style.padding = "21px"
       button.style.cursor = "pointer"
 
-      if (parent !== undefined) {
+      if (input !== undefined) {
         if (document.querySelector(".role-apps-button") === null) {
-          parent.append(button)
+          input.append(button)
         }
       }
 
@@ -3849,7 +4209,7 @@ export class Helper {
         button.addEventListener("click", () => window.location.assign("/"))
       }
 
-      if (parent !== undefined) parent.append(content)
+      if (input !== undefined) input.append(content)
 
 
       return content
@@ -3858,11 +4218,11 @@ export class Helper {
 
     if (event === "login") {
 
-      this.create("field/email", parent)
+      this.create("field/email", input)
 
-      this.create("field/dsgvo", parent)
+      this.create("field/dsgvo", input)
 
-      const loginbutton = this.buttonPicker("action", parent)
+      const loginbutton = this.buttonPicker("action", input)
       loginbutton.classList.add("start-login-event")
       loginbutton.innerHTML = "Jetzt anmelden"
 
@@ -3871,63 +4231,63 @@ export class Helper {
     if (event === "script/submit-field-funnel-event") {
 
       const text = /*html*/`
-<script id="submit-field-funnel-event" type="module">
-  import { Helper } from "/js/Helper.js"
-  import { Request } from "/js/Request.js"
+        <script id="submit-field-funnel-event" type="module">
+          import { Helper } from "/js/Helper.js"
+          import { Request } from "/js/Request.js"
 
-  document.querySelectorAll(".field-funnel").forEach(funnel => {
+          document.querySelectorAll(".field-funnel").forEach(funnel => {
 
-    const submitButton = funnel.querySelector(".submit-field-funnel-button")
+            const submitButton = funnel.querySelector(".submit-field-funnel-button")
 
-    if (submitButton !== null) {
+            if (submitButton !== null) {
 
-      if (submitButton.onclick === null) {
-        submitButton.onclick = async () => {
+              if (submitButton.onclick === null) {
+                submitButton.onclick = async () => {
 
-          if (Helper.tagIsEmpty(funnel.id)) {
-            window.alert("Funnel ist nicht gültig: id ist kein tag")
-            throw new Error("funnel tag is empty")
-          }
+                  if (Helper.tagIsEmpty(funnel.id)) {
+                    window.alert("Funnel ist nicht gültig: id ist kein tag")
+                    throw new Error("funnel tag is empty")
+                  }
 
-          const map = await Helper.convert("field-funnel/map", funnel)
+                  const map = await Helper.convert("field-funnel/map", funnel)
 
-          if (map !== undefined) {
+                  if (map !== undefined) {
 
-            Helper.overlay("security", async securityOverlay => {
+                    Helper.overlay("security", async securityOverlay => {
 
-              const register = {}
-              register.url = "/register/funnel/closed/"
-              register.tag = funnel.id
-              register.funnel = map
-              const res = await Request.closed(register)
+                      const register = {}
+                      register.url = "/register/funnel/closed/"
+                      register.tag = funnel.id
+                      register.funnel = map
+                      const res = await Request.closed(register)
 
-              if (res.status === 200) {
+                      if (res.status === 200) {
 
-                window.alert("Ihre Daten wurden erfolgreich gespeichert.")
+                        window.alert("Ihre Daten wurden erfolgreich gespeichert.")
 
-                if (funnel.hasAttribute("next-path")) {
-                  window.location.assign(funnel.getAttribute("next-path"))
+                        if (funnel.hasAttribute("next-path")) {
+                          window.location.assign(funnel.getAttribute("next-path"))
+                        }
+
+                        Helper.removeOverlay(securityOverlay)
+
+                      } else {
+                        window.alert("Fehler.. Bitte wiederholen.")
+
+                        Helper.removeOverlay(securityOverlay)
+                      }
+                    })
+
+                  }
+
                 }
-
-                Helper.removeOverlay(securityOverlay)
-
-              } else {
-                window.alert("Fehler.. Bitte wiederholen.")
-
-                Helper.removeOverlay(securityOverlay)
               }
-            })
 
-          }
+            }
 
-        }
-      }
+          })
 
-    }
-
-  })
-
-</script>
+        </script>
       `
 
       const script = this.convert("text/script", text)
@@ -3937,9 +4297,9 @@ export class Helper {
       create.type = script.type
       create.innerHTML = script.innerHTML
 
-      if (parent !== undefined) {
-        if (parent.querySelector(`#${create.id}`) === null) {
-          parent.append(create)
+      if (input !== undefined) {
+        if (input.querySelector(`#${create.id}`) === null) {
+          input.append(create)
         }
       }
 
@@ -3949,106 +4309,106 @@ export class Helper {
     if (event === "script/click-funnel-start-event") {
 
       const text = /*html*/`
-<script id="click-funnel-start-event" type="module">
-  import { Helper } from "/js/Helper.js"
+        <script id="click-funnel-start-event" type="module">
+          import { Helper } from "/js/Helper.js"
 
-  {
-    document.querySelectorAll(".click-funnel").forEach(funnel => {
+          {
+            document.querySelectorAll(".click-funnel").forEach(funnel => {
 
-      const startButton = funnel.querySelector(".start-click-funnel-button")
+              const startButton = funnel.querySelector(".start-click-funnel-button")
 
-      if (startButton.onclick === null) {
-        startButton.onclick = () => {
+              if (startButton.onclick === null) {
+                startButton.onclick = () => {
 
-          startButton.style.display = "none"
+                  startButton.style.display = "none"
 
-          const questions = []
-          for (let i = 0; i < funnel.children.length; i++) {
-            const child = funnel.children[i]
-            if (child.classList.contains("click-field")) {
-              questions.push(child)
-              child.style.display = "flex"
-              break
-            }
-          }
-
-          if (questions.length <= 0) {
-            Helper.request("end-click-funnel", funnel)
-            return
-          }
-        }
-      }
-
-      for (let i = 0; i < funnel.children.length; i++) {
-        const child = funnel.children[i]
-
-        if (child.classList.contains("click-field")) {
-
-          child.querySelectorAll(".answer-box").forEach(box => {
-
-            if (box.onclick === null) {
-
-              box.onclick = () => {
-
-                child.style.display = "none"
-
-                box.querySelectorAll(".answer").forEach(answer => {
-                  answer.setAttribute("clicked", true)
-                })
-
-                if (child.nextSibling === null) {
-
-                  Helper.request("end-click-funnel", funnel)
-
-                  return
-
-                }
-
-                if (box.hasAttribute("onclick-condition")) {
-                  const condition = JSON.parse(box.getAttribute("onclick-condition"))
-
-                  if (condition.action === "skip") {
-                    try {
-                      Helper.skipSiblings(parseInt(condition.skip) + 1, child)
-
-                      return
-                    } catch (error) {
-
-                      Helper.request("end-click-funnel", funnel)
-
-                      return
-
+                  const questions = []
+                  for (let i = 0; i < funnel.children.length; i++) {
+                    const child = funnel.children[i]
+                    if (child.classList.contains("click-field")) {
+                      questions.push(child)
+                      child.style.display = "flex"
+                      break
                     }
                   }
 
-                  if (condition.action === "path") {
-                    window.location.assign(condition.path)
+                  if (questions.length <= 0) {
+                    Helper.request("end-click-funnel", funnel)
                     return
                   }
+                }
+              }
+
+              for (let i = 0; i < funnel.children.length; i++) {
+                const child = funnel.children[i]
+
+                if (child.classList.contains("click-field")) {
+
+                  child.querySelectorAll(".answer-box").forEach(box => {
+
+                    if (box.onclick === null) {
+
+                      box.onclick = () => {
+
+                        child.style.display = "none"
+
+                        box.querySelectorAll(".answer").forEach(answer => {
+                          answer.setAttribute("clicked", true)
+                        })
+
+                        if (child.nextSibling === null) {
+
+                          Helper.request("end-click-funnel", funnel)
+
+                          return
+
+                        }
+
+                        if (box.hasAttribute("onclick-condition")) {
+                          const condition = JSON.parse(box.getAttribute("onclick-condition"))
+
+                          if (condition.action === "skip") {
+                            try {
+                              Helper.skipSiblings(parseInt(condition.skip) + 1, child)
+
+                              return
+                            } catch (error) {
+
+                              Helper.request("end-click-funnel", funnel)
+
+                              return
+
+                            }
+                          }
+
+                          if (condition.action === "path") {
+                            window.location.assign(condition.path)
+                            return
+                          }
+
+                        }
+
+                        child.nextSibling.style.display = "flex"
+
+                      }
+
+                    }
+
+
+
+                  })
 
                 }
 
-                child.nextSibling.style.display = "flex"
-
               }
 
-            }
+            })
+
+          }
 
 
 
-          })
-
-        }
-
-      }
-
-    })
-
-  }
-
-
-
-</script>
+        </script>
       `
 
       const script = this.convert("text/script", text)
@@ -4058,9 +4418,9 @@ export class Helper {
       create.type = script.type
       create.innerHTML = script.innerHTML
 
-      if (parent !== undefined) {
-        if (parent.querySelector(`#${create.id}`) === null) {
-          parent.append(create)
+      if (input !== undefined) {
+        if (input.querySelector(`#${create.id}`) === null) {
+          input.append(create)
         }
       }
 
@@ -4126,7 +4486,7 @@ export class Helper {
       field.input.style.color = this.colors.light.text
       field.append(field.input)
 
-      if (parent !== undefined) parent.append(field)
+      if (input !== undefined) input.append(field)
       return field
     }
 
@@ -4135,13 +4495,11 @@ export class Helper {
       const field = this.create("field/text")
 
       field.label.innerHTML = "Name"
-      field.input.required = true
-      field.input.accept = "text/tag"
 
-      this.verify("input/validity", field.input)
-      field.input.addEventListener("input", () => this.verify("input/validity", field.input))
+      field.input.setAttribute("required", "true")
+      field.input.setAttribute("accept", "text/tag")
 
-      if (parent !== undefined) parent.append(field)
+      if (input !== undefined) input.append(field)
       return field
     }
 
@@ -4150,14 +4508,28 @@ export class Helper {
       const field = this.create("field/textarea")
 
       field.label.innerHTML = "HTML Skript"
-      field.input.required = true
-      field.input.accept = "text/script"
+      field.input.style.fontSize = "13px"
       field.input.placeholder = "<script>..</script>"
 
-      this.verify("input/validity", field.input)
-      field.input.addEventListener("input", () => this.verify("input/validity", field.input))
+      field.input.setAttribute("required", "true")
+      field.input.setAttribute("accept", "text/script")
 
-      if (parent !== undefined) parent.append(field)
+      if (input !== undefined) input.append(field)
+      return field
+    }
+
+    if (event === "field/field-funnel") {
+
+      const field = this.create("field/textarea")
+
+      field.label.innerHTML = "Welche Daten soll dein Nutzer, in die Liste, speichern können (field-funnel)"
+      field.input.style.fontSize = "13px"
+      field.input.placeholder = `<div class="field-funnel">..</div>`
+
+      field.input.setAttribute("accept", "text/field-funnel")
+      field.input.setAttribute("required", "true")
+
+      if (input !== undefined) input.append(field)
       return field
     }
 
@@ -4197,7 +4569,7 @@ export class Helper {
       field.input.style.color = this.colors.light.text
       field.append(field.input)
 
-      if (parent !== undefined) parent.append(field)
+      if (input !== undefined) input.append(field)
       return field
     }
 
@@ -4238,7 +4610,7 @@ export class Helper {
       field.input.style.color = this.colors.light.text
       field.append(field.input)
 
-      if (parent !== undefined) parent.append(field)
+      if (input !== undefined) input.append(field)
       return field
     }
 
@@ -4307,20 +4679,18 @@ export class Helper {
       field.afterCheckbox.style.color = this.colors.light.text
       field.checkboxContainer.append(field.afterCheckbox)
 
+      if (input !== undefined) input.append(field)
+      return field
+    }
 
-      // this is event
-      // need to be in login event
-      // this.verify("input/validity", field.input)
-      // field.input.addEventListener("input", (ev) => {
-      //   if (ev.target.checked === true) {
-      //     ev.target.setAttribute("checked", true)
-      //   } else {
-      //     ev.target.removeAttribute("checked")
-      //   }
-      //   this.verify("input/validity", field.input)
-      // })
+    if (event === "field/tag") {
 
-      if (parent !== undefined) parent.append(field)
+      const field = this.create("field/text")
+
+      field.input.setAttribute("accept", "text/tag")
+      field.input.setAttribute("required", "true")
+
+      if (input !== undefined) input.append(field)
       return field
     }
 
@@ -4361,7 +4731,7 @@ export class Helper {
       field.input.style.color = this.colors.light.text
       field.append(field.input)
 
-      if (parent !== undefined) parent.append(field)
+      if (input !== undefined) input.append(field)
       return field
     }
 
@@ -4411,13 +4781,13 @@ export class Helper {
       // this.verify("input/validity", field.input)
       // field.input.addEventListener("input", () => this.verify("input/validity", field.input))
 
-      if (parent !== undefined) parent.append(field)
+      if (input !== undefined) input.append(field)
       return field
     }
 
     if (event === "field/lang") {
 
-      const langField = new SelectionField("lang", parent)
+      const langField = new SelectionField("lang", input)
       langField.label.innerHTML = "Sprache"
       const options = ["aa","ab","ae","af","ak","am","an","ar","as","av","ay","az","ba","be","bg","bh","bi","bm","bn","bo","br","bs","ca","ce","ch","co","cr","cs","cu","cv","cy","da","de","dv","dz","ee","el","en","eo","es","et","eu","fa","ff","fi","fj","fo","fr","fy","ga","gd","gl","gn","gu","gv","ha","he","hi","ho","hr","ht","hu","hy","hz","ia","id","ie","ig","ii","ik","io","is","it","iu","ja","jv","ka","kg","ki","kj","kk","kl","km","kn","ko","kr","ks","ku","kv","kw","ky","la","lb","lg","li","ln","lo","lt","lu","lv","mg","mh","mi","mk","ml","mn","mr","ms","mt","my","na","nb","nd","ne","ng","nl","nn","no","nr","nv","ny","oc","oj","om","or","os","pa","pi","pl","ps","pt","qu","rm","rn","ro","ru","rw","sa","sc","sd","se","sg","si","sk","sl","sm","sn","so","sq","sr","ss","st","su","sv","sw","ta","te","tg","th","ti","tk","tl","tn","to","tr","ts","tt","tw","ty","ug","uk","ur","uz","ve","vi","vo","wa","wo","xh","yi","yo","za","zh","zu"]
       for (let i = 0; i < options.length; i++) {
@@ -4435,7 +4805,7 @@ export class Helper {
 
     if (event === "field/image") {
 
-      const imageField = new FileField("image", parent)
+      const imageField = new FileField("image", input)
       imageField.label.textContent = "Bildupload (JPEG, PNG, SVG)"
       imageField.input.accept = "image/jpeg, image/png, image/svg+xml"
       imageField.verifyValue()
@@ -4459,7 +4829,7 @@ export class Helper {
       fieldFunnel.submitButton.classList.add("submit-field-funnel-button")
       fieldFunnel.submitButton.innerHTML = "Jetzt speichern"
 
-      if (parent !== undefined) parent.append(fieldFunnel)
+      if (input !== undefined) input.append(fieldFunnel)
 
       return fieldFunnel
     }
@@ -4473,7 +4843,7 @@ export class Helper {
       answerBox.answer.classList.add("answer")
       answerBox.append(answerBox.answer)
 
-      if (parent !== undefined) parent.append(answerBox)
+      if (input !== undefined) input.append(answerBox)
 
       answerBox.style.cursor = "pointer"
       answerBox.style.display = "flex"
@@ -4505,7 +4875,7 @@ export class Helper {
         title.style.color = this.colors.dark.text
       }
 
-      if (parent !== undefined) parent.append(title)
+      if (input !== undefined) input.append(title)
 
       return title
     }
@@ -4513,7 +4883,7 @@ export class Helper {
     if (event === "click-funnel") {
       const clickFunnel = this.headerPicker("scrollable")
       clickFunnel.classList.add("click-funnel")
-      if (parent !== undefined) parent.append(clickFunnel)
+      if (input !== undefined) input.append(clickFunnel)
 
       clickFunnel.style.display = "flex"
       clickFunnel.style.justifyContent = "center"
@@ -4571,7 +4941,7 @@ export class Helper {
       box.text.style.padding = "8px"
       box.append(box.text)
 
-      if (parent !== undefined) parent.append(box)
+      if (input !== undefined) input.append(box)
 
       return box
 
@@ -4590,7 +4960,7 @@ export class Helper {
       field.answers.classList.add("answers")
       field.append(field.answers)
 
-      if (parent !== undefined) parent.append(field)
+      if (input !== undefined) input.append(field)
 
 
       // flexible css
@@ -4675,7 +5045,7 @@ export class Helper {
       field.answers.style.margin = "21px 34px"
       field.append(field.answers)
 
-      if (parent !== undefined) parent.append(field)
+      if (input !== undefined) input.append(field)
 
       return field
     }
@@ -4691,7 +5061,7 @@ export class Helper {
       element.style.color = this.colors.light.text
       element.style.backgroundColor = this.colors.light.error
 
-      if (parent !== undefined) parent.append(element)
+      if (input !== undefined) input.append(element)
 
       return element
     }
@@ -4707,7 +5077,7 @@ export class Helper {
       element.style.color = this.colors.light.text
       element.style.backgroundColor = this.colors.light.success
 
-      if (parent !== undefined) parent.append(element)
+      if (input !== undefined) input.append(element)
 
       return element
     }
@@ -4715,6 +5085,163 @@ export class Helper {
 
   // event = input/algorithm
   static render(event, input, parent) {
+
+    if (event === "map/div") {
+
+      return new Promise(async(resolve, reject) => {
+
+        const div = this.create("div", parent)
+        div.classList.add("json")
+        div.style.margin = "21px 34px"
+
+        const buttons = document.createElement("div")
+        buttons.classList.add("buttons")
+        buttons.style.display = "flex"
+        buttons.style.justifyContent = "space-between"
+        buttons.style.alignItems = "center"
+        div.append(buttons)
+
+        const foldAllButton = this.create("div/action", buttons)
+        foldAllButton.innerHTML = "fold"
+
+        foldAllButton.addEventListener("click", function() {
+          toggleAllValues("none");
+        });
+
+        const unfoldAllButton = this.create("div/action", buttons)
+        unfoldAllButton.innerHTML = "unfold"
+        unfoldAllButton.addEventListener("click", function() {
+          toggleAllValues("block");
+        });
+
+        function toggleAllValues(displayValue) {
+          const valueElements = div.querySelectorAll(".key-value");
+          valueElements.forEach(element => {
+            element.style.display = displayValue;
+          });
+        }
+
+        function toggleValue(event) {
+          const element = event.target.nextSibling
+          if (element !== null) {
+            element.style.display = element.style.display === "none" ? "block" : "none";
+          }
+        }
+
+        function processObject(container, obj) {
+          for (const key in obj) {
+            const value = obj[key];
+
+            const keyElement = Helper.convert("key/div", key)
+            const valueElement = Helper.convert("value/div", value)
+
+
+            if (Helper.verifyIs("string", value)) {
+              valueElement.setAttribute("value-type", "string")
+            }
+
+
+            if (Helper.verifyIs("boolean", value)) {
+              valueElement.setAttribute("value-type", "boolean")
+            }
+
+            const keyName = document.createElement("div")
+            keyName.classList.add("key-name")
+            keyName.textContent = key
+
+            keyElement.appendChild(keyName)
+            container.appendChild(keyElement);
+            keyElement.appendChild(valueElement);
+
+            keyElement.addEventListener("click", toggleValue);
+
+            if (typeof value === "object") {
+              processObject(valueElement, value);
+              valueElement.addEventListener("click", toggleValue);
+
+            } else {
+              valueElement.textContent = JSON.stringify(value);
+            }
+          }
+        }
+
+
+        try {
+
+          processObject(div, input);
+
+          return resolve(div)
+        } catch (error) {
+          await this.add("ms/timeout", 3000)
+          await this.render(event, input, parent)
+        }
+
+      })
+
+
+    }
+
+    if (event === "field-funnel/location-list-tagger") {
+
+      const content = this.create("div/scrollable", parent)
+      const fieldFunnel = this.convert("text/dom", input.funnel)
+      content.append(fieldFunnel)
+
+      this.add("field-funnel/oninput-sign-support", fieldFunnel)
+
+      const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
+      submitButton.innerHTML = `${input.tag} jetzt speichern`
+      submitButton.onclick = async () => {
+
+        await this.verify("field-funnel/validity", fieldFunnel)
+
+        const map = await this.convert("field-funnel/map", fieldFunnel)
+
+        this.overlay("security", async securityOverlay => {
+          const register = {}
+          register.url = "/register/location-list/closed/"
+          register.tag = input.tag
+          register.map = map
+          const res = await Request.closed(register)
+
+          if (res.status === 200) {
+            window.alert("Daten erfolgreich gespeichert.")
+            if (input.ok !== undefined) await input.ok()
+            this.remove("overlay", parent)
+            this.remove("overlay", securityOverlay)
+          }
+
+          if (res.status !== 200) {
+            window.alert("Fehler.. Bitte wiederholen.")
+            this.remove("overlay", securityOverlay)
+          }
+
+        })
+
+      }
+
+      return content
+    }
+
+    if (event === "script/onbody") {
+
+      return new Promise(async resolve => {
+
+        if (document.body) {
+          document.querySelectorAll(`#${input.id}`).forEach(script => script.remove())
+          if (document.getElementById(`#${input.id}`) === null) {
+            document.body.append(input)
+            return resolve(input)
+          }
+        } else {
+          await this.add("ms/timeout", 3000)
+          await this.add("script/onbody", input)
+        }
+
+
+      })
+
+    }
 
     if (event === "checklist/items") {
       const checklist = this.create("div/scrollable", parent)
@@ -6091,7 +6618,6 @@ export class Helper {
       return code
     }
 
-
     if (event === "text/code") {
 
       const code = document.createElement("div")
@@ -6109,7 +6635,6 @@ export class Helper {
       if (parent !== undefined) parent.append(code)
       return code
     }
-
 
     if (event === "text/h1") {
 
@@ -6391,8 +6916,8 @@ export class Helper {
       title.style.margin = "21px 34px"
       title.style.fontSize = "21px"
       title.style.fontFamily = "sans-serif"
-      title.style.color = this.colors.light.text
 
+      title.style.color = this.colors.light.text
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         title.style.color = this.colors.dark.text
       }
@@ -9382,12 +9907,37 @@ export class Helper {
 
   }
 
-  static verifyIs(type, input) {
+  static verifyIs(event, input) {
+
+    if (event === "field-funnel/valid") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const promises = []
+          input.querySelectorAll(".field").forEach(async field => {
+            const input = field.querySelector(".field-input")
+            const promise = this.verifyIs("input/valid", input)
+
+            promises.push(promise)
+          })
+
+          const results = await Promise.all(promises)
+
+          if (results.every((element) => element === true)) {
+            return resolve(true)
+          } else {
+            return resolve(false)
+          }
+        } catch (error) {
+          return reject(error)
+        }
+      })
+    }
 
     // is user/admin then callback
     // async promise verify/admin/closed
 
-    if (type === "user/closed") {
+    if (event === "user/closed") {
       if (window.localStorage.getItem("localStorageId") !== null) {
         if (window.localStorage.getItem("email") !== null) {
           return true
@@ -9396,25 +9946,46 @@ export class Helper {
       return false
     }
 
-    if (type === "text/+int") {
+    if (event === "text/+int") {
 
     }
 
-    if (type === "text/path") {
+    if (event === "text/path") {
       if (typeof input !== "string") return false
       if (/^\/[\w\-._~!$&'()*+,;=:@/]+\/$/.test(input) === true) return true
       return false
     }
 
-    if (type === "input/valid") {
+    if (event === "input/valid") {
 
-      if (input.accept === "text/email") {
+      return new Promise((resolve) => {
+
+        if (this.verifyIs("input/required", input)) {
+          if (this.verifyIs("input/accepted", input)) {
+            this.setValidStyle(input)
+            return resolve(true)
+          }
+          this.setNotValidStyle(input)
+          const field = input.parentElement
+          field.scrollIntoView({behavior: "smooth"})
+          return resolve(false)
+        }
+        this.setValidStyle(input)
+        return resolve(true)
+
+      })
+
+    }
+
+    if (event === "input/accepted") {
+
+      if (input.getAttribute("accept") === "text/email") {
         if (typeof input.value !== "string") return false
         if (/^(.+)@(.+)$/.test(input.value) === true) return true
         return false
       }
 
-      if (input.accept === "text/number") {
+      if (input.getAttribute("accept") === "text/number") {
         const value = input.value
         if (typeof value !== "string") return false
         if (value === "") return false
@@ -9440,13 +10011,13 @@ export class Helper {
         }
       }
 
-      if (input.accept === "text/phone") {
+      if (input.getAttribute("accept") === "text/phone") {
         if (typeof input.value !== "string") return false
         if (/^\+[0-9]+$/.test(input.value) === true) return true
         return false
       }
 
-      if (input.accept === "text/id") {
+      if (input.getAttribute("accept") === "text/id") {
         if (typeof input.value !== "string") return false
         input.value = input.value.replace(/ /g, "-")
         if (/^[a-z](?:-?[a-z]+)*$/.test(input.value) === true) {
@@ -9459,33 +10030,33 @@ export class Helper {
         return false
       }
 
-      if (input.accept === "text/path") {
+      if (input.getAttribute("accept") === "text/path") {
         if (typeof input.value !== "string") return false
         if (/^\/[\w\-._~!$&'()*+,;=:@/]+\/$/.test(input.value) === true) return true
         return false
       }
 
-      if (input.accept === "text/hex") {
+      if (input.getAttribute("accept") === "text/hex") {
         if (typeof input.value !== "string") return false
         if (/^[0-9A-Fa-f]+$/.test(input.value) === true) return true
         return false
       }
 
-      if (input.accept === "text/tag") {
+      if (input.getAttribute("accept") === "text/tag") {
         if (typeof input.value !== "string") return false
         input.value = input.value.replace(/ /g, "-")
         if (/^[a-z](?:-?[a-z]+)*$/.test(input.value) === true) return true
         return false
       }
 
-      if (input.accept === "text/https") {
+      if (input.getAttribute("accept") === "text/https") {
 
         if (input.value.startsWith("https://")) return true
         return false
 
       }
 
-      if (input.accept === "email/array") {
+      if (input.getAttribute("accept") === "email/array") {
 
         if (!input.value.startsWith("[")) return false
         if (!input.value.endsWith("]")) return false
@@ -9505,7 +10076,7 @@ export class Helper {
 
       }
 
-      if (input.accept === "string/array") {
+      if (input.getAttribute("accept") === "string/array") {
 
         if (!input.value.startsWith("[")) return false
         if (!input.value.endsWith("]")) return false
@@ -9525,16 +10096,32 @@ export class Helper {
 
       }
 
-      if (input.accept === "text/script") {
+      if (input.getAttribute("accept") === "text/script") {
         const script = this.convert("text/dom", input.value)
         if (script === undefined) return false
         if (script.tagName === "SCRIPT") return true
         return false
       }
 
+      if (input.getAttribute("accept") === "text/field-funnel") {
+        const funnel = this.convert("text/dom", input.value)
+        if (funnel === undefined) return false
+        if (funnel.tagName === "DIV") {
+          if (funnel.classList.contains("field-funnel")) return true
+        }
+        return false
+      }
+
       if (input.getAttribute("required") === "true") {
 
         if (input.getAttribute("type") === "checkbox") {
+
+          if (input.checked === true) {
+            input.setAttribute("checked", "true")
+          } else {
+            input.removeAttribute("checked")
+          }
+
           if (input.getAttribute("checked") === "true") {
             return true
           } else {
@@ -9548,21 +10135,10 @@ export class Helper {
       return false
     }
 
-    if (type === "input/required") {
+    if (event === "input/required") {
       if (input.getAttribute("required") === "true") return true
+      if (!this.stringIsEmpty(input.getAttribute("accept"))) return true
       if (input.required === true) return true
-      if (input.accept === "text/tag") return true
-      if (input.accept === "text/hex") return true
-      if (input.accept === "text/path") return true
-      if (input.accept === "text/id") return true
-      if (input.accept === "text/email") return true
-      if (input.accept === "string/array") return true
-      if (input.accept === "email/array") return true
-      if (input.accept === "text/phone") return true
-      if (input.accept === "text/html") return true
-      if (input.accept === "text/number") return true
-      if (input.accept === "text/https") return true
-      if (input.accept === "text/script") return true
       if (input.requiredIndex !== undefined) {
         for (let i = 0; i < input.options.length; i++) {
           const option = input.options[i]
@@ -9576,7 +10152,7 @@ export class Helper {
       return false
     }
 
-    if (type === "text/id") {
+    if (event === "text/id") {
       if (this.verifyIs("text/tag", input)) {
         if (document.querySelectorAll(`#${input}`).length === 0) {
           return true
@@ -9586,7 +10162,7 @@ export class Helper {
       }
     }
 
-    if (type === "element/html") {
+    if (event === "element/html") {
       const htmlString = input.outerHTML
       const parser = new DOMParser()
       const doc = parser.parseFromString(htmlString, 'text/html')
@@ -9606,13 +10182,13 @@ export class Helper {
       return true
     }
 
-    if (type === "text/hex") {
+    if (event === "text/hex") {
       if (typeof input !== "string") return false
       if (/^[0-9A-Fa-f]+$/.test(input) === true) return true
       return false
     }
 
-    if (type === "text/tag") {
+    if (event === "text/tag") {
       if (typeof input !== "string") return false
       if (/^[a-z](?:-?[a-z]+)*$/.test(input) === true) return true
       return false
@@ -10671,6 +11247,97 @@ export class Helper {
 
     }
 
+    if (event === "map/div") {
+
+      return new Promise((resolve, reject) => {
+
+        const div = this.headerPicker("loading", )
+        div.classList.add("json")
+        div.style.margin = "21px 34px"
+
+        const buttons = document.createElement("div")
+        buttons.classList.add("buttons")
+        buttons.style.display = "flex"
+        buttons.style.justifyContent = "space-between"
+        buttons.style.alignItems = "center"
+        div.append(buttons)
+
+        const foldAllButton = this.create("div/action", buttons)
+        foldAllButton.innerHTML = "fold"
+
+        foldAllButton.addEventListener("click", function() {
+          toggleAllValues("none");
+        });
+
+        const unfoldAllButton = this.create("div/action", buttons)
+        unfoldAllButton.innerHTML = "unfold"
+        unfoldAllButton.addEventListener("click", function() {
+          toggleAllValues("block");
+        });
+
+        function toggleAllValues(displayValue) {
+          const valueElements = div.querySelectorAll(".key-value");
+          valueElements.forEach(element => {
+            element.style.display = displayValue;
+          });
+        }
+
+        function toggleValue(event) {
+          const element = event.target.nextSibling
+          if (element !== null) {
+            element.style.display = element.style.display === "none" ? "block" : "none";
+          }
+        }
+
+        function processObject(container, obj) {
+          for (const key in obj) {
+            const value = obj[key];
+
+            const keyElement = Helper.convert("key/div", key)
+            const valueElement = Helper.convert("value/div", value)
+
+
+            if (Helper.verifyIs("string", value)) {
+              valueElement.setAttribute("value-type", "string")
+            }
+
+
+            if (Helper.verifyIs("boolean", value)) {
+              valueElement.setAttribute("value-type", "boolean")
+            }
+
+            const keyName = document.createElement("div")
+            keyName.classList.add("key-name")
+            keyName.textContent = key
+
+            keyElement.appendChild(keyName)
+            container.appendChild(keyElement);
+            keyElement.appendChild(valueElement);
+
+            keyElement.addEventListener("click", toggleValue);
+
+            if (typeof value === "object") {
+              processObject(valueElement, value);
+              valueElement.addEventListener("click", toggleValue);
+
+            } else {
+              valueElement.textContent = JSON.stringify(value);
+              // return resolve(div)
+              // see render map/div
+            }
+          }
+        }
+
+        processObject(div, input);
+
+        // return div
+        // return resolve(div)
+
+      })
+
+
+    }
+
     if (event === "div/map") {
 
 
@@ -10770,6 +11437,7 @@ export class Helper {
       const div = this.create("div/scrollable")
       div.classList.add("json")
       div.style.margin = "21px 34px"
+      // div.style.height = "100%"
 
       const buttons = document.createElement("div")
       buttons.classList.add("buttons")
@@ -10966,89 +11634,147 @@ export class Helper {
 
     }
 
-    if (event === "field-funnel/map") {
-      return new Promise((resolve, reject) => {
-        const map = {}
-        input.querySelectorAll(".field").forEach(field => {
+    if (event === "field-input/key-value") {
+      return new Promise(async(resolve, reject) => {
 
-          if (this.tagIsEmpty(field.id)) {
-            window.alert("Datenfeld ist nicht gültig: id ist kein tag")
-            throw new Error("field tag is empty")
+        if (input.fieldInput.tagName === "INPUT") {
+
+          if (input.fieldInput.type === "text") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.value
+            return resolve(map)
           }
 
-          field.querySelectorAll(".field-input").forEach(async input => {
+          if (input.fieldInput.type === "email") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.value
+            return resolve(map)
+          }
 
-            try {
-              this.verify("input/validity", input)
-            } catch (error) {
-              return reject(error)
+          if (input.fieldInput.type === "tel") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.value
+            return resolve(map)
+          }
+
+          if (input.fieldInput.type === "range") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.value
+            return resolve(map)
+          }
+
+          if (input.fieldInput.type === "password") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.value
+            return resolve(map)
+          }
+
+          if (input.fieldInput.type === "number") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.value
+            return resolve(map)
+          }
+
+          if (input.fieldInput.type === "file") {
+
+            const promises = []
+            for (let i = 0; i < input.fieldInput.files.length; i++) {
+              const file = input.fieldInput.files[i]
+              const promise = this.convert("file/type", file)
+
+              promises.push(promise)
             }
 
-            if (input.tagName === "INPUT") {
+            const results = await Promise.all(promises)
 
-              if (input.type === "text") {
-                map[field.id] = input.value
-              }
+            const map = {}
+            map[input.fieldId] = results
+            return resolve(map)
+          }
 
-              if (input.type === "textarea") {
-                map[field.id] = input.value
-              }
+          if (input.fieldInput.type === "date") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.value
+            return resolve(map)
+          }
 
-              if (input.type === "email") {
-                map[field.id] = input.value
-              }
+          if (input.fieldInput.type === "checkbox") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.checked
+            return resolve(map)
+          }
 
-              if (input.type === "tel") {
-                map[field.id] = input.value
-              }
+        }
 
-              if (input.type === "range") {
-                map[field.id] = input.value
-              }
+        if (input.fieldInput.tagName === "TEXTAREA") {
+          const map = {}
+          map[input.fieldId] = input.fieldInput.value
+          return resolve(map)
+        }
 
-              if (input.type === "password") {
-                map[field.id] = input.value
-              }
-
-              if (input.type === "number") {
-                map[field.id] = input.value
-              }
-
-              if (input.type === "file") {
-                const selected = []
-                for (let i = 0; i < input.files.length; i++) {
-                  const file = input.files[i]
-                  const map = await this.convert("file/type", file)
-                  selected.push(map)
-                }
-                map[field.id] = selected
-              }
-
-              if (input.type === "date") {
-                map[field.id] = input.value
-              }
-
-              if (input.type === "checkbox") {
-                map[field.id] = input.checked
-              }
-
+        if (input.fieldInput.tagName === "SELECT") {
+          const selected = []
+          for (let i = 0; i < input.fieldInput.options.length; i++) {
+            const option = input.fieldInput.options[i]
+            if (option.selected === true) {
+              selected.push(option.value)
             }
+          }
+          const map = {}
+          map[input.fieldId] = selected
+          return resolve(map)
+        }
 
-            if (input.tagName === "SELECT") {
-              const selected = []
-              for (let i = 0; i < input.options.length; i++) {
-                const option = input.options[i]
-                if (option.selected === true) {
-                  selected.push(option)
-                }
+      })
+    }
+
+    if (event === "field-funnel/map") {
+      return new Promise(async(resolve, reject) => {
+
+        try {
+
+          const res = await this.verifyIs("field-funnel/valid", input)
+
+          if (res === true) {
+
+            const promises = []
+            input.querySelectorAll(".field").forEach(field => {
+
+              if (this.tagIsEmpty(field.id)) {
+                window.alert("Datenfeld ist nicht gültig: id ist kein tag")
+                return reject(new Error("field tag is empty"))
               }
-              map[field.id] = selected
-            }
 
-          })
+              field.querySelectorAll(".field-input").forEach(fieldInput => {
 
-        })
-        return resolve(map)
+                const map = {}
+                map.fieldId = field.id
+                map.fieldInput = fieldInput
+
+                const promise = this.convert("field-input/key-value", map)
+
+                promises.push(promise)
+
+              })
+
+            })
+
+            const results = await Promise.all(promises)
+
+            const map = results.reduce((result, keyValue) => {
+              return { ...result, ...keyValue }
+            }, {})
+
+            return resolve(map)
+
+          } else {
+            return reject(new Error("funnel invalid"))
+          }
+
+        } catch (error) {
+          return reject(error)
+        }
+
       })
     }
 
@@ -11081,8 +11807,8 @@ export class Helper {
             }
 
             const map = {}
-            map.name = file.name
-            map.type = file.type
+            map.name = input.name
+            map.type = input.type
             map.size = dataUrlSize
             map.modified = Date.now()
             map.dataUrl = fileReader.result
@@ -11121,8 +11847,8 @@ export class Helper {
             }
 
             const map = {}
-            map.name = file.name
-            map.type = file.type
+            map.name = input.name
+            map.type = input.type
             map.size = dataUrlSize
             map.modified = Date.now()
             map.dataUrl = fileReader.result
@@ -11161,8 +11887,8 @@ export class Helper {
             }
 
             const map = {}
-            map.name = file.name
-            map.type = file.type
+            map.name = input.name
+            map.type = input.type
             map.size = dataUrlSize
             map.modified = Date.now()
             map.dataUrl = fileReader.result
@@ -11195,9 +11921,9 @@ export class Helper {
           fileReader.onload = () => {
 
             const map = {}
-            map.name = file.name
-            map.type = file.type
-            map.size = file.size
+            map.name = input.name
+            map.type = input.type
+            map.size = input.size
             map.modified = Date.now()
             map.html = this.sanitizeHtml(fileReader.result)
 
@@ -11275,7 +12001,6 @@ export class Helper {
       parser.innerHTML = input
       return parser.children[0]
     }
-
 
     if (event === "text/script") {
 
@@ -12996,125 +13721,6 @@ export class Helper {
         return reject(error)
       }
     })
-  }
-
-  static setOffer(offer) {
-    if (offer !== undefined) {
-      const offers = JSON.parse(window.localStorage.getItem("offers")) || []
-
-      if (offers.length === 0) {
-        offers.push(offer)
-        window.localStorage.setItem("offers", JSON.stringify(offers))
-      }
-
-      for (let i = 0; i < offers.length; i++) {
-        if (offers[i].storage === offer.storage) {
-          offers[i] = offer
-          window.localStorage.setItem("offers", JSON.stringify(offers))
-        }
-      }
-    }
-  }
-
-  static setFunnel(funnel) {
-    if (funnel !== undefined) {
-      const funnels = JSON.parse(window.localStorage.getItem("funnels")) || []
-
-      if (funnels.length === 0) {
-        funnels.push(funnel)
-        window.localStorage.setItem("funnels", JSON.stringify(funnels))
-      }
-
-      for (let i = 0; i < funnels.length; i++) {
-        if (funnels[i].storage === funnel.storage) {
-          funnels[i] = funnel
-          window.localStorage.setItem("funnels", JSON.stringify(funnels))
-        }
-      }
-    }
-  }
-
-  static findOffer(predicate) {
-    if (predicate !== undefined) {
-      const offers = JSON.parse(window.localStorage.getItem("offers"))
-      for (let i = 0; i < offers.length; i++) {
-        if (predicate(offers[i])) {
-          return offers[i]
-        }
-      }
-    }
-  }
-
-  static findFunnel(predicate) {
-    if (predicate !== undefined) {
-      const funnels = JSON.parse(window.localStorage.getItem("funnels")) || []
-      for (let i = 0; i < funnels.length; i++) {
-        if (predicate(funnels[i])) {
-          return funnels[i]
-        }
-      }
-    }
-  }
-
-  static setDefaultCursor() {
-    document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "default")
-  }
-
-  static setWaitCursor() {
-    document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "wait")
-  }
-
-  static setNotAllowedCursor() {
-    document.querySelectorAll("div[class='security-overlay']").forEach(overlay => overlay.style.cursor = "not-allowed")
-  }
-
-  static addOverlay() {
-    const overlay = document.createElement("div")
-    overlay.classList.add("security-overlay")
-    overlay.style.width = "100vw"
-    overlay.style.height = "100vh"
-    overlay.style.backgroundColor = "black"
-    overlay.style.display = "flex"
-    overlay.style.justifyContent = "center"
-    overlay.style.alignItems = "center"
-    overlay.style.position = "fixed"
-    overlay.style.top = "0"
-    overlay.style.left = "0"
-    overlay.style.opacity = "0.9"
-    overlay.style.zIndex = "10"
-    overlay.style.color = "red"
-
-    const loadingImage = document.createElement("img")
-    loadingImage.src = "/public/load-animation.svg"
-    loadingImage.alt = "Bitte warten.."
-    overlay.append(loadingImage)
-
-    document.body.append(overlay)
-    return overlay
-  }
-
-  static async redirectUser(event) {
-    const redirectUser = {}
-    redirectUser.url = "/consumer/closed/"
-    redirectUser.method = "redirect"
-    redirectUser.type = "user"
-    redirectUser.event = event
-    redirectUser.referer = document.referrer
-    redirectUser.location = window.location.href
-    redirectUser.email = await Request.email()
-    redirectUser.localStorageId = await Request.localStorageId()
-    const res = await Request.middleware(redirectUser)
-    if (res.status === 200) return window.location.assign(res.response)
-    else return window.history.back()
-  }
-
-  // deprecated - use convert instead
-  static millisToDateString(milliseconds) {
-    const date = new Date(milliseconds)
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear().toString()
-    return `${day}.${month}.${year}`
   }
 
   static setNotValidStyle(element) {
