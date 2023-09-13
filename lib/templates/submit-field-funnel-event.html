@@ -1,7 +1,7 @@
-<script id="submit-field-funnel-event" type="module">
+<script>
   import { Helper } from "/js/Helper.js"
 
-  document.querySelector("#submit-field-funnel-event").remove()
+  document.querySelectorAll("#submit-field-funnel-event").forEach(script => script.remove())
 
   Helper.create("script/submit-field-funnel-event", document.body)
 </script>
