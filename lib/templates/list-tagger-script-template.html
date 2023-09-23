@@ -33,6 +33,7 @@
       await Helper.render("script/onbody", script)
 
       const button = Helper.create("button/icon-box", document.body)
+      button.bottom.innerHTML = map.tag
       button.id = `${map.tag}-mirror-button`
 
       Helper.remove("overlay", overlay)
