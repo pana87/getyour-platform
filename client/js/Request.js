@@ -257,8 +257,6 @@ export class Request {
 
       content.append(loading)
 
-
-
       const info = document.createElement("div")
       info.innerHTML = "Das kann einen Moment dauern .."
       info.style.fontSize = "13px"
@@ -290,71 +288,12 @@ export class Request {
           pinField.verifyValue()
         })
 
-        // const button = document.createElement("div")
         const button = Helper.buttonPicker("action", content)
         button.innerHTML = "PIN bestätigen"
 
-        // button.style.backgroundColor = Helper.colors.matte.sunflower
-        // button.style.color = Helper.colors.light.text
-        // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        //   button.style.backgroundColor = Helper.colors.matte.orange
-        //   button.style.color = Helper.colors.light.text
-        // } else {
-        // }
-
-        // button.style.cursor = "pointer"
-        // button.style.fontSize = "21px"
-        // button.style.borderRadius = "13px"
-        // button.style.margin = "0 34px"
-        // button.style.display = "flex"
-        // button.style.justifyContent = "center"
-        // button.style.alignItems = "center"
-        // button.style.padding = "21px 0"
-        // button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-
         button.addEventListener("click", async () => {
 
-          Helper.popup(async securityOverlay => {
-
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              securityOverlay.style.backgroundColor = Helper.colors.matte.dark.background
-            } else {
-              securityOverlay.style.backgroundColor = Helper.colors.matte.light.background
-            }
-
-            const content = document.createElement("div")
-            content.style.display = "flex"
-            content.style.flexDirection = "column"
-            content.style.justifyContent = "center"
-            content.style.alignItems = "center"
-            content.style.height = `${window.innerHeight}px`
-
-
-            const loading = Helper.iconPicker("loading")
-            loading.style.width = "55px"
-
-
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              loading.style.fill = Helper.colors.matte.dark.error
-            } else {
-              loading.style.fill = Helper.colors.matte.light.error
-            }
-
-            content.append(loading)
-
-            const info = document.createElement("div")
-            info.innerHTML = "Das kann einen Moment dauern .."
-            info.style.fontSize = "13px"
-            info.style.margin = "13px"
-
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              info.style.color = Helper.colors.matte.dark.error
-            } else {
-              info.style.color = Helper.colors.matte.light.error
-            }
-
-            content.append(info)
-            securityOverlay.append(content)
+          Helper.overlay("security", async securityOverlay => {
 
             try {
               const pin = pinField.validValue()
@@ -369,6 +308,7 @@ export class Request {
               const id = await Helper.digest(JSON.stringify({email: email, verified: true}))
               window.localStorage.setItem("localStorageId", id)
               window.localStorage.setItem("email", email)
+
               callback(event)
             } catch (error) {
 
@@ -386,10 +326,7 @@ export class Request {
 
           })
 
-
-
         })
-        // content.append(button)
 
         {
           const infoBox = document.createElement("div")

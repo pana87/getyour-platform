@@ -338,20 +338,10 @@ app.post("/request/register/session/",
   Request.verifyLocation,
 async (req, res) => {
   try {
-    // const {localStorageId, event} = req.body
-
-
-
-
-    // const {doc, user} = await Helper.findUser(user => user.id === localStorageId)
-
-
 
     const doc = await nano.db.use("getyour").get("users")
     if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
     if (doc.users === undefined) throw new Error("users is undefined")
-
-
 
     for (let i = 0; i < doc.users.length; i++) {
       const user = doc.users[i]
@@ -380,7 +370,6 @@ async (req, res) => {
           jwt: jwtTokenDigest,
         }))
         if (Helper.stringIsEmpty(sessionToken)) throw new Error("session token is empty")
-
 
         if (user.session === undefined) {
           user.session = {}
@@ -415,12 +404,6 @@ async (req, res) => {
 
     }
 
-
-
-
-
-
-
   } catch (error) {
     await Helper.logError(error, req)
   }
@@ -431,47 +414,75 @@ app.post("/request/verify/pin/",
   Request.verifyLocation,
 async (req, res) => {
   try {
+
+    for (let i = 0; i < loginQueue.length; i++) {
+      const login = loginQueue[i]
+      if (login.expired < Date.now()) {
+        loginQueue.splice(i, 1)
+      }
+    }
+
+    const doc = await nano.db.use("getyour").get("users")
+    if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
+    if (doc.users === undefined) throw new Error("users is undefined")
+
     const {userPin} = req.body
     if (Helper.stringIsEmpty(userPin)) throw new Error("user pin is empty")
-    if (Helper.stringIsEmpty(randomPin)) throw new Error("random pin is empty")
-    if (userPin !== randomPin) throw new Error("user pin is not valid")
-    if (expiredTimeMs < Date.now()) throw new Error("user pin expired")
-    return res.sendStatus(200)
+    for (let i = 0; i < loginQueue.length; i++) {
+      const login = loginQueue[i]
+
+      if (login.pin === userPin) {
+        if (login.expired < Date.now()) throw new Error("login expired")
+        if (Helper.stringIsEmpty(login.pin)) throw new Error("pin is empty")
+        if (userPin !== login.pin) throw new Error("pin is invalid")
+
+        // verify pin then register session
+        randomPin = login.pin
+
+        return res.sendStatus(200)
+
+      }
+
+    }
+
+
   } catch (error) {
     await Helper.logError(error, req)
   }
   return res.sendStatus(404)
 })
 
-let expiredTimeMs
 let randomPin
+const loginQueue = []
 app.post("/request/send/email/with/pin/",
   Request.verifyLocation,
 async (req, res) => {
   try {
     const {email} = req.body
     if (Helper.stringIsEmpty(email)) throw new Error("email is empty")
-    randomPin = Helper.digest(crypto.randomBytes(32))
-    expiredTimeMs = Date.now() + (2 * 60 * 1000)
 
+    for (let i = 0; i < loginQueue.length; i++) {
+      const login = loginQueue[i]
+      if (login.expired < Date.now()) {
+        loginQueue.splice(i, 1)
+      }
+    }
 
-    // add this in login info
-    // Request with email
-
-
-    // <p>Sollten Sie gerade nicht versucht haben sich unter https://www.get-your.de anzumelden, dann erhalten Sie diese E-Mail, weil jemand anderes versucht hat sich mit Ihrer E-Mail Adresse anzumelden. In dem Fall löschen Sie die E-Mail mit der PIN und <span style="color: #d50000; font-weight: bold;">geben Sie die PIN auf keinen Fall weiter.</span></p>
-    // <p>Wenn Sie Ihre PIN mit anderen teilen, besteht die Gefahr, dass unbefugte Personen Zugang zu Ihrem Konto erhalten und Ihre Sicherheit gefährden. Daher ist es wichtig, Ihre PIN vertraulich zu behandeln und sicherzustellen, dass Sie sie nur selbst verwenden.</p>
-    // <p>Sollte eine andere E-Mail Adresse als <a href="#" style="text-decoration: none; color: #d50000; font-weight: bold; cursor: default;">droid&#64;get-your&#46;de</a> als Absender erscheinen, dann versucht jemand sich als vertrauenswürdiger Absender auszugeben. Klicken Sie in dem Fall auf keine Links, antworten Sie nicht dem Absender und kontaktieren Sie uns sofort unter datenschutz@get-your.de</p>
-
+    const login = {}
+    login.pin = Helper.digest(crypto.randomBytes(32))
+    login.expired = Date.now() + (2 * 60 * 1000)
 
     await Helper.sendEmailFromDroid({
       from: "<droid@get-your.de>",
       to: email,
       subject: "[getyour plattform] Deine PIN",
       html: /*html*/`
-        <p>PIN: ${randomPin}</p>
+        <p>PIN: ${login.pin}</p>
       `
     })
+
+    loginQueue.push(login)
+
     return res.sendStatus(200)
   } catch (error) {
     await Helper.logError(error, req)

@@ -9,6 +9,32 @@ import {CheckboxField} from "/js/CheckboxField.js"
 
 export class Helper {
 
+  static delete(event, input) {
+    // event = thing/algorithm
+
+    if (event === "match-maker-condition/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const del = {}
+          del.url = "/delete/match-maker/closed/"
+          del.type = "condition"
+          del.id = input
+          const res = await Request.closed(del)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+  }
+
   static remove(event, input) {
 
     if (event === "element") {
@@ -24,9 +50,9 @@ export class Helper {
     }
   }
 
-  // event = input/algorithm
   // no dom creation, only events
   static add(event, input) {
+    // event = input/algorithm
 
     if (event === "field-funnel/oninput-sign-support") {
       input.querySelectorAll(".field").forEach(field => {
@@ -604,6 +630,408 @@ export class Helper {
   }
 
   static get(event, parent, input) {
+    // no parent needed to get data
+    if (arguments.length === 2) {
+      input = parent
+    }
+
+    if (event === "match-maker-mirror/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const get = {}
+          get.url = "/get/match-maker/closed/"
+          get.type = "mirror"
+          get.conditions = parent
+          get.mirror = input
+          const res = await Request.closed(get)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
+    if (event === "match-maker-condition/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const get = {}
+          get.url = "/get/match-maker/closed/"
+          get.type = "condition"
+          get.id = input
+          const res = await Request.closed(get)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
+    if (event === "match-maker-conditions/complete-closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const get = {}
+          get.url = "/get/match-maker/closed/"
+          get.type = "complete-conditions"
+          get.id = input
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
+    if (event === "match-maker-conditions/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const get = {}
+          get.url = "/get/match-maker/closed/"
+          get.type = "conditions"
+          get.id = input
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
+    if (event === "match-maker-conditions/button-list-closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        parent.innerHTML = ""
+
+        const get = {}
+        get.url = "/get/match-maker/closed/"
+        get.type = "conditions"
+        get.id = input
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+
+          try {
+            const array = JSON.parse(res.response)
+
+            for (let i = 0; i < array.length; i++) {
+              const condition = array[i]
+
+
+
+              const conditionButton = this.create("button/left-right", parent)
+              conditionButton.left.innerHTML = `condition-${array.length - i}`
+              conditionButton.right.innerHTML = condition.id
+              conditionButton.onclick = () => {
+
+                this.popup(overlay => {
+
+                  this.create("button/remove-overlay", overlay)
+                  const info = this.create("header/info", overlay)
+                  info.append(this.convert("text/span", `.condition.${condition.id}`))
+
+                  const buttons = this.create("div/scrollable", overlay)
+
+                  {
+
+                    const button = this.create("button/left-right", buttons)
+                    button.left.innerHTML = ".update"
+                    button.right.innerHTML = "Bedingungen ändern"
+
+                    button.onclick = () => {
+
+                      this.popup(async overlay => {
+                        this.create("button/remove-overlay", overlay)
+                        const info = this.create("header/info", overlay)
+                        info.innerHTML = `.update.${condition.id}`
+
+                        const funnel = this.create("funnel/condition", overlay)
+
+                        const res = await this.get("match-maker-condition/closed", condition.id)
+
+                        if (res.status === 200) {
+                          const condition = JSON.parse(res.response)
+
+                          funnel.leftField.input.value = condition.left
+                          funnel.operatorField.input.value = condition.operator
+                          funnel.rightField.input.value = condition.right
+
+                          this.verify("field-funnel/validity", funnel)
+                        }
+
+                        funnel.submit.onclick = async () => {
+
+                          await this.verify("field-funnel/validity", funnel)
+
+                          this.overlay("security", async securityOverlay => {
+
+                            const map = {}
+                            map.id = condition.id
+                            map.left = funnel.leftField.input.value
+                            map.operator = funnel.operatorField.input.value
+                            map.right = funnel.rightField.input.value
+
+                            const res = await this.update("condition/match-maker/closed", map)
+
+                            if (res.status === 200) {
+
+                              window.alert("Bedingung erfolgreich gespeichert.")
+                              this.remove("overlay", overlay)
+                              this.remove("overlay", securityOverlay)
+
+                            }
+
+                          })
+
+                        }
+
+                      })
+
+                    }
+
+                  }
+
+
+                  {
+                    const button = this.create("button/left-right", buttons)
+                    button.left.innerHTML = ".delete"
+                    button.right.innerHTML = "Bedingung entfernen"
+
+                    button.onclick = () => {
+                      this.overlay("security", async securityOverlay => {
+
+                        const res = await this.delete("match-maker-condition/closed", condition.id)
+
+                        if (res.status === 200) {
+                          window.alert("Bedingung erfolgreich entfernt.")
+                          this.remove("element", conditionButton)
+                          this.remove("overlay", overlay)
+                          this.remove("overlay", securityOverlay)
+                        }
+
+                        if (res.status !== 200) {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                          this.remove("overlay", securityOverlay)
+                        }
+
+
+                      })
+                    }
+                  }
+
+
+                })
+
+              }
+
+            }
+
+            return resolve()
+          } catch (error) {
+            return reject(error)
+          }
+        }
+
+
+      })
+
+    }
+
+    if (event === "match-maker/toolbox-closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const get = {}
+          get.url = "/get/match-maker/closed/"
+          get.type = "toolbox"
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
+    if (event === "match-maker/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        parent.innerHTML = ""
+
+        const get = {}
+        get.url = "/get/match-maker/closed/"
+        get.platform = input
+        const res = await Request.closed(get)
+
+        if (res.status === 200) {
+
+          try {
+            const array = JSON.parse(res.response)
+
+            for (let i = 0; i < array.length; i++) {
+              const matchMaker = array[i]
+
+              const matchMakerButton = this.create("button/left-right", parent)
+              matchMakerButton.right.innerHTML = `match-maker-${array.length - i}`
+              matchMakerButton.left.innerHTML = matchMaker.name
+              matchMakerButton.onclick = () => {
+
+                this.popup(overlay => {
+
+                  this.create("button/remove-overlay", overlay)
+                  const info = this.create("header/info", overlay)
+                  info.append(this.convert("text/span", `.${matchMaker.name}`))
+
+                  const buttons = this.create("div/scrollable", overlay)
+
+                  {
+                    const button = this.create("button/left-right", buttons)
+                    button.left.innerHTML = ".conditions"
+                    button.right.innerHTML = "Bedingungen hinzufügen"
+
+                    button.onclick = () => {
+
+                      const map = {}
+                      map.id = matchMaker.id
+
+                      this.popup(async overlay => {
+
+                        this.headerPicker("removeOverlay", overlay)
+                        const info = this.headerPicker("info", overlay)
+                        info.innerHTML = `.conditions`
+
+                        const create = this.buttonPicker("left/right", overlay)
+                        create.left.innerHTML = ".create"
+                        create.right.innerHTML = "Neue Bedingung definieren"
+                        create.addEventListener("click", () => {
+
+                          this.popup(async overlay => {
+                            this.headerPicker("removeOverlay", overlay)
+                            const info = this.headerPicker("info", overlay)
+                            info.append(this.convert("text/span", ".condition"))
+
+
+                            const funnel = this.create("funnel/condition", overlay)
+
+                            funnel.submit.onclick = async () => {
+
+                              await this.verify("field-funnel/validity", funnel)
+
+                              this.overlay("security", async securityOverlay => {
+
+                                map.left = funnel.leftField.input.value
+                                map.operator = funnel.operatorField.input.value
+                                map.right = funnel.rightField.input.value
+
+                                const res = await this.register("condition/match-maker/closed", map)
+
+                                if (res.status === 200) {
+
+                                  await this.get("match-maker-conditions/button-list-closed", conditionsContainer, matchMaker.id)
+                                  this.remove("overlay", overlay)
+                                  this.remove("overlay", securityOverlay)
+
+                                }
+
+                              })
+
+                            }
+
+
+
+                          })
+
+                        })
+
+                        this.render("text/hr", "Meine Bedingungen", overlay)
+
+                        const conditionsContainer = this.create("div/scrollable", overlay)
+                        await this.get("match-maker-conditions/button-list-closed", conditionsContainer, matchMaker.id)
+
+                      })
+
+                    }
+
+                  }
+
+
+                  {
+                    const button = this.create("button/left-right", buttons)
+                    button.left.innerHTML = ".delete"
+                    button.right.innerHTML = "Match Maker entfernen"
+
+                    button.onclick = () => {
+                      this.overlay("security", async securityOverlay => {
+                        const del = {}
+                        del.url = "/delete/match-maker/closed/"
+                        del.id = matchMaker.id
+                        const res = await Request.closed(del)
+
+                        if (res.status === 200) {
+                          window.alert("Match Maker erfolgreich entfernt.")
+                          this.remove("element", matchMakerButton)
+                          this.remove("overlay", overlay)
+                          this.remove("overlay", securityOverlay)
+                        }
+
+                        if (res.status !== 200) {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                          this.remove("overlay", securityOverlay)
+                        }
+
+
+                      })
+                    }
+                  }
+
+
+                })
+
+              }
+
+            }
+
+            return resolve()
+          } catch (error) {
+            return reject(error)
+          }
+        }
+
+
+      })
+
+    }
 
     if (event === "location-list-funnel/closed") {
 
@@ -1516,7 +1944,6 @@ export class Helper {
 
     }
 
-
     if (event === "script/closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -1676,7 +2103,6 @@ export class Helper {
       }
 
     }
-
 
     if (event === "funnel/service") {
 
@@ -2715,8 +3141,86 @@ export class Helper {
     }
   }
 
-  // event = tag/on/algorithm
+  static register(event, input) {
+    // event = tag/on/algorithm
+
+    if (event === "condition/match-maker/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const register = {}
+          register.url = "/register/match-maker/closed/"
+          register.type = "condition"
+          register.id = input.id
+          register.left = input.left
+          register.operator = input.operator
+          register.right = input.right
+          const res = await Request.closed(register)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+    if (event === "name/match-maker/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const register = {}
+          register.url = "/register/platform/closed/"
+          register.type = "match-maker"
+          register.platform = input.platform
+          register.name = input.name
+          const res = await Request.closed(register)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+  }
+
   static update(event, parent, input) {
+    // event = tag/on/algorithm
+
+    // no parent needed to get data
+    if (arguments.length === 2) {
+      input = parent
+    }
+
+
+    if (event === "condition/match-maker/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const update = {}
+          update.url = "/update/match-maker/closed/"
+          update.type = "condition"
+          update.id = input.id
+          update.left = input.left
+          update.operator = input.operator
+          update.right = input.right
+          const res = await Request.closed(update)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
 
     if (event === "funnel/location-list/closed") {
 
@@ -3796,6 +4300,43 @@ export class Helper {
   // event = input/algorithm
   static verify(event, input) {
 
+
+    if (event === "match-maker-conditions/closed") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const verify = {}
+          verify.url = "/verify/match-maker/closed"
+          verify.type = "conditions"
+          verify.conditions = input
+          const res = await Request.closed(verify)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "match-maker-name/open") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const verify = {}
+          verify.url = "/verify/match-maker/open/"
+          verify.type = "name"
+          verify.name = input
+          const res = await Request.open(verify)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "field-funnel/validity") {
 
       return new Promise(async(resolve, reject) => {
@@ -3814,6 +4355,25 @@ export class Helper {
       })
 
     }
+
+    if (event === "input/value") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const res = await this.verifyIs("input/valid", input)
+
+          if (res === true) resolve()
+
+          if (res === false) throw new Error("input invalid")
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
 
     if (event === "input/validity") {
       if (this.verifyIs("input/required", input)) {
@@ -3965,8 +4525,40 @@ export class Helper {
 
   }
 
-  // no events, only dom creation
+  // no events, only creation
   static create(event, input) {
+    // event = thing/algorithm
+
+    if (event === "funnel/condition") {
+
+      const funnel = this.create("div/scrollable")
+
+      funnel.leftField = this.create("field/tree", funnel)
+      funnel.leftField.label.innerHTML = "Nach welcher Datenstruktur soll die Plattform suchen"
+      funnel.leftField.input.maxLength = "55"
+      funnel.leftField.input.placeholder = "getyour.expert.name"
+      this.verifyIs("input/valid", funnel.leftField.input)
+      funnel.leftField.input.oninput = () => this.verifyIs("input/valid", funnel.leftField.input)
+
+      funnel.operatorField = this.create("field/operator", funnel)
+      this.verifyIs("input/valid", funnel.operatorField.input)
+      funnel.operatorField.input.oninput = () => this.verifyIs("input/valid", funnel.operatorField.input)
+
+      funnel.rightField = this.create("field/text", funnel)
+      funnel.rightField.label.innerHTML = "Vergleichswert"
+      funnel.rightField.input.maxLength = "55"
+      funnel.rightField.input.setAttribute("required", "true")
+      funnel.rightField.input.placeholder = "any"
+      this.verifyIs("input/valid", funnel.rightField.input)
+      funnel.rightField.input.oninput = () => this.verifyIs("input/valid", funnel.rightField.input)
+
+      funnel.submit = this.create("button/action", funnel)
+      funnel.submit.innerHTML = "Bedingung jetzt speichern"
+
+
+      if (input !== undefined) input.append(funnel)
+      return funnel
+    }
 
     if (event === "icon/branch") {
 
@@ -4006,7 +4598,7 @@ export class Helper {
 
           const map = {}
           map.tag = '${input.tag}'
-          map.funnel = '${input.funnel}'
+          map.funnel = \`${input.funnel}\`
 
           const button = document.getElementById("${input.tag}-mirror-button")
 
@@ -4061,6 +4653,35 @@ export class Helper {
       create.innerHTML = script.innerHTML
 
       return create
+    }
+
+    if (event === "header/info") {
+
+      const header = document.createElement("div")
+      header.style.fontFamily = "monospace"
+      header.style.fontSize = "13px"
+      header.style.position = "fixed"
+      header.style.left = "0"
+      header.style.bottom = "0"
+      header.style.zIndex = "1"
+      header.style.maxWidth = "100%"
+      header.style.maxHeight = "21px"
+      header.style.overflow = "auto"
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        header.style.boxShadow = this.colors.dark.boxShadow
+        header.style.border = this.colors.dark.border
+        header.style.backgroundColor = this.colors.dark.foreground
+        header.style.color = this.colors.dark.text
+      } else {
+        header.style.boxShadow = this.colors.light.boxShadow
+        header.style.border = this.colors.light.border
+        header.style.backgroundColor = this.colors.light.foreground
+        header.style.color = this.colors.light.text
+      }
+
+      if (input !== undefined) input.append(header)
+      return header
     }
 
     if (event === "header/nav") {
@@ -4171,6 +4792,46 @@ export class Helper {
       return header
     }
 
+    if (event === "div/user-list") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const userList = document.createElement("div")
+          userList.classList.add("user-list")
+          document.querySelectorAll(`[match-maker="${parent}"]`).forEach(matchMaker => {
+
+            for (let i = 0; i < input.length; i++) {
+              const mirror = input[i]
+
+              const clone = document.createElement("div")
+              clone.innerHTML = matchMaker.innerHTML
+              clone.classList.add(`user-${i + 1}`)
+
+              for (let i = 0; i < mirror.treeValues.length; i++) {
+                const treeValuePair = mirror.treeValues[i]
+                clone.querySelectorAll(`#${treeValuePair.tree}`).forEach(container => {
+                  container.innerHTML = treeValuePair.value
+                })
+              }
+
+              userList.append(clone.cloneNode())
+
+            }
+
+          })
+          console.log("inside promise", userList);
+
+          // resolve(userList)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+
+    }
+
     if (event === "div/action") {
       const div = document.createElement("div")
 
@@ -4209,7 +4870,6 @@ export class Helper {
 
       return div
     }
-
 
     if (event === "button/back") {
 
@@ -4535,6 +5195,74 @@ export class Helper {
 
     }
 
+    if (event === "script/match-maker-get") {
+
+      const conditionsString = JSON.stringify(input.conditions)
+      const mirrorString = JSON.stringify(input.mirror)
+
+      const text = /*html*/`
+        <script id="match-maker-get-${input.name}" type="module">
+          import { Helper } from "/js/Helper.js"
+          import { Request } from "/js/Request.js"
+
+          const elements = document.querySelectorAll("[match-maker='${input.name}']")
+
+          if (elements.length === 0) throw new Error("no match maker elements found")
+
+          const res = await Helper.get("match-maker-mirror/closed", ${conditionsString}, ${mirrorString})
+
+          if (res.status === 200) {
+            const mirror = JSON.parse(res.response)
+
+            await Helper.render("mirror/match-maker-get", mirror, "${input.name}")
+
+          }
+
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
+    }
+
+    if (event === "script/match-maker-remove") {
+
+      const conditionsString = JSON.stringify(input.conditions)
+
+      const text = /*html*/`
+        <script id="match-maker-remove-${input.name}" type="module">
+          import { Helper } from "/js/Helper.js"
+          import { Request } from "/js/Request.js"
+
+          const elements = document.querySelectorAll("[match-maker='${input.name}']")
+
+          if (elements.length === 0) throw new Error("no match maker elements found")
+
+          const res = await Helper.verify("match-maker-conditions/closed", ${conditionsString})
+
+          if (res.status === 200) {
+            elements.forEach(element => element.remove())
+          }
+
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
+    }
+
     if (event === "script/submit-field-funnel-event") {
 
       const text = /*html*/`
@@ -4754,6 +5482,74 @@ export class Helper {
       document.body.append(create)
 
       return create
+    }
+
+    if (event === "field/select") {
+
+      const field = document.createElement("div")
+      field.classList.add("field")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+
+      field.labelContainer = document.createElement("div")
+      field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.display = "flex"
+      field.labelContainer.style.alignItems = "center"
+      field.labelContainer.style.margin = "21px 89px 0 34px"
+      field.append(field.labelContainer)
+
+      field.label = document.createElement("label")
+      field.label.classList.add("field-label")
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "21px"
+      field.label.style.color = this.colors.light.text
+      field.labelContainer.append(field.label)
+
+      field.input = document.createElement("select")
+      field.input.classList.add("field-input")
+      field.input.add = (options) => {
+        field.input.innerHTML = ""
+        for (let i = 0; i < options.length; i++) {
+          const option = document.createElement("option")
+          option.classList.add("field-option")
+          option.value = options[i]
+          option.text = options[i]
+          field.input.appendChild(option)
+        }
+      }
+      field.input.style.margin = "21px 89px 21px 34px"
+      field.input.style.fontSize = "21px"
+      field.input.style.backgroundColor = this.colors.light.background
+      field.input.style.color = this.colors.light.text
+      field.append(field.input)
+
+      if (input !== undefined) input.append(field)
+      return field
+
+    }
+
+    if (event === "field/operator") {
+
+      const field = this.create("field/text")
+
+      field.label.innerHTML = "Operator"
+      field.input.placeholder = ">="
+      field.input.maxLength = "2"
+
+      field.input.setAttribute("required", "true")
+      field.input.setAttribute("accept", "text/operator")
+
+      if (input !== undefined) input.append(field)
+      return field
     }
 
     if (event === "field/range") {
@@ -4990,6 +5786,28 @@ export class Helper {
       return field
     }
 
+    if (event === "field/trees") {
+
+      const field = this.create("field/textarea")
+
+      field.input.setAttribute("required", "true")
+      field.input.setAttribute("accept", "text/trees")
+
+      if (input !== undefined) input.append(field)
+      return field
+    }
+
+    if (event === "field/tree") {
+
+      const field = this.create("field/text")
+
+      field.input.setAttribute("accept", "text/tree")
+      field.input.setAttribute("required", "true")
+
+      if (input !== undefined) input.append(field)
+      return field
+    }
+
     if (event === "field/tag") {
 
       const field = this.create("field/text")
@@ -5021,13 +5839,14 @@ export class Helper {
       field.labelContainer.style.display = "flex"
       field.labelContainer.style.alignItems = "center"
       field.labelContainer.style.margin = "21px 89px 0 34px"
+      field.append(field.labelContainer)
+
       field.label = document.createElement("label")
       field.label.classList.add("field-label")
       field.label.style.fontFamily = "sans-serif"
       field.label.style.fontSize = "21px"
       field.label.style.color = this.colors.light.text
       field.labelContainer.append(field.label)
-      field.append(field.labelContainer)
 
       field.input = document.createElement("input")
       field.input.classList.add("field-input")
@@ -5357,6 +6176,32 @@ export class Helper {
       return field
     }
 
+    if (event === "info/loading") {
+
+      const header = document.createElement("div")
+      header.style.display = "flex"
+      header.style.flexDirection = "column"
+      header.style.justifyContent = "center"
+      header.style.alignItems = "center"
+      header.style.height = "100%"
+
+      header.loading = this.iconPicker("loading")
+      header.loading.style.fill = this.colors.light.error
+      header.loading.style.width = "55px"
+      header.loading.style.margin = "8px"
+      header.append(header.loading)
+
+      header.info = document.createElement("div")
+      header.info.innerHTML = "Das kann einen Moment dauern .."
+      header.info.style.color = this.colors.light.error
+      header.info.style.fontSize = "13px"
+      header.info.style.fontFamily = "sans-serif"
+      header.append(header.info)
+
+      if (input !== undefined) input.append(header)
+      return header
+    }
+
     if (event === "info/warning") {
       const element = document.createElement("div")
       element.style.fontSize = "13px"
@@ -5390,8 +6235,80 @@ export class Helper {
     }
   }
 
-  // event = input/algorithm
   static render(event, input, parent) {
+    // event = input/algorithm
+
+    if (event === "mirror/match-maker-get") {
+
+      return new Promise(async(resolve, reject) => {
+
+        try {
+
+          const sortedUsers = input
+          sortedUsers.sort((a, b) => {
+            return b.reputation - a.reputation // Descending order, for ascending use: a.reputation - b.reputation
+          })
+
+          const userList = this.create("div/scrollable")
+          userList.setAttribute("id", `user-list-${parent}`)
+
+          document.querySelectorAll(`[match-maker="${parent}"]`).forEach(matchMaker => {
+
+            for (let i = 0; i < sortedUsers.length; i++) {
+              const user = sortedUsers[i]
+
+              const clone = document.createElement("div")
+              clone.innerHTML = matchMaker.innerHTML
+              clone.setAttribute("id", `user-${i + 1}`)
+              clone.style.marginBottom = "34px"
+
+              for (let i = 0; i < user.treeValues.length; i++) {
+                const treeValuePair = user.treeValues[i]
+
+                const className = treeValuePair.tree.replace(/\./g, "-")
+
+                for (let i = 0; i < clone.children.length; i++) {
+                  const child = clone.children[i]
+                  if (child.classList.contains(className)) {
+                    child.innerHTML = treeValuePair.value
+                  }
+                }
+
+              }
+
+              userList.append(clone)
+
+            }
+
+            const userLists = document.querySelectorAll(`#user-list-${parent}`)
+
+            if (userLists.length === 0) {
+              matchMaker.before(userList)
+              matchMaker.style.display = "none"
+            }
+
+            userLists.forEach(list => {
+              this.convert("parent/scrollable", list)
+              list.innerHTML = userList.innerHTML
+              matchMaker.style.display = "none"
+            })
+
+
+          })
+
+          resolve(userList)
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+
+
+
+
+    }
 
     if (event === "map/div") {
 
@@ -7937,6 +8854,94 @@ export class Helper {
 
             {
               const button = this.buttonPicker("left/right", buttons)
+              button.left.innerHTML = ".match-maker"
+              button.right.innerHTML = "Match Maker definieren"
+
+              button.addEventListener("click", () => {
+
+                this.popup(async overlay => {
+
+                  this.headerPicker("removeOverlay", overlay)
+                  const info = this.headerPicker("info", overlay)
+                  info.innerHTML = `.match-maker`
+
+                  const create = this.buttonPicker("left/right", overlay)
+                  create.left.innerHTML = ".create"
+                  create.right.innerHTML = "Neuen Match Maker definieren"
+                  create.addEventListener("click", () => {
+
+                    this.popup(async overlay => {
+                      this.headerPicker("removeOverlay", overlay)
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("text/span", `.${platform.name}.match-maker`))
+
+                      const funnel = this.create("div/scrollable", overlay)
+
+                      funnel.nameField = this.create("field/name", funnel)
+                      funnel.nameField.label.innerHTML = "Gebe deinem Match Maker einen einzigartigen Namen (json/tag)"
+
+                      this.verifyIs("input/valid", funnel.nameField.input)
+                      funnel.nameField.input.oninput = () => this.verifyIs("input/valid", funnel.nameField.input)
+
+                      funnel.submit = this.create("button/action", funnel)
+                      funnel.submit.innerHTML = "Match Maker jetzt speichern"
+
+                      funnel.submit.onclick = async () => {
+
+                        const res = await this.verifyIs("input/valid", funnel.nameField.input)
+
+                        if (res === true) {
+
+                          const name = funnel.nameField.input.value
+
+                          const res = await this.verify("match-maker-name/open", name)
+
+                          if (res.status === 200) {
+                            this.setNotValidStyle(funnel.nameField.input)
+                            window.alert("Name existiert bereits.")
+                            throw new Error("name exist")
+                          }
+
+                          this.overlay("security", async securityOverlay => {
+
+                            const map = {}
+                            map.platform = platform.name
+                            map.name = name
+
+                            const res = await this.register("name/match-maker/closed", map)
+
+                            if (res.status === 200) {
+
+                              await this.get("match-maker/closed", matchMakerContainer, platform.name)
+
+                              this.remove("overlay", overlay)
+                              this.remove("overlay", securityOverlay)
+
+                            }
+
+                          })
+
+                        }
+
+                      }
+
+                    })
+
+                  })
+
+                  this.render("text/hr", "Meine Match Maker", overlay)
+
+                  const matchMakerContainer = this.create("div/scrollable", overlay)
+                  await this.get("match-maker/closed", matchMakerContainer, platform.name)
+
+                })
+
+              })
+
+            }
+
+            {
+              const button = this.buttonPicker("left/right", buttons)
               button.right.innerHTML = "Angebot erstellen"
               button.left.innerHTML = ".offer"
 
@@ -8539,6 +9544,180 @@ export class Helper {
                     })
 
                   })
+
+                }
+
+                {
+                  const button = this.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = ".match-maker"
+                  button.right.innerHTML = "Match Maker Skripte anhängen"
+
+                  button.onclick = () => {
+                    this.popup(async overlay => {
+                      this.create("button/remove-overlay", overlay)
+                      this.create("button/register-html", overlay)
+                      const info = this.create("header/info", overlay)
+                      info.innerHTML = ".match-maker"
+
+                      const content = this.create("info/loading", overlay)
+
+                      const res = await this.get("match-maker/toolbox-closed")
+
+                      if (res.status === 200) {
+                        const array = JSON.parse(res.response)
+
+                        if (array.length === 0) {
+                          this.convert("parent/info", content)
+                          content.innerHTML = "Es wurden keine Match Maker gefunden."
+                          throw new Error("match maker not found")
+                        }
+
+                        this.convert("parent/scrollable", content)
+
+                        for (let i = 0; i < array.length; i++) {
+                          const matchMaker = array[i]
+
+                          const button = this.create("button/left-right", content)
+                          button.right.innerHTML = matchMaker.id
+                          button.left.innerHTML = matchMaker.name
+
+                          button.onclick = () => {
+
+                            this.popup(async overlay => {
+                              this.create("button/remove-overlay", overlay)
+                              this.create("button/register-html", overlay)
+                              const info = this.create("header/info", overlay)
+                              info.innerHTML = `.match-maker.${matchMaker.name}`
+
+                              {
+                                const button = this.create("button/left-right", overlay)
+                                button.left.innerHTML = ".action"
+                                button.right.innerHTML = "Optimiere deinen Match Maker"
+
+                                // action loads the match-maker script
+                                // this button need the conditions array
+                                button.onclick = () => {
+                                  this.popup(overlay => {
+                                    this.create("button/remove-overlay", overlay)
+                                    this.create("button/register-html", overlay)
+                                    const info = this.create("header/info", overlay)
+                                    info.innerHTML = `.${matchMaker.name}.action`
+
+                                    const content = this.create("div/scrollable", overlay)
+                                    const actionField = this.create("field/select", content)
+                                    actionField.label.innerHTML = "Wenn alle Bedingungen erfüllt sind dann .."
+                                    actionField.input.add(["get", "remove"])
+                                    this.verifyIs("input/valid", actionField.input)
+
+                                    const dataMirrorField = this.create("field/trees", content)
+                                    dataMirrorField.label.innerHTML = "Gebe eine JavaScript Liste mit Datenstrukturen ein und spiegel deine Nutzerliste mit den angefragten Daten"
+                                    dataMirrorField.input.style.fontSize = "13px"
+                                    dataMirrorField.input.placeholder = `["getyour.expert.name", "getyour.funnel.name"]`
+                                    dataMirrorField.input.oninput = () => this.verifyIs("input/valid", dataMirrorField.input)
+                                    this.verifyIs("input/valid", dataMirrorField.input)
+
+                                    actionField.input.oninput = (event) => {
+                                      const selected = this.convert("select/selected", event.target)
+
+                                      if (selected === "get") {
+                                        actionField.after(dataMirrorField)
+                                      }
+
+                                      if (selected !== "get") {
+                                        dataMirrorField.remove()
+                                      }
+                                    }
+
+
+                                    const submit = this.create("button/action", content)
+                                    submit.innerHTML = "Match Maker jetzt anhängen"
+                                    submit.onclick = async () => {
+
+                                      const selected = this.convert("select/selected", actionField.input)
+
+                                      if (selected === "remove") {
+
+                                        const map = {}
+                                        map.name = matchMaker.name
+                                        map.conditions = conditions
+
+                                        const removeScript = this.create("script/match-maker-remove", map)
+
+                                        await this.render("script/onbody", removeScript)
+
+
+                                      }
+
+                                      if (selected === "get") {
+
+                                        await this.verify("input/value", dataMirrorField.input)
+
+                                        const map = {}
+                                        map.name = matchMaker.name
+                                        map.conditions = conditions
+
+                                        try {
+                                          map.mirror = JSON.parse(dataMirrorField.input.value)
+                                          if (map.mirror.length === 0) throw new Error("mirror is empty")
+                                        } catch (error) {
+                                          this.setNotValidStyle(dataMirrorField.input)
+                                          throw error
+                                        }
+
+                                        const getterScript = this.create("script/match-maker-get", map)
+
+                                        await this.render("script/onbody", getterScript)
+
+                                      }
+
+                                    }
+
+                                  })
+                                }
+
+
+                              }
+
+                              const conditionsContainer = this.create("info/loading", overlay)
+
+                              const res = await this.get("match-maker-conditions/complete-closed", matchMaker.id)
+
+                              let conditions
+                              if (res.status === 200) {
+                                conditions = JSON.parse(res.response)
+
+                                if (conditions.length === 0) {
+                                  this.convert("parent/info", conditionsContainer)
+                                  conditionsContainer.innerHTML = "Keine Bedingungen definiert."
+                                  throw new Error("conditions not found")
+                                }
+
+                                this.reset(conditionsContainer)
+                                this.render("text/hr", `Bedingungen von ${matchMaker.name}`, conditionsContainer)
+                                for (let i = 0; i < conditions.length; i++) {
+                                  const condition = conditions[i]
+
+                                  this.render("text/code", `(${condition.left} ${condition.operator} ${condition.right})`, conditionsContainer)
+
+                                }
+
+                              }
+
+                            })
+
+                          }
+
+
+                        }
+
+
+
+
+                      }
+
+
+                    })
+                  }
 
                 }
 
@@ -10220,6 +11399,12 @@ export class Helper {
 
   static verifyIs(event, input) {
 
+    if (event === "text/tree") {
+      if (typeof input !== "string") return false
+      if (/^[a-z]+(\.[a-z]+)*$/.test(input) === true) return true
+      return false
+    }
+
     if (event === "field-funnel/valid") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -10289,6 +11474,43 @@ export class Helper {
     }
 
     if (event === "input/accepted") {
+
+      if (input.getAttribute("accept") === "text/trees") {
+
+        if (!input.value.startsWith("[")) return false
+        if (!input.value.endsWith("]")) return false
+        try {
+          const array = JSON.parse(input.value)
+          for (let i = 0; i < array.length; i++) {
+            const text = array[i]
+
+            if (!this.verifyIs("text/tree", text)) return false
+
+          }
+          return true
+        } catch (error) {
+          return false
+        }
+
+
+      }
+
+      if (input.getAttribute("accept") === "text/tree") {
+        if (typeof input.value !== "string") return false
+        input.value = input.value.replace(/ /g, ".")
+        if (/^[a-z]+(\.[a-z]+)*$/.test(input.value) === true) return true
+        return false
+      }
+
+      if (input.getAttribute("accept") === "text/operator") {
+        if (input.value === "=") return true
+        if (input.value === ">=") return true
+        if (input.value === "<=") return true
+        if (input.value === "!=") return true
+        if (input.value === "<") return true
+        if (input.value === ">") return true
+        return false
+      }
 
       if (input.getAttribute("accept") === "text/email") {
         if (typeof input.value !== "string") return false
@@ -11503,6 +12725,17 @@ export class Helper {
   }
 
   static convert(event, input) {
+
+    if (event === "select/selected") {
+
+      for (let i = 0; i < input.options.length; i++) {
+        const option = input.options[i]
+        if (option.selected === true) {
+          return option.value
+        }
+      }
+
+    }
 
     if (event === "input/image") {
 
