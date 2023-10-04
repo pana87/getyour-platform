@@ -9,6 +9,24 @@ import {CheckboxField} from "/js/CheckboxField.js"
 
 export class Helper {
 
+  static run(event, input) {
+    if (event === "text/js") {
+
+      return new Promise((resolve, reject) => {
+
+        try {
+          eval(input)
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+
+
+    }
+  }
+
   static delete(event, input) {
     // event = thing/algorithm
 
@@ -5195,6 +5213,109 @@ export class Helper {
 
     }
 
+    if (event === "script/match-maker-onload") {
+
+      const conditionsString = JSON.stringify(input.conditions)
+
+      const text = /*html*/`
+        <script id="match-maker-onload-${input.name}" type="module">
+          import { Helper } from "/js/Helper.js"
+
+          const res = await Helper.verify("match-maker-conditions/closed", ${conditionsString})
+
+          if (res.status === 200) {
+
+            ${input.js}
+
+          }
+
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
+    }
+
+    if (event === "script/match-maker-onclick") {
+
+      const conditionsString = JSON.stringify(input.conditions)
+
+      const text = /*html*/`
+        <script id="match-maker-onclick-${input.name}" type="module">
+          import { Helper } from "/js/Helper.js"
+
+          const elements = document.querySelectorAll("[match-maker='${input.name}']")
+
+          if (elements.length === 0) throw new Error("no match maker elements found")
+
+          const res = await Helper.verify("match-maker-conditions/closed", ${conditionsString})
+
+          if (res.status === 200) {
+
+            elements.forEach(matchMaker => {
+              matchMaker.onclick = async (event) => {
+                ${input.js}
+              }
+            })
+
+          }
+
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
+    }
+
+    if (event === "script/match-maker-show") {
+
+      const conditionsString = JSON.stringify(input.conditions)
+
+      const text = /*html*/`
+        <script id="match-maker-show-${input.name}" type="module">
+          import { Helper } from "/js/Helper.js"
+
+          const elements = document.querySelectorAll("[match-maker='${input.name}']")
+
+          if (elements.length === 0) throw new Error("no match maker elements found")
+
+          elements.forEach(element => element.style.display = "none")
+
+          const res = await Helper.verify("match-maker-conditions/closed", ${conditionsString})
+
+          if (res.status === 200) {
+
+            elements.forEach(matchMaker => {
+              matchMaker.style.display = null
+            })
+
+          }
+
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
+    }
+
     if (event === "script/match-maker-get") {
 
       const conditionsString = JSON.stringify(input.conditions)
@@ -5601,6 +5722,21 @@ export class Helper {
 
       field.input.setAttribute("required", "true")
       field.input.setAttribute("accept", "text/tag")
+
+      if (input !== undefined) input.append(field)
+      return field
+    }
+
+    if (event === "field/js") {
+
+      const field = this.create("field/textarea")
+
+      field.input.style.fontSize = "13px"
+      field.input.style.height = "55px"
+      field.input.placeholder = "document.querySelector..."
+
+      field.input.setAttribute("required", "true")
+      field.input.setAttribute("accept", "text/js")
 
       if (input !== undefined) input.append(field)
       return field
@@ -9606,7 +9742,7 @@ export class Helper {
                                     const content = this.create("div/scrollable", overlay)
                                     const actionField = this.create("field/select", content)
                                     actionField.label.innerHTML = "Wenn alle Bedingungen erfüllt sind dann .."
-                                    actionField.input.add(["get", "remove"])
+                                    actionField.input.add(["get", "remove", "show", "onclick", "onload"])
                                     this.verifyIs("input/valid", actionField.input)
 
                                     const dataMirrorField = this.create("field/trees", content)
@@ -9616,15 +9752,30 @@ export class Helper {
                                     dataMirrorField.input.oninput = () => this.verifyIs("input/valid", dataMirrorField.input)
                                     this.verifyIs("input/valid", dataMirrorField.input)
 
+                                    const jsField = this.create("field/js")
+                                    jsField.label.innerHTML = "JavaScript Browser Funktionen + Plattform Helper Funktionen (javascript)"
+
+                                    jsField.input.oninput = () => this.verify("input/value", jsField.input)
+
                                     actionField.input.oninput = (event) => {
                                       const selected = this.convert("select/selected", event.target)
+
+                                      dataMirrorField.remove()
+                                      jsField.remove()
+
 
                                       if (selected === "get") {
                                         actionField.after(dataMirrorField)
                                       }
 
-                                      if (selected !== "get") {
-                                        dataMirrorField.remove()
+                                      if (selected === "onclick") {
+                                        actionField.after(jsField)
+                                        this.verify("input/value", jsField.input)
+                                      }
+
+                                      if (selected === "onload") {
+                                        actionField.after(jsField)
+                                        this.verify("input/value", jsField.input)
                                       }
                                     }
 
@@ -9635,6 +9786,49 @@ export class Helper {
 
                                       const selected = this.convert("select/selected", actionField.input)
 
+                                      if (selected === "onload") {
+
+                                        await this.verify("input/value", jsField.input)
+
+                                        const map = {}
+                                        map.name = matchMaker.name
+                                        map.conditions = conditions
+                                        map.js = jsField.input.value
+
+                                        const onloadScript = this.create("script/match-maker-onload", map)
+
+                                        await this.render("script/onbody", onloadScript)
+
+                                      }
+
+                                      if (selected === "onclick") {
+
+                                        await this.verify("input/value", jsField.input)
+
+                                        const map = {}
+                                        map.name = matchMaker.name
+                                        map.conditions = conditions
+                                        map.js = jsField.input.value
+
+                                        const onclickScript = this.create("script/match-maker-onclick", map)
+
+                                        await this.render("script/onbody", onclickScript)
+
+                                      }
+
+
+                                      if (selected === "show") {
+
+                                        const map = {}
+                                        map.name = matchMaker.name
+                                        map.conditions = conditions
+
+                                        const showScript = this.create("script/match-maker-show", map)
+
+                                        await this.render("script/onbody", showScript)
+
+                                      }
+
                                       if (selected === "remove") {
 
                                         const map = {}
@@ -9644,7 +9838,6 @@ export class Helper {
                                         const removeScript = this.create("script/match-maker-remove", map)
 
                                         await this.render("script/onbody", removeScript)
-
 
                                       }
 
@@ -11399,6 +11592,26 @@ export class Helper {
 
   static verifyIs(event, input) {
 
+    if (event === "text/empty") {
+      return typeof input !== "string" ||
+        input === undefined ||
+        input === null ||
+        input === "" ||
+        input.replace(/\s/g, "") === ""
+    }
+
+    if (event === "text/js") {
+
+      try {
+        if (this.verifyIs("text/empty", input) === true) throw new Error("text is empty")
+        new Function(input)
+        return true
+      } catch (error) {
+        return false
+      }
+
+    }
+
     if (event === "text/tree") {
       if (typeof input !== "string") return false
       if (/^[a-z]+(\.[a-z]+)*$/.test(input) === true) return true
@@ -11474,6 +11687,15 @@ export class Helper {
     }
 
     if (event === "input/accepted") {
+
+      if (input.getAttribute("accept") === "text/js") {
+
+        try {
+          return this.verifyIs("text/js", input.value)
+        } catch (error) {
+          return false
+        }
+      }
 
       if (input.getAttribute("accept") === "text/trees") {
 
