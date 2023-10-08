@@ -653,6 +653,28 @@ export class Helper {
       input = parent
     }
 
+    if (event === "match-maker-list/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const get = {}
+          get.url = "/get/match-maker/closed/"
+          get.type = "list"
+          get.conditions = parent
+          get.tree = input
+          const res = await Request.closed(get)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
     if (event === "match-maker-mirror/closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -5316,6 +5338,41 @@ export class Helper {
       return create
     }
 
+    if (event === "script/match-maker-get-list") {
+
+      const conditionsString = JSON.stringify(input.conditions)
+
+      const text = /*html*/`
+        <script id="match-maker-get-list-${input.name}" type="module">
+          import { Helper } from "/js/Helper.js"
+          import { Request } from "/js/Request.js"
+
+          const elements = document.querySelectorAll("[match-maker='${input.name}']")
+
+          if (elements.length === 0) throw new Error("no match maker elements found")
+
+          const res = await Helper.get("match-maker-list/closed", ${conditionsString}, "${input.tree}")
+
+          if (res.status === 200) {
+            const mirror = JSON.parse(res.response)
+
+            await Helper.render("mirror/match-maker-get-list", mirror, "${input.name}")
+
+          }
+
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
+    }
+
     if (event === "script/match-maker-get") {
 
       const conditionsString = JSON.stringify(input.conditions)
@@ -6373,6 +6430,69 @@ export class Helper {
 
   static render(event, input, parent) {
     // event = input/algorithm
+
+
+    if (event === "mirror/match-maker-get-list") {
+
+      return new Promise(async(resolve, reject) => {
+
+        try {
+
+          const sorted = input
+          sorted.sort((a, b) => {
+            return b.reputation - a.reputation // Descending order, for ascending use: a.reputation - b.reputation
+          })
+
+          const userList = this.create("div/scrollable")
+          userList.setAttribute("id", `match-maker-list-${parent}`)
+
+          document.querySelectorAll(`[match-maker="${parent}"]`).forEach(matchMaker => {
+
+            for (let i = 0; i < sorted.length; i++) {
+              const map = sorted[i]
+
+              const clone = document.createElement("div")
+              clone.innerHTML = matchMaker.innerHTML
+              clone.setAttribute("id", `list-item-${i + 1}`)
+              clone.style.marginBottom = "34px"
+
+
+              Object.entries(map.funnel).forEach(([key, value]) => {
+                clone.querySelectorAll(`.${key}`).forEach(div => {
+                  div.innerHTML = value
+                })
+
+              })
+
+              userList.append(clone)
+
+            }
+
+            const userLists = document.querySelectorAll(`#match-maker-list-${parent}`)
+
+            if (userLists.length === 0) {
+              matchMaker.before(userList)
+              matchMaker.style.display = "none"
+            }
+
+            userLists.forEach(list => {
+              this.convert("parent/scrollable", list)
+              list.innerHTML = userList.innerHTML
+              matchMaker.style.display = "none"
+            })
+
+
+          })
+
+          resolve(userList)
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
 
     if (event === "mirror/match-maker-get") {
 
@@ -9730,8 +9850,6 @@ export class Helper {
                                 button.left.innerHTML = ".action"
                                 button.right.innerHTML = "Optimiere deinen Match Maker"
 
-                                // action loads the match-maker script
-                                // this button need the conditions array
                                 button.onclick = () => {
                                   this.popup(overlay => {
                                     this.create("button/remove-overlay", overlay)
@@ -9742,7 +9860,7 @@ export class Helper {
                                     const content = this.create("div/scrollable", overlay)
                                     const actionField = this.create("field/select", content)
                                     actionField.label.innerHTML = "Wenn alle Bedingungen erfüllt sind dann .."
-                                    actionField.input.add(["get", "remove", "show", "onclick", "onload"])
+                                    actionField.input.add(["get", "remove", "show", "onclick", "onload", "get list"])
                                     this.verifyIs("input/valid", actionField.input)
 
                                     const dataMirrorField = this.create("field/trees", content)
@@ -9754,18 +9872,25 @@ export class Helper {
 
                                     const jsField = this.create("field/js")
                                     jsField.label.innerHTML = "JavaScript Browser Funktionen + Plattform Helper Funktionen (javascript)"
-
                                     jsField.input.oninput = () => this.verify("input/value", jsField.input)
+
+                                    const treeField = this.create("field/tree")
+                                    treeField.input.placeholder = "getyour.expert.platforms"
+                                    treeField.label.innerHTML = "Welche Liste möchtest du anzeigen lassen (text/tree)"
+                                    treeField.input.oninput = () => this.verify("input/value", treeField.input)
+
 
                                     actionField.input.oninput = (event) => {
                                       const selected = this.convert("select/selected", event.target)
 
                                       dataMirrorField.remove()
                                       jsField.remove()
+                                      treeField.remove()
 
 
                                       if (selected === "get") {
                                         actionField.after(dataMirrorField)
+                                        this.verify("input/value", dataMirrorField.input)
                                       }
 
                                       if (selected === "onclick") {
@@ -9776,6 +9901,11 @@ export class Helper {
                                       if (selected === "onload") {
                                         actionField.after(jsField)
                                         this.verify("input/value", jsField.input)
+                                      }
+
+                                      if (selected === "get list") {
+                                        actionField.after(treeField)
+                                        this.verify("input/value", treeField.input)
                                       }
                                     }
 
@@ -9840,6 +9970,22 @@ export class Helper {
                                         await this.render("script/onbody", removeScript)
 
                                       }
+
+                                      if (selected === "get list") {
+
+                                        await this.verify("input/value", treeField.input)
+
+                                        const map = {}
+                                        map.name = matchMaker.name
+                                        map.conditions = conditions
+                                        map.tree = treeField.input.value
+
+                                        const getterScript = this.create("script/match-maker-get-list", map)
+
+                                        await this.render("script/onbody", getterScript)
+
+                                      }
+
 
                                       if (selected === "get") {
 
@@ -11614,8 +11760,13 @@ export class Helper {
 
     if (event === "text/tree") {
       if (typeof input !== "string") return false
-      if (/^[a-z]+(\.[a-z]+)*$/.test(input) === true) return true
-      return false
+
+      if (/^(?!.*[-.]{2,})(?!.*^-)(?!.*\.$)(?!.*\.\.$)[a-z]+([-.][a-z]+)*$/.test(input)) {
+        return true
+      } else {
+        return false
+      }
+
     }
 
     if (event === "field-funnel/valid") {
@@ -11718,10 +11869,12 @@ export class Helper {
       }
 
       if (input.getAttribute("accept") === "text/tree") {
-        if (typeof input.value !== "string") return false
         input.value = input.value.replace(/ /g, ".")
-        if (/^[a-z]+(\.[a-z]+)*$/.test(input.value) === true) return true
+
+        if (this.verifyIs("text/tree", input.value) === true) return true
+
         return false
+
       }
 
       if (input.getAttribute("accept") === "text/operator") {
