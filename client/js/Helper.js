@@ -201,6 +201,168 @@ export class Helper {
 
     }
 
+    if (event === "button/conflicts") {
+      const button = this.create("button/left-right", input)
+      button.left.innerHTML = ".conflicts"
+      button.right.innerHTML = "Konflikte"
+
+      button.addEventListener("click", () => {
+
+        this.popup(overlay => {
+
+          this.create("button/remove-overlay", overlay)
+
+          const buttons = this.create("div/scrollable", overlay)
+
+          {
+            // const buttons = document.createElement("div")
+            // buttons.style.overflowY = "auto"
+            // buttons.style.overscrollBehavior = "none"
+            // buttons.style.paddingBottom = "144px"
+            // overlay.append(buttons)
+
+            {
+              const infoBox = document.createElement("div")
+
+              infoBox.style.display = "flex"
+
+              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                infoBox.style.color = this.colors.matte.black
+                infoBox.style.backgroundColor = this.colors.matte.celadon
+                infoBox.style.border = `2px solid ${this.colors.matte.forest}`
+              } else {
+                infoBox.style.color = this.colors.matte.black
+                infoBox.style.backgroundColor = this.colors.matte.celadon
+                infoBox.style.border = `2px solid ${this.colors.matte.forest}`
+              }
+
+              infoBox.style.fontSize = "13px"
+              infoBox.style.margin = "21px 34px"
+              infoBox.style.padding = "21px"
+              infoBox.style.borderRadius = "13px"
+
+              const icon = this.iconPicker("smiling-bear")
+              icon.style.width = "144px"
+              icon.style.fill = this.colors.matte.black
+              icon.style.marginRight = "8px"
+              infoBox.append(icon)
+
+              const message = document.createElement("div")
+              message.style.fontSize = "13px"
+
+              message.innerHTML = `
+                <p>In unserer Gemeinschaft legen wir großen Wert auf Offenheit, Transparenz und ein harmonisches Miteinander. Wir möchten betonen, dass es vollkommen in Ordnung ist, Konflikte zu melden, und wir ermutigen dies sogar ausdrücklich. Konflikte sind ein natürlicher Bestandteil des menschlichen Zusammenlebens und können uns dabei helfen, Missverständnisse aufzuklären, Probleme zu lösen und eine Veränderung herbeizuführen, bei der sich alle Parteien verstanden fühlen.</p>
+              `
+
+              infoBox.append(message)
+
+              buttons.append(infoBox)
+            }
+
+            {
+              const button = document.createElement("div")
+              button.style.display = "flex"
+              button.style.flexWrap = "wrap"
+              button.style.justifyContent = "space-between"
+              button.style.alignItems = "center"
+              button.style.margin = "21px 34px"
+              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+              button.style.borderRadius = "13px"
+              button.style.border = "0.3px solid black"
+              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+              button.style.cursor = "pointer"
+              // button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
+
+              const icon = document.createElement("img")
+              icon.style.margin = "13px 34px"
+              icon.style.width = "34px"
+              icon.src = "/public/add.svg"
+              icon.alt = "Hinzufügen"
+              button.append(icon)
+
+              const title = document.createElement("div")
+              title.innerHTML = "Neuen Konflikt melden"
+              title.style.margin = "21px 34px"
+              title.style.fontSize = "21px"
+              button.append(title)
+
+              buttons.append(button)
+            }
+
+            {
+              const button = document.createElement("div")
+              button.style.display = "flex"
+              button.style.flexWrap = "wrap"
+              button.style.justifyContent = "space-between"
+              button.style.alignItems = "center"
+              button.style.margin = "21px 34px"
+              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+              button.style.borderRadius = "13px"
+              button.style.border = "0.3px solid black"
+              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+              button.style.cursor = "pointer"
+              // button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
+
+
+
+              /// icon picker
+
+              // const icon = this.iconPicker("open-eye")
+
+              const icon = document.createElement("img")
+              icon.style.margin = "13px 34px"
+              icon.style.width = "34px"
+              icon.src = "/public/open.svg"
+              icon.alt = "Offen"
+              button.append(icon)
+
+              const title = document.createElement("div")
+              title.innerHTML = "Offene Konflikte"
+              title.style.margin = "21px 34px"
+              title.style.fontSize = "21px"
+              button.append(title)
+
+              buttons.append(button)
+            }
+
+            {
+              const button = document.createElement("div")
+              button.style.display = "flex"
+              button.style.flexWrap = "wrap"
+              button.style.justifyContent = "space-between"
+              button.style.alignItems = "center"
+              button.style.margin = "21px 34px"
+              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
+              button.style.borderRadius = "13px"
+              button.style.border = "0.3px solid black"
+              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+              button.style.cursor = "pointer"
+              // button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
+
+              const icon = document.createElement("img")
+              icon.style.margin = "13px 34px"
+              icon.style.width = "34px"
+              icon.src = "/public/solved.svg"
+              icon.alt = "Gelöst"
+              button.append(icon)
+
+              const title = document.createElement("div")
+              title.innerHTML = "Gelöste Konflikte"
+              title.style.margin = "21px 34px"
+              title.style.fontSize = "21px"
+              button.append(title)
+
+              buttons.append(button)
+            }
+
+          }
+
+        })
+
+      })
+
+    }
+
     if (event === "button/html-feedback") {
 
       return new Promise(async(resolve, reject) => {
@@ -653,6 +815,49 @@ export class Helper {
       input = parent
     }
 
+    if (event === "user-keys/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const get = {}
+          get.url = "/get/user/closed/"
+          get.type = "keys"
+          get.trees = input
+          const res = await Request.closed(get)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
+    if (event === "match-maker-keys/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const get = {}
+          get.url = "/get/match-maker/closed/"
+          get.type = "keys"
+          get.conditions = parent
+          get.mirror = input
+          const res = await Request.closed(get)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
     if (event === "match-maker-list/closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -1077,6 +1282,30 @@ export class Helper {
 
       return new Promise(async (resolve, reject) => {
 
+        try {
+
+          const get = {}
+          get.url = "/get/location-list-funnel/closed/"
+          get.tag = input.tag
+          get.id = input.id
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+
+      })
+
+    }
+
+    if (event === "location-list-funnel/div-closed") {
+
+      return new Promise(async (resolve, reject) => {
+
         const get = {}
         get.url = "/get/location-list-funnel/closed/"
         get.tag = input.tag
@@ -1150,11 +1379,16 @@ export class Helper {
 
                       const content = this.create("div/scrollable", overlay)
 
-                      await this.get("location-list-funnel/closed", content, map)
+                      const res = await this.get("location-list-funnel/closed", map)
 
-                      map.funnel = input.funnel
-                      map.ok = () => this.remove("overlay", overlay)
-                      this.update("funnel/location-list/closed", content, map)
+                      // need the location list funnel
+                      if (res.status === 200) {
+                        map.idMap = JSON.parse(res.response)
+                        map.funnel = input.funnel
+                        map.ok = () => this.remove("overlay", overlay)
+                        this.update("funnel/location-list/closed", content, map)
+                      }
+
 
                     })
 
@@ -3269,6 +3503,8 @@ export class Helper {
 
       this.add("field-funnel/oninput-sign-support", fieldFunnel)
 
+      this.render("id-map/field-funnel", input.idMap, fieldFunnel)
+
       const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
       submitButton.innerHTML = `${input.tag} jetzt speichern`
       submitButton.onclick = async () => {
@@ -4832,6 +5068,175 @@ export class Helper {
       return header
     }
 
+    if (event === "div/box-overview") {
+
+      const offer = document.createElement("div")
+      offer.classList.add("box")
+      offer.style.backgroundColor = "white"
+      offer.style.borderRadius = "13px"
+      offer.style.margin = "34px"
+      offer.style.padding = "34px"
+      offer.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+
+      const alignLogo = document.createElement("div")
+      alignLogo.classList.add("image-container")
+      alignLogo.style.display = "flex"
+      alignLogo.style.justifyContent = "flex-end"
+
+      const logo = document.createElement("img")
+      logo.classList.add("image")
+      logo.src = "meine-quell-url.de"
+      logo.alt = "Mein Logo Image"
+      logo.style.width = "55vw"
+      logo.style.maxWidth = "377px"
+
+      alignLogo.append(logo)
+
+      offer.append(alignLogo)
+
+      const company = document.createElement("div")
+      company.classList.add("company")
+      company.innerHTML = "Meine Firma"
+      company.style.margin = "21px 0"
+      company.style.fontSize = "21px"
+
+      offer.append(company)
+
+      const website = document.createElement("div")
+      website.style.display = "flex"
+      website.style.alignItems = "center"
+
+      const websiteIcon = document.createElement("img")
+      websiteIcon.src = "mein-icon-url.de"
+      websiteIcon.alt = "Website Icon"
+
+      const websiteText = document.createElement("a")
+      websiteText.innerHTML = "Website"
+      websiteText.href = "www.website.de"
+      websiteText.target = "_blank"
+      websiteText.style.textDecoration = "underline"
+      websiteText.style.margin = "8px"
+      websiteText.style.cursor = "pointer"
+
+      website.append(websiteIcon, websiteText)
+
+      offer.append(website)
+
+
+      const product = document.createElement("div")
+      product.innerHTML = "Produkt Titel"
+      product.style.marginTop = "34px"
+      product.style.fontSize = "21px"
+
+
+      offer.append(product)
+
+
+      const description = document.createElement("div")
+      description.innerHTML = "Produktbeschreibung"
+      description.style.marginTop = "13px"
+
+      offer.append(description)
+
+
+      const alignContainer = document.createElement("div")
+      alignContainer.style.display = "flex"
+      alignContainer.style.justifyContent = "flex-end"
+
+      const priceContainer = document.createElement("div")
+      priceContainer.style.width = "300px"
+      priceContainer.style.marginTop = "21px"
+
+      const priceTitle = document.createElement("div")
+      priceTitle.innerHTML = "Preisübersicht"
+      priceTitle.style.fontSize = "21px"
+      priceTitle.style.margin = "21px 0"
+
+
+      priceContainer.append(priceTitle)
+
+      const netContainer = document.createElement("div")
+      netContainer.style.display = "flex"
+      netContainer.style.justifyContent = "space-between"
+      netContainer.style.margin = "13px 0"
+
+      const priceNetTitle = document.createElement("div")
+      priceNetTitle.innerHTML = "Nettobetrag"
+
+      const priceNetAmount = document.createElement("div")
+      priceNetAmount.innerHTML = `100 €`
+
+      netContainer.append(priceNetTitle, priceNetAmount)
+
+      priceContainer.append(netContainer)
+
+
+
+      const vatContainer = document.createElement("div")
+      vatContainer.style.display = "flex"
+      vatContainer.style.justifyContent = "space-between"
+      vatContainer.style.margin = "13px 0"
+
+
+      const priceVatTitle = document.createElement("div")
+      priceVatTitle.innerHTML = `USt. 19 %`
+
+      const priceVatAmount = document.createElement("div")
+      priceVatAmount.innerHTML = `10 €`
+
+      vatContainer.append(priceVatTitle, priceVatAmount)
+
+      priceContainer.append(vatContainer)
+
+      const line = document.createElement("hr")
+
+      priceContainer.append(line)
+
+
+      const grossContainer = document.createElement("div")
+      grossContainer.style.display = "flex"
+      grossContainer.style.justifyContent = "space-between"
+      grossContainer.style.margin = "21px 0"
+
+      const priceGrossTitle = document.createElement("div")
+      priceGrossTitle.innerHTML = "Gesamt"
+
+      const priceGrossAmount = document.createElement("div")
+      priceGrossAmount.classList.add("price")
+      priceGrossAmount.innerHTML = `10€`
+
+      grossContainer.append(priceGrossTitle, priceGrossAmount)
+
+      priceContainer.append(grossContainer)
+
+
+      const button = document.createElement("div")
+      button.classList.add("submit")
+      button.innerHTML = "Weiter zum Angebot"
+      button.style.marginTop = "34px"
+      button.style.height = "55px"
+      button.style.backgroundColor = "#f7aa20"
+      button.style.borderRadius = "13px"
+      button.style.display = "flex"
+      button.style.justifyContent = "center"
+      button.style.alignItems = "center"
+      button.style.cursor = "pointer"
+      button.addEventListener("mouseover", () => button.style.backgroundColor = "#f19d08")
+      button.addEventListener("mouseout", () => button.style.backgroundColor = "#f7aa20")
+
+      priceContainer.append(button)
+      alignContainer.append(priceContainer)
+      offer.append(alignContainer)
+      //div.append(offer)
+
+      if (input !== undefined) input.append(offer)
+
+      return offer
+
+
+
+    }
+
     if (event === "div/user-list") {
 
       return new Promise(async(resolve, reject) => {
@@ -5235,6 +5640,27 @@ export class Helper {
 
     }
 
+    if (event === "script/empty-helper") {
+
+      const text = /*html*/`
+        <script id="${input.id}" type="module">
+          import { Helper } from "/js/Helper.js"
+
+          ${input.js}
+
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
+    }
+
     if (event === "script/match-maker-onload") {
 
       const conditionsString = JSON.stringify(input.conditions)
@@ -5373,13 +5799,50 @@ export class Helper {
       return create
     }
 
-    if (event === "script/match-maker-get") {
+
+    if (event === "script/match-maker-get-keys") {
 
       const conditionsString = JSON.stringify(input.conditions)
       const mirrorString = JSON.stringify(input.mirror)
 
       const text = /*html*/`
-        <script id="match-maker-get-${input.name}" type="module">
+        <script id="match-maker-get-keys-${input.name}" type="module">
+          import { Helper } from "/js/Helper.js"
+          import { Request } from "/js/Request.js"
+
+          const elements = document.querySelectorAll("[match-maker='${input.name}']")
+
+          if (elements.length === 0) throw new Error("no match maker elements found")
+
+          const res = await Helper.get("match-maker-keys/closed", ${conditionsString}, ${mirrorString})
+
+          if (res.status === 200) {
+            const mirror = JSON.parse(res.response)
+
+            await Helper.render("mirror/match-maker-get-keys", mirror, "${input.name}")
+
+          }
+
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
+    }
+
+    if (event === "script/match-maker-get-users") {
+
+      const conditionsString = JSON.stringify(input.conditions)
+      const mirrorString = JSON.stringify(input.mirror)
+
+      const text = /*html*/`
+        <script id="match-maker-get-users-${input.name}" type="module">
           import { Helper } from "/js/Helper.js"
           import { Request } from "/js/Request.js"
 
@@ -5392,7 +5855,7 @@ export class Helper {
           if (res.status === 200) {
             const mirror = JSON.parse(res.response)
 
-            await Helper.render("mirror/match-maker-get", mirror, "${input.name}")
+            await Helper.render("mirror/match-maker-get-users", mirror, "${input.name}")
 
           }
 
@@ -6431,6 +6894,89 @@ export class Helper {
   static render(event, input, parent) {
     // event = input/algorithm
 
+    if (event === "value/input") {
+
+      if (parent.tagName === "INPUT") {
+
+        if (parent.type === "text") {
+          parent.value = input
+        }
+
+        if (parent.type === "email") {
+          parent.value = input
+        }
+
+        if (parent.type === "tel") {
+          parent.value = input
+        }
+
+        if (parent.type === "range") {
+          parent.value = input
+        }
+
+        if (parent.type === "password") {
+          parent.value = input
+        }
+
+        if (parent.type === "number") {
+          parent.value = input
+        }
+
+        if (parent.type === "date") {
+          parent.value = input
+        }
+
+        if (parent.type === "checkbox") {
+          parent.checked = input
+        }
+
+      }
+
+      if (parent.tagName === "TEXTAREA") {
+        parent.value = input
+      }
+
+      if (parent.tagName === "SELECT") {
+        for (let i = 0; i < input.length; i++) {
+          const text = input[i]
+
+          for (let i = 0; i < parent.options.length; i++) {
+            const option = parent.options[i]
+
+            if (option.value === text) option.selected = true
+          }
+
+        }
+      }
+
+    }
+
+    if (event === "mirror/match-maker-get-keys") {
+
+      return new Promise(async(resolve, reject) => {
+
+        try {
+
+          document.querySelectorAll(`[match-maker="${parent}"]`).forEach(matchMaker => {
+
+            Object.entries(input).forEach(([key, value]) => {
+              matchMaker.querySelectorAll(`.${key}`).forEach(div => {
+                div.innerHTML = value
+              })
+
+            })
+
+          })
+
+          resolve()
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
 
     if (event === "mirror/match-maker-get-list") {
 
@@ -6494,7 +7040,7 @@ export class Helper {
 
     }
 
-    if (event === "mirror/match-maker-get") {
+    if (event === "mirror/match-maker-get-users") {
 
       return new Promise(async(resolve, reject) => {
 
@@ -6563,6 +7109,65 @@ export class Helper {
 
 
 
+
+    }
+
+    if (event === "id-map/field-funnel") {
+
+      return new Promise(async(resolve, reject) => {
+
+        try {
+
+          Object.entries(input).forEach(([key, value]) => {
+            parent.querySelectorAll(`#${key}`).forEach(async field => {
+
+              const input = field.querySelector(".field-input")
+
+              this.render("value/input", value, input)
+
+            })
+
+          })
+
+          this.verify("field-funnel/validity", parent)
+
+          resolve()
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
+    if (event === "tree-map/field-funnel") {
+
+      return new Promise(async(resolve, reject) => {
+
+        try {
+
+          Object.entries(input).forEach(([key, value]) => {
+            const fieldId = key.split(".")[2]
+            parent.querySelectorAll(`#${fieldId}`).forEach(async field => {
+
+              const input = field.querySelector(".field-input")
+
+              this.render("value/input", value, input)
+
+            })
+
+          })
+
+          this.verify("field-funnel/validity", parent)
+
+          resolve()
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
 
     }
 
@@ -6667,7 +7272,7 @@ export class Helper {
       const fieldFunnel = this.convert("text/dom", input.funnel)
       content.append(fieldFunnel)
 
-      this.add("field-funnel/oninput-sign-support", fieldFunnel)
+      this.verify("field-funnel/validity", fieldFunnel)
 
       const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
       submitButton.innerHTML = `${input.tag} jetzt speichern`
@@ -9860,7 +10465,7 @@ export class Helper {
                                     const content = this.create("div/scrollable", overlay)
                                     const actionField = this.create("field/select", content)
                                     actionField.label.innerHTML = "Wenn alle Bedingungen erfüllt sind dann .."
-                                    actionField.input.add(["get", "remove", "show", "onclick", "onload", "get list"])
+                                    actionField.input.add(["get users", "remove", "show", "onclick", "onload", "get list", "get keys"])
                                     this.verifyIs("input/valid", actionField.input)
 
                                     const dataMirrorField = this.create("field/trees", content)
@@ -9888,7 +10493,7 @@ export class Helper {
                                       treeField.remove()
 
 
-                                      if (selected === "get") {
+                                      if (selected === "get users") {
                                         actionField.after(dataMirrorField)
                                         this.verify("input/value", dataMirrorField.input)
                                       }
@@ -9901,6 +10506,11 @@ export class Helper {
                                       if (selected === "onload") {
                                         actionField.after(jsField)
                                         this.verify("input/value", jsField.input)
+                                      }
+
+                                      if (selected === "get keys") {
+                                        actionField.after(dataMirrorField)
+                                        this.verify("input/value", dataMirrorField.input)
                                       }
 
                                       if (selected === "get list") {
@@ -9986,8 +10596,7 @@ export class Helper {
 
                                       }
 
-
-                                      if (selected === "get") {
+                                      if (selected === "get keys") {
 
                                         await this.verify("input/value", dataMirrorField.input)
 
@@ -10003,7 +10612,29 @@ export class Helper {
                                           throw error
                                         }
 
-                                        const getterScript = this.create("script/match-maker-get", map)
+                                        const getterScript = this.create("script/match-maker-get-keys", map)
+
+                                        await this.render("script/onbody", getterScript)
+
+                                      }
+
+                                      if (selected === "get users") {
+
+                                        await this.verify("input/value", dataMirrorField.input)
+
+                                        const map = {}
+                                        map.name = matchMaker.name
+                                        map.conditions = conditions
+
+                                        try {
+                                          map.mirror = JSON.parse(dataMirrorField.input.value)
+                                          if (map.mirror.length === 0) throw new Error("mirror is empty")
+                                        } catch (error) {
+                                          this.setNotValidStyle(dataMirrorField.input)
+                                          throw error
+                                        }
+
+                                        const getterScript = this.create("script/match-maker-get-users", map)
 
                                         await this.render("script/onbody", getterScript)
 
@@ -10293,6 +10924,54 @@ export class Helper {
                       }
 
 
+                      if (child.tagName === "BODY") {
+                        const button = this.create("button/left-right", buttons)
+                        button.left.innerHTML = ".script"
+                        button.right.innerHTML = "JavaScript anhängen"
+
+                        button.onclick = () => {
+
+                          this.popup(overlay => {
+                            this.create("button/remove-overlay", overlay)
+                            this.create("button/register-html", overlay)
+
+                            const funnel = this.create("div/scrollable", overlay)
+
+                            const nameField = this.create("field/name", funnel)
+                            nameField.label.innerHTML = "Identifikationsname (text/tag)"
+                            nameField.input.placeholder = "mein-neues-skript"
+                            nameField.input.oninput = () => this.verify("input/value", nameField.input)
+
+                            const jsField = this.create("field/js", funnel)
+                            jsField.label.innerHTML = "JavaScript Browser Funktionen + Plattform Helper Funktionen"
+                            jsField.input.oninput = () => this.verify("input/value", jsField.input)
+
+                            this.verify("field-funnel/validity", funnel)
+
+                            const submit = this.create("button/action", funnel)
+                            submit.innerHTML = "Skript jetzt anhängen"
+                            submit.onclick = async () => {
+
+                              await this.verify("field-funnel/validity", funnel)
+
+                              const map = {}
+                              map.id = nameField.input.value
+                              map.js = jsField.input.value
+
+                              const script = this.create("script/empty-helper", map)
+
+                              await this.render("script/onbody", script)
+
+                            }
+
+                          })
+
+
+
+                        }
+
+
+                      }
 
                       {
                         const button = this.buttonPicker("left/right", buttons)
@@ -13519,6 +14198,100 @@ export class Helper {
       input.remove()
     }
 
+    if (event === "field/value") {
+      return new Promise(async(resolve, reject) => {
+
+        if (input.fieldInput.tagName === "INPUT") {
+
+          if (input.fieldInput.type === "text") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.value
+            return resolve(map)
+          }
+
+          if (input.fieldInput.type === "email") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.value
+            return resolve(map)
+          }
+
+          if (input.fieldInput.type === "tel") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.value
+            return resolve(map)
+          }
+
+          if (input.fieldInput.type === "range") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.value
+            return resolve(map)
+          }
+
+          if (input.fieldInput.type === "password") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.value
+            return resolve(map)
+          }
+
+          if (input.fieldInput.type === "number") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.value
+            return resolve(map)
+          }
+
+          if (input.fieldInput.type === "file") {
+
+            const promises = []
+            for (let i = 0; i < input.fieldInput.files.length; i++) {
+              const file = input.fieldInput.files[i]
+              const promise = this.convert("file/type", file)
+
+              promises.push(promise)
+            }
+
+            const results = await Promise.all(promises)
+
+            const map = {}
+            map[input.fieldId] = results
+            return resolve(map)
+          }
+
+          if (input.fieldInput.type === "date") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.value
+            return resolve(map)
+          }
+
+          if (input.fieldInput.type === "checkbox") {
+            const map = {}
+            map[input.fieldId] = input.fieldInput.checked
+            return resolve(map)
+          }
+
+        }
+
+        if (input.fieldInput.tagName === "TEXTAREA") {
+          const map = {}
+          map[input.fieldId] = input.fieldInput.value
+          return resolve(map)
+        }
+
+        if (input.fieldInput.tagName === "SELECT") {
+          const selected = []
+          for (let i = 0; i < input.fieldInput.options.length; i++) {
+            const option = input.fieldInput.options[i]
+            if (option.selected === true) {
+              selected.push(option.value)
+            }
+          }
+          const map = {}
+          map[input.fieldId] = selected
+          return resolve(map)
+        }
+
+      })
+    }
+
     if (event === "field/on-info-click") {
 
       const labelContainer = input.querySelector(".field-label-container")
@@ -13636,6 +14409,38 @@ export class Helper {
           const map = {}
           map[input.fieldId] = selected
           return resolve(map)
+        }
+
+      })
+    }
+
+    if (event === "field-funnel/trees") {
+      return new Promise(async(resolve, reject) => {
+
+        try {
+
+          if (this.tagIsEmpty(input.id)) {
+            window.alert("Field Funnel ist nicht gültig: id ist kein tag")
+            throw new Error("field funnel id is empty")
+          }
+
+          const trees = []
+          input.querySelectorAll(".field").forEach(field => {
+
+
+            if (this.tagIsEmpty(field.id)) {
+              window.alert("Datenfeld ist nicht gültig: id ist kein tag")
+              throw new Error("field id is empty")
+            }
+
+            trees.push(`${window.location.pathname.split("/")[2]}.${input.id}.${field.id}`)
+
+          })
+
+          resolve(trees)
+
+        } catch (error) {
+          return reject(error)
         }
 
       })
@@ -13940,7 +14745,6 @@ export class Helper {
     }
 
     if (event === "text/field") {
-      // console.log(input);
 
       if (input === "text") {
 
@@ -14642,190 +15446,9 @@ export class Helper {
       }
 
       {
+        this.add("button/conflicts", input)
         // refactor this before use it - in progress
-        const button = this.buttonPicker("left/right", input)
-        button.left.innerHTML = ".conflicts"
-        button.right.innerHTML = "Konflikte"
 
-        button.addEventListener("click", () => {
-
-          this.popup(overlay => {
-
-            {
-              const header = document.createElement("div")
-              header.style.position = "fixed"
-              header.style.bottom = "0"
-              header.style.left = "0"
-              header.style.width = "100%"
-              header.style.display = "flex"
-              header.style.justifyContent = "flex-start"
-              header.style.alignItems = "center"
-              header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-              header.style.background = "white"
-              header.style.zIndex = "1"
-              header.style.cursor = "pointer"
-              header.addEventListener("click", () => this.removeOverlay(overlay))
-
-              const logo = document.createElement("img")
-              logo.src = "/public/getyour-logo.svg"
-              logo.alt = "Logo"
-              logo.style.width = "55px"
-              logo.style.margin = "21px 34px"
-              header.append(logo)
-              const title = document.createElement("div")
-              title.innerHTML = `Konflikte`
-              title.style.fontWeight = "bold"
-              title.style.fontSize = "21px"
-              header.append(title)
-              overlay.append(header)
-            }
-
-            {
-              const buttons = document.createElement("div")
-              buttons.style.overflowY = "auto"
-              buttons.style.overscrollBehavior = "none"
-              buttons.style.paddingBottom = "144px"
-              overlay.append(buttons)
-
-              {
-                const infoBox = document.createElement("div")
-
-                infoBox.style.display = "flex"
-
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                  infoBox.style.color = this.colors.matte.black
-                  infoBox.style.backgroundColor = this.colors.matte.celadon
-                  infoBox.style.border = `2px solid ${this.colors.matte.forest}`
-                } else {
-                  infoBox.style.color = this.colors.matte.black
-                  infoBox.style.backgroundColor = this.colors.matte.celadon
-                  infoBox.style.border = `2px solid ${this.colors.matte.forest}`
-                }
-
-                infoBox.style.fontSize = "13px"
-                infoBox.style.margin = "21px 34px"
-                infoBox.style.padding = "21px"
-                infoBox.style.borderRadius = "13px"
-
-                const icon = this.iconPicker("smiling-bear")
-                icon.style.width = "144px"
-                icon.style.fill = this.colors.matte.black
-                icon.style.marginRight = "8px"
-                infoBox.append(icon)
-
-                const message = document.createElement("div")
-                message.style.fontSize = "13px"
-
-                message.innerHTML = `
-                  <p>In unserer Gemeinschaft legen wir großen Wert auf Offenheit, Transparenz und ein harmonisches Miteinander. Wir möchten betonen, dass es vollkommen in Ordnung ist, Konflikte zu melden, und wir ermutigen dies sogar ausdrücklich. Konflikte sind ein natürlicher Bestandteil des menschlichen Zusammenlebens und können uns dabei helfen, Missverständnisse aufzuklären, Probleme zu lösen und eine Veränderung herbeizuführen, bei der sich alle Parteien verstanden fühlen.</p>
-                `
-
-                infoBox.append(message)
-
-                buttons.append(infoBox)
-              }
-
-              {
-                const button = document.createElement("div")
-                button.style.display = "flex"
-                button.style.flexWrap = "wrap"
-                button.style.justifyContent = "space-between"
-                button.style.alignItems = "center"
-                button.style.margin = "21px 34px"
-                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                button.style.borderRadius = "13px"
-                button.style.border = "0.3px solid black"
-                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                button.style.cursor = "pointer"
-                // button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
-
-                const icon = document.createElement("img")
-                icon.style.margin = "13px 34px"
-                icon.style.width = "34px"
-                icon.src = "/public/add.svg"
-                icon.alt = "Hinzufügen"
-                button.append(icon)
-
-                const title = document.createElement("div")
-                title.innerHTML = "Neuen Konflikt melden"
-                title.style.margin = "21px 34px"
-                title.style.fontSize = "21px"
-                button.append(title)
-
-                buttons.append(button)
-              }
-
-              {
-                const button = document.createElement("div")
-                button.style.display = "flex"
-                button.style.flexWrap = "wrap"
-                button.style.justifyContent = "space-between"
-                button.style.alignItems = "center"
-                button.style.margin = "21px 34px"
-                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                button.style.borderRadius = "13px"
-                button.style.border = "0.3px solid black"
-                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                button.style.cursor = "pointer"
-                // button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
-
-
-
-                /// icon picker
-
-                // const icon = this.iconPicker("open-eye")
-
-                const icon = document.createElement("img")
-                icon.style.margin = "13px 34px"
-                icon.style.width = "34px"
-                icon.src = "/public/open.svg"
-                icon.alt = "Offen"
-                button.append(icon)
-
-                const title = document.createElement("div")
-                title.innerHTML = "Offene Konflikte"
-                title.style.margin = "21px 34px"
-                title.style.fontSize = "21px"
-                button.append(title)
-
-                buttons.append(button)
-              }
-
-              {
-                const button = document.createElement("div")
-                button.style.display = "flex"
-                button.style.flexWrap = "wrap"
-                button.style.justifyContent = "space-between"
-                button.style.alignItems = "center"
-                button.style.margin = "21px 34px"
-                button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-                button.style.borderRadius = "13px"
-                button.style.border = "0.3px solid black"
-                button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-                button.style.cursor = "pointer"
-                // button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
-
-                const icon = document.createElement("img")
-                icon.style.margin = "13px 34px"
-                icon.style.width = "34px"
-                icon.src = "/public/solved.svg"
-                icon.alt = "Gelöst"
-                button.append(icon)
-
-                const title = document.createElement("div")
-                title.innerHTML = "Gelöste Konflikte"
-                title.style.margin = "21px 34px"
-                title.style.fontSize = "21px"
-                button.append(title)
-
-                buttons.append(button)
-              }
-
-            }
-
-          })
-
-        })
 
       }
 
