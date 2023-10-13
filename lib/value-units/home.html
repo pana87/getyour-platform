@@ -27,7 +27,37 @@
       Helper.convert("parent/dark", document.body)
 
       Helper.headerPicker("back", document.body)
-      Helper.headerPicker("navigation-open", document.body)
+
+      const openClosedButton = Helper.create("button/getyour", document.body)
+      openClosedButton.onclick = () => {
+        Helper.popup(async overlay => {
+          Helper.create("button/remove-overlay", overlay)
+
+          const content = Helper.create("div/scrollable", overlay)
+
+          try {
+
+            const res = await Helper.verifyIs("user/closed")
+
+            if (res.status === 200) {
+              Helper.render("text/hr", "closed apps", content)
+              Helper.create("nav/closed", content)
+            }
+
+            Helper.render("text/hr", "open apps", content)
+            Helper.create("nav/open", content)
+
+          } catch (error) {
+
+            Helper.render("text/hr", "open apps", content)
+            Helper.create("nav/open", content)
+          }
+
+
+
+
+        })
+      }
 
 
       Helper.render("text/title", "Zugangspunkte", document.body)
