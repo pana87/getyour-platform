@@ -218,6 +218,27 @@ export class Helper {
 
     }
 
+    if (event === "button/back") {
+
+      const button = this.create("button/back")
+
+      button.onclick = () => window.history.back()
+
+      if (input) input.append(button)
+      return button
+    }
+
+
+    if (event === "button/remove-overlay") {
+
+      const button = this.create("button/remove-overlay")
+
+      button.onclick = () => this.remove("overlay", input)
+
+      if (input) input.append(button)
+      return button
+    }
+
     if (event === "button/conflicts") {
       const button = this.create("button/left-right", input)
       button.left.innerHTML = ".conflicts"
@@ -227,7 +248,7 @@ export class Helper {
 
         this.popup(overlay => {
 
-          this.create("button/remove-overlay", overlay)
+          this.add("button/remove-overlay", overlay)
 
           const buttons = this.create("div/scrollable", overlay)
 
@@ -1013,7 +1034,7 @@ export class Helper {
 
                 this.popup(overlay => {
 
-                  this.create("button/remove-overlay", overlay)
+                  this.add("button/remove-overlay", overlay)
                   const info = this.create("header/info", overlay)
                   info.append(this.convert("text/span", `.condition.${condition.id}`))
 
@@ -1028,7 +1049,7 @@ export class Helper {
                     button.onclick = () => {
 
                       this.popup(async overlay => {
-                        this.create("button/remove-overlay", overlay)
+                        this.add("button/remove-overlay", overlay)
                         const info = this.create("header/info", overlay)
                         info.innerHTML = `.update.${condition.id}`
 
@@ -1171,7 +1192,7 @@ export class Helper {
 
                 this.popup(overlay => {
 
-                  this.create("button/remove-overlay", overlay)
+                  this.add("button/remove-overlay", overlay)
                   const info = this.create("header/info", overlay)
                   info.append(this.convert("text/span", `.${matchMaker.name}`))
 
@@ -1379,7 +1400,7 @@ export class Helper {
 
               this.popup(overlay => {
 
-                this.create("button/remove-overlay", overlay)
+                this.add("button/remove-overlay", overlay)
 
 
                 const buttons = this.create("div/scrollable", overlay)
@@ -1390,7 +1411,7 @@ export class Helper {
                   button.onclick = () => {
 
                     this.popup(async overlay => {
-                      this.create("button/remove-overlay", overlay)
+                      this.add("button/remove-overlay", overlay)
 
                       this.render("text/title", `${map.tag}-${i + 1}`, overlay)
 
@@ -1483,7 +1504,7 @@ export class Helper {
             button.addEventListener("click", () => {
 
               this.popup(overlay => {
-                this.create("button/remove-overlay", overlay)
+                this.add("button/remove-overlay", overlay)
 
                 this.render("text/code", error.stack, overlay)
               })
@@ -4823,6 +4844,42 @@ export class Helper {
     // event = thing/algorithm
 
 
+    if (event === "input/password") {
+
+      const password = document.createElement("input")
+      password.type = "password"
+
+      if (input) input.append(password)
+      return password
+    }
+
+    if (event === "input/checkbox") {
+
+      const checkbox = document.createElement("input")
+      checkbox.type = "checkbox"
+
+      if (input) input.append(checkbox)
+      return checkbox
+    }
+
+    if (event === "input/number") {
+
+      const number = document.createElement("input")
+      number.type = "number"
+
+      if (input) input.append(number)
+      return number
+    }
+
+    if (event === "input/text") {
+
+      const text = document.createElement("input")
+      text.type = "text"
+
+      if (input) input.append(text)
+      return text
+    }
+
     if (event === "ol") {
 
       const ol = document.createElement("ol")
@@ -4888,6 +4945,82 @@ export class Helper {
 
       if (input !== undefined) input.append(funnel)
       return funnel
+    }
+
+    if (event === "icon/password-input") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512"><g><g><path d="M464.98,146.286H47.02c-25.927,0-47.02,21.092-47.02,47.02v125.388c0,25.928,21.093,47.02,47.02,47.02H464.98 c25.928,0,47.02-21.092,47.02-47.02V193.306C512,167.378,490.908,146.286,464.98,146.286z M480.653,318.694 c0,8.643-7.03,15.673-15.673,15.673H47.02c-8.642,0-15.674-7.03-15.674-15.673V193.306c0-8.642,7.031-15.673,15.674-15.673H464.98 c8.643,0,15.673,7.031,15.673,15.673V318.694z"/></g></g><g><g><polygon points="309.083,243.451 293.409,216.304 271.674,228.854 271.674,203.755 240.328,203.755 240.328,228.854 218.592,216.304 202.918,243.451 224.653,256 202.917,268.549 218.591,295.696 240.328,283.146 240.328,308.245 271.674,308.245 271.674,283.146 293.409,295.696 309.083,268.549 287.347,256 		"/></g></g><g><g><polygon points="448.369,243.451 432.695,216.304 410.961,228.854 410.961,203.755 379.615,203.755 379.615,228.854 357.879,216.304 342.205,243.451 363.941,256 342.204,268.549 357.878,295.696 379.615,283.146 379.615,308.245 410.961,308.245 410.961,283.146 432.695,295.696 448.369,268.549 426.634,256 		"/></g></g><g><g><polygon points="169.796,243.451 154.122,216.304 132.387,228.854 132.387,203.755 101.041,203.755 101.041,228.854 79.305,216.304 63.631,243.451 85.366,256 63.63,268.549 79.304,295.696 101.041,283.146 101.041,308.245 132.387,308.245 132.387,283.146 154.122,295.696 169.796,268.549 148.06,256 		"/></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/checkbox-input") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 492.981 492.981"><g><path d="M160.215,142.729h122.867c5.492,0,9.937-4.45,9.937-9.933V9.931c0-5.482-4.444-9.931-9.937-9.931H160.215 c-5.487,0-9.938,4.449-9.938,9.931v122.865C150.277,138.279,154.728,142.729,160.215,142.729z M183.057,32.782h77.182v77.166 h-77.182V32.782z"/><path d="M160.215,317.855h122.867c5.492,0,9.937-4.451,9.937-9.933V185.057c0-5.482-4.444-9.932-9.937-9.932H160.215 c-5.487,0-9.938,4.449-9.938,9.932v122.865C150.277,313.404,154.728,317.855,160.215,317.855z M183.057,207.907h77.182v77.167 h-77.182V207.907z"/><path d="M252.396,482.76c-8.388,0-16.79-3.201-23.176-9.603l-12.967-12.958h-33.196v-77.166h77.182v12.741L293.019,363v-2.818 c0-5.482-4.444-9.932-9.937-9.932H160.215c-5.487,0-9.938,4.449-9.938,9.932v122.865c0,5.482,4.45,9.934,9.938,9.934h122.867 c5.492,0,9.937-4.451,9.937-9.934v-27.338l-17.442,17.447C269.171,479.559,260.783,482.76,252.396,482.76z"/><path d="M337.902,364.457c-6.4-6.403-16.775-6.403-23.175,0l-62.332,62.344l-19.157-19.151c-6.406-6.402-16.774-6.402-23.176,0 c-6.406,6.402-6.406,16.774,0,23.177l30.747,30.74c3.198,3.201,7.392,4.803,11.586,4.803c4.193,0,8.388-1.602,11.59-4.803 l73.917-73.933C344.304,381.231,344.304,370.859,337.902,364.457z"/></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/number-input") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg"><path d="M 13.7851 49.5742 L 42.2382 49.5742 C 47.1366 49.5742 49.5743 47.1367 49.5743 42.3086 L 49.5743 13.6914 C 49.5743 8.8633 47.1366 6.4258 42.2382 6.4258 L 13.7851 6.4258 C 8.9101 6.4258 6.4257 8.8398 6.4257 13.6914 L 6.4257 42.3086 C 6.4257 47.1602 8.9101 49.5742 13.7851 49.5742 Z M 13.8554 45.8008 C 11.5117 45.8008 10.1992 44.5586 10.1992 42.1211 L 10.1992 13.8789 C 10.1992 11.4414 11.5117 10.1992 13.8554 10.1992 L 42.1679 10.1992 C 44.4882 10.1992 45.8007 11.4414 45.8007 13.8789 L 45.8007 42.1211 C 45.8007 44.5586 44.4882 45.8008 42.1679 45.8008 Z M 21.9882 39.4023 C 22.9023 39.4023 23.4648 38.9336 23.6523 38.0664 L 24.7070 33.0274 L 29.0663 33.0274 L 28.1054 37.6211 C 27.8944 38.5820 28.5742 39.4023 29.5351 39.4023 C 30.4960 39.4023 31.1054 38.9336 31.2695 38.0664 L 32.3241 33.0039 L 34.7617 33.0039 C 35.6757 33.0039 36.3320 32.3242 36.3320 31.4336 C 36.3320 30.6367 35.7695 30.0508 34.9960 30.0508 L 32.9570 30.0508 L 33.9648 25.2930 L 36.4492 25.2930 C 37.3398 25.2930 37.9960 24.6133 37.9960 23.7227 C 37.9960 22.9258 37.4335 22.3398 36.6601 22.3398 L 34.5742 22.3398 L 35.4882 17.9571 C 35.6757 16.9961 34.9726 16.1758 34.0117 16.1758 C 33.0976 16.1758 32.5117 16.6445 32.3241 17.5352 L 31.3163 22.3398 L 26.9570 22.3398 L 27.8710 17.9571 C 28.0585 17.0196 27.4023 16.1758 26.4179 16.1758 C 25.4804 16.1758 24.8944 16.6445 24.7070 17.5352 L 23.7226 22.3398 L 21.2382 22.3398 C 20.3476 22.3398 19.6913 23.0196 19.6913 23.9102 C 19.6913 24.7071 20.2539 25.2930 21.0273 25.2930 L 23.0898 25.2930 L 22.0820 30.0508 L 19.5742 30.0508 C 18.6835 30.0508 18.0039 30.7305 18.0039 31.6211 C 18.0039 32.4180 18.5663 33.0039 19.3632 33.0039 L 21.4726 33.0039 L 20.5117 37.6211 C 20.3241 38.5820 21.0273 39.4023 21.9882 39.4023 Z M 25.1523 30.3320 L 26.2304 25.0586 L 30.9413 25.0586 L 29.8398 30.3320 Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/text-input") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 12C2 8.22876 2 6.34315 3.17157 5.17157C4.34315 4 6.22876 4 10 4H14C17.7712 4 19.6569 4 20.8284 5.17157C22 6.34315 22 8.22876 22 12C22 15.7712 22 17.6569 20.8284 18.8284C19.6569 20 17.7712 20 14 20H10C6.22876 20 4.34315 20 3.17157 18.8284C2 17.6569 2 15.7712 2 12Z" stroke="${primary}" stroke-width="1"/><path d="M8.25 15.5C8.25 15.9142 8.58579 16.25 9 16.25C9.41421 16.25 9.75 15.9142 9.75 15.5H8.25ZM11.6643 8.75249L12.1624 8.19186L12.1624 8.19186L11.6643 8.75249ZM11.25 10.425C11.25 10.8392 11.5858 11.175 12 11.175C12.4142 11.175 12.75 10.8392 12.75 10.425H11.25ZM11.7475 8.83575L12.3081 8.33756L12.3081 8.33756L11.7475 8.83575ZM6.33575 8.75249L5.83756 8.19186L5.83756 8.19186L6.33575 8.75249ZM5.25 10.425C5.25 10.8392 5.58579 11.175 6 11.175C6.41421 11.175 6.75 10.8392 6.75 10.425H5.25ZM6.25249 8.83575L5.69186 8.33756L5.69186 8.33756L6.25249 8.83575ZM7 14.75C6.58579 14.75 6.25 15.0858 6.25 15.5C6.25 15.9142 6.58579 16.25 7 16.25V14.75ZM11 16.25C11.4142 16.25 11.75 15.9142 11.75 15.5C11.75 15.0858 11.4142 14.75 11 14.75V16.25ZM7.925 9.25H9V7.75H7.925V9.25ZM9 9.25H10.075V7.75H9V9.25ZM9.75 15.5V8.5H8.25V15.5H9.75ZM10.075 9.25C10.5295 9.25 10.8007 9.25137 10.9965 9.27579C11.1739 9.29792 11.1831 9.3283 11.1661 9.31312L12.1624 8.19186C11.8612 7.92419 11.5109 7.82832 11.1822 7.78733C10.8719 7.74863 10.4905 7.75 10.075 7.75V9.25ZM12.75 10.425C12.75 10.0095 12.7514 9.62806 12.7127 9.31782C12.6717 8.98915 12.5758 8.63878 12.3081 8.33756L11.1869 9.33394C11.1717 9.31686 11.2021 9.32608 11.2242 9.50348C11.2486 9.69931 11.25 9.97047 11.25 10.425H12.75ZM11.1661 9.31312C11.1734 9.31964 11.1804 9.32659 11.1869 9.33394L12.3081 8.33756C12.2625 8.28617 12.2138 8.23752 12.1624 8.19186L11.1661 9.31312ZM7.925 7.75C7.50946 7.75 7.12806 7.74863 6.81782 7.78733C6.48914 7.82832 6.13878 7.92419 5.83756 8.19186L6.83394 9.31312C6.81686 9.3283 6.82608 9.29792 7.00348 9.27579C7.19931 9.25137 7.47047 9.25 7.925 9.25V7.75ZM6.75 10.425C6.75 9.97047 6.75137 9.69931 6.77579 9.50348C6.79792 9.32608 6.8283 9.31686 6.81312 9.33394L5.69186 8.33756C5.42419 8.63878 5.32832 8.98915 5.28733 9.31782C5.24863 9.62806 5.25 10.0095 5.25 10.425H6.75ZM5.83756 8.19186C5.78617 8.23752 5.73752 8.28617 5.69186 8.33756L6.81312 9.33394C6.81965 9.3266 6.8266 9.31965 6.83394 9.31312L5.83756 8.19186ZM7 16.25H11V14.75H7V16.25Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/space-between") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg"><path d="M14.4999 0.999994C14.2237 0.999994 13.9999 1.22385 13.9999 1.49999L13.9999 5.99995L9.99992 5.99995C9.44764 5.99995 8.99993 6.44766 8.99993 6.99994L8.99993 7.99994C8.99993 8.55222 9.44764 8.99993 9.99992 8.99993L13.9999 8.99993L13.9999 13.4999C13.9999 13.776 14.2237 13.9999 14.4999 13.9999C14.776 13.9999 14.9999 13.776 14.9999 13.4999L14.9999 1.49999C14.9999 1.22385 14.776 0.999994 14.4999 0.999994ZM4.99996 5.99995L0.999992 5.99995L0.999992 1.49999C0.999992 1.22385 0.776136 0.999994 0.499996 0.999994C0.223856 0.999994 -9.7852e-09 1.22385 -2.18557e-08 1.49999L4.07279e-07 13.4999C3.95208e-07 13.776 0.223855 13.9999 0.499996 13.9999C0.776136 13.9999 0.999992 13.776 0.999992 13.4999L0.999992 8.99993L4.99996 8.99993C5.55224 8.99993 5.99995 8.55222 5.99995 7.99993L5.99995 6.99994C5.99995 6.44766 5.55224 5.99995 4.99996 5.99995Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
     }
 
     if (event === "icon/column-container") {
@@ -5261,77 +5394,15 @@ export class Helper {
     if (event === "icon/back") {
 
       let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
 
       const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 17L7 14L10 11" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14L13.5 14C15.433 14 17 12.433 17 10.5V10.5C17 8.567 15.433 7 13.5 7L12 7" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
       const svg = this.convert("text/svg", svgString)
 
       if (input) input.append(svg)
       return svg
-    }
-
-    if (event === "script/open-popup-list-mirror-event") {
-
-      const scriptText = /*html*/`
-        <script id="${input.tag}-list-mirror-event" type="module">
-          import { Helper } from "/js/Helper.js"
-
-          const map = {}
-          map.tag = '${input.tag}'
-          map.funnel = \`${input.funnel}\`
-
-          const button = document.getElementById("${input.tag}-mirror-button")
-
-          if (button !== null) {
-            button.onclick = () => {
-
-              Helper.popup(async overlay => {
-
-                Helper.headerPicker("removeOverlay", overlay)
-                const info = Helper.headerPicker("info", overlay)
-                info.innerHTML = "." + map.tag
-
-                const create = Helper.buttonPicker("left/right", overlay)
-                create.left.innerHTML = ".create"
-                create.right.innerHTML = map.tag + " definieren"
-                create.addEventListener("click", () => {
-
-                  Helper.popup(overlay => {
-                    Helper.headerPicker("removeOverlay", overlay)
-                    const info = Helper.headerPicker("info", overlay)
-                    info.append(Helper.convert("text/span", map.tag + ".create"))
-
-                    map.ok = async () => {
-
-                      await Helper.get("location-list/closed", locationList, map)
-
-                    }
-
-                    Helper.render("field-funnel/location-list-tagger", map, overlay)
-
-                  })
-
-                })
-
-                Helper.render("text/hr", "Meine " + map.tag, overlay)
-
-                const locationList = Helper.headerPicker("loading", overlay)
-                await Helper.get("location-list/closed", locationList, map)
-
-              })
-
-            }
-          }
-        </script>
-      `
-
-      const script = this.convert("text/script", scriptText)
-
-      const create = document.createElement("script")
-      create.id = script.id
-      create.type = script.type
-      create.innerHTML = script.innerHTML
-
-      return create
     }
 
     if (event === "header/info") {
@@ -5820,6 +5891,101 @@ export class Helper {
       if (input !== undefined) input.append(div)
 
       return div
+    }
+
+    if (event === "button/password-input") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/password-input"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/checkbox-input") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/checkbox-input"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/number-input") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/number-input"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/text-input") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/text-input"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/space-between") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/space-between"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
     }
 
     if (event === "button/column-container") {
@@ -6333,16 +6499,20 @@ export class Helper {
       header.style.display = "flex"
       header.style.justifyContent = "center"
       header.style.alignItems = "center"
-      header.style.boxShadow = this.colors.light.boxShadow
-      header.style.border = this.colors.light.border
-      header.style.backgroundColor = this.colors.light.foreground
       header.style.borderRadius = "50%"
       header.style.margin = "34px"
       header.style.padding = "21px"
       header.style.zIndex = "1"
       header.style.cursor = "pointer"
 
-      header.setAttribute("onclick", "window.history.back()")
+      header.style.boxShadow = this.colors.light.boxShadow
+      header.style.border = this.colors.light.border
+      header.style.backgroundColor = this.colors.light.foreground
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        header.style.boxShadow = this.colors.dark.boxShadow
+        header.style.border = this.colors.dark.border
+        header.style.backgroundColor = this.colors.dark.foreground
+      }
 
       if (input !== undefined) input.append(header)
 
@@ -6536,9 +6706,7 @@ export class Helper {
       header.style.zIndex = "1"
       header.style.cursor = "pointer"
 
-      header.addEventListener("click", () => this.remove("overlay", input))
-
-      input.append(header)
+      if (input) input.append(header)
       return header
     }
 
@@ -6656,6 +6824,71 @@ export class Helper {
       loginbutton.classList.add("start-login-event")
       loginbutton.innerHTML = "Jetzt anmelden"
 
+    }
+
+    if (event === "script/open-popup-list-mirror-event") {
+
+      const scriptText = /*html*/`
+        <script id="${input.tag}-list-mirror-event" type="module">
+          import { Helper } from "/js/Helper.js"
+
+          const map = {}
+          map.tag = '${input.tag}'
+          map.funnel = \`${input.funnel}\`
+
+          const button = document.getElementById("${input.tag}-mirror-button")
+
+          if (button !== null) {
+            button.onclick = () => {
+
+              Helper.popup(async overlay => {
+
+                Helper.headerPicker("removeOverlay", overlay)
+                const info = Helper.headerPicker("info", overlay)
+                info.innerHTML = "." + map.tag
+
+                const create = Helper.buttonPicker("left/right", overlay)
+                create.left.innerHTML = ".create"
+                create.right.innerHTML = map.tag + " definieren"
+                create.addEventListener("click", () => {
+
+                  Helper.popup(overlay => {
+                    Helper.headerPicker("removeOverlay", overlay)
+                    const info = Helper.headerPicker("info", overlay)
+                    info.append(Helper.convert("text/span", map.tag + ".create"))
+
+                    map.ok = async () => {
+
+                      await Helper.get("location-list/closed", locationList, map)
+
+                    }
+
+                    Helper.render("field-funnel/location-list-tagger", map, overlay)
+
+                  })
+
+                })
+
+                Helper.render("text/hr", "Meine " + map.tag, overlay)
+
+                const locationList = Helper.headerPicker("loading", overlay)
+                await Helper.get("location-list/closed", locationList, map)
+
+              })
+
+            }
+          }
+        </script>
+      `
+
+      const script = this.convert("text/script", scriptText)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
     }
 
     if (event === "script/empty-helper") {
@@ -8031,13 +8264,18 @@ export class Helper {
 
               const clone = document.createElement("div")
               clone.innerHTML = matchMaker.innerHTML
-              clone.setAttribute("id", `list-item-${i + 1}`)
+              clone.setAttribute("id", map.id)
               clone.style.marginBottom = "34px"
 
-
               Object.entries(map.funnel).forEach(([key, value]) => {
-                clone.querySelectorAll(`.${key}`).forEach(div => {
-                  div.innerHTML = value
+                clone.querySelectorAll(`.${key}`).forEach(element => {
+
+                  if (element.tagName === "IMG") {
+                    element.src = value
+                  } else {
+                    element.innerHTML = value
+                  }
+
                 })
 
               })
@@ -8057,6 +8295,133 @@ export class Helper {
               this.convert("parent/scrollable", list)
               list.innerHTML = userList.innerHTML
               matchMaker.style.display = "none"
+            })
+
+            userLists.forEach(list => {
+              for (let i = 0; i < list.children.length; i++) {
+                const item = list.children[i]
+
+                item.querySelectorAll("*").forEach(element => {
+
+                  if (element.hasAttribute("popup-details")) {
+
+                    const design = document.querySelector(`[popup-details-design="${parent}"]`)
+                    if (design !== null) design.style.display = "none"
+
+                    element.style.cursor = "pointer"
+                    element.addEventListener("click", () => {
+
+                      const funnel = sorted.filter(it => `${it.id}` === item.id)[0].funnel
+
+
+                      if (design === null) {
+
+                        this.popup(overlay => {
+
+                          const button = this.create("button/back", overlay)
+                          button.onclick = () => {
+                            document.body.style.overscrollBehavior = null
+                            document.body.style.overflow = null
+                            this.remove("overlay", overlay)
+                          }
+
+                          this.render("text/title", "Detailansicht", overlay)
+
+                          const content = document.createElement("div")
+                          content.style.display = "grid"
+                          content.style.gridTemplateColumns = "repeat(auto-fit, minmax(300px, 1fr))"
+                          content.style.gap = "1rem"
+                          content.style.padding = "34px"
+                          overlay.append(content)
+
+                          Object.entries(funnel).forEach(([key, value]) => {
+
+                            const keyValuePair = document.createElement("div")
+                            keyValuePair.classList.add("key-value-pair")
+
+                            keyValuePair.style.backgroundColor = this.colors.gray[0]
+                            keyValuePair.style.border = this.colors.light.border
+                            keyValuePair.style.color = this.colors.light.text
+                            keyValuePair.style.boxShadow = this.colors.light.boxShadow
+                            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                              keyValuePair.style.backgroundColor = this.colors.matte.black
+                              keyValuePair.style.border = this.colors.dark.border
+                              keyValuePair.style.boxShadow = this.colors.dark.boxShadow
+                              keyValuePair.style.color = this.colors.dark.text
+                            }
+                            keyValuePair.style.display = "flex"
+                            keyValuePair.style.flexDirection = "column"
+                            keyValuePair.style.padding = "1rem"
+                            keyValuePair.style.borderRadius = "5px"
+                            content.append(keyValuePair)
+
+                            const keyDiv = document.createElement("key")
+                            keyDiv.classList.add("key")
+                            keyDiv.style.fontWeight = "bold"
+                            keyDiv.style.marginBottom = "0.5rem"
+                            keyDiv.innerHTML = key
+                            keyDiv.style.color = this.colors.key
+                            keyValuePair.append(keyDiv)
+
+                            const valueDiv = document.createElement("div")
+                            valueDiv.innerHTML = value
+                            valueDiv.classList.add("value")
+                            valueDiv.style.color = this.colors.value
+                            keyValuePair.append(valueDiv)
+
+
+                          })
+
+
+                        })
+
+                      }
+
+                      if (design !== null) {
+
+                        this.overlay("popup", overlay => {
+
+                          const button = this.create("button/back", overlay)
+                          button.onclick = () => {
+                            document.body.style.overscrollBehavior = null
+                            document.body.style.overflow = null
+                            this.remove("overlay", overlay)
+                          }
+
+                          const content = this.create("div/scrollable", overlay)
+
+                          const clone = design.cloneNode(true)
+
+                          clone.style.display = null
+
+                          content.append(clone)
+
+                          Object.entries(funnel).forEach(([key, value]) => {
+                            content.querySelectorAll(`.${key}`).forEach(element => {
+
+                              if (element.tagName === "IMG") {
+                                element.src = value
+                              } else {
+                                element.innerHTML = value
+                              }
+
+                            })
+
+                          })
+
+
+                        })
+
+                      }
+
+                    })
+                  }
+                })
+              }
+
+
+
+
             })
 
 
@@ -11447,7 +11812,7 @@ export class Helper {
 
                   button.onclick = () => {
                     this.popup(async overlay => {
-                      this.create("button/remove-overlay", overlay)
+                      this.add("button/remove-overlay", overlay)
                       this.create("button/register-html", overlay)
                       const info = this.create("header/info", overlay)
                       info.innerHTML = ".match-maker"
@@ -11477,7 +11842,7 @@ export class Helper {
                           button.onclick = () => {
 
                             this.popup(async overlay => {
-                              this.create("button/remove-overlay", overlay)
+                              this.add("button/remove-overlay", overlay)
                               this.create("button/register-html", overlay)
                               const info = this.create("header/info", overlay)
                               info.innerHTML = `.match-maker.${matchMaker.name}`
@@ -11489,7 +11854,7 @@ export class Helper {
 
                                 button.onclick = () => {
                                   this.popup(overlay => {
-                                    this.create("button/remove-overlay", overlay)
+                                    this.add("button/remove-overlay", overlay)
                                     this.create("button/register-html", overlay)
                                     const info = this.create("header/info", overlay)
                                     info.innerHTML = `.${matchMaker.name}.action`
@@ -11964,7 +12329,7 @@ export class Helper {
                         button.onclick = () => {
 
                           this.popup(overlay => {
-                            this.create("button/remove-overlay", overlay)
+                            this.add("button/remove-overlay", overlay)
                             this.create("button/register-html", overlay)
 
                             const funnel = this.create("div/scrollable", overlay)
@@ -12579,7 +12944,7 @@ export class Helper {
 
                     this.popup(overlay => {
 
-                      this.create("button/remove-overlay", overlay)
+                      this.add("button/remove-overlay", overlay)
                       this.create("button/register-html", overlay)
 
                       const info = this.headerPicker("info", overlay)
@@ -12599,7 +12964,6 @@ export class Helper {
                         content.append(preview)
 
                         let parent = clone
-                        let children = clone.children
 
                         for (let i = 0; i < clone.children.length; i++) {
                           const cloneChild = clone.children[i]
@@ -12622,7 +12986,6 @@ export class Helper {
                               await Promise.all(promises)
 
                               parent = clone
-                              children = clone.children
 
                               return
 
@@ -12642,7 +13005,6 @@ export class Helper {
                               await Promise.all(promises)
 
                               parent = ev.target
-                              children = ev.target.children
 
                               ev.target.setAttribute("selected-node", "true")
                               ev.target.style.outline = "2px solid #777"
@@ -12680,7 +13042,6 @@ export class Helper {
                                       await Promise.all(promises)
 
                                       parent = clone
-                                      children = clone.children
 
                                       return
 
@@ -12701,7 +13062,6 @@ export class Helper {
                                       await Promise.all(promises)
 
                                       parent = ev.target
-                                      children = ev.target.children
 
                                       ev.target.setAttribute("selected-node", "true")
                                       ev.target.style.outline = "2px solid #777"
@@ -12815,12 +13175,28 @@ export class Helper {
                           parent.style.transform = `rotate(${rotationDegree}deg)`
                         }
 
+                        const spaceBetweenButton = this.create("button/space-between", parentOptions)
+                        spaceBetweenButton.onclick = () => {
+                          this.convert("parent/space-between", parent)
+                        }
+
                         // todo add some features for each child
                         //this.render("text/hr", "Anwendungen für jedes Kind Element", optionsContainer)
                         //const forEachChildrenOptions = this.create("div/flex-row", optionsContainer)
 
                         this.render("text/hr", "Vorlage einsetzen", optionsContainer)
                         const templateOptions = this.create("div/flex-row", optionsContainer)
+
+
+                        const rowContainerButton = this.create("button/row-container", templateOptions)
+                        rowContainerButton.onclick = () => {
+                          this.create("div/row-container", parent)
+                        }
+
+                        const columnContainerButton = this.create("button/column-container", templateOptions)
+                        columnContainerButton.onclick = () => {
+                          this.create("div/column-container", parent)
+                        }
 
                         const imageTextButton = this.create("button/image-text", templateOptions)
                         imageTextButton.onclick = () => {
@@ -12854,15 +13230,29 @@ export class Helper {
                           this.create("ol", parent)
                         }
 
-                        const rowContainerButton = this.create("button/row-container", templateOptions)
-                        rowContainerButton.onclick = () => {
-                          this.create("div/row-container", parent)
+                        this.render("text/hr", "Eingabe Felder einsetzen", optionsContainer)
+                        const inputOptions = this.create("div/flex-row", optionsContainer)
+
+                        const textInputButton = this.create("button/text-input", inputOptions)
+                        textInputButton.onclick = () => {
+                          this.create("input/text", parent)
                         }
 
-                        const columnContainerButton = this.create("button/column-container", templateOptions)
-                        columnContainerButton.onclick = () => {
-                          this.create("div/column-container", parent)
+                        const numberInputButton = this.create("button/number-input", inputOptions)
+                        numberInputButton.onclick = () => {
+                          this.create("input/number", parent)
                         }
+
+                        const checkboxInputButton = this.create("button/checkbox-input", inputOptions)
+                        checkboxInputButton.onclick = () => {
+                          this.create("input/checkbox", parent)
+                        }
+
+                        const passwordInputButton = this.create("button/password-input", inputOptions)
+                        passwordInputButton.onclick = () => {
+                          this.create("input/password", parent)
+                        }
+
 
 
                       }
@@ -12889,7 +13279,7 @@ export class Helper {
 
                   this.popup(overlay => {
 
-                    this.create("button/remove-overlay", overlay)
+                    this.add("button/remove-overlay", overlay)
                     this.create("button/register-html", overlay)
 
                     const info = this.create("header/info", overlay)
@@ -15127,6 +15517,8 @@ export class Helper {
       color: "#4169E1",
       active: "#D46A6A"
     },
+    key: "#2e95d3",
+    value: "#ce9178",
   }
 
   static convert(event, input) {
@@ -16670,6 +17062,15 @@ export class Helper {
       return span
     }
 
+    if (event === "parent/space-between") {
+
+      input.style.display = "flex"
+      input.style.flexWrap = "wrap"
+      input.style.justifyContent = "space-between"
+
+      return input
+    }
+
     if (event === "parent/flex-shrink-height") {
 
       input.style.alignSelf = null
@@ -17441,6 +17842,46 @@ export class Helper {
   static overlay(event, callback) {
 
     if (callback !== undefined) {
+
+      if (event === "popup") {
+
+        const overlay = document.createElement("div")
+        overlay.classList.add("overlay")
+
+        // mobile issues
+        overlay.style.height = "100%"
+        overlay.style.overscrollBehavior = "none"
+        document.body.style.overscrollBehavior = "none"
+        document.body.style.overflow = "hidden"
+
+        overlay.style.width = "100%"
+        overlay.style.zIndex = "99999999999999"
+        overlay.style.position = "fixed"
+        overlay.style.top = "0"
+        overlay.style.left = "0"
+
+        overlay.style.background = this.colors.matte.light.background
+
+        overlay.style.display = "flex"
+        overlay.style.flexDirection = "column"
+        overlay.style.opacity = 0
+
+        callback(overlay)
+
+        document.body.append(overlay)
+
+        const animation = overlay.animate([
+          { opacity: 0, transform: 'translateY(13px)' },
+          { opacity: 1, transform: 'translateY(0)' },
+        ], {
+          duration: 344,
+          easing: 'ease-in-out',
+          fill: "forwards"
+        })
+
+        return overlay
+
+      }
 
       if (event === "info") {
 

@@ -31,7 +31,7 @@
       const openClosedButton = Helper.create("button/getyour", document.body)
       openClosedButton.onclick = () => {
         Helper.popup(async overlay => {
-          Helper.create("button/remove-overlay", overlay)
+          Helper.add("button/remove-overlay", overlay)
 
           const content = Helper.create("div/scrollable", overlay)
 

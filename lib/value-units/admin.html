@@ -287,7 +287,7 @@
             button.right.innerHTML = "Logbuch"
             button.addEventListener("click", () => {
               Helper.popup(overlay => {
-                Helper.create("button/remove-overlay", overlay)
+                Helper.add("button/remove-overlay", overlay)
 
                 const content = Helper.create("div/scrollable", overlay)
 
@@ -299,7 +299,7 @@
                   button.addEventListener("click", () => {
 
                     Helper.popup(async overlay => {
-                      Helper.create("button/remove-overlay", overlay)
+                      Helper.add("button/remove-overlay", overlay)
 
                       await Helper.get("logs/info", overlay)
 
@@ -319,7 +319,7 @@
                   button.addEventListener("click", () => {
 
                     Helper.popup(async overlay => {
-                      Helper.create("button/remove-overlay", overlay)
+                      Helper.add("button/remove-overlay", overlay)
 
                       await Helper.get("logs/error", overlay)
 
