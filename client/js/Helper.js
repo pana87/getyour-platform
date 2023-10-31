@@ -4,7 +4,6 @@ import {TextAreaField} from "/js/TextAreaField.js"
 import {SelectionField} from "/js/SelectionField.js"
 import {TelField} from "/js/TelField.js"
 import {FileField} from "/js/FileField.js"
-import {EmailField} from "/js/EmailField.js"
 import {CheckboxField} from "/js/CheckboxField.js"
 
 export class Helper {
@@ -55,6 +54,13 @@ export class Helper {
 
   static remove(event, input) {
 
+    if (event === "toolbox") {
+      input.querySelectorAll(`#toolbox-getter`).forEach(it => it.remove())
+      input.querySelectorAll(`[data-id]`).forEach(it => it.remove())
+      input.querySelectorAll(`#toolbox`).forEach(it => it.remove())
+      input.querySelectorAll(`.overlay`).forEach(it => it.remove())
+    }
+
     if (event === "element/selected-node") {
 
       return new Promise((resolve, reject) => {
@@ -88,6 +94,305 @@ export class Helper {
   // no dom creation, only events
   static add(event, input) {
     // event = input/algorithm
+
+    if (event === "field/html") {
+
+      const field = this.create("field/textarea")
+
+      field.label.innerHTML = "HTML Text"
+      field.input.placeholder = `<div>..</div>`
+      field.input.style.fontSize = "13px"
+      field.input.style.fontFamily = `monospace`
+      field.input.style.height = "89px"
+      field.input.setAttribute("required", "true")
+      this.verify("input/value", field.input)
+      field.input.oninput = () => this.verify("input/value", field.input)
+
+      if (input) input.append(field)
+      return field
+    }
+
+    if (event === "field/image-url") {
+      const field = this.create("field/url", input)
+      field.input.setAttribute("required", "true")
+      field.input.accept = "text/https"
+      field.label.innerHTML = "Gebe hier die Quell-Url für dein Bild ein"
+      field.input.placeholder = "https://www.meine-quelle.de"
+      this.verify("input/value", field.input)
+      field.input.addEventListener("input", () => this.verify("input/value", field.input))
+
+      if (input) input.append(field)
+      return field
+    }
+
+    if (event === "field/id") {
+      const field = this.create("field/text")
+      field.label.innerHTML = "Identifikationsname (text/tag)"
+      field.input.setAttribute("required", "true")
+      field.input.accept = "text/tag"
+      field.input.placeholder = "meine-id"
+      this.verify("input/value", field.input)
+      field.input.oninput = () => {
+        this.verify("input/value", field.input)
+
+        if (!this.verifyIs("id/unique", field.input.value)) {
+          this.setNotValidStyle(field.input)
+        }
+
+      }
+
+      if (input) input.append(field)
+      return field
+
+    }
+
+    if (event === "field/image-url") {
+      const field = this.create("field/url")
+      field.input.setAttribute("required", "true")
+      field.input.accept = "text/https"
+      field.label.innerHTML = "Gebe hier die Quell-Url für dein Bild ein"
+      field.input.placeholder = "https://www.meine-quelle.de"
+
+      this.verify("input/validity", field.input)
+      field.input.oninput = () => this.verify("input/validity", field.input)
+
+      if (input) input.append(field)
+      return field
+    }
+
+    if (event === "toolbox-scripts") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const content = this.create("info/loading", input)
+
+          const res = await this.get("scripts/toolbox/closed")
+
+          if (res.status === 200) {
+            const scripts = JSON.parse(res.response)
+
+            this.convert("parent/scrollable", content)
+
+            this.render("scripts/toolbox", scripts, content)
+
+            resolve()
+          }
+
+          if (res.status !== 200) {
+            const res = await this.get("scripts/toolbox/writable-closed")
+
+            if (res.status === 200) {
+              const scripts = JSON.parse(res.response)
+
+              this.convert("parent/scrollable", content)
+
+              this.render("scripts/toolbox", scripts, content)
+
+              resolve()
+            }
+
+            if (res.status !== 200) {
+
+              this.convert("parent/info", content)
+              content.innerHTML = `<span style="margin: 21px 34px;">Keine Skripte gefunden.</span>`
+              reject(new Error("values not found"))
+
+            }
+
+          }
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+
+    }
+
+    if (event === "observer/id-mutation") {
+
+      const observer = new MutationObserver((mutations, observer) => {
+        for (let i = 0; i < mutations.length; i++) {
+          const mutation = mutations[i]
+          if (mutation.type === 'attributes' && mutation.attributeName === 'id') {
+            if (!this.stringIsEmpty(mutation.target.id)) {
+
+              const ids = document.querySelectorAll(`#${mutation.target.id}`)
+              if (ids[1] !== undefined) {
+                ids[0].style.border = `2px dashed ${this.colors.matte.light.error}`
+                ids[1].style.border = `2px dashed ${this.colors.matte.light.error}`
+              } else {
+                if (ids[0].style.border === "2px dashed rgb(176, 53, 53)") {
+                  ids[0].style.border = null
+                }
+              }
+
+            }
+          }
+        }
+      })
+      observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+      })
+
+    }
+
+    if (event === "toolbox/buttons") {
+
+
+      const back = this.headerPicker("back")
+      const toolbox = this.headerPicker("app")
+
+      back.setAttribute("data-id", "toolbox")
+      toolbox.setAttribute("data-id", "toolbox")
+
+      document.body.insertBefore(back, document.querySelector("#toolbox"))
+      document.body.insertBefore(toolbox, document.querySelector("#toolbox"))
+
+      toolbox.addEventListener("click", () => {
+
+        this.overlay("toolbox", async overlay => {
+
+          this.add("button/remove-overlay", overlay)
+
+          this.add("button/register-html", overlay)
+
+          const buttons = this.headerPicker("scrollable", overlay)
+
+          {
+            const button = this.buttonPicker("left/right", buttons)
+            button.left.innerHTML = "document.children"
+            button.right.innerHTML = "Dokumenten Inhalt"
+            button.addEventListener("click", () => {
+              this.overlay("toolbox", overlay => {
+                this.add("button/remove-overlay", overlay)
+                const info = this.headerPicker("info", overlay)
+                info.innerHTML = "document.children"
+
+                this.add("button/register-html", overlay)
+
+
+                const childrenContainer = this.headerPicker("scrollable", overlay)
+                this.render("children", document.documentElement, childrenContainer)
+
+
+              })
+            })
+          }
+
+          {
+            const button = this.buttonPicker("left/right", buttons)
+            button.left.innerHTML = "document.write"
+            button.right.innerHTML = "Aktuelles Dokument ersetzen"
+
+            button.addEventListener("click", () => {
+
+              this.overlay("toolbox", overlay => {
+
+                this.add("button/remove-overlay", overlay)
+
+                const funnel = this.create("div/scrollable", overlay)
+
+                const htmlField = this.create("field/textarea", funnel)
+                htmlField.label.innerHTML = "HTML Dokument"
+                htmlField.input.style.fontFamily = "monospace"
+                htmlField.input.style.fontSize = "13px"
+                htmlField.input.style.height = "89px"
+                htmlField.input.placeholder = `<html>..</html>`
+                this.verify("input/value", htmlField.input)
+                htmlField.input.oninput = () => this.verify("input/value", htmlField.input)
+
+                const button = this.buttonPicker("action", funnel)
+                button.innerHTML = "Dokument jetzt ersetzen"
+                button.addEventListener("click", async () => {
+
+                  await this.verify("input/value", htmlField.input)
+
+                  const html = htmlField.input.value
+
+                  const confirm = window.confirm("Achtung! Diese Funktion wird dein aktuelles HTML Dokument mit deinem neuen HTML Import ersetzen. Der Inhalt deines aktuellen Dokuments wird unwideruflich gelöscht, sobald du deine Werteinheit abspeicherst.\n\n Möchtest du dein aktuelles HTML Dokument wirklich ersetzen?")
+                  if (confirm === true) {
+
+                    await this.convert("text/document", html)
+
+                    await this.add("script/toolbox-getter")
+
+                    this.remove("overlay", overlay)
+                  }
+
+
+                })
+
+              })
+
+
+            })
+
+          }
+
+          {
+            const button = this.buttonPicker("left/right", buttons)
+            button.left.innerHTML = "update.toolbox"
+            button.right.innerHTML = "Mit nur einem Klick erhälst du die aktuellste Version unserer Toolbox"
+            button.addEventListener("click", async () => {
+              await this.update("toolbox-getter", document.body)
+              window.alert("Deine Toolbox ist jetzt auf dem neuesten Stand.\n\nUm sicherzustellen, dass Deine wertvollen Änderungen nicht verloren gehen und dauerhaft im Dokument gespeichert werden, vergiss bitte nicht, den Speichervorgang durchzuführen. Das Speichern Deiner Arbeit ist wie das Bewahren eines Kunstwerks. Denke daran, auf die 'Speichern'-Schaltfläche in Deiner Anwendungssoftware zu klicken. Andernfalls könnten Deine Anpassungen beim Schließen des Fensters verschwinden.")
+            })
+          }
+
+        })
+
+      })
+
+
+    }
+
+    if (event === "toolbox/onbody") {
+
+      return new Promise(async(resolve, reject) => {
+
+        try {
+
+          const res = await this.verifyIs("user/closed")
+
+          if (res.status === 200) {
+            const res = await this.verifyIs("user/location-expert")
+
+            if (res.status === 200) {
+              this.add("toolbox/buttons")
+              this.add("observer/id-mutation")
+              resolve()
+            }
+
+            if (res.status !== 200) {
+              const res = await this.verifyIs("user/location-writable")
+
+              if (res.status === 200) {
+                this.add("toolbox/buttons")
+                this.add("observer/id-mutation")
+                resolve()
+              }
+            }
+          }
+
+          reject()
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+
+
+
+
+
+
+    }
 
     if (event === "field-funnel/oninput-sign-support") {
       input.querySelectorAll(".field").forEach(field => {
@@ -158,7 +463,7 @@ export class Helper {
           <script id="toolbox-getter" type="module">
             import {Helper} from "/js/Helper.js"
 
-            await Helper.get("toolbox/closed", document.body)
+            await Helper.add("toolbox/onbody")
           </script>
         `
 
@@ -218,6 +523,65 @@ export class Helper {
 
     }
 
+    if (event === "button/register-html") {
+
+      const save = this.headerPicker("save", input)
+
+      save.onclick = async () => {
+
+        this.overlay("security", async securityOverlay => {
+
+          // prepare html
+          document.querySelectorAll("#toolbox").forEach(element => element.remove())
+          document.querySelectorAll("[data-id]").forEach(element => element.remove())
+          document.querySelectorAll(".overlay").forEach(element => element.remove())
+
+          // document.body.style.overscrollBehavior = null
+          // document.body.style.overflow = null
+
+          // save html state
+          const html = document.documentElement.outerHTML.replace(/<html>/, "<!DOCTYPE html><html>")
+          // const register = {}
+          // register.url = "/register/platform-value/closed/"
+          // register.type = "html"
+          // register.html = document.documentElement.outerHTML.replace(/<html>/, "<!DOCTYPE html><html>")
+          // const res = await Request.closed(register)
+          const res = await this.register("value/platform/closed", html)
+
+          if (res.status === 200) {
+            window.alert("Dokument erfolgreich gespeichert.")
+            window.location.reload()
+          }
+
+          if (res.status !== 200) {
+            // if error recreate state ??
+
+
+            // if closed not working then try writable-closed
+            const res = await this.register("value/platform/writable-closed", html)
+
+            if (res.status === 200) {
+              window.alert("Dokument erfolgreich gespeichert.")
+              window.location.reload()
+            }
+
+            if (res.status !== 200) {
+
+              window.alert("Fehler.. Bitte wiederholen.")
+              await this.add("toolbox/onbody")
+              this.removeOverlay(securityOverlay)
+
+            }
+
+          }
+
+        })
+
+
+      }
+
+    }
+
     if (event === "button/back") {
 
       const button = this.create("button/back")
@@ -227,7 +591,6 @@ export class Helper {
       if (input) input.append(button)
       return button
     }
-
 
     if (event === "button/remove-overlay") {
 
@@ -246,7 +609,7 @@ export class Helper {
 
       button.addEventListener("click", () => {
 
-        this.popup(overlay => {
+        this.overlay("toolbox", overlay => {
 
           this.add("button/remove-overlay", overlay)
 
@@ -439,7 +802,7 @@ export class Helper {
 
         feedbackButton.onclick = () => {
 
-          this.popup(async overlay => {
+          this.overlay("toolbox", async overlay => {
             const feedbackOverlay = overlay
 
             this.headerPicker("removeOverlay", overlay)
@@ -552,7 +915,7 @@ export class Helper {
                 div.style.cursor = "pointer"
                 div.addEventListener("click", () => {
 
-                  this.popup(overlay => {
+                  this.overlay("toolbox", overlay => {
                     this.headerPicker("removeOverlay", overlay)
 
                     const button = this.buttonPicker("left/right", overlay)
@@ -629,7 +992,7 @@ export class Helper {
                 const content = contentField.input.value
                 const importance = importanceField.input.value
 
-                this.popup(async securityOverlay => {
+                this.overlay("toolbox", async securityOverlay => {
 
                   this.headerPicker("loading", securityOverlay)
 
@@ -848,9 +1211,111 @@ export class Helper {
   }
 
   static get(event, parent, input) {
+    // event = thing/from/algorithm
+
     // no parent needed to get data
     if (arguments.length === 2) {
       input = parent
+    }
+
+    if (event === "values/platform/writability-closed") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/platform-values/closed"
+          get.type = "platform-writability"
+          get.platform = input
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "platform-values/writability-closed") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/platform-values/closed"
+          get.type = "writability"
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "platforms/writability-closed") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/platforms/closed"
+          get.type = "writability"
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "writability/platform-value/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const get = {}
+          get.url = "/get/platform-value/closed/"
+          get.type = "writability"
+          get.path = input
+          const res = await Request.closed(get)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
+    if (event === "writability/platform/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const get = {}
+          get.url = "/get/platform/closed/"
+          get.type = "writability"
+          get.platform = input
+          const res = await Request.closed(get)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
     }
 
     if (event === "user-keys/closed") {
@@ -961,6 +1426,28 @@ export class Helper {
 
     }
 
+    if (event === "conditions/match-maker/writable-closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const get = {}
+          get.url = "/get/match-maker/closed/"
+          get.type = "writable-conditions"
+          get.id = input
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
     if (event === "match-maker-conditions/complete-closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -1032,7 +1519,7 @@ export class Helper {
               conditionButton.right.innerHTML = condition.id
               conditionButton.onclick = () => {
 
-                this.popup(overlay => {
+                this.overlay("toolbox", overlay => {
 
                   this.add("button/remove-overlay", overlay)
                   const info = this.create("header/info", overlay)
@@ -1048,7 +1535,7 @@ export class Helper {
 
                     button.onclick = () => {
 
-                      this.popup(async overlay => {
+                      this.overlay("toolbox", async overlay => {
                         this.add("button/remove-overlay", overlay)
                         const info = this.create("header/info", overlay)
                         info.innerHTML = `.update.${condition.id}`
@@ -1145,7 +1632,28 @@ export class Helper {
 
     }
 
-    if (event === "match-maker/toolbox-closed") {
+    if (event === "match-maker/platform/writable-closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const get = {}
+          get.url = "/get/match-maker/closed/"
+          get.type = "toolbox-writable"
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
+    if (event === "match-maker/platform/closed") {
 
       return new Promise(async (resolve, reject) => {
 
@@ -1190,7 +1698,7 @@ export class Helper {
               matchMakerButton.left.innerHTML = matchMaker.name
               matchMakerButton.onclick = () => {
 
-                this.popup(overlay => {
+                this.overlay("toolbox", overlay => {
 
                   this.add("button/remove-overlay", overlay)
                   const info = this.create("header/info", overlay)
@@ -1208,7 +1716,7 @@ export class Helper {
                       const map = {}
                       map.id = matchMaker.id
 
-                      this.popup(async overlay => {
+                      this.overlay("toolbox", async overlay => {
 
                         this.headerPicker("removeOverlay", overlay)
                         const info = this.headerPicker("info", overlay)
@@ -1219,7 +1727,7 @@ export class Helper {
                         create.right.innerHTML = "Neue Bedingung definieren"
                         create.addEventListener("click", () => {
 
-                          this.popup(async overlay => {
+                          this.overlay("toolbox", async overlay => {
                             this.headerPicker("removeOverlay", overlay)
                             const info = this.headerPicker("info", overlay)
                             info.append(this.convert("text/span", ".condition"))
@@ -1398,7 +1906,7 @@ export class Helper {
             mapButton.right.innerHTML = map.id
             mapButton.addEventListener("click", () => {
 
-              this.popup(overlay => {
+              this.overlay("toolbox", overlay => {
 
                 this.add("button/remove-overlay", overlay)
 
@@ -1410,7 +1918,7 @@ export class Helper {
                   button.left.innerHTML = ".update"
                   button.onclick = () => {
 
-                    this.popup(async overlay => {
+                    this.overlay("toolbox", async overlay => {
                       this.add("button/remove-overlay", overlay)
 
                       this.render("text/title", `${map.tag}-${i + 1}`, overlay)
@@ -1503,7 +2011,7 @@ export class Helper {
             const button = this.buttonPicker("left/right", content)
             button.addEventListener("click", () => {
 
-              this.popup(overlay => {
+              this.overlay("toolbox", overlay => {
                 this.add("button/remove-overlay", overlay)
 
                 this.render("text/code", error.stack, overlay)
@@ -1627,27 +2135,6 @@ export class Helper {
 
     }
 
-    if (event === "funnel/onclick-assign-path") {
-
-      const pathField = new TextField("path", parent)
-      pathField.label.innerHTML = "Definiere den Pfad für deine Weiterleitung, sobald auf dieses Element geklickt wird"
-      pathField.input.required = true
-      pathField.input.accept = "text/path"
-      pathField.verifyValue()
-
-      pathField.input.addEventListener("input", (event) => {
-
-        if (this.stringIsEmpty(event.target.value)) input.removeAttribute("onclick")
-
-        const path = pathField.validValue()
-
-        input.setAttribute("onclick", `window.location.assign("${path}")`)
-
-      })
-
-
-    }
-
     if (event === "funnel/select-option") {
 
       const optionField = new TextField("option", parent)
@@ -1721,9 +2208,9 @@ export class Helper {
 
             button.right.append(this.convert("input/alias", fieldInput))
             button.addEventListener("click", () => {
-              this.popup(overlay => {
+              this.overlay("toolbox", overlay => {
                 this.headerPicker("removeOverlay", overlay)
-                this.buttonPicker("toolbox/register-html", overlay)
+                this.add("button/register-html", overlay)
 
                 const info = this.headerPicker("info", overlay)
                 info.append(this.convert("input/alias", fieldInput))
@@ -1741,7 +2228,7 @@ export class Helper {
                     button.left.innerHTML = ".options"
                     button.right.innerHTML = "Antwortmöglichkeiten definieren"
                     button.addEventListener("click", () => {
-                      this.popup(overlay => {
+                      this.overlay("toolbox", overlay => {
                         this.headerPicker("removeOverlay", overlay)
 
                         const info = this.headerPicker("info", overlay)
@@ -1754,7 +2241,7 @@ export class Helper {
                           button.right.innerHTML = "Neue Antwortmöglichkeit anhängen"
                           button.addEventListener("click", () => {
 
-                            this.popup(overlay => {
+                            this.overlay("toolbox", overlay => {
                               this.headerPicker("removeOverlay", overlay)
 
                               const info = this.headerPicker("info", overlay)
@@ -2210,7 +2697,7 @@ export class Helper {
             button.left.innerHTML = `Bedingung ${conditions.length - i}`
 
             button.addEventListener("click", () => {
-              this.popup(overlay => {
+              this.overlay("toolbox", overlay => {
                 this.headerPicker("removeOverlay", overlay)
                 const info = this.headerPicker("info", overlay)
                 info.append(this.convert("text/span", ".condition"))
@@ -2444,7 +2931,7 @@ export class Helper {
             }
 
 
-            this.popup(async overlay => {
+            this.overlay("toolbox", async overlay => {
 
               this.headerPicker("removeOverlay", overlay)
               const info = this.headerPicker("info", overlay)
@@ -2455,7 +2942,7 @@ export class Helper {
               create.right.innerHTML = "Neue Bedingung definieren"
               create.addEventListener("click", () => {
 
-                this.popup(overlay => {
+                this.overlay("toolbox", overlay => {
                   this.headerPicker("removeOverlay", overlay)
                   const info = this.headerPicker("info", overlay)
                   info.append(this.convert("text/span", ".service"))
@@ -2632,46 +3119,41 @@ export class Helper {
 
     }
 
-    if (event === "toolbox-scripts/closed"){
+    if (event === "scripts/toolbox/writable-closed"){
 
       return new Promise(async(resolve, reject) => {
 
-        const units = this.headerPicker("loading", parent)
-        {
-
+        try {
           const get = {}
-          get.url = "/get/toolbox-scripts/closed/"
+          get.url = "/get/scripts/closed/"
+          get.type = "writable"
           const res = await Request.closed(get)
 
-          if (res.status !== 200) {
-            this.reset(units)
-            this.convert("element/center", units)
-            units.style.zIndex = "-1"
-            units.style.fontFamily = "sans-serif"
-            units.innerHTML = `<span style="margin: 21px 34px;">Keine Skripte gefunden.</span>`
-            throw new Error("values not found")
-          }
+          resolve(res)
 
-          if (res.status === 200) {
-            const scripts = JSON.parse(res.response)
+        } catch (error) {
+          reject()
+        }
 
-            if (scripts.length === 0) {
-              this.reset(units)
-              this.convert("element/center", units)
-              units.style.zIndex = "-1"
-              units.style.fontFamily = "sans-serif"
-              units.innerHTML = `<span style="margin: 21px 34px;">Keine Skripte gefunden.</span>`
-              throw new Error("platform scripts is empty")
-            }
+      })
 
-            this.convert("parent/scrollable", units)
 
-            this.render("scripts/toolbox", scripts, units)
+    }
 
-            return resolve()
+    if (event === "scripts/toolbox/closed"){
 
-          }
+      return new Promise(async(resolve, reject) => {
 
+        try {
+          const get = {}
+          get.url = "/get/scripts/closed/"
+          get.type = "toolbox"
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject()
         }
 
       })
@@ -2704,7 +3186,7 @@ export class Helper {
             button.left.innerHTML = `Skript ${scripts.length - i}`
 
             button.addEventListener("click", () => {
-              this.popup(overlay => {
+              this.overlay("toolbox", overlay => {
                 this.headerPicker("removeOverlay", overlay)
                 const info = this.headerPicker("info", overlay)
                 info.append(this.convert("text/span", ".script"))
@@ -2775,7 +3257,7 @@ export class Helper {
             button.left.innerHTML = `Leistung ${services.length - i}`
 
             button.addEventListener("click", () => {
-              this.popup(overlay => {
+              this.overlay("toolbox", overlay => {
                 this.headerPicker("removeOverlay", overlay)
                 const info = this.headerPicker("info", overlay)
                 info.append(this.convert("text/span", ".service"))
@@ -3199,7 +3681,9 @@ export class Helper {
 
         const content = this.headerPicker("loading", parent)
 
-        if (this.verifyIs("user/closed")) {
+        const res = await this.verifyIs("user/closed")
+
+        if (res.status === 200) {
 
           const get = {}
           get.url = "/get/role-apps/closed/"
@@ -3221,7 +3705,7 @@ export class Helper {
                 button.right.innerHTML = "Angebot erstellen"
 
                 button.addEventListener("click", () => {
-                  this.popup(overlay => {
+                  this.overlay("toolbox", overlay => {
                     this.headerPicker("removeOverlay", overlay)
                     const info = this.headerPicker("info", overlay)
                     info.append(this.convert("text/span", ".offer"))
@@ -3238,7 +3722,7 @@ export class Helper {
 
 
                 button.addEventListener("click", () => {
-                  this.popup(async overlay => {
+                  this.overlay("toolbox", async overlay => {
 
                     this.headerPicker("removeOverlay", overlay)
                     const info = this.headerPicker("info", overlay)
@@ -3249,7 +3733,7 @@ export class Helper {
                     create.right.innerHTML = "Neue Leistung definieren"
                     create.addEventListener("click", () => {
 
-                      this.popup(overlay => {
+                      this.overlay("toolbox", overlay => {
                         this.headerPicker("removeOverlay", overlay)
                         const info = this.headerPicker("info", overlay)
                         info.append(this.convert("text/span", ".service"))
@@ -3281,7 +3765,7 @@ export class Helper {
 
 
                 button.addEventListener("click", () => {
-                  this.popup(async overlay => {
+                  this.overlay("toolbox", async overlay => {
 
                     this.headerPicker("removeOverlay", overlay)
                     const info = this.headerPicker("info", overlay)
@@ -3292,7 +3776,7 @@ export class Helper {
                     create.right.innerHTML = "Neues Skript hochladen"
                     create.addEventListener("click", () => {
 
-                      this.popup(overlay => {
+                      this.overlay("toolbox", overlay => {
                         this.headerPicker("removeOverlay", overlay)
                         const info = this.headerPicker("info", overlay)
                         info.append(this.convert("text/span", ".script"))
@@ -3385,6 +3869,70 @@ export class Helper {
       })
     }
 
+    if (event === "values/platform/writability-closed") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/platform/closed"
+          get.type = "values"
+          get.platform = input
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "roles/platform/location-writable") {
+
+      return new Promise(async (resolve, reject) => {
+
+
+        try {
+
+          const get = {}
+          get.url = "/get/platform/closed/"
+          get.type = "roles-location-writable"
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+    if (event === "roles/platform/location-expert") {
+
+      return new Promise(async (resolve, reject) => {
+
+
+        try {
+
+          const get = {}
+          get.url = "/get/platform/closed/"
+          get.type = "roles-location-expert"
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
     if (event === "platform/roles") {
 
       return new Promise(async (resolve, reject) => {
@@ -3455,6 +4003,88 @@ export class Helper {
 
   static register(event, input) {
     // event = tag/on/algorithm
+
+    if (event === "value/platform/writable-closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const register = {}
+          register.url = "/register/platform-value/closed/"
+          register.type = "writable-html"
+          register.html = input
+          const res = await Request.closed(register)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+    if (event === "value/platform/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const register = {}
+          register.url = "/register/platform-value/closed/"
+          register.type = "html"
+          register.html = input
+          const res = await Request.closed(register)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+    if (event === "writability/platform-value/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const register = {}
+          register.url = "/register/platform-value/closed/"
+          register.type = "writability"
+          register.path = input.path
+          register.writability = input.writability
+          const res = await Request.closed(register)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+    if (event === "writability/platform/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const register = {}
+          register.url = "/register/platform/closed/"
+          register.type = "writability"
+          register.platform = input.platform
+          register.writability = input.writability
+          const res = await Request.closed(register)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
 
     if (event === "condition/match-maker/closed") {
       return new Promise(async (resolve, reject) => {
@@ -3620,7 +4250,7 @@ export class Helper {
 
       parent.onclick = () => {
 
-        this.popup(async overlay => {
+        this.overlay("toolbox", async overlay => {
           const feedbackOverlay = overlay
 
           this.headerPicker("removeOverlay", overlay)
@@ -3732,7 +4362,7 @@ export class Helper {
               div.style.cursor = "pointer"
               div.addEventListener("click", () => {
 
-                this.popup(overlay => {
+                this.overlay("toolbox", overlay => {
                   this.headerPicker("removeOverlay", overlay)
 
                   const button = this.buttonPicker("left/right", overlay)
@@ -3809,7 +4439,7 @@ export class Helper {
               const content = contentField.input.value
               const importance = importanceField.input.value
 
-              this.popup(async securityOverlay => {
+              this.overlay("toolbox", async securityOverlay => {
 
                 this.headerPicker("loading", securityOverlay)
 
@@ -4293,7 +4923,7 @@ export class Helper {
 
             button.onclick = async () => {
 
-              Helper.popup(overlay => {
+              Helper.overlay("toolbox", overlay => {
                 Helper.headerPicker("removeOverlay", overlay)
                 const info = Helper.headerPicker("info", overlay)
                 info.append(Helper.convert("text/span", "${input.name}"))
@@ -4427,7 +5057,7 @@ export class Helper {
 
             button.addEventListener("click", () => {
 
-              this.popup(async overlay => {
+              this.overlay("toolbox", async overlay => {
 
                 this.headerPicker("removeOverlay", overlay)
                 const info = this.headerPicker("info", overlay)
@@ -4610,7 +5240,7 @@ export class Helper {
     }
 
   }
-
+k
   // event = input/algorithm
   static verify(event, input) {
 
@@ -4762,7 +5392,7 @@ export class Helper {
             })
           })
 
-          this.popup(async securityOverlay => {
+          this.overlay("toolbox", async securityOverlay => {
             this.headerPicker("loading", securityOverlay)
 
             const register = {}
@@ -6641,46 +7271,6 @@ export class Helper {
       return button
     }
 
-    if (event === "button/register-html") {
-
-      const save = this.headerPicker("save", input)
-
-      save.addEventListener("click", async () => {
-
-        this.overlay("security", async securityOverlay => {
-
-          // prepare html
-          document.getElementById("toolbox").remove()
-          document.querySelectorAll("[data-id]").forEach(element => element.remove())
-          document.querySelectorAll(".overlay").forEach(element => element.remove())
-
-          document.body.style.overscrollBehavior = null
-          document.body.style.overflow = null
-
-          // save html state
-          const register = {}
-          register.url = "/register/platform-value/closed/"
-          register.type = "html"
-          register.html = document.documentElement.outerHTML.replace(/<html>/, "<!DOCTYPE html><html>")
-          const res = await Request.closed(register)
-
-          if (res.status === 200) {
-            window.alert("Dokument erfolgreich gespeichert.")
-            window.location.reload()
-          } else {
-            // if error recreate state ??
-            window.alert("Fehler.. Bitte wiederholen.")
-            await this.request("toolbox/append", document.body)
-            this.removeOverlay(securityOverlay)
-          }
-
-        })
-
-
-      })
-
-    }
-
     if (event === "button/remove-overlay") {
 
       const icon = this.iconPicker("back")
@@ -6841,7 +7431,7 @@ export class Helper {
           if (button !== null) {
             button.onclick = () => {
 
-              Helper.popup(async overlay => {
+              Helper.overlay("toolbox", async overlay => {
 
                 Helper.headerPicker("removeOverlay", overlay)
                 const info = Helper.headerPicker("info", overlay)
@@ -6852,7 +7442,7 @@ export class Helper {
                 create.right.innerHTML = map.tag + " definieren"
                 create.addEventListener("click", () => {
 
-                  Helper.popup(overlay => {
+                  Helper.overlay("toolbox", overlay => {
                     Helper.headerPicker("removeOverlay", overlay)
                     const info = Helper.headerPicker("info", overlay)
                     info.append(Helper.convert("text/span", map.tag + ".create"))
@@ -7353,28 +7943,6 @@ export class Helper {
       return create
     }
 
-    if (event === "script/toolbox-getter") {
-
-      const text = /*html*/`
-        <script id="toolbox-getter" type="module">
-          import {Helper} from "/js/Helper.js"
-
-          await Helper.get("toolbox/closed", document.body)
-        </script>
-      `
-
-      const script = this.convert("text/script", text)
-
-      const create = document.createElement("script")
-      create.id = script.id
-      create.type = script.type
-      create.innerHTML = script.innerHTML
-
-      document.body.append(create)
-
-      return create
-    }
-
     if (event === "field/select") {
 
       const field = document.createElement("div")
@@ -7566,10 +8134,6 @@ export class Helper {
       field.style.flexDirection = "column"
       field.style.margin = "34px"
       field.style.justifyContent = "center"
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
 
       field.labelContainer = document.createElement("div")
       field.labelContainer.classList.add("field-label-container")
@@ -7580,7 +8144,6 @@ export class Helper {
       field.label.classList.add("field-label")
       field.label.style.fontFamily = "sans-serif"
       field.label.style.fontSize = "21px"
-      field.label.style.color = this.colors.light.text
       field.labelContainer.append(field.label)
       field.append(field.labelContainer)
 
@@ -7588,9 +8151,24 @@ export class Helper {
       field.input.classList.add("field-input")
       field.input.style.margin = "21px 89px 21px 34px"
       field.input.style.fontSize = "21px"
+      field.append(field.input)
+
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+      field.label.style.color = this.colors.light.text
       field.input.style.backgroundColor = this.colors.light.background
       field.input.style.color = this.colors.light.text
-      field.append(field.input)
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+        field.label.style.color = this.colors.dark.text
+        field.input.style.backgroundColor = this.colors.dark.background
+        field.input.style.color = this.colors.dark.text
+      }
 
       if (input !== undefined) input.append(field)
       return field
@@ -7606,10 +8184,6 @@ export class Helper {
       field.style.flexDirection = "column"
       field.style.margin = "34px"
       field.style.justifyContent = "center"
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
 
       field.labelContainer = document.createElement("div")
       field.labelContainer.classList.add("field-label-container")
@@ -7620,7 +8194,6 @@ export class Helper {
       field.label.classList.add("field-label")
       field.label.style.fontFamily = "sans-serif"
       field.label.style.fontSize = "21px"
-      field.label.style.color = this.colors.light.text
       field.labelContainer.append(field.label)
       field.append(field.labelContainer)
 
@@ -7629,9 +8202,24 @@ export class Helper {
       field.input.type = "url"
       field.input.style.margin = "21px 89px 21px 34px"
       field.input.style.fontSize = "21px"
+      field.append(field.input)
+
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+      field.label.style.color = this.colors.light.text
       field.input.style.backgroundColor = this.colors.light.background
       field.input.style.color = this.colors.light.text
-      field.append(field.input)
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+        field.label.style.color = this.colors.dark.text
+        field.input.style.backgroundColor = this.colors.dark.background
+        field.input.style.color = this.colors.dark.text
+      }
 
       if (input !== undefined) input.append(field)
       return field
@@ -7739,7 +8327,7 @@ export class Helper {
       return field
     }
 
-    if (event === "field/text") {
+    if (event === "field/file") {
 
       const field = document.createElement("div")
       field.classList.add("field")
@@ -7749,10 +8337,6 @@ export class Helper {
       field.style.flexDirection = "column"
       field.style.margin = "34px"
       field.style.justifyContent = "center"
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
 
       field.labelContainer = document.createElement("div")
       field.labelContainer.classList.add("field-label-container")
@@ -7765,7 +8349,54 @@ export class Helper {
       field.label.classList.add("field-label")
       field.label.style.fontFamily = "sans-serif"
       field.label.style.fontSize = "21px"
-      field.label.style.color = this.colors.light.text
+      field.labelContainer.append(field.label)
+
+      field.input = document.createElement("input")
+      field.input.classList.add("field-input")
+      field.input.type = "file"
+      field.input.style.margin = "21px 89px 21px 34px"
+      field.input.style.fontSize = "21px"
+      field.append(field.input)
+
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+      field.input.style.backgroundColor = this.colors.light.background
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+        field.input.style.backgroundColor = this.colors.dark.background
+      }
+
+      if (input !== undefined) input.append(field)
+      return field
+    }
+
+    if (event === "field/text") {
+
+      const field = document.createElement("div")
+      field.classList.add("field")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+
+      field.labelContainer = document.createElement("div")
+      field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.display = "flex"
+      field.labelContainer.style.alignItems = "center"
+      field.labelContainer.style.margin = "21px 89px 0 34px"
+      field.append(field.labelContainer)
+
+      field.label = document.createElement("label")
+      field.label.classList.add("field-label")
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "21px"
       field.labelContainer.append(field.label)
 
       field.input = document.createElement("input")
@@ -7773,9 +8404,39 @@ export class Helper {
       field.input.type = "text"
       field.input.style.margin = "21px 89px 21px 34px"
       field.input.style.fontSize = "21px"
+      field.append(field.input)
+
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+      field.label.style.color = this.colors.light.text
       field.input.style.backgroundColor = this.colors.light.background
       field.input.style.color = this.colors.light.text
-      field.append(field.input)
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+        field.label.style.color = this.colors.dark.text
+        field.input.style.backgroundColor = this.colors.dark.background
+        field.input.style.color = this.colors.dark.text
+      }
+
+      if (input !== undefined) input.append(field)
+      return field
+    }
+
+    if (event === "field/emails") {
+
+      const field = this.create("field/textarea")
+      field.input.style.fontFamily = "monospace"
+      field.input.style.fontSize = "13px"
+      field.input.style.height = "89px"
+      field.input.placeholder = `[\n  "meine-erste@email.de",\n  "meine-zweite@email.de"\n]`
+
+      field.input.setAttribute("required", "true")
+      field.input.setAttribute("accept", "email/array")
 
       if (input !== undefined) input.append(field)
       return field
@@ -7846,24 +8507,6 @@ export class Helper {
       this.setValidStyle(langField.select)
 
       return langField
-
-    }
-
-    if (event === "field/image") {
-
-      const imageField = new FileField("image", input)
-      imageField.label.textContent = "Bildupload (JPEG, PNG, SVG)"
-      imageField.input.accept = "image/jpeg, image/png, image/svg+xml"
-      imageField.verifyValue()
-      imageField.input.addEventListener("input", async (event) => {
-        if (event.target.files[0].type === "image/svg+xml") {
-          await imageField.validSvg(event.target.files[0])
-        } else {
-          await imageField.validImage(event.target.files[0])
-        }
-      })
-
-      return imageField
 
     }
 
@@ -8159,6 +8802,303 @@ export class Helper {
   static render(event, input, parent) {
     // event = input/algorithm
 
+    if (event === "role/role-apps-button-onbody") {
+
+      const button = this.create("button/left-right")
+      button.classList.add("role-button")
+      button.left.innerHTML = input.name
+      button.left.classList.add("left")
+      button.right.innerHTML = "Rolle"
+      button.right.classList.add("right")
+      button.onclick = () => {
+
+        parent.querySelectorAll(".role-button").forEach(button => {
+
+          const right = button.querySelector(".right")
+          this.convert("element/button-right", right)
+          right.innerHTML = "Rolle"
+
+        })
+
+        this.convert("element/checked", button.right)
+
+        this.create("button/role-apps", document.body)
+        this.update("script/role-apps-event", document.body, input)
+
+      }
+
+      if (parent) parent.append(button)
+      return button
+
+    }
+
+    if (event === "match-maker/buttons") {
+
+      parent.innerHTML = ""
+      for (let i = 0; i < input.length; i++) {
+        const matchMaker = input[i]
+
+        const button = this.create("button/left-right", parent)
+        button.right.innerHTML = matchMaker.id
+        button.left.innerHTML = matchMaker.name
+
+        button.onclick = () => {
+
+          this.overlay("toolbox", async overlay => {
+            this.add("button/remove-overlay", overlay)
+            this.add("button/register-html", overlay)
+            const info = this.create("header/info", overlay)
+            info.innerHTML = `.match-maker.${matchMaker.name}`
+
+            {
+              const button = this.create("button/left-right", overlay)
+              button.left.innerHTML = ".action"
+              button.right.innerHTML = "Optimiere deinen Match Maker"
+
+              button.onclick = () => {
+                this.overlay("toolbox", overlay => {
+                  this.add("button/remove-overlay", overlay)
+                  this.add("button/register-html", overlay)
+                  const info = this.create("header/info", overlay)
+                  info.innerHTML = `.${matchMaker.name}.action`
+
+                  const content = this.create("div/scrollable", overlay)
+                  const actionField = this.create("field/select", content)
+                  actionField.label.innerHTML = "Wenn alle Bedingungen erfüllt sind dann .."
+                  actionField.input.add(["get users", "remove", "show", "onclick", "onload", "get list", "get keys"])
+                  this.verifyIs("input/valid", actionField.input)
+
+                  const dataMirrorField = this.create("field/trees", content)
+                  dataMirrorField.label.innerHTML = "Gebe eine JavaScript Liste mit Datenstrukturen ein und spiegel deine Nutzerliste mit den angefragten Daten"
+                  dataMirrorField.input.style.fontSize = "13px"
+                  dataMirrorField.input.placeholder = `["getyour.expert.name", "getyour.funnel.name"]`
+                  dataMirrorField.input.oninput = () => this.verifyIs("input/valid", dataMirrorField.input)
+                  this.verifyIs("input/valid", dataMirrorField.input)
+
+                  const jsField = this.create("field/js")
+                  jsField.label.innerHTML = "JavaScript Browser Funktionen + Plattform Helper Funktionen (javascript)"
+                  jsField.input.oninput = () => this.verify("input/value", jsField.input)
+
+                  const treeField = this.create("field/tree")
+                  treeField.input.placeholder = "getyour.expert.platforms"
+                  treeField.label.innerHTML = "Welche Liste möchtest du anzeigen lassen (text/tree)"
+                  treeField.input.oninput = () => this.verify("input/value", treeField.input)
+
+
+                  actionField.input.oninput = (event) => {
+                    const selected = this.convert("select/selected", event.target)
+
+                    dataMirrorField.remove()
+                    jsField.remove()
+                    treeField.remove()
+
+
+                    if (selected === "get users") {
+                      actionField.after(dataMirrorField)
+                      this.verify("input/value", dataMirrorField.input)
+                    }
+
+                    if (selected === "onclick") {
+                      actionField.after(jsField)
+                      this.verify("input/value", jsField.input)
+                    }
+
+                    if (selected === "onload") {
+                      actionField.after(jsField)
+                      this.verify("input/value", jsField.input)
+                    }
+
+                    if (selected === "get keys") {
+                      actionField.after(dataMirrorField)
+                      this.verify("input/value", dataMirrorField.input)
+                    }
+
+                    if (selected === "get list") {
+                      actionField.after(treeField)
+                      this.verify("input/value", treeField.input)
+                    }
+                  }
+
+
+                  const submit = this.create("button/action", content)
+                  submit.innerHTML = "Match Maker jetzt anhängen"
+                  submit.onclick = async () => {
+
+                    const selected = this.convert("select/selected", actionField.input)
+
+                    if (selected === "onload") {
+
+                      await this.verify("input/value", jsField.input)
+
+                      const map = {}
+                      map.name = matchMaker.name
+                      map.conditions = conditions
+                      map.js = jsField.input.value
+
+                      const onloadScript = this.create("script/match-maker-onload", map)
+
+                      await this.render("script/onbody", onloadScript)
+
+                    }
+
+                    if (selected === "onclick") {
+
+                      await this.verify("input/value", jsField.input)
+
+                      const map = {}
+                      map.name = matchMaker.name
+                      map.conditions = conditions
+                      map.js = jsField.input.value
+
+                      const onclickScript = this.create("script/match-maker-onclick", map)
+
+                      await this.render("script/onbody", onclickScript)
+
+                    }
+
+
+                    if (selected === "show") {
+
+                      const map = {}
+                      map.name = matchMaker.name
+                      map.conditions = conditions
+
+                      const showScript = this.create("script/match-maker-show", map)
+
+                      await this.render("script/onbody", showScript)
+
+                    }
+
+                    if (selected === "remove") {
+
+                      const map = {}
+                      map.name = matchMaker.name
+                      map.conditions = conditions
+
+                      const removeScript = this.create("script/match-maker-remove", map)
+
+                      await this.render("script/onbody", removeScript)
+
+                    }
+
+                    if (selected === "get list") {
+
+                      await this.verify("input/value", treeField.input)
+
+                      const map = {}
+                      map.name = matchMaker.name
+                      map.conditions = conditions
+                      map.tree = treeField.input.value
+
+                      const getterScript = this.create("script/match-maker-get-list", map)
+
+                      await this.render("script/onbody", getterScript)
+
+                    }
+
+                    if (selected === "get keys") {
+
+                      await this.verify("input/value", dataMirrorField.input)
+
+                      const map = {}
+                      map.name = matchMaker.name
+                      map.conditions = conditions
+
+                      try {
+                        map.mirror = JSON.parse(dataMirrorField.input.value)
+                        if (map.mirror.length === 0) throw new Error("mirror is empty")
+                      } catch (error) {
+                        this.setNotValidStyle(dataMirrorField.input)
+                        throw error
+                      }
+
+                      const getterScript = this.create("script/match-maker-get-keys", map)
+
+                      await this.render("script/onbody", getterScript)
+
+                    }
+
+                    if (selected === "get users") {
+
+                      await this.verify("input/value", dataMirrorField.input)
+
+                      const map = {}
+                      map.name = matchMaker.name
+                      map.conditions = conditions
+
+                      try {
+                        map.mirror = JSON.parse(dataMirrorField.input.value)
+                        if (map.mirror.length === 0) throw new Error("mirror is empty")
+                      } catch (error) {
+                        this.setNotValidStyle(dataMirrorField.input)
+                        throw error
+                      }
+
+                      const getterScript = this.create("script/match-maker-get-users", map)
+
+                      await this.render("script/onbody", getterScript)
+
+                    }
+
+                  }
+
+                })
+              }
+
+
+            }
+
+            const conditionsContainer = this.create("info/loading", overlay)
+
+            const res = await this.get("match-maker-conditions/complete-closed", matchMaker.id)
+
+            let conditions
+            if (res.status === 200) {
+              conditions = JSON.parse(res.response)
+
+              this.reset(conditionsContainer)
+              this.render("text/hr", `Bedingungen von ${matchMaker.name}`, conditionsContainer)
+              for (let i = 0; i < conditions.length; i++) {
+                const condition = conditions[i]
+                this.render("text/code", `(${condition.left} ${condition.operator} ${condition.right})`, conditionsContainer)
+              }
+
+            }
+
+            if (res.status !== 200) {
+              const res = await this.get("conditions/match-maker/writable-closed", matchMaker.id)
+
+              if (res.status === 200) {
+                conditions = JSON.parse(res.response)
+
+                this.reset(conditionsContainer)
+                this.render("text/hr", `Bedingungen von ${matchMaker.name}`, conditionsContainer)
+                for (let i = 0; i < conditions.length; i++) {
+                  const condition = conditions[i]
+                  this.render("text/code", `(${condition.left} ${condition.operator} ${condition.right})`, conditionsContainer)
+                }
+
+              }
+
+              if (res.status !== 200) {
+                this.convert("parent/info", conditionsContainer)
+                conditionsContainer.innerHTML = "Keine Bedingungen definiert."
+                throw new Error("conditions not found")
+              }
+            }
+
+
+
+
+          })
+
+        }
+
+
+      }
+
+    }
+
     if (event === "value/input") {
 
       if (parent.tagName === "INPUT") {
@@ -8316,7 +9256,7 @@ export class Helper {
 
                       if (design === null) {
 
-                        this.popup(overlay => {
+                        this.overlay("toolbox", overlay => {
 
                           const button = this.create("button/back", overlay)
                           button.onclick = () => {
@@ -9053,9 +9993,6 @@ export class Helper {
           button.top.append(img)
         }
 
-
-
-
       }
 
       return button
@@ -9210,7 +10147,7 @@ export class Helper {
 
             itemHeader.style.cursor = "pointer"
             itemHeader.addEventListener("click", () => {
-              this.popup(overlay => {
+              this.overlay("toolbox", overlay => {
                 const templateOverlay = overlay
                 this.headerPicker("removeOverlay", overlay)
 
@@ -9237,7 +10174,7 @@ export class Helper {
                     button.right.innerHTML = "Id ändern"
 
                     button.addEventListener("click", () => {
-                      this.popup(overlay => {
+                      this.overlay("toolbox", overlay => {
                         this.headerPicker("removeOverlay", overlay)
 
                         const info = this.headerPicker("info", overlay)
@@ -9286,7 +10223,7 @@ export class Helper {
                             throw new Error(`id exist`)
                           }
 
-                          this.popup(async securityOverlay => {
+                          this.overlay("toolbox", async securityOverlay => {
                             this.headerPicker("loading", securityOverlay)
 
                             const register = {}
@@ -9325,7 +10262,7 @@ export class Helper {
                     button.right.innerHTML = "Alias ändern"
 
                     button.addEventListener("click", () => {
-                      this.popup(overlay => {
+                      this.overlay("toolbox", overlay => {
                         this.headerPicker("removeOverlay", overlay)
 
                         const info = this.headerPicker("info", overlay)
@@ -9361,7 +10298,7 @@ export class Helper {
 
                           const alias = aliasField.validValue()
 
-                          this.popup(async securityOverlay => {
+                          this.overlay("toolbox", async securityOverlay => {
                             this.headerPicker("loading", securityOverlay)
 
                             const register = {}
@@ -9400,7 +10337,7 @@ export class Helper {
                     button.right.innerHTML = "Abhängigkeiten definieren"
 
                     button.addEventListener("click", () => {
-                      this.popup(async overlay => {
+                      this.overlay("toolbox", async overlay => {
                         this.headerPicker("removeOverlay", overlay)
 
 
@@ -9447,7 +10384,7 @@ export class Helper {
 
                           const dependencies = dependenciesField.validValue()
 
-                          this.popup(async securityOverlay => {
+                          this.overlay("toolbox", async securityOverlay => {
                             this.headerPicker("loading", securityOverlay)
 
                             const register = {}
@@ -9485,7 +10422,7 @@ export class Helper {
 
 
                     button.addEventListener("click", () => {
-                      this.popup(async overlay => {
+                      this.overlay("toolbox", async overlay => {
                         this.headerPicker("removeOverlay", overlay)
 
                         const info = this.headerPicker("info", overlay)
@@ -9531,7 +10468,7 @@ export class Helper {
 
                           const description = descriptionField.validValue()
 
-                          this.popup(async securityOverlay => {
+                          this.overlay("toolbox", async securityOverlay => {
                             this.headerPicker("loading", securityOverlay)
 
                             const register = {}
@@ -9570,7 +10507,7 @@ export class Helper {
 
 
                     button.addEventListener("click", () => {
-                      this.popup(async overlay => {
+                      this.overlay("toolbox", async overlay => {
                         this.headerPicker("removeOverlay", overlay)
 
                         const info = this.headerPicker("info", overlay)
@@ -9615,7 +10552,7 @@ export class Helper {
 
                           const script = scriptField.validValue()
 
-                          this.popup(async securityOverlay => {
+                          this.overlay("toolbox", async securityOverlay => {
                             this.headerPicker("loading", securityOverlay)
 
                             const register = {}
@@ -9654,7 +10591,7 @@ export class Helper {
                     button.addEventListener("click", () => {
 
 
-                      this.popup(async securityOverlay => {
+                      this.overlay("toolbox", async securityOverlay => {
                         this.headerPicker("loading", securityOverlay)
 
                         const del = {}
@@ -9759,7 +10696,7 @@ export class Helper {
               button.style.position = "relative"
               button.addEventListener("click", () => {
 
-                this.popup(async overlay => {
+                this.overlay("toolbox", async overlay => {
                   const feedbackOverlay = overlay
 
                   this.headerPicker("removeOverlay", overlay)
@@ -9885,7 +10822,7 @@ export class Helper {
                       div.style.cursor = "pointer"
                       div.addEventListener("click", () => {
 
-                        this.popup(overlay => {
+                        this.overlay("toolbox", overlay => {
                           this.headerPicker("removeOverlay", overlay)
 
                           const button = this.buttonPicker("left/right", overlay)
@@ -9958,7 +10895,7 @@ export class Helper {
                     const content = contentField.validValue()
 
 
-                    this.popup(async securityOverlay => {
+                    this.overlay("toolbox", async securityOverlay => {
 
                       this.headerPicker("loading", securityOverlay)
 
@@ -10064,9 +11001,9 @@ export class Helper {
         button.right.innerHTML = option.value
 
         button.addEventListener("click", () => {
-          this.popup(overlay => {
+          this.overlay("toolbox", overlay => {
             this.headerPicker("removeOverlay", overlay)
-            this.buttonPicker("toolbox/register-html", overlay)
+            this.add("button/register-html", overlay)
 
             const info = this.headerPicker("info", overlay)
             info.append(this.convert("element/alias", option))
@@ -10084,6 +11021,11 @@ export class Helper {
       }
 
 
+    }
+
+    if (event === "text/info") {
+      this.convert("parent/info", parent)
+      parent.innerHTML = input
     }
 
     if (event === "text/error-stack") {
@@ -10442,7 +11384,7 @@ export class Helper {
 
         itemHeader.addEventListener("click", async () => {
 
-          this.popup(overlay => {
+          this.overlay("toolbox", overlay => {
             this.headerPicker("removeOverlay", overlay)
             const info = this.headerPicker("info", overlay)
             info.append(this.convert("text/span", value.path))
@@ -10464,7 +11406,7 @@ export class Helper {
 
                 button.addEventListener("click", () => {
 
-                  this.popup(async overlay => {
+                  this.overlay("toolbox", async overlay => {
 
                     this.headerPicker("removeOverlay", overlay)
                     const info = this.headerPicker("info", overlay)
@@ -10548,7 +11490,7 @@ export class Helper {
 
                 button.addEventListener("click", () => {
 
-                  this.popup(async overlay => {
+                  this.overlay("toolbox", async overlay => {
 
                     this.headerPicker("removeOverlay", overlay)
                     const info = this.headerPicker("info", overlay)
@@ -10611,7 +11553,7 @@ export class Helper {
 
                 button.addEventListener("click", () => {
 
-                  this.popup(async overlay => {
+                  this.overlay("toolbox", async overlay => {
 
                     this.headerPicker("removeOverlay", overlay)
                     const info = this.headerPicker("info", overlay)
@@ -10632,7 +11574,7 @@ export class Helper {
 
                 button.addEventListener("click", () => {
 
-                  this.popup(async overlay => {
+                  this.overlay("toolbox", async overlay => {
 
 
                     this.headerPicker("removeOverlay", overlay)
@@ -10683,25 +11625,18 @@ export class Helper {
 
 
               {
-
-                // Sichtbarkeits app für value units
-                // add platform roles
-                // roles will be shown when visibilty closed
                 const button = this.buttonPicker("left/right", buttons)
                 button.left.innerHTML = ".visibility"
-                button.right.innerHTML = "Sichtbarkeit ändern"
+                button.right.innerHTML = "Sichtbarkeit der Werteinheit"
 
                 button.addEventListener("click", () => {
 
 
-                  this.popup(async overlay => {
+                  this.overlay("toolbox", async overlay => {
 
                     this.headerPicker("removeOverlay", overlay)
                     const info = this.headerPicker("info", overlay)
-                    // info.append(this.convert("text/span", input))
                     info.append(this.convert("text/span", ".visibility"))
-
-                    // this.update("visibility/platform-value/closed")
 
                     const funnel = this.headerPicker("scrollable", overlay)
 
@@ -10730,6 +11665,93 @@ export class Helper {
                 })
 
               }
+
+
+              {
+                const button = this.create("button/left-right", buttons)
+                button.right.innerHTML = "Schreibrechte an Teammitglieder vergeben"
+                button.left.innerHTML = ".writability"
+
+                button.onclick = () => {
+                  this.overlay("toolbox", async overlay => {
+
+                    this.add("button/remove-overlay", overlay)
+
+                    const info = this.create("header/info", overlay)
+                    info.innerHTML = `.${value.path}.writability`
+
+                    const funnel = this.create("div/scrollable", overlay)
+
+                    const textAreaField = this.create("field/emails", funnel)
+                    textAreaField.label.innerHTML = "Gebe eine Liste mit E-Mail Adressen an und erlaube diesen Nutzern, an deiner Plattform mitzuarbeiten"
+                    this.verify("input/value", textAreaField.input)
+                    textAreaField.input.oninput = () => this.verify("input/value", textAreaField.input)
+
+                    const res = await this.get("writability/platform-value/closed", value.path)
+                    if (res.status === 200) {
+                      textAreaField.input.value = res.response
+                      this.verify("input/value", textAreaField.input)
+                    }
+
+                    const submit = this.create("button/action", funnel)
+                    submit.innerHTML = "Schreibrechte jetzt vergeben"
+                    let clickCounter = 0
+                    submit.onclick = () => {
+
+                      try {
+
+                        const array = JSON.parse(textAreaField.input.value)
+
+                        for (let i = 0; i < array.length; i++) {
+                          const item = array[i]
+
+                          if (!this.verifyIs("text/email", item)) throw new Error("not an email")
+                        }
+
+                        this.setValidStyle(textAreaField.input)
+
+                        this.overlay("security", async securityOverlay => {
+
+                          const map = {}
+                          map.writability = array
+                          map.path = value.path
+                          const res = await this.register("writability/platform-value/closed", map)
+
+                          if (res.status === 200) {
+                            window.alert("Schreibrechte erfolgreich gespeichert.")
+                            this.remove("overlay", securityOverlay)
+                            this.remove("overlay", overlay)
+                          }
+
+                          if (res.status !== 200) {
+                            window.alert("Fehler.. Bitte wiederholen.")
+                            this.remove("overlay", securityOverlay)
+                          }
+
+
+                        })
+
+
+                      } catch (error) {
+                        this.setNotValidStyle(textAreaField.input)
+
+                        if (clickCounter === 3) {
+                          window.alert("Deine E-Mail Liste ist ungültig.")
+                          clickCounter = 0
+                        }
+                        clickCounter++
+                      }
+
+
+
+                    }
+
+
+                  })
+                }
+
+              }
+
 
               {
                 const button = this.buttonPicker("left/right", buttons)
@@ -10926,7 +11948,7 @@ export class Helper {
 
         button.addEventListener("click", () => {
 
-          this.popup(async overlay => {
+          this.overlay("toolbox", async overlay => {
 
             this.headerPicker("removeOverlay", overlay)
             const info = this.headerPicker("info", overlay)
@@ -10940,7 +11962,7 @@ export class Helper {
               button.right.innerHTML = "Neue Werteinheit erstellen"
               button.addEventListener("click", () => {
 
-                this.popup(overlay => {
+                this.overlay("toolbox", overlay => {
 
 
                   this.headerPicker("removeOverlay", overlay)
@@ -10995,7 +12017,7 @@ export class Helper {
                         throw new Error("path exist")
                       }
 
-                      this.popup(async securityOverlay => {
+                      this.overlay("toolbox", async securityOverlay => {
                         this.headerPicker("loading", securityOverlay)
 
                         const register = {}
@@ -11032,7 +12054,7 @@ export class Helper {
               button.right.innerHTML = "Meine Werteinheiten"
               button.addEventListener("click", () => {
 
-                this.popup(async overlay => {
+                this.overlay("toolbox", async overlay => {
 
 
                   this.headerPicker("removeOverlay", overlay)
@@ -11074,7 +12096,7 @@ export class Helper {
               button.right.innerHTML = "Rollen definieren"
 
               button.addEventListener("click", () => {
-                this.popup(async overlay => {
+                this.overlay("toolbox", async overlay => {
 
                   this.headerPicker("removeOverlay", overlay)
                   const info = this.headerPicker("info", overlay)
@@ -11085,7 +12107,7 @@ export class Helper {
                   create.right.innerHTML = "Neue Rolle definieren"
                   create.addEventListener("click", () => {
 
-                    this.popup(overlay => {
+                    this.overlay("toolbox", overlay => {
                       this.headerPicker("removeOverlay", overlay)
                       const info = this.headerPicker("info", overlay)
                       info.append(this.convert("text/span", "create.role"))
@@ -11117,7 +12139,7 @@ export class Helper {
 
               button.addEventListener("click", () => {
 
-                this.popup(async overlay => {
+                this.overlay("toolbox", async overlay => {
 
                   this.headerPicker("removeOverlay", overlay)
                   const info = this.headerPicker("info", overlay)
@@ -11128,7 +12150,7 @@ export class Helper {
                   create.right.innerHTML = "Neuen Match Maker definieren"
                   create.addEventListener("click", () => {
 
-                    this.popup(async overlay => {
+                    this.overlay("toolbox", async overlay => {
                       this.headerPicker("removeOverlay", overlay)
                       const info = this.headerPicker("info", overlay)
                       info.append(this.convert("text/span", `.${platform.name}.match-maker`))
@@ -11204,7 +12226,7 @@ export class Helper {
               button.left.innerHTML = ".offer"
 
               button.addEventListener("click", () => {
-                this.popup(overlay => {
+                this.overlay("toolbox", overlay => {
                   this.headerPicker("removeOverlay", overlay)
                   const info = this.headerPicker("info", overlay)
                   info.append(this.convert("text/span", ".offer"))
@@ -11227,7 +12249,7 @@ export class Helper {
               button.addEventListener("click", () => {
                 const input = {}
                 input.platform = platform.name
-                this.popup(async overlay => {
+                this.overlay("toolbox", async overlay => {
 
                   this.headerPicker("removeOverlay", overlay)
                   const info = this.headerPicker("info", overlay)
@@ -11239,7 +12261,7 @@ export class Helper {
                   create.addEventListener("click", () => {
 
 
-                    this.popup(overlay => {
+                    this.overlay("toolbox", overlay => {
                       this.headerPicker("removeOverlay", overlay)
                       const info = this.headerPicker("info", overlay)
                       info.append(this.convert("text/span", ".service"))
@@ -11273,7 +12295,7 @@ export class Helper {
               button.left.innerHTML = ".name"
               button.addEventListener("click", () => {
 
-                this.popup(async overlay => {
+                this.overlay("toolbox", async overlay => {
 
 
                   this.headerPicker("removeOverlay", overlay)
@@ -11349,7 +12371,7 @@ export class Helper {
 
               button.addEventListener("click", () => {
 
-                this.popup(async overlay => {
+                this.overlay("toolbox", async overlay => {
 
                   this.headerPicker("removeOverlay", overlay)
                   const info = this.headerPicker("info", overlay)
@@ -11365,12 +12387,12 @@ export class Helper {
 
             {
               const button = this.buttonPicker("left/right", buttons)
-              button.right.innerHTML = "Sichtbarkeit ändern"
+              button.right.innerHTML = "Sichtbarkeit der Plattform"
               button.left.innerHTML = ".visibility"
 
               button.addEventListener("click", () => {
 
-                this.popup(async overlay => {
+                this.overlay("toolbox", async overlay => {
 
                   this.headerPicker("removeOverlay", overlay)
                   const info = this.headerPicker("info", overlay)
@@ -11487,7 +12509,7 @@ export class Helper {
 
         button.addEventListener("click", () => {
 
-          this.popup(async overlay => {
+          this.overlay("toolbox", async overlay => {
 
             this.headerPicker("removeOverlay", overlay)
 
@@ -11550,9 +12572,9 @@ export class Helper {
 
             button.right.append(this.convert("input/alias", fieldInput))
             button.addEventListener("click", () => {
-              this.popup(overlay => {
+              this.overlay("toolbox", overlay => {
                 this.headerPicker("removeOverlay", overlay)
-                this.buttonPicker("toolbox/register-html", overlay)
+                this.add("button/register-html", overlay)
 
                 const info = this.headerPicker("info", overlay)
                 info.append(this.convert("input/alias", fieldInput))
@@ -11627,11 +12649,11 @@ export class Helper {
 
         button.addEventListener("click", () => {
 
-          this.popup(async overlay => {
+          this.overlay("toolbox", async overlay => {
 
-            this.headerPicker("removeOverlay", overlay)
+            this.add("button/remove-overlay", overlay)
 
-            this.buttonPicker("toolbox/register-html", overlay)
+            this.add("button/register-html", overlay)
 
             const info = this.headerPicker("info", overlay)
 
@@ -11641,7 +12663,7 @@ export class Helper {
             info.append(elementAlias)
 
             {
-              const buttons = this.headerPicker("scrollable", overlay)
+              const buttons = this.create("div/scrollable", overlay)
 
               if (child.tagName !== "SCRIPT") {
 
@@ -11653,10 +12675,10 @@ export class Helper {
 
                   if (child.children.length > 0) {
 
-                    this.popup(overlay => {
+                    this.overlay("toolbox", overlay => {
 
                       this.headerPicker("removeOverlay", overlay)
-                      this.buttonPicker("toolbox/register-html", overlay)
+                      this.add("button/register-html", overlay)
 
                       const info = this.headerPicker("info", overlay)
                       info.append(this.convert("element/alias", child))
@@ -11682,9 +12704,9 @@ export class Helper {
                   button.right.innerHTML = "Datenfelder anhängen"
                   button.addEventListener("click", () => {
 
-                    this.popup(overlay => {
+                    this.overlay("toolbox", overlay => {
                       this.headerPicker("removeOverlay", overlay)
-                      this.buttonPicker("toolbox/register-html", overlay)
+                      this.add("button/register-html", overlay)
 
                       const info = this.headerPicker("info", overlay)
                       info.append(this.convert("element/alias", child))
@@ -11697,9 +12719,9 @@ export class Helper {
                         button.right.innerHTML = "Neues Datenfeld erzeugen"
                         button.addEventListener("click", () => {
 
-                          this.popup(overlay => {
+                          this.overlay("toolbox", overlay => {
                             this.headerPicker("removeOverlay", overlay)
-                            this.buttonPicker("toolbox/register-html", overlay)
+                            this.add("button/register-html", overlay)
 
                             const info = this.headerPicker("info", overlay)
                             info.append(this.convert("element/alias", child))
@@ -11735,9 +12757,9 @@ export class Helper {
                   button.left.innerHTML = ".next-path"
                   button.right.innerHTML = "Nach Abschluss, zur Werteinheit"
                   button.addEventListener("click", () => {
-                    this.popup(overlay => {
+                    this.overlay("toolbox", overlay => {
                       this.headerPicker("removeOverlay", overlay)
-                      this.buttonPicker("toolbox/register-html", overlay)
+                      this.add("button/register-html", overlay)
 
                       const info = this.headerPicker("info", overlay)
                       info.append(this.convert("element/alias", child))
@@ -11789,15 +12811,16 @@ export class Helper {
 
                   button.addEventListener("click", () => {
 
-                    this.popup(async overlay => {
+                    this.overlay("toolbox", async overlay => {
 
                       this.headerPicker("removeOverlay", overlay)
-                      this.buttonPicker("toolbox/register-html", overlay)
+                      this.add("button/register-html", overlay)
 
                       const info = this.headerPicker("info", overlay)
                       info.append(this.convert("text/span", ".scripts"))
 
-                      await this.get("toolbox-scripts/closed", overlay)
+                      await this.add("toolbox-scripts", overlay)
+
 
                     })
 
@@ -11811,275 +12834,40 @@ export class Helper {
                   button.right.innerHTML = "Match Maker Skripte anhängen"
 
                   button.onclick = () => {
-                    this.popup(async overlay => {
+                    this.overlay("toolbox", async overlay => {
                       this.add("button/remove-overlay", overlay)
-                      this.create("button/register-html", overlay)
+                      this.add("button/register-html", overlay)
                       const info = this.create("header/info", overlay)
                       info.innerHTML = ".match-maker"
 
                       const content = this.create("info/loading", overlay)
 
-                      const res = await this.get("match-maker/toolbox-closed")
+                      const res = await this.get("match-maker/platform/closed")
 
                       if (res.status === 200) {
-                        const array = JSON.parse(res.response)
+                        const matchMaker = JSON.parse(res.response)
 
-                        if (array.length === 0) {
+                        this.convert("parent/scrollable", content)
+
+                        this.render("match-maker/buttons", matchMaker, content)
+                      }
+
+                      if (res.status !== 200) {
+                        const res = await this.get("match-maker/platform/writable-closed")
+
+                        if (res.status === 200) {
+                          const matchMaker = JSON.parse(res.response)
+
+                          this.convert("parent/scrollable", content)
+
+                          this.render("match-maker/buttons", matchMaker, content)
+                        }
+
+                        if (res.status !== 200) {
                           this.convert("parent/info", content)
                           content.innerHTML = "Es wurden keine Match Maker gefunden."
                           throw new Error("match maker not found")
                         }
-
-                        this.convert("parent/scrollable", content)
-
-                        for (let i = 0; i < array.length; i++) {
-                          const matchMaker = array[i]
-
-                          const button = this.create("button/left-right", content)
-                          button.right.innerHTML = matchMaker.id
-                          button.left.innerHTML = matchMaker.name
-
-                          button.onclick = () => {
-
-                            this.popup(async overlay => {
-                              this.add("button/remove-overlay", overlay)
-                              this.create("button/register-html", overlay)
-                              const info = this.create("header/info", overlay)
-                              info.innerHTML = `.match-maker.${matchMaker.name}`
-
-                              {
-                                const button = this.create("button/left-right", overlay)
-                                button.left.innerHTML = ".action"
-                                button.right.innerHTML = "Optimiere deinen Match Maker"
-
-                                button.onclick = () => {
-                                  this.popup(overlay => {
-                                    this.add("button/remove-overlay", overlay)
-                                    this.create("button/register-html", overlay)
-                                    const info = this.create("header/info", overlay)
-                                    info.innerHTML = `.${matchMaker.name}.action`
-
-                                    const content = this.create("div/scrollable", overlay)
-                                    const actionField = this.create("field/select", content)
-                                    actionField.label.innerHTML = "Wenn alle Bedingungen erfüllt sind dann .."
-                                    actionField.input.add(["get users", "remove", "show", "onclick", "onload", "get list", "get keys"])
-                                    this.verifyIs("input/valid", actionField.input)
-
-                                    const dataMirrorField = this.create("field/trees", content)
-                                    dataMirrorField.label.innerHTML = "Gebe eine JavaScript Liste mit Datenstrukturen ein und spiegel deine Nutzerliste mit den angefragten Daten"
-                                    dataMirrorField.input.style.fontSize = "13px"
-                                    dataMirrorField.input.placeholder = `["getyour.expert.name", "getyour.funnel.name"]`
-                                    dataMirrorField.input.oninput = () => this.verifyIs("input/valid", dataMirrorField.input)
-                                    this.verifyIs("input/valid", dataMirrorField.input)
-
-                                    const jsField = this.create("field/js")
-                                    jsField.label.innerHTML = "JavaScript Browser Funktionen + Plattform Helper Funktionen (javascript)"
-                                    jsField.input.oninput = () => this.verify("input/value", jsField.input)
-
-                                    const treeField = this.create("field/tree")
-                                    treeField.input.placeholder = "getyour.expert.platforms"
-                                    treeField.label.innerHTML = "Welche Liste möchtest du anzeigen lassen (text/tree)"
-                                    treeField.input.oninput = () => this.verify("input/value", treeField.input)
-
-
-                                    actionField.input.oninput = (event) => {
-                                      const selected = this.convert("select/selected", event.target)
-
-                                      dataMirrorField.remove()
-                                      jsField.remove()
-                                      treeField.remove()
-
-
-                                      if (selected === "get users") {
-                                        actionField.after(dataMirrorField)
-                                        this.verify("input/value", dataMirrorField.input)
-                                      }
-
-                                      if (selected === "onclick") {
-                                        actionField.after(jsField)
-                                        this.verify("input/value", jsField.input)
-                                      }
-
-                                      if (selected === "onload") {
-                                        actionField.after(jsField)
-                                        this.verify("input/value", jsField.input)
-                                      }
-
-                                      if (selected === "get keys") {
-                                        actionField.after(dataMirrorField)
-                                        this.verify("input/value", dataMirrorField.input)
-                                      }
-
-                                      if (selected === "get list") {
-                                        actionField.after(treeField)
-                                        this.verify("input/value", treeField.input)
-                                      }
-                                    }
-
-
-                                    const submit = this.create("button/action", content)
-                                    submit.innerHTML = "Match Maker jetzt anhängen"
-                                    submit.onclick = async () => {
-
-                                      const selected = this.convert("select/selected", actionField.input)
-
-                                      if (selected === "onload") {
-
-                                        await this.verify("input/value", jsField.input)
-
-                                        const map = {}
-                                        map.name = matchMaker.name
-                                        map.conditions = conditions
-                                        map.js = jsField.input.value
-
-                                        const onloadScript = this.create("script/match-maker-onload", map)
-
-                                        await this.render("script/onbody", onloadScript)
-
-                                      }
-
-                                      if (selected === "onclick") {
-
-                                        await this.verify("input/value", jsField.input)
-
-                                        const map = {}
-                                        map.name = matchMaker.name
-                                        map.conditions = conditions
-                                        map.js = jsField.input.value
-
-                                        const onclickScript = this.create("script/match-maker-onclick", map)
-
-                                        await this.render("script/onbody", onclickScript)
-
-                                      }
-
-
-                                      if (selected === "show") {
-
-                                        const map = {}
-                                        map.name = matchMaker.name
-                                        map.conditions = conditions
-
-                                        const showScript = this.create("script/match-maker-show", map)
-
-                                        await this.render("script/onbody", showScript)
-
-                                      }
-
-                                      if (selected === "remove") {
-
-                                        const map = {}
-                                        map.name = matchMaker.name
-                                        map.conditions = conditions
-
-                                        const removeScript = this.create("script/match-maker-remove", map)
-
-                                        await this.render("script/onbody", removeScript)
-
-                                      }
-
-                                      if (selected === "get list") {
-
-                                        await this.verify("input/value", treeField.input)
-
-                                        const map = {}
-                                        map.name = matchMaker.name
-                                        map.conditions = conditions
-                                        map.tree = treeField.input.value
-
-                                        const getterScript = this.create("script/match-maker-get-list", map)
-
-                                        await this.render("script/onbody", getterScript)
-
-                                      }
-
-                                      if (selected === "get keys") {
-
-                                        await this.verify("input/value", dataMirrorField.input)
-
-                                        const map = {}
-                                        map.name = matchMaker.name
-                                        map.conditions = conditions
-
-                                        try {
-                                          map.mirror = JSON.parse(dataMirrorField.input.value)
-                                          if (map.mirror.length === 0) throw new Error("mirror is empty")
-                                        } catch (error) {
-                                          this.setNotValidStyle(dataMirrorField.input)
-                                          throw error
-                                        }
-
-                                        const getterScript = this.create("script/match-maker-get-keys", map)
-
-                                        await this.render("script/onbody", getterScript)
-
-                                      }
-
-                                      if (selected === "get users") {
-
-                                        await this.verify("input/value", dataMirrorField.input)
-
-                                        const map = {}
-                                        map.name = matchMaker.name
-                                        map.conditions = conditions
-
-                                        try {
-                                          map.mirror = JSON.parse(dataMirrorField.input.value)
-                                          if (map.mirror.length === 0) throw new Error("mirror is empty")
-                                        } catch (error) {
-                                          this.setNotValidStyle(dataMirrorField.input)
-                                          throw error
-                                        }
-
-                                        const getterScript = this.create("script/match-maker-get-users", map)
-
-                                        await this.render("script/onbody", getterScript)
-
-                                      }
-
-                                    }
-
-                                  })
-                                }
-
-
-                              }
-
-                              const conditionsContainer = this.create("info/loading", overlay)
-
-                              const res = await this.get("match-maker-conditions/complete-closed", matchMaker.id)
-
-                              let conditions
-                              if (res.status === 200) {
-                                conditions = JSON.parse(res.response)
-
-                                if (conditions.length === 0) {
-                                  this.convert("parent/info", conditionsContainer)
-                                  conditionsContainer.innerHTML = "Keine Bedingungen definiert."
-                                  throw new Error("conditions not found")
-                                }
-
-                                this.reset(conditionsContainer)
-                                this.render("text/hr", `Bedingungen von ${matchMaker.name}`, conditionsContainer)
-                                for (let i = 0; i < conditions.length; i++) {
-                                  const condition = conditions[i]
-
-                                  this.render("text/code", `(${condition.left} ${condition.operator} ${condition.right})`, conditionsContainer)
-
-                                }
-
-                              }
-
-                            })
-
-                          }
-
-
-                        }
-
-
-
-
                       }
 
 
@@ -12088,343 +12876,377 @@ export class Helper {
 
                 }
 
-              }
+                {
 
-              {
-                const button = this.buttonPicker("left/right", buttons)
-                button.left.innerHTML = ".append"
-                button.right.innerHTML = "Element anhängen"
-                if (child.tagName === "SCRIPT") {
-                  button.right.innerHTML = "JavaScript anhängen"
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = ".role-apps"
+                  button.right.innerHTML = "Rollenapps Freigabe Button anhängen"
+                  button.addEventListener("click", () => {
+
+                    this.overlay("toolbox", async overlay => {
+                      this.add("button/remove-overlay", overlay)
+                      this.add("button/register-html", overlay)
+
+
+                      this.render("text/title", "Für welche Rolle möchtest du den Button anhängen?", overlay)
+
+                      const content = this.create("info/loading", overlay)
+
+                      const res = await this.get("roles/platform/location-expert")
+
+                      if (res.status === 200) {
+                        const roles = JSON.parse(res.response)
+
+                        this.convert("parent/scrollable", content)
+
+                        for (let i = 0; i < roles.length; i++) {
+                          const role = roles[i]
+
+                          this.render("role/role-apps-button-onbody", role, content)
+
+                        }
+                      }
+
+                      if (res.status !== 200) {
+                        const res = await this.get("roles/platform/location-writable")
+
+                        if (res.status === 200) {
+                          const roles = JSON.parse(res.response)
+
+                          this.convert("parent/scrollable", content)
+
+                          for (let i = 0; i < roles.length; i++) {
+                            const role = roles[i]
+
+                            this.render("role/role-apps-button-onbody", role, content)
+
+                          }
+
+                        }
+
+                        if (res.status !== 200) {
+                          this.convert("parent/info", content)
+                          content.innerHTML = "Keine Rollen gefunden."
+                        }
+                      }
+
+
+                    })
+                  })
+
                 }
 
-                button.addEventListener("click", () => {
+                {
 
-                  this.popup(overlay => {
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = ".script"
+                  button.right.innerHTML = "JavaScript anhängen"
 
-                    this.headerPicker("removeOverlay", overlay)
-                    this.buttonPicker("toolbox/register-html", overlay)
+                  button.onclick = () => {
 
-                    const info = this.headerPicker("info", overlay)
-                    info.append(this.convert("element/alias", document.body))
-                    info.append(this.convert("text/span", ".append"))
+                    this.overlay("toolbox", overlay => {
+                      this.add("button/remove-overlay", overlay)
+                      this.add("button/register-html", overlay)
 
+                      const funnel = this.create("div/scrollable", overlay)
 
-                    const buttons = this.headerPicker("scrollable", overlay)
-                    {
+                      const nameField = this.create("field/name", funnel)
+                      nameField.label.innerHTML = "Identifikationsname (text/tag)"
+                      nameField.input.placeholder = "mein-neues-skript"
+                      nameField.input.oninput = () => this.verify("input/value", nameField.input)
 
-                      if (child.tagName === "DIV" || child.tagName === "BODY") {
+                      const jsField = this.create("field/js", funnel)
+                      jsField.label.innerHTML = "JavaScript Browser Funktionen + Plattform Helper Funktionen"
+                      jsField.input.oninput = () => this.verify("input/value", jsField.input)
 
-                        {
+                      this.verify("field-funnel/validity", funnel)
 
-                          const button = this.buttonPicker("left/right", buttons)
-                          button.left.innerHTML = ".field-funnel"
-                          button.right.innerHTML = "Field Funnel anhängen"
-                          button.addEventListener("click", () => {
-                            this.popup(overlay => {
-                              this.headerPicker("removeOverlay", overlay)
-                              this.buttonPicker("toolbox/register-html", overlay)
+                      const submit = this.create("button/action", funnel)
+                      submit.innerHTML = "Skript jetzt anhängen"
+                      submit.onclick = async () => {
 
-                              const info = this.headerPicker("info", overlay)
-                              info.append(this.convert("element/alias", child))
-                              info.append(".field-funnel.append")
+                        await this.verify("field-funnel/validity", funnel)
 
-                              const content = this.headerPicker("scrollable", overlay)
+                        const map = {}
+                        map.id = nameField.input.value
+                        map.js = jsField.input.value
 
-                              const idField = new TextField("id", content)
-                              idField.label.innerHTML = "Verwende eine individuelle Id, um dein Element eindeutig zu identifizieren"
-                              idField.input.required = true
-                              idField.input.accept = "text/id"
-                              idField.verifyValue()
-                              idField.input.addEventListener("input", () => idField.verifyValue())
+                        const script = this.create("script/empty-helper", map)
 
-                              const submitButton = this.buttonPicker("action", content)
-                              submitButton.innerHTML = "Datenfeld Funnel jetzt anhängen"
-                              submitButton.addEventListener("click", () => {
+                        await this.render("script/onbody", script)
 
-                                const id = idField.validValue()
+                      }
 
-                                if (document.getElementById(id) === null) {
+                    })
 
-                                  const element = this.create("field-funnel", child)
-                                  element.id = id
 
-                                  this.create("script/submit-field-funnel-event", document.body)
 
-                                  this.removeOverlay(overlay)
+                  }
 
-                                }
+                }
 
-                              })
-                            })
 
-                          })
+              }
 
-                        }
+              if (child.tagName === "DIV" || child.tagName === "BODY") {
 
-                        {
+                {
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = ".access"
+                  button.right.innerHTML = "Zugang anhängen"
+                  button.addEventListener("click", () => {
 
-                          const button = this.buttonPicker("left/right", buttons)
-                          button.left.innerHTML = ".click-funnel"
-                          button.right.innerHTML = "Klick Funnel anhängen"
-                          button.addEventListener("click", () => {
-                            this.popup(overlay => {
-                              this.headerPicker("removeOverlay", overlay)
-                              this.buttonPicker("toolbox/register-html", overlay)
+                    this.overlay("toolbox", async overlay => {
+                      this.headerPicker("removeOverlay", overlay)
+                      this.add("button/register-html", overlay)
 
-                              const info = this.headerPicker("info", overlay)
-                              info.append(this.convert("element/alias", child))
-                              info.append(".click-funnel.append")
+                      this.render("text/title", "Für welche Rolle möchtest du einen Zugang anhängen?", overlay)
 
-                              const content = this.headerPicker("scrollable", overlay)
+                      const content = this.create("info/loading", overlay)
 
-                              const idField = new TextField("id", content)
-                              idField.label.innerHTML = "Verwende eine individuelle Id, um dein Element eindeutig zu identifizieren"
-                              idField.input.required = true
-                              idField.input.accept = "text/id"
-                              idField.verifyValue()
-                              idField.input.addEventListener("input", () => idField.verifyValue())
+                      const res = await this.get("roles/platform/location-expert")
 
-                              const submitButton = this.buttonPicker("action", content)
-                              submitButton.innerHTML = "Klick Funnel jetzt anhängen"
-                              submitButton.addEventListener("click", () => {
+                      if (res.status === 200) {
+                        const roles = JSON.parse(res.response)
 
-                                const id = idField.validValue()
+                        this.convert("parent/scrollable", content)
 
-                                if (document.getElementById(id) === null) {
+                        for (let i = 0; i < roles.length; i++) {
+                          const role = roles[i]
 
-                                  const element = this.create("click-funnel", child)
-                                  element.id = id
+                          const button = this.create("button/left-right", content)
+                          button.left.innerHTML = role.name
+                          button.right.innerHTML = `Rolle ${i + 1}`
 
-                                  this.create("script/click-funnel-start-event", document.body)
+                          button.onclick = () => {
 
-                                  this.removeOverlay(overlay)
+                            this.create("login", child)
+                            this.update("script/login", document.body, role)
+                            window.alert("Zugang wurde erfolgreich angehängt.")
+                            this.remove("overlay", overlay)
 
-                                }
-
-                              })
-                            })
-
-                          })
-
-                        }
-
-                        {
-                          const button = this.buttonPicker("left/right", buttons)
-                          button.left.innerHTML = ".image"
-                          button.right.innerHTML = "Bild anhängen"
-
-                          button.addEventListener("click", () => {
-
-                            this.popup(async overlay => {
-
-                              this.headerPicker("removeOverlay", overlay)
-                              this.buttonPicker("toolbox/register-html", overlay)
-
-                              const info = this.headerPicker("info", overlay)
-                              info.append(this.convert("element/alias", child))
-                              info.append(this.convert("text/span", ".image"))
-
-
-
-                              this.update("image/onclick", overlay, {ok: (url) => {
-                                child.append(this.convert("text/img", url))
-                              }})
-
-                            })
-                          })
-                        }
-
-                        {
-                          const button = this.buttonPicker("left/right", buttons)
-                          button.left.innerHTML = ".background-image"
-                          button.right.innerHTML = "Hintergrund Bild anhängen"
-
-                          button.addEventListener("click", () => {
-
-                            this.popup(async overlay => {
-
-                              this.headerPicker("removeOverlay", overlay)
-                              this.buttonPicker("toolbox/register-html", overlay)
-
-                              const info = this.headerPicker("info", overlay)
-                              info.append(this.convert("element/alias", child))
-                              info.append(this.convert("text/span", ".image"))
-
-
-                              this.update("image/onclick", overlay, {ok: (url) => {
-                                child.style.background = `url("${url}")`
-                              }})
-
-                            })
-                          })
-                        }
-
-                        {
-                          const button = this.buttonPicker("left/right", buttons)
-                          button.left.innerHTML = ".access"
-                          button.right.innerHTML = "Zugang anhängen"
-                          button.addEventListener("click", () => {
-
-                            this.popup(async overlay => {
-                              this.headerPicker("removeOverlay", overlay)
-                              this.buttonPicker("toolbox/register-html", overlay)
-
-                              this.render("text/title", "Für welche Rolle möchtest du einen Zugang anhängen?", overlay)
-
-                              await this.get("platform/roles", overlay, {platform: window.location.pathname.split("/")[2], onclick: role => {
-
-                                this.create("login", document.body)
-                                this.update("script/login", document.body, role)
-
-                              }})
-
-                            })
-                          })
-
-                        }
-                          const button = this.buttonPicker("left/right", buttons)
-                          button.left.innerHTML = ".role-apps"
-                          button.right.innerHTML = "Rollenapps Freigabe Button anhängen"
-                          button.addEventListener("click", () => {
-
-                            this.popup(async overlay => {
-                              this.headerPicker("removeOverlay", overlay)
-                              this.buttonPicker("toolbox/register-html", overlay)
-
-
-                              this.render("text/title", "Für welche Rolle möchtest du den Button anhängen?", overlay)
-
-                              await this.get("platform/roles", overlay, {platform: window.location.pathname.split("/")[2], onclick: async (role, button, event) => {
-
-                                overlay.querySelectorAll(".role-button").forEach(button => {
-
-                                  const right = button.querySelector(".button-right")
-                                  this.convert("element/button-right", right)
-                                  right.innerHTML = "Rolle"
-
-                                })
-
-                                this.convert("element/checked", button.right)
-
-                                this.create("button/role-apps", document.body)
-                                this.update("script/role-apps-event", document.body, role)
-
-                              }})
-
-                            })
-                          })
-                        {
-
+                          }
                         }
 
                       }
 
+                      if (res.status !== 200) {
+                        const res = await this.get("roles/platform/location-writable")
 
-                      if (child.tagName === "BODY") {
-                        const button = this.create("button/left-right", buttons)
-                        button.left.innerHTML = ".script"
-                        button.right.innerHTML = "JavaScript anhängen"
+                        if (res.status === 200) {
 
-                        button.onclick = () => {
+                          const roles = JSON.parse(res.response)
 
-                          this.popup(overlay => {
-                            this.add("button/remove-overlay", overlay)
-                            this.create("button/register-html", overlay)
+                          this.convert("parent/scrollable", content)
 
-                            const funnel = this.create("div/scrollable", overlay)
+                          for (let i = 0; i < roles.length; i++) {
+                            const role = roles[i]
 
-                            const nameField = this.create("field/name", funnel)
-                            nameField.label.innerHTML = "Identifikationsname (text/tag)"
-                            nameField.input.placeholder = "mein-neues-skript"
-                            nameField.input.oninput = () => this.verify("input/value", nameField.input)
+                            const button = this.create("button/left-right", content)
+                            button.left.innerHTML = role.name
+                            button.right.innerHTML = `Rolle ${i + 1}`
 
-                            const jsField = this.create("field/js", funnel)
-                            jsField.label.innerHTML = "JavaScript Browser Funktionen + Plattform Helper Funktionen"
-                            jsField.input.oninput = () => this.verify("input/value", jsField.input)
+                            button.onclick = () => {
 
-                            this.verify("field-funnel/validity", funnel)
-
-                            const submit = this.create("button/action", funnel)
-                            submit.innerHTML = "Skript jetzt anhängen"
-                            submit.onclick = async () => {
-
-                              await this.verify("field-funnel/validity", funnel)
-
-                              const map = {}
-                              map.id = nameField.input.value
-                              map.js = jsField.input.value
-
-                              const script = this.create("script/empty-helper", map)
-
-                              await this.render("script/onbody", script)
+                              this.create("login", child)
+                              this.update("script/login", document.body, role)
+                              window.alert("Zugang wurde erfolgreich angehängt.")
+                              this.remove("overlay", overlay)
 
                             }
-
-                          })
-
+                          }
 
 
                         }
 
+                        if (res.status !== 200) {
+                          this.convert("parent/info", content)
+                          content.innerHTML = "Es wurden keine Rollen gefunden."
+                        }
 
                       }
 
-                      {
-                        const button = this.buttonPicker("left/right", buttons)
-                        button.left.innerHTML = ".html"
-                        button.right.innerHTML = "HTML Element anhängen"
-                        button.addEventListener("click", () => {
-                          this.popup(overlay => {
-                            this.headerPicker("removeOverlay", overlay)
-                            this.buttonPicker("toolbox/register-html", overlay)
 
-                            const info = this.headerPicker("info", overlay)
-                            info.append(this.convert("element/alias", child))
-                            info.append(".append.html")
+                    })
+                  })
 
-                            const funnel = this.headerPicker("scrollable", overlay)
+                }
 
-                            const htmlField = new TextAreaField("html-input", funnel)
-                            htmlField.label.innerHTML = "HTML Import"
-                            htmlField.input.placeholder = `<div>..</div>`
-                            if (child.tagName === "SCRIPT") {
-                              htmlField.label.innerHTML = "JavaScript"
-                              htmlField.input.placeholder = `document.getElementById(id) ..`
-                            }
-                            htmlField.input.style.fontSize = "13px"
-                            htmlField.input.style.fontFamily = `monospace`
-                            htmlField.input.style.height = "89px"
-                            htmlField.input.required = true
-                            htmlField.verifyValue()
-                            htmlField.input.addEventListener("input", () => htmlField.verifyValue())
+                {
 
-                            const button = this.buttonPicker("action", funnel)
-                            button.innerHTML = "Element jetzt anhängen"
-                            button.addEventListener("click", async () => {
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = ".field-funnel"
+                  button.right.innerHTML = "Datenfeld Funnel anhängen"
+                  button.addEventListener("click", () => {
+                    this.overlay("toolbox", overlay => {
+                      this.add("button/remove-overlay", overlay)
+                      this.add("button/register-html", overlay)
 
-                              const text = htmlField.validValue()
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("element/alias", child))
+                      info.append(".field-funnel.append")
 
-                              const html = this.convert("text/html", text)
-                              child.append(html)
+                      const content = this.create("div/scrollable", overlay)
 
-                              this.removeOverlay(overlay)
+                      const idField = this.add("field/id", content)
 
-                            })
+                      const submitButton = this.buttonPicker("action", content)
+                      submitButton.innerHTML = "Datenfeld Funnel jetzt anhängen"
+                      submitButton.addEventListener("click", async () => {
 
-                          })
-                        })
+                        await this.verify("input/value", idField.input)
 
-                      }
+                        const id = idField.input.value
 
-                    }
+                        const ids = document.querySelectorAll(`#${id}`)
 
+                        if (ids.length === 0) {
 
+                          const element = this.create("field-funnel", child)
+                          element.id = id
+
+                          this.create("script/submit-field-funnel-event", document.body)
+
+                          window.alert(`Field Funnel erfolgreich in ${child.tagName} angehängt.`)
+
+                          this.remove("overlay", overlay)
+                        }
+
+                        if (ids.length > 0) {
+                          this.setNotValidStyle(idField.input)
+                          window.alert("Id existiert bereits.")
+                        }
+
+                      })
+                    })
 
                   })
 
+                }
 
-                })
+                {
+
+                  const button = this.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = ".click-funnel"
+                  button.right.innerHTML = "Klick Funnel anhängen"
+                  button.addEventListener("click", () => {
+                    this.overlay("toolbox", overlay => {
+                      this.add("button/remove-overlay", overlay)
+                      this.add("button/register-html", overlay)
+
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("element/alias", child))
+                      info.append(".click-funnel.append")
+
+                      const content = this.create("div/scrollable", overlay)
+
+                      const idField = this.add("field/id", content)
+
+                      const submitButton = this.buttonPicker("action", content)
+                      submitButton.innerHTML = "Klick Funnel jetzt anhängen"
+                      submitButton.addEventListener("click", async () => {
+
+                        await this.verify("input/value", idField.input)
+
+                        const id = idField.input.value
+
+                        const ids = document.querySelectorAll(`#${id}`)
+
+                        if (ids.length === 0) {
+                          const element = this.create("click-funnel", child)
+                          element.id = id
+
+                          this.create("script/click-funnel-start-event", document.body)
+
+                          this.remove("overlay", overlay)
+                        }
+
+                        if (ids.length > 0) {
+                          this.setNotValidStyle(idField.input)
+                          window.alert("Id existiert bereits.")
+                        }
+
+                      })
+
+                    })
+
+                  })
+
+                }
+
+                {
+
+                  const button = this.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = ".image"
+                  button.right.innerHTML = "Neues Bild anhängen"
+
+                  button.addEventListener("click", () => {
+
+                    this.overlay("toolbox", async overlay => {
+
+                      this.add("button/remove-overlay", overlay)
+                      this.add("button/register-html", overlay)
+
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("element/alias", child))
+                      info.append(this.convert("text/span", ".image"))
+
+                      const content = this.create("div/scrollable", overlay)
+
+                      const urlField = this.add("field/image-url", content)
+
+                      const button = this.create("button/action", content)
+                      button.innerHTML = "Bild jetzt anhängen"
+                      button.addEventListener("click", async () => {
+
+                        await this.verify("input/value", urlField.input)
+
+                        const url = urlField.input.value
+
+                        child.append(this.convert("text/img", url))
+
+                      })
+
+                    })
+                  })
+
+                }
+
+                {
+
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = ".background-image"
+                  button.right.innerHTML = "Hintergrund Bild anhängen"
+
+                  button.addEventListener("click", () => {
+
+                    this.overlay("toolbox", async overlay => {
+
+                      this.add("button/remove-overlay", overlay)
+                      this.add("button/register-html", overlay)
+
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("element/alias", child))
+                      info.append(this.convert("text/span", ".image"))
+
+                      const content = this.create("div/scrollable", overlay)
+
+                      const urlField = this.add("field/image-url", content)
+
+                      const button = this.create("button/action", content)
+                      button.innerHTML = "Bild jetzt anhängen"
+                      button.addEventListener("click", async () => {
+
+                        await this.verify("input/value", urlField.input)
+                        const url = urlField.input.value
+                        child.style.background = `url("${url}")`
+
+                      })
+
+                    })
+                  })
+
+                }
 
               }
 
@@ -12435,7 +13257,7 @@ export class Helper {
                   button.left.innerHTML = ".questions"
                   button.right.innerHTML = "Klick Funnel bearbeiten"
                   button.addEventListener("click", () => {
-                    this.popup(questionsOverlay => {
+                    this.overlay("toolbox", questionsOverlay => {
 
                       this.headerPicker("removeOverlay", questionsOverlay)
                       const info = this.headerPicker("info",questionsOverlay)
@@ -12451,9 +13273,9 @@ export class Helper {
                         button.left.innerHTML = ".append"
                         button.right.innerHTML = "Neue Frage anhängen"
                         button.addEventListener("click", () => {
-                          this.popup(appendQuestionOverlay => {
+                          this.overlay("toolbox", appendQuestionOverlay => {
                             this.headerPicker("removeOverlay", appendQuestionOverlay)
-                            this.create("button/register-html", appendQuestionOverlay)
+                            this.add("button/register-html", appendQuestionOverlay)
 
                             const info = this.headerPicker("info",appendQuestionOverlay)
                             info.append(this.convert("element/alias", child))
@@ -12531,9 +13353,9 @@ export class Helper {
                   button.left.innerHTML = ".next-path"
                   button.right.innerHTML = "Nach Abschluss, zur Werteinheit"
                   button.addEventListener("click", () => {
-                    this.popup(overlay => {
+                    this.overlay("toolbox", overlay => {
                       this.headerPicker("removeOverlay", overlay)
-                      this.buttonPicker("toolbox/register-html", overlay)
+                      this.add("button/register-html", overlay)
 
                       const info = this.headerPicker("info", overlay)
                       info.append(this.convert("element/alias", child))
@@ -12623,11 +13445,11 @@ export class Helper {
 
                 button.addEventListener("click", async () => {
 
-                  this.popup(async overlay => {
+                  this.overlay("toolbox", async overlay => {
 
                     this.headerPicker("removeOverlay", overlay)
 
-                    this.buttonPicker("toolbox/register-html", overlay)
+                    this.add("button/register-html", overlay)
 
                     const info = this.headerPicker("info", overlay)
                     info.append(this.convert("element/alias", child))
@@ -12653,16 +13475,54 @@ export class Helper {
               }
 
               {
+
+                const button = this.create("button/left-right", buttons)
+                button.left.innerHTML = ".html"
+                button.right.innerHTML = "Neues HTML anhängen"
+                button.addEventListener("click", () => {
+                  this.overlay("toolbox", overlay => {
+                    this.add("button/remove-overlay", overlay)
+                    this.add("button/register-html", overlay)
+
+                    const info = this.headerPicker("info", overlay)
+                    info.append(this.convert("element/alias", child))
+                    info.append(".html")
+
+                    const funnel = this.create("div/scrollable", overlay)
+
+                    const htmlField = this.add("field/html", funnel)
+
+                    const button = this.buttonPicker("action", funnel)
+                    button.innerHTML = "HTML jetzt anhängen"
+                    button.addEventListener("click", async () => {
+
+                      await this.verify("input/value", htmlField.input)
+
+                      const text = htmlField.input.value
+
+                      const html = this.convert("text/html", text)
+                      child.append(html)
+
+                      this.remove("overlay", overlay)
+
+                    })
+
+                  })
+                })
+
+              }
+
+              {
                 const button = this.buttonPicker("left/right", buttons)
                 button.left.innerHTML = ".id"
                 button.right.innerHTML = "Element Id ändern"
                 button.addEventListener("click", async () => {
 
-                  this.popup(async overlay => {
+                  this.overlay("toolbox", async overlay => {
 
-                    this.headerPicker("removeOverlay", overlay)
+                    this.add("button/remove-overlay", overlay)
 
-                    this.buttonPicker("toolbox/register-html", overlay)
+                    this.add("button/register-html", overlay)
 
                     const info = this.headerPicker("info", overlay)
 
@@ -12671,41 +13531,42 @@ export class Helper {
                     info.append(elementAlias)
                     info.append(this.convert("text/span", ".id"))
 
-                    // const span = document.createElement("span")
-                    // span.innerHTML = ".id"
-                    // span.style.fontSize = "13px"
-                    // span.style.fontFamily = "monospace"
-                    // info.append(span)
+                    const idField = this.create("field/text", overlay)
+                    idField.label.innerHTML = "Identifikationsname (text/tag)"
+                    idField.input.accept = "text/tag"
+                    idField.input.placeholder = "meine-id"
+                    if (child.hasAttribute("id")) {
+                      idField.input.value = child.getAttribute("id")
+                    }
+                    this.verify("input/value", idField.input)
 
-                    const textFieldIdField = new TextField("elementId", overlay)
-                    textFieldIdField.label.innerHTML = "Element Id"
-                    textFieldIdField.input.accept = "text/tag"
-                    textFieldIdField.value(() => child.id)
-                    textFieldIdField.verifyValue()
-                    textFieldIdField.input.addEventListener("input", () => {
+                    idField.input.oninput = async () => {
 
-                      try {
-                        const value = textFieldIdField.validValue()
+                      await this.verify("input/value", idField.input)
 
-                        if (document.querySelectorAll(`#${value}`).length === 0) {
-                          this.setValidStyle(textFieldIdField.input)
+                      const value = idField.input.value
 
-                          child.id = value
-                        } else this.setNotValidStyle(textFieldIdField.input)
-
-                        document.querySelectorAll(".element-alias").forEach(element => {
-                          element.innerHTML = ""
-                          element.append(this.convert("element/alias", child))
-                        })
-
-                        // this.renderChildren(from, to)
-                        this.render(event, input, parent)
-
-                      } catch (error) {
-                        this.setNotValidStyle(textFieldIdField.input)
+                      if (value === "") {
+                        child.removeAttribute("id")
+                        return
                       }
 
-                    })
+                      const ids = document.querySelectorAll(`#${value}`)
+
+                      if (ids.length === 0) {
+                        child.setAttribute("id", value)
+                      } else {
+                        this.setNotValidStyle(idField.input)
+                      }
+
+                      overlay.querySelectorAll(".element-alias").forEach(element => {
+                        element.innerHTML = ""
+                        element.append(this.convert("element/alias", child))
+                      })
+
+                      this.render(event, input, parent)
+
+                    }
 
                   })
 
@@ -12720,10 +13581,10 @@ export class Helper {
                 button.right.innerHTML = "Element Klassen definieren"
                 button.addEventListener("click", () => {
 
-                  this.popup(overlay => {
+                  this.overlay("toolbox", overlay => {
 
-                    this.headerPicker("removeOverlay", overlay)
-                    this.buttonPicker("toolbox/register-html", overlay)
+                    this.add("button/remove-overlay", overlay)
+                    this.add("button/register-html", overlay)
 
                     const info = this.headerPicker("info", overlay)
 
@@ -12732,53 +13593,46 @@ export class Helper {
                     info.append(elementAlias)
                     info.append(this.convert("text/span", ".class"))
 
-                    const content = this.headerPicker("scrollable", overlay)
-
-                    const classField = new TextAreaField("class", content)
-                    classField.label.innerHTML = "Element Klassen"
+                    const classField = this.create("field/textarea", overlay)
+                    classField.label.innerHTML = "Klassen Namen"
                     classField.input.placeholder = "mehrere klassen werden mit einem leerzeichen getrennt"
                     classField.input.style.fontFamily = "monospace"
                     classField.input.style.fontSize = "13px"
-                    classField.input.style.height = "144px"
-                    classField.value(() => Array.from(child.classList).join(" "))
-                    classField.verifyValue()
-                    classField.input.addEventListener("input", (event) => {
-                      if (this.stringIsEmpty(event.target.value)) {
+                    classField.input.style.height = "89px"
+
+                    if (child.hasAttribute("class")) {
+                      classField.input.value = child.getAttribute("class")
+                    }
+
+                    this.verify("input/value", classField.input)
+
+                    classField.input.oninput = async () => {
+
+                      await this.verify("input/value", classField.input)
+
+                      const value = classField.input.value
+
+                      if (this.stringIsEmpty(value)) {
                         child.removeAttribute("class")
 
-                        document.querySelectorAll(".element-alias").forEach(element => {
+                        overlay.querySelectorAll(".element-alias").forEach(element => {
                           element.innerHTML = ""
                           element.append(this.convert("element/alias", child))
                         })
 
                         this.render(event, input, parent)
+                      } else {
+                        child.setAttribute("class", value)
+
+                        overlay.querySelectorAll(".element-alias").forEach(element => {
+                          element.innerHTML = ""
+                          element.append(this.convert("element/alias", child))
+                        })
+
+                        this.render(event, input, parent)
+
                       }
-                      classField.verifyValue()
-                    })
-
-                    const button = this.buttonPicker("action", content)
-                    button.innerHTML = "Klassen jetzt speichern"
-                    button.addEventListener("click", () => {
-
-                      const classes = classField.validValue().split(" ")
-
-                      child.removeAttribute("class")
-                      try {
-                        child.classList.add(...classes)
-                      } catch (error) {
-                        this.setNotValidStyle(classField.input)
-                        throw error
-                      }
-
-                      document.querySelectorAll(".element-alias").forEach(element => {
-                        element.innerHTML = ""
-                        element.append(this.convert("element/alias", child))
-                      })
-
-
-                      this.render(event, input, parent)
-                      this.removeOverlay(overlay)
-                    })
+                    }
 
                   })
 
@@ -12791,33 +13645,33 @@ export class Helper {
 
                 const button = this.buttonPicker("left/right", buttons)
                 button.left.innerHTML = ".style"
-                button.right.innerHTML = "Design importieren"
+                button.right.innerHTML = "Design als Style Tag anhängen"
 
                 button.addEventListener("click", () => {
 
-                  this.popup(overlay => {
+                  this.overlay("toolbox", overlay => {
 
-                    this.headerPicker("removeOverlay", overlay)
-                    this.buttonPicker("toolbox/register-html", overlay)
+                    this.add("button/remove-overlay", overlay)
+                    this.add("button/register-html", overlay)
 
                     const info = this.headerPicker("info", overlay)
                     info.append(this.convert("element/alias", document.body))
                     info.append(this.convert("text/span", ".style"))
 
-                    const funnel = this.headerPicker("scrollable", overlay)
+                    const funnel = this.create("div/scrollable", overlay)
 
                     {
-                      const cssField = new TextAreaField("css", funnel)
+                      const cssField = this.create("field/textarea", funnel)
                       cssField.label.innerHTML = "CSS Import"
                       cssField.input.placeholder = `.class {..}`
                       cssField.input.style.fontFamily = "monospace"
                       cssField.input.style.fontSize = "13px"
                       cssField.input.style.height = "89px"
-                      cssField.input.addEventListener("input", () => cssField.verifyValue())
-                      cssField.verifyValue()
+                      this.verify("input/value", cssField.input)
+                      cssField.input.oninput = () => this.verify("input/value", cssField.input)
 
                       const button = this.buttonPicker("action", funnel)
-                      button.innerHTML = "Inhalt jetzt ersetzen"
+                      button.innerHTML = "Style jetzt anhängen"
                       button.addEventListener("click", async () => {
 
                         const css = cssField.validValue()
@@ -12827,7 +13681,7 @@ export class Helper {
 
                         child.append(style)
 
-                        this.removeOverlay(overlay)
+                        this.remove("overlay", overlay)
 
                       })
                     }
@@ -12844,37 +13698,102 @@ export class Helper {
               if (child.tagName === "BODY") {
                 const button = this.buttonPicker("left/right", buttons)
                 button.left.innerHTML = ".style"
-                button.right.innerHTML = "Design anpassen"
+                button.right.innerHTML = "CSS Import"
 
                 button.addEventListener("click", () => {
 
-                  this.popup(overlay => {
+                  this.overlay("toolbox", overlay => {
 
-                    this.headerPicker("removeOverlay", overlay)
-                    this.buttonPicker("toolbox/register-html", overlay)
+                    this.add("button/remove-overlay", overlay)
+                    this.add("button/register-html", overlay)
 
                     const info = this.headerPicker("info", overlay)
                     info.append(this.convert("element/alias", child))
                     info.append(this.convert("text/span", ".style"))
 
-                    const content = this.headerPicker("scrollable", overlay)
+                    const content = this.create("div/scrollable", overlay)
 
-                    const cssField = new TextAreaField("css", content)
-                    cssField.label.textContent = "CSS Import"
+                    const cssField = this.create("field/textarea", content)
+                    cssField.label.textContent = "CSS Eigenschaften"
                     cssField.input.style.height = "55vh"
                     cssField.input.style.fontFamily = "monospace"
-                    cssField.value(() => this.convert("styles/text", child))
-                    cssField.verifyValue()
-                    cssField.input.addEventListener("input", () => {
+                    cssField.input.style.fontSize = "13px"
+                    cssField.input.placeholder = "color: blue;\nborder: 1px solid black;\n\n  ..\n\nkey: value;"
 
-                      const css = cssField.validValue()
+                    if (child.hasAttribute("style")) {
+                      cssField.input.value = this.convert("styles/text", child)
+                    }
 
-                      child.setAttribute("style", css)
+                    this.verify("input/value", cssField.input)
 
-                    })
+                    cssField.input.oninput = async () => {
+
+                      await this.verify("input/value", cssField.input)
+
+                      const css = cssField.input.value
+
+                      if (this.stringIsEmpty(css)) {
+                        child.removeAttribute("style")
+                      } else {
+                        child.setAttribute("style", css)
+                      }
+
+
+                    }
 
                   })
                 })
+
+
+                {
+                  const button = this.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = ".innerHTML"
+                  button.right.innerHTML = "Body Inhalt ersetzen"
+
+                  button.addEventListener("click", () => {
+
+                    this.overlay("toolbox", overlay => {
+
+                      this.add("button/remove-overlay", overlay)
+                      this.add("button/register-html", overlay)
+
+                      const info = this.create("header/info", overlay)
+                      info.append(this.convert("element/alias", document.body))
+                      info.append(this.convert("text/span", ".innerHTML"))
+
+                      const funnel = this.create("div/scrollable", overlay)
+
+                      const htmlField = this.create("field/textarea", funnel)
+                      htmlField.label.innerHTML = "Body Inhalt"
+                      htmlField.input.style.height = "55vh"
+                      htmlField.input.style.fontFamily = "monospace"
+                      htmlField.input.style.fontSize = "13px"
+                      htmlField.input.placeholder = "<body>..</body>"
+                      htmlField.input.value = child.innerHTML
+                      this.verifyIs("input/valid", htmlField.input)
+
+                      const submit = this.create("button/action", funnel)
+                      submit.innerHTML = "Inhalte jetzt ersetzen"
+                      submit.onclick = async () => {
+
+                        await this.verify("input/value", htmlField.input)
+
+                        child.innerHTML = htmlField.input.value
+
+                        this.remove("toolbox", child)
+
+                        await this.add("script/toolbox-getter")
+
+                        this.remove("overlay", overlay)
+
+                      }
+
+                    })
+
+
+                  })
+
+                }
 
               }
 
@@ -12885,20 +13804,20 @@ export class Helper {
               ) {
                 const button = this.buttonPicker("left/right", buttons)
                 button.left.innerHTML = ".style"
-                button.right.innerHTML = "Design anpassen"
+                button.right.innerHTML = "CSS Import mit Vorschau bearbeiten"
 
                 button.addEventListener("click", () => {
 
-                  this.popup(overlay => {
+                  this.overlay("toolbox", overlay => {
 
-                    this.headerPicker("removeOverlay", overlay)
-                    this.buttonPicker("toolbox/register-html", overlay)
+                    this.add("button/remove-overlay", overlay)
+                    this.add("button/register-html", overlay)
 
                     const info = this.headerPicker("info", overlay)
                     info.append(this.convert("element/alias", child))
                     info.append(this.convert("text/span", ".style"))
 
-                    const content = this.headerPicker("scrollable", overlay)
+                    const content = this.create("div/scrollable", overlay)
 
                     {
                       const preview = document.createElement("div")
@@ -12913,20 +13832,29 @@ export class Helper {
                       const hr = this.convert("text/hr", "Vorschau")
                       content.append(hr)
 
-                      const cssField = new TextAreaField("css", content)
-                      cssField.label.textContent = "CSS Import"
+                      const cssField = this.create("field/textarea", content)
+                      cssField.label.textContent = "CSS Eigenschaften"
                       cssField.input.style.height = "233px"
                       cssField.input.style.fontFamily = "monospace"
-                      cssField.value(() => this.convert("styles/text", child))
-                      cssField.verifyValue()
-                      cssField.input.addEventListener("input", () => {
+                      cssField.input.style.fontSize = "13px"
+                      cssField.input.placeholder = "color: blue;\nborder: 1px solid black;\n\n  ..\n\nkey: value;"
 
-                        const css = cssField.validValue()
+                      if (child.hasAttribute("style")) {
+                        cssField.input.value = this.convert("styles/text", child)
+                      }
+
+                      this.verify("input/value", cssField.input)
+
+                      cssField.input.oninput = async () => {
+
+                        await this.verify("input/value", cssField.input)
+
+                        const css = cssField.input.value
 
                         clone.setAttribute("style", css)
                         child.setAttribute("style", css)
 
-                      })
+                      }
 
                     }
 
@@ -12942,10 +13870,10 @@ export class Helper {
 
                   button.addEventListener("click", () => {
 
-                    this.popup(overlay => {
+                    this.overlay("toolbox", overlay => {
 
                       this.add("button/remove-overlay", overlay)
-                      this.create("button/register-html", overlay)
+                      this.add("button/register-html", overlay)
 
                       const info = this.headerPicker("info", overlay)
                       info.append(this.convert("element/alias", child))
@@ -13269,7 +14197,7 @@ export class Helper {
 
               }
 
-              {
+              if (child.tagName !== "BODY") {
 
                 const button = this.buttonPicker("left/right", buttons)
                 button.left.innerHTML = ".innerHTML"
@@ -13277,10 +14205,10 @@ export class Helper {
 
                 button.addEventListener("click", () => {
 
-                  this.popup(overlay => {
+                  this.overlay("toolbox", overlay => {
 
                     this.add("button/remove-overlay", overlay)
-                    this.create("button/register-html", overlay)
+                    this.add("button/register-html", overlay)
 
                     const info = this.create("header/info", overlay)
                     info.append(this.convert("element/alias", document.body))
@@ -13288,23 +14216,20 @@ export class Helper {
 
                     const funnel = this.create("div/scrollable", overlay)
 
-                    const htmlField = this.create("field/html", funnel)
+                    const htmlField = this.create("field/textarea", funnel)
+                    htmlField.label.innerHTML = "Element Inhalt"
+                    htmlField.input.style.height = "55vh"
+                    htmlField.input.style.fontFamily = "monospace"
+                    htmlField.input.style.fontSize = "13px"
+                    htmlField.input.placeholder = "<div>..</div>"
                     htmlField.input.value = child.innerHTML
                     this.verifyIs("input/valid", htmlField.input)
 
-                    const submit = this.create("button/action", funnel)
-                    submit.innerHTML = "Inhalt jetzt ersetzen"
-                    submit.onclick = async () => {
+                    htmlField.input.oninput = async () => {
 
                       await this.verify("input/value", htmlField.input)
 
                       child.innerHTML = htmlField.input.value
-
-                      if (child.tagName === "BODY") {
-                        await this.add("script/toolbox-getter")
-                      }
-
-                      this.removeOverlay(overlay)
 
                     }
 
@@ -13323,18 +14248,48 @@ export class Helper {
 
                 button.addEventListener("click", () => {
 
-                  this.popup(overlay => {
+                  this.overlay("toolbox", overlay => {
 
-                    this.headerPicker("removeOverlay", overlay)
-                    this.buttonPicker("toolbox/register-html", overlay)
+                    this.add("button/remove-overlay", overlay)
+                    this.add("button/register-html", overlay)
 
                     const info = this.headerPicker("info", overlay)
                     info.append(this.convert("element/alias", document.body))
-                    info.append(this.convert("text/span", ".assing"))
+                    info.append(this.convert("text/span", ".assign"))
 
-                    const funnel = this.headerPicker("scrollable", overlay)
+                    const pathField = this.create("field/url", overlay)
+                    pathField.label.innerHTML = "Definiere einen Pfad für deine Weiterleitung, sobald auf dieses Element geklickt wird"
+                    pathField.input.accept = "text/path"
+                    pathField.input.placeholder = "/meine/weiterleitung/pfad/"
 
-                    this.get("funnel/onclick-assign-path", funnel, child)
+                    if (child.hasAttribute("onclick")) {
+
+                      if (child.getAttribute("onclick").startsWith("window.location.assign")) {
+                        const match = child.getAttribute("onclick").match(/"([^"]*)"/)
+                        if (match) {
+                          pathField.input.value = match[1]
+                        }
+                      }
+
+                    }
+
+                    this.verify("input/value", pathField.input)
+
+                    pathField.input.oninput = async () => {
+
+                      await this.verify("input/value", pathField.input)
+
+                      const path = pathField.input.value
+
+                      if (this.stringIsEmpty(path)) {
+                        child.removeAttribute("onclick")
+                      } else {
+                        child.setAttribute("onclick", `window.location.assign("${path}")`)
+                      }
+
+
+                    }
+
 
                   })
 
@@ -13412,7 +14367,7 @@ export class Helper {
                 button.addEventListener("click", async () => {
 
                   child.remove()
-                  this.removeOverlay(overlay)
+                  this.remove("overlay", overlay)
 
                   this.render(event, input, parent)
 
@@ -13510,7 +14465,7 @@ export class Helper {
               button.left.innerHTML = `Option ${i + 1}`
               button.right.textContent = answer.textContent
               button.addEventListener("click", () => {
-                this.popup(answersFunnelOverlay => {
+                this.overlay("toolbox", answersFunnelOverlay => {
                   this.headerPicker("removeOverlay", answersFunnelOverlay)
 
                   const info = this.headerPicker("info", answersFunnelOverlay)
@@ -13581,7 +14536,7 @@ export class Helper {
                   selectedConditionButton.right.innerHTML = "Klick Bedingung definieren"
                   selectedConditionButton.addEventListener("click", () => {
 
-                    this.popup(conditionFunnelOverlay => {
+                    this.overlay("toolbox", conditionFunnelOverlay => {
                       this.headerPicker("removeOverlay", conditionFunnelOverlay)
 
                       const info = this.headerPicker("info", conditionFunnelOverlay)
@@ -13722,7 +14677,7 @@ export class Helper {
             button.left.innerHTML = child.id
             button.right.innerHTML = "Frage bearbeiten"
             button.addEventListener("click", () => {
-              this.popup(questionsFunnelOverlay => {
+              this.overlay("toolbox", questionsFunnelOverlay => {
                 this.headerPicker("removeOverlay", questionsFunnelOverlay)
 
                 const info = this.headerPicker("info", questionsFunnelOverlay)
@@ -13777,9 +14732,9 @@ export class Helper {
                 button.left.innerHTML = ".options"
                 button.right.innerHTML = "Antworten bearbeiten"
                 button.addEventListener("click", () => {
-                  this.popup(answersOverlay => {
+                  this.overlay("toolbox", answersOverlay => {
                     this.headerPicker("removeOverlay", answersOverlay)
-                    this.create("button/register-html", answersOverlay)
+                    this.add("button/register-html", answersOverlay)
 
                     const info = this.headerPicker("info", answersOverlay)
                     info.append(this.convert("element/alias", child))
@@ -13798,7 +14753,7 @@ export class Helper {
 
                         const answerBox = this.create("answer-box")
 
-                        this.popup(appendAnswerOverlay => {
+                        this.overlay("toolbox", appendAnswerOverlay => {
                           this.headerPicker("removeOverlay", appendAnswerOverlay)
 
                           const info = this.headerPicker("info", appendAnswerOverlay)
@@ -13822,7 +14777,7 @@ export class Helper {
                           selectedConditionButton.right.innerHTML = "Klick Bedingung definieren"
                           selectedConditionButton.addEventListener("click", () => {
 
-                            this.popup(conditionFunnelOverlay => {
+                            this.overlay("toolbox", conditionFunnelOverlay => {
                               this.headerPicker("removeOverlay", conditionFunnelOverlay)
 
                               const info = this.headerPicker("info", conditionFunnelOverlay)
@@ -14059,9 +15014,9 @@ export class Helper {
 
               const fieldInput = input.field.querySelector(".field-input")
 
-              this.popup(overlay => {
+              this.overlay("toolbox", overlay => {
                 this.headerPicker("removeOverlay", overlay)
-                this.buttonPicker("toolbox/register-html", overlay)
+                this.add("button/register-html", overlay)
 
                 const info = this.headerPicker("info", overlay)
                 info.append(this.convert("input/alias", input.field))
@@ -14074,7 +15029,7 @@ export class Helper {
                   button.addEventListener("click", () => {
 
 
-                    this.popup(overlay => {
+                    this.overlay("toolbox", overlay => {
                       this.headerPicker("removeOverlay", overlay)
 
                       const info = this.headerPicker("info", overlay)
@@ -14138,6 +15093,18 @@ export class Helper {
 
   static verifyIs(event, input) {
 
+    if (event === "text/email") {
+      if (typeof input !== "string") return false
+      if (input === undefined) return false
+      if (input === null) return false
+      if (input === "") return false
+      if (input === "null") return false
+      if (input.replace(/\s/g, "") === "") return false
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input) === false) return false
+      if (/^(.+)@(.+)$/.test(input) === true) return true
+      return false
+    }
+
     if (event === "text/empty") {
       return typeof input !== "string" ||
         input === undefined ||
@@ -14194,9 +15161,7 @@ export class Helper {
       })
     }
 
-    // is user/admin then callback
-    // async promise verify/admin/closed
-    if (event === "user/closed") {
+    if (event === "user/location-writable") {
 
       return new Promise(async(resolve, reject) => {
 
@@ -14204,9 +15169,34 @@ export class Helper {
 
           const verify = {}
           verify.url = "/verify/user/closed/"
+          verify.type = "location-writable"
           const res = await Request.closed(verify)
 
           resolve(res)
+
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+
+    }
+
+    if (event === "user/location-expert") {
+
+      return new Promise(async(resolve, reject) => {
+
+        try {
+
+          const verify = {}
+          verify.url = "/verify/user/closed/"
+          verify.type = "location-expert"
+          const res = await Request.closed(verify)
+
+          resolve(res)
+
 
         } catch (error) {
           reject(error)
@@ -14218,12 +15208,26 @@ export class Helper {
     }
 
     if (event === "user/closed") {
-      if (window.localStorage.getItem("localStorageId") !== null) {
-        if (window.localStorage.getItem("email") !== null) {
-          return true
+
+      return new Promise(async(resolve, reject) => {
+
+        try {
+
+          const verify = {}
+          verify.url = "/verify/user/closed/"
+          verify.type = "closed"
+          const res = await Request.closed(verify)
+
+          resolve(res)
+
+
+        } catch (error) {
+          reject(error)
         }
-      }
-      return false
+
+
+      })
+
     }
 
     if (event === "text/+int") {
@@ -14240,18 +15244,78 @@ export class Helper {
 
       return new Promise((resolve) => {
 
-        if (this.verifyIs("input/required", input)) {
-          if (this.verifyIs("input/accepted", input)) {
+        if (input.hasAttribute("required")) {
+
+          // required and accept
+          if (input.hasAttribute("accept")) {
+            if (this.verifyIs("input/accepted", input)) {
+              if (this.verifyIs("input/required", input)) {
+                this.setValidStyle(input)
+                return resolve(true)
+              }
+              this.setNotValidStyle(input)
+              const field = input.parentElement
+              field.scrollIntoView({behavior: "smooth"})
+              return resolve(false)
+            }
+          }
+
+          // only required, no accept
+          if (this.verifyIs("input/required", input)) {
             this.setValidStyle(input)
             return resolve(true)
+          } else {
+            this.setNotValidStyle(input)
+            const field = input.parentElement
+            field.scrollIntoView({behavior: "smooth"})
+            return resolve(false)
           }
-          this.setNotValidStyle(input)
-          const field = input.parentElement
-          field.scrollIntoView({behavior: "smooth"})
-          return resolve(false)
         }
-        this.setValidStyle(input)
-        return resolve(true)
+
+        if (input.hasAttribute("accept")) {
+
+          // accept and required
+          if (input.hasAttribute("required")) {
+            if (this.verifyIs("input/required", input)) {
+              if (this.verifyIs("input/accepted", input)) {
+                this.setValidStyle(input)
+                return resolve(true)
+              }
+              this.setNotValidStyle(input)
+              const field = input.parentElement
+              field.scrollIntoView({behavior: "smooth"})
+              return resolve(false)
+            }
+          }
+
+          // only accept, no required
+          if (input.value === "") {
+
+            this.setValidStyle(input)
+            return resolve(true)
+
+          } else {
+
+            if (this.verifyIs("input/accepted", input)) {
+
+              this.setValidStyle(input)
+              return resolve(true)
+
+            } else {
+              this.setNotValidStyle(input)
+              if (input.parentElement) input.parentElement.scrollIntoView({behavior: "smooth"})
+              return resolve(false)
+            }
+
+          }
+
+        }
+
+        // no accept, no required
+        if (!input.hasAttribute("accept") && !input.hasAttribute("required")) {
+          this.setValidStyle(input)
+          return resolve(true)
+        }
 
       })
 
@@ -14360,6 +15424,11 @@ export class Helper {
 
       if (input.getAttribute("accept") === "text/path") {
         if (typeof input.value !== "string") return false
+
+        if (input.value.length === 1) {
+          if (input.value.startsWith("/")) return true
+        }
+
         if (/^\/[\w\-._~!$&'()*+,;=:@/]+\/$/.test(input.value) === true) return true
         return false
       }
@@ -14456,6 +15525,7 @@ export class Helper {
             return false
           }
         }
+
         if (!this.stringIsEmpty(input.value)) return true
         return false
       }
@@ -14464,8 +15534,9 @@ export class Helper {
     }
 
     if (event === "input/required") {
+      if (input.hasAttribute("required")) return true
       if (input.getAttribute("required") === "true") return true
-      if (!this.stringIsEmpty(input.getAttribute("accept"))) return true
+      //if (!this.stringIsEmpty(input.getAttribute("accept"))) return true
       if (input.required === true) return true
       if (input.requiredIndex !== undefined) {
         for (let i = 0; i < input.options.length; i++) {
@@ -14478,6 +15549,14 @@ export class Helper {
         }
       }
       return false
+    }
+
+    if (event === "id/unique") {
+      if (document.querySelectorAll(`#${input}`).length === 0) {
+        return true
+      } else {
+        return false
+      }
     }
 
     if (event === "text/id") {
@@ -14568,7 +15647,7 @@ export class Helper {
       header.style.zIndex = "1"
       header.style.cursor = "pointer"
       header.addEventListener("click", () => {
-        this.popup(overlay => {
+        this.overlay("toolbox", overlay => {
           this.headerPicker("removeOverlay", overlay)
           const info = this.headerPicker("info", overlay)
           info.innerHTML = "open"
@@ -14853,46 +15932,6 @@ export class Helper {
 
       if (parent !== undefined) parent.append(button)
       return button
-    }
-
-    if (name === "toolbox/register-html") {
-
-      const save = this.headerPicker("save", parent)
-
-      save.addEventListener("click", async () => {
-
-        this.overlay("security", async securityOverlay => {
-
-          // prepare html
-          document.getElementById("toolbox").remove()
-          document.querySelectorAll("[data-id]").forEach(element => element.remove())
-          document.querySelectorAll(".overlay").forEach(element => element.remove())
-
-          document.body.style.overscrollBehavior = null
-          document.body.style.overflow = null
-
-          // save html state
-          const register = {}
-          register.url = "/register/platform-value/closed/"
-          register.type = "html"
-          register.html = document.documentElement.outerHTML.replace(/<html>/, "<!DOCTYPE html><html>")
-          const res = await Request.closed(register)
-
-          if (res.status === 200) {
-            window.alert("Dokument erfolgreich gespeichert.")
-            window.location.reload()
-          } else {
-            // if error recreate state ??
-            window.alert("Fehler.. Bitte wiederholen.")
-            await this.request("toolbox/append", document.body)
-            this.removeOverlay(securityOverlay)
-          }
-
-        })
-
-
-      })
-
     }
 
     if (name === "icon-top/text-bottom") {
@@ -17221,7 +18260,7 @@ export class Helper {
         button.right.innerHTML = "Experten Name ändern"
         button.left.innerHTML = ".name"
         button.addEventListener("click", () => {
-          this.popup(overlay => {
+          this.overlay("toolbox", overlay => {
             this.headerPicker("removeOverlay", overlay)
 
             this.update("name/expert/closed", overlay, {ok: () => this.removeOverlay(overlay)})
@@ -17236,7 +18275,7 @@ export class Helper {
         button.left.innerHTML = ".platform"
         button.addEventListener("click", () => {
 
-          this.popup(async overlay => {
+          this.overlay("toolbox", async overlay => {
             this.headerPicker("removeOverlay", overlay)
             const info = this.headerPicker("info", overlay)
             info.innerHTML = ".platform"
@@ -17270,7 +18309,7 @@ export class Helper {
                 }
 
 
-                this.popup(async securityOverlay => {
+                this.overlay("toolbox", async securityOverlay => {
 
                   const register = {}
                   register.url = "/register/platform/closed/"
@@ -17625,7 +18664,7 @@ export class Helper {
       firstRow.style.margin = "13px 0"
       firstRow.style.cursor = "pointer"
       firstRow.addEventListener("click", () => {
-        this.popup(overlay => {
+        this.overlay("toolbox", overlay => {
 
 
           const header = document.createElement("div")
@@ -17835,13 +18874,56 @@ export class Helper {
   }
 
   static removeOverlay(overlay) {
-    document.body.style.overflow = "visible"
+    //document.body.style.overflow = "visible"
     overlay.remove()
   }
 
   static overlay(event, callback) {
 
     if (callback !== undefined) {
+
+      if (event === "toolbox") {
+
+        const overlay = document.createElement("div")
+        overlay.classList.add("overlay")
+
+        // mobile issues
+        overlay.style.height = "100%"
+        overlay.style.overscrollBehavior = "none"
+        //document.body.style.overscrollBehavior = "none"
+        //document.body.style.overflow = "hidden"
+
+        overlay.style.width = "100%"
+        overlay.style.zIndex = "99999999999999"
+        overlay.style.position = "fixed"
+        overlay.style.top = "0"
+        overlay.style.left = "0"
+
+        overlay.style.background = this.colors.matte.light.background
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          overlay.style.background = this.colors.matte.dark.background
+        }
+
+        overlay.style.display = "flex"
+        overlay.style.flexDirection = "column"
+        overlay.style.opacity = 0
+
+        callback(overlay)
+
+        document.body.append(overlay)
+
+        const animation = overlay.animate([
+          { opacity: 0, transform: 'translateY(13px)' },
+          { opacity: 1, transform: 'translateY(0)' },
+        ], {
+          duration: 344,
+          easing: 'ease-in-out',
+          fill: "forwards"
+        })
+
+        return overlay
+
+      }
 
       if (event === "popup") {
 
@@ -17851,8 +18933,8 @@ export class Helper {
         // mobile issues
         overlay.style.height = "100%"
         overlay.style.overscrollBehavior = "none"
-        document.body.style.overscrollBehavior = "none"
-        document.body.style.overflow = "hidden"
+        //document.body.style.overscrollBehavior = "none"
+        //document.body.style.overflow = "hidden"
 
         overlay.style.width = "100%"
         overlay.style.zIndex = "99999999999999"
@@ -17891,8 +18973,8 @@ export class Helper {
         // mobile issues
         overlay.style.height = "100%"
         overlay.style.overscrollBehavior = "none"
-        document.body.style.overscrollBehavior = "none"
-        document.body.style.overflow = "hidden"
+        //document.body.style.overscrollBehavior = "none"
+        //document.body.style.overflow = "hidden"
 
         overlay.style.width = "100%"
         overlay.style.zIndex = "99999999999999"
@@ -17937,8 +19019,8 @@ export class Helper {
         // mobile issues
         overlay.style.height = "100%"
         overlay.style.overscrollBehavior = "none"
-        document.body.style.overscrollBehavior = "none"
-        document.body.style.overflow = "hidden"
+        //document.body.style.overscrollBehavior = "none"
+        //document.body.style.overflow = "hidden"
 
         overlay.style.width = "100%"
         overlay.style.zIndex = "99999999999999"
@@ -17964,10 +19046,18 @@ export class Helper {
     }
   }
 
+
   static popup(callback) {
     if (callback !== undefined) {
       const overlay = document.createElement("div")
       overlay.classList.add("overlay")
+
+      const removeOverlayButton = this.create("button/remove-overlay", overlay)
+      removeOverlayButton.onclick = () => {
+        document.body.style.overscrollBehavior = null
+        document.body.style.overflow = null
+        overlay.remove()
+      }
 
       // mobile issues
       overlay.style.height = "100%"

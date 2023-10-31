@@ -69,7 +69,7 @@
 
       }
 
-      Helper.render("text/title", "Plattformen", document.body)
+      const title = Helper.render("text/title", "Plattformen", document.body)
 
       {
         const platformButtonsContainer = Helper.headerPicker("loading", document.body)
@@ -117,27 +117,38 @@
             {
               const verify = {}
               verify.url = "/verify/expert/closed/"
-              const res = await Request.middleware(verify)
+              const res = await Request.closed(verify)
 
               if (res.status !== 200) {
 
-                const get = {}
-                get.url = "/get/platforms/location/"
-                const res = await Request.location(get)
+                const res = await Helper.get("platform-values/writability-closed")
 
-                if (res.status !== 200) {
+                if (res.status === 200) {
+                  const values = JSON.parse(res.response)
 
-                  Helper.convert("parent/info", platformButtonsContainer)
+                  Helper.convert("parent/scrollable", platformButtonsContainer)
+                  title.textContent = "Werteinheiten mit Schreibrechte"
 
-                  platformButtonsContainer.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Plattformen für dich zur Verfügung stehen.</span>`
-                  throw new Error("platform not found")
+                  for (let i = 0; i < values.length; i++) {
+                    const value = values[i]
+
+
+                    const button = Helper.create("button/left-right", platformButtonsContainer)
+                    button.right.innerHTML = value.alias
+                    button.left.innerHTML = value.path
+                    button.onclick = () => window.location.assign(value.path)
+                  }
+
 
                 }
 
-                if (res.status === 200) {
-                  const platforms = JSON.parse(res.response)
+                if (res.status !== 200) {
 
-                  if (platforms.length === 0) {
+                  const get = {}
+                  get.url = "/get/platforms/location/"
+                  const res = await Request.location(get)
+
+                  if (res.status !== 200) {
 
                     Helper.convert("parent/info", platformButtonsContainer)
 
@@ -146,11 +157,27 @@
 
                   }
 
-                  Helper.convert("parent/scrollable", platformButtonsContainer)
+                  if (res.status === 200) {
+                    const platforms = JSON.parse(res.response)
 
-                  Helper.render("platforms/location", platforms, platformButtonsContainer)
+                    if (platforms.length === 0) {
+
+                      Helper.convert("parent/info", platformButtonsContainer)
+
+                      platformButtonsContainer.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Plattformen für dich zur Verfügung stehen.</span>`
+                      throw new Error("platform not found")
+
+                    }
+
+                    Helper.convert("parent/scrollable", platformButtonsContainer)
+
+                    Helper.render("platforms/location", platforms, platformButtonsContainer)
+
+                  }
+
 
                 }
+
 
               }
 
