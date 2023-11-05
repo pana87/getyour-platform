@@ -108,6 +108,8 @@ app.get("/:expert/", async (req, res, next) => {
       }
     }
 
+    return res.redirect("/")
+
   } catch (error) {
     await Helper.logError(error, req)
   }
@@ -187,6 +189,60 @@ async (req, res, next) => {
     if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
     if (doc.users === undefined) throw new Error("users is undefined")
 
+    // is writable algo
+    for (let i = 0; i < doc.users.length; i++) {
+      const jwtUser = doc.users[i]
+      if (jwtUser.id === req.jwt.id) {
+
+        for (let i = 0; i < doc.users.length; i++) {
+          const user = doc.users[i]
+
+          if (user["getyour"] !== undefined) {
+            if (user["getyour"].expert !== undefined) {
+              if (user["getyour"].expert.name === req.params.expert) {
+                if (user["getyour"].expert.platforms !== undefined) {
+
+                  for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
+                    const platform = user["getyour"].expert.platforms[i]
+
+                    if (platform.values !== undefined) {
+                      for (let i = 0; i < platform.values.length; i++) {
+                        const value = platform.values[i]
+                        if (value.path === `/${req.params.expert}/${req.params.platform}/${req.params.path}/`) {
+
+                          if (value.writability !== undefined) {
+                            for (let i = 0; i < value.writability.length; i++) {
+                              const authorized = value.writability[i]
+
+                              if (jwtUser.email === authorized) {
+                                return res.send(value.html)
+                              }
+
+                            }
+                          }
+
+                        }
+                      }
+
+                    }
+
+                  }
+
+                }
+
+
+              }
+
+            }
+
+          }
+
+        }
+
+
+      }
+    }
+
     // is expert algo
     for (let i = 0; i < doc.users.length; i++) {
       const user = doc.users[i]
@@ -229,7 +285,7 @@ async (req, res, next) => {
       }
     }
 
-    // is unknown algo
+    // is visible algo
     for (let i = 0; i < doc.users.length; i++) {
       const user = doc.users[i]
 
@@ -327,6 +383,8 @@ async (req, res, next) => {
       }
 
     }
+
+    return res.redirect("/")
 
   } catch (error) {
     await Helper.logError(error, req)

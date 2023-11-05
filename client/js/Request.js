@@ -229,7 +229,7 @@ export class Request {
   static async withVerifiedEmail(email, callback) {
     const event = {}
 
-    Helper.popup(async securityOverlay => {
+    Helper.overlay("toolbox", async securityOverlay => {
 
       securityOverlay.style.backgroundColor = Helper.colors.light.background
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {

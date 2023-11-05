@@ -11,7 +11,7 @@ export class TextAreaField {
       this.labelContainer.style.cursor = "pointer"
       this.labelContainer.childNodes.forEach(child => child.style.cursor = "pointer")
       this.labelContainer.addEventListener("click", () => {
-        Helper.popup(overlay => {
+        Helper.overlay("toolbox", overlay => {
           Helper.headerPicker("removeOverlay", overlay)
 
           const content = Helper.create("div/scrollable", overlay)
