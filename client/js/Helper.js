@@ -9,6 +9,7 @@ import {CheckboxField} from "/js/CheckboxField.js"
 export class Helper {
 
   static run(event, input) {
+
     if (event === "text/js") {
 
       return new Promise((resolve, reject) => {
@@ -24,10 +25,33 @@ export class Helper {
 
 
     }
+
   }
 
   static delete(event, input) {
     // event = thing/algorithm
+
+
+    if (event === "script/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const del = {}
+          del.url = "/delete/script/closed/"
+          del.type = "condition"
+          del.id = input
+          const res = await Request.closed(del)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
 
     if (event === "match-maker-condition/closed") {
 
@@ -94,6 +118,39 @@ export class Helper {
   // no dom creation, only events
   static add(event, input) {
     // event = input/algorithm
+
+
+    if (event === "scripts/update-buttons") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const res = await this.get("scripts/closed")
+
+          if (res.status === 200) {
+            const scripts = JSON.parse(res.response)
+
+            this.convert("parent/scrollable", input)
+
+            this.render("scripts/update-buttons", scripts, input)
+
+            resolve()
+
+          }
+
+          if (res.status !== 200) {
+            this.convert("parent/info", input)
+            input.innerHTML = "Keine Skripte gefunden."
+            throw new Error("not found")
+          }
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+
+    }
 
     if (event === "field/html") {
 
@@ -212,24 +269,188 @@ export class Helper {
 
     if (event === "observer/id-mutation") {
 
+      const cache = {}
+
       const observer = new MutationObserver((mutations, observer) => {
         for (let i = 0; i < mutations.length; i++) {
           const mutation = mutations[i]
+
+          if (mutation.type === "childList") {
+
+            mutation.removedNodes.forEach(node => {
+
+
+              if (!this.stringIsEmpty(node.id)) {
+
+                const borderStyle = "2px dashed rgb(176, 53, 53)"
+
+                const ids = document.querySelectorAll(`#${node.id}`)
+
+                if (ids[1] !== undefined) {
+                  cache.id = node.id
+                  document.querySelectorAll(`#${ids[1].id}`).forEach(id => {
+                    id.style.border = borderStyle
+                  })
+                }
+
+                if (ids[1] === undefined) {
+
+                  if (cache.id !== undefined) {
+
+                    const oldIds = document.querySelectorAll(`#${cache.id}`)
+
+                    if (oldIds[1] !== undefined) {
+                      document.querySelectorAll(`#${oldIds[1].id}`).forEach(id => {
+                        id.style.border = borderStyle
+                      })
+                    }
+
+                    if (oldIds[1] === undefined) {
+
+                      oldIds.forEach(id => {
+
+                        if (id.style.border === borderStyle) {
+                          id.style.border = null
+                        }
+
+                      })
+
+                    }
+
+
+                  }
+
+                  ids.forEach(id => {
+
+                    if (id.style.border === borderStyle) {
+                      id.style.border = null
+                    }
+
+                  })
+
+                }
+
+              }
+
+
+            })
+
+            mutation.addedNodes.forEach(node => {
+
+              if (!this.stringIsEmpty(node.id)) {
+
+                const borderStyle = "2px dashed rgb(176, 53, 53)"
+
+                const ids = document.querySelectorAll(`#${node.id}`)
+
+                if (ids[1] !== undefined) {
+                  cache.id = node.id
+                  document.querySelectorAll(`#${ids[1].id}`).forEach(id => {
+                    id.style.border = borderStyle
+                  })
+                }
+
+                if (ids[1] === undefined) {
+
+                  if (cache.id !== undefined) {
+
+                    const oldIds = document.querySelectorAll(`#${cache.id}`)
+
+                    if (oldIds[1] !== undefined) {
+                      document.querySelectorAll(`#${oldIds[1].id}`).forEach(id => {
+                        id.style.border = borderStyle
+                      })
+                    }
+
+                    if (oldIds[1] === undefined) {
+
+                      oldIds.forEach(id => {
+
+                        if (id.style.border === borderStyle) {
+                          id.style.border = null
+                        }
+
+                      })
+
+                    }
+
+
+                  }
+
+                  ids.forEach(id => {
+
+                    if (id.style.border === borderStyle) {
+                      id.style.border = null
+                    }
+
+                  })
+
+                }
+
+              }
+
+
+            })
+
+          }
+
           if (mutation.type === 'attributes' && mutation.attributeName === 'id') {
+
             if (!this.stringIsEmpty(mutation.target.id)) {
 
+
+              const borderStyle = "2px dashed rgb(176, 53, 53)"
+
               const ids = document.querySelectorAll(`#${mutation.target.id}`)
+
               if (ids[1] !== undefined) {
-                ids[0].style.border = `2px dashed ${this.colors.matte.light.error}`
-                ids[1].style.border = `2px dashed ${this.colors.matte.light.error}`
-              } else {
-                if (ids[0].style.border === "2px dashed rgb(176, 53, 53)") {
-                  ids[0].style.border = null
-                }
+                cache.id = mutation.target.id
+                document.querySelectorAll(`#${ids[1].id}`).forEach(id => {
+                  id.style.border = borderStyle
+                })
               }
+
+              if (ids[1] === undefined) {
+
+                if (cache.id !== undefined) {
+
+                  const oldIds = document.querySelectorAll(`#${cache.id}`)
+
+                  if (oldIds[1] !== undefined) {
+                    document.querySelectorAll(`#${oldIds[1].id}`).forEach(id => {
+                      id.style.border = borderStyle
+                    })
+                  }
+
+                  if (oldIds[1] === undefined) {
+
+                    oldIds.forEach(id => {
+
+                      if (id.style.border === borderStyle) {
+                        id.style.border = null
+                      }
+
+                    })
+
+                  }
+
+
+                }
+
+                ids.forEach(id => {
+
+                  if (id.style.border === borderStyle) {
+                    id.style.border = null
+                  }
+
+                })
+
+              }
+
 
             }
           }
+
         }
       })
       observer.observe(document.documentElement, {
@@ -531,22 +752,15 @@ export class Helper {
 
         this.overlay("security", async securityOverlay => {
 
-          // prepare html
+          // prepare html state
           document.querySelectorAll("#toolbox").forEach(element => element.remove())
           document.querySelectorAll("[data-id]").forEach(element => element.remove())
           document.querySelectorAll(".overlay").forEach(element => element.remove())
 
-          // document.body.style.overscrollBehavior = null
-          // document.body.style.overflow = null
+          const html = document.documentElement.outerHTML.replace(/<html>/, "<!DOCTYPE html><html>")
 
           // save html state
-          const html = document.documentElement.outerHTML.replace(/<html>/, "<!DOCTYPE html><html>")
-          // const register = {}
-          // register.url = "/register/platform-value/closed/"
-          // register.type = "html"
-          // register.html = document.documentElement.outerHTML.replace(/<html>/, "<!DOCTYPE html><html>")
-          // const res = await Request.closed(register)
-          const res = await this.register("value/platform/closed", html)
+          const res = await this.register("html/platform-value/closed", html)
 
           if (res.status === 200) {
             window.alert("Dokument erfolgreich gespeichert.")
@@ -554,11 +768,8 @@ export class Helper {
           }
 
           if (res.status !== 200) {
-            // if error recreate state ??
 
-
-            // if closed not working then try writable-closed
-            const res = await this.register("value/platform/writable-closed", html)
+            const res = await this.register("html/platform-value/writable-closed", html)
 
             if (res.status === 200) {
               window.alert("Dokument erfolgreich gespeichert.")
@@ -1318,6 +1529,29 @@ export class Helper {
 
     }
 
+    if (event === "user-tags/location-list/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const get = {}
+          get.url = "/get/user/closed/"
+          get.type = "location-list"
+          get.ids = input.ids
+          get.tags = input.tags
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
     if (event === "user-keys/closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -1448,7 +1682,7 @@ export class Helper {
 
     }
 
-    if (event === "match-maker-conditions/complete-closed") {
+    if (event === "conditions/match-maker/closed") {
 
       return new Promise(async (resolve, reject) => {
 
@@ -1456,7 +1690,7 @@ export class Helper {
 
           const get = {}
           get.url = "/get/match-maker/closed/"
-          get.type = "complete-conditions"
+          get.type = "conditions-closed"
           get.id = input
           const res = await Request.closed(get)
 
@@ -1927,7 +2161,6 @@ export class Helper {
 
                       const res = await this.get("location-list-funnel/closed", map)
 
-                      // need the location list funnel
                       if (res.status === 200) {
                         map.idMap = JSON.parse(res.response)
                         map.funnel = input.funnel
@@ -2768,141 +3001,6 @@ export class Helper {
 
     }
 
-    if (event === "funnel/script") {
-
-      const funnel = this.create("div/scrollable", parent)
-
-      if (input !== undefined) {
-        if (!this.numberIsEmpty(input.id)) {
-
-          const button = this.buttonPicker("left/right", funnel)
-          button.left.innerHTML = ".preview"
-          button.right.innerHTML = "Skript laden"
-
-          const feedbackButton = this.buttonPicker("left/right", funnel)
-          feedbackButton.left.innerHTML = ".feedback"
-          this.update("feedback/script/location", feedbackButton, input)
-
-          this.get("script/closed", null, input.id).then(res => {
-            feedbackButton.counter = document.createElement("div")
-            feedbackButton.counter.innerHTML = res.feedbackLength
-            feedbackButton.right.append(feedbackButton.counter)
-
-            scriptField.input.value = res.script
-            nameField.input.value = res.name
-
-            this.verify("field-funnel/validity", funnel)
-
-            button.addEventListener("click", async () => {
-
-              await this.verify("field-funnel/validity", funnel)
-              try {
-
-                const html = this.convert("text/dom", res.script)
-
-                if (html.tagName === "SCRIPT") {
-
-                  const script = this.convert("js/script", html.innerHTML)
-                  script.id = "script-for-testing"
-                  script.type = "module"
-
-                  if (document.getElementById("script-for-testing") !== null) {
-                    document.getElementById("script-for-testing").remove()
-                  }
-
-                  if (document.getElementById("script-for-testing") === null) {
-                    document.body.removeAttribute("style")
-                    document.querySelectorAll(".overlay").forEach(overlay => overlay.remove())
-                    document.body.append(script)
-                  }
-
-                }
-
-              } catch (error) {
-                console.error(error)
-              }
-
-            })
-          })
-
-        }
-      }
-
-      const nameField = this.create("field/name", funnel)
-      nameField.input.placeholder = "mein-skript"
-      this.verify("input/validity", nameField.input)
-      nameField.input.addEventListener("input", () => this.verify("input/validity", nameField.input))
-
-      const scriptField = this.create("field/script", funnel)
-      scriptField.input.style.height = "100vh"
-      this.verify("input/validity", scriptField.input)
-      scriptField.input.addEventListener("input", () => this.verify("input/validity", scriptField.input))
-
-
-      const button = this.buttonPicker("action", funnel)
-      button.innerHTML = "Skript jetzt speichern"
-      button.addEventListener("click", async () => {
-
-        await this.verify("field-funnel/validity", funnel)
-
-        const map = {}
-        map.script = scriptField.input.value
-        map.name = nameField.input.value
-
-        if (input !== undefined) {
-
-          if (!this.numberIsEmpty(input.id)) {
-            map.id = input.id
-          }
-
-        }
-
-        this.overlay("security", async securityOverlay => {
-
-          await this.update("script/closed", securityOverlay, map)
-
-          if (input !== undefined) {
-            if (input.ok !== undefined) await input.ok()
-          }
-
-          this.removeOverlay(securityOverlay)
-
-        })
-
-      })
-
-      if (input !== undefined) {
-
-        if (!this.numberIsEmpty(input.id)) {
-
-          const button = this.buttonPicker("delete", funnel)
-          button.innerHTML = "Skript entfernen"
-          button.addEventListener("click", () => {
-
-            this.overlay("security", async securityOverlay => {
-              const del = {}
-              del.url = "/delete/script/closed/"
-              del.id = input.id
-              const res = await Request.closed(del)
-
-              if (res.status === 200) {
-                if (input.ok !== undefined) await input.ok()
-                this.removeOverlay(securityOverlay)
-              } else {
-                this.redirect("session-expired")
-              }
-
-            })
-
-
-          })
-
-        }
-
-      }
-
-    }
-
     if (event === "funnel/service") {
 
       const funnel = this.create("div/scrollable", parent)
@@ -3165,55 +3263,16 @@ export class Helper {
 
       return new Promise(async (resolve, reject) => {
 
-        const content = this.headerPicker("loading", parent)
+        try {
+          const get = {}
+          get.url = "/get/scripts/closed/"
+          get.type = "closed"
+          const res = await Request.closed(get)
 
-        const get = {}
-        get.url = "/get/scripts/closed/"
-        const res = await Request.closed(get)
+          resolve(res)
 
-        if (res.status === 200) {
-          const scripts = JSON.parse(res.response)
-
-          this.convert("parent/scrollable", content)
-
-          for (let i = 0; i < scripts.length; i++) {
-            const script = scripts[i]
-
-            const button = this.buttonPicker("left/right", content)
-            if (script.name !== undefined) {
-              button.right.innerHTML = script.name
-            }
-            button.left.innerHTML = `Skript ${scripts.length - i}`
-
-            button.addEventListener("click", () => {
-              this.overlay("toolbox", overlay => {
-                this.headerPicker("removeOverlay", overlay)
-                const info = this.headerPicker("info", overlay)
-                info.append(this.convert("text/span", ".script"))
-
-                script.ok = async () => {
-
-                  this.reset(content)
-                  await this.get(event, content, script)
-                  this.removeOverlay(overlay)
-
-                }
-
-                this.get("funnel/script", overlay, script)
-
-              })
-            })
-
-          }
-
-          return resolve(content)
-
-        }
-
-
-        if (res.status !== 200) {
-          this.redirect("session-expired")
-          return reject(new Error("get scripts failed"))
+        } catch (error) {
+          reject(error)
         }
 
       })
@@ -3771,7 +3830,7 @@ export class Helper {
                     const info = this.headerPicker("info", overlay)
                     info.innerHTML = `.scripts`
 
-                    const create = this.buttonPicker("left/right", overlay)
+                    const create = this.create("button/left-right", overlay)
                     create.left.innerHTML = ".create"
                     create.right.innerHTML = "Neues Skript hochladen"
                     create.addEventListener("click", () => {
@@ -3781,13 +3840,50 @@ export class Helper {
                         const info = this.headerPicker("info", overlay)
                         info.append(this.convert("text/span", ".script"))
 
-                        this.get("funnel/script", overlay, {ok: async () => {
+                        const funnel = this.create("div/scrollable", overlay)
 
-                          this.reset(container)
-                          await this.get("scripts/closed", container)
-                          this.removeOverlay(overlay)
+                        const nameField = this.create("field/name", funnel)
+                        nameField.input.placeholder = "mein-skript"
+                        this.verify("input/value", nameField.input)
+                        nameField.input.addEventListener("input", () => this.verify("input/value", nameField.input))
 
-                        }})
+                        const scriptField = this.create("field/script", funnel)
+                        scriptField.input.style.height = "100vh"
+                        this.verify("input/value", scriptField.input)
+                        scriptField.input.addEventListener("input", () => this.verify("input/value", scriptField.input))
+
+                        const button = this.create("button/action", funnel)
+                        button.innerHTML = "Skript jetzt speichern"
+                        button.addEventListener("click", async () => {
+
+                          await this.verify("field-funnel/validity", funnel)
+
+                          const map = {}
+                          map.script = scriptField.input.value
+                          map.name = nameField.input.value
+
+                          this.overlay("security", async securityOverlay => {
+
+                            const res = await this.register("script/closed", map)
+
+                            if (res.status === 200) {
+
+                              this.convert("parent/loading", content)
+                              await this.add("scripts/update-buttons", content)
+
+                              this.remove("overlay", securityOverlay)
+                              this.remove("overlay", overlay)
+
+                            }
+
+                            if (res.status !== 200) {
+                              window.alert("Fehler.. Bitte wiederholen.")
+                              this.remove("overlay", securityOverlay)
+                            }
+
+                          })
+
+                        })
 
                       })
 
@@ -3795,7 +3891,10 @@ export class Helper {
 
                     this.render("text/hr", "Meine Skripte", overlay)
 
-                    const container = await this.get("scripts/closed", overlay)
+                    const content = this.create("info/loading", overlay)
+
+                    await this.add("scripts/update-buttons", content)
+
 
                   })
                 })
@@ -4004,7 +4103,138 @@ export class Helper {
   static register(event, input) {
     // event = tag/on/algorithm
 
-    if (event === "value/platform/writable-closed") {
+    if (event === "map/location-list/closed") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/register/location-list/closed/"
+          register.type = "closed"
+          register.tag = input.tag
+          register.map = input.map
+          const res = await Request.closed(register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "script/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const register = {}
+          register.url = "/register/script/closed/"
+          register.type = "closed"
+          register.name = input.name
+          register.script = input.script
+
+          const res = await Request.closed(register)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+    }
+
+    if (event === "value/platform/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const register = {}
+          register.url = "/register/platform-value/closed/"
+          register.type = "new"
+          register.platform = input.platform
+          register.path = input.path
+          register.alias = input.alias
+          const res = await Request.closed(register)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+    if (event === "lang/platform-value/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const register = {}
+          register.url = "/register/platform-value/closed/"
+          register.type = "lang"
+          register.lang = input.lang
+          register.path = input.path
+          const res = await Request.closed(register)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+    if (event === "alias/platform-value/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const register = {}
+          register.url = "/register/platform-value/closed/"
+          register.type = "alias"
+          register.alias = input.alias
+          register.path = input.path
+          const res = await Request.closed(register)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+    if (event === "visibility/platform-value/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const register = {}
+          register.url = "/register/platform-value/closed/"
+          register.type = "visibility"
+          register.visibility = input.visibility
+          register.roles = input.roles
+          register.authorized = input.authorized
+          register.path = input.path
+          const res = await Request.closed(register)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+    if (event === "html/platform-value/writable-closed") {
       return new Promise(async (resolve, reject) => {
 
         try {
@@ -4024,7 +4254,7 @@ export class Helper {
       })
     }
 
-    if (event === "value/platform/closed") {
+    if (event === "html/platform-value/closed") {
       return new Promise(async (resolve, reject) => {
 
         try {
@@ -4140,6 +4370,26 @@ export class Helper {
       input = parent
     }
 
+    if (event === "script/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const update = {}
+          update.url = "/update/script/closed/"
+          update.type = "closed"
+          update.id = input.id
+          update.name = input.name
+          update.script = input.script
+          const res = await Request.closed(update)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+    }
 
     if (event === "condition/match-maker/closed") {
       return new Promise(async (resolve, reject) => {
@@ -4836,38 +5086,6 @@ export class Helper {
 
         if (res.status !== 200) {
           this.redirect("session-expired")
-          return reject()
-        }
-
-      })
-    }
-
-    if (event === "script/closed") {
-
-      return new Promise(async (resolve, reject) => {
-
-        const update = {}
-        update.url = "/update/script/closed/"
-        update.script = input.script
-
-        if (input.id !== undefined) {
-          update.id = input.id
-        }
-
-
-        if (input.name !== undefined) {
-          update.name = input.name
-        }
-
-        const res = await Request.closed(update)
-
-
-        if (res.status === 200) {
-          return resolve()
-        }
-
-
-        if (res.status !== 200) {
           return reject()
         }
 
@@ -6170,6 +6388,119 @@ k
 
       if (input !== undefined) input.append(header)
       return header
+    }
+
+    if (event === "div/match-maker-list") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const sorted = input.list
+          sorted.sort((a, b) => {
+            return b.reputation - a.reputation // Descending order, for ascending use: a.reputation - b.reputation
+          })
+
+          const userList = this.create("div/scrollable")
+          userList.setAttribute("id", `match-maker-list-${input.name}`)
+
+          const matchMaker = document.querySelector(`[match-maker="${input.name}"]`)
+
+          if (matchMaker !== null) {
+
+            const tags = []
+            matchMaker.querySelectorAll("*").forEach(element => {
+              if (element.hasAttribute("user-data")) {
+                tags.push(element.getAttribute("user-data"))
+              }
+            })
+
+            const ids = []
+            for (let i = 0; i < sorted.length; i++) {
+              const map = sorted[i]
+
+              const clone = document.createElement("div")
+              clone.innerHTML = matchMaker.innerHTML
+              clone.setAttribute("id", map.id)
+              clone.setAttribute("style", this.convert("styles/text", matchMaker))
+
+              ids.push(map.id)
+
+              Object.entries(map.funnel).forEach(([key, value]) => {
+                clone.querySelectorAll(`.${key}`).forEach(element => {
+
+                  if (element.tagName === "IMG") {
+                    element.src = value
+                  } else {
+                    element.innerHTML = value
+                  }
+
+                })
+
+              })
+
+              userList.append(clone)
+
+            }
+
+            const res = await this.get("user-tags/location-list/closed", {tags, ids})
+
+            if (res.status === 200) {
+              const data = JSON.parse(res.response)
+
+              for (let i = 0; i < userList.children.length; i++) {
+                const child = userList.children[i]
+
+
+                Object.entries(data).forEach(([key, value]) => {
+
+                  if (child.id === key) {
+
+                    Object.entries(value).forEach(([key, value]) => {
+
+                      child.querySelectorAll("[user-data]").forEach(element => {
+                        if (element.getAttribute("user-data") === key) {
+
+                          if (element.tagName === "IMG") {
+                            element.src = value
+                          } else {
+                            element.innerHTML = value
+                          }
+
+                        }
+                      })
+
+                    })
+
+                  }
+
+                })
+
+              }
+
+            }
+
+            const userLists = document.querySelectorAll(`#match-maker-list-${input.name}`)
+
+            if (userLists.length === 0) {
+              matchMaker.before(userList)
+              matchMaker.style.display = "none"
+            }
+
+            resolve(userList)
+
+          }
+
+          if (matchMaker === null) {
+            // todo default design
+          }
+
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+
     }
 
     if (event === "div/column-container") {
@@ -7622,9 +7953,7 @@ k
 
           if (res.status === 200) {
             const mirror = JSON.parse(res.response)
-
             await Helper.render("mirror/match-maker-get-list", mirror, "${input.name}")
-
           }
 
         </script>
@@ -9050,7 +9379,7 @@ k
 
             const conditionsContainer = this.create("info/loading", overlay)
 
-            const res = await this.get("match-maker-conditions/complete-closed", matchMaker.id)
+            const res = await this.get("conditions/match-maker/closed", matchMaker.id)
 
             let conditions
             if (res.status === 200) {
@@ -9189,185 +9518,125 @@ k
 
         try {
 
-          const sorted = input
-          sorted.sort((a, b) => {
-            return b.reputation - a.reputation // Descending order, for ascending use: a.reputation - b.reputation
-          })
-
-          const userList = this.create("div/scrollable")
-          userList.setAttribute("id", `match-maker-list-${parent}`)
-
-          document.querySelectorAll(`[match-maker="${parent}"]`).forEach(matchMaker => {
-
-            for (let i = 0; i < sorted.length; i++) {
-              const map = sorted[i]
-
-              const clone = document.createElement("div")
-              clone.innerHTML = matchMaker.innerHTML
-              clone.setAttribute("id", map.id)
-              clone.style.marginBottom = "34px"
-
-              Object.entries(map.funnel).forEach(([key, value]) => {
-                clone.querySelectorAll(`.${key}`).forEach(element => {
-
-                  if (element.tagName === "IMG") {
-                    element.src = value
-                  } else {
-                    element.innerHTML = value
-                  }
-
-                })
-
-              })
-
-              userList.append(clone)
-
-            }
-
-            const userLists = document.querySelectorAll(`#match-maker-list-${parent}`)
-
-            if (userLists.length === 0) {
-              matchMaker.before(userList)
-              matchMaker.style.display = "none"
-            }
-
-            userLists.forEach(list => {
-              this.convert("parent/scrollable", list)
-              list.innerHTML = userList.innerHTML
-              matchMaker.style.display = "none"
-            })
-
-            userLists.forEach(list => {
-              for (let i = 0; i < list.children.length; i++) {
-                const item = list.children[i]
-
-                item.querySelectorAll("*").forEach(element => {
-
-                  if (element.hasAttribute("popup-details")) {
-
-                    const design = document.querySelector(`[popup-details-design="${parent}"]`)
-                    if (design !== null) design.style.display = "none"
-
-                    element.style.cursor = "pointer"
-                    element.addEventListener("click", () => {
-
-                      const funnel = sorted.filter(it => `${it.id}` === item.id)[0].funnel
+          const map = {}
+          map.list = input
+          map.name = parent
+          const mirror = await this.create("div/match-maker-list", map)
 
 
-                      if (design === null) {
+          // add events to the mirror
+          for (let i = 0; i < mirror.children.length; i++) {
+            const child = mirror.children[i]
 
-                        this.overlay("toolbox", overlay => {
+            child.querySelectorAll("*").forEach(element => {
 
-                          const button = this.create("button/back", overlay)
-                          button.onclick = () => {
-                            document.body.style.overscrollBehavior = null
-                            document.body.style.overflow = null
-                            this.remove("overlay", overlay)
-                          }
+              if (element.hasAttribute("popup-details")) {
 
-                          this.render("text/title", "Detailansicht", overlay)
+                const design = document.querySelector(`[popup-details-design="${parent}"]`)
+                if (design !== null) design.style.display = "none"
 
-                          const content = document.createElement("div")
-                          content.style.display = "grid"
-                          content.style.gridTemplateColumns = "repeat(auto-fit, minmax(300px, 1fr))"
-                          content.style.gap = "1rem"
-                          content.style.padding = "34px"
-                          overlay.append(content)
+                element.style.cursor = "pointer"
+                element.onclick = () => {
 
-                          Object.entries(funnel).forEach(([key, value]) => {
+                  const funnel = input.filter(it => `${it.id}` === child.id)[0].funnel
 
-                            const keyValuePair = document.createElement("div")
-                            keyValuePair.classList.add("key-value-pair")
+                  if (design === null) {
 
-                            keyValuePair.style.backgroundColor = this.colors.gray[0]
-                            keyValuePair.style.border = this.colors.light.border
-                            keyValuePair.style.color = this.colors.light.text
-                            keyValuePair.style.boxShadow = this.colors.light.boxShadow
-                            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                              keyValuePair.style.backgroundColor = this.colors.matte.black
-                              keyValuePair.style.border = this.colors.dark.border
-                              keyValuePair.style.boxShadow = this.colors.dark.boxShadow
-                              keyValuePair.style.color = this.colors.dark.text
-                            }
-                            keyValuePair.style.display = "flex"
-                            keyValuePair.style.flexDirection = "column"
-                            keyValuePair.style.padding = "1rem"
-                            keyValuePair.style.borderRadius = "5px"
-                            content.append(keyValuePair)
+                    this.overlay("toolbox", overlay => {
 
-                            const keyDiv = document.createElement("key")
-                            keyDiv.classList.add("key")
-                            keyDiv.style.fontWeight = "bold"
-                            keyDiv.style.marginBottom = "0.5rem"
-                            keyDiv.innerHTML = key
-                            keyDiv.style.color = this.colors.key
-                            keyValuePair.append(keyDiv)
+                      this.add("button/remove-overlay", overlay)
 
-                            const valueDiv = document.createElement("div")
-                            valueDiv.innerHTML = value
-                            valueDiv.classList.add("value")
-                            valueDiv.style.color = this.colors.value
-                            keyValuePair.append(valueDiv)
+                      this.render("text/title", "Detailansicht", overlay)
 
+                      const content = this.create("div/scrollable", overlay)
+                      content.style.display = "grid"
+                      content.style.gridTemplateColumns = "repeat(auto-fit, minmax(300px, 1fr))"
+                      content.style.gap = "21px"
+                      content.style.margin = "21px 34px"
 
-                          })
+                      Object.entries(funnel).forEach(([key, value]) => {
 
+                        const keyValuePair = document.createElement("div")
+                        keyValuePair.classList.add("key-value-pair")
 
-                        })
+                        keyValuePair.style.backgroundColor = this.colors.gray[0]
+                        keyValuePair.style.border = this.colors.light.border
+                        keyValuePair.style.color = this.colors.light.text
+                        keyValuePair.style.boxShadow = this.colors.light.boxShadow
+                        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                          keyValuePair.style.backgroundColor = this.colors.matte.black
+                          keyValuePair.style.border = this.colors.dark.border
+                          keyValuePair.style.boxShadow = this.colors.dark.boxShadow
+                          keyValuePair.style.color = this.colors.dark.text
+                        }
+                        keyValuePair.style.display = "flex"
+                        keyValuePair.style.flexDirection = "column"
+                        keyValuePair.style.padding = "1rem"
+                        keyValuePair.style.borderRadius = "5px"
+                        content.append(keyValuePair)
 
-                      }
+                        const keyDiv = document.createElement("key")
+                        keyDiv.classList.add("key")
+                        keyDiv.style.fontWeight = "bold"
+                        keyDiv.style.marginBottom = "0.5rem"
+                        keyDiv.innerHTML = key
+                        keyDiv.style.color = this.colors.key
+                        keyValuePair.append(keyDiv)
 
-                      if (design !== null) {
-
-                        this.overlay("popup", overlay => {
-
-                          const button = this.create("button/back", overlay)
-                          button.onclick = () => {
-                            document.body.style.overscrollBehavior = null
-                            document.body.style.overflow = null
-                            this.remove("overlay", overlay)
-                          }
-
-                          const content = this.create("div/scrollable", overlay)
-
-                          const clone = design.cloneNode(true)
-
-                          clone.style.display = null
-
-                          content.append(clone)
-
-                          Object.entries(funnel).forEach(([key, value]) => {
-                            content.querySelectorAll(`.${key}`).forEach(element => {
-
-                              if (element.tagName === "IMG") {
-                                element.src = value
-                              } else {
-                                element.innerHTML = value
-                              }
-
-                            })
-
-                          })
+                        const valueDiv = document.createElement("div")
+                        valueDiv.innerHTML = value
+                        valueDiv.classList.add("value")
+                        valueDiv.style.color = this.colors.value
+                        keyValuePair.append(valueDiv)
 
 
-                        })
+                      })
 
-                      }
 
                     })
+
                   }
-                })
+
+                  if (design !== null) {
+
+                    this.overlay("popup", overlay => {
+
+                      this.add("button/remove-overlay", overlay)
+
+                      const content = this.create("div/scrollable", overlay)
+
+                      const clone = design.cloneNode(true)
+
+                      clone.style.display = null
+
+                      content.append(clone)
+
+                      Object.entries(funnel).forEach(([key, value]) => {
+                        content.querySelectorAll(`.${key}`).forEach(element => {
+
+                          if (element.tagName === "IMG") {
+                            element.src = value
+                          } else {
+                            element.innerHTML = value
+                          }
+
+                        })
+
+                      })
+
+
+                    })
+
+                  }
+
+                }
+
               }
 
-
-
-
             })
+          }
 
-
-          })
-
-          resolve(userList)
+          resolve(mirror)
 
         } catch (error) {
           reject(error)
@@ -9620,11 +9889,11 @@ k
         const map = await this.convert("field-funnel/map", fieldFunnel)
 
         this.overlay("security", async securityOverlay => {
+
           const register = {}
-          register.url = "/register/location-list/closed/"
           register.tag = input.tag
           register.map = map
-          const res = await Request.closed(register)
+          const res = await this.register("map/location-list/closed", register)
 
           if (res.status === 200) {
             window.alert("Daten erfolgreich gespeichert.")
@@ -9760,6 +10029,132 @@ k
 
       parent.append(item)
       return item
+    }
+
+    if (event === "scripts/update-buttons") {
+
+      parent.innerHTML = ""
+      for (let i = 0; i < input.length; i++) {
+        const script = input[i]
+
+        const scriptButton = this.create("button/left-right", parent)
+        scriptButton.right.innerHTML = script.name
+        scriptButton.left.innerHTML = `Skript ${input.length - i}`
+
+        scriptButton.addEventListener("click", () => {
+          this.overlay("toolbox", overlay => {
+            this.headerPicker("removeOverlay", overlay)
+            const info = this.headerPicker("info", overlay)
+            info.innerHTML = `.${script.name}`
+
+            const content = this.create("div/scrollable", overlay)
+
+            {
+
+              const button = this.create("button/left-right", content)
+              button.left.innerHTML = ".update"
+              button.right.innerHTML = "Skript bearbeiten"
+              button.onclick = () => {
+                this.overlay("toolbox", overlay => {
+                  this.add("button/remove-overlay", overlay)
+
+                  const info = this.headerPicker("info", overlay)
+                  info.innerHTML = `.${script.name}.update`
+
+                  const funnel = this.create("div/scrollable", overlay)
+
+                  const nameField = this.create("field/name", funnel)
+                  nameField.input.placeholder = "mein-skript"
+                  nameField.input.value = script.name
+                  this.verify("input/value", nameField.input)
+                  nameField.input.addEventListener("input", () => this.verify("input/value", nameField.input))
+
+                  const scriptField = this.create("field/script", funnel)
+                  scriptField.input.style.height = "100vh"
+                  scriptField.input.value = script.script
+                  this.verify("input/value", scriptField.input)
+                  scriptField.input.addEventListener("input", () => this.verify("input/value", scriptField.input))
+
+                  const button = this.create("button/action", funnel)
+                  button.innerHTML = "Skript jetzt speichern"
+                  button.addEventListener("click", async () => {
+
+                    await this.verify("field-funnel/validity", funnel)
+
+                    const map = {}
+                    map.id = script.id
+                    map.script = scriptField.input.value
+                    map.name = nameField.input.value
+
+                    this.overlay("security", async securityOverlay => {
+
+                      const res = await this.update("script/closed", map)
+
+                      if (res.status === 200) {
+
+                        window.alert("Skript erfolgreich gespeichert.")
+
+                        this.convert("parent/loading", parent)
+                        await this.add("scripts/update-buttons", parent)
+
+                        this.remove("overlay", securityOverlay)
+                        this.remove("overlay", overlay.previousSibling)
+                        this.remove("overlay", overlay)
+
+                      }
+
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        this.remove("overlay", securityOverlay)
+                      }
+
+                    })
+
+                  })
+
+
+                })
+              }
+
+            }
+
+            {
+
+              const button = this.create("button/left-right", content)
+              button.left.innerHTML = ".delete"
+              button.right.innerHTML = "Skript entfernen"
+              button.addEventListener("click", () => {
+
+                this.overlay("security", async securityOverlay => {
+
+                  const res = await this.delete("script/closed", script.id)
+
+                  if (res.status === 200) {
+                    window.alert("Skript erfolgreich entfernt.")
+                    this.remove("element", scriptButton)
+                    this.remove("overlay", securityOverlay)
+                    this.remove("overlay", overlay)
+                  }
+
+                  if (res.status !== 200) {
+                    window.alert("Fehler.. Bitte wiederholen.")
+                    this.remove("overlay", securityOverlay)
+                  }
+
+
+                })
+
+
+              })
+
+            }
+
+
+          })
+        })
+
+      }
+
     }
 
     if (event === "scripts/toolbox") {
@@ -11156,12 +11551,7 @@ k
 
           this.overlay("security", async securityOverlay => {
 
-            const register = {}
-            register.url = "/register/platform-value/closed/"
-            register.type = "visibility"
-            register.visibility = visibility
-            register.path = input.path
-            const res = await Request.closed(register)
+            const res = await this.register("visibility/platform-value/closed", {path: input.path, visibility})
 
             if (res.status === 200) {
               window.alert("Sichtbarkeit erfolgreich geändert.")
@@ -11278,14 +11668,7 @@ k
 
           this.overlay("security", async securityOverlay => {
 
-            const register = {}
-            register.url = "/register/platform-value/closed/"
-            register.type = "visibility"
-            register.visibility = visibility
-            register.roles = roles
-            register.authorized = authorized
-            register.path = input.path
-            const res = await Request.closed(register)
+            const res = await this.register("visibility/platform-value/closed", {visibility, roles, authorized, path: input.path})
 
             if (res.status === 200) {
               window.alert("Sichtbarkeit erfolgreich geändert.")
@@ -11294,7 +11677,6 @@ k
               this.removeOverlay(parent.parentElement)
               this.removeOverlay(securityOverlay)
 
-              // ok callback ??
             } else {
               window.alert("Fehler.. Bitte wiederholen.")
               this.removeOverlay(securityOverlay)
@@ -11512,16 +11894,12 @@ k
                       button.innerHTML = "Alias jetzt ändern"
                       button.addEventListener("click", async () => {
 
-                        const valueAlias = valueAliasField.validValue()
+                        const alias = valueAliasField.validValue()
 
                         this.overlay("security", async securityOverlay => {
 
-                          const register = {}
-                          register.url = "/register/platform-value/closed/"
-                          register.type = "alias"
-                          register.alias = valueAlias
-                          register.path = value.path
-                          const res = await Request.middleware(register)
+                          const res = await this.register("alias/platform-value/closed", {alias, path: value.path})
+
                           if (res.status === 200) {
                             window.alert("Alias erfolgreich geändert..")
 
@@ -11593,13 +11971,7 @@ k
 
                       this.overlay("security", async securityOverlay => {
 
-                        const register = {}
-                        register.url = "/register/platform-value/closed/"
-                        register.type = "lang"
-                        register.lang = lang
-                        register.path = value.path
-                        const res = await Request.middleware(register)
-
+                        const res = await this.register("lang/platform-value/closed", {lang, path: value.path})
 
                         if (res.status === 200) {
                           window.alert("Sprache erfolgreich geändert..")
@@ -11683,9 +12055,9 @@ k
                     const funnel = this.create("div/scrollable", overlay)
 
                     const textAreaField = this.create("field/emails", funnel)
-                    textAreaField.label.innerHTML = "Gebe eine Liste mit E-Mail Adressen an und erlaube diesen Nutzern, an deiner Plattform mitzuarbeiten"
+                    textAreaField.label.innerHTML = "Gebe eine Liste mit E-Mail Adressen an und erlaube diesen Nutzern, an deiner Werteinheit mitzuarbeiten"
                     this.verify("input/value", textAreaField.input)
-                    textAreaField.input.oninput = () => this.verify("input/value", textAreaField.input)
+                    textAreaField.input.oninput = async () => this.verify("input/value", textAreaField.input)
 
                     const res = await this.get("writability/platform-value/closed", value.path)
                     if (res.status === 200) {
@@ -12001,13 +12373,13 @@ k
                     button.innerHTML = "Werteinheit jetzt speichern"
                     button.addEventListener("click", async () => {
 
-                      const valuePath = valuePathField.validValue()
-                      const valueAlias = valueAliasField.validValue()
+                      const path = valuePathField.validValue()
+                      const alias = valueAliasField.validValue()
 
                       const verify = {}
                       verify.url = "/verify/platform-value/open/"
                       verify.type = "path"
-                      verify.path = `/${window.location.pathname.split("/")[1]}/${platform.name}/${valuePath}/`
+                      verify.path = `/${window.location.pathname.split("/")[1]}/${platform.name}/${path}/`
                       const res = await Request.middleware(verify)
 
                       if (res.status === 200) {
@@ -12020,12 +12392,7 @@ k
                       this.overlay("toolbox", async securityOverlay => {
                         this.headerPicker("loading", securityOverlay)
 
-                        const register = {}
-                        register.url = "/register/platform-value/closed/"
-                        register.platform = platform.name
-                        register.path = valuePath
-                        register.alias = valueAlias
-                        const res = await Request.middleware(register)
+                        const res = await this.register("value/platform/closed", {path, alias, platform: platform.name})
 
                         if (res.status === 200) {
                           alert("Werteinheit erfolgreich gespeichert..")
@@ -15244,23 +15611,8 @@ k
 
       return new Promise((resolve) => {
 
-        if (input.hasAttribute("required")) {
+        if (input.hasAttribute("required") && !input.hasAttribute("accept")) {
 
-          // required and accept
-          if (input.hasAttribute("accept")) {
-            if (this.verifyIs("input/accepted", input)) {
-              if (this.verifyIs("input/required", input)) {
-                this.setValidStyle(input)
-                return resolve(true)
-              }
-              this.setNotValidStyle(input)
-              const field = input.parentElement
-              field.scrollIntoView({behavior: "smooth"})
-              return resolve(false)
-            }
-          }
-
-          // only required, no accept
           if (this.verifyIs("input/required", input)) {
             this.setValidStyle(input)
             return resolve(true)
@@ -15272,23 +15624,8 @@ k
           }
         }
 
-        if (input.hasAttribute("accept")) {
+        if (input.hasAttribute("accept") && !input.hasAttribute("required")) {
 
-          // accept and required
-          if (input.hasAttribute("required")) {
-            if (this.verifyIs("input/required", input)) {
-              if (this.verifyIs("input/accepted", input)) {
-                this.setValidStyle(input)
-                return resolve(true)
-              }
-              this.setNotValidStyle(input)
-              const field = input.parentElement
-              field.scrollIntoView({behavior: "smooth"})
-              return resolve(false)
-            }
-          }
-
-          // only accept, no required
           if (input.value === "") {
 
             this.setValidStyle(input)
@@ -15316,6 +15653,21 @@ k
           this.setValidStyle(input)
           return resolve(true)
         }
+
+        // accept and required
+        if (input.hasAttribute("required") && input.hasAttribute("accept")) {
+          if (this.verifyIs("input/required", input)) {
+            if (this.verifyIs("input/accepted", input)) {
+              this.setValidStyle(input)
+              return resolve(true)
+            }
+            this.setNotValidStyle(input)
+            const field = input.parentElement
+            field.scrollIntoView({behavior: "smooth"})
+            return resolve(false)
+          }
+        }
+
 
       })
 
@@ -18219,6 +18571,31 @@ k
       }
 
 
+    }
+
+    if (event === "parent/loading") {
+
+      this.reset(input)
+      input.style.display = "flex"
+      input.style.flexDirection = "column"
+      input.style.justifyContent = "center"
+      input.style.alignItems = "center"
+      input.style.height = "100%"
+
+      input.loading = this.iconPicker("loading")
+      input.loading.style.fill = this.colors.light.error
+      input.loading.style.width = "55px"
+      input.loading.style.margin = "8px"
+      input.append(input.loading)
+
+      input.info = document.createElement("div")
+      input.info.innerHTML = "Das kann einen Moment dauern .."
+      input.info.style.color = this.colors.light.error
+      input.info.style.fontSize = "13px"
+      input.info.style.fontFamily = "sans-serif"
+      input.append(input.info)
+
+      return input
     }
 
     if (event === "parent/scrollable") {
