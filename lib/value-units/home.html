@@ -41,7 +41,10 @@
 
             if (res.status === 200) {
               Helper.render("text/hr", "closed apps", content)
-              Helper.create("nav/closed", content)
+
+              const closedButtons = Helper.create("div/scrollable", content)
+              Helper.add("button/network", closedButtons)
+              Helper.add("button/assign-expert-home", closedButtons)
             }
 
             Helper.render("text/hr", "open apps", content)

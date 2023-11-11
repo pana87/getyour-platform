@@ -29,8 +29,92 @@ export class Helper {
   }
 
   static delete(event, input) {
-    // event = thing/algorithm
+    // event = thing/from/algorithm
 
+    if (event === "user/db/self") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const del = {}
+          del.url = "/delete/user/closed/"
+          del.type = "self"
+          del.email = input
+          const res = await Request.closed(del)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+    if (event === "user/db/admin-closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const del = {}
+          del.url = "/delete/user/closed/"
+          del.type = "by-admin"
+          del.id = input
+          const res = await Request.closed(del)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+    if (event === "key/user/admin-closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const del = {}
+          del.url = "/delete/user/closed/"
+          del.type = "key-admin"
+          del.id = input.id
+          del.key = input.key
+          const res = await Request.closed(del)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+    if (event === "key/user/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const del = {}
+          del.url = "/delete/user/closed/"
+          del.type = "key"
+          del.key = input
+          const res = await Request.closed(del)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
 
     if (event === "script/closed") {
 
@@ -119,6 +203,33 @@ export class Helper {
   static add(event, input) {
     // event = input/algorithm
 
+
+    if (event === "oninput/verify-positive-integer") {
+
+      input.addEventListener("input", () => {
+        if (this.verifyIs("text/+int", input.value)) {
+          this.setValidStyle(input)
+        } else {
+          this.setNotValidStyle(input)
+        }
+      })
+
+    }
+
+    if (event === "onclick/assign-expert-home") {
+
+      input.addEventListener("click", async () => {
+
+        const res = await this.get("name/expert/self")
+
+        if (res.status === 200) {
+          const name = res.response
+          window.location.assign(`/${name}/`)
+        }
+
+      })
+
+    }
 
     if (event === "scripts/update-buttons") {
 
@@ -741,6 +852,46 @@ export class Helper {
       if (document.getElementById(input.id) === null) {
         document.body.append(input)
       }
+
+    }
+
+    if (event === "button/network") {
+
+      const button = this.create("button/left-right")
+      button.left.innerHTML = ".network"
+      button.right.innerHTML = "Nutze die Macht deines Netzwerks"
+
+      // todo create network app
+      // do async shit in button onclick
+      // because every closed guy has network button
+
+      if (input) input.append(button)
+      return button
+    }
+
+    if (event === "button/assign-expert-home") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const res = await this.get("name/expert/self")
+
+          if (res.status === 200) {
+            const name = res.response
+
+            const button = this.create("button/left-right", content)
+            button.left.innerHTML = ".expert"
+            button.right.innerHTML = "Der Bereich für Experten"
+            button.onclick = () => window.location.assign(`/${name}/`)
+
+            if (input) input.append(button)
+            resolve(button)
+          }
+
+        } catch (error) {
+          reject(error)
+        }
+      })
 
     }
 
@@ -1429,6 +1580,65 @@ export class Helper {
       input = parent
     }
 
+
+    if (event === "name/expert/self") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/expert/closed/"
+          get.type = "name-self"
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "list/user/admin-closed") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/user/closed/"
+          get.type = "all-admin"
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "keys/user/admin-closed") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/user/closed/"
+          get.type = "keys-admin"
+          get.id = input
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
     if (event === "values/platform/writability-closed") {
 
       return new Promise(async(resolve, reject) => {
@@ -1552,7 +1762,7 @@ export class Helper {
 
     }
 
-    if (event === "user-keys/closed") {
+    if (event === "trees/user/closed") {
 
       return new Promise(async (resolve, reject) => {
 
@@ -1560,7 +1770,7 @@ export class Helper {
 
           const get = {}
           get.url = "/get/user/closed/"
-          get.type = "keys"
+          get.type = "trees"
           get.trees = input
           const res = await Request.closed(get)
 
@@ -4103,6 +4313,24 @@ export class Helper {
   static register(event, input) {
     // event = tag/on/algorithm
 
+
+    if (event === "item/location-cart/self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/register/location-cart/closed/"
+          register.type = "location-list-item-self"
+          register.id = input.id
+          register.quantity = input.quantity
+          const res = await Request.closed(register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "map/location-list/closed") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -6486,6 +6714,12 @@ k
               matchMaker.style.display = "none"
             }
 
+            if (userList.children.length === 0) {
+              this.convert("parent/info", userList)
+              userList.innerHTML = "Keine Daten gefunden."
+              throw new Error("list is empty")
+            }
+
             resolve(userList)
 
           }
@@ -7688,25 +7922,6 @@ k
       }
 
       return button
-    }
-
-    if (event === "nav/closed") {
-
-      const content = this.create("div/scrollable")
-
-      {
-        const button = this.create("button/left-right", content)
-        button.left.innerHTML = ".network"
-        button.right.innerHTML = "Nutze die Macht deines Netzwerks"
-
-        // todo create network app
-
-      }
-
-      if (input !== undefined) input.append(content)
-
-      return content
-
     }
 
     if (event === "nav/open") {
@@ -9523,11 +9738,15 @@ k
           map.name = parent
           const mirror = await this.create("div/match-maker-list", map)
 
-
           // add events to the mirror
           for (let i = 0; i < mirror.children.length; i++) {
             const child = mirror.children[i]
 
+            // default events
+            const quantityInput = child.querySelector("input.quantity")
+            this.add("oninput/verify-positive-integer", quantityInput)
+
+            // search and find events
             child.querySelectorAll("*").forEach(element => {
 
               if (element.hasAttribute("popup-details")) {
@@ -9628,6 +9847,48 @@ k
                     })
 
                   }
+
+                }
+
+              }
+
+              if (element.hasAttribute("add-to-cart")) {
+
+                element.style.cursor = "pointer"
+                element.onclick = () => {
+
+                  const quantityInput = child.querySelector("input.quantity")
+
+                  const quantity = quantityInput.value
+
+                  if (this.verifyIs("text/+int", quantity)) {
+
+                    this.setValidStyle(quantityInput)
+
+                    this.overlay("security", async securityOverlay => {
+
+                      const item = {}
+                      item.id = child.id
+                      item.quantity = quantity
+                      const res = await this.register("item/location-cart/self", item)
+
+                      if (res.status === 200) {
+                        window.alert("Artikel erfolgreich gespeichert.")
+                        this.remove("overlay", securityOverlay)
+                      }
+
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        this.remove("overlay", securityOverlay)
+                      }
+
+                    })
+
+
+                  } else {
+                    this.setNotValidStyle(quantityInput)
+                  }
+
 
                 }
 
@@ -10440,34 +10701,11 @@ k
 
       return new Promise(async (resolve, reject) => {
 
-        const get = {}
-        get.url = "/get/user-keys/closed/"
-        const res = await Request.closed(get)
+        const res = await this.get("keys/user/closed")
 
         if (res.status === 200) {
           const keys = JSON.parse(res.response)
 
-          this.convert("parent/scrollable", parent)
-
-          for (let i = 0; i < keys.length; i++) {
-            const key = keys[i]
-
-            const button = this.buttonPicker("left/right", parent)
-            button.right.style.fontSize = "21px"
-            button.right.innerHTML = `.${key}`
-            const icon = this.iconPicker("delete")
-            button.left.append(icon)
-
-            if (input !== undefined) {
-              if (input.onclick !== undefined) {
-                button.onclick = (ev) => {
-                  ev.key = key
-                  input.onclick(ev)
-                }
-              }
-            }
-
-          }
 
           return resolve()
 
@@ -15597,7 +15835,25 @@ k
 
     }
 
+    if (event === "text/int") {
+
+      try {
+        const number = Number(input)
+        return Number.isInteger(number)
+      } catch (error) {
+        return false
+      }
+
+    }
+
     if (event === "text/+int") {
+
+      try {
+        const number = Number(input)
+        return Number.isInteger(number) && number > 0
+      } catch (error) {
+        return false
+      }
 
     }
 
@@ -15919,6 +16175,41 @@ k
           return false
         }
       }
+    }
+
+    if (event === "element/loaded") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const observer = new MutationObserver((mutations, observer) => {
+            for (let i = 0; i < mutations.length; i++) {
+              const mutation = mutations[i]
+
+              if (mutation.type === "childList") {
+
+                mutation.addedNodes.forEach(node => {
+
+                  if (node.id === input) {
+                    resolve(node)
+                  }
+
+                })
+
+              }
+
+            }
+          })
+          observer.observe(document.documentElement, {
+            childList: true,
+            subtree: true,
+          })
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
     }
 
     if (event === "element/html") {
@@ -18728,11 +19019,11 @@ k
           const confirm = window.confirm("Du bist gerade dabei deine persönliche Datenbank zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden. Du wirst abgemeldet und musst dich erneut registrieren lassen.\n\nMöchtest du alle deine Daten wirklich löschen?")
 
           if (confirm === true) {
-            const prompt = window.prompt("Bitte bestätige deine E-Mail Adresse.")
+            const prompt = window.prompt("Bitte bestätige deine E-Mail Adresse, um fortzufahren.")
 
             if (this.stringIsEmpty(prompt)) {
               alert("Fehler.. Bitte wiederholen.")
-              return
+              throw new Error("not found")
             }
 
             this.overlay("security", async securityOverlay => {
@@ -18742,15 +19033,14 @@ k
               verify.email = prompt
               const res = await Request.closed(verify)
 
+
               if (res.status === 200) {
-                const del = {}
-                del.url = "/delete/user/closed/"
-                del.email = prompt
-                const res = await Request.closed(del)
+
+                const res = await this.delete("user/db/self", prompt)
 
                 if (res.status === 200) {
                   alert("Daten erfolgreich gelöscht.")
-                  window.location.reload()
+                  window.location.assign("/")
                 } else {
                   alert("Fehler.. Bitte wiederholen.")
                   this.removeOverlay(securityOverlay)

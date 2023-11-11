@@ -65,9 +65,7 @@
                 Helper.headerPicker("removeOverlay", overlay)
                 const info = Helper.headerPicker("info", overlay)
 
-                const getUsers = {}
-                getUsers.url = "/get/user/closed/2/"
-                const res = await Request.closed(getUsers)
+                const res = await Helper.get("list/user/admin-closed")
 
                 if (res.status === 200) {
                   const users = JSON.parse(res.response)
@@ -103,10 +101,8 @@
 
                       const confirm = window.confirm("Möchten Sie wirklich diesen Nutzer löschen?")
                       if (confirm === true) {
-                        const deleteUser = {}
-                        deleteUser.url = "/delete/user/closed/2/"
-                        deleteUser.email = user.email
-                        const res = await Request.closed(deleteUser)
+
+                        const res = await Helper.delete("user/db/admin-closed", user.id)
 
                         if (res.status === 200) button.remove()
 
@@ -215,54 +211,90 @@
                           button.right.innerHTML = "Einzelne Datenfelder des Nutzers"
                           button.left.innerHTML = ".keys"
                           button.addEventListener("click", () => {
-                            Helper.popup(async overlay => {
-                              Helper.headerPicker("removeOverlay", overlay)
-                              const info = Helper.headerPicker("info", overlay)
+                            Helper.popup(async keysOverlay => {
+                              Helper.add("button/remove-overlay", keysOverlay)
+                              const info = Helper.headerPicker("info", keysOverlay)
                               info.innerHTML = user.email
 
-                              const buttons = Helper.headerPicker("loading", overlay)
+                              const content = Helper.create("info/loading", keysOverlay)
 
-                              const map = {}
-                              // ok callback
-                              map.onclick = (ev) => {
+                              const res = await Helper.get("keys/user/admin-closed", user.id)
 
-                                return window.alert("Bald verfügbar..")
+                              if (res.status === 200) {
+                                const keys = JSON.parse(res.response)
 
-                                const confirm = window.confirm("Du bist gerade dabei einen Datensatz aus der persönlichen Datenbank des Nuzters zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden.\n\nMöchtest du diesen Datensatz wirklich löschen?")
-                                if (confirm === true) {
+                                Helper.convert("parent/scrollable", content)
 
-                                  Helper.overlay("security", async securityOverlay => {
+                                for (let i = 0; i < keys.length; i++) {
+                                  const key = keys[i]
 
-                                    const del = {}
-                                    del.url = "/delete/key/closed/2/"
-                                    del.key = ev.key
-                                    const res = await Request.middleware(del)
+                                  const button = Helper.create("button/left-right", content)
+                                  button.left.innerHTML = `.${key}`
 
-                                    if (res.status === 200) {
-                                      alert("Datensatz erfolgreich gelöscht.")
-                                      Helper.removeOverlay(securityOverlay)
-                                      Helper.removeOverlay(overlay)
-                                    } else {
-                                      alert("Fehler.. Bitte wiederholen.")
-                                      Helper.removeOverlay(securityOverlay)
-                                      Helper.removeOverlay(overlay)
-                                    }
 
-                                  })
+                                  button.onclick = () => {
+                                    Helper.popup(overlay => {
+                                      Helper.add("button/remove-overlay", overlay)
+                                      const info = Helper.headerPicker("info", overlay)
+                                      info.innerHTML = user.email
+
+                                      const content = Helper.create("div/scrollable", overlay)
+
+                                      {
+                                        const button = Helper.create("button/left-right", content)
+                                        button.left.innerHTML = ".delete"
+                                        button.right.innerHTML = "Datensatz entfernen"
+
+
+                                        button.onclick = () => {
+
+                                          const confirm = window.confirm("Du bist gerade dabei einen Datensatz aus der persönlichen Datenbank des Nuzters zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden.\n\nMöchtest du diesen Datensatz wirklich löschen?")
+                                          if (confirm === true) {
+
+                                            Helper.overlay("security", async securityOverlay => {
+
+                                              const res = await Helper.delete("key/user/admin-closed", {key, id: user.id})
+
+                                              if (res.status === 200) {
+                                                alert("Datensatz erfolgreich gelöscht.")
+                                                Helper.remove("overlay", keysOverlay)
+                                                Helper.remove("overlay", overlay)
+                                                Helper.remove("overlay", securityOverlay)
+                                              } else {
+                                                alert("Fehler.. Bitte wiederholen.")
+                                                Helper.remove("overlay", overlay)
+                                                Helper.remove("overlay", securityOverlay)
+                                              }
+
+                                            })
+
+                                          }
+
+                                        }
+
+
+
+                                      }
+
+
+                                    })
+                                  }
 
                                 }
 
+
                               }
-                              await Helper.render("user-keys/closed", map, buttons)
+
+
+                              if (res.status !== 200) {
+                                Helper.convert("parent/info", content)
+                                content.innerHTML = "Keine Daten gefunden."
+                              }
 
 
                             })
                           })
                         }
-
-
-
-
 
                       })
                     })
@@ -272,9 +304,6 @@
                   }
                   overlay.append(buttons)
                 }
-
-
-
 
               })
             })
