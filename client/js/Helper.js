@@ -73,16 +73,17 @@ export class Helper {
       })
     }
 
-    if (event === "key/user/admin-closed") {
+    if (event === "tree/user/admin") {
 
       return new Promise(async (resolve, reject) => {
 
         try {
           const del = {}
           del.url = "/delete/user/closed/"
-          del.type = "key-admin"
+          del.type = "tree-admin"
           del.id = input.id
-          del.key = input.key
+          del.tree = input.tree
+          console.log(del)
           const res = await Request.closed(del)
 
           resolve(res)
@@ -787,6 +788,73 @@ export class Helper {
       })
     }
 
+    if (event === "event/role-login") {
+
+      const submit = document.querySelector(".start-login-event")
+      const emailInput = document.querySelector(".email-input")
+      const dsgvoInput = document.querySelector(".dsgvo-input")
+
+      this.verify("input/value", emailInput)
+      this.verify("input/value", dsgvoInput)
+
+      this.add("input/value", emailInput)
+      this.add("oninput/verify-input", emailInput)
+      this.add("oninput/verify-input", dsgvoInput)
+
+      submit.addEventListener("click", async () => {
+
+        if (emailInput !== null) {
+          if (dsgvoInput !== null) {
+
+            await this.verify("input/value", emailInput)
+            await this.verify("input/value", dsgvoInput)
+
+            await Request.withVerifiedEmail(emailInput.value, async () => {
+
+              const register = {}
+              register.url = "/register/email/location/"
+              register.email = emailInput.value
+              register.id = input.id
+              register.name = input.name
+              const res = await Request.location(register)
+
+              {
+                const register = {}
+                register.url = "/request/register/session/"
+                const res = await Request.closed(register)
+
+                if (res.status === 200) {
+                  const redirect = {}
+                  redirect.url = "/redirect/user/closed/"
+                  const res = await Request.closed(redirect)
+                  if (res.status === 200) window.location.assign(res.response)
+                } else {
+                  window.history.back()
+                }
+              }
+
+            })
+          }
+        }
+
+      })
+
+
+    }
+
+    if (event === "script/open-login") {
+
+      const script = this.create(event)
+
+      if (input !== undefined) {
+        if (input.querySelector(`#${script.id}`) === null) {
+          input.append(script)
+        }
+      }
+
+      return script
+    }
+
     if (event === "script/toolbox-getter") {
 
       return new Promise(async(resolve) => {
@@ -1401,9 +1469,54 @@ export class Helper {
 
     }
 
-    if (event === "button/on-role-login-click") {
+    // if (event === "onclick/role-login") {
 
-      input.button.onclick = async () => {
+    //   input.button.addEventListener("click", async () => {
+
+    //     const emailInput = document.querySelector(".email-input")
+    //     const dsgvoInput = document.querySelector(".dsgvo-input")
+
+    //     if (emailInput !== null) {
+    //       if (dsgvoInput !== null) {
+
+    //         await this.verify("input/value", emailInput)
+    //         await this.verify("input/value", dsgvoInput)
+
+    //         await Request.withVerifiedEmail(emailInput.value, async () => {
+
+    //           const register = {}
+    //           register.url = "/register/email/location/"
+    //           register.email = emailInput.value
+    //           register.id = input.roleId
+    //           register.name = input.roleName
+    //           const res = await Request.location(register)
+
+    //           {
+    //             const register = {}
+    //             register.url = "/request/register/session/"
+    //             const res = await Request.closed(register)
+
+    //             if (res.status === 200) {
+    //               const redirect = {}
+    //               redirect.url = "/redirect/user/closed/"
+    //               const res = await Request.closed(redirect)
+    //               if (res.status === 200) window.location.assign(res.response)
+    //             } else {
+    //               window.history.back()
+    //             }
+    //           }
+
+    //         })
+    //       }
+    //     }
+
+    //   })
+
+    // }
+
+    if (event === "onclick/open-login") {
+
+      input.addEventListener("click", async () => {
 
         const emailInput = document.querySelector(".email-input")
         const dsgvoInput = document.querySelector(".dsgvo-input")
@@ -1411,53 +1524,8 @@ export class Helper {
         if (emailInput !== null) {
           if (dsgvoInput !== null) {
 
-            if (Helper.verify("input/validity", emailInput) === false) throw new Error("email invalid")
-            if (Helper.verify("input/validity", dsgvoInput) === false) throw new Error("dsgvo invalid")
-
-            await Request.withVerifiedEmail(emailInput.value, async () => {
-
-              const register = {}
-              register.url = "/register/email/location/"
-              register.email = emailInput.value
-              register.id = input.roleId
-              register.name = input.roleName
-              const res = await Request.location(register)
-
-              {
-                const register = {}
-                register.url = "/request/register/session/"
-                const res = await Request.closed(register)
-
-                if (res.status === 200) {
-                  const redirect = {}
-                  redirect.url = "/redirect/user/closed/"
-                  const res = await Request.closed(redirect)
-                  if (res.status === 200) window.location.assign(res.response)
-                } else {
-                  window.history.back()
-                }
-              }
-
-            })
-          }
-        }
-
-      }
-
-    }
-
-    if (event === "button/on-login-click") {
-
-      input.onclick = async () => {
-
-        const emailInput = document.querySelector(".email-input")
-        const dsgvoInput = document.querySelector(".dsgvo-input")
-
-        if (emailInput !== null) {
-          if (dsgvoInput !== null) {
-
-            if (Helper.verify("input/validity", emailInput) === false) throw new Error("email invalid")
-            if (Helper.verify("input/validity", dsgvoInput) === false) throw new Error("dsgvo invalid")
+            await this.verify("input/value", emailInput)
+            await this.verify("input/value", dsgvoInput)
 
             await Request.withVerifiedEmail(emailInput.value, async () => {
 
@@ -1501,35 +1569,20 @@ export class Helper {
           }
         }
 
-      }
+      })
 
     }
 
-    if (event === "input/onchecked") {
+    if (event === "oninput/verify-input") {
 
-      if (input.type === "checkbox") {
-        input.oninput = (ev) => {
-
-          if (ev.target.checked === true) {
-            ev.target.setAttribute("checked", "true")
-          } else {
-            ev.target.removeAttribute("checked")
-          }
-
-        }
-      }
-    }
-
-    if (event === "input/oninput") {
       if (input.type === "email") {
-        input.oninput = (ev) => {
-          this.verify("input/validity", ev.target)
-        }
-
+        input.addEventListener("input", (ev) => {
+          this.verify("input/value", ev.target)
+        })
       }
 
       if (input.type === "checkbox") {
-        input.oninput = (ev) => {
+        input.addEventListener("input", (ev) => {
 
           if (ev.target.checked === true) {
             ev.target.setAttribute("checked", "true")
@@ -1537,9 +1590,10 @@ export class Helper {
             ev.target.removeAttribute("checked")
           }
 
-          this.verify("input/validity", ev.target)
-        }
+          this.verify("input/value", ev.target)
+        })
       }
+
     }
 
     if (event === "input/value") {
@@ -1548,7 +1602,7 @@ export class Helper {
 
         if (window.localStorage.getItem("email") !== null) {
           input.value = window.localStorage.getItem("email")
-          this.verify("input/validity", input)
+          this.verify("input/value", input)
         }
 
       }
@@ -1580,6 +1634,27 @@ export class Helper {
       input = parent
     }
 
+
+    if (event === "body/key/admin") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/user/closed/"
+          get.type = "key-body/admin"
+          get.id = input.id
+          get.key = input.key
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
 
     if (event === "name/expert/self") {
 
@@ -4598,6 +4673,60 @@ export class Helper {
       input = parent
     }
 
+    if (event === "key-name/user-tree/admin") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/update/user/closed/"
+          register.type = "key-name/tree-admin"
+          register.id = input.id
+          register.tree = input.tree
+          register.name = input.name
+          const res = await Request.closed(register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "number/user-tree/admin") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/update/user/closed/"
+          register.type = "number/tree-admin"
+          register.id = input.id
+          register.tree = input.tree
+          register.number = input.number
+          const res = await Request.closed(register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "text/user-tree/admin") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/update/user/closed/"
+          register.type = "text/tree-admin"
+          register.id = input.id
+          register.tree = input.tree
+          register.text = input.text
+          const res = await Request.closed(register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "script/closed") {
       return new Promise(async (resolve, reject) => {
 
@@ -5409,71 +5538,6 @@ export class Helper {
 
     }
 
-    if (event === "script/login") {
-
-      let text = /*html*/`
-        <script id="login-event" type="module">
-          import { Helper } from "/js/Helper.js"
-
-          const submit = document.querySelector(".start-login-event")
-          const emailInput = document.querySelector(".email-input")
-          const dsgvoInput = document.querySelector(".dsgvo-input")
-
-          Helper.verify("input/validity", emailInput)
-          Helper.verify("input/validity", dsgvoInput)
-
-          Helper.add("input/value", emailInput)
-          Helper.add("input/oninput", emailInput)
-          Helper.add("input/oninput", dsgvoInput)
-          Helper.add("button/on-login-click", submit)
-        </script>
-      `
-
-      if (input !== undefined) {
-
-        text = /*html*/`
-          <script id="login-event" type="module">
-            import { Helper } from "/js/Helper.js"
-            import { Request } from "/js/Request.js"
-
-            const submit = document.querySelector(".start-login-event")
-            const emailInput = document.querySelector(".email-input")
-            const dsgvoInput = document.querySelector(".dsgvo-input")
-
-            Helper.verify("input/validity", emailInput)
-            Helper.verify("input/validity", dsgvoInput)
-
-            Helper.add("input/value", emailInput)
-            Helper.add("input/oninput", emailInput)
-            Helper.add("input/oninput", dsgvoInput)
-
-            const map = {}
-            map.button = submit
-            map.roleId = ${input.id}
-            map.roleName = "${input.name}"
-            Helper.add("button/on-role-login-click", map)
-          </script>
-        `
-
-      }
-
-
-      const script = this.convert("text/script", text)
-
-      const create = document.createElement("script")
-      create.id = script.id
-      create.type = script.type
-      create.innerHTML = script.innerHTML
-
-      if (parent !== undefined) {
-        if (parent.querySelector(`#${create.id}`) === null) {
-          parent.append(create)
-        }
-      }
-
-      return create
-    }
-
     if (event === "platform/roles") {
 
       return new Promise(async (resolve, reject) => {
@@ -5686,7 +5750,7 @@ export class Helper {
     }
 
   }
-k
+
   // event = input/algorithm
   static verify(event, input) {
 
@@ -6021,6 +6085,21 @@ k
 
       if (input !== undefined) input.append(funnel)
       return funnel
+    }
+
+    if (event === "icon/info") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><defs><style>.a{fill:${primary};}</style></defs><g transform="translate(24.832 14.673)"><circle class="a" cx="2.822" cy="2.822" r="2.822" transform="translate(1.058)"/><path class="a" d="M230.772,234.059V216H224v1.129h2.257v16.931H224v1.129h9.03v-1.129Z" transform="translate(-224 -206.97)"/></g><path class="a" d="M77.347,48a29.347,29.347,0,1,0,29.347,29.347A29.342,29.342,0,0,0,77.347,48Zm0,56.253a26.906,26.906,0,1,1,26.906-26.906A26.937,26.937,0,0,1,77.347,104.253Z" transform="translate(-48 -48)"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
     }
 
     if (event === "icon/password-input") {
@@ -7962,6 +8041,37 @@ k
 
     }
 
+    if (event === "script/open-login") {
+
+      const text = /*html*/`
+        <script id="open-login-event" type="module">
+          import { Helper } from "/js/Helper.js"
+
+          const submit = document.querySelector(".start-login-event")
+          const emailInput = document.querySelector(".email-input")
+          const dsgvoInput = document.querySelector(".dsgvo-input")
+
+          Helper.verify("input/value", emailInput)
+          Helper.verify("input/value", dsgvoInput)
+
+          Helper.add("oninput/verify-input", emailInput)
+          Helper.add("oninput/verify-input", dsgvoInput)
+
+          Helper.add("input/value", emailInput)
+          Helper.add("onclick/open-login", submit)
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
+    }
+
     if (event === "script/open-popup-list-mirror-event") {
 
       const scriptText = /*html*/`
@@ -8769,7 +8879,7 @@ k
       return field
     }
 
-    if (event === "field/dsgvo") {
+    if (event === "field/checkbox") {
 
       const field = document.createElement("div")
       field.classList.add("field")
@@ -8780,10 +8890,6 @@ k
       field.style.margin = "34px"
       field.style.justifyContent = "center"
       field.style.alignItems = "flex-start"
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
 
       field.labelContainer = document.createElement("div")
       field.labelContainer.classList.add("field-label-container")
@@ -8794,45 +8900,74 @@ k
 
       field.image = document.createElement("div")
       field.image.classList.add("field-label-image")
-      field.image.style.width = "89px"
+      field.image.style.minWidth = "34px"
+      field.image.style.maxWidth = "34px"
       field.image.style.marginRight = "21px"
-      const icon = this.iconPicker("info")
-      field.image.append(icon)
       field.labelContainer.append(field.image)
 
       field.label = document.createElement("label")
       field.label.classList.add("field-label")
-      field.label.innerHTML = `<div style="font-size: 13px;">Ich habe die <a href="/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>`
       field.label.style.fontFamily = "sans-serif"
       field.label.style.fontSize = "21px"
-      field.label.style.color = this.colors.light.text
 
       field.labelContainer.append(field.label)
 
-      field.checkboxContainer = document.createElement("div")
-      field.checkboxContainer.classList.add("field-input-container")
-      field.checkboxContainer.style.display = "flex"
-      field.checkboxContainer.style.alignItems = "center"
-      field.checkboxContainer.style.margin = "21px 89px 21px 34px"
-      field.append(field.checkboxContainer)
+      field.inputContainer = document.createElement("div")
+      field.inputContainer.classList.add("field-input-container")
+      field.inputContainer.style.display = "flex"
+      field.inputContainer.style.alignItems = "center"
+      field.inputContainer.style.margin = "21px 89px 21px 34px"
+      field.append(field.inputContainer)
 
       field.input = document.createElement("input")
       field.input.classList.add("field-input")
-      field.input.classList.add("dsgvo-input")
       field.input.type = "checkbox"
       field.input.style.marginRight = "34px"
       field.input.style.width = "21px"
       field.input.style.height = "21px"
-      field.input.setAttribute("required", true)
-      field.checkboxContainer.append(field.input)
+      field.inputContainer.append(field.input)
 
-      field.afterCheckbox = document.createElement("div")
-      field.afterCheckbox.classList.add("field-after-input")
+      field.afterInput = document.createElement("div")
+      field.afterInput.classList.add("field-after-input")
 
-      field.afterCheckbox.style.fontFamily = "sans-serif"
-      field.afterCheckbox.style.fontSize = "21px"
-      field.afterCheckbox.style.color = this.colors.light.text
-      field.checkboxContainer.append(field.afterCheckbox)
+      field.afterInput.style.fontFamily = "sans-serif"
+      field.afterInput.style.fontSize = "21px"
+      field.inputContainer.append(field.afterInput)
+
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+      field.label.style.color = this.colors.light.text
+      field.input.style.backgroundColor = this.colors.light.background
+      field.input.style.color = this.colors.light.text
+      field.afterInput.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+        field.label.style.color = this.colors.dark.text
+        field.input.style.backgroundColor = this.colors.dark.background
+        field.input.style.color = this.colors.dark.text
+        field.afterInput.style.color = this.colors.dark.text
+      }
+
+      if (input !== undefined) input.append(field)
+      return field
+    }
+
+    if (event === "field/dsgvo") {
+
+      const field = this.create("field/checkbox")
+      field.input.classList.add("dsgvo-input")
+
+      field.label.innerHTML = `<div style="font-size: 13px;">Ich habe die <a href="/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>`
+
+      const icon = this.create("icon/info")
+      field.image.append(icon)
+
+      field.input.setAttribute("required", "true")
 
       if (input !== undefined) input.append(field)
       return field
@@ -8919,6 +9054,58 @@ k
       return field
     }
 
+    if (event === "field/tel") {
+
+      const field = document.createElement("div")
+      field.classList.add("field")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+
+      field.labelContainer = document.createElement("div")
+      field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.display = "flex"
+      field.labelContainer.style.alignItems = "center"
+      field.labelContainer.style.margin = "21px 89px 0 34px"
+      field.append(field.labelContainer)
+
+      field.label = document.createElement("label")
+      field.label.classList.add("field-label")
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "21px"
+      field.labelContainer.append(field.label)
+
+      field.input = document.createElement("input")
+      field.input.classList.add("field-input")
+      field.input.type = "tel"
+      field.input.style.margin = "21px 89px 21px 34px"
+      field.input.style.fontSize = "21px"
+      field.append(field.input)
+
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+      field.label.style.color = this.colors.light.text
+      field.input.style.backgroundColor = this.colors.light.background
+      field.input.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+        field.label.style.color = this.colors.dark.text
+        field.input.style.backgroundColor = this.colors.dark.background
+        field.input.style.color = this.colors.dark.text
+      }
+
+      if (input !== undefined) input.append(field)
+      return field
+    }
+
     if (event === "field/text") {
 
       const field = document.createElement("div")
@@ -8996,10 +9183,6 @@ k
       field.style.flexDirection = "column"
       field.style.margin = "34px"
       field.style.justifyContent = "center"
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
 
       field.labelContainer = document.createElement("div")
       field.labelContainer.classList.add("field-label-container")
@@ -9011,7 +9194,6 @@ k
       field.label.innerHTML = "E-Mail Adresse"
       field.label.style.fontFamily = "sans-serif"
       field.label.style.fontSize = "21px"
-      field.label.style.color = this.colors.light.text
       field.labelContainer.append(field.label)
       field.append(field.labelContainer)
 
@@ -9022,15 +9204,27 @@ k
       field.input.placeholder = "meine@email.de"
       field.input.style.margin = "21px 89px 21px 34px"
       field.input.style.fontSize = "21px"
-      field.input.style.backgroundColor = this.colors.light.background
-      field.input.style.color = this.colors.light.text
       field.append(field.input)
 
-      field.input.setAttribute("required", true)
-      field.input.accept = "text/email"
+      field.input.setAttribute("required", "true")
+      field.input.setAttribute("accept", "text/email")
 
-      // this.verify("input/validity", field.input)
-      // field.input.addEventListener("input", () => this.verify("input/validity", field.input))
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+      field.label.style.color = this.colors.light.text
+      field.input.style.backgroundColor = this.colors.light.background
+      field.input.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+        field.label.style.color = this.colors.dark.text
+        field.input.style.backgroundColor = this.colors.dark.background
+        field.input.style.color = this.colors.dark.text
+      }
 
       if (input !== undefined) input.append(field)
       return field
@@ -9345,6 +9539,268 @@ k
 
   static render(event, input, parent) {
     // event = input/algorithm
+
+    if (event === "user-keys/update-buttons") {
+
+
+      parent.innerHTML = ""
+      for (let i = 0; i < input.keys.length; i++) {
+        const key = input.keys[i]
+
+        const keysButton = this.create("button/left-right", parent)
+        keysButton.left.innerHTML = `.${key}`
+
+        keysButton.onclick = () => {
+          this.popup(overlay => {
+
+            const info = this.headerPicker("info", overlay)
+            info.innerHTML = input.user.email
+            info.append(this.convert("text/span", `/keys/${key}`))
+
+            const content = this.create("div/scrollable", overlay)
+
+            {
+
+              const button = this.create("button/left-right", content)
+              button.left.innerHTML = ".body"
+              button.right.innerHTML = "Datensatz Inhalt"
+              button.onclick = () => {
+
+
+                this.popup(async overlay => {
+
+                  const info = this.create("header/info", overlay)
+                  info.innerHTML = input.user.email
+                  info.append(this.convert("text/span", `/keys/${key}/body`))
+
+                  const content = this.create("info/loading", overlay)
+
+                  const res = await this.get("body/key/admin", {id: input.user.id, key})
+
+                  if (res.status === 200) {
+
+                    let body
+                    try {
+                      body = JSON.parse(res.response)
+                    } catch (error) {
+                      body = res.response
+                    }
+
+
+
+                    if (typeof body === "number") {
+
+                      this.convert("parent/scrollable", content)
+
+                      const numberField = this.create("field/tel", content)
+                      numberField.label.innerHTML = "Dieser Datensatz enthält eine Nummer"
+                      numberField.input.style.fontFamily = "monospace"
+                      numberField.input.style.fontSize = "13px"
+                      numberField.input.setAttribute("required", "true")
+                      numberField.input.setAttribute("accept", "text/number")
+                      numberField.input.value = body
+                      this.verify("input/value", numberField.input)
+                      numberField.oninput = () => this.verify("input/value", numberField.input)
+
+                      const submit = this.create("button/action", content)
+                      submit.innerHTML = "Zeichenkette jetzt speichern"
+                      submit.onclick = async () => {
+
+                        await this.verify("input/value", numberField.input)
+
+                        const number = numberField.input.value
+
+                        this.overlay("security", async securityOverlay => {
+
+                          const res = await this.update("number/user-tree/admin", {number, id: input.user.id, tree: key})
+
+                          if (res.status === 200) {
+                            window.alert("Datensatz erfolgreich gespeichert.")
+                            this.remove("overlay", overlay)
+                            this.remove("overlay", securityOverlay)
+                          }
+
+                          if (res.status !== 200) {
+                            window.alert("Fehler.. Bitte wiederholen.")
+                            this.remove("overlay", securityOverlay)
+                          }
+
+                        })
+
+
+                      }
+                    }
+
+                    if (typeof body === "string") {
+
+                      this.convert("parent/scrollable", content)
+
+                      const textField = this.create("field/textarea", content)
+                      textField.label.innerHTML = "Dieser Datensatz enthält eine Zeichenkette"
+                      textField.input.style.height = "55vh"
+                      textField.input.style.fontFamily = "monospace"
+                      textField.input.style.fontSize = "13px"
+                      textField.input.value = body
+                      this.verify("input/value", textField.input)
+
+                      const submit = this.create("button/action", content)
+                      submit.innerHTML = "Zeichenkette jetzt speichern"
+                      submit.onclick = () => {
+
+                        const text = textField.input.value
+
+                        this.overlay("security", async securityOverlay => {
+
+                          const res = await this.update("text/user-tree/admin", {text, id: input.user.id, tree: key})
+
+                          if (res.status === 200) {
+                            window.alert("Datensatz erfolgreich gespeichert.")
+                            this.remove("overlay", overlay)
+                            this.remove("overlay", securityOverlay)
+                          }
+
+                          if (res.status !== 200) {
+                            window.alert("Fehler.. Bitte wiederholen.")
+                            this.remove("overlay", securityOverlay)
+                          }
+
+                        })
+
+
+                      }
+                    }
+
+                    if (typeof body === "object") {
+
+                      this.convert("parent/scrollable", content)
+
+                      const keys = []
+                      for (let i = 0; i < Object.keys(body).length; i++) {
+                        const item = Object.keys(body)[i]
+                        keys.push(`${key}.${item}`)
+                      }
+
+                      this.render(event, {user: input.user, keys}, content)
+
+                    }
+
+                  }
+
+                  if (res.status !== 200) {
+                    this.convert("parent/info", content)
+                    content.innerHTML = "Dieser Datensatz ist leer."
+                  }
+
+                })
+
+
+
+
+              }
+
+            }
+
+            {
+
+              const button = this.create("button/left-right", content)
+              button.left.innerHTML = ".key"
+              button.right.innerHTML = "Schlüssel Name ändern"
+              button.onclick = () => {
+
+                this.popup(async keyOverlay => {
+
+                  const info = this.create("header/info", keyOverlay)
+                  info.innerHTML = input.user.email
+                  info.append(this.convert("text/span", `/${key}`))
+
+                  const content = this.create("div/scrollable", keyOverlay)
+
+                  const textField = this.create("field/text", content)
+                  textField.label.innerHTML = "Schlüssel Name"
+                  textField.input.style.fontFamily = "monospace"
+                  textField.input.style.fontSize = "13px"
+                  textField.input.setAttribute("required", "true")
+                  textField.input.setAttribute("accept", "text/tag")
+                  textField.input.value = key.split(".")[key.split(".").length - 1]
+                  this.verify("input/value", textField.input)
+
+                  const submit = this.create("button/action", content)
+                  submit.innerHTML = "Name jetzt speichern"
+                  submit.onclick = async () => {
+
+                    await this.verify("input/value", textField.input)
+
+                    this.overlay("security", async securityOverlay => {
+
+                      const res = await this.update("key-name/user-tree/admin", {name: textField.input.value, id: input.user.id, tree: key})
+
+                      if (res.status === 200) {
+                        window.alert("Datensatz erfolgreich gespeichert.")
+                        this.remove("overlay", overlay.previousSibling)
+                        this.remove("overlay", overlay)
+                        this.remove("overlay", keyOverlay)
+                        this.remove("overlay", securityOverlay)
+                      }
+
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        this.remove("overlay", securityOverlay)
+                      }
+
+                    })
+
+
+                  }
+
+                })
+
+              }
+
+            }
+
+            {
+
+              const button = this.create("button/left-right", content)
+              button.left.innerHTML = ".delete"
+              button.right.innerHTML = "Datensatz entfernen"
+
+              button.onclick = () => {
+
+                const confirm = window.confirm("Du bist gerade dabei einen Datensatz aus der persönlichen Datenbank des Nuzters zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden.\n\nMöchtest du diesen Datensatz wirklich löschen?")
+                if (confirm === true) {
+
+                  this.overlay("security", async securityOverlay => {
+
+                    const res = await this.delete("tree/user/admin", {tree: key, id: input.user.id})
+
+                    if (res.status === 200) {
+                      alert("Datensatz erfolgreich gelöscht.")
+                      this.remove("element", keysButton)
+                      this.remove("overlay", overlay)
+                      this.remove("overlay", securityOverlay)
+                    } else {
+                      alert("Fehler.. Bitte wiederholen.")
+                      this.remove("overlay", overlay)
+                      this.remove("overlay", securityOverlay)
+                    }
+
+                  })
+
+                }
+
+              }
+
+            }
+
+
+          })
+        }
+
+      }
+
+
+
+    }
 
     if (event === "role/role-apps-button-onbody") {
 
@@ -10173,6 +10629,34 @@ k
       }
 
       return content
+    }
+
+    if (event === "script/role-login") {
+
+      const text = /*html*/`
+        <script id="role-login-event" type="module">
+          import { Helper } from "/js/Helper.js"
+
+          Helper.add("event/role-login", ${JSON.stringify(input)})
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      if (parent !== undefined) {
+
+        parent.querySelectorAll(`#${create.id}`).forEach(element => element.remove())
+        parent.append(create)
+
+      }
+
+      return create
+
     }
 
     if (event === "script/onbody") {
@@ -13626,9 +14110,8 @@ k
                           button.onclick = () => {
 
                             this.create("login", child)
-                            this.update("script/login", document.body, role)
-                            window.alert("Zugang wurde erfolgreich angehängt.")
-                            this.remove("overlay", overlay)
+                            this.render("script/role-login", role, document.body)
+                            window.alert(`Zugang für ${this.convert("text/capital-first-letter", role.name)} wurde erfolgreich angehängt.`)
 
                           }
                         }
@@ -15835,6 +16318,16 @@ k
 
     }
 
+    if (event === "text/number") {
+
+      try {
+        return !isNaN(Number(input))
+      } catch (error) {
+        return false
+      }
+
+    }
+
     if (event === "text/int") {
 
       try {
@@ -15867,19 +16360,20 @@ k
 
       return new Promise((resolve) => {
 
-        if (input.hasAttribute("required") && !input.hasAttribute("accept")) {
 
+        // required, no accept
+        if (input.hasAttribute("required") && !input.hasAttribute("accept")) {
           if (this.verifyIs("input/required", input)) {
             this.setValidStyle(input)
             return resolve(true)
           } else {
             this.setNotValidStyle(input)
-            const field = input.parentElement
-            field.scrollIntoView({behavior: "smooth"})
+            if (input.parentElement) input.parentElement.scrollIntoView({behavior: "smooth"})
             return resolve(false)
           }
         }
 
+        // accept, no required
         if (input.hasAttribute("accept") && !input.hasAttribute("required")) {
 
           if (input.value === "") {
@@ -15917,11 +16411,10 @@ k
               this.setValidStyle(input)
               return resolve(true)
             }
-            this.setNotValidStyle(input)
-            const field = input.parentElement
-            field.scrollIntoView({behavior: "smooth"})
-            return resolve(false)
           }
+          this.setNotValidStyle(input)
+          if (input.parentElement) input.parentElement.scrollIntoView({behavior: "smooth"})
+          return resolve(false)
         }
 
 
@@ -15986,13 +16479,7 @@ k
       }
 
       if (input.getAttribute("accept") === "text/number") {
-        const value = input.value
-        if (typeof value !== "string") return false
-        if (value === "") return false
-        if (value.startsWith(".")) return false
-
-        const number = Number(input.value)
-        if (typeof number === "number") return true
+        if (this.verifyIs("text/number", input.value)) return true
         return false
       }
 
@@ -16117,35 +16604,34 @@ k
         return false
       }
 
-      if (input.getAttribute("required") === "true") {
-
-        if (input.getAttribute("type") === "checkbox") {
-
-          if (input.checked === true) {
-            input.setAttribute("checked", "true")
-          } else {
-            input.removeAttribute("checked")
-          }
-
-          if (input.getAttribute("checked") === "true") {
-            return true
-          } else {
-            return false
-          }
-        }
-
-        if (!this.stringIsEmpty(input.value)) return true
-        return false
-      }
 
       return false
     }
 
     if (event === "input/required") {
-      if (input.hasAttribute("required")) return true
-      if (input.getAttribute("required") === "true") return true
-      //if (!this.stringIsEmpty(input.getAttribute("accept"))) return true
-      if (input.required === true) return true
+
+
+      // input required
+      if (
+        input.hasAttribute("required") ||
+        input.getAttribute("required") === "true" ||
+        input.required === true
+      ) {
+
+        if (input.getAttribute("type") === "checkbox") {
+
+          if (input.getAttribute("checked") === "true") return true
+          if (input.checked === true) return true
+
+          return false
+        }
+
+        if (!this.stringIsEmpty(input.value)) return true
+        return false
+
+      }
+
+      // select required
       if (input.requiredIndex !== undefined) {
         for (let i = 0; i < input.options.length; i++) {
           const option = input.options[i]
@@ -16303,7 +16789,6 @@ k
 
       return header
     }
-
 
     if (name === "save") {
 
@@ -18744,6 +19229,10 @@ k
       return span
     }
 
+    if (event === "text/capital-first-letter") {
+      return input.charAt(0).toUpperCase() + input.slice(1)
+    }
+
     if (event === "parent/space-between") {
 
       input.style.display = "flex"
@@ -19712,7 +20201,6 @@ k
 
     }
   }
-
 
   static popup(callback) {
     if (callback !== undefined) {
