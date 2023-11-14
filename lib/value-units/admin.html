@@ -41,7 +41,6 @@
       app.addEventListener("click", () => {
 
         Helper.popup(async overlay => {
-          Helper.headerPicker("removeOverlay", overlay)
 
           const buttons = Helper.create("div/scrollable", overlay)
 
@@ -62,7 +61,7 @@
             button.addEventListener("click", () => {
 
               Helper.popup(async overlay => {
-                Helper.headerPicker("removeOverlay", overlay)
+
                 const info = Helper.headerPicker("info", overlay)
 
                 const res = await Helper.get("list/user/admin-closed")
@@ -126,7 +125,7 @@
                     message.addEventListener("click", () => {
 
                       Helper.popup(overlay => {
-                        Helper.headerPicker("removeOverlay", overlay)
+
                         const info = Helper.headerPicker("info", overlay)
                         info.innerHTML = user.email
 
@@ -212,9 +211,10 @@
                           button.left.innerHTML = ".keys"
                           button.addEventListener("click", () => {
                             Helper.popup(async keysOverlay => {
-                              Helper.add("button/remove-overlay", keysOverlay)
+
                               const info = Helper.headerPicker("info", keysOverlay)
                               info.innerHTML = user.email
+                              info.append(Helper.convert("text/span", `/keys`))
 
                               const content = Helper.create("info/loading", keysOverlay)
 
@@ -225,63 +225,7 @@
 
                                 Helper.convert("parent/scrollable", content)
 
-                                for (let i = 0; i < keys.length; i++) {
-                                  const key = keys[i]
-
-                                  const button = Helper.create("button/left-right", content)
-                                  button.left.innerHTML = `.${key}`
-
-
-                                  button.onclick = () => {
-                                    Helper.popup(overlay => {
-                                      Helper.add("button/remove-overlay", overlay)
-                                      const info = Helper.headerPicker("info", overlay)
-                                      info.innerHTML = user.email
-
-                                      const content = Helper.create("div/scrollable", overlay)
-
-                                      {
-                                        const button = Helper.create("button/left-right", content)
-                                        button.left.innerHTML = ".delete"
-                                        button.right.innerHTML = "Datensatz entfernen"
-
-
-                                        button.onclick = () => {
-
-                                          const confirm = window.confirm("Du bist gerade dabei einen Datensatz aus der persönlichen Datenbank des Nuzters zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden.\n\nMöchtest du diesen Datensatz wirklich löschen?")
-                                          if (confirm === true) {
-
-                                            Helper.overlay("security", async securityOverlay => {
-
-                                              const res = await Helper.delete("key/user/admin-closed", {key, id: user.id})
-
-                                              if (res.status === 200) {
-                                                alert("Datensatz erfolgreich gelöscht.")
-                                                Helper.remove("overlay", keysOverlay)
-                                                Helper.remove("overlay", overlay)
-                                                Helper.remove("overlay", securityOverlay)
-                                              } else {
-                                                alert("Fehler.. Bitte wiederholen.")
-                                                Helper.remove("overlay", overlay)
-                                                Helper.remove("overlay", securityOverlay)
-                                              }
-
-                                            })
-
-                                          }
-
-                                        }
-
-
-
-                                      }
-
-
-                                    })
-                                  }
-
-                                }
-
+                                Helper.render("user-keys/update-buttons", {user, keys}, content)
 
                               }
 
