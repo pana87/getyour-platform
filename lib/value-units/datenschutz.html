@@ -18,449 +18,95 @@
   </style>
 </head>
 <body>
-  <header></header>
-
-  <div class="title"></div>
-
-  <div class="sub-title-1"></div>
-  <div class="text-1"></div>
-
-  <div class="sub-title-2"></div>
-  <div class="text-2"></div>
-
-  <div class="sub-title-3"></div>
-  <div class="text-3"></div>
-
-  <div class="sub-title-4"></div>
-  <div class="text-4"></div>
-
-  <div class="sub-title-5"></div>
-  <div class="text-5"></div>
-
-  <div class="sub-title-6"></div>
-  <div class="text-6"></div>
-
-  <div class="sub-title-7"></div>
-  <div class="text-7"></div>
-
-  <div class="sub-title-8"></div>
-  <div class="text-8"></div>
-
-  <div class="sub-title-9"></div>
-  <div class="text-9"></div>
-
-  <div class="sub-title-10"></div>
-  <div class="text-10"></div>
-
 
   <script type="module">
-    import {HeaderField} from "/js/HeaderField.js"
-    import {DivField} from "/js/DivField.js"
     import {Helper} from "/js/Helper.js"
-    import {FooterField} from "/js/FooterField.js"
 
-    const header = document.querySelector("header")
-    header.style.position = "fixed"
-    header.style.bottom = "0"
-    header.style.left = "0"
-    header.style.backgroundColor = "white"
-    header.style.width = "100%"
-    header.style.display = "flex"
-    header.style.flexWrap = "wrap"
-    header.style.alignItems = "center"
-    header.style.justifyContent = "space-between"
-    header.style.boxShadow = "0 -3px 5px rgba(0, 0, 0, 0.13)"
+    document.body.style.background = Helper.colors.light.background
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.body.style.background = Helper.colors.dark.background
+    }
 
-    const leftContainer = document.createElement("div")
-    leftContainer.style.display = "flex"
-    leftContainer.style.alignItems = "center"
-    leftContainer.style.flexWrap = "wrap"
+    Helper.add("button/back", document.body)
 
-    const logo = document.createElement("img")
-    logo.src = "/public/getyour-logo.svg"
-    logo.alt = "Plattform"
-    logo.style.width = "55px"
-    logo.style.margin = "21px 0 21px 34px"
-    logo.style.cursor = "pointer"
-    logo.addEventListener("click", () => window.history.back())
-    leftContainer.append(logo)
+    Helper.render("text/h1", "Datenschutz Richtlinien", document.body)
 
-    const name = document.createElement("div")
-    name.innerHTML = "Plattform"
-    name.style.padding = "21px 34px"
-    name.style.fontSize = "21px"
-    name.style.color = "#000"
-    name.style.cursor = "pointer"
-    name.addEventListener("click", () => {
-
-      Helper.popup(overlay => {
-
-        const header = document.createElement("div")
-        header.style.position = "fixed"
-        header.style.bottom = "0"
-        header.style.left = "0"
-        header.style.width = "100%"
-        header.style.display = "flex"
-        header.style.justifyContent = "flex-start"
-        header.style.alignItems = "center"
-        header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-        header.style.background = "white"
-        header.style.cursor = "pointer"
-        header.addEventListener("click", () => Helper.removeOverlay(overlay))
-
-        const logo = document.createElement("img")
-        logo.src = "/public/getyour-logo.svg"
-        logo.alt = "Getyour"
-        logo.style.width = "55px"
-        logo.style.margin = "21px 34px"
-        header.append(logo)
-        const title = document.createElement("div")
-        title.innerHTML = "Plattform"
-        title.style.fontWeight = "bold"
-        title.style.fontSize = "21px"
-        header.append(title)
-        overlay.append(header)
-
-
-
-        const buttons = document.createElement("div")
-
-
-
-        {
-          const button = document.createElement("div")
-          button.style.display = "flex"
-          button.style.flexWrap = "wrap"
-          button.style.justifyContent = "space-between"
-          button.style.alignItems = "center"
-          button.style.margin = "21px 34px"
-          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-          button.style.borderRadius = "13px"
-          button.style.border = "0.3px solid black"
-          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-          button.style.cursor = "pointer"
-          button.addEventListener("click", () => window.location.assign("/getyour/pana/nutzervereinbarung/"))
-
-          const icon = document.createElement("img")
-          icon.style.margin = "13px 34px"
-          icon.style.width = "34px"
-          icon.src = "/public/handshake.svg"
-          icon.alt = "Nutzervereinbarung"
-          button.append(icon)
-
-          const title = document.createElement("div")
-          title.innerHTML = "Nutzervereinbarung"
-          title.style.margin = "21px 34px"
-          title.style.fontSize = "21px"
-          button.append(title)
-
-          buttons.append(button)
-        }
-
-        {
-          const button = document.createElement("div")
-          button.style.display = "flex"
-          button.style.flexWrap = "wrap"
-          button.style.justifyContent = "space-between"
-          button.style.alignItems = "center"
-          button.style.margin = "21px 34px"
-          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-          button.style.borderRadius = "13px"
-          button.style.border = "0.3px solid black"
-          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-          button.style.cursor = "pointer"
-          button.addEventListener("click", () => window.location.assign("/getyour/pana/datenschutz/"))
-
-          const icon = document.createElement("img")
-          icon.style.margin = "13px 34px"
-          icon.style.width = "34px"
-          icon.src = "/public/security.svg"
-          icon.alt = "Nutzervereinbarung"
-          button.append(icon)
-
-          const title = document.createElement("div")
-          title.innerHTML = "Datenschutz Richtilinien"
-          title.style.margin = "21px 34px"
-          title.style.fontSize = "21px"
-          button.append(title)
-
-          buttons.append(button)
-        }
-        {
-          const button = document.createElement("div")
-          button.style.display = "flex"
-          button.style.flexWrap = "wrap"
-          button.style.justifyContent = "space-between"
-          button.style.alignItems = "center"
-          button.style.margin = "21px 34px"
-          button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-          button.style.borderRadius = "13px"
-          button.style.border = "0.3px solid black"
-          button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-          button.style.cursor = "pointer"
-          button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
-
-          const icon = document.createElement("img")
-          icon.style.margin = "13px 34px"
-          icon.style.width = "34px"
-          icon.src = "/public/company.svg"
-          icon.alt = "Nutzervereinbarung"
-          button.append(icon)
-
-          const title = document.createElement("div")
-          title.innerHTML = "Impressum"
-          title.style.margin = "21px 34px"
-          title.style.fontSize = "21px"
-          button.append(title)
-
-          buttons.append(button)
-        }
-
-
-
-
-
-        overlay.append(buttons)
-
-      })
-
-
-    })
-    leftContainer.append(name)
-    header.append(leftContainer)
-
-
-    const title = new DivField("title")
-    .withType(div => {
-      const title = document.createElement("h1")
-      title.innerHTML = "Datenschutz Richtlinien"
-      title.style.fontWeight = "normal"
-      title.style.margin = "21px 34px"
-      div.append(title)
-    })
-
-    const subTitle1 = new DivField("sub-title-1")
-    .withType(div => {
-      const subTitle = document.createElement("h2")
-      subTitle.innerHTML = "Geltungsbereich"
-      subTitle.style.fontWeight = "normal"
-      subTitle.style.margin = "21px 34px"
-      div.append(subTitle)
-    })
-    const text1 = new DivField("text-1")
-    .withType(div => {
-      div.style.fontWeight = "normal"
-      div.style.margin = "21px 34px"
-      div.innerHTML = /*html*/`
+    {
+      const button = Helper.create("button/left-right", document.body)
+      button.left.innerHTML = /*html*/`
+        ${Helper.convert("text/h2", "Geltungsbereich").outerHTML}
         <p>Diese Datenschutz-Richtilinien sollen dich als Nutzer gemäß Bundesdatenschutzgesetz und Telemediengesetz über die Art, den Umfang und den Zweck der Erhebung und Verwendung personenbezogener Daten durch uns informieren.</p>
         <p>Wir nehmen deinen Datenschutz sehr ernst und behandeln deine personenbezogenen Daten vertraulich und entsprechend der gesetzlichen Vorschriften.</p>
         <p>Bedenke, dass die Datenübertragung im Internet grundsätzlich mit Sicherheitslücken bedacht sein kann. Ein vollumfänglicher Schutz vor dem Zugriff durch Fremde ist nicht realisierbar.</p>
       `
-    })
+    }
 
-    const subTitle2 = new DivField("sub-title-2")
-    .withType(div => {
-      const subTitle = document.createElement("h2")
-      subTitle.innerHTML = "Zugriffsdaten"
-      subTitle.style.fontWeight = "normal"
-      subTitle.style.margin = "21px 34px"
-      div.append(subTitle)
-    })
-    const text2 = new DivField("text-2")
-    .withType(div => {
-      div.style.fontWeight = "normal"
-      div.style.margin = "21px 34px"
-      div.innerHTML = /*html*/`
-        <p>Wir erheben Daten über Zugriffe auf unsere Dienste und speichern diese als ab. Folgende Daten werden so protokolliert:</p>
+    {
+      const button = Helper.create("button/left-right", document.body)
+      button.left.innerHTML = /*html*/`
+        ${Helper.convert("text/h2", "Datenschutzbeauftragter").outerHTML}
+        <p>Unseren Datenschutzbeauftragten erreichst du unter folgenden Kontaktdaten:</p>
         <p>
-          - Besuchter Dienst<br>
-          - Uhrzeit zum Zeitpunkt des Zugriffes<br>
-          - Menge der gesendeten Daten in Byte<br>
-          - Quelle/Verweis, von wo du auf den Dienst gelangst<br>
-          - Verwendeter Browser<br>
-          - Verwendetes Betriebssystem<br>
-          - Verwendete IP-Adresse<br>
+          Panagiotis Tsivelekidis<br>
+          Schwarenbergstr. 188<br>
+          70184 Stuttgart<br>
+          E-Mail: <a href="mailto:p.tsivelekidis@get-your.de?subject=[Datenschutz]">p.tsivelekidis@get-your.de</a><br>
         </p>
-        <p>Die erhobenen Daten dienen lediglich statistischen Auswertungen und zur Verbesserung unserer Dienste. Wir behalten uns allerdings vor, die Inhalte nachträglich zu überprüfen, sollten konkrete Anhaltspunkte auf eine rechtswidrige Nutzung hinweisen.</p>
       `
-    })
+    }
 
-    const subTitle3 = new DivField("sub-title-3")
-    .withType(div => {
-      const subTitle = document.createElement("h2")
-      subTitle.innerHTML = "Cookies"
-      subTitle.style.margin = "21px 34px"
-      subTitle.style.fontWeight = "normal"
-      div.append(subTitle)
-    })
-    const text3 = new DivField("text-3")
-    .withType(div => {
-      div.style.margin = "21px 34px"
-      div.style.fontWeight = "normal"
-      div.innerHTML = /*html*/`
-        <p>Diese Website verwendet Cookies. Dabei handelt es sich um kleine Textdateien, welche auf deinem Endgerät gespeichert werden. Dein Browser greift auf diese Dateien zu. Durch den Einsatz von Cookies erhöht sich die Benutzerfreundlichkeit und Sicherheit unserer Dienste.</p>
-        <p>Gängige Browser bieten die Einstellungsoption, Cookies nicht zuzulassen. Hinweis: Es ist nicht gewährleistet, dass du auf alle Funktionen ohne Einschränkungen zugreifen kannst, wenn du entsprechende Einstellungen vornimmst.</p>
+    {
+      const button = Helper.create("button/left-right", document.body)
+      button.left.innerHTML = /*html*/`
+        ${Helper.convert("text/h2", "Cookies").outerHTML}
+        <p>Diese Webseite verwendet Cookies. Dabei handelt es sich um verschlüsselte Textbausteine, welche auf deinem Endgerät gespeichert werden und dich als Nutzer authentifizieren und authorisieren sollen. Dein Browser greift auf diese Cookies zu, solange du angemeldet bist. Ohne diese Cookies hast du nur Zugang zu den öffentlichen Anwendungen.</p>
+        <p>Es werden keine personenbezogene Daten über diese Cookies gespeichert. Diese Cookies sind Notwendig, sobald du unsere geschlossenen Dienste verwenden möchtest. Du musst bei jeder Anmeldung, die Speicherung von Cookies akzeptieren. Nach 2 Stunden werden diese Cookies automatisch gelöscht und verfallen.</p>
+        <a href="/cookies/entfernen/" target="_blank">Klicke hier um alle Cookies in deinem Browser zu entfernen.</a> Achtung: Solltest du angemeldet sein, wirst du automatisch abgemeldet, sobald du deine Cookies entfernst.<br>
+
       `
-    })
+    }
 
-    const subTitle4 = new DivField("sub-title-4")
-    .withType(div => {
-      const subTitle = document.createElement("h2")
-      subTitle.style.margin = "21px 34px"
-      subTitle.innerHTML = "Umgang mit personenbezogenen Daten"
-      subTitle.style.fontWeight = "normal"
-      div.append(subTitle)
-    })
-    const text4 = new DivField("text-4")
-    .withType(div => {
-      div.style.margin = "21px 34px"
-      div.style.fontWeight = "normal"
-      div.innerHTML = /*html*/`
-        <p>Wir erheben, nutzen und geben deine personenbezogenen Daten nur dann weiter, wenn dies im gesetzlichen Rahmen erlaubt ist oder du in die Datenerhebung einwilligst.</p>
-        <p>Als personenbezogene Daten gelten sämtliche Informationen, welche dazu dienen, deine Person zu bestimmen und welche zu dir zurückverfolgt werden können – also beispielsweise dein Name, deine E-Mail-Adresse und Telefonnummer.</p>
+    {
+      const button = Helper.create("button/left-right", document.body)
+      button.left.innerHTML = /*html*/`
+        ${Helper.convert("text/h2", "Umgang mit personenbezogenen Daten").outerHTML}
+        <p>Als personenbezogene Daten gelten sämtliche Informationen, welche dazu dienen, deine Person zu bestimmen und welche zu dir zurückverfolgt werden können – also beispielsweise dein Name, deine E-Mail-Adresse oder Telefonnummer.</p>
+        <p>Wir erheben, nutzen und geben deine personenbezogenen Daten nur dann weiter, wenn du in die Datenerhebung einwilligst. Wir werden dich informieren, sollten Anfragen, über Dritte, bei uns eingehen.</p>
       `
-    })
+    }
 
-    const subTitle5 = new DivField("sub-title-5")
-    .withType(div => {
-      const subTitle = document.createElement("h2")
-      subTitle.style.margin = "21px 34px"
-      subTitle.innerHTML = "Konto"
-      subTitle.style.fontWeight = "normal"
-      div.append(subTitle)
-    })
-    const text5 = new DivField("text-5")
-    .withType(div => {
-      div.style.margin = "21px 34px"
-      div.style.fontWeight = "normal"
-      div.innerHTML = /*html*/`
-        <p>Wir übernehmen keine Haftung für Passwortmissbrauch, sofern dieser nicht von uns selbst verursacht wurde.</p>
-      `
-    })
-
-    const subTitle6 = new DivField("sub-title-6")
-    .withType(div => {
-      const subTitle = document.createElement("h2")
-      subTitle.style.margin = "21px 34px"
-      subTitle.innerHTML = "Mitgliedschaft"
-      subTitle.style.fontWeight = "normal"
-      div.append(subTitle)
-    })
-    const text6 = new DivField("text-6")
-    .withType(div => {
-      div.style.margin = "21px 34px"
-      div.style.fontWeight = "normal"
-      div.innerHTML = /*html*/`
-        <p>Sämtliche Daten, welche im Rahmen einer Mitgliedschaft eingegeben werden, werden gespeichert. Dazu gehören:</p>
+    {
+      const button = Helper.create("button/left-right", document.body)
+      button.left.innerHTML = /*html*/`
+        ${Helper.convert("text/h2", "Konto").outerHTML}
+        <p>Wir übernehmen keine Haftung für Kontomissbrauch, sofern dieser nicht von uns selbst verursacht wurde.</p>
+        <p>Daten, welche im Rahmen eines Kontos eingegeben werden müssen:</p>
         <p>
-          - Name, Vorname<br>
-          - Adresse<br>
-          - Zahlungsmethode<br>
           - E-Mail-Adresse<br>
         </p>
-        <p>Sowie die Aufbewahrung deiner Daten nicht mehr erforderlich oder gesetzlich geboten ist, werden diese gelöscht.</p>
+        <p>Für weitere personenbezogene Daten, werden wir immer vorher nach deiner Zustimmung fragen.</p>
+        <p>Sowie die Aufbewahrung deiner Daten nicht mehr erforderlich oder gesetzlich geboten sind, werden diese gelöscht.</p>
       `
-    })
+    }
 
-    const subTitle7 = new DivField("sub-title-7")
-    .withType(div => {
-      const subTitle = document.createElement("h2")
-      subTitle.style.margin = "21px 34px"
-      subTitle.innerHTML = "Umgang mit Kontaktdaten"
-      subTitle.style.fontWeight = "normal"
-      div.append(subTitle)
-    })
-    const text7 = new DivField("text-7")
-    .withType(div => {
-      div.style.margin = "21px 34px"
-      div.innerHTML = /*html*/`
-        <p>Nimmst du mit uns, durch unseren Dienst, Verbindung auf, werden deine Angaben gespeichert, damit auf diese zur Bearbeitung und Beantwortung deiner Anfrage zurückgegriffen werden kann. Ohne deine Einwilligung werden diese Daten nicht an Dritte weitergegeben.</p>
+    {
+      const button = Helper.create("button/left-right", document.body)
+      button.left.innerHTML = /*html*/`
+        ${Helper.convert("text/h2", "Rechte des Nutzers: Auskunft, Berichtigung und Löschung").outerHTML}
+        <p>Du als Nutzer erhälst, auf Antrag, kostenlose Auskunft darüber, welche personenbezogenen Daten über dich gespeichert wurden. Du hast ein Anrecht auf Berichtigung falscher Daten und auf die Sperrung oder Löschung deiner personenbezogenen Daten.</p>
       `
-      div.style.fontWeight = "normal"
-    })
+    }
 
-    const subTitle8 = new DivField("sub-title-8")
-    .withType(div => {
-      const subTitle = document.createElement("h2")
-      subTitle.style.margin = "21px 34px"
-      subTitle.innerHTML = "Newsletter"
-      subTitle.style.fontWeight = "normal"
-      div.append(subTitle)
-    })
-    const text8 = new DivField("text-8")
-    .withType(div => {
-      div.style.margin = "21px 34px"
-      div.innerHTML = /*html*/`
-        <p>Wir bieten dir einen Newsletter an, in welchem du über aktuelle Geschehnisse und Angebote informiert wirst. Möchten du den Newsletter abonnieren, musst Sie eine gültige E-Mail-Adresse angeben.</p>
-      `
-      div.style.fontWeight = "normal"
-    })
-
-    const subTitle9 = new DivField("sub-title-9")
-    .withType(div => {
-      const subTitle = document.createElement("h2")
-      subTitle.innerHTML = "Rechte des Nutzers: Auskunft, Berichtigung und Löschung "
-      subTitle.style.margin = "21px 34px"
-      subTitle.style.fontWeight = "normal"
-      div.append(subTitle)
-    })
-    const text9 = new DivField("text-9")
-    .withType(div => {
-      div.style.margin = "21px 34px"
-      div.innerHTML = /*html*/`
-        <p>Du als Nutzer erhälst, auf Antrag, kostenlose Auskunft darüber, welche personenbezogenen Daten über dich gespeichert wurden. Sofern dein Wunsch nicht mit einer gesetzlichen Pflicht zur Aufbewahrung von Daten (z. B. Vorratsdatenspeicherung) kollidiert, hast du ein Anrecht auf Berichtigung falscher Daten und auf die Sperrung oder Löschung deiner personenbezogenen Daten.</p>
-      `
-      div.style.fontWeight = "normal"
-    })
-
-    const subTitle10 = new DivField("sub-title-10")
-    .withType(div => {
-      const subTitle = document.createElement("h2")
-      subTitle.innerHTML = "Weitere Informationen findest du hier:"
-      subTitle.style.margin = "21px 34px"
-      subTitle.style.fontWeight = "normal"
-      div.append(subTitle)
-    })
-    const text10 = new DivField("text-10")
-    .withType(div => {
-      div.style.margin = "21px 34px"
-      div.innerHTML = /*html*/`
+    {
+      const button = Helper.create("button/left-right", document.body)
+      button.left.innerHTML = /*html*/`
+        ${Helper.convert("text/h2", "Weitere Informationen findest du hier:").outerHTML}
         <a href="https://www.gesetze-im-internet.de/tmg/" target="_blank" style="color: inherit;">Telemediengesetz (TMG)</a><br>
         <a href="https://www.gesetze-im-internet.de/bdsg_2018/" target="_blank" style="color: inherit;">Bundesdatenschutzgesetz (BDSG)</a><br>
-        <a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:32016L0680" target="_blank" style="color: inherit;">EU Datenschutz Grundverordnung (DGSVO)</a><br>
+        <a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:32016L0680" target="_blank" style="color: inherit;">EU Datenschutz Grundverordnung (DSGVO)</a><br>
       `
-      div.style.fontWeight = "normal"
-    })
+    }
 
-
-    const footer = new FooterField()
-    .withType(footer => {
-      footer.style.backgroundColor = "#781717"
-      footer.style.padding = "21px 34px"
-      footer.style.marginTop = "144px"
-      footer.style.color = "#d1d1d1"
-
-      const impressum = document.createElement("div")
-      impressum.innerHTML = "IMPRESSUM"
-      impressum.style.cursor = "pointer"
-      impressum.style.padding = "13px"
-      impressum.addEventListener("click", () => window.location.assign("/impressum/"))
-      footer.append(impressum)
-
-      const dsgvo = document.createElement("div")
-      dsgvo.innerHTML = "DATENSCHUTZ"
-      dsgvo.style.cursor = "pointer"
-      dsgvo.style.padding = "13px"
-      dsgvo.addEventListener("click", () => window.location.assign("/datenschutz/"))
-      footer.append(dsgvo)
-
-      const userAgreement = document.createElement("div")
-      userAgreement.innerHTML = "NUTZERVEREINBARUNG"
-      userAgreement.style.cursor = "pointer"
-      userAgreement.style.padding = "13px"
-      userAgreement.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
-      footer.append(userAgreement)
-    })
 
   </script>
 </body>

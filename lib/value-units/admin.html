@@ -24,7 +24,6 @@
       import { Request } from "/js/Request.js"
       import { Helper } from "/js/Helper.js"
       import { TextField } from "/js/TextField.js"
-      import { EmailField } from "/js/EmailField.js"
       import { SelectionField } from "/js/SelectionField.js"
       import { TelField } from "/js/TelField.js"
 
@@ -343,31 +342,27 @@
                 {
                   const funnel = Helper.create("div/scrollable", overlay)
 
-                  const nameField = new TextField("name", funnel)
+                  const nameField = Helper.create("field/text", funnel)
                   nameField.label.innerHTML = "Name"
                   nameField.input.placeholder = "huansolo"
                   nameField.input.accept = "text/tag"
                   nameField.input.required = true
-                  nameField.input.addEventListener("input", () => {
-                    nameField.verifyValue()
-                  })
-                  nameField.verifyValue()
+                  nameField.input.oninput = () => Helper.verify("input/value", nameField.input)
+                  Helper.verify("input/value", nameField.input)
 
-                  const emailField = new EmailField("email", funnel)
-                  emailField.label.innerHTML = "E-Mail Adresse"
-                  emailField.input.placeholder = "experte@email.de"
-                  emailField.input.required = true
-                  emailField.input.addEventListener("input", () => {
-                    emailField.verifyValue()
-                  })
-                  emailField.verifyValue()
+                  const emailField = Helper.create("field/email", funnel)
+                  emailField.input.oninput = () => Helper.verify("input/value", emailField.input)
+                  Helper.verify("input/value", emailField.input)
 
                   const button = Helper.buttonPicker("action", funnel)
                   button.innerHTML = "Experten jetzt registrieren"
                   button.addEventListener("click", async () => {
 
-                    const username = nameField.validValue()
-                    const email = emailField.validValue()
+                    await Helper.verify("input/value", nameField.input)
+                    await Helper.verify("input/value", emailField.input)
+
+                    const username = nameField.input.value
+                    const email = emailField.input.value
 
                     {
                       const verify = {}

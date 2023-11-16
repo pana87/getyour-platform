@@ -1014,7 +1014,7 @@ export class Helper {
 
     if (event === "button/back") {
 
-      const button = this.create("button/back")
+      const button = this.create(event)
 
       button.onclick = () => window.history.back()
 
@@ -1468,51 +1468,6 @@ export class Helper {
       })
 
     }
-
-    // if (event === "onclick/role-login") {
-
-    //   input.button.addEventListener("click", async () => {
-
-    //     const emailInput = document.querySelector(".email-input")
-    //     const dsgvoInput = document.querySelector(".dsgvo-input")
-
-    //     if (emailInput !== null) {
-    //       if (dsgvoInput !== null) {
-
-    //         await this.verify("input/value", emailInput)
-    //         await this.verify("input/value", dsgvoInput)
-
-    //         await Request.withVerifiedEmail(emailInput.value, async () => {
-
-    //           const register = {}
-    //           register.url = "/register/email/location/"
-    //           register.email = emailInput.value
-    //           register.id = input.roleId
-    //           register.name = input.roleName
-    //           const res = await Request.location(register)
-
-    //           {
-    //             const register = {}
-    //             register.url = "/request/register/session/"
-    //             const res = await Request.closed(register)
-
-    //             if (res.status === 200) {
-    //               const redirect = {}
-    //               redirect.url = "/redirect/user/closed/"
-    //               const res = await Request.closed(redirect)
-    //               if (res.status === 200) window.location.assign(res.response)
-    //             } else {
-    //               window.history.back()
-    //             }
-    //           }
-
-    //         })
-    //       }
-    //     }
-
-    //   })
-
-    // }
 
     if (event === "onclick/open-login") {
 
@@ -8022,6 +7977,20 @@ export class Helper {
         button.addEventListener("click", () => window.location.assign("/login/"))
       }
 
+      {
+        const button = this.buttonPicker("left/right", content)
+        button.left.innerHTML = ".user-agreement"
+        button.right.innerHTML = "Für Klarheit und Fairness im Umgang miteinander"
+        button.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
+      }
+
+      {
+        const button = this.buttonPicker("left/right", content)
+        button.left.innerHTML = ".data-protection"
+        button.right.innerHTML = "Fördert Vertrauen in digitale Interaktionen"
+        button.addEventListener("click", () => window.location.assign("/datenschutz/"))
+      }
+
       if (input !== undefined) input.append(content)
 
 
@@ -12429,10 +12398,9 @@ export class Helper {
       const p = document.createElement("p")
       p.innerHTML = input
       p.style.margin = "21px 34px"
-      p.style.fontSize = "21px"
       p.style.fontFamily = "sans-serif"
-      p.style.color = this.colors.light.text
 
+      p.style.color = this.colors.light.text
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         p.style.color = this.colors.dark.text
       }
@@ -19190,6 +19158,20 @@ export class Helper {
 
 
 
+    }
+
+    if (event === "text/h2") {
+
+      const h2 = document.createElement("h2")
+      h2.innerHTML = input
+      h2.style.fontFamily = "sans-serif"
+
+      h2.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        h2.style.color = this.colors.dark.text
+      }
+
+      return h2
     }
 
     if (event === "text/hr") {
