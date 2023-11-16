@@ -50,6 +50,7 @@ app.get("/cookies/anzeigen/", async (req, res) => {
 app.get("/cookies/entfernen/", async (req, res) => {
   try {
     Object.keys(req.cookies).forEach((cookieName) => {
+      res.cookie(cookieName, "", { expires: new Date(Date.now()) })
       res.clearCookie(cookieName)
     })
     return res.sendStatus(200)
@@ -89,7 +90,6 @@ app.get("/:expert/", async (req, res, next) => {
 
     if (req.params.expert === "login") return res.send(Helper.readFileSyncToString("../lib/value-units/login.html"))
     if (req.params.expert === "nutzervereinbarung") return res.send(Helper.readFileSyncToString(`../lib/value-units/nutzervereinbarung.html`))
-    if (req.params.expert === "impressum") return res.send(Helper.readFileSyncToString(`../lib/value-units/impressum.html`))
     if (req.params.expert === "datenschutz") return res.send(Helper.readFileSyncToString(`../lib/value-units/datenschutz.html`))
 
     const doc = await nano.db.use("getyour").get("users")
@@ -413,7 +413,6 @@ async (req, res) => {
         const salt = Helper.generateRandomBytes(32)
         if (Helper.arrayIsEmpty(salt)) throw new Error("salt is empty")
         const jwtToken = jwt.sign({
-          roles: user.roles,
           id: user.id,
         }, process.env.JWT_SECRET, { expiresIn: '2h' })
         if (Helper.stringIsEmpty(jwtToken)) throw new Error("jwt token is empty")
