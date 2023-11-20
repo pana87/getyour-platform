@@ -22,8 +22,6 @@ export class Helper {
         }
       })
 
-
-
     }
 
   }
@@ -719,12 +717,6 @@ export class Helper {
 
       })
 
-
-
-
-
-
-
     }
 
     if (event === "field-funnel/oninput-sign-support") {
@@ -839,6 +831,108 @@ export class Helper {
 
       })
 
+
+    }
+
+    if (event === "event/soundbox") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const fileImport = document.querySelector("[soundbox-file-import]")
+          fileImport.oninput = async () => {
+
+            const promises = []
+            for (let i = 0; i < fileImport.files.length; i++) {
+              const file = fileImport.files[i]
+              const promise = this.verifyIs("file/mp3", file)
+              promises.push(promise)
+            }
+
+            const results = await Promise.all(promises)
+
+            if (results.every(result => result === true)) {
+              this.setValidStyle(fileImport)
+
+              this.overlay("security", async securityOverlay => {
+
+                const progress = this.create("div/progress-bar", securityOverlay)
+
+                for (var i = 0; i < fileImport.files.length; i++) {
+                  const file = fileImport.files[i]
+
+                  await new Promise(async(resolve, reject) => {
+                    const formdata = new FormData()
+                    formdata.append('mp3-file', file)
+
+                    const res = await fetch('/upload/mp3-file/self/', {
+                      method: 'POST',
+                      body: formdata,
+                    })
+
+                    if (res.status === 200) {
+
+                      progress.bar.style.backgroundColor = '#4CAF50'
+                      progress.bar.style.width = ((i + 1) / fileImport.files.length) * 100 + '%'
+
+                      resolve()
+                    }
+
+
+                    if (res.status !== 200) {
+
+                      progress.bar.style.backgroundColor = '#FF5733'
+                      progress.bar.style.width = ((i + 1) / fileImport.files.length) * 100 + '%'
+
+                      resolve()
+                    }
+
+                  })
+
+                }
+
+                window.alert("Alle Dateien wurden erfolgreich hochgeladen.")
+                this.remove("overlay", securityOverlay)
+
+              })
+
+            } else {
+              window.alert("Nicht alle Uploads sind mp3 Dateien.")
+              console.error("Not all files are mp3")
+              this.setNotValidStyle(fileImport)
+            }
+
+
+          }
+
+          const audioList = document.querySelector("[soundbox-audio-list]")
+          if (audioList !== null) {
+
+            const res = await this.get("cids/soundbox/self")
+
+            if (res.status === 200) {
+              const sounds = JSON.parse(res.response)
+
+              for (let i = 0; i < sounds.length; i++) {
+                const sound = sounds[i]
+
+                const audio = document.createElement("audio")
+                audio.id = sound.created
+                audio.src = `https://${sound.cid}.ipfs.nftstorage.link`
+                audio.style.width = "100%"
+                audio.setAttribute("controls", "")
+                audioList.append(audio)
+
+              }
+
+            }
+
+          }
+
+        } catch (error) {
+          reject(error)
+        }
+      })
 
     }
 
@@ -1587,6 +1681,26 @@ export class Helper {
     // no parent needed to get data
     if (arguments.length === 2) {
       input = parent
+    }
+
+
+    if (event === "cids/soundbox/self") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/soundbox/closed/"
+          get.type = "cids-self"
+          const res = await Request.closed(get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
     }
 
 
@@ -4343,6 +4457,21 @@ export class Helper {
   static register(event, input) {
     // event = tag/on/algorithm
 
+    if (event === "video-url/soundbox/self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/register/soundbox/closed/"
+          register.type = "video-url/audio-cid/self"
+          register.videoUrl = input
+          const res = await Request.closed(register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
 
     if (event === "item/location-cart/self") {
       return new Promise(async(resolve, reject) => {
@@ -5938,6 +6067,23 @@ export class Helper {
   static create(event, input) {
     // event = thing/algorithm
 
+    if (event === "soundbox") {
+
+      const fileImportField = this.create("field/file", input)
+      fileImportField.label.innerHTML = "MP3 to CID"
+      fileImportField.input.setAttribute("accept", "audio/mp3")
+      fileImportField.input.setAttribute("required", "true")
+      fileImportField.input.setAttribute("multiple", "true")
+      fileImportField.input.setAttribute("soundbox-file-import", "")
+      this.verify("input/value", fileImportField.input)
+
+      this.create("script/soundbox", input)
+
+      const div = this.create("div/top-bottom", input)
+      div.top.setAttribute("soundbox-tools", "")
+      div.bottom.setAttribute("soundbox-audio-list", "")
+
+    }
 
     if (event === "input/password") {
 
@@ -6650,6 +6796,70 @@ export class Helper {
 
       if (input !== undefined) input.append(header)
       return header
+    }
+
+    if (event === "div/progress-bar") {
+
+      const progress = document.createElement("div")
+      progress.classList.add("progress-container")
+      progress.style.display = "flex"
+      progress.style.height = "21px"
+      progress.style.margin = "21px"
+      progress.style.position = "relative"
+      input?.append(progress)
+
+      progress.bar = document.createElement("div")
+      progress.bar.classList.add("progress-bar")
+      progress.bar.style.height = "21px"
+      progress.bar.style.backgroundColor = "#4CAF50"
+      progress.bar.style.width = "0%"
+      progress.bar.style.position = "absolute"
+      progress.bar.style.transition = "width 0.3s ease"
+      progress.append(progress.bar)
+
+      return progress
+
+    }
+
+    if (event === "div/top-bottom") {
+
+      const field = document.createElement("div")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+
+      field.top = document.createElement("div")
+      field.top.classList.add("top")
+      field.top.style.display = "flex"
+      field.top.style.alignItems = "center"
+      field.top.style.margin = "21px 89px 0 34px"
+      field.append(field.top)
+
+      field.bottom = document.createElement("div")
+      field.bottom.classList.add("bottom")
+      field.bottom.type = "text"
+      field.bottom.style.margin = "21px 89px 21px 34px"
+      field.bottom.style.fontSize = "21px"
+      field.append(field.bottom)
+
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+      field.bottom.style.backgroundColor = this.colors.light.background
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+        field.bottom.style.backgroundColor = this.colors.dark.background
+      }
+
+      if (input !== undefined) input.append(field)
+      return field
     }
 
     if (event === "div/match-maker-list") {
@@ -8010,6 +8220,28 @@ export class Helper {
 
     }
 
+    if (event === "script/soundbox") {
+
+      const text = /*html*/`
+        <script id="soundbox" type="module">
+          import {Helper} from "/js/Helper.js"
+
+          await Helper.add("event/soundbox")
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      if (input !== undefined) input.append(create)
+      return create
+
+    }
+
     if (event === "script/open-login") {
 
       const text = /*html*/`
@@ -8815,6 +9047,7 @@ export class Helper {
       field.labelContainer.style.margin = "21px 89px 0 34px"
       field.label = document.createElement("label")
       field.label.classList.add("field-label")
+      field.label.innerHTML = "Quell-URL"
       field.label.style.fontFamily = "sans-serif"
       field.label.style.fontSize = "21px"
       field.labelContainer.append(field.label)
@@ -8823,8 +9056,13 @@ export class Helper {
       field.input = document.createElement("input")
       field.input.classList.add("field-input")
       field.input.type = "url"
+      field.input.placeholder = "https://www.meine-quell-url.de/"
       field.input.style.margin = "21px 89px 21px 34px"
       field.input.style.fontSize = "21px"
+
+      field.input.setAttribute("required", "true")
+      field.input.setAttribute("accept", "text/url")
+
       field.append(field.input)
 
       field.style.backgroundColor = this.colors.light.foreground
@@ -8843,6 +9081,8 @@ export class Helper {
         field.input.style.backgroundColor = this.colors.dark.background
         field.input.style.color = this.colors.dark.text
       }
+
+
 
       if (input !== undefined) input.append(field)
       return field
@@ -14042,6 +14282,25 @@ export class Helper {
 
                 }
 
+                {
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = ".soundbox"
+                  button.right.innerHTML = "Konvertiere deine Lieblingslieder"
+
+                  button.onclick = () => {
+                    try {
+
+                      this.create("soundbox", document.body)
+
+                      window.alert("Soundbox erfolgreich angehängt.")
+
+                    } catch (error) {
+                      window.alert("Fehler.. Bitte wiederholen.\n\nMehr Infos findest du in der Browser Konsole unter den Entwickler Tools. mac(cmd + opt + c)")
+                      console.error(error)
+                    }
+                  }
+
+                }
 
               }
 
@@ -16149,6 +16408,49 @@ export class Helper {
 
   static verifyIs(event, input) {
 
+    if (event === "file/mp3") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const reader = new FileReader()
+
+          const blobSlice = input.slice(0, 4)
+
+          reader.onloadend = () => {
+            const arrayBuffer = new Uint8Array(reader.result)
+
+            const bytes = []
+            arrayBuffer.forEach(byte => {
+              bytes.push(byte.toString(16))
+            })
+            const fileType = bytes.join('').toUpperCase()
+
+            const mp3Signature = "494433"
+
+            if (fileType.startsWith(mp3Signature)) {
+              resolve(true)
+            } else {
+              resolve(false)
+            }
+
+          }
+
+          reader.readAsArrayBuffer(blobSlice)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "text/url") {
+      try {
+        new URL(input)
+        return true
+      } catch (error) {
+        return false
+      }
+    }
+
     if (event === "text/email") {
       if (typeof input !== "string") return false
       if (input === undefined) return false
@@ -16443,6 +16745,11 @@ export class Helper {
       if (input.getAttribute("accept") === "text/email") {
         if (typeof input.value !== "string") return false
         if (/^(.+)@(.+)$/.test(input.value) === true) return true
+        return false
+      }
+
+      if (input.getAttribute("accept") === "text/url") {
+        if (this.verifyIs("text/url", input.value)) return true
         return false
       }
 
@@ -17657,6 +17964,41 @@ export class Helper {
   }
 
   static convert(event, input) {
+
+    if (event === "file/binary") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const reader = new FileReader()
+          reader.onloadend = () => resolve(reader.result)
+          reader.readAsArrayBuffer(input)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "files/binaries") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const promises = []
+          for (var i = 0; i < input.length; i++) {
+            const file = input[i]
+            const promise = this.convert("file/binary", file)
+            promises.push(promise)
+          }
+
+          const results = await Promise.all(promises)
+
+          resolve(results)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
 
     if (event === "select/selected") {
 
