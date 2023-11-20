@@ -149,13 +149,38 @@ export class Request {
 
   }
 
+  // static formdata(req) {
+  //
+  //   if (req !== undefined) {
+  //
+  //     return new Promise(async (resolve, reject) => {
+  //
+  //       if (Helper.stringIsEmpty(req.url)) return reject(new Error("req.url is empty"))
+  //
+  //       req.location = window.location.href
+  //       req.referer = document.referrer
+  //       if (window.localStorage.getItem("localStorageId") === null) return reject(new Error("local storage id not found"))
+  //       if (window.localStorage.getItem("email") === null) return reject(new Error("local storage email not found"))
+  //       req.localStorageEmail = await this.email()
+  //       req.localStorageId = await this.localStorageId()
+  //
+  //       const xhr = new XMLHttpRequest()
+  //       xhr.open("POST", req.url)
+  //       xhr.setRequestHeader("Accept", "application/json")
+  //       xhr.setRequestHeader("Content-Type", "multipart/formdata")
+  //       xhr.overrideMimeType("text/html")
+  //       xhr.withCredentials = true
+  //       xhr.onload = () => resolve(xhr)
+  //       xhr.send(JSON.stringify(req))
+  //     })
+  //   }
+  //
+  // }
+
+
   static closed(req) {
 
     if (req !== undefined) {
-
-
-
-
 
       return new Promise(async (resolve, reject) => {
 

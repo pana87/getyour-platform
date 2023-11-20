@@ -7,6 +7,9 @@ const { UserRole } = require('../lib/UserRole.js')
 const crypto = require("node:crypto")
 const jwt = require('jsonwebtoken')
 const nano = require("nano")(process.env.COUCHDB_LOCATION)
+const multer = require('multer')
+const storage = multer.memoryStorage()
+const upload = multer({ storage: storage })
 
 Helper.createDatabase("getyour")
 Helper.createUsers("getyour")
@@ -544,6 +547,22 @@ async (req, res) => {
   } catch (error) {
     await Helper.logError(error, req)
   }
+  return res.sendStatus(404)
+})
+
+
+app.post(`/upload/:type/self/`,
+
+  Request.verifyJwtToken,
+  Request.verifySession,
+
+  upload.any(),
+
+  Request.upload,
+
+
+
+async(req, res, next) => {
   return res.sendStatus(404)
 })
 
