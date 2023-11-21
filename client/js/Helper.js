@@ -6188,6 +6188,20 @@ export class Helper {
       return funnel
     }
 
+    if (event === "icon/copy-path") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 32 32" id="icon" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1 {fill: none;}</style></defs><path d="M11.9474,19a4.9476,4.9476,0,0,1-3.4991-8.4465l5.1053-5.1043a4.9482,4.9482,0,0,1,6.9981,6.9976l-.5523.5526-1.4158-1.4129.5577-.5579a2.95,2.95,0,0,0-.0039-4.1653,3.02,3.02,0,0,0-4.17,0l-5.1047,5.104a2.9474,2.9474,0,0,0,0,4.1692,3.02,3.02,0,0,0,4.17,0l1.4143,1.4145A4.9176,4.9176,0,0,1,11.9474,19Z"/><path d="M19.9474,17a4.9476,4.9476,0,0,1-3.4991-8.4465l.5526-.5526,1.4143,1.4146-.5526.5523a2.9476,2.9476,0,0,0,0,4.1689,3.02,3.02,0,0,0,4.17,0c.26-.26,4.7293-4.7293,5.1053-5.1045a2.951,2.951,0,0,0,0-4.1687,3.02,3.02,0,0,0-4.17,0L21.5536,3.449a4.9483,4.9483,0,0,1,6.9981,6.9978c-.3765.376-4.844,4.8428-5.1038,5.1035A4.9193,4.9193,0,0,1,19.9474,17Z"/><path d="M24,30H4a2.0021,2.0021,0,0,1-2-2V8A2.0021,2.0021,0,0,1,4,6H8V8H4V28H24V18h2V28A2.0021,2.0021,0,0,1,24,30Z"/><rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+
+      if (input) input.append(svg)
+      return svg
+    }
+
     if (event === "icon/info") {
 
       let primary = this.colors.light.text
@@ -8469,7 +8483,6 @@ export class Helper {
       const text = /*html*/`
         <script id="match-maker-get-list-${input.name}" type="module">
           import { Helper } from "/js/Helper.js"
-          import { Request } from "/js/Request.js"
 
           const elements = document.querySelectorAll("[match-maker='${input.name}']")
 
@@ -8503,7 +8516,6 @@ export class Helper {
       const text = /*html*/`
         <script id="match-maker-get-keys-${input.name}" type="module">
           import { Helper } from "/js/Helper.js"
-          import { Request } from "/js/Request.js"
 
           const elements = document.querySelectorAll("[match-maker='${input.name}']")
 
@@ -10249,6 +10261,8 @@ export class Helper {
 
                     }
 
+                    window.alert("Skript wurde erfolgreich angehängt.")
+
                   }
 
                 })
@@ -10374,8 +10388,12 @@ export class Helper {
           document.querySelectorAll(`[match-maker="${parent}"]`).forEach(matchMaker => {
 
             Object.entries(input).forEach(([key, value]) => {
-              matchMaker.querySelectorAll(`.${key}`).forEach(div => {
-                div.innerHTML = value
+              matchMaker.querySelectorAll(`.${key}`).forEach(element => {
+
+                if (element.classList.contains(key)) {
+                  element.innerHTML = value
+                }
+
               })
 
             })
@@ -13217,6 +13235,27 @@ export class Helper {
           buttons.append(button)
         }
 
+
+        {
+          const button = this.create("div")
+          button.style.width = "55px"
+          button.style.margin = "0 13px"
+          buttons.append(button)
+          button.style.cursor = "pointer"
+          button.onclick = () => {
+
+            navigator.clipboard.writeText(value.path)
+            .then(() => window.alert(`Der Pfad '${value.path}' wurde erfolgreich in den Zwischenspeicher kopiert.`))
+            .catch(() => window.alert("Fehler.. Bitte wiederholen."))
+
+          }
+
+          const icon = this.create("icon/copy-path", buttons)
+          icon.setAttribute("width", "50px")
+          button.append(icon)
+        }
+
+
         itemBody.append(buttons)
         item.append(itemBody)
         parent.append(item)
@@ -13367,7 +13406,7 @@ export class Helper {
                   const res = await Request.closed(get)
 
                   if (res.status !== 200) {
-                    window.location.assign("/login/")
+                    window.location.assign("/")
                   }
 
                   if (res.status === 200) {
@@ -16938,6 +16977,33 @@ export class Helper {
       }
     }
 
+    if (event === "class/loaded") {
+     return new Promise(async (resolve, reject) => {
+        try {
+          const observer = new MutationObserver((mutations, observer) => {
+            for (let i = 0; i < mutations.length; i++) {
+              const mutation = mutations[i]
+
+              if (mutation.type === "childList") {
+
+                if (mutation.target.classList.contains(input)) {
+                  resolve(mutation.target)
+                }
+
+              }
+            }
+          })
+          observer.observe(document.documentElement, {
+            childList: true,
+            subtree: true,
+          })
+
+        } catch (error) {
+          reject(error)
+        }
+     })
+    }
+
     if (event === "element/loaded") {
 
       return new Promise(async(resolve, reject) => {
@@ -18917,6 +18983,10 @@ export class Helper {
       }
       return div.innerHTML
 
+    }
+
+    if (event === "text/number") {
+      return Number(input)
     }
 
     if (event === "text/document") {
