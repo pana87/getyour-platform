@@ -11,6 +11,7 @@ const multer = require('multer')
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
 
+// Helper function for creating the server environment
 Helper.createDatabase("getyour")
 Helper.createUsers("getyour")
 Helper.createLogs("getyour")
@@ -24,16 +25,6 @@ app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.setHeader('Pragma', 'no-cache')
   res.setHeader('Expires', '0')
-  next()
-})
-
-app.use((req, res, next) => {
-  for (const cookie in req.cookies) {
-    if (cookie === "jwtToken") continue
-    if (cookie === "sessionToken") continue
-    res.cookie(cookie, '', { expires: new Date(0) })
-    res.clearCookie(cookie)
-  }
   next()
 })
 

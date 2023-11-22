@@ -56,7 +56,14 @@
             const res = await Request.location(ping)
 
             if (res.status === 200) {
-              Helper.convert("parent/expert-closed", content)
+
+              Helper.convert("parent/scrollable", content)
+
+              Helper.add("button/start", content)
+              Helper.add("button/update-expert-name", content)
+              Helper.add("button/register-expert-platform", content)
+              Helper.add("button/delete-self", content)
+
             }
 
             if (res.status !== 200) {
