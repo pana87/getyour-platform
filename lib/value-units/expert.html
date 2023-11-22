@@ -143,7 +143,7 @@
                     const button = Helper.create("button/left-right", platformButtonsContainer)
                     button.right.innerHTML = value.alias
                     button.left.innerHTML = value.path
-                    button.onclick = () => window.location.assign(value.path)
+                    button.onclick = () => window.open(value.path, "_blank")
                   }
 
 

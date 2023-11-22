@@ -13545,7 +13545,7 @@ export class Helper {
           const button = this.iconPicker("toolbox")
           button.style.width = "55px"
           button.style.cursor = "pointer"
-          button.addEventListener("click", () => window.location.assign(value.path))
+          button.onclick = () => window.open(value.path, "_blank")
           buttons.append(button)
         }
 
