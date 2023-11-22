@@ -1017,11 +1017,239 @@ export class Helper {
 
     }
 
+    if (event === "button/delete-self") {
+
+      const button = this.create("button/left-right")
+      button.right.innerHTML = "Mein Konto löschen"
+      button.left.innerHTML = ".delete"
+      button.addEventListener("click", () => {
+
+        const confirm = window.confirm("Du bist gerade dabei deine persönliche Datenbank zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden. Du wirst abgemeldet und musst dich erneut registrieren lassen.\n\nMöchtest du alle deine Daten wirklich löschen?")
+
+        if (confirm === true) {
+          const prompt = window.prompt("Bitte bestätige deine E-Mail Adresse, um fortzufahren.")
+
+          if (this.stringIsEmpty(prompt)) {
+            alert("Fehler.. Bitte wiederholen.")
+            throw new Error("not found")
+          }
+
+          this.overlay("security", async securityOverlay => {
+
+            const verify = {}
+            verify.url = "/verify/email/closed/"
+            verify.email = prompt
+            const res = await Request.closed(verify)
+
+
+            if (res.status === 200) {
+
+              const res = await this.delete("user/db/self", prompt)
+
+              if (res.status === 200) {
+                alert("Daten erfolgreich gelöscht.")
+                window.location.assign("/")
+              } else {
+                alert("Fehler.. Bitte wiederholen.")
+                this.removeOverlay(securityOverlay)
+              }
+
+
+            } else {
+              alert("Fehler.. Bitte wiederholen.")
+              this.removeOverlay(securityOverlay)
+            }
+
+          })
+
+
+        }
+
+
+      })
+
+      input?.append(button)
+      return button
+
+    }
+
+    if (event === "button/register-expert-platform") {
+
+      const button = this.create("button/left-right")
+      button.right.innerHTML = "Neue Plattform erstellen"
+      button.left.innerHTML = ".platform"
+      button.addEventListener("click", () => {
+
+        this.overlay("toolbox", async overlay => {
+
+          this.add("button/remove-overlay", overlay)
+          this.render("text/bottom-left", ".platform", overlay)
+
+          const funnel = this.create("div/scrollable", overlay)
+
+          const platformNameField = this.create("field/text", funnel)
+          platformNameField.label.innerHTML = "Plattform Name"
+          platformNameField.input.accept = "text/tag"
+          platformNameField.input.maxLength = "21"
+          platformNameField.input.required = true
+          platformNameField.input.placeholder = "meine-plattform"
+          platformNameField.input.addEventListener("input", () => this.verify("input/value", platformNameField.input))
+          this.verify("input/value", platformNameField.input)
+
+          const button = this.create("button/action", funnel)
+          button.innerHTML = "Plattform jetzt speichern"
+          button.addEventListener("click", async () => {
+
+            await this.verify("input/value", platformNameField.input)
+
+            const platformName = platformNameField.input.value
+
+            const res = await Request.ping("/verify/platform/open/", platformName)
+
+            if (res.status === 200) {
+              window.alert("Plattform Name existiert bereits.")
+              this.setNotValidStyle(platformNameField.input)
+              throw new Error("platform exist")
+            }
+
+
+            this.overlay("toolbox", async securityOverlay => {
+
+              const register = {}
+              register.url = "/register/platform/closed/"
+              register.platform = platformName
+              const res = await Request.closed(register)
+
+              if (res.status === 200) {
+                alert("Plattform erfolgreich hinzugefügt..")
+                window.location.reload()
+              } else {
+                alert("Fehler.. Bitte wiederholen.")
+                this.removeOverlay(securityOverlay)
+              }
+
+
+            })
+
+          })
+
+        })
+      })
+
+      input?.append(button)
+      return button
+
+    }
+
+    if (event === "button/update-expert-name") {
+
+      const button = this.create("button/left-right")
+      button.right.innerHTML = "Experten Name ändern"
+      button.left.innerHTML = ".name"
+      button.addEventListener("click", () => {
+        this.popup(overlay => {
+          this.update("name/expert/closed", overlay, {ok: () => this.remove("overlay", overlay)})
+        })
+      })
+
+      if (input) input.append(button)
+      return button
+    }
+
     if (event === "button/network") {
 
       const button = this.create("button/left-right")
       button.left.innerHTML = ".network"
       button.right.innerHTML = "Nutze die Macht deines Netzwerks"
+
+      button.onclick = () => {
+        this.overlay("toolbox", async nextStepOverlay => {
+          this.add("button/remove-overlay", nextStepOverlay)
+          this.render("text/h3", "Nächster Schritt", nextStepOverlay)
+          this.render("text/bottom-left", ".network", nextStepOverlay)
+          const app = this.create("button/getyour", nextStepOverlay)
+
+          app.onclick = () => {
+            this.overlay("toolbox", async networkFunctionsOverlay => {
+              this.add("button/remove-overlay", networkFunctionsOverlay)
+              this.render("text/bottom-left", ".network.functions", networkFunctionsOverlay)
+
+              const buttons = this.create("div/scrollable", networkFunctionsOverlay)
+
+              {
+                const button = this.create("button/left-right", buttons)
+                button.left.innerHTML = ".children"
+                button.right.innerHTML = "Meine Nutzer Liste"
+              }
+
+              {
+                // get roles of verified seller
+                // wen darf der anlegen ??
+                // const button = this.create("button/left-right", buttons)
+                // button.left.innerHTML = ".role"
+                // button.right.innerHTML = "Rolle freischalten"
+
+                // get all platform.roles
+                // for closed member network function
+                // rollen freigabe
+                // select field
+                // onsubmit
+                // speichern in user[networker] = {}
+                // networker.roles = [{id,name}]
+
+                // get roles of verified seller
+                // wen darf der anlegen ??
+                const button = this.create("button/left-right", buttons)
+                button.left.innerHTML = ".promote"
+                button.right.innerHTML = "Erhalte Zugang zu unendlich vielen Möglichkeiten"
+                // button.right.innerHTML = "Welche Nutzer möchtest du anlegen"
+
+                // email versenden aber achtung !!! spam gefahr
+                // eine email an unverified
+                // wenn der user nicht verified mit dem einladungslink
+                // dann bleibt er unverified bis er sich über den einladungslink einloggt
+                // Anschließen kann er seinen Netzwerk Vater identifizieren
+                // und bestätigen
+                // immer wenn verified / unverfied sich ändert dann reputation vergeben
+                // und zwar an den initiator
+                // conversion erfolgreich/nicht erfolgreich
+                // conversion = user(a) -> user(b), user(b) -> user(a)
+                // wenn der kunde bestätigt, hast du von uns vertrauen verdient
+                // reputation mit gegenwert
+                // was ist dein gegenwert
+                // vertrauen ???
+                // interaktion ist der gegenwert ???
+                // wenn kunde bestätigt
+                // bestätigungs login
+                // aus unverified wird verified
+                // children.ack = true
+                // user hat verified children -> reputation hoch
+                // user hat unverifed children -> reputation runter
+                // interaktion beginnt mit negativem reputation
+                // wenn kunde bestätigt
+                // user erhält das negative + bonus
+                // email blockieren ??
+                // innerhalb der plattform ??
+                // solche erst gar nicht drauf lassen
+                // aber die app ist closed
+                // jeder tagged sich selber
+                // und jeder bekommt eine eigene view mit optionen
+                // für leute die sich selbst getaggt haben
+
+                // Sobald du für eine Rolle freigeschaltet wurdest,
+                // Kannst du mit dem schreiben beginnen.
+              }
+
+
+            })
+          }
+
+          // add list mit nächsten schritten
+          // termin calendar app
+          // irgendwie muss nächster schritt definieren
+
+        })
+      }
 
       // todo create network app
       // do async shit in button onclick
@@ -1041,7 +1269,7 @@ export class Helper {
           if (res.status === 200) {
             const name = res.response
 
-            const button = this.create("button/left-right", content)
+            const button = this.create("button/left-right")
             button.left.innerHTML = ".expert"
             button.right.innerHTML = "Der Bereich für Experten"
             button.onclick = () => window.location.assign(`/${name}/`)
@@ -1104,6 +1332,18 @@ export class Helper {
 
       }
 
+    }
+
+    if (event === "button/start") {
+
+      const button = this.create("button/left-right")
+      button.left.innerHTML = ".start"
+      button.right.innerHTML = "Beginne deine Reise in die digitale Freiheit"
+
+      button.onclick = () => window.location.assign("/")
+
+      if (input) input.append(button)
+      return button
     }
 
     if (event === "button/back") {
@@ -6812,6 +7052,35 @@ export class Helper {
       return header
     }
 
+    if (event === "div/bottom-left") {
+
+      const div = document.createElement("div")
+      div.style.fontFamily = "monospace"
+      div.style.fontSize = "13px"
+      div.style.position = "fixed"
+      div.style.left = "0"
+      div.style.bottom = "0"
+      div.style.zIndex = "1"
+      div.style.maxWidth = "100%"
+      div.style.maxHeight = "21px"
+      div.style.overflow = "auto"
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        div.style.boxShadow = this.colors.dark.boxShadow
+        div.style.border = this.colors.dark.border
+        div.style.backgroundColor = this.colors.dark.foreground
+        div.style.color = this.colors.dark.text
+      } else {
+        div.style.boxShadow = this.colors.light.boxShadow
+        div.style.border = this.colors.light.border
+        div.style.backgroundColor = this.colors.light.foreground
+        div.style.color = this.colors.light.text
+      }
+
+      if (input !== undefined) input.append(div)
+      return div
+    }
+
     if (event === "div/progress-bar") {
 
       const progress = document.createElement("div")
@@ -8186,13 +8455,7 @@ export class Helper {
 
       const content = this.create("div/scrollable")
 
-
-      {
-        const button = this.buttonPicker("left/right", content)
-        button.left.innerHTML = ".start"
-        button.right.innerHTML = "Beginne deine Reise in die digitale Freiheit"
-        button.addEventListener("click", () => window.location.assign("/"))
-      }
+      this.add("button/start", content)
 
       {
         const button = this.buttonPicker("left/right", content)
@@ -8304,17 +8567,17 @@ export class Helper {
 
               Helper.overlay("toolbox", async overlay => {
 
-                Helper.headerPicker("removeOverlay", overlay)
+                Helper.add("button/remove-overlay", overlay)
                 const info = Helper.headerPicker("info", overlay)
                 info.innerHTML = "." + map.tag
 
-                const create = Helper.buttonPicker("left/right", overlay)
+                const create = Helper.create("button/left-right", overlay)
                 create.left.innerHTML = ".create"
                 create.right.innerHTML = map.tag + " definieren"
                 create.addEventListener("click", () => {
 
                   Helper.overlay("toolbox", overlay => {
-                    Helper.headerPicker("removeOverlay", overlay)
+                    Helper.add("button/remove-overlay", overlay)
                     const info = Helper.headerPicker("info", overlay)
                     info.append(Helper.convert("text/span", map.tag + ".create"))
 
@@ -12367,6 +12630,24 @@ export class Helper {
 
     }
 
+    if (event === "text/bottom-left") {
+
+      let bottomLeft = parent.querySelector(".bottom-left-text")
+
+      if (bottomLeft !== null) {
+        bottomLeft.append(input)
+      }
+
+      if (bottomLeft === null) {
+        bottomLeft = this.create("div/bottom-left", parent)
+        bottomLeft.classList.add("bottom-left-text")
+        bottomLeft.innerHTML = input
+      }
+
+      return bottomLeft
+
+    }
+
     if (event === "text/info") {
       this.convert("parent/info", parent)
       parent.innerHTML = input
@@ -12408,12 +12689,45 @@ export class Helper {
       return code
     }
 
+    if (event === "text/h3") {
+
+      const h3 = document.createElement("h3")
+      h3.innerHTML = input
+      h3.style.margin = "21px 34px"
+      h3.style.fontFamily = "sans-serif"
+      h3.style.fontWeight = "normal"
+
+      h3.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        h3.style.color = this.colors.dark.text
+      }
+
+      if (parent !== undefined) parent.append(h3)
+      return h3
+    }
+
+    if (event === "text/h2") {
+
+      const h2 = document.createElement("h2")
+      h2.innerHTML = input
+      h2.style.margin = "21px 34px"
+      h2.style.fontFamily = "sans-serif"
+      h2.style.fontWeight = "normal"
+
+      h2.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        h2.style.color = this.colors.dark.text
+      }
+
+      if (parent !== undefined) parent.append(h2)
+      return h2
+    }
+
     if (event === "text/h1") {
 
       const h1 = document.createElement("h1")
       h1.innerHTML = input
       h1.style.margin = "21px 34px"
-      h1.style.fontSize = "34px"
       h1.style.fontFamily = "sans-serif"
       h1.style.fontWeight = "normal"
 
@@ -14403,9 +14717,8 @@ export class Helper {
                             button.onclick = () => {
 
                               this.create("login", child)
-                              this.update("script/login", document.body, role)
+                              this.render("script/role-login", role, document.body)
                               window.alert("Zugang wurde erfolgreich angehängt.")
-                              this.remove("overlay", overlay)
 
                             }
                           }
@@ -19795,156 +20108,6 @@ export class Helper {
       input.style.textAlign = "center"
 
       input.style.color = "gray"
-
-      return input
-    }
-
-    if (event === "parent/expert-closed") {
-      this.reset(input)
-      input.style.overflowY = "auto"
-      input.style.overscrollBehavior = "none"
-      input.style.paddingBottom = "144px"
-
-
-      {
-        const button = this.buttonPicker("left/right", input)
-        button.right.innerHTML = "Experten Name ändern"
-        button.left.innerHTML = ".name"
-        button.addEventListener("click", () => {
-          this.overlay("toolbox", overlay => {
-            this.headerPicker("removeOverlay", overlay)
-
-            this.update("name/expert/closed", overlay, {ok: () => this.removeOverlay(overlay)})
-          })
-        })
-
-      }
-
-      {
-        const button = this.buttonPicker("left/right", input)
-        button.right.innerHTML = "Neue Plattform erstellen"
-        button.left.innerHTML = ".platform"
-        button.addEventListener("click", () => {
-
-          this.overlay("toolbox", async overlay => {
-            this.headerPicker("removeOverlay", overlay)
-            const info = this.headerPicker("info", overlay)
-            info.innerHTML = ".platform"
-
-            {
-
-              const funnel = this.headerPicker("scrollable", overlay)
-
-              const platformNameField = new TextField("platformName", funnel)
-              platformNameField.label.innerHTML = "Plattform Name"
-              platformNameField.input.accept = "text/tag"
-              platformNameField.input.maxLength = "21"
-              platformNameField.input.required = true
-              platformNameField.input.placeholder = "meine-plattform"
-              platformNameField.input.addEventListener("input", (event) => platformNameField.verifyValue())
-              this.setNotValidStyle(platformNameField.input)
-
-              const button = this.buttonPicker("action", funnel)
-
-              button.innerHTML = "Jetzt hinzufügen"
-              button.addEventListener("click", async () => {
-
-                const platformName = platformNameField.validValue()
-
-                const res = await Request.ping("/verify/platform/open/", platformName)
-
-                if (res.status === 200) {
-                  window.alert("Plattform Name existiert bereits.")
-                  this.setNotValidStyle(platformNameField.input)
-                  throw new Error("platform exist")
-                }
-
-
-                this.overlay("toolbox", async securityOverlay => {
-
-                  const register = {}
-                  register.url = "/register/platform/closed/"
-                  register.platform = platformName
-                  const res = await Request.middleware(register)
-
-                  if (res.status === 200) {
-                    alert("Plattform erfolgreich hinzugefügt..")
-                    window.location.reload()
-                  } else {
-                    alert("Fehler.. Bitte wiederholen.")
-                    this.removeOverlay(securityOverlay)
-                  }
-
-
-                })
-
-              })
-
-            }
-
-          })
-        })
-      }
-
-      {
-        this.add("button/conflicts", input)
-        // refactor this before use it - in progress
-
-
-      }
-
-      {
-        const button = this.buttonPicker("left/right", input)
-        button.right.innerHTML = "Konto löschen"
-        button.left.innerHTML = ".delete"
-        button.addEventListener("click", () => {
-
-          const confirm = window.confirm("Du bist gerade dabei deine persönliche Datenbank zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden. Du wirst abgemeldet und musst dich erneut registrieren lassen.\n\nMöchtest du alle deine Daten wirklich löschen?")
-
-          if (confirm === true) {
-            const prompt = window.prompt("Bitte bestätige deine E-Mail Adresse, um fortzufahren.")
-
-            if (this.stringIsEmpty(prompt)) {
-              alert("Fehler.. Bitte wiederholen.")
-              throw new Error("not found")
-            }
-
-            this.overlay("security", async securityOverlay => {
-
-              const verify = {}
-              verify.url = "/verify/email/closed/"
-              verify.email = prompt
-              const res = await Request.closed(verify)
-
-
-              if (res.status === 200) {
-
-                const res = await this.delete("user/db/self", prompt)
-
-                if (res.status === 200) {
-                  alert("Daten erfolgreich gelöscht.")
-                  window.location.assign("/")
-                } else {
-                  alert("Fehler.. Bitte wiederholen.")
-                  this.removeOverlay(securityOverlay)
-                }
-
-
-              } else {
-                alert("Fehler.. Bitte wiederholen.")
-                this.removeOverlay(securityOverlay)
-              }
-
-            })
-
-
-          }
-
-
-        })
-      }
-
-
 
       return input
     }
