@@ -10695,6 +10695,44 @@ export class Helper {
             // search and find events
             child.querySelectorAll("*").forEach(element => {
 
+              if (element.hasAttribute("write-details")) {
+
+                const funnel = input.filter(it => `${it.id}` === child.id)[0].funnel
+
+                element.removeAttribute("style")
+                element.innerHTML = ""
+                element.style.display = "flex"
+                element.style.flexDirection = "column"
+                element.style.gap = "8px"
+                element.style.maxHeight = "144px"
+                element.style.overflow = "auto"
+
+                Object.entries(funnel).forEach(([key, value]) => {
+
+                  const keyValuePair = document.createElement("div")
+                  keyValuePair.classList.add("key-value-pair")
+                  keyValuePair.style.display = "flex"
+                  keyValuePair.style.flexWrap = "wrap"
+                  keyValuePair.style.borderRadius = "5px"
+                  element.append(keyValuePair)
+
+                  const keyDiv = document.createElement("key")
+                  keyDiv.classList.add("key")
+                  keyDiv.innerHTML = this.convert("tag/capital-first-letter", key) + ":"
+                  keyValuePair.append(keyDiv)
+
+                  const valueDiv = document.createElement("div")
+                  valueDiv.innerHTML = value
+                  valueDiv.classList.add("value")
+                  valueDiv.style.fontWeight = "bold"
+                  valueDiv.style.marginLeft = "5px"
+                  keyValuePair.append(valueDiv)
+
+                })
+
+
+              }
+
               if (element.hasAttribute("popup-details")) {
 
                 const design = document.querySelector(`[popup-details-design="${parent}"]`)
@@ -18343,6 +18381,26 @@ export class Helper {
   }
 
   static convert(event, input) {
+
+    if (event === "tag/capital-first-letter") {
+      if (input.includes("-")) {
+        const array = input.split("-")
+
+        const results = []
+        for (var i = 0; i < array.length; i++) {
+          const item = array[i]
+
+          const result = this.convert("text/capital-first-letter", item)
+          results.push(result)
+
+        }
+        return results.join(" ")
+
+      } else {
+        return this.convert("text/capital-first-letter", input)
+      }
+
+    }
 
     if (event === "file/binary") {
       return new Promise(async(resolve, reject) => {
