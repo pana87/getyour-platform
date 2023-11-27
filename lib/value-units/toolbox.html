@@ -4,29 +4,11 @@
     <meta id="meta-default-1" charset="UTF-8">
     <meta id="meta-default-2" http-equiv="X-UA-Compatible" content="IE=edge">
     <meta id="meta-default-3" name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <style id="meta-default-4">
-
-      body {
-        margin: 0;
-        overscroll-behavior: none;
-      }
-
-    </style>
-
   </head>
   <body>
-
     <script id="toolbox-getter" type="module">
       import {Helper} from "/js/Helper.js"
-
-      document.querySelectorAll("#toolbox-getter").forEach(getter => getter.remove())
-
-      if (document.getElementById("toolbox-getter") === null) {
-        await Helper.add("script/toolbox-getter")
-      }
-
+      await Helper.add("script/toolbox-getter")
     </script>
-
   </body>
 </html>

@@ -64,7 +64,7 @@
     getOffer.email = await Request.email()
     getOffer.referer = document.referrer
     getOffer.localStorageId = await Request.localStorageId()
-    const res = await Request.middleware(getOffer)
+    const res = await this.request("closed/json", getOffer)
 
     if (res.status !== 200) {
       window.location.assign("/felix/shs/hersteller-vergleich/")
@@ -185,10 +185,10 @@
         registerLead.email = await Request.email()
         registerLead.referer = document.referrer
         registerLead.localStorageId = await Request.localStorageId()
-        await Request.sequence(registerLead)
+        await this.request("location/json", registerLead)
         alert("Ihre Anfrage wurde erfolgreich weitergeleitet.\n\nSobald Ihr neuer persönlicher Ansprechpartner Ihren Terminvorschlag bestätigt, erhalten Sie eine Benachrichtigung per E-Mail.")
         Helper.setDefaultCursor()
-        Helper.removeOverlay()
+        Helper.remove("overlay", )
       })
     })
 
@@ -352,7 +352,7 @@
           fileReader.onload = async(event) => {
 
 
-            const dataUrlSize = Helper.calculateDataUrlSize(event.target.result)
+            const dataUrlSize = Helper.convert("text/length", event.target.result)
             if (dataUrlSize > 5 * 1024 * 1024) {
               alert("PDF ist zu groß.")
               Helper.setNotValidStyle(input)
@@ -376,7 +376,7 @@
               registerOffer.offer.value.file.type = input.files[0].type
               registerOffer.offer.value.file.size = dataUrlSize
               registerOffer.offer.value.file.dataURL = event.target.result
-              await Request.sequence(registerOffer)
+              await this.request("location/json", registerOffer)
 
               const getChecklist = {}
               getChecklist.url = "/consumer/1/closed/"
@@ -386,7 +386,7 @@
               getChecklist.email = email
               getChecklist.referer = document.referrer
               getChecklist.localStorageId = await Request.localStorageId()
-              const res = await Request.middleware(getChecklist)
+              const res = await this.request("closed/json", getChecklist)
 
               const checklist = JSON.parse(res.response)
 
@@ -402,7 +402,7 @@
               registerChecklist.referer = document.referrer
               registerChecklist.localStorageId = await Request.localStorageId()
               registerChecklist.checklist = checklist
-              await Request.sequence(registerChecklist)
+              await this.request("location/json", registerChecklist)
 
               alert("Speichern erfolgreich..")
               return window.location.assign(`/felix/shs/${urlId}/`)

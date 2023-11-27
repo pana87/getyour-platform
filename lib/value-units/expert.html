@@ -22,14 +22,7 @@
   <body>
 
     <script type="module">
-      import { Request } from "/js/Request.js"
       import { Helper } from "/js/Helper.js"
-      import { TextField } from "/js/TextField.js"
-      import { TelField } from "/js/TelField.js"
-      import { TextAreaField } from "/js/TextAreaField.js"
-      import { FileField } from "/js/FileField.js"
-      import { SelectionField } from "/js/SelectionField.js"
-      import { RangeField } from "/js/RangeField.js"
 
       document.body.style.background = Helper.colors.light.background
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -53,7 +46,7 @@
 
             const ping = {}
             ping.url = "/verify/expert/closed/"
-            const res = await Request.location(ping)
+            const res = await Helper.request("location/json", ping)
 
             if (res.status === 200) {
 
@@ -86,7 +79,7 @@
 
             const get = {}
             get.url = "/get/platforms/location/"
-            const res = await Request.sequence(get)
+            const res = await Helper.request("location/json", get)
 
             if (res.status !== 200) {
 
@@ -124,7 +117,7 @@
             {
               const verify = {}
               verify.url = "/verify/expert/closed/"
-              const res = await Request.closed(verify)
+              const res = await Helper.request("closed/json", verify)
 
               if (res.status !== 200) {
 
@@ -153,7 +146,7 @@
 
                   const get = {}
                   get.url = "/get/platforms/location/"
-                  const res = await Request.location(get)
+                  const res = await Helper.request("location/json", get)
 
                   if (res.status !== 200) {
 
@@ -192,7 +185,7 @@
 
                 const get = {}
                 get.url = "/get/platforms/closed/"
-                const res = await Request.closed(get)
+                const res = await Helper.request("closed/json", get)
 
                 if (res.status !== 200) {
 

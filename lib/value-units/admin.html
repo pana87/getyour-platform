@@ -21,11 +21,7 @@
   <body>
 
     <script type="module">
-      import { Request } from "/js/Request.js"
       import { Helper } from "/js/Helper.js"
-      import { TextField } from "/js/TextField.js"
-      import { SelectionField } from "/js/SelectionField.js"
-      import { TelField } from "/js/TelField.js"
 
       document.body.style.background = Helper.colors.light.background
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -143,21 +139,22 @@
 
                               const funnel = Helper.create("div/scrollable", overlay)
 
-                              const verifiedField = new SelectionField("verified", funnel)
+                              const verifiedField = Helper.create("field/select", funnel)
                               verifiedField.label.innerHTML = "Soll dieser Nutzer, für alle Match Maker Algorithmen, sichtbar werden"
 
                               if (user.verified === true) {
-                                verifiedField.options(["true", "false"])
+                                verifiedField.input.add(["true", "false"])
                               }
                               if (user.verified === false) {
-                                verifiedField.options(["false", "true"])
+                                verifiedField.input.add(["false", "true"])
                               }
-                              verifiedField.verifyValue()
 
-                              verifiedField.select.addEventListener("input", async () => {
+                              Helper.verify("input/value", verifiedField.input)
+
+                              verifiedField.input.addEventListener("input", async () => {
                                 Helper.overlay("security", async securityOverlay => {
 
-                                  const value = verifiedField.validValue()[0].value
+                                  const value = verifiedField.input.value
 
                                   const register = {}
                                   register.url = "/register/verified/verified/2/"
@@ -169,7 +166,7 @@
                                     register.verified = false
                                   }
 
-                                  const res = await Request.closed(register)
+                                  const res = await Helper.request("closed/json", register)
 
                                   if (res.status === 200) {
                                     window.alert("Daten erfolgreich gespeichert.")
@@ -177,7 +174,7 @@
                                   }
 
                                   if (res.status !== 200) {
-                                    window.alert("Fehler.. Bitte wiederholen")
+                                    window.alert("Fehler.. Bitte wiederholen.")
                                     Helper.remove("overlay", securityOverlay)
                                   }
 
@@ -309,7 +306,8 @@
                     const confirm = window.confirm("Möchtest du wirklich die Logbücher leeren?")
 
                     if (confirm === true) {
-                      const res = await Request.ping("/delete/logs/closed/2/")
+
+                      const res = await Helper.delete("logs/db/admin")
 
                       if (res.status === 200) {
                         window.alert("Logbuch wurde erfolgreich geleert.")
@@ -368,7 +366,7 @@
                       const verify = {}
                       verify.url = "/verify/expert/closed/2/"
                       verify.name = username
-                      const res = await Request.closed(verify)
+                      const res = await Helper.request("closed/json", verify)
 
                       if (res.status === 200) {
                         alert("Experte existiert bereits.")
@@ -384,30 +382,30 @@
                       register.url = "/register/expert/closed/2/"
                       register.name = username
                       register.email = email
-                      const res = await Request.closed(register)
+                      const res = await Helper.request("closed/json", register)
 
                       if (res.status === 200) {
                         const send = {}
                         send.url = "/send/email/closed/2/"
                         send.email = email
                         send.event = "invite/expert"
-                        const res = await Request.closed(send)
+                        const res = await Helper.request("closed/json", send)
 
                         if (res.status === 200) {
                           window.alert("Experte erfolgreich angemeldet.")
-                          Helper.removeOverlay(overlay)
-                          Helper.removeOverlay(securityOverlay)
+                          Helper.remove("overlay", overlay)
+                          Helper.remove("overlay", securityOverlay)
                         } else {
                           window.alert("Anmeldung nicht möglich. Mehr Infos in den Error Logs.")
-                          Helper.removeOverlay(overlay)
-                          Helper.removeOverlay(securityOverlay)
+                          Helper.remove("overlay", overlay)
+                          Helper.remove("overlay", securityOverlay)
                         }
 
 
                       } else {
                         alert("Anmeldung nicht möglich. Mehr Infos in den Error Logs.")
-                        Helper.removeOverlay(overlay)
-                        Helper.removeOverlay(securityOverlay)
+                        Helper.remove("overlay", overlay)
+                        Helper.remove("overlay", securityOverlay)
                       }
 
                     })

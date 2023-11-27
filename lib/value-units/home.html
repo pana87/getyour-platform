@@ -21,7 +21,6 @@
 
 
     <script type="module">
-      import {Request} from "/js/Request.js"
       import {Helper} from "/js/Helper.js"
 
       Helper.convert("parent/dark", document.body)
@@ -70,7 +69,7 @@
 
         const get = {}
         get.url = "/get/experts/open/"
-        const res = await Request.open(get)
+        const res = await Helper.request("open/json", get)
 
         if (res.status !== 200) {
 

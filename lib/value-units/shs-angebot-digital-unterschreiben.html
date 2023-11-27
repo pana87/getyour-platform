@@ -42,7 +42,7 @@
     getOffer.email = await Request.email()
     getOffer.referer = document.referrer
     getOffer.localStorageId = await Request.localStorageId()
-    const res = await Request.middleware(getOffer)
+    const res = await this.request("closed/json", getOffer)
 
     if (res.status !== 200) {
       window.location.assign("/felix/shs/hersteller-vergleich/")
@@ -123,7 +123,7 @@
           registerOffer.offer.value.eSign.type = file.type
           registerOffer.offer.value.eSign.size = file.size
           registerOffer.offer.value.eSign.dataURL = file.dataURL
-          await Request.sequence(registerOffer)
+          await this.request("location/json", registerOffer)
 
           const getChecklist = {}
           getChecklist.url = "/consumer/1/closed/"
@@ -133,7 +133,7 @@
           getChecklist.email = email
           getChecklist.referer = document.referrer
           getChecklist.localStorageId = await Request.localStorageId()
-          const res = await Request.middleware(getChecklist)
+          const res = await this.request("closed/json", getChecklist)
 
           const checklist = JSON.parse(res.response)
 
@@ -149,7 +149,7 @@
           registerChecklist.referer = document.referrer
           registerChecklist.localStorageId = await Request.localStorageId()
           registerChecklist.checklist = checklist
-          await Request.sequence(registerChecklist)
+          await this.request("location/json", registerChecklist)
 
           alert("Speichern erfolgreich..")
           return window.location.assign(`/felix/shs/${urlId}/`)

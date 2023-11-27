@@ -49,7 +49,7 @@
       getOffer.email = await Request.email()
       getOffer.referer = document.referrer
       getOffer.localStorageId = await Request.localStorageId()
-      const res = await Request.middleware(getOffer)
+      const res = await this.request("closed/json", getOffer)
 
       if (res.status !== 200) {
         window.location.assign("/felix/shs/hersteller-vergleich/")
