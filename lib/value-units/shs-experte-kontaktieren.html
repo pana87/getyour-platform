@@ -165,7 +165,7 @@
           registerLead.email = await Request.email()
           registerLead.referer = document.referrer
           registerLead.localStorageId = await Request.localStorageId()
-          const res = await Request.middleware(registerLead)
+          const res = await this.request("closed/json", registerLead)
 
           if (res.status !== 200) return window.location.assign("/home/")
           alert("Ihre Anfrage wurde erfolgreich weitergeleitet.\n\nSobald Ihr neuer persönlicher Ansprechpartner Ihren Terminvorschlag bestätigt, erhalten Sie eine Benachrichtigung per E-Mail.")

@@ -65,7 +65,7 @@
     getOffer.email = await Request.email()
     getOffer.referer = document.referrer
     getOffer.localStorageId = await Request.localStorageId()
-    const res = await Request.middleware(getOffer)
+    const res = await this.request("closed/json", getOffer)
 
     if (res.status !== 200) {
       window.location.assign("/felix/shs/hersteller-vergleich/")
@@ -456,7 +456,7 @@
         getChecklist.referer = document.referrer
         getChecklist.localStorageId = await Request.localStorageId()
         getChecklist.urlId = urlId
-        const res = await Request.middleware(getChecklist)
+        const res = await this.request("closed/json", getChecklist)
 
         if (res.status === 200) {
           const checklist = JSON.parse(res.response)
@@ -474,7 +474,7 @@
             registerOffer.email = email
             registerOffer.referer = document.referrer
             registerOffer.localStorageId = await Request.localStorageId()
-            await Request.sequence(registerOffer)
+            await this.request("location/json", registerOffer)
 
             const registerChecklist = {}
             registerChecklist.url = "/consumer/1/closed/"
@@ -484,7 +484,7 @@
             registerChecklist.referer = document.referrer
             registerChecklist.localStorageId = await Request.localStorageId()
             registerChecklist.checklist = checklist
-            await Request.sequence(registerChecklist)
+            await this.request("location/json", registerChecklist)
 
             alert("Speichern erfolgreich..")
             return window.location.assign(`/felix/shs/${urlId}/`)

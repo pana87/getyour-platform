@@ -1,11 +1,3 @@
-import {Request} from "/js/Request.js"
-import {TextField} from "/js/TextField.js"
-import {TextAreaField} from "/js/TextAreaField.js"
-import {SelectionField} from "/js/SelectionField.js"
-import {TelField} from "/js/TelField.js"
-import {FileField} from "/js/FileField.js"
-import {CheckboxField} from "/js/CheckboxField.js"
-
 export class Helper {
 
   static run(event, input) {
@@ -29,6 +21,26 @@ export class Helper {
   static delete(event, input) {
     // event = thing/from/algorithm
 
+    if (event === "logs/db/admin") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const del = {}
+          del.url = "/delete/logs/closed/"
+          del.type = "super-admin"
+          const res = await this.request("closed/json", del)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
     if (event === "user/db/self") {
 
       return new Promise(async (resolve, reject) => {
@@ -38,7 +50,7 @@ export class Helper {
           del.url = "/delete/user/closed/"
           del.type = "self"
           del.email = input
-          const res = await Request.closed(del)
+          const res = await this.request("closed/json", del)
 
           resolve(res)
 
@@ -59,7 +71,7 @@ export class Helper {
           del.url = "/delete/user/closed/"
           del.type = "by-admin"
           del.id = input
-          const res = await Request.closed(del)
+          const res = await this.request("closed/json", del)
 
           resolve(res)
 
@@ -82,7 +94,7 @@ export class Helper {
           del.id = input.id
           del.tree = input.tree
           console.log(del)
-          const res = await Request.closed(del)
+          const res = await this.request("closed/json", del)
 
           resolve(res)
 
@@ -103,7 +115,7 @@ export class Helper {
           del.url = "/delete/user/closed/"
           del.type = "key"
           del.key = input
-          const res = await Request.closed(del)
+          const res = await this.request("closed/json", del)
 
           resolve(res)
 
@@ -124,7 +136,7 @@ export class Helper {
           del.url = "/delete/script/closed/"
           del.type = "condition"
           del.id = input
-          const res = await Request.closed(del)
+          const res = await this.request("closed/json", del)
 
           resolve(res)
 
@@ -145,7 +157,7 @@ export class Helper {
           del.url = "/delete/match-maker/closed/"
           del.type = "condition"
           del.id = input
-          const res = await Request.closed(del)
+          const res = await this.request("closed/json", del)
 
           resolve(res)
 
@@ -161,20 +173,70 @@ export class Helper {
 
   static remove(event, input) {
 
+    if (event === "element/inner") {
+      input.innerHTML = ""
+    }
+
+    if (event === "element/style") {
+      input.removeAttribute("style")
+    }
+
+    if (event === "element/selector") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const promises = []
+          input.element.querySelectorAll(input.selector).forEach(it => {
+            const promise = new Promise(innerResolve => {
+              it.remove()
+              innerResolve()
+            })
+            promises.push(promise)
+          })
+          await Promise.all(promises)
+
+          resolve()
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "toolbox") {
-      input.querySelectorAll(`#toolbox-getter`).forEach(it => it.remove())
-      input.querySelectorAll(`[data-id]`).forEach(it => it.remove())
-      input.querySelectorAll(`#toolbox`).forEach(it => it.remove())
-      input.querySelectorAll(`.overlay`).forEach(it => it.remove())
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          await this.remove("element/selector", {element: input, selector: "#toolbox-getter"})
+          await this.remove("element/selector", {element: input, selector: "[data-id]"})
+          await this.remove("element/selector", {element: input, selector: "#toolbox"})
+          await this.remove("element/selector", {element: input, selector: ".overlay"})
+
+          resolve()
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
     }
 
     if (event === "element/selected-node") {
 
-      return new Promise((resolve, reject) => {
+      return new Promise(async(resolve, reject) => {
         try {
 
-          input.style.outline = null
-          input.removeAttribute("selected-node")
+          const promises = []
+          input.querySelectorAll("*").forEach(element => {
+            const promise = new Promise(innerResolve => {
+              element.style.outline = null
+              element.removeAttribute("selected-node")
+              innerResolve()
+            })
+            promises.push(promise)
+          })
+          await Promise.all(promises)
 
           resolve()
 
@@ -202,6 +264,10 @@ export class Helper {
   static add(event, input) {
     // event = input/algorithm
 
+    if (event === "element/selected-node") {
+      input.setAttribute("selected-node", "true")
+      input.style.outline = "3px solid #777"
+    }
 
     if (event === "oninput/verify-positive-integer") {
 
@@ -211,6 +277,31 @@ export class Helper {
         } else {
           this.setNotValidStyle(input)
         }
+      })
+
+    }
+
+    if (event === "onclick/overlay-owner-funnel") {
+
+      input.addEventListener("click", () => {
+
+        this.overlay("toolbox", async overlay => {
+
+          this.add("button/remove-overlay", overlay)
+
+          const res = await this.get("owner/user/self")
+
+          if (res.status === 200) {
+            const owner = JSON.parse(res.response)
+            this.render("field-funnel/owner", owner, overlay)
+          }
+
+          if (res.status !== 200) {
+            this.render("field-funnel/owner", overlay)
+          }
+
+        })
+
       })
 
     }
@@ -299,14 +390,14 @@ export class Helper {
       field.input.accept = "text/tag"
       field.input.placeholder = "meine-id"
       this.verify("input/value", field.input)
-      field.input.oninput = () => {
+      field.input.addEventListener("input", () => {
         this.verify("input/value", field.input)
 
         if (!this.verifyIs("id/unique", field.input.value)) {
           this.setNotValidStyle(field.input)
         }
 
-      }
+      })
 
       if (input) input.append(field)
       return field
@@ -320,8 +411,8 @@ export class Helper {
       field.label.innerHTML = "Gebe hier die Quell-Url für dein Bild ein"
       field.input.placeholder = "https://www.meine-quelle.de"
 
-      this.verify("input/validity", field.input)
-      field.input.oninput = () => this.verify("input/validity", field.input)
+      this.verify("input/value", field.input)
+      field.input.oninput = () => this.verify("input/value", field.input)
 
       if (input) input.append(field)
       return field
@@ -615,10 +706,10 @@ export class Helper {
           }
 
           {
+
             const button = this.buttonPicker("left/right", buttons)
             button.left.innerHTML = "document.write"
             button.right.innerHTML = "Aktuelles Dokument ersetzen"
-
             button.addEventListener("click", () => {
 
               this.overlay("toolbox", overlay => {
@@ -722,7 +813,7 @@ export class Helper {
     if (event === "field-funnel/oninput-sign-support") {
       input.querySelectorAll(".field").forEach(field => {
         const input = field.querySelector(".field-input")
-        input.oninput = () => this.verifyIs("input/valid", input)
+        input.oninput = () => this.verify("input/value", input)
       })
     }
 
@@ -734,17 +825,7 @@ export class Helper {
           <script id="field-funnel-sign-support" type="module">
             import {Helper} from "/js/Helper.js"
 
-            document.querySelectorAll(".field-funnel").forEach(funnel => {
-              Helper.verifyIs("field-funnel/valid", funnel)
-            })
-
-            document.querySelectorAll(".field-funnel").forEach(funnel => {
-              funnel.querySelectorAll(".field").forEach(field => {
-                const input = field.querySelector(".field-input")
-                input.oninput = () => Helper.verifyIs("input/valid", input)
-              })
-            })
-
+            Helper.add("event/field-funnel-sign-support")
           </script>
         `
 
@@ -780,6 +861,36 @@ export class Helper {
       })
     }
 
+    if (event === "event/dbltouch") {
+      let lastTapTime = 0
+
+      input.node.addEventListener("touchend", ev => {
+        const currentTime = new Date().getTime()
+        const timeDifference = currentTime - lastTapTime
+
+        if (timeDifference < 300 && timeDifference > 0) {
+          input.callback(ev)
+        }
+
+        lastTapTime = currentTime
+      })
+    }
+
+    if (event === "event/field-funnel-sign-support") {
+
+      document.querySelectorAll(".field-funnel").forEach(funnel => {
+        this.verifyIs("field-funnel/valid", funnel)
+      })
+
+      document.querySelectorAll(".field-funnel").forEach(funnel => {
+        funnel.querySelectorAll(".field").forEach(field => {
+          const input = field.querySelector(".field-input")
+          input.addEventListener("input", () => this.verify("input/value", input))
+        })
+      })
+
+    }
+
     if (event === "event/role-login") {
 
       const submit = document.querySelector(".start-login-event")
@@ -801,24 +912,24 @@ export class Helper {
             await this.verify("input/value", emailInput)
             await this.verify("input/value", dsgvoInput)
 
-            await Request.withVerifiedEmail(emailInput.value, async () => {
+            await this.withVerifiedEmail(emailInput.value, async () => {
 
               const register = {}
               register.url = "/register/email/location/"
               register.email = emailInput.value
               register.id = input.id
               register.name = input.name
-              const res = await Request.location(register)
+              const res = await this.request("location/json", register)
 
               {
                 const register = {}
                 register.url = "/request/register/session/"
-                const res = await Request.closed(register)
+                const res = await this.request("closed/json", register)
 
                 if (res.status === 200) {
                   const redirect = {}
                   redirect.url = "/redirect/user/closed/"
-                  const res = await Request.closed(redirect)
+                  const res = await this.request("closed/json", redirect)
                   if (res.status === 200) window.location.assign(res.response)
                 } else {
                   window.history.back()
@@ -861,6 +972,9 @@ export class Helper {
                 for (var i = 0; i < fileImport.files.length; i++) {
                   const file = fileImport.files[i]
 
+                  // nginx file too large error
+                  // mit salih klären
+
                   await new Promise(async(resolve, reject) => {
                     const formdata = new FormData()
                     formdata.append('mp3-file', file)
@@ -891,7 +1005,7 @@ export class Helper {
 
                 }
 
-                window.alert("Alle Dateien wurden erfolgreich hochgeladen.")
+                window.alert("Sound erfolgreich gespeichert.")
                 this.remove("overlay", securityOverlay)
 
               })
@@ -916,9 +1030,18 @@ export class Helper {
               for (let i = 0; i < sounds.length; i++) {
                 const sound = sounds[i]
 
+                console.log(sound);
+
+                // create and append audio fields
+                // with title, creator, album, played,
+                // more meta data about the sound
+                // more interaction with that sound
+                // sound = value unit for soundbox
+                // refresh button to get the audio
+
                 const audio = document.createElement("audio")
                 audio.id = sound.created
-                audio.src = `https://${sound.cid}.ipfs.nftstorage.link`
+                audio.src = `https://ipfs.io/ipfs/${sound.cid}/`
                 audio.style.width = "100%"
                 audio.setAttribute("controls", "")
                 audioList.append(audio)
@@ -934,6 +1057,98 @@ export class Helper {
         }
       })
 
+    }
+
+    if (event === "event/register-html") {
+
+      this.overlay("security", async securityOverlay => {
+
+        // prepare html state
+        this.remove("element/selector", {element: document, selector: "[data-id]"})
+        this.remove("element/selector", {element: document, selector: "#toolbox"})
+        this.remove("element/selector", {element: document, selector: ".overlay"})
+
+        const html = document.documentElement.outerHTML.replace(/<html>/, "<!DOCTYPE html><html>")
+
+        // save html state
+        const res = await this.register("html/platform-value/closed", html)
+
+        if (res.status === 200) {
+          window.alert("Dokument erfolgreich gespeichert.")
+          window.location.reload()
+        }
+
+        if (res.status !== 200) {
+
+          const res = await this.register("html/platform-value/writable-closed", html)
+
+          if (res.status === 200) {
+            window.alert("Dokument erfolgreich gespeichert.")
+            window.location.reload()
+          }
+
+          if (res.status !== 200) {
+
+            window.alert("Fehler.. Bitte wiederholen.")
+            await this.add("toolbox/onbody")
+            this.remove("overlay", securityOverlay)
+
+          }
+
+        }
+
+      })
+
+    }
+
+    if (event === "script/submit-field-funnel-event") {
+
+      const script = this.create(event)
+
+      if (input !== undefined) {
+        document.querySelectorAll(`#${script.id}`).forEach(script => script.remove())
+        input.append(script)
+      }
+
+      return script
+
+    }
+
+    if (event === "script/click-funnel-start-event") {
+
+      const script = this.create(event)
+
+      if (input !== undefined) {
+        document.querySelectorAll(`#${script.id}`).forEach(script => script.remove())
+        input.append(script)
+      }
+
+      return script
+
+    }
+
+    if (event === "script/html-feedback-button") {
+
+      const script = this.create(event)
+
+      if (input !== undefined) {
+        document.querySelectorAll(`#${script.id}`).forEach(script => script.remove())
+        input.append(script)
+      }
+
+      return script
+    }
+
+    if (event === "script/back-button") {
+
+      const script = this.create(event)
+
+      if (input !== undefined) {
+        document.querySelectorAll(`#${script.id}`).forEach(script => script.remove())
+        input.append(script)
+      }
+
+      return script
     }
 
     if (event === "script/open-login") {
@@ -969,6 +1184,7 @@ export class Helper {
         create.innerHTML = script.innerHTML
 
         if (document.body) {
+          document.querySelectorAll("#toolbox-getter").forEach(getter => getter.remove())
           document.body.append(create)
           return resolve(create)
         } else {
@@ -1039,7 +1255,7 @@ export class Helper {
             const verify = {}
             verify.url = "/verify/email/closed/"
             verify.email = prompt
-            const res = await Request.closed(verify)
+            const res = await this.request("closed/json", verify)
 
 
             if (res.status === 200) {
@@ -1051,13 +1267,13 @@ export class Helper {
                 window.location.assign("/")
               } else {
                 alert("Fehler.. Bitte wiederholen.")
-                this.removeOverlay(securityOverlay)
+                this.remove("overlay", securityOverlay)
               }
 
 
             } else {
               alert("Fehler.. Bitte wiederholen.")
-              this.removeOverlay(securityOverlay)
+              this.remove("overlay", securityOverlay)
             }
 
           })
@@ -1087,11 +1303,9 @@ export class Helper {
 
           const funnel = this.create("div/scrollable", overlay)
 
-          const platformNameField = this.create("field/text", funnel)
+          const platformNameField = this.create("field/tag", funnel)
           platformNameField.label.innerHTML = "Plattform Name"
-          platformNameField.input.accept = "text/tag"
           platformNameField.input.maxLength = "21"
-          platformNameField.input.required = true
           platformNameField.input.placeholder = "meine-plattform"
           platformNameField.input.addEventListener("input", () => this.verify("input/value", platformNameField.input))
           this.verify("input/value", platformNameField.input)
@@ -1104,7 +1318,7 @@ export class Helper {
 
             const platformName = platformNameField.input.value
 
-            const res = await Request.ping("/verify/platform/open/", platformName)
+            const res = await this.verify("platform-name/exist-open", platformName)
 
             if (res.status === 200) {
               window.alert("Plattform Name existiert bereits.")
@@ -1118,14 +1332,14 @@ export class Helper {
               const register = {}
               register.url = "/register/platform/closed/"
               register.platform = platformName
-              const res = await Request.closed(register)
+              const res = await this.request("closed/json", register)
 
               if (res.status === 200) {
                 alert("Plattform erfolgreich hinzugefügt..")
                 window.location.reload()
               } else {
                 alert("Fehler.. Bitte wiederholen.")
-                this.removeOverlay(securityOverlay)
+                this.remove("overlay", securityOverlay)
               }
 
 
@@ -1148,7 +1362,42 @@ export class Helper {
       button.left.innerHTML = ".name"
       button.addEventListener("click", () => {
         this.popup(overlay => {
-          this.update("name/expert/closed", overlay, {ok: () => this.remove("overlay", overlay)})
+
+          const funnel = this.create("div/scrollable", overlay)
+
+          const nameField = this.create("field/tag", funnel)
+          nameField.input.value = window.location.pathname.split("/")[1]
+          nameField.input.placeholder = "mein-neuer-experten-name"
+          nameField.input.maxLength = "21"
+          nameField.input.oninput = () => this.verify("input/value", nameField.input)
+          this.verify("input/value", nameField.input)
+
+          const button = this.buttonPicker("action", funnel)
+          button.innerHTML = "Name jetzt speichern"
+          button.addEventListener("click", async () => {
+
+            await this.verify("input/value", nameField.input)
+
+            this.overlay("security", async securityOverlay => {
+
+              const res = await this.register("name/expert/self", nameField.input.value)
+
+              if (res.status === 200) {
+                window.alert("Name erfolgreich gespeichert.")
+                window.location.assign(`/${nameField.input.value}/`)
+              }
+
+              if (res.status !== 200) {
+                window.alert("Fehler.. Bitte wiederholen.")
+                this.remove("overlay", securityOverlay)
+              }
+
+            })
+
+
+
+          })
+
         })
       })
 
@@ -1287,48 +1536,11 @@ export class Helper {
 
     if (event === "button/register-html") {
 
-      const save = this.headerPicker("save", input)
+      const save = this.create("button/save", input)
 
       save.onclick = async () => {
 
-        this.overlay("security", async securityOverlay => {
-
-          // prepare html state
-          document.querySelectorAll("#toolbox").forEach(element => element.remove())
-          document.querySelectorAll("[data-id]").forEach(element => element.remove())
-          document.querySelectorAll(".overlay").forEach(element => element.remove())
-
-          const html = document.documentElement.outerHTML.replace(/<html>/, "<!DOCTYPE html><html>")
-
-          // save html state
-          const res = await this.register("html/platform-value/closed", html)
-
-          if (res.status === 200) {
-            window.alert("Dokument erfolgreich gespeichert.")
-            window.location.reload()
-          }
-
-          if (res.status !== 200) {
-
-            const res = await this.register("html/platform-value/writable-closed", html)
-
-            if (res.status === 200) {
-              window.alert("Dokument erfolgreich gespeichert.")
-              window.location.reload()
-            }
-
-            if (res.status !== 200) {
-
-              window.alert("Fehler.. Bitte wiederholen.")
-              await this.add("toolbox/onbody")
-              this.removeOverlay(securityOverlay)
-
-            }
-
-          }
-
-        })
-
+        this.add("event/register-html")
 
       }
 
@@ -1557,7 +1769,7 @@ export class Helper {
         const get = {}
         get.url = "/get/feedback/location/"
         get.type = "html-value-length"
-        const res = await Request.location(get)
+        const res = await this.request("location/json", get)
 
         feedbackButton.counter.innerHTML = "0"
         if (res.status === 200) {
@@ -1598,7 +1810,7 @@ export class Helper {
             get.url = "/get/feedback/location/"
             get.type = "html-value"
             // get.id = input.id
-            const res = await Request.location(get)
+            const res = await this.request("location/json", get)
 
             if (res.status !== 200) {
               feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
@@ -1613,7 +1825,7 @@ export class Helper {
                 break getFeedbackSuccess
               }
 
-              this.reset(feedbackContainer)
+              this.convert("element/reset", feedbackContainer)
               feedbackContainer.style.margin = "21px 34px"
               feedbackContainer.style.overflowY = "auto"
               feedbackContainer.style.overscrollBehavior = "none"
@@ -1697,15 +1909,15 @@ export class Helper {
                         del.type = "html-value"
                         // del.scriptId = input.id
                         del.id = value.id
-                        const res = await Request.location(del)
+                        const res = await this.request("location/json", del)
 
                         if (res.status === 200) {
                           feedbackButton.counter.innerHTML = parseInt(feedbackButton.counter.innerHTML) - 1
-                          this.removeOverlay(overlay)
-                          this.removeOverlay(feedbackOverlay)
+                          this.remove("overlay", overlay)
+                          this.remove("overlay", feedbackOverlay)
                         } else {
                           window.alert("Fehler.. Bitte wiederholen.")
-                          this.removeOverlay(overlay)
+                          this.remove("overlay", overlay)
                         }
 
 
@@ -1727,8 +1939,8 @@ export class Helper {
             contentField.input.style.fontSize = "13px"
             contentField.input.placeholder = "Schreibe ein anonymes Feedback, wenn du möchtest.."
 
-            this.verify("input/validity", contentField.input)
-            contentField.input.addEventListener("input", () => this.verify("input/validity", contentField.input))
+            this.verify("input/value", contentField.input)
+            contentField.input.addEventListener("input", () => this.verify("input/value", contentField.input))
 
 
             const importanceField = this.create("field/range", content)
@@ -1738,10 +1950,10 @@ export class Helper {
             importanceField.input.value = "0"
             importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
 
-            this.verify("input/validity", importanceField.input)
+            this.verify("input/value", importanceField.input)
 
             importanceField.input.addEventListener("input", (event) => {
-              this.verify("input/validity", importanceField.input)
+              this.verify("input/value", importanceField.input)
               importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
             })
 
@@ -1749,7 +1961,7 @@ export class Helper {
             button.innerHTML = "Feedback jetzt speichern"
             button.addEventListener("click", async () => {
 
-              const res = await this.verifyIs("input/valid", contentField.input)
+              const res = await this.verify("input/value", contentField.input)
 
               if (res === true) {
 
@@ -1766,15 +1978,15 @@ export class Helper {
                   // register.id = input.id
                   register.importance = importance
                   register.content = content
-                  const res = await Request.location(register)
+                  const res = await this.request("location/json", register)
 
                   if (res.status === 200) {
-                    this.removeOverlay(securityOverlay)
-                    this.removeOverlay(overlay)
+                    this.remove("overlay", securityOverlay)
+                    this.remove("overlay", overlay)
                     feedbackButton.counter.innerHTML = parseInt(feedbackButton.counter.innerHTML) + 1
                   } else {
                     window.alert("Fehler.. Bitte wiederholen.")
-                    this.removeOverlay(securityOverlay)
+                    this.remove("overlay", securityOverlay)
                   }
 
                 })
@@ -1816,27 +2028,29 @@ export class Helper {
             await this.verify("input/value", emailInput)
             await this.verify("input/value", dsgvoInput)
 
-            await Request.withVerifiedEmail(emailInput.value, async () => {
+            await this.withVerifiedEmail(emailInput.value, async () => {
 
               if (emailInput.value.endsWith("@get-your.de")) {
 
-                await Request.ping("/register/admin/location/", emailInput.value)
-                .catch(error => {
+                const res = await this.register("email/super-admin", emailInput.value)
+
+                if (res.status !== 200) {
                   window.alert("Fehler.. Bitte wiederholen.")
                   window.location.assign("/")
-                })
+                  throw new Error("not found")
+                }
 
               }
 
               {
                 const register = {}
                 register.url = "/request/register/session/"
-                const res = await Request.closed(register)
+                const res = await this.request("closed/json", register)
 
                 if (res.status === 200) {
                   const redirect = {}
                   redirect.url = "/redirect/user/closed/"
-                  const res = await Request.closed(redirect)
+                  const res = await this.request("closed/json", redirect)
 
                   if (res.status === 200) {
                     window.location.assign(res.response)
@@ -1924,15 +2138,44 @@ export class Helper {
     }
 
 
-    if (event === "cids/soundbox/self") {
+    if (event === "id/local-storage") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const localStorageId = window.localStorage.getItem("localStorageId")
+          if (localStorageId !== null) resolve(localStorageId)
+          else throw new Error("not found")
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "email/local-storage") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const email = window.localStorage.getItem("email")
+          if (email !== null) resolve(email)
+          else throw new Error("not found")
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "html/url/admin") {
 
       return new Promise(async(resolve, reject) => {
         try {
 
           const get = {}
-          get.url = "/get/soundbox/closed/"
-          get.type = "cids-self"
-          const res = await Request.closed(get)
+          get.url = "/get/html/closed/"
+          get.type = "admin"
+          get.target = input
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -1943,6 +2186,43 @@ export class Helper {
 
     }
 
+    if (event === "owner/user/self") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/owner/closed/"
+          get.type = "self"
+          const res = await this.request("closed/json", get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "cids/soundbox/self") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/soundbox/closed/"
+          get.type = "cids-self"
+          const res = await this.request("closed/json", get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
 
     if (event === "body/key/admin") {
 
@@ -1954,7 +2234,7 @@ export class Helper {
           get.type = "key-body/admin"
           get.id = input.id
           get.key = input.key
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -1973,7 +2253,7 @@ export class Helper {
           const get = {}
           get.url = "/get/expert/closed/"
           get.type = "name-self"
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -1992,7 +2272,7 @@ export class Helper {
           const get = {}
           get.url = "/get/user/closed/"
           get.type = "all-admin"
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -2012,7 +2292,7 @@ export class Helper {
           get.url = "/get/user/closed/"
           get.type = "keys-admin"
           get.id = input
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -2032,7 +2312,7 @@ export class Helper {
           get.url = "/get/platform-values/closed"
           get.type = "platform-writability"
           get.platform = input
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -2051,7 +2331,7 @@ export class Helper {
           const get = {}
           get.url = "/get/platform-values/closed"
           get.type = "writability"
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -2070,7 +2350,7 @@ export class Helper {
           const get = {}
           get.url = "/get/platforms/closed"
           get.type = "writability"
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -2091,7 +2371,7 @@ export class Helper {
           get.url = "/get/platform-value/closed/"
           get.type = "writability"
           get.path = input
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
         } catch (error) {
@@ -2112,7 +2392,7 @@ export class Helper {
           get.url = "/get/platform/closed/"
           get.type = "writability"
           get.platform = input
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
         } catch (error) {
@@ -2134,7 +2414,7 @@ export class Helper {
           get.type = "location-list"
           get.ids = input.ids
           get.tags = input.tags
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -2156,7 +2436,7 @@ export class Helper {
           get.url = "/get/user/closed/"
           get.type = "trees"
           get.trees = input
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
         } catch (error) {
@@ -2178,7 +2458,7 @@ export class Helper {
           get.type = "keys"
           get.conditions = parent
           get.mirror = input
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
         } catch (error) {
@@ -2200,7 +2480,7 @@ export class Helper {
           get.type = "list"
           get.conditions = parent
           get.tree = input
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
         } catch (error) {
@@ -2222,7 +2502,7 @@ export class Helper {
           get.type = "mirror"
           get.conditions = parent
           get.mirror = input
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
         } catch (error) {
@@ -2243,7 +2523,7 @@ export class Helper {
           get.url = "/get/match-maker/closed/"
           get.type = "condition"
           get.id = input
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
         } catch (error) {
@@ -2264,7 +2544,7 @@ export class Helper {
           get.url = "/get/match-maker/closed/"
           get.type = "writable-conditions"
           get.id = input
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -2286,7 +2566,7 @@ export class Helper {
           get.url = "/get/match-maker/closed/"
           get.type = "conditions-closed"
           get.id = input
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -2308,7 +2588,7 @@ export class Helper {
           get.url = "/get/match-maker/closed/"
           get.type = "conditions"
           get.id = input
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -2330,7 +2610,7 @@ export class Helper {
         get.url = "/get/match-maker/closed/"
         get.type = "conditions"
         get.id = input
-        const res = await Request.closed(get)
+        const res = await this.request("closed/json", get)
 
         if (res.status === 200) {
 
@@ -2379,12 +2659,12 @@ export class Helper {
                           funnel.operatorField.input.value = condition.operator
                           funnel.rightField.input.value = condition.right
 
-                          this.verify("field-funnel/validity", funnel)
+                          this.verifyIs("field-funnel/valid", funnel)
                         }
 
                         funnel.submit.onclick = async () => {
 
-                          await this.verify("field-funnel/validity", funnel)
+                          await this.verifyIs("field-funnel/valid", funnel)
 
                           this.overlay("security", async securityOverlay => {
 
@@ -2469,7 +2749,7 @@ export class Helper {
           const get = {}
           get.url = "/get/match-maker/closed/"
           get.type = "toolbox-writable"
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -2490,7 +2770,7 @@ export class Helper {
           const get = {}
           get.url = "/get/match-maker/closed/"
           get.type = "toolbox"
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -2511,7 +2791,7 @@ export class Helper {
         const get = {}
         get.url = "/get/match-maker/closed/"
         get.platform = input
-        const res = await Request.closed(get)
+        const res = await this.request("closed/json", get)
 
         if (res.status === 200) {
 
@@ -2565,7 +2845,7 @@ export class Helper {
 
                             funnel.submit.onclick = async () => {
 
-                              await this.verify("field-funnel/validity", funnel)
+                              await this.verifyIs("field-funnel/valid", funnel)
 
                               this.overlay("security", async securityOverlay => {
 
@@ -2615,7 +2895,7 @@ export class Helper {
                         const del = {}
                         del.url = "/delete/match-maker/closed/"
                         del.id = matchMaker.id
-                        const res = await Request.closed(del)
+                        const res = await this.request("closed/json", del)
 
                         if (res.status === 200) {
                           window.alert("Match Maker erfolgreich entfernt.")
@@ -2662,7 +2942,7 @@ export class Helper {
           get.url = "/get/location-list-funnel/closed/"
           get.tag = input.tag
           get.id = input.id
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -2684,7 +2964,7 @@ export class Helper {
         get.url = "/get/location-list-funnel/closed/"
         get.tag = input.tag
         get.id = input.id
-        const res = await Request.closed(get)
+        const res = await this.request("closed/json", get)
 
         if (res.status === 200) {
 
@@ -2719,7 +2999,7 @@ export class Helper {
         const get = {}
         get.url = "/get/location-list/closed/"
         get.tag = input.tag
-        const res = await Request.closed(get)
+        const res = await this.request("closed/json", get)
 
         if (res.status === 200) {
           const list = JSON.parse(res.response)
@@ -2777,7 +3057,7 @@ export class Helper {
                       del.url = "/delete/location-list-funnel/closed/"
                       del.tag = map.tag
                       del.id = map.id
-                      const res = await Request.closed(del)
+                      const res = await this.request("closed/json", del)
 
                       if (res.status === 200) {
                         window.alert("Daten erfolgreich entfernt.")
@@ -2823,7 +3103,7 @@ export class Helper {
         const get = {}
         get.url = "/get/logs/closed/2/"
         get.type = "error"
-        const res = await Request.closed(get)
+        const res = await this.request("closed/json", get)
 
         if (res.status === 200) {
           const errors = JSON.parse(res.response)
@@ -2884,7 +3164,7 @@ export class Helper {
         const get = {}
         get.url = "/get/logs/closed/2/"
         get.type = "info"
-        const res = await Request.closed(get)
+        const res = await this.request("closed/json", get)
 
         if (res.status === 200) {
           const infos = JSON.parse(res.response)
@@ -2930,47 +3210,15 @@ export class Helper {
 
     }
 
-    if (event === "toolbox/closed") {
-
-      return new Promise(async(resolve, reject) => {
-
-        const get = {}
-        get.url = "/get/toolbox/closed/"
-        const res = await Request.closed(get)
-
-        if (res.status === 200) {
-          const toolboxScript = new DOMParser().parseFromString(res.response, "text/html").getElementById("toolbox")
-          const script = document.createElement("script")
-          script.id = toolboxScript.id
-          script.type = toolboxScript.type
-          script.innerHTML = toolboxScript.innerHTML
-
-          document.querySelectorAll("#toolbox").forEach(toolbox => toolbox.remove())
-
-          if (document.getElementById("#toolbox") === null) {
-            document.body.append(script)
-            return resolve(res)
-          }
-
-        }
-
-        if (res.status !== 200) {
-          return reject(res)
-        }
-
-      })
-
-    }
-
     if (event === "funnel/select-option") {
 
-      const optionField = new TextField("option", parent)
+      const optionField = this.create("field/text", parent)
       optionField.label.innerHTML = "Antwortmöglichkeit"
-      optionField.input.required = true
-      optionField.verifyValue()
+      optionField.input.setAttribute("required", "true")
+      this.verify("input/value", optionField.input)
       optionField.input.addEventListener("input", () => {
 
-        const value = optionField.validValue()
+        const value = optionField.input.value
 
         if (input !== undefined) {
           if (input.tagName === "OPTION") {
@@ -2983,8 +3231,10 @@ export class Helper {
 
       if (input !== undefined) {
         if (input.tagName === "OPTION") {
-          optionField.value(() => input.value)
-          optionField.verifyValue()
+          optionField.input.value = input.value
+          this.verify("input/value", optionField.input)
+          // optionField.value(() => input.value)
+          // optionField.verifyValue()
         }
       }
 
@@ -2994,7 +3244,9 @@ export class Helper {
           submitButton.innerHTML = "Option jetzt anhängen"
           submitButton.addEventListener("click", async () => {
 
-            const value = optionField.validValue()
+            await this.verify("input/value", optionField.input)
+
+            const value = optionField.input.value
 
             const option = document.createElement("option")
             option.value = value
@@ -3016,8 +3268,6 @@ export class Helper {
     if (event === "field-funnel/fields") {
 
       if (input.classList.contains("field-funnel")) {
-
-
 
 
         parent.innerHTML = ""
@@ -3077,17 +3327,17 @@ export class Helper {
 
                               const optionFunnel = this.headerPicker("scrollable", overlay)
 
-                              const optionField = new TextAreaField("option", optionFunnel)
+                              const optionField = this.create("field/textarea", optionFunnel)
                               optionField.label.innerHTML = "Antwortmöglichkeit"
-                              optionField.input.required = true
-                              optionField.verifyValue()
-                              optionField.input.addEventListener("input", () => optionField.verifyValue())
+                              optionField.input.setAttribute("required", "true")
+                              this.verify("input/value", optionField.input)
+                              optionField.input.addEventListener("input", () => this.verify("input/value", optionField.input))
 
                               const submitButton = this.buttonPicker("action", optionFunnel)
                               submitButton.innerHTML = "Option jetzt anhängen"
                               submitButton.addEventListener("click", async () => {
 
-                                const value = optionField.validValue()
+                                const value = optionField.input.value
 
                                 const option = document.createElement("option")
                                 option.value = value
@@ -3096,7 +3346,7 @@ export class Helper {
 
                                 this.render("select/options", fieldInput, options)
 
-                                this.removeOverlay(overlay)
+                                this.remove("overlay", overlay)
 
                               })
 
@@ -3121,7 +3371,7 @@ export class Helper {
 
                 field.ok = () => {
                   this.get(event, parent, input)
-                  this.removeOverlay(overlay)
+                  this.remove("overlay", overlay)
                 }
 
                 this.get("funnel/field", content, field)
@@ -3149,19 +3399,18 @@ export class Helper {
 
       const funnel = this.create("div/scrollable", parent)
 
-      const idField = new TextField("id", funnel)
-      idField.input.required = true
-      idField.input.accept = "text/tag"
+      const idField = this.create("field/tag", funnel)
       idField.label.innerHTML = "Gebe deinem Datenfeld eine Id"
-      idField.verifyValue()
+      this.verify("input/value", idField.input)
       idField.input.addEventListener("input", () => {
 
-        const id = idField.validValue()
+        this.verify("input/value", idField.input)
+
+        const id = idField.input.value
 
         if (document.getElementById(id) !== null) {
           this.setNotValidStyle(idField.input)
         }
-
 
         if (input !== undefined) {
           if (input.classList.contains("field")) {
@@ -3171,27 +3420,26 @@ export class Helper {
           }
         }
 
-
       })
 
       if (input !== undefined) {
         if (input.classList.contains("field")) {
           if (input.hasAttribute("id")) {
-            idField.value(() => input.getAttribute("id"))
-            idField.verifyValue()
+            idField.input.value = input.getAttribute("id")
+            this.verify("input/value", idField.input)
           }
         }
       }
 
 
-      const labelField = new TextAreaField("question", funnel)
+      const labelField = this.create("field/textarea", funnel)
       labelField.label.innerHTML = "Beschreibe das Datenfeld für dein Netzwerk"
-      labelField.input.required = true
-      labelField.verifyValue()
+      labelField.input.setAttribute("required", "true")
+      this.verify("input/value", labelField.input)
       labelField.input.addEventListener("input", () => {
 
         const label = input.querySelector(".field-label")
-        const value = labelField.validValue()
+        const value = labelField.input.value
         if (input !== undefined) {
           if (input.classList.contains("field")) {
             if (label !== null) {
@@ -3199,29 +3447,29 @@ export class Helper {
             }
           }
         }
+        this.verify("input/value", labelField.input)
 
-        labelField.verifyValue()
       })
 
       if (input !== undefined) {
         if (input.classList.contains("field")) {
           if (input.querySelector(".field-label") !== null) {
-            labelField.value(() => input.querySelector(".field-label").innerHTML)
-            labelField.verifyValue()
+            labelField.input.value = input.querySelector(".field-label").innerHTML
+            this.verify("input/value", labelField.input)
           }
         }
       }
 
-      const infoField = new TextAreaField("info", funnel)
+      const infoField = this.create("field/textarea", funnel)
       infoField.label.innerHTML = "Hier kannst du, wenn du möchtest, mehr Informationen zu diesem Datenfeld, als HTML, für deine Nutzer, bereitstellen"
       infoField.input.style.height = "144px"
       infoField.input.placeholder = "<div>..</div>"
       infoField.input.style.fontFamily = "monospace"
       infoField.input.style.fontSize = "13px"
-      infoField.verifyValue()
+      this.verify("input/value", infoField.input)
 
       infoField.input.addEventListener("input", () => {
-        const info = infoField.validValue()
+        const info = infoField.input.value
 
         this.update("script/on-field-info-click-event", document.body)
 
@@ -3232,25 +3480,25 @@ export class Helper {
             input.setAttribute("on-info-click", info)
           }
         }
+        this.verify("input/value", infoField.input)
 
-        infoField.verifyValue()
       })
 
       if (input !== undefined) {
         if (input.classList.contains("field")) {
           if (input.hasAttribute("on-info-click")) {
-            infoField.value(() => input.getAttribute("on-info-click"))
-            infoField.verifyValue()
+            infoField.input.value = input.getAttribute("on-info-click")
+            this.verify("input/value", infoField.input)
           }
         }
       }
 
-      const typeField = new SelectionField("type", funnel)
+      const typeField = this.create("field/select", funnel)
       typeField.label.innerHTML = "Welchen Datentyp soll dein Netzwerk eingeben können"
-      typeField.options(["text", "textarea", "email", "tel", "range", "password", "number", "file", "date", "checkbox", "select"])
-      typeField.verifyValue()
-      typeField.select.addEventListener("input", () => {
-        const value = typeField.validValue()[0].value
+      typeField.input.add(["text", "textarea", "email", "tel", "range", "password", "number", "file", "date", "checkbox", "select"])
+      this.verify("input/value", typeField.input)
+      typeField.input.addEventListener("input", () => {
+        const value = typeField.input.value
 
         if (input !== undefined) {
           if (input.classList.contains("field")) {
@@ -3291,7 +3539,7 @@ export class Helper {
           }
 
           if (fieldInput !== null) {
-            typeField.value(() => [type])
+            typeField.input.add([type])
 
             const fieldInputFunnel = this.create("div", funnel)
             this.render("funnel/field-input", {type, field: input}, fieldInputFunnel)
@@ -3307,14 +3555,16 @@ export class Helper {
           button.innerHTML = "Datenfeld jetzt anhängen"
           button.addEventListener("click", async () => {
 
-            const id = idField.validValue()
-            const type = typeField.validValue()[0].value
-            const label = labelField.validValue()
-            const info = infoField.validValue()
+            await this.verifyIs("field-funnel/valid", funnel)
+
+            const id = idField.input.value
+            const type = typeField.input.value
+            const label = labelField.input.value
+            const info = infoField.input.value
 
             if (document.getElementById(id) !== null) {
               window.alert("Id existiert bereits.")
-              idField.field.scrollIntoView({behavior: "smooth"})
+              idField.scrollIntoView({behavior: "smooth"})
               this.setNotValidStyle(idField.input)
               throw new Error("id exist")
             }
@@ -3359,138 +3609,6 @@ export class Helper {
 
     }
 
-    if (event === "funnel/service-condition") {
-
-      const funnel = this.create("div/scrollable", parent)
-
-
-      this.render("text/title", "Wenn..", funnel)
-
-      const leftField = new TextField("left", funnel)
-      leftField.label.innerHTML = "Id"
-      leftField.input.maxLength = "55"
-      leftField.input.required = true
-      leftField.input.accept = "text/tag"
-      leftField.input.placeholder = "gas-preis"
-      leftField.verifyValue()
-      leftField.input.addEventListener("input", () => leftField.verifyValue())
-
-      const operatorField = new TextField("operator", funnel)
-      operatorField.label.innerHTML = "Operator"
-      operatorField.input.placeholder = ">="
-      operatorField.input.maxLength = "3"
-      operatorField.input.accept = "text/operator"
-      operatorField.input.required = true
-      operatorField.verifyValue()
-      operatorField.input.addEventListener("input", () => operatorField.verifyValue())
-
-      const rightField = new TextField("right", funnel)
-      rightField.label.innerHTML = "Vergleichswert"
-      rightField.input.maxLength = "21"
-      rightField.input.required = true
-      rightField.input.placeholder = "1989"
-      rightField.verifyValue()
-      rightField.input.addEventListener("input", () => rightField.verifyValue())
-
-      this.render("text/title", "Dann..", funnel)
-
-      const actionField = new TextAreaField("action", funnel)
-      actionField.label.innerHTML = "Verändere deine Servicewerte mit Javascript"
-      actionField.input.style.height = "144px"
-      actionField.input.required = true
-      // actionField.input.accept = "text/service"
-      actionField.input.placeholder = `service.selected = true\nservice.price = 3500\nservice.title = "Mein neuer Service"`
-      actionField.verifyValue()
-      actionField.input.addEventListener("input", () => actionField.verifyValue())
-
-
-      const button = this.buttonPicker("action", funnel)
-      button.innerHTML = "Bedingung jetzt speichern"
-      button.addEventListener("click", () => {
-
-        const condition = {}
-        condition.left = leftField.validValue()
-        condition.operator = operatorField.validValue()
-        condition.right = rightField.validValue()
-        condition.action = actionField.validValue()
-
-        if (input !== undefined) {
-          condition.service = input.service
-
-          if (!this.numberIsEmpty(input.id)) {
-            condition.id = input.id
-          }
-
-          if (!this.stringIsEmpty(input.platform)) {
-            condition.platform = input.platform
-          }
-
-        }
-
-
-        this.overlay("security", async securityOverlay => {
-
-          await this.update("service-condition/closed", securityOverlay, condition)
-
-          if (input !== undefined) {
-            if (input.ok !== undefined) await input.ok()
-          }
-
-          this.removeOverlay(securityOverlay)
-
-        })
-
-      })
-
-      if (input !== undefined) {
-
-        if (!this.numberIsEmpty(input.id)) {
-
-          const button = this.buttonPicker("delete", funnel)
-          button.innerHTML = "Bedingung entfernen"
-          button.addEventListener("click", () => {
-
-            this.overlay("security", async securityOverlay => {
-              const del = {}
-              del.url = "/delete/service-condition/closed/"
-              if (input !== undefined) {
-                del.id = input.id
-                del.service = input.service
-                del.platform = input.platform
-              }
-              const res = await Request.closed(del)
-
-              if (res.status === 200) {
-                window.alert("Bedingung erfolgreich gelöscht.")
-                if (input.ok !== undefined) await input.ok()
-                this.removeOverlay(securityOverlay)
-              } else {
-                this.redirect("session-expired")
-              }
-
-            })
-
-
-          })
-
-        }
-
-        leftField.value(() => input.left)
-        leftField.verifyValue()
-
-        operatorField.value(() => input.operator)
-        operatorField.verifyValue()
-
-        rightField.value(() => input.right)
-        rightField.verifyValue()
-
-        actionField.value(() => input.action)
-        actionField.verifyValue()
-
-      }
-
-    }
-
     if (event === "service-conditions/closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -3509,7 +3627,7 @@ export class Helper {
           }
         }
 
-        const res = await Request.closed(get)
+        const res = await this.request("closed/json", get)
 
         if (res.status === 200) {
           const conditions = JSON.parse(res.response)
@@ -3543,9 +3661,9 @@ export class Helper {
                 // condition.service = input.service
                 condition.ok = async () => {
 
-                  this.reset(content)
+                  this.convert("element/reset", content)
                   await this.get(event, content, condition)
-                  this.removeOverlay(overlay)
+                  this.remove("overlay", overlay)
 
                 }
 
@@ -3579,7 +3697,7 @@ export class Helper {
         // console.log(input);
         get.id = input
 
-        const res = await Request.closed(get)
+        const res = await this.request("closed/json", get)
 
         if (res.status === 200) {
           const script = JSON.parse(res.response)
@@ -3595,222 +3713,6 @@ export class Helper {
 
     }
 
-    if (event === "funnel/service") {
-
-      const funnel = this.create("div/scrollable", parent)
-
-      if (input !== undefined) {
-        if (!this.numberIsEmpty(input.id)) {
-
-          const button = this.buttonPicker("left/right", funnel)
-          button.left.innerHTML = ".conditions"
-          button.right.innerHTML = "Bedingungen hinzufügen"
-
-          button.addEventListener("click", () => {
-
-            let map
-            if (input !== undefined) {
-              map = {}
-
-              if (!this.numberIsEmpty(input.id)) {
-                map.service = input.id
-              }
-
-              if (!this.stringIsEmpty(input.platform)) {
-                map.platform = input.platform
-              }
-
-            }
-
-
-            this.overlay("toolbox", async overlay => {
-
-              this.headerPicker("removeOverlay", overlay)
-              const info = this.headerPicker("info", overlay)
-              info.innerHTML = `.conditions`
-
-              const create = this.buttonPicker("left/right", overlay)
-              create.left.innerHTML = ".create"
-              create.right.innerHTML = "Neue Bedingung definieren"
-              create.addEventListener("click", () => {
-
-                this.overlay("toolbox", overlay => {
-                  this.headerPicker("removeOverlay", overlay)
-                  const info = this.headerPicker("info", overlay)
-                  info.append(this.convert("text/span", ".service"))
-
-                  map.ok = async () => {
-
-                    this.reset(container)
-                    await this.get("service-conditions/closed", container, map)
-                    this.removeOverlay(overlay)
-
-                  }
-
-                  this.get("funnel/service-condition", overlay, map)
-
-                })
-
-              })
-
-              this.render("text/hr", "Meine Bedingungen", overlay)
-
-              const container = await this.get("service-conditions/closed", overlay, map)
-
-            })
-          })
-
-        }
-      }
-
-      const quantityField = new TelField("quantity", funnel)
-      quantityField.label.innerHTML = "Menge"
-      quantityField.input.placeholder = "0"
-      quantityField.input.maxLength = "8"
-      quantityField.input.required = true
-      quantityField.input.accept = "text/+int"
-      quantityField.verifyValue()
-      quantityField.input.addEventListener("input", () => quantityField.verifyValue())
-
-      const unitField = new TextField("unit", funnel)
-      unitField.label.innerHTML = "Einheit"
-      unitField.input.maxLength = "8"
-      unitField.input.required = true
-      unitField.input.placeholder = "Stk."
-      unitField.verifyValue()
-      unitField.input.addEventListener("input", () => unitField.verifyValue())
-
-      const titleField = new TextField("title", funnel)
-      titleField.label.innerHTML = "Titel"
-      titleField.input.placeholder = "HIGH PERFORMANCE MODULE"
-      titleField.input.maxLength = "55"
-      titleField.input.required = true
-      titleField.verifyValue()
-      titleField.input.addEventListener("input", () => titleField.verifyValue())
-
-      const priceField = new TelField("price", funnel)
-      priceField.label.innerHTML = "Preis"
-      priceField.input.maxLength = "8"
-      priceField.input.required = true
-      priceField.input.accept = "text/+int"
-      priceField.input.placeholder = "3500"
-      priceField.verifyValue()
-      priceField.input.addEventListener("input", () => priceField.verifyValue())
-
-      const currencyField = new TextField("currency", funnel)
-      currencyField.label.innerHTML = "Währung"
-      currencyField.input.maxLength = "8"
-      currencyField.input.required = true
-      currencyField.input.placeholder = "Euro"
-      currencyField.verifyValue()
-      currencyField.input.addEventListener("input", () => currencyField.verifyValue())
-
-      const selectedField = new CheckboxField("selected", funnel)
-      selectedField.label.innerHTML = "Soll diese Leistung aktiv sein"
-      selectedField.verifyValue()
-      selectedField.input.addEventListener("input", () => selectedField.verifyValue())
-
-
-      // console.log(input);
-      const button = this.buttonPicker("action", funnel)
-      button.innerHTML = "Leistung jetzt speichern"
-      button.addEventListener("click", () => {
-
-        const service = {}
-        service.quantity = quantityField.validValue()
-        service.unit = unitField.validValue()
-        service.title = titleField.validValue()
-        service.price = priceField.validValue()
-        service.currency = currencyField.validValue()
-        service.selected = selectedField.validValue()
-
-
-        if (input !== undefined) {
-
-          if (!this.numberIsEmpty(input.id)) {
-            service.id = input.id
-          }
-
-          // console.log(input.platform);
-
-          if (!this.stringIsEmpty(input.platform)) {
-            service.platform = input.platform
-          }
-
-
-        }
-
-        // console.log(input);
-
-        this.overlay("security", async securityOverlay => {
-
-          await this.update("service/closed", securityOverlay, service)
-
-          if (input !== undefined) {
-            if (input.ok !== undefined) await input.ok()
-          }
-
-          this.removeOverlay(securityOverlay)
-
-        })
-
-      })
-
-      if (input !== undefined) {
-
-        if (!this.numberIsEmpty(input.id)) {
-
-          const button = this.buttonPicker("delete", funnel)
-          button.innerHTML = "Leistung entfernen"
-          button.addEventListener("click", () => {
-
-            this.overlay("security", async securityOverlay => {
-              const del = {}
-              del.url = "/delete/service/closed/"
-              del.id = input.id
-              if (!this.stringIsEmpty(input.platform)) {
-                del.platform = input.platform
-              }
-              const res = await Request.closed(del)
-
-              if (res.status === 200) {
-                window.alert("Leistung erfolgreich gelöscht.")
-                if (input.ok !== undefined) await input.ok()
-                this.removeOverlay(securityOverlay)
-              } else {
-                window.alert("Fehler.. Bitte wiederholen.")
-                this.removeOverlay(securityOverlay)
-              }
-
-            })
-
-
-          })
-
-        }
-
-        quantityField.value(() => input.quantity)
-        quantityField.verifyValue()
-
-        unitField.value(() => input.unit)
-        unitField.verifyValue()
-
-        titleField.value(() => input.title)
-        titleField.verifyValue()
-
-        priceField.value(() => input.price)
-        priceField.verifyValue()
-
-        currencyField.value(() => input.currency)
-        currencyField.verifyValue()
-
-        selectedField.value(() => input.selected)
-        selectedField.verifyValue()
-
-      }
-
-    }
-
     if (event === "scripts/toolbox/writable-closed"){
 
       return new Promise(async(resolve, reject) => {
@@ -3819,7 +3721,7 @@ export class Helper {
           const get = {}
           get.url = "/get/scripts/closed/"
           get.type = "writable"
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -3840,7 +3742,7 @@ export class Helper {
           const get = {}
           get.url = "/get/scripts/closed/"
           get.type = "toolbox"
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -3861,7 +3763,7 @@ export class Helper {
           const get = {}
           get.url = "/get/scripts/closed/"
           get.type = "closed"
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -3887,7 +3789,7 @@ export class Helper {
           get.platform = input.platform
         }
         // console.log(get);
-        const res = await Request.closed(get)
+        const res = await this.request("closed/json", get)
 
         if (res.status === 200) {
           const services = JSON.parse(res.response)
@@ -3917,9 +3819,9 @@ export class Helper {
 
                 service.ok = async () => {
 
-                  this.reset(content)
+                  this.convert("element/reset", content)
                   await this.get(event, content, service)
-                  this.removeOverlay(overlay)
+                  this.remove("overlay", overlay)
 
                 }
 
@@ -3944,390 +3846,6 @@ export class Helper {
 
     }
 
-    if (event === "funnel/offer") {
-
-      this.convert("parent/scrollable", parent)
-
-      if (input !== undefined) {
-
-        if (!this.numberIsEmpty(input.id)) {
-          const button = this.buttonPicker("left/right", parent)
-          button.left.innerHTML = ".preview"
-          button.right.innerHTML = "Angebot Vorschau"
-          button.addEventListener("click", () => {
-            window.alert("Bald verfügbar.")
-            // add popup with overlay as printable preview
-            // or new page with preview
-          })
-        }
-
-      }
-
-      const nameField = new TextField("name", parent)
-      nameField.label.innerHTML = "Name (text/tag)"
-      nameField.input.accept = "text/tag"
-      nameField.input.maxLength = "21"
-      nameField.input.required = true
-      nameField.input.placeholder = "mein-angebot"
-      nameField.verifyValue()
-      nameField.input.addEventListener("input", () => nameField.verifyValue())
-
-      const expiredField = new TelField("expired", parent)
-      expiredField.label.innerHTML = "Gültigkeit des Angebots in Wochen (1-9)"
-      expiredField.input.pattern = "[1-9]"
-      expiredField.input.placeholder = "2"
-      expiredField.input.required = true
-      expiredField.verifyValue()
-      expiredField.input.addEventListener("input", () => expiredField.verifyValue())
-
-      const titleField = new TextField("title", parent)
-      titleField.label.innerHTML = "Titel"
-      titleField.input.placeholder = "Mein Angebot"
-      titleField.input.maxLength = "55"
-      titleField.input.required = true
-      titleField.verifyValue()
-      titleField.input.addEventListener("input", () => titleField.verifyValue())
-
-      const linkField = new TextField("link", parent)
-      linkField.label.innerHTML = "Webseiten Link"
-      linkField.input.placeholder = "https://meine-webseite.info"
-      linkField.input.maxLength = "89"
-      linkField.input.required = true
-      linkField.verifyValue()
-      linkField.input.addEventListener("input", () => linkField.verifyValue())
-
-      const descriptionField = new TextAreaField("description", parent)
-      descriptionField.label.innerHTML = "Beschreibe dein Angebot"
-      descriptionField.input.maxLength = "144"
-      descriptionField.input.style.height = "144px"
-      descriptionField.input.required = true
-      descriptionField.input.placeholder = "Komplettpaket für die Montage Ihrer .."
-      descriptionField.verifyValue()
-      descriptionField.input.addEventListener("input", () => descriptionField.verifyValue())
-
-      const messageField = new TextAreaField("message", parent)
-      messageField.label.innerHTML = "Eine Begrüßungs-Nachricht im Angebotsschreiben"
-      messageField.input.maxLength = "987"
-      messageField.input.style.height = "144px"
-      messageField.input.placeholder = "Wir sind Ihnen schon jetzt für Ihr Vertrauen und Ihr Interesse an unserem System, zur Erzielung einer .., dankbar und freuen uns heute .."
-      messageField.input.required = true
-      messageField.verifyValue()
-      messageField.input.addEventListener("input", () => messageField.verifyValue())
-
-      const noteField = new TextAreaField("note", parent)
-      noteField.label.innerHTML = "Eine Bitte-Beachten-Notiz im Angebotsschreiben"
-      noteField.input.maxLength = "987"
-      noteField.input.style.height = "144px"
-      noteField.input.placeholder = "Befindet sich die Stellfläche des Gerüsts auf einem öffentlichen Gehweg, muss der .."
-      noteField.input.required = true
-      noteField.verifyValue()
-      noteField.input.addEventListener("input", () => noteField.verifyValue())
-
-      const companyField = new TextField("company", parent)
-      companyField.label.innerHTML = "Firma"
-      companyField.input.maxLength = "55"
-      companyField.input.placeholder = "Meine Firma"
-      companyField.input.required = true
-      companyField.verifyValue()
-      companyField.input.addEventListener("input", () => companyField.verifyValue())
-
-      const sectorField = new TextField("sector", parent)
-      sectorField.label.innerHTML = "Branche"
-      sectorField.input.maxLength = "55"
-      sectorField.input.placeholder = "Energie"
-      sectorField.input.required = true
-      sectorField.verifyValue()
-      sectorField.input.addEventListener("input", () => sectorField.verifyValue())
-
-      const streetField = new TextField("street", parent)
-      streetField.label.innerHTML = "Straße und Hausnummer"
-      streetField.input.maxLength = "55"
-      streetField.input.placeholder = "Wiesentalstr. 44c"
-      streetField.input.required = true
-      streetField.verifyValue()
-      streetField.input.addEventListener("input", () => streetField.verifyValue())
-
-      const zipField = new TelField("zip", parent)
-      zipField.label.innerHTML = "Postleitzahl"
-      zipField.input.maxLength = "13"
-      zipField.input.required = true
-      zipField.input.placeholder = "70184"
-      zipField.verifyValue()
-      zipField.input.addEventListener("input", () => zipField.verifyValue())
-
-      const cityField = new TextField("city", parent)
-      cityField.label.innerHTML = "Stadt"
-      cityField.input.maxLength = "55"
-      cityField.input.required = true
-      cityField.input.placeholder = "Stuttgart"
-      cityField.verifyValue()
-      cityField.input.addEventListener("input", () => cityField.verifyValue())
-
-
-
-
-
-      const termsField = this.create("field/url", parent)
-      termsField.label.innerHTML = "Lade deine AGBs als PDF hoch"
-      termsField.input.placeholder = "https://nft-storage.link"
-      termsField.input.accept = "text/https"
-      termsField.input.required = true
-
-      if (input.termsPdf !== undefined) {
-        termsField.input.value = input.termsPdf
-      }
-
-      this.verify("input/validity", termsField.input)
-      termsField.input.addEventListener("input", () => this.verify("input/validity", termsField.input))
-
-
-      const productInfoField = this.create("field/url", parent)
-      productInfoField.label.innerHTML = "Lade deine Produkt- und Dienstleistungs-Broschüre als PDF hoch"
-      productInfoField.input.accept = "text/https"
-      productInfoField.input.required = true
-      productInfoField.input.placeholder = "https://nft-storage.link"
-
-      if (input.productPdf !== undefined) {
-        productInfoField.input.value = input.termsPdf
-      }
-
-      this.verify("input/validity", productInfoField.input)
-      productInfoField.input.addEventListener("input", () => this.verify("input/validity", productInfoField.input))
-
-      const companyInfoField = this.create("field/url", parent)
-      companyInfoField.label.innerHTML = "Lade deine Unternehmens-Broschüre als PDF hoch"
-      companyInfoField.input.accept = "text/https"
-      companyInfoField.input.required = true
-      companyInfoField.input.placeholder = "https://nft-storage.link"
-
-      if (input.companyPdf !== undefined) {
-        companyInfoField.input.value = input.termsPdf
-      }
-
-      this.verify("input/validity", companyInfoField.input)
-      companyInfoField.input.addEventListener("input", () => this.verify("input/validity", companyInfoField.input))
-
-
-
-
-      const vatField = new TelField("vat", parent)
-      vatField.label.innerHTML = "Steuern in %"
-      vatField.input.required = true
-      vatField.input.accept = "text/+int"
-      vatField.verifyValue()
-      vatField.input.addEventListener("input", () => vatField.verifyValue())
-
-      const discountField = new TelField("discount", parent)
-      discountField.label.innerHTML = "Rabatt in %"
-      discountField.input.required = true
-      discountField.input.accept = "text/+int"
-      discountField.verifyValue()
-      discountField.input.addEventListener("input", () => discountField.verifyValue())
-
-      const button = this.buttonPicker("action", parent)
-      button.innerHTML = "Angebot jetzt speichern"
-      button.addEventListener("click", async () => {
-
-        const offer = {}
-        offer.name = nameField.validValue()
-        offer.expired = expiredField.validValue()
-        offer.title = titleField.validValue()
-        offer.link = linkField.validValue()
-        offer.description = descriptionField.validValue()
-        offer.message = messageField.validValue()
-        offer.note = noteField.validValue()
-        offer.company = companyField.validValue()
-        offer.sector = sectorField.validValue()
-        offer.street = streetField.validValue()
-        offer.zip = zipField.validValue()
-        offer.city = cityField.validValue()
-
-
-        if (this.verify("input/validity", termsField.input)) {
-          offer.termsPdf = termsField.input.value
-        }
-
-        if (this.verify("input/validity", companyInfoField.input)) {
-          offer.companyPdf = companyInfoField.input.value
-        }
-
-        if (this.verify("input/validity", productInfoField.input)) {
-          offer.productPdf = productInfoField.input.value
-        }
-
-        offer.vat = vatField.validValue()
-        offer.discount = discountField.validValue()
-
-
-
-        if (input !== undefined) {
-
-          if (!this.numberIsEmpty(input.id)) {
-            offer.id = input.id
-          }
-
-          if (!this.stringIsEmpty(input.platform)) {
-            offer.platform = input.platform
-          }
-
-        }
-
-
-        this.overlay("security", async securityOverlay => {
-
-          await this.update("offer/closed", securityOverlay, offer)
-
-          if (input !== undefined) {
-            if (input.ok !== undefined) await input.ok()
-          }
-
-          this.removeOverlay(securityOverlay)
-
-        })
-
-      })
-
-
-
-
-
-      if (input !== undefined) {
-
-        if (!this.numberIsEmpty(input.id)) {
-
-          const button = this.buttonPicker("delete", parent)
-          button.innerHTML = "Angebot entfernen"
-          button.addEventListener("click", () => {
-
-            this.overlay("security", async securityOverlay => {
-              const del = {}
-              del.url = "/delete/offer/closed/"
-              del.id = input.id
-              if (!this.stringIsEmpty(input.platform)) {
-                del.platform = input.platform
-              }
-              const res = await Request.closed(del)
-
-              if (res.status === 200) {
-                window.alert("Angebot erfolgreich gelöscht.")
-                if (input.ok !== undefined) await input.ok()
-                this.removeOverlay(securityOverlay)
-              } else {
-                this.redirect("session-expired")
-              }
-
-            })
-
-
-          })
-
-        }
-
-        nameField.value(() => input.name)
-        nameField.verifyValue()
-
-        expiredField.value(() => input.expired)
-        expiredField.verifyValue()
-
-        titleField.value(() => input.title)
-        titleField.verifyValue()
-
-        linkField.value(() => input.link)
-        linkField.verifyValue()
-
-        descriptionField.value(() => input.description)
-        descriptionField.verifyValue()
-
-        messageField.value(() => input.message)
-        messageField.verifyValue()
-
-        noteField.value(() => input.note)
-        noteField.verifyValue()
-
-        companyField.value(() => input.company)
-        companyField.verifyValue()
-
-        sectorField.value(() => input.sector)
-        sectorField.verifyValue()
-
-        streetField.value(() => input.street)
-        streetField.verifyValue()
-
-        zipField.value(() => input.zip)
-        zipField.verifyValue()
-
-        cityField.value(() => input.city)
-        cityField.verifyValue()
-
-        // if (input.termsPdf !== undefined) {
-        //   termsField.input.required = false
-        //   termsField.verifyValue()
-        // }
-
-        // if (input.productPdf !== undefined) {
-        //   productInfoField.input.required = false
-        //   productInfoField.verifyValue()
-        // }
-
-        // if (input.companyPdf !== undefined) {
-        //   companyInfoField.input.required = false
-        //   companyInfoField.verifyValue()
-        // }
-
-        vatField.value(() => input.vat)
-        vatField.verifyValue()
-
-        discountField.value(() => input.discount)
-        discountField.verifyValue()
-      }
-
-    }
-
-    if (event === "offer/closed") {
-
-      return new Promise(async (resolve, reject) => {
-
-        const content = this.headerPicker("loading", parent)
-
-        const get = {}
-        get.url = "/get/offer/closed/"
-
-        if (input !== undefined) {
-          get.platform = input.platform
-        }
-
-        const res = await Request.closed(get)
-
-        if (res.status === 200) {
-          const offer = JSON.parse(res.response)
-
-          offer.ok = () => this.removeOverlay(parent)
-          if (input !== undefined) {
-            offer.platform = input.platform
-          }
-
-          this.get("funnel/offer", content, offer)
-
-          return resolve(content)
-        }
-
-
-        if (res.status !== 200) {
-
-          const offer = {}
-          offer.ok = () => this.removeOverlay(parent)
-          if (input !== undefined) {
-            offer.platform = input.platform
-          }
-
-          this.get("funnel/offer", content, offer)
-          return reject(new Error("get offer failed"))
-        }
-
-      })
-
-    }
-
     if (event === "role-apps/closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -4341,7 +3859,7 @@ export class Helper {
           const get = {}
           get.url = "/get/role-apps/closed/"
           get.id = input
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           if (res.status === 200) {
             const apps = JSON.parse(res.response)
@@ -4353,65 +3871,6 @@ export class Helper {
 
               const button = this.buttonPicker("left/right", content)
               button.left.innerHTML = `.${app}`
-
-              if (app === "offer") {
-                button.right.innerHTML = "Angebot erstellen"
-
-                button.addEventListener("click", () => {
-                  this.overlay("toolbox", overlay => {
-                    this.headerPicker("removeOverlay", overlay)
-                    const info = this.headerPicker("info", overlay)
-                    info.append(this.convert("text/span", ".offer"))
-
-                    this.get("offer/closed", overlay)
-
-                  })
-                })
-              }
-
-
-              if (app === "services") {
-                button.right.innerHTML = "Leistungen definieren"
-
-
-                button.addEventListener("click", () => {
-                  this.overlay("toolbox", async overlay => {
-
-                    this.headerPicker("removeOverlay", overlay)
-                    const info = this.headerPicker("info", overlay)
-                    info.innerHTML = `.services`
-
-                    const create = this.buttonPicker("left/right", overlay)
-                    create.left.innerHTML = ".create"
-                    create.right.innerHTML = "Neue Leistung definieren"
-                    create.addEventListener("click", () => {
-
-                      this.overlay("toolbox", overlay => {
-                        this.headerPicker("removeOverlay", overlay)
-                        const info = this.headerPicker("info", overlay)
-                        info.append(this.convert("text/span", ".service"))
-
-                        this.get("funnel/service", overlay, {ok: async () => {
-
-                          this.reset(container)
-                          await this.get("services/closed", container)
-                          this.removeOverlay(overlay)
-
-                        }})
-
-                      })
-
-                    })
-
-                    this.render("text/hr", "Meine Leistungen", overlay)
-
-                    const container = await this.get("services/closed", overlay)
-
-                  })
-                })
-
-              }
-
 
               if (app === "scripts") {
                 button.right.innerHTML = "Meine HTML Skripte"
@@ -4450,7 +3909,7 @@ export class Helper {
                         button.innerHTML = "Skript jetzt speichern"
                         button.addEventListener("click", async () => {
 
-                          await this.verify("field-funnel/validity", funnel)
+                          await this.verifyIs("field-funnel/valid", funnel)
 
                           const map = {}
                           map.script = scriptField.input.value
@@ -4524,41 +3983,51 @@ export class Helper {
 
     if (event === "field/platform-value-path-select") {
       return new Promise(async (resolve, reject) => {
-        const get = {}
-        get.url = "/get/platform-value/closed/"
-        get.type = "path"
-        get.platform = input.platform
-        const res = await Request.closed(get)
 
-        if (res.status === 200) {
-          const paths = JSON.parse(res.response)
+        try {
 
+          const get = {}
+          get.url = "/get/platform-value/closed/"
+          get.type = "path"
+          get.platform = input.platform
+          const res = await this.request("closed/json", get)
 
-          const pathsField = new SelectionField("paths", parent)
-          pathsField.label.innerHTML = "Wohin soll diese Rolle, nach dem Login, weitergeleitet werden"
-          pathsField.options(paths)
-          pathsField.verifyValue()
+          if (res.status === 200) {
+            const paths = JSON.parse(res.response)
 
-          if (paths.length <= 0) {
-            this.setNotValidStyle(pathsField.select)
+            const pathsField = this.create("field/select", parent)
+            pathsField.label.innerHTML = "Wohin soll diese Rolle, nach dem Login, weitergeleitet werden"
+            pathsField.input.add(paths)
+            this.verify("input/value", pathsField.input)
+
+            if (paths.length <= 0) {
+              this.setNotValidStyle(pathsField.input)
+            }
+
+            if (input.roleId !== undefined) {
+              const get = {}
+              get.url = "/get/platform/closed/"
+              get.type = "role/home"
+              get.id = input.roleId
+              get.platform = input.platform
+              const res = await this.request("closed/json", get)
+
+              if (res.status === 200) {
+                pathsField.input.select([res.response])
+              }
+
+            }
+
+            resolve(pathsField)
           }
 
-          if (input.roleId !== undefined) {
-            const get = {}
-            get.url = "/get/platform/closed/"
-            get.type = "role/home"
-            get.id = input.roleId
-            get.platform = input.platform
-            const res = await Request.closed(get)
+        } catch (error) {
+          reject(error)
+        }
 
-            if (res.status === 200) {
-              pathsField.value(() => [res.response])
-            } else this.redirect("session-expired")
 
-          }
 
-          return resolve(pathsField)
-        } else this.redirect("session-expired")
+
       })
     }
 
@@ -4571,7 +4040,7 @@ export class Helper {
           get.url = "/get/platform/closed"
           get.type = "values"
           get.platform = input
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -4592,7 +4061,7 @@ export class Helper {
           const get = {}
           get.url = "/get/platform/closed/"
           get.type = "roles-location-writable"
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -4614,7 +4083,7 @@ export class Helper {
           const get = {}
           get.url = "/get/platform/closed/"
           get.type = "roles-location-expert"
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           resolve(res)
 
@@ -4639,7 +4108,7 @@ export class Helper {
         get.url = "/get/platform/closed/"
         get.type = "roles"
         get.platform = platform
-        const res = await Request.closed(get)
+        const res = await this.request("closed/json", get)
 
         if (res.status === 200) {
           const roles = JSON.parse(res.response)
@@ -4685,17 +4154,91 @@ export class Helper {
       throw new Error("session-expired")
     }
 
-
-
     if (event === "session-expired") {
       window.alert("Fehler..\n\nMögliche Fehlerquellen:\n\nSession abgelaufen\n\nDu wirst zum Login Bereich weitergeleitet. Sollte dieser Fehler weiterhin bestehen, dann melde bitte einen Konflikt.")
       window.location.assign("/login/")
       throw new Error("session-expired")
     }
+
   }
 
   static register(event, input) {
     // event = tag/on/algorithm
+
+
+    if (event === "email/super-admin") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const register = {}
+          register.url = "/register/user/open/"
+          register.type = "super-admin"
+          register.email = input
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "name/expert/self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const register = {}
+          register.url = "/register/expert/closed/"
+          register.type = "name-self"
+          register.name = input
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "name/platform/location-expert") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const register = {}
+          register.url = "/register/platform/closed/"
+          register.type = "name-location-expert"
+          register.new = input.new
+          register.old = input.old
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "owner/user/self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/register/owner/closed/"
+          register.type = "self"
+          register.firstname = input.firstname
+          register.lastname = input.lastname
+          register.street = input.street
+          register.zip = input.zip
+          register.country = input.country
+          register.state = input.state
+          register.phone = input.phone
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
 
     if (event === "video-url/soundbox/self") {
       return new Promise(async(resolve, reject) => {
@@ -4704,7 +4247,7 @@ export class Helper {
           register.url = "/register/soundbox/closed/"
           register.type = "video-url/audio-cid/self"
           register.videoUrl = input
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
         } catch (error) {
@@ -4721,7 +4264,7 @@ export class Helper {
           register.type = "location-list-item-self"
           register.id = input.id
           register.quantity = input.quantity
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
         } catch (error) {
@@ -4738,7 +4281,7 @@ export class Helper {
           register.type = "closed"
           register.tag = input.tag
           register.map = input.map
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
         } catch (error) {
@@ -4759,7 +4302,7 @@ export class Helper {
           register.name = input.name
           register.script = input.script
 
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
 
@@ -4781,7 +4324,7 @@ export class Helper {
           register.platform = input.platform
           register.path = input.path
           register.alias = input.alias
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
 
@@ -4803,7 +4346,7 @@ export class Helper {
           register.type = "lang"
           register.lang = input.lang
           register.path = input.path
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
 
@@ -4825,7 +4368,7 @@ export class Helper {
           register.type = "alias"
           register.alias = input.alias
           register.path = input.path
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
 
@@ -4849,7 +4392,7 @@ export class Helper {
           register.roles = input.roles
           register.authorized = input.authorized
           register.path = input.path
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
 
@@ -4869,7 +4412,7 @@ export class Helper {
           register.url = "/register/platform-value/closed/"
           register.type = "writable-html"
           register.html = input
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
 
@@ -4889,7 +4432,7 @@ export class Helper {
           register.url = "/register/platform-value/closed/"
           register.type = "html"
           register.html = input
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
 
@@ -4910,7 +4453,7 @@ export class Helper {
           register.type = "writability"
           register.path = input.path
           register.writability = input.writability
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
 
@@ -4931,7 +4474,7 @@ export class Helper {
           register.type = "writability"
           register.platform = input.platform
           register.writability = input.writability
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
 
@@ -4954,7 +4497,7 @@ export class Helper {
           register.left = input.left
           register.operator = input.operator
           register.right = input.right
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
 
@@ -4975,7 +4518,7 @@ export class Helper {
           register.type = "match-maker"
           register.platform = input.platform
           register.name = input.name
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
 
@@ -5006,7 +4549,7 @@ export class Helper {
           register.id = input.id
           register.tree = input.tree
           register.name = input.name
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
         } catch (error) {
@@ -5024,7 +4567,7 @@ export class Helper {
           register.id = input.id
           register.tree = input.tree
           register.number = input.number
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
         } catch (error) {
@@ -5042,7 +4585,7 @@ export class Helper {
           register.id = input.id
           register.tree = input.tree
           register.text = input.text
-          const res = await Request.closed(register)
+          const res = await this.request("closed/json", register)
 
           resolve(res)
         } catch (error) {
@@ -5061,7 +4604,7 @@ export class Helper {
           update.id = input.id
           update.name = input.name
           update.script = input.script
-          const res = await Request.closed(update)
+          const res = await this.request("closed/json", update)
 
           resolve(res)
 
@@ -5083,7 +4626,7 @@ export class Helper {
           update.left = input.left
           update.operator = input.operator
           update.right = input.right
-          const res = await Request.closed(update)
+          const res = await this.request("closed/json", update)
 
           resolve(res)
 
@@ -5108,7 +4651,7 @@ export class Helper {
       submitButton.innerHTML = `${input.tag} jetzt speichern`
       submitButton.onclick = async () => {
 
-        await this.verify("field-funnel/validity", fieldFunnel)
+        await this.verifyIs("field-funnel/valid", fieldFunnel)
 
         const map = await this.convert("field-funnel/map", fieldFunnel)
 
@@ -5118,7 +4661,7 @@ export class Helper {
           update.tag = input.tag
           update.id = input.id
           update.map = map
-          const res = await Request.closed(update)
+          const res = await this.request("closed/json", update)
 
           if (res.status === 200) {
             window.alert("Daten erfolgreich gespeichert.")
@@ -5137,44 +4680,6 @@ export class Helper {
       }
 
       return parent
-    }
-
-    if (event === "name/expert/closed") {
-      const funnel = this.create("div/scrollable", parent)
-
-      const nameField = this.create("field/name", funnel)
-      nameField.input.value = window.location.pathname.split("/")[1]
-      nameField.input.placeholder = "mein-neuer-experten-name"
-      nameField.input.maxLength = "21"
-      this.verify("input/validity", nameField.input)
-
-      const button = this.buttonPicker("action", funnel)
-      button.innerHTML = "Name jetzt ändern"
-      button.addEventListener("click", () => {
-        if (this.verify("input/validity", nameField.input) === false) throw new Error("name invalid")
-
-
-        this.overlay("security", async securityOverlay => {
-
-          const map = {}
-          map.type = "name"
-          map.name = nameField.input.value
-          const res = await Request.ping("/update/expert/closed/", map)
-
-          if (res.status === 200) {
-            if (input !== undefined) {
-              if (input.ok !== undefined) await input.ok()
-            }
-            this.removeOverlay(securityOverlay)
-            window.location.assign(`/${nameField.input.value}/`)
-          }
-
-        })
-
-
-
-      })
-
     }
 
     if (event === "feedback/script/location") {
@@ -5214,7 +4719,7 @@ export class Helper {
           get.url = "/get/feedback/location/"
           get.type = "script"
           get.id = input.id
-          const res = await Request.location(get)
+          const res = await this.request("location/json", get)
 
           if (res.status !== 200) {
             feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
@@ -5228,7 +4733,7 @@ export class Helper {
               break getFeedbackSuccess
             }
 
-            this.reset(feedbackContainer)
+            this.convert("element/reset", feedbackContainer)
             feedbackContainer.style.margin = "21px 34px"
             feedbackContainer.style.overflowY = "auto"
             feedbackContainer.style.overscrollBehavior = "none"
@@ -5311,15 +4816,15 @@ export class Helper {
                       del.type = "script"
                       del.scriptId = input.id
                       del.feedbackId = value.id
-                      const res = await Request.location(del)
+                      const res = await this.request("location/json", del)
 
                       if (res.status === 200) {
                         parent.counter.innerHTML = parseInt(parent.counter.innerHTML) - 1
-                        this.removeOverlay(overlay)
-                        this.removeOverlay(feedbackOverlay)
+                        this.remove("overlay", overlay)
+                        this.remove("overlay", feedbackOverlay)
                       } else {
                         window.alert("Fehler.. Bitte wiederholen.")
-                        this.removeOverlay(overlay)
+                        this.remove("overlay", overlay)
                       }
 
 
@@ -5341,8 +4846,8 @@ export class Helper {
           contentField.input.style.fontSize = "13px"
           contentField.input.placeholder = "Schreibe ein Feedback an unsere Web-Entwickler"
 
-          this.verify("input/validity", contentField.input)
-          contentField.input.addEventListener("input", () => this.verify("input/validity", contentField.input))
+          this.verify("input/value", contentField.input)
+          contentField.input.addEventListener("input", () => this.verify("input/value", contentField.input))
 
 
           const importanceField = this.create("field/range", content)
@@ -5352,10 +4857,10 @@ export class Helper {
           importanceField.input.value = "0"
           importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
 
-          this.verify("input/validity", importanceField.input)
+          this.verify("input/value", importanceField.input)
 
           importanceField.input.addEventListener("input", (event) => {
-            this.verify("input/validity", importanceField.input)
+            this.verify("input/value", importanceField.input)
             importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
           })
 
@@ -5363,7 +4868,7 @@ export class Helper {
           button.innerHTML = "Feedback jetzt speichern"
           button.addEventListener("click", async () => {
 
-            const res = await this.verifyIs("input/valid", contentField.input)
+            const res = await this.verify("input/value", contentField.input)
 
             if (res === true) {
 
@@ -5380,15 +4885,15 @@ export class Helper {
                 register.id = input.id
                 register.importance = importance
                 register.content = content
-                const res = await Request.location(register)
+                const res = await this.request("location/json", register)
 
                 if (res.status === 200) {
-                  this.removeOverlay(securityOverlay)
-                  this.removeOverlay(overlay)
+                  this.remove("overlay", securityOverlay)
+                  this.remove("overlay", overlay)
                   parent.counter.innerHTML = parseInt(parent.counter.innerHTML) + 1
                 } else {
                   window.alert("Fehler.. Bitte wiederholen.")
-                  this.removeOverlay(securityOverlay)
+                  this.remove("overlay", securityOverlay)
                 }
 
               })
@@ -5433,14 +4938,14 @@ export class Helper {
       urlField.label.innerHTML = "Gebe hier die Quell-Url für dein Bild ein"
       urlField.input.placeholder = "https://www.meine-quelle.de"
 
-      this.verify("input/validity", urlField.input)
-      urlField.input.addEventListener("input", () => this.verify("input/validity", urlField.input))
+      this.verify("input/value", urlField.input)
+      urlField.input.addEventListener("input", () => this.verify("input/value", urlField.input))
 
       const button = this.buttonPicker("action", funnel)
       button.innerHTML = "Bild jetzt ändern"
       button.addEventListener("click", async () => {
 
-        if (this.verify("input/validity", urlField.input)) {
+        if (this.verify("input/value", urlField.input)) {
 
           const url = urlField.input.value
 
@@ -5464,14 +4969,14 @@ export class Helper {
       urlField.input.placeholder = "https://www.meine-quelle.de"
       // this.setNotValidStyle(urlField.input)
       // urlField
-      this.verify("input/validity", urlField.input)
-      urlField.input.addEventListener("input", () => this.verify("input/validity", urlField.input))
+      this.verify("input/value", urlField.input)
+      urlField.input.addEventListener("input", () => this.verify("input/value", urlField.input))
 
       const button = this.buttonPicker("action", funnel)
       button.innerHTML = "Bild jetzt ändern"
       button.addEventListener("click", () => {
 
-        if (this.verify("input/validity", urlField.input)) {
+        if (this.verify("input/value", urlField.input)) {
 
           const url = urlField.input.value
 
@@ -5501,17 +5006,16 @@ export class Helper {
             // register.type = "image"
             register.image = url
             register.path = input.path
-            const res = await Request.closed(register)
-            // const res = await Request.ping("")
+            const res = await this.request("closed/json", register)
 
             if (res.status === 200) {
               window.alert("Bild erfolgreich gespeichert..")
-              this.removeOverlay(parent)
-              this.removeOverlay(securityOverlay)
+              this.remove("overlay", parent)
+              this.remove("overlay", securityOverlay)
 
             } else {
               window.alert("Fehler.. Bitte wiederholen.")
-              this.removeOverlay(securityOverlay)
+              this.remove("overlay", securityOverlay)
             }
 
           })
@@ -5533,14 +5037,14 @@ export class Helper {
       urlField.input.placeholder = "https://www.meine-quelle.de"
       // this.setNotValidStyle(urlField.input)
       // urlField
-      this.verify("input/validity", urlField.input)
-      urlField.input.addEventListener("input", () => this.verify("input/validity", urlField.input))
+      this.verify("input/value", urlField.input)
+      urlField.input.addEventListener("input", () => this.verify("input/value", urlField.input))
 
       const button = this.buttonPicker("action", funnel)
       button.innerHTML = "Bild jetzt ändern"
       button.addEventListener("click", () => {
 
-        if (this.verify("input/validity", urlField.input)) {
+        if (this.verify("input/value", urlField.input)) {
 
           const url = urlField.input.value
 
@@ -5570,18 +5074,17 @@ export class Helper {
             // register.type = "image"
             register.image = url
             register.platform = input
-            const res = await Request.closed(register)
-            // const res = await Request.ping("")
+            const res = await this.request("closed/json", register)
 
             if (res.status === 200) {
               window.alert("Bild erfolgreich gespeichert..")
               // window.location.reload()
-              this.removeOverlay(parent)
-              this.removeOverlay(securityOverlay)
+              this.remove("overlay", parent)
+              this.remove("overlay", securityOverlay)
 
             } else {
               window.alert("Fehler.. Bitte wiederholen.")
-              this.removeOverlay(securityOverlay)
+              this.remove("overlay", securityOverlay)
             }
 
           })
@@ -5716,48 +5219,7 @@ export class Helper {
           update.action = input.action
         }
 
-        const res = await Request.closed(update)
-
-
-        if (res.status === 200) {
-          return resolve()
-        }
-
-
-        if (res.status !== 200) {
-          this.redirect("session-expired")
-          return reject()
-        }
-
-      })
-    }
-
-    if (event === "offer/closed") {
-
-      return new Promise(async (resolve, reject) => {
-
-        const update = {}
-        update.url = "/update/offer/closed/"
-        update.platform = input.platform
-        update.id = input.id
-        update.name = input.name
-        update.expired = input.expired
-        update.title = input.title
-        update.link = input.link
-        update.description = input.description
-        update.message = input.message
-        update.note = input.note
-        update.company = input.company
-        update.sector = input.sector
-        update.street = input.street
-        update.zip = input.zip
-        update.city = input.city
-        update.termsPdf = input.termsPdf
-        update.companyPdf = input.companyPdf
-        update.productPdf = input.productPdf
-        update.vat = input.vat
-        update.discount = input.discount
-        const res = await Request.closed(update)
+        const res = await this.request("closed/json", update)
 
 
         if (res.status === 200) {
@@ -5791,7 +5253,7 @@ export class Helper {
           update.selected = input.selected
         }
 
-        const res = await Request.closed(update)
+        const res = await this.request("closed/json", update)
 
 
         if (res.status === 200) {
@@ -5814,7 +5276,6 @@ export class Helper {
         const text = /*html*/`
         <script id="role-apps-event" type="module">
           import { Helper } from "/js/Helper.js"
-          import { Request } from "/js/Request.js"
 
           const button = document.querySelector(".role-apps-button")
 
@@ -5874,7 +5335,7 @@ export class Helper {
         get.url = "/get/platform/closed"
         get.type = "roles"
         get.platform = input
-        const res = await Request.closed(get)
+        const res = await this.request("closed/json", get)
 
 
         if (res.status === 200) {
@@ -5898,9 +5359,9 @@ export class Helper {
                 info.innerHTML = `${input}.roles`
 
                 await this.update("platform/role", overlay, {platform: input, roleId: role.id, ok: () => {
-                  this.reset(content)
+                  this.convert("element/reset", content)
                   this.update(event, content, input)
-                  this.removeOverlay(overlay)
+                  this.remove("overlay", overlay)
                 }})
 
               })
@@ -5931,39 +5392,33 @@ export class Helper {
 
         const {platform, roleId, ok} = input
 
-        const nameField = new TextField("role", content)
+        const nameField = this.create("field/tag", content)
         nameField.label.textContent = "Rolle"
-        nameField.input.required = true
-        nameField.input.accept = "text/tag"
         nameField.input.placeholder = "meine-neue-rolle"
-        nameField.verifyValue()
-        nameField.input.addEventListener("input", () => nameField.verifyValue())
+        this.verify("input/value", nameField.input)
+        nameField.input.addEventListener("input", () => this.verify("input/value", nameField.input))
 
         const pathsField = await this.get("field/platform-value-path-select", content, input)
 
-        const appsField = new TextAreaField("apps", content)
-        appsField.label.innerHTML = "Schalte Anwendungen für deine Rolle frei (mit einer Javascript String Liste)"
+        const appsField = this.create("field/textarea", content)
+        appsField.label.innerHTML = "Schalte Apps für deine Rolle frei (mit einer Javascript String Liste)"
         appsField.input.style.height = "144px"
         appsField.input.placeholder = `["offer", "funnel", ..]`
         appsField.input.accept = `string/array`
         appsField.input.required = true
-        appsField.value(() => JSON.stringify([]))
-        appsField.verifyValue()
-        appsField.input.addEventListener("input", () => appsField.verifyValue())
+        appsField.input.value = JSON.stringify([])
+        this.verify("input/value", appsField.input)
+        appsField.input.addEventListener("input", () => this.verify("input/value", appsField.input))
 
         const button = this.buttonPicker("action", content)
         button.innerHTML = "Rolle jetzt speichern"
         button.addEventListener("click", async () => {
 
-          const name = nameField.validValue()
+          await this.verifyIs("field-funnel/valid", content)
 
-          let path
-          try {
-            path = pathsField.validValue()[0].value
-          } catch (error) {
-            this.setNotValidStyle(pathsField.select)
-            throw error
-          }
+          const name = nameField.input.value
+          const path = pathsField.input.value
+          const apps = JSON.parse(appsField.input.value)
 
           if (roleId === undefined) {
 
@@ -5972,7 +5427,7 @@ export class Helper {
             verify.type = "role/name"
             verify.name = name
             verify.platform = platform
-            const res = await Request.closed(verify)
+            const res = await this.request("closed/json", verify)
 
             if (res.status === 200) {
               window.alert("Diese Rolle existiert bereits.")
@@ -5981,8 +5436,6 @@ export class Helper {
             }
 
           }
-
-          const apps = JSON.parse(appsField.validValue())
 
           this.overlay("security", async securityOverlay => {
 
@@ -6000,16 +5453,15 @@ export class Helper {
             register.apps = apps
             register.home = path
 
-            const res = await Request.closed(register)
+            const res = await this.request("closed/json", register)
 
             if (res.status === 200) {
               window.alert("Rolle erfolgreich gespeichert.")
               if (ok !== undefined) ok()
-              this.removeOverlay(parent)
-              this.removeOverlay(securityOverlay)
-            } else {
-              this.redirect("session-expired")
+              this.remove("overlay", parent)
+              this.remove("overlay", securityOverlay)
             }
+
           })
 
         })
@@ -6021,11 +5473,10 @@ export class Helper {
           get.type = "role"
           get.id = roleId
           get.platform = platform
-          const res = await Request.closed(get)
+          const res = await this.request("closed/json", get)
 
           if (res.status !== 200) {
-            this.redirect("session-expired")
-            return reject()
+            reject()
           }
 
           if (res.status === 200) {
@@ -6033,11 +5484,11 @@ export class Helper {
 
             if (role.id !== roleId) throw new Error("somethng wrong here")
 
-            nameField.value(() => role.name)
-            nameField.verifyValue()
+            nameField.input.value = role.name
+            this.verify("input/value", nameField.input)
 
-            appsField.value(() => JSON.stringify(role.apps))
-            appsField.verifyValue()
+            appsField.input.value = JSON.stringify(role.apps)
+            this.verify("input/value", appsField.input)
 
             const deleteButton = this.buttonPicker("delete", content)
             deleteButton.innerHTML = "Rolle entfernen"
@@ -6049,14 +5500,12 @@ export class Helper {
                 del.type = "role"
                 del.id = role.id
                 del.platform = platform
-                const res = await Request.closed(del)
+                const res = await this.request("closed/json", del)
 
                 if (res.status === 200) {
                   window.alert("Rolle erfolgreich gelöscht.")
                   if (ok !== undefined) ok()
-                  this.removeOverlay(securityOverlay)
-                } else {
-                  this.redirect("session-expired")
+                  this.remove("overlay", securityOverlay)
                 }
 
               })
@@ -6064,7 +5513,7 @@ export class Helper {
 
             })
 
-            return resolve()
+            resolve()
           }
 
         }
@@ -6078,6 +5527,27 @@ export class Helper {
   // event = input/algorithm
   static verify(event, input) {
 
+    if (event === "email/pin") {
+
+    }
+
+    if (event === "platform-name/exist-open") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const verify = {}
+          verify.url = "/verify/platform/open/"
+          verify.type = "exist-name"
+          verify.platform = input
+          const res = await this.request("open/json", verify)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
 
     if (event === "match-maker-conditions/closed") {
 
@@ -6088,7 +5558,7 @@ export class Helper {
           verify.url = "/verify/match-maker/closed"
           verify.type = "conditions"
           verify.conditions = input
-          const res = await Request.closed(verify)
+          const res = await this.request("closed/json", verify)
 
           resolve(res)
 
@@ -6106,32 +5576,13 @@ export class Helper {
           verify.url = "/verify/match-maker/open/"
           verify.type = "name"
           verify.name = input
-          const res = await Request.open(verify)
+          const res = await this.request("open/json", verify)
 
           resolve(res)
         } catch (error) {
           reject(error)
         }
       })
-    }
-
-    if (event === "field-funnel/validity") {
-
-      return new Promise(async(resolve, reject) => {
-
-        try {
-
-          const res = await this.verifyIs("field-funnel/valid", input)
-
-          if (res === true) return resolve()
-
-          return reject(new Error("funnel invalid"))
-        } catch (error) {
-          return reject(error)
-        }
-
-      })
-
     }
 
     if (event === "input/value") {
@@ -6152,25 +5603,75 @@ export class Helper {
 
     }
 
-
-    if (event === "input/validity") {
-      if (this.verifyIs("input/required", input)) {
-        if (this.verifyIs("input/accepted", input)) {
-          this.setValidStyle(input)
-          return true
-        }
-        this.setNotValidStyle(input)
-        const field = input.parentElement
-        field.scrollIntoView({behavior: "smooth"})
-        return false
-      }
-      this.setValidStyle(input)
-      return true
-    }
-
   }
 
   static async request(event, input) {
+
+
+    if (event === "closed/json") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          input.location = window.location.href
+          input.referer = document.referrer
+          input.localStorageEmail = await this.get("email/local-storage")
+          input.localStorageId = await this.get("id/local-storage")
+
+          const xhr = new XMLHttpRequest()
+          xhr.open("POST", input.url)
+          xhr.setRequestHeader("Accept", "application/json")
+          xhr.setRequestHeader("Content-Type", "application/json")
+          xhr.overrideMimeType("text/html")
+          xhr.withCredentials = true
+          xhr.onload = () => resolve(xhr)
+          xhr.send(JSON.stringify(input))
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "location/json") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          input.location = window.location.href
+          input.referer = document.referrer
+
+          const xhr = new XMLHttpRequest()
+          xhr.open("POST", input.url)
+          xhr.setRequestHeader("Accept", "application/json")
+          xhr.setRequestHeader("Content-Type", "application/json")
+          xhr.overrideMimeType("text/html")
+          xhr.withCredentials = true
+          xhr.onload = () => resolve(xhr)
+          xhr.send(JSON.stringify(input))
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "open/json") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const xhr = new XMLHttpRequest()
+          xhr.open("POST", input.url)
+          xhr.setRequestHeader("Accept", "application/json")
+          xhr.setRequestHeader("Content-Type", "application/json")
+          xhr.overrideMimeType("text/html")
+          xhr.withCredentials = true
+          xhr.onload = () => resolve(xhr)
+          xhr.send(JSON.stringify(input))
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
 
     if (event === "start-click-funnel") {
       const startButton = input.querySelector(".start-click-funnel-button")
@@ -6233,7 +5734,7 @@ export class Helper {
             register.url = "/register/funnel/closed/"
             register.tag = funnelTag
             register.funnel = map
-            const res = await Request.middleware(register)
+            const res = await this.request("closed/json", register)
 
             if (res.status === 200) {
 
@@ -6249,7 +5750,7 @@ export class Helper {
                 window.location.assign(input.getAttribute("next-path"))
               }
 
-              this.removeOverlay(securityOverlay)
+              this.remove("overlay", securityOverlay)
 
 
             } else {
@@ -6261,7 +5762,7 @@ export class Helper {
 
               endButton.onclick = () => window.location.reload()
 
-              this.removeOverlay(securityOverlay)
+              this.remove("overlay", securityOverlay)
             }
           })
 
@@ -6307,6 +5808,39 @@ export class Helper {
   static create(event, input) {
     // event = thing/algorithm
 
+    if (event === "template/checklist") {
+
+      const items = []
+      items.push({title: "Angebotsübersicht", description: "Hier können Sie ihr Angebot prüfen und anpassen, nähere Produktinformationen erhalten, Allgemeine Geschäftsbedingungen aufrufen und mehr über den Hersteller erfahren."})
+      items.push({title: "Angebot hochladen", description: "Wenn Sie noch Fragen haben, finden Sie hier einen kompetenten Ansprechpartner. Haben Sie ihr Angebot geprüft und ggf. geändert, können Sie es hier drucken, hochladen und somit zur Prüfung freigeben."})
+      items.push({title: "Baugo", description: "Ihr Angebot wird geprüft und ggf. freigegeben. Hier finden Sie ihren Projektbericht."})
+      items.push({title: "Projektvorbereitung", description: "Um einen einwandfreien Aufbau ihres Energiekonzeptes zu ermöglichen, finden Sie hier eine Liste von Aufgaben, die Sie noch vor der Montage erledigen müssen."})
+      items.push({title: "Bestätigen Sie die Warenlieferung", description: "Damit zusätzliche Kosten leicht vermieden werden können, prüfen Sie bitte mit Sorgfalt, ob alle gekauften Artikel angeliefert wurden. Die Bestätigung der Ware ist unerlässlich, um weitere Schritte des Aufbaus abzuschließen."})
+      items.push({title: "DC-Ansprechpartner", description: "Ihren persönlichen Ansprechpartner für technische Fragen während der Montage finden Sie hier."})
+      items.push({title: "Dachmontage - Termin vereinbaren", description: "Über den Terminkalender können Sie einfach und bequem ihren Wunschtermin mit dem Montageteam vereinbaren."})
+      items.push({title: "Abnahmeprotokoll DC hochladen", description: "Nachdem unser Monteur das Abnahmeprotokoll aufgenommen hat, prüfen wir es zu ihrem Schutz."})
+      items.push({title: "AC-Ansprechpartner", description: "Ihren persönlichen Ansprechpartner für technische Fragen während der Montage finden Sie hier."})
+      items.push({title: "Hauselektrik - Termin vereinbaren", description: "Über den Terminkalender können Sie einfach und bequem ihren Wunschtermin mit dem Montageteam vereinbaren."})
+      items.push({title: "Abnahmeprotokoll AC hochladen", description: "Nachdem unser Monteur das Abnahmeprotokoll aufgenommen hat, prüfen wir es zu ihrem Schutz."})
+      items.push({title: "WP-Ansprechpartner", description: "Ihren persönlichen Ansprechpartner für technische Fragen während der Montage finden Sie hier."})
+      items.push({title: "Wärmepumpe - Termin vereinbaren", description: "Über den Terminkalender können Sie einfach und bequem ihren Wunschtermin mit dem Montageteam vereinbaren."})
+      items.push({title: "Abnahmeprotokoll WP hochladen", description: "Nachdem unser Monteur das Abnahmeprotokoll aufgenommen hat, prüfen wir es zu ihrem Schutz."})
+      items.push({title: "Feedback", description: "Um uns stetig verbessern zu können, brauchen wir ihre Mithilfe. Geben Sie uns ihr Feedback zur Montage, damit unsere Prozesse noch einfacher und schneller werden."})
+
+      this.create("header/left-right", input)
+      this.create("header/nav", input)
+
+      this.render("text/title", "Essentielles zum Anlagenaufbau", input)
+
+      const info = this.create("info/success", input)
+      info.innerHTML = "Bitte befolgen Sie diese Schritte, um den einwandfreien Aufbau ihres Energiesystems vorzubereiten."
+
+      const checklist = this.render("checklist/items", items, input)
+
+      return checklist
+
+    }
+
     if (event === "soundbox") {
 
       const fileImportField = this.create("field/file", input)
@@ -6343,6 +5877,15 @@ export class Helper {
       return checkbox
     }
 
+    if (event === "input/tel") {
+
+      const tel = document.createElement("input")
+      tel.type = "tel"
+
+      if (input) input.append(tel)
+      return tel
+    }
+
     if (event === "input/number") {
 
       const number = document.createElement("input")
@@ -6361,32 +5904,59 @@ export class Helper {
       return text
     }
 
-    if (event === "ol") {
+    if (event === "img") {
 
-      const ol = document.createElement("ol")
+      const img = document.createElement("img")
+      img.src = "/public/image-placeholder.svg"
+      img.style.width = "34px"
+      img.style.margin = "21px 34px"
 
-      for (let i = 1; i <= 3; i++) {
-        const li = document.createElement("li")
-        li.innerHTML = `Item ${i}`
-        ol.append(li)
-      }
-
-      if (input) input.append(ol)
-      return ol
+      input?.append(img)
+      return img
     }
 
-    if (event === "ul") {
+    if (event === "p") {
 
-      const ul = document.createElement("ul")
+      const p = document.createElement("p")
+      p.style.margin = "21px 34px"
+      p.style.fontFamily = "sans-serif"
+      p.style.fontWeight = "normal"
 
-      for (let i = 1; i <= 3; i++) {
-        const li = document.createElement("li")
-        li.innerHTML = `Item ${i}`
-        ul.append(li)
-      }
+      input?.append(p)
+      return p
+    }
 
-      if (input) input.append(ul)
-      return ul
+    if (event === "h3") {
+
+      const h3 = document.createElement("h3")
+      h3.style.margin = "21px 34px"
+      h3.style.fontFamily = "sans-serif"
+      h3.style.fontWeight = "normal"
+
+      input?.append(h3)
+      return h3
+    }
+
+    if (event === "h2") {
+
+      const h2 = document.createElement("h2")
+      h2.style.margin = "21px 34px"
+      h2.style.fontFamily = "sans-serif"
+      h2.style.fontWeight = "normal"
+
+      input?.append(h2)
+      return h2
+    }
+
+    if (event === "h1") {
+
+      const h1 = document.createElement("h1")
+      h1.style.margin = "21px 34px"
+      h1.style.fontFamily = "sans-serif"
+      h1.style.fontWeight = "normal"
+
+      input?.append(h1)
+      return h1
     }
 
     if (event === "hr") {
@@ -6405,20 +5975,20 @@ export class Helper {
       funnel.leftField.label.innerHTML = "Nach welcher Datenstruktur soll die Plattform suchen"
       funnel.leftField.input.maxLength = "55"
       funnel.leftField.input.placeholder = "getyour.expert.name"
-      this.verifyIs("input/valid", funnel.leftField.input)
-      funnel.leftField.input.oninput = () => this.verifyIs("input/valid", funnel.leftField.input)
+      this.verify("input/value", funnel.leftField.input)
+      funnel.leftField.input.oninput = () => this.verify("input/value", funnel.leftField.input)
 
       funnel.operatorField = this.create("field/operator", funnel)
-      this.verifyIs("input/valid", funnel.operatorField.input)
-      funnel.operatorField.input.oninput = () => this.verifyIs("input/valid", funnel.operatorField.input)
+      this.verify("input/value", funnel.operatorField.input)
+      funnel.operatorField.input.oninput = () => this.verify("input/value", funnel.operatorField.input)
 
       funnel.rightField = this.create("field/text", funnel)
       funnel.rightField.label.innerHTML = "Vergleichswert"
       funnel.rightField.input.maxLength = "55"
       funnel.rightField.input.setAttribute("required", "true")
       funnel.rightField.input.placeholder = "any"
-      this.verifyIs("input/valid", funnel.rightField.input)
-      funnel.rightField.input.oninput = () => this.verifyIs("input/valid", funnel.rightField.input)
+      this.verify("input/value", funnel.rightField.input)
+      funnel.rightField.input.oninput = () => this.verify("input/value", funnel.rightField.input)
 
       funnel.submit = this.create("button/action", funnel)
       funnel.submit.innerHTML = "Bedingung jetzt speichern"
@@ -6426,6 +5996,1177 @@ export class Helper {
 
       if (input !== undefined) input.append(funnel)
       return funnel
+    }
+
+    if (event === "icon/arrow-right") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 12C3 4.5885 4.5885 3 12 3C19.4115 3 21 4.5885 21 12C21 19.4115 19.4115 21 12 21C4.5885 21 3 19.4115 3 12Z" stroke="${primary}" stroke-width="2"/><path d="M16 12L8 12" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 15L15.913 12.087V12.087C15.961 12.039 15.961 11.961 15.913 11.913V11.913L13 9" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/remove-style") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.6066 6.53552L3.82843 14.3137C3.04738 15.0947 3.04738 16.3611 3.82843 17.1421L5.36396 18.6777C5.73904 19.0527 6.24774 19.2634 6.77818 19.2634H13.0208M11.6066 6.53552L13.7279 4.4142C14.509 3.63315 15.7753 3.63315 16.5564 4.4142L20.799 8.65684C21.58 9.43789 21.58 10.7042 20.799 11.4853L18.6777 13.6066M11.6066 6.53552L18.6777 13.6066M18.6777 13.6066L13.0208 19.2634M13.0208 19.2634H20" stroke="${primary}" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.3"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/remove-inner") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 9.5L12 14.5M12 9.5L7 14.5M19.4922 13.9546L16.5608 17.7546C16.2082 18.2115 16.032 18.44 15.8107 18.6047C15.6146 18.7505 15.3935 18.8592 15.1583 18.9253C14.8928 19 14.6042 19 14.0271 19H6.2C5.07989 19 4.51984 19 4.09202 18.782C3.71569 18.5903 3.40973 18.2843 3.21799 17.908C3 17.4802 3 16.9201 3 15.8V8.2C3 7.0799 3 6.51984 3.21799 6.09202C3.40973 5.71569 3.71569 5.40973 4.09202 5.21799C4.51984 5 5.07989 5 6.2 5H14.0271C14.6042 5 14.8928 5 15.1583 5.07467C15.3935 5.14081 15.6146 5.2495 15.8107 5.39534C16.032 5.55998 16.2082 5.78846 16.5608 6.24543L19.4922 10.0454C20.0318 10.7449 20.3016 11.0947 20.4054 11.4804C20.4969 11.8207 20.4969 12.1793 20.4054 12.5196C20.3016 12.9053 20.0318 13.2551 19.4922 13.9546Z" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+      svg.style.transform = "rotateY(180deg)"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/box-shadow") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320 320"><path d="M280.935,138.049c1.464,1.464,3.384,2.196,5.303,2.196c1.919,0,3.839-0.732,5.303-2.196c2.929-2.93,2.929-7.678,0-10.607 L230.22,66.12V24.833l50.965,50.966c1.464,1.464,3.384,2.196,5.303,2.196c1.919,0,3.839-0.732,5.303-2.196 c2.929-2.93,2.929-7.678,0-10.607l-63-63c-2.652-2.651-6.792-2.894-9.727-0.743c-2.293,1.283-3.845,3.732-3.845,6.547v135.769 c0,50.306-40.926,91.231-91.231,91.231s-91.231-40.926-91.231-91.231V7.995c0-4.143-3.358-7.5-7.5-7.5s-7.5,3.357-7.5,7.5v135.769 c0,32.411,14.595,61.474,37.553,80.975c0.256,0.372,0.544,0.73,0.875,1.061l63,63c1.464,1.464,3.384,2.196,5.303,2.196 c1.919,0,3.839-0.732,5.303-2.196c2.929-2.93,2.929-7.678,0-10.607l-31.296-31.296c8.171,2.02,16.707,3.1,25.493,3.1 c5.943,0,11.771-0.499,17.452-1.441l60.995,60.995c1.464,1.464,3.384,2.196,5.303,2.196c1.92,0,3.839-0.732,5.303-2.196 c2.929-2.93,2.929-7.678,0-10.607l-54.663-54.663c9.804-3.363,18.966-8.122,27.245-14.04l58.561,58.561 c1.464,1.464,3.384,2.196,5.303,2.196c1.919,0,3.839-0.732,5.303-2.196c2.929-2.93,2.929-7.678,0-10.607l-57.556-57.556 c7.101-6.768,13.261-14.512,18.28-23.007l55.919,55.92c1.464,1.464,3.384,2.196,5.303,2.196c1.919,0,3.839-0.732,5.303-2.196 c2.929-2.93,2.929-7.678,0-10.607l-59.511-59.511c4.254-10.529,6.869-21.889,7.522-33.764l50.632,50.632 c1.464,1.464,3.384,2.196,5.303,2.196c1.919,0,3.839-0.732,5.303-2.196c2.929-2.93,2.929-7.678,0-10.607L230.22,128.62V87.333 L280.935,138.049z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-none") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg id="Icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32"><style type="text/css">.st0{fill:none;stroke:${primary};stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}.st1{fill:none;stroke:${primary};stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}.st2{fill:none;stroke:${primary};stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6,6;}.st3{fill:none;stroke:${primary};stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:4,4;}.st4{fill:none;stroke:${primary};stroke-width:2;stroke-linecap:round;}.st5{fill:none;stroke:${primary};stroke-width:2;stroke-linecap:round;stroke-dasharray:3.1081,3.1081;}.st6{fill:none;stroke:${primary};stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:4,3;}</style><polyline class="st0" points="18,28 4,28 4,4 28,4 28,18 "/><rect x="4" y="4" class="st0" width="12" height="8"/><polyline class="st0" points="10,20 10,12 22,12 "/><line class="st0" x1="4" y1="20" x2="15" y2="20"/><rect x="16" y="4" class="st0" width="12" height="8"/><circle class="st0" cx="22" cy="22" r="7"/><line class="st0" x1="19" y1="22" x2="25" y2="22"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/set-attribute") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 6C4 3.79086 5.79086 2 8 2H9C9.55228 2 10 2.44772 10 3C10 3.55228 9.55228 4 9 4H8C6.89543 4 6 4.89543 6 6V20.0568L10.8375 16.6014C11.5329 16.1047 12.4671 16.1047 13.1625 16.6014L18 20.0568V13C18 12.4477 18.4477 12 19 12C19.5523 12 20 12.4477 20 13V20.0568C20 21.6836 18.1613 22.6298 16.8375 21.6843L12 18.2289L7.16248 21.6843C5.83874 22.6298 4 21.6836 4 20.0568V6Z" fill="${primary}"/><path d="M17 3C17 2.44772 16.5523 2 16 2C15.4477 2 15 2.44772 15 3V5H13C12.4477 5 12 5.44772 12 6C12 6.55228 12.4477 7 13 7H15V9C15 9.55228 15.4477 10 16 10C16.5523 10 17 9.55228 17 9V7H19C19.5523 7 20 6.55228 20 6C20 5.44772 19.5523 5 19 5H17V3Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/italic") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><path d="M203.99414,55.99512a12,12,0,0,1-12,12H160.64331l-40,120h23.35083a12,12,0,0,1,0,24h-39.918c-.027,0-.05359.00293-.08056.00293-.02649,0-.05323-.00293-.07984-.00293H63.99414a12,12,0,0,1,0-24H95.345l40-120H111.99414a12,12,0,0,1,0-24H152.2002c.01489,0,.02954-.00049.04443,0h39.74951A12,12,0,0,1,203.99414,55.99512Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/underline") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 256 256" id="Flat" xmlns="http://www.w3.org/2000/svg"><path d="M228,216a12,12,0,0,1-12,12H40a12,12,0,0,1,0-24H216A12,12,0,0,1,228,216ZM128,192a76.086,76.086,0,0,0,76-76V56a12,12,0,0,0-24,0v60a52,52,0,0,1-104,0V56a12,12,0,0,0-24,0v60A76.086,76.086,0,0,0,128,192Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/remove-inner-with-text") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><path d="M45.1,40.9l4.6-4.6c0.4-0.4,0.4-1,0-1.4l-2.8-2.8c-0.4-0.4-1-0.4-1.4,0L41,36.8l-4.3-4.3 c-0.4-0.4-1-0.4-1.4,0l-2.8,2.8c-0.4,0.4-0.4,1,0,1.4l4.3,4.3l-4.2,4.2c-0.4,0.4-0.4,1,0,1.4l2.8,2.8c0.4,0.4,1,0.4,1.4,0l4.2-4.2 l4.5,4.5c0.4,0.4,1,0.4,1.4,0l2.8-2.8c0.4-0.4,0.4-1,0-1.4L45.1,40.9z"/><path d="M4.8,8h10.8l-4.1,23.2c-0.2,1,0.5,1.8,1.4,1.8H18c0.7,0,1.4-0.5,1.5-1.2L23.7,8h11c0.7,0,1.4-0.5,1.5-1.3 l0.5-3C36.9,2.8,36.2,2,35.2,2h-30C4.5,2,3.9,2.5,3.8,3.3l-0.5,3C3.1,7.2,3.8,8,4.8,8z"/><path d="M28,38.5c0-0.8-0.7-1.5-1.5-1.5h-23C2.7,37,2,37.7,2,38.5v3C2,42.3,2.7,43,3.5,43h23c0.8,0,1.5-0.7,1.5-1.5 V38.5z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/scale") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 482.697 482.697"><g><path d="M441.039,0.088H133.251c-22.969,0-41.645,18.691-41.645,41.658v184.539H34.998C15.69,226.285,0,241.976,0,261.281v186.33 c0,19.305,15.69,34.998,34.998,34.998h186.314c19.301,0,34.996-15.693,34.996-34.998v-56.416h184.73 c22.969,0,41.658-18.693,41.658-41.66V41.746C482.697,18.779,464.007,0.088,441.039,0.088z M206.763,433.062H49.544V275.83h42.063 v73.705c0,22.967,18.676,41.66,41.645,41.66h73.512V433.062z M206.763,341.648h-65.611V275.83h65.611V341.648z M433.152,341.648 H256.308v-80.367c0-19.305-15.695-34.996-34.996-34.996h-80.16V49.632h292V341.648z"/><path d="M272.308,231.621c5.273,0,10.549-2.016,14.578-6.045l65.06-65.063L370.64,194.4c1.258,2.273,3.74,3.563,6.32,3.289 c2.566-0.291,4.727-2.08,5.455-4.582l35.078-119.348c0.678-2.242,0.047-4.676-1.615-6.336c-1.658-1.664-4.096-2.293-6.336-1.631 l-119.365,35.078c-2.484,0.727-4.289,2.887-4.58,5.453c-0.275,2.578,1.031,5.063,3.289,6.322l33.869,18.676l-65.061,65.061 c-8.066,8.064-8.066,21.129,0,29.193C261.726,229.605,267.019,231.621,272.308,231.621z"/></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/add-space") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path fill="${primary}" d="M20.25,17 C20.6642,17 21,17.3358 21,17.75 C21,18.1642 20.6642,18.5 20.25,18.5 L3.75,18.5 C3.33579,18.5 3,18.1642 3,17.75 C3,17.3358 3.33579,17 3.75,17 L20.25,17 Z M20.25,11 C20.6642,11 21,11.3358 21,11.75 C21,12.1642 20.6642,12.5 20.25,12.5 L3.75,12.5 C3.33579,12.5 3,12.1642 3,11.75 C3,11.3358 3.33579,11 3.75,11 L20.25,11 Z M10.5303,5.21967 L12,6.68934 L13.4697,5.21967 C13.7626,4.92678 14.2374,4.92678 14.5303,5.21967 C14.8232,5.51256 14.8232,5.98744 14.5303,6.28033 L12.5303,8.28033 C12.2374,8.57322 11.7626,8.57322 11.4697,8.28033 L9.46967,6.28033 C9.17678,5.98744 9.17678,5.51256 9.46967,5.21967 C9.76256,4.92678 10.2374,4.92678 10.5303,5.21967 Z"></path></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/span") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg"><path d="M8.75 2C7.23122 2 6 3.23122 6 4.75V9.62813C6.4844 9.45729 7.0156 9.45729 7.5 9.62813V4.75C7.5 4.05965 8.05965 3.5 8.75 3.5H19.25C19.9404 3.5 20.5 4.05964 20.5 4.75V9.62813C20.9844 9.45729 21.5156 9.45729 22 9.62813V4.75C22 3.23122 20.7688 2 19.25 2H8.75Z" fill="${primary}"/><path d="M21.7803 11.2197C21.4874 10.9268 21.0126 10.9268 20.7197 11.2197C20.4268 11.5126 20.4268 11.9874 20.7197 12.2803L22.4393 14L17.75 14C17.3358 14 17 14.3358 17 14.75C17 15.1642 17.3358 15.5 17.75 15.5H22.4393L20.7197 17.2197C20.5732 17.3661 20.5 17.5581 20.5 17.75C20.5 17.9419 20.5732 18.1339 20.7197 18.2803C21.0126 18.5732 21.4874 18.5732 21.7803 18.2803L24.7803 15.2803C25.0732 14.9874 25.0732 14.5126 24.7803 14.2197L21.7803 11.2197Z" fill="${primary}"/><path d="M20.5 19.8719C20.9844 20.0427 21.5156 20.0427 22 19.8719V23.2497C22 24.7684 20.7688 25.9997 19.25 25.9997H8.75C7.23122 25.9997 6 24.7684 6 23.2497V19.8719C6.4844 20.0427 7.0156 20.0427 7.5 19.8719V23.2497C7.5 23.94 8.05965 24.4997 8.75 24.4997H19.25C19.9404 24.4997 20.5 23.94 20.5 23.2497V19.8719Z" fill="${primary}"/><path d="M5.56066 15.5H10.25C10.6642 15.5 11 15.1642 11 14.75C11 14.3358 10.6642 14 10.25 14L5.56066 14L7.28033 12.2803C7.57322 11.9874 7.57322 11.5126 7.28033 11.2197C6.98744 10.9268 6.51256 10.9268 6.21967 11.2197L3.21967 14.2197C2.92678 14.5126 2.92678 14.9874 3.21967 15.2803L6.21924 18.2799C6.51213 18.5728 6.98744 18.5732 7.28033 18.2803C7.57322 17.9874 7.57322 17.5126 7.28033 17.2197L5.56066 15.5Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/font-color") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M19.47,3.84a1.45,1.45,0,0,0-1.4-1H18a1.45,1.45,0,0,0-1.42,1L8.42,21.56a1.35,1.35,0,0,0-.14.59,1,1,0,0,0,1,1,1.11,1.11,0,0,0,1.08-.77l2.08-4.65h11l2.08,4.59a1.24,1.24,0,0,0,1.12.83,1.08,1.08,0,0,0,1.08-1.08,1.59,1.59,0,0,0-.14-.57ZM13.36,15.71,18,5.49l4.6,10.22Z" class="clr-i-outline clr-i-outline-path-1"></path><rect x="4.06" y="25" width="28" height="5" rx="2" ry="2" ></rect></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/display-block") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 9v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9M4 9V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3M4 9h16" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/display-inline") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3M9 4h9a2 2 0 0 1 2 2v5M9 4v7m0 9v-9m0 9h5.5M9 11h5.5m5.5 0v7a2 2 0 0 1-2 2h-3.5m5.5-9h-5.5m0 0v9" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/display-grid") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 19H4a1 1 0 0 1-1-1v-6m6 7h6m-6 0v-7m0-7H4a1 1 0 0 0-1 1v6m6-7h6M9 5v7m6-7h5a1 1 0 0 1 1 1v6m-6-7v7m0 7h5a1 1 0 0 0 1-1v-6m-6 7v-7m6 0h-6M3 12h12m-6 0h6" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/display-flex") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 9.333V6a2 2 0 0 0-2-2h-3.333M20 9.333v5.334m0-5.334h-5.333M20 14.667V18a2 2 0 0 1-2 2h-3.333M20 14.667h-5.333m0-10.667v5.333m0-5.333H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8.667m0 0v-5.333m0-5.334v5.334" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/display-none") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 76 76" xmlns="http://www.w3.org/2000/svg"><path d="M19 34h1v1h-1v-1Zm0 2h1v1h-1v-1Zm0 2h1v1h-1v-1Zm0 2h1v1h1v1h-1v-1h-1v-1Zm2-5v-1h1v1h-1Zm2 0v-1h1v1h-1Zm2 0v-1h1v1h1v1h-1v-1h-1Zm1 2h1v1h-1v-1Zm0 2h1v1h-1v-1Zm0 2h1v1h-1v-1Zm-1 1h-1v-1h1v1Zm-2 0h-1v-1h1v1Zm8-8h1v1h-1v-1Zm0 2h1v1h-1v-1Zm0 2h1v1h-1v-1Zm0 2h1v1h1v1h-1v-1h-1v-1Zm2-5v-1h1v1h-1Zm2 0v-1h1v1h-1Zm2 0v-1h1v1h-1Zm20 0v1h-1v-1h-1v-1h1v1h1Zm-1 2h1v1h-1v-1Zm0 2h1v1h-1v-1Zm-18 2h1v1h-1v-1Zm-1 1h-1v-1h1v1Zm-2 0h-1v-1h1v1Zm5 0v-1h1v1h-1Zm1-7v-1h1v1h-1Zm2 0v-1h1v1h-1Zm2 0v-1h1v1h-1Zm1 6h1v1h-1v-1Zm-1 1h-1v-1h1v1Zm-2 0h-1v-1h1v1Zm-4-7v-1h1v1h-1Zm9 6h1v1h-1v-1Zm2 1v-1h1v1h-1Zm6-1h1v1h-1v-1Zm-1 1h-1v-1h1v1Zm-2 0h-1v-1h1v1Zm-6-7v-1h1v1h-1Zm4 0v-1h1v1h-1Zm2 0v-1h1v1h-1Zm-4 0v-1h1v1h-1ZM19 23h8v8h-8v-8Zm12 0h26v8H31v-8ZM19 45h8v8h-8v-8Zm12 0h26v8H31v-8Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/display-table") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 9v9a2 2 0 0 0 2 2h3M4 9V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3M4 9h5m11 0v9a2 2 0 0 1-2 2h-3m5-11h-5M9 20V9m0 11h6M9 9h6m0 0v11" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/display-exact") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><path d="M48 50H4c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h44c1.1 0 2 .9 2 2v44c0 1.1-.9 2-2 2zM6 46h40V6H6v40z"/><path d="M39 20H13c-.6 0-1-.4-1-1v-6c0-.6.4-1 1-1h26c.6 0 1 .4 1 1v6c0 .6-.4 1-1 1zM19 40h-6c-.6 0-1-.4-1-1V27c0-.6.4-1 1-1h6c.6 0 1 .4 1 1v12c0 .6-.4 1-1 1zm20 0H27c-.6 0-1-.4-1-1V27c0-.6.4-1 1-1h12c.6 0 1 .4 1 1v12c0 .6-.4 1-1 1z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/a-link") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.16488 17.6505C8.92513 17.8743 8.73958 18.0241 8.54996 18.1336C7.62175 18.6695 6.47816 18.6695 5.54996 18.1336C5.20791 17.9361 4.87912 17.6073 4.22153 16.9498C3.56394 16.2922 3.23514 15.9634 3.03767 15.6213C2.50177 14.6931 2.50177 13.5495 3.03767 12.6213C3.23514 12.2793 3.56394 11.9505 4.22153 11.2929L7.04996 8.46448C7.70755 7.80689 8.03634 7.47809 8.37838 7.28062C9.30659 6.74472 10.4502 6.74472 11.3784 7.28061C11.7204 7.47809 12.0492 7.80689 12.7068 8.46448C13.3644 9.12207 13.6932 9.45086 13.8907 9.7929C14.4266 10.7211 14.4266 11.8647 13.8907 12.7929C13.7812 12.9825 13.6314 13.1681 13.4075 13.4078M10.5919 10.5922C10.368 10.8319 10.2182 11.0175 10.1087 11.2071C9.57284 12.1353 9.57284 13.2789 10.1087 14.2071C10.3062 14.5492 10.635 14.878 11.2926 15.5355C11.9502 16.1931 12.279 16.5219 12.621 16.7194C13.5492 17.2553 14.6928 17.2553 15.621 16.7194C15.9631 16.5219 16.2919 16.1931 16.9495 15.5355L19.7779 12.7071C20.4355 12.0495 20.7643 11.7207 20.9617 11.3787C21.4976 10.4505 21.4976 9.30689 20.9617 8.37869C20.7643 8.03665 20.4355 7.70785 19.7779 7.05026C19.1203 6.39267 18.7915 6.06388 18.4495 5.8664C17.5212 5.3305 16.3777 5.3305 15.4495 5.8664C15.2598 5.97588 15.0743 6.12571 14.8345 6.34955" stroke="${primary}" stroke-width="2" stroke-linecap="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/pdf-link") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 32 32" id="icon" xmlns="http://www.w3.org/2000/svg"><path d="M24,24v4H8V24H6v4H6a2,2,0,0,0,2,2H24a2,2,0,0,0,2-2h0V24Z"/><polygon points="21 21 19.586 19.586 17 22.172 17 14 15 14 15 22.172 12.414 19.586 11 21 16 26 21 21"/><polygon points="28 4 28 2 22 2 22 12 24 12 24 8 27 8 27 6 24 6 24 4 28 4"/><path d="M17,12H13V2h4a3.0033,3.0033,0,0,1,3,3V9A3.0033,3.0033,0,0,1,17,12Zm-2-2h2a1.0011,1.0011,0,0,0,1-1V5a1.0011,1.0011,0,0,0-1-1H15Z"/><path d="M9,2H4V12H6V9H9a2.0027,2.0027,0,0,0,2-2V4A2.0023,2.0023,0,0,0,9,2ZM6,7V4H9l.001,3Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/font-size") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-name="Layer 1"><path d="M9,11H3a1,1,0,0,0,0,2H5v5a1,1,0,0,0,2,0V13H9a1,1,0,0,0,0-2ZM21,5H9A1,1,0,0,0,9,7h5V18a1,1,0,0,0,2,0V7h5a1,1,0,0,0,0-2Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/bold") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 7V11H13C14.1046 11 15 10.1046 15 9C15 7.89543 14.1046 7 13 7H9ZM15.9365 11.7161C16.5966 11.0028 17 10.0485 17 9C17 6.79086 15.2091 5 13 5H8.5C7.67157 5 7 5.67157 7 6.5V12V18.5C7 19.3284 7.67157 20 8.5 20H13.5C15.9853 20 18 17.9853 18 15.5C18 13.9126 17.178 12.5171 15.9365 11.7161ZM13 13H9V18H13.5C14.8807 18 16 16.8807 16 15.5C16 14.1193 14.8807 13 13.5 13H13Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/overflow-y") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7,9.29289322 L8.14644661,8.14644661 C8.34170876,7.95118446 8.65829124,7.95118446 8.85355339,8.14644661 C9.04881554,8.34170876 9.04881554,8.65829124 8.85355339,8.85355339 L6.85355339,10.8535534 C6.65829124,11.0488155 6.34170876,11.0488155 6.14644661,10.8535534 L4.14644661,8.85355339 C3.95118446,8.65829124 3.95118446,8.34170876 4.14644661,8.14644661 C4.34170876,7.95118446 4.65829124,7.95118446 4.85355339,8.14644661 L6,9.29289322 L6,3.70710678 L4.85355339,4.85355339 C4.65829124,5.04881554 4.34170876,5.04881554 4.14644661,4.85355339 C3.95118446,4.65829124 3.95118446,4.34170876 4.14644661,4.14644661 L6.14644661,2.14644661 C6.34170876,1.95118446 6.65829124,1.95118446 6.85355339,2.14644661 L8.85355339,4.14644661 C9.04881554,4.34170876 9.04881554,4.65829124 8.85355339,4.85355339 C8.65829124,5.04881554 8.34170876,5.04881554 8.14644661,4.85355339 L7,3.70710678 L7,9.29289322 Z M14,9.5 L14,12.0474376 C14,12.3783481 13.8839855,12.698786 13.6721417,12.9529985 C13.1720143,13.5531514 12.2800608,13.6342381 11.6799078,13.1341106 L10.7560738,12.3642489 C10.4736449,12.1288916 10.11764,12 9.75,12 C9.48363526,12 9.24082605,12.1526146 9.12532205,12.3926334 L9.08962348,12.4668155 C8.95447865,12.7476481 8.99541029,13.0814869 9.19439734,13.321352 L13.607865,18.6414804 C14.3217788,19.502054 15.3818498,20 16.5,20 C18.9852814,20 21,17.9852814 21,15.5 L21,11.5 C21,11.2238576 20.7761424,11 20.5,11 C20.2238576,11 20,11.2238576 20,11.5 L20,12.5 C20,12.7761424 19.7761424,13 19.5,13 C19.2238576,13 19,12.7761424 19,12.5 L19,10.5 C19,10.2238576 18.7761424,10 18.5,10 C18.2238576,10 18,10.2238576 18,10.5 L18,12.5 C18,12.7761424 17.7761424,13 17.5,13 C17.2238576,13 17,12.7761424 17,12.5 L17,9.5 C17,9.22385763 16.7761424,9 16.5,9 C16.2238576,9 16,9.22385763 16,9.5 L16,12.5 C16,12.7761424 15.7761424,13 15.5,13 C15.2238576,13 15,12.7761424 15,12.5 L15,5.5 C15,5.22385763 14.7761424,5 14.5,5 C14.2238576,5 14,5.22385763 14,5.5 L14,9.5 Z M13,9.49999981 L13,5.5 C13,4.67157288 13.6715729,4 14.5,4 C15.3284271,4 16,4.67157288 16,5.5 L16,8.08535285 C16.1563895,8.03007711 16.3246823,8 16.5,8 C17.191734,8 17.7741062,8.46823386 17.9474595,9.10504462 C18.1184541,9.03725677 18.3048761,9 18.5,9 C19.191734,9 19.7741062,9.46823386 19.9474595,10.1050446 C20.1184541,10.0372568 20.3048761,10 20.5,10 C21.3284271,10 22,10.6715729 22,11.5 L22,15.5 C22,18.5375661 19.5375661,21 16.5,21 C15.0842933,21 13.7421216,20.3695431 12.8382246,19.279958 L8.42475695,13.9598296 C7.97611908,13.4190278 7.88383427,12.6663521 8.18853292,12.0331845 L8.2242315,11.9590024 C8.50634865,11.3727595 9.09940726,11 9.75,11 C10.3515765,11 10.9341143,11.2109078 11.3962582,11.5960277 L12.3200922,12.3658894 C12.4959683,12.5124527 12.7573571,12.4886901 12.9039205,12.3128141 C12.9660017,12.2383166 13,12.1444116 13,12.0474376 L13,9.5 Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/overflow-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.29289322,7 L3.70710678,7 L4.85355339,8.14644661 C5.04881554,8.34170876 5.04881554,8.65829124 4.85355339,8.85355339 C4.65829124,9.04881554 4.34170876,9.04881554 4.14644661,8.85355339 L2.14644661,6.85355339 C1.95118446,6.65829124 1.95118446,6.34170876 2.14644661,6.14644661 L4.14644661,4.14644661 C4.34170876,3.95118446 4.65829124,3.95118446 4.85355339,4.14644661 C5.04881554,4.34170876 5.04881554,4.65829124 4.85355339,4.85355339 L3.70710678,6 L9.29289322,6 L8.14644661,4.85355339 C7.95118446,4.65829124 7.95118446,4.34170876 8.14644661,4.14644661 C8.34170876,3.95118446 8.65829124,3.95118446 8.85355339,4.14644661 L10.8535534,6.14644661 C11.0488155,6.34170876 11.0488155,6.65829124 10.8535534,6.85355339 L8.85355339,8.85355339 C8.65829124,9.04881554 8.34170876,9.04881554 8.14644661,8.85355339 C7.95118446,8.65829124 7.95118446,8.34170876 8.14644661,8.14644661 L9.29289322,7 Z M14,9.5 L14,12.0474376 C14,12.3783481 13.8839855,12.698786 13.6721417,12.9529985 C13.1720143,13.5531514 12.2800608,13.6342381 11.6799078,13.1341106 L10.7560738,12.3642489 C10.4736449,12.1288916 10.11764,12 9.75,12 C9.48363526,12 9.24082605,12.1526146 9.12532205,12.3926334 L9.08962348,12.4668155 C8.95447865,12.7476481 8.99541029,13.0814869 9.19439734,13.321352 L13.607865,18.6414804 C14.3217788,19.502054 15.3818498,20 16.5,20 C18.9852814,20 21,17.9852814 21,15.5 L21,11.5 C21,11.2238576 20.7761424,11 20.5,11 C20.2238576,11 20,11.2238576 20,11.5 L20,12.5 C20,12.7761424 19.7761424,13 19.5,13 C19.2238576,13 19,12.7761424 19,12.5 L19,10.5 C19,10.2238576 18.7761424,10 18.5,10 C18.2238576,10 18,10.2238576 18,10.5 L18,12.5 C18,12.7761424 17.7761424,13 17.5,13 C17.2238576,13 17,12.7761424 17,12.5 L17,9.5 C17,9.22385763 16.7761424,9 16.5,9 C16.2238576,9 16,9.22385763 16,9.5 L16,12.5 C16,12.7761424 15.7761424,13 15.5,13 C15.2238576,13 15,12.7761424 15,12.5 L15,5.5 C15,5.22385763 14.7761424,5 14.5,5 C14.2238576,5 14,5.22385763 14,5.5 L14,9.5 Z M13,9.49999945 L13,5.5 C13,4.67157288 13.6715729,4 14.5,4 C15.3284271,4 16,4.67157288 16,5.5 L16,8.08535285 C16.1563895,8.03007711 16.3246823,8 16.5,8 C17.191734,8 17.7741062,8.46823386 17.9474595,9.10504462 C18.1184541,9.03725677 18.3048761,9 18.5,9 C19.191734,9 19.7741062,9.46823386 19.9474595,10.1050446 C20.1184541,10.0372568 20.3048761,10 20.5,10 C21.3284271,10 22,10.6715729 22,11.5 L22,15.5 C22,18.5375661 19.5375661,21 16.5,21 C15.0842933,21 13.7421216,20.3695431 12.8382246,19.279958 L8.42475695,13.9598296 C7.97611908,13.4190278 7.88383427,12.6663521 8.18853292,12.0331845 L8.2242315,11.9590024 C8.50634865,11.3727595 9.09940726,11 9.75,11 C10.3515765,11 10.9341143,11.2109078 11.3962582,11.5960277 L12.3200922,12.3658894 C12.4959683,12.5124527 12.7573571,12.4886901 12.9039205,12.3128141 C12.9660017,12.2383166 13,12.1444116 13,12.0474376 L13,9.5 Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/wrap") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 16 14" xmlns="http://www.w3.org/2000/svg"><path d="M12.5858 10.0001L12.2929 9.7071C11.9024 9.3166 11.9024 8.6834 12.2929 8.2929C12.6834 7.9024 13.3166 7.9024 13.7071 8.2929L15.7071 10.2929C16.0976 10.6834 16.0976 11.3166 15.7071 11.7071L13.7071 13.7071C13.3166 14.0976 12.6834 14.0976 12.2929 13.7071C11.9024 13.3166 11.9024 12.6834 12.2929 12.2929L12.5857 12.0001H3.50003C1.56702 12.0001 0 10.433 0 8.5C0 6.567 1.56702 5 3.50003 5H12.5C13.3284 5 14 4.32843 14 3.5C14 2.67157 13.3284 2 12.5 2H1.03567C0.48338 2 0.03567 1.55228 0.03567 1C0.03567 0.44772 0.48338 0 1.03567 0H12.5C14.433 0 16 1.567 16 3.5C16 5.433 14.433 7 12.5 7H3.50003C2.67159 7 2 7.6716 2 8.5C2 9.3285 2.67159 10.0001 3.50003 10.0001H12.5858z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/table-header") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><g><g><path d="M 20 24 H 4 c -4 0 -4 -2 -4 -5 V 5 c 0 -0.6 0.4 -1 1 -1 h 22 c 0.6 0 1 0.4 1 1 v 16 C 24 22 24 24 20 24 z M 1 5 v 14 c 0 2 0 4 2 4 h 16 c 4 0 4 -1 4 -2 V 5 H 2 z"/></g></g></g><g><g><path d="M23,5H1V4c0-1.7,1.3-3,3-3h16c1.7,0,3,1.3,3,3V5z"/></g><g><path d="M23,6H1C0.4,6,0,5.6,0,5V4c0-2.2,1.8-4,4-4h16c2.2,0,4,1.8,4,4v1C24,5.6,23.6,6,23,6z M2,4h20c0-1.1-0.9-2-2-2H4 C2.9,2,2,2.9,2,4z"/></g></g><g><g><path d="M 7 23 V 5 s 0 0 1 0 v 18 z"/></g></g><g><g><path d="M 23 12 H 1 h 22 z C 24 12 24 11 23 11 H 1 C 0 11 0 12 1 12"/></g></g><g><g><path d="M 23 18 H 1 c -1 0 -1 -1 0 -1 h 22 c 1 0 1 1 0 1 z"/></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-bottom-left-radius-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M4,5 C4.55228,5 5,4.55228 5,4 C5,3.44772 4.55228,3 4,3 C3.44772,3 3,3.44772 3,4 C3,4.55228 3.44772,5 4,5 Z M8,5 C8.55228,5 9,4.55228 9,4 C9,3.44772 8.55228,3 8,3 C7.44772,3 7,3.44772 7,4 C7,4.55228 7.44772,5 8,5 Z M5,20 C5,20.5523 4.55228,21 4,21 C3.44772,21 3,20.5523 3,20 C3,19.4477 3.44772,19 4,19 C4.55228,19 5,19.4477 5,20 Z M9,20 C9,20.5523 8.55228,21 8,21 C7.44772,21 7,20.5523 7,20 C7,19.4477 7.44772,19 8,19 C8.55228,19 9,19.4477 9,20 Z M12,21 C12.5523,21 13,20.5523 13,20 C13,19.4477 12.5523,19 12,19 C11.4477,19 11,19.4477 11,20 C11,20.5523 11.4477,21 12,21 Z M17,20 C17,20.5523 16.5523,21 16,21 C15.4477,21 15,20.5523 15,20 C15,19.4477 15.4477,19 16,19 C16.5523,19 17,19.4477 17,20 Z M20,21 C20.5523,21 21,20.5523 21,20 C21,19.4477 20.5523,19 20,19 C19.4477,19 19,19.4477 19,20 C19,20.5523 19.4477,21 20,21 Z M5,16 C5,15.4477 4.55228,15 4,15 C3.44772,15 3,15.4477 3,16 C3,16.5523 3.44772,17 4,17 C4.55228,17 5,16.5523 5,16 Z M5,12 C5,11.4477 4.55228,11 4,11 C3.44772,11 3,11.4477 3,12 C3,12.5523 3.44772,13 4,13 C4.55228,13 5,12.5523 5,12 Z M4,7 C4.55228,7 5,7.44771 5,8 C5,8.55229 4.55228,9 4,9 C3.44772,9 3,8.55229 3,8 C3,7.44771 3.44772,7 4,7 Z M20,15 C20.5523,15 21,15.4477 21,16 C21,16.5523 20.5523,17 20,17 C19.4477,17 19,16.5523 19,16 C19,15.4477 19.4477,15 20,15 Z M12,3 C11.4477,3 11,3.44772 11,4 C11,4.55228 11.4477,5 12,5 L14,5 C16.7614,5 19,7.23858 19,10 L19,12 C19,12.5523 19.4477,13 20,13 C20.5523,13 21,12.5523 21,12 L21,10 C21,6.13401 17.866,3 14,3 L12,3 Z" fill="${primary}" transform="rotate(180, 12, 12)"/><path d="M11.9998 12L12.0109 12.01" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-bottom-right-radius-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M4,5 C4.55228,5 5,4.55228 5,4 C5,3.44772 4.55228,3 4,3 C3.44772,3 3,3.44772 3,4 C3,4.55228 3.44772,5 4,5 Z M8,5 C8.55228,5 9,4.55228 9,4 C9,3.44772 8.55228,3 8,3 C7.44772,3 7,3.44772 7,4 C7,4.55228 7.44772,5 8,5 Z M5,20 C5,20.5523 4.55228,21 4,21 C3.44772,21 3,20.5523 3,20 C3,19.4477 3.44772,19 4,19 C4.55228,19 5,19.4477 5,20 Z M9,20 C9,20.5523 8.55228,21 8,21 C7.44772,21 7,20.5523 7,20 C7,19.4477 7.44772,19 8,19 C8.55228,19 9,19.4477 9,20 Z M12,21 C12.5523,21 13,20.5523 13,20 C13,19.4477 12.5523,19 12,19 C11.4477,19 11,19.4477 11,20 C11,20.5523 11.4477,21 12,21 Z M17,20 C17,20.5523 16.5523,21 16,21 C15.4477,21 15,20.5523 15,20 C15,19.4477 15.4477,19 16,19 C16.5523,19 17,19.4477 17,20 Z M20,21 C20.5523,21 21,20.5523 21,20 C21,19.4477 20.5523,19 20,19 C19.4477,19 19,19.4477 19,20 C19,20.5523 19.4477,21 20,21 Z M5,16 C5,15.4477 4.55228,15 4,15 C3.44772,15 3,15.4477 3,16 C3,16.5523 3.44772,17 4,17 C4.55228,17 5,16.5523 5,16 Z M5,12 C5,11.4477 4.55228,11 4,11 C3.44772,11 3,11.4477 3,12 C3,12.5523 3.44772,13 4,13 C4.55228,13 5,12.5523 5,12 Z M4,7 C4.55228,7 5,7.44771 5,8 C5,8.55229 4.55228,9 4,9 C3.44772,9 3,8.55229 3,8 C3,7.44771 3.44772,7 4,7 Z M20,15 C20.5523,15 21,15.4477 21,16 C21,16.5523 20.5523,17 20,17 C19.4477,17 19,16.5523 19,16 C19,15.4477 19.4477,15 20,15 Z M12,3 C11.4477,3 11,3.44772 11,4 C11,4.55228 11.4477,5 12,5 L14,5 C16.7614,5 19,7.23858 19,10 L19,12 C19,12.5523 19.4477,13 20,13 C20.5523,13 21,12.5523 21,12 L21,10 C21,6.13401 17.866,3 14,3 L12,3 Z" fill="${primary}" transform="rotate(90, 12, 12)"/><path d="M11.9998 12L12.0109 12.01" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-top-right-radius-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M4,5 C4.55228,5 5,4.55228 5,4 C5,3.44772 4.55228,3 4,3 C3.44772,3 3,3.44772 3,4 C3,4.55228 3.44772,5 4,5 Z M8,5 C8.55228,5 9,4.55228 9,4 C9,3.44772 8.55228,3 8,3 C7.44772,3 7,3.44772 7,4 C7,4.55228 7.44772,5 8,5 Z M5,20 C5,20.5523 4.55228,21 4,21 C3.44772,21 3,20.5523 3,20 C3,19.4477 3.44772,19 4,19 C4.55228,19 5,19.4477 5,20 Z M9,20 C9,20.5523 8.55228,21 8,21 C7.44772,21 7,20.5523 7,20 C7,19.4477 7.44772,19 8,19 C8.55228,19 9,19.4477 9,20 Z M12,21 C12.5523,21 13,20.5523 13,20 C13,19.4477 12.5523,19 12,19 C11.4477,19 11,19.4477 11,20 C11,20.5523 11.4477,21 12,21 Z M17,20 C17,20.5523 16.5523,21 16,21 C15.4477,21 15,20.5523 15,20 C15,19.4477 15.4477,19 16,19 C16.5523,19 17,19.4477 17,20 Z M20,21 C20.5523,21 21,20.5523 21,20 C21,19.4477 20.5523,19 20,19 C19.4477,19 19,19.4477 19,20 C19,20.5523 19.4477,21 20,21 Z M5,16 C5,15.4477 4.55228,15 4,15 C3.44772,15 3,15.4477 3,16 C3,16.5523 3.44772,17 4,17 C4.55228,17 5,16.5523 5,16 Z M5,12 C5,11.4477 4.55228,11 4,11 C3.44772,11 3,11.4477 3,12 C3,12.5523 3.44772,13 4,13 C4.55228,13 5,12.5523 5,12 Z M4,7 C4.55228,7 5,7.44771 5,8 C5,8.55229 4.55228,9 4,9 C3.44772,9 3,8.55229 3,8 C3,7.44771 3.44772,7 4,7 Z M20,15 C20.5523,15 21,15.4477 21,16 C21,16.5523 20.5523,17 20,17 C19.4477,17 19,16.5523 19,16 C19,15.4477 19.4477,15 20,15 Z M12,3 C11.4477,3 11,3.44772 11,4 C11,4.55228 11.4477,5 12,5 L14,5 C16.7614,5 19,7.23858 19,10 L19,12 C19,12.5523 19.4477,13 20,13 C20.5523,13 21,12.5523 21,12 L21,10 C21,6.13401 17.866,3 14,3 L12,3 Z" fill="${primary}"/><path d="M11.9998 12L12.0109 12.01" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-top-left-radius-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M4,5 C4.55228,5 5,4.55228 5,4 C5,3.44772 4.55228,3 4,3 C3.44772,3 3,3.44772 3,4 C3,4.55228 3.44772,5 4,5 Z M8,5 C8.55228,5 9,4.55228 9,4 C9,3.44772 8.55228,3 8,3 C7.44772,3 7,3.44772 7,4 C7,4.55228 7.44772,5 8,5 Z M5,20 C5,20.5523 4.55228,21 4,21 C3.44772,21 3,20.5523 3,20 C3,19.4477 3.44772,19 4,19 C4.55228,19 5,19.4477 5,20 Z M9,20 C9,20.5523 8.55228,21 8,21 C7.44772,21 7,20.5523 7,20 C7,19.4477 7.44772,19 8,19 C8.55228,19 9,19.4477 9,20 Z M12,21 C12.5523,21 13,20.5523 13,20 C13,19.4477 12.5523,19 12,19 C11.4477,19 11,19.4477 11,20 C11,20.5523 11.4477,21 12,21 Z M17,20 C17,20.5523 16.5523,21 16,21 C15.4477,21 15,20.5523 15,20 C15,19.4477 15.4477,19 16,19 C16.5523,19 17,19.4477 17,20 Z M20,21 C20.5523,21 21,20.5523 21,20 C21,19.4477 20.5523,19 20,19 C19.4477,19 19,19.4477 19,20 C19,20.5523 19.4477,21 20,21 Z M5,16 C5,15.4477 4.55228,15 4,15 C3.44772,15 3,15.4477 3,16 C3,16.5523 3.44772,17 4,17 C4.55228,17 5,16.5523 5,16 Z M5,12 C5,11.4477 4.55228,11 4,11 C3.44772,11 3,11.4477 3,12 C3,12.5523 3.44772,13 4,13 C4.55228,13 5,12.5523 5,12 Z M4,7 C4.55228,7 5,7.44771 5,8 C5,8.55229 4.55228,9 4,9 C3.44772,9 3,8.55229 3,8 C3,7.44771 3.44772,7 4,7 Z M20,15 C20.5523,15 21,15.4477 21,16 C21,16.5523 20.5523,17 20,17 C19.4477,17 19,16.5523 19,16 C19,15.4477 19.4477,15 20,15 Z M12,3 C11.4477,3 11,3.44772 11,4 C11,4.55228 11.4477,5 12,5 L14,5 C16.7614,5 19,7.23858 19,10 L19,12 C19,12.5523 19.4477,13 20,13 C20.5523,13 21,12.5523 21,12 L21,10 C21,6.13401 17.866,3 14,3 L12,3 Z" fill="${primary}" transform="rotate(270, 12, 12)"/><path d="M11.9998 12L12.0109 12.01" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-radius-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M12 3 C 11.4477 3 11 3.4477 11 4 C 11 4.5523 11.4477 5 12 5 L 14 5 C 16.7614 5 19 7.2386 19 10 L 19 12 C 19 12.5523 19.4477 13 20 13 C 20.5523 13 21 12.5523 21 12 L 21 10 C 21 6.134 17.866 3 14 3 L 12 3 Z" fill="${primary}" /><path d="M12 3 C 11.4477 3 11 3.4477 11 4 C 11 4.5523 11.4477 5 12 5 L 14 5 C 16.7614 5 19 7.2386 19 10 L 19 12 C 19 12.5523 19.4477 13 20 13 C 20.5523 13 21 12.5523 21 12 L 21 10 C 21 6.134 17.866 3 14 3 L 12 3 Z" fill="${primary}" transform="rotate(90, 12, 12)" /><path d="M12 3 C 11.4477 3 11 3.4477 11 4 C 11 4.5523 11.4477 5 12 5 L 14 5 C 16.7614 5 19 7.2386 19 10 L 19 12 C 19 12.5523 19.4477 13 20 13 C 20.5523 13 21 12.5523 21 12 L 21 10 C 21 6.134 17.866 3 14 3 L 12 3 Z" fill="${primary}" transform="rotate(180, 12, 12)" /><path d="M12 3 C 11.4477 3 11 3.4477 11 4 C 11 4.5523 11.4477 5 12 5 L 14 5 C 16.7614 5 19 7.2386 19 10 L 19 12 C 19 12.5523 19.4477 13 20 13 C 20.5523 13 21 12.5523 21 12 L 21 10 C 21 6.134 17.866 3 14 3 L 12 3 Z" fill="${primary}" transform="rotate(270, 12, 12)" /><path d="M11.9998 12L12.0109 12.01" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-bottom-left-radius") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M4,5 C4.55228,5 5,4.55228 5,4 C5,3.44772 4.55228,3 4,3 C3.44772,3 3,3.44772 3,4 C3,4.55228 3.44772,5 4,5 Z M8,5 C8.55228,5 9,4.55228 9,4 C9,3.44772 8.55228,3 8,3 C7.44772,3 7,3.44772 7,4 C7,4.55228 7.44772,5 8,5 Z M5,20 C5,20.5523 4.55228,21 4,21 C3.44772,21 3,20.5523 3,20 C3,19.4477 3.44772,19 4,19 C4.55228,19 5,19.4477 5,20 Z M9,20 C9,20.5523 8.55228,21 8,21 C7.44772,21 7,20.5523 7,20 C7,19.4477 7.44772,19 8,19 C8.55228,19 9,19.4477 9,20 Z M12,21 C12.5523,21 13,20.5523 13,20 C13,19.4477 12.5523,19 12,19 C11.4477,19 11,19.4477 11,20 C11,20.5523 11.4477,21 12,21 Z M17,20 C17,20.5523 16.5523,21 16,21 C15.4477,21 15,20.5523 15,20 C15,19.4477 15.4477,19 16,19 C16.5523,19 17,19.4477 17,20 Z M20,21 C20.5523,21 21,20.5523 21,20 C21,19.4477 20.5523,19 20,19 C19.4477,19 19,19.4477 19,20 C19,20.5523 19.4477,21 20,21 Z M5,16 C5,15.4477 4.55228,15 4,15 C3.44772,15 3,15.4477 3,16 C3,16.5523 3.44772,17 4,17 C4.55228,17 5,16.5523 5,16 Z M5,12 C5,11.4477 4.55228,11 4,11 C3.44772,11 3,11.4477 3,12 C3,12.5523 3.44772,13 4,13 C4.55228,13 5,12.5523 5,12 Z M4,7 C4.55228,7 5,7.44771 5,8 C5,8.55229 4.55228,9 4,9 C3.44772,9 3,8.55229 3,8 C3,7.44771 3.44772,7 4,7 Z M20,15 C20.5523,15 21,15.4477 21,16 C21,16.5523 20.5523,17 20,17 C19.4477,17 19,16.5523 19,16 C19,15.4477 19.4477,15 20,15 Z M12,3 C11.4477,3 11,3.44772 11,4 C11,4.55228 11.4477,5 12,5 L14,5 C16.7614,5 19,7.23858 19,10 L19,12 C19,12.5523 19.4477,13 20,13 C20.5523,13 21,12.5523 21,12 L21,10 C21,6.13401 17.866,3 14,3 L12,3 Z" fill="${primary}" transform="rotate(180, 12, 12)"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-bottom-right-radius") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M4,5 C4.55228,5 5,4.55228 5,4 C5,3.44772 4.55228,3 4,3 C3.44772,3 3,3.44772 3,4 C3,4.55228 3.44772,5 4,5 Z M8,5 C8.55228,5 9,4.55228 9,4 C9,3.44772 8.55228,3 8,3 C7.44772,3 7,3.44772 7,4 C7,4.55228 7.44772,5 8,5 Z M5,20 C5,20.5523 4.55228,21 4,21 C3.44772,21 3,20.5523 3,20 C3,19.4477 3.44772,19 4,19 C4.55228,19 5,19.4477 5,20 Z M9,20 C9,20.5523 8.55228,21 8,21 C7.44772,21 7,20.5523 7,20 C7,19.4477 7.44772,19 8,19 C8.55228,19 9,19.4477 9,20 Z M12,21 C12.5523,21 13,20.5523 13,20 C13,19.4477 12.5523,19 12,19 C11.4477,19 11,19.4477 11,20 C11,20.5523 11.4477,21 12,21 Z M17,20 C17,20.5523 16.5523,21 16,21 C15.4477,21 15,20.5523 15,20 C15,19.4477 15.4477,19 16,19 C16.5523,19 17,19.4477 17,20 Z M20,21 C20.5523,21 21,20.5523 21,20 C21,19.4477 20.5523,19 20,19 C19.4477,19 19,19.4477 19,20 C19,20.5523 19.4477,21 20,21 Z M5,16 C5,15.4477 4.55228,15 4,15 C3.44772,15 3,15.4477 3,16 C3,16.5523 3.44772,17 4,17 C4.55228,17 5,16.5523 5,16 Z M5,12 C5,11.4477 4.55228,11 4,11 C3.44772,11 3,11.4477 3,12 C3,12.5523 3.44772,13 4,13 C4.55228,13 5,12.5523 5,12 Z M4,7 C4.55228,7 5,7.44771 5,8 C5,8.55229 4.55228,9 4,9 C3.44772,9 3,8.55229 3,8 C3,7.44771 3.44772,7 4,7 Z M20,15 C20.5523,15 21,15.4477 21,16 C21,16.5523 20.5523,17 20,17 C19.4477,17 19,16.5523 19,16 C19,15.4477 19.4477,15 20,15 Z M12,3 C11.4477,3 11,3.44772 11,4 C11,4.55228 11.4477,5 12,5 L14,5 C16.7614,5 19,7.23858 19,10 L19,12 C19,12.5523 19.4477,13 20,13 C20.5523,13 21,12.5523 21,12 L21,10 C21,6.13401 17.866,3 14,3 L12,3 Z" fill="${primary}" transform="rotate(90, 12, 12)"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-top-right-radius") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M4,5 C4.55228,5 5,4.55228 5,4 C5,3.44772 4.55228,3 4,3 C3.44772,3 3,3.44772 3,4 C3,4.55228 3.44772,5 4,5 Z M8,5 C8.55228,5 9,4.55228 9,4 C9,3.44772 8.55228,3 8,3 C7.44772,3 7,3.44772 7,4 C7,4.55228 7.44772,5 8,5 Z M5,20 C5,20.5523 4.55228,21 4,21 C3.44772,21 3,20.5523 3,20 C3,19.4477 3.44772,19 4,19 C4.55228,19 5,19.4477 5,20 Z M9,20 C9,20.5523 8.55228,21 8,21 C7.44772,21 7,20.5523 7,20 C7,19.4477 7.44772,19 8,19 C8.55228,19 9,19.4477 9,20 Z M12,21 C12.5523,21 13,20.5523 13,20 C13,19.4477 12.5523,19 12,19 C11.4477,19 11,19.4477 11,20 C11,20.5523 11.4477,21 12,21 Z M17,20 C17,20.5523 16.5523,21 16,21 C15.4477,21 15,20.5523 15,20 C15,19.4477 15.4477,19 16,19 C16.5523,19 17,19.4477 17,20 Z M20,21 C20.5523,21 21,20.5523 21,20 C21,19.4477 20.5523,19 20,19 C19.4477,19 19,19.4477 19,20 C19,20.5523 19.4477,21 20,21 Z M5,16 C5,15.4477 4.55228,15 4,15 C3.44772,15 3,15.4477 3,16 C3,16.5523 3.44772,17 4,17 C4.55228,17 5,16.5523 5,16 Z M5,12 C5,11.4477 4.55228,11 4,11 C3.44772,11 3,11.4477 3,12 C3,12.5523 3.44772,13 4,13 C4.55228,13 5,12.5523 5,12 Z M4,7 C4.55228,7 5,7.44771 5,8 C5,8.55229 4.55228,9 4,9 C3.44772,9 3,8.55229 3,8 C3,7.44771 3.44772,7 4,7 Z M20,15 C20.5523,15 21,15.4477 21,16 C21,16.5523 20.5523,17 20,17 C19.4477,17 19,16.5523 19,16 C19,15.4477 19.4477,15 20,15 Z M12,3 C11.4477,3 11,3.44772 11,4 C11,4.55228 11.4477,5 12,5 L14,5 C16.7614,5 19,7.23858 19,10 L19,12 C19,12.5523 19.4477,13 20,13 C20.5523,13 21,12.5523 21,12 L21,10 C21,6.13401 17.866,3 14,3 L12,3 Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-top-left-radius") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M4,5 C4.55228,5 5,4.55228 5,4 C5,3.44772 4.55228,3 4,3 C3.44772,3 3,3.44772 3,4 C3,4.55228 3.44772,5 4,5 Z M8,5 C8.55228,5 9,4.55228 9,4 C9,3.44772 8.55228,3 8,3 C7.44772,3 7,3.44772 7,4 C7,4.55228 7.44772,5 8,5 Z M5,20 C5,20.5523 4.55228,21 4,21 C3.44772,21 3,20.5523 3,20 C3,19.4477 3.44772,19 4,19 C4.55228,19 5,19.4477 5,20 Z M9,20 C9,20.5523 8.55228,21 8,21 C7.44772,21 7,20.5523 7,20 C7,19.4477 7.44772,19 8,19 C8.55228,19 9,19.4477 9,20 Z M12,21 C12.5523,21 13,20.5523 13,20 C13,19.4477 12.5523,19 12,19 C11.4477,19 11,19.4477 11,20 C11,20.5523 11.4477,21 12,21 Z M17,20 C17,20.5523 16.5523,21 16,21 C15.4477,21 15,20.5523 15,20 C15,19.4477 15.4477,19 16,19 C16.5523,19 17,19.4477 17,20 Z M20,21 C20.5523,21 21,20.5523 21,20 C21,19.4477 20.5523,19 20,19 C19.4477,19 19,19.4477 19,20 C19,20.5523 19.4477,21 20,21 Z M5,16 C5,15.4477 4.55228,15 4,15 C3.44772,15 3,15.4477 3,16 C3,16.5523 3.44772,17 4,17 C4.55228,17 5,16.5523 5,16 Z M5,12 C5,11.4477 4.55228,11 4,11 C3.44772,11 3,11.4477 3,12 C3,12.5523 3.44772,13 4,13 C4.55228,13 5,12.5523 5,12 Z M4,7 C4.55228,7 5,7.44771 5,8 C5,8.55229 4.55228,9 4,9 C3.44772,9 3,8.55229 3,8 C3,7.44771 3.44772,7 4,7 Z M20,15 C20.5523,15 21,15.4477 21,16 C21,16.5523 20.5523,17 20,17 C19.4477,17 19,16.5523 19,16 C19,15.4477 19.4477,15 20,15 Z M12,3 C11.4477,3 11,3.44772 11,4 C11,4.55228 11.4477,5 12,5 L14,5 C16.7614,5 19,7.23858 19,10 L19,12 C19,12.5523 19.4477,13 20,13 C20.5523,13 21,12.5523 21,12 L21,10 C21,6.13401 17.866,3 14,3 L12,3 Z" fill="${primary}" transform="rotate(270, 12, 12)"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-radius") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M12 3 C 11.4477 3 11 3.4477 11 4 C 11 4.5523 11.4477 5 12 5 L 14 5 C 16.7614 5 19 7.2386 19 10 L 19 12 C 19 12.5523 19.4477 13 20 13 C 20.5523 13 21 12.5523 21 12 L 21 10 C 21 6.134 17.866 3 14 3 L 12 3 Z" fill="${primary}" /><path d="M12 3 C 11.4477 3 11 3.4477 11 4 C 11 4.5523 11.4477 5 12 5 L 14 5 C 16.7614 5 19 7.2386 19 10 L 19 12 C 19 12.5523 19.4477 13 20 13 C 20.5523 13 21 12.5523 21 12 L 21 10 C 21 6.134 17.866 3 14 3 L 12 3 Z" fill="${primary}" transform="rotate(90, 12, 12)" /><path d="M12 3 C 11.4477 3 11 3.4477 11 4 C 11 4.5523 11.4477 5 12 5 L 14 5 C 16.7614 5 19 7.2386 19 10 L 19 12 C 19 12.5523 19.4477 13 20 13 C 20.5523 13 21 12.5523 21 12 L 21 10 C 21 6.134 17.866 3 14 3 L 12 3 Z" fill="${primary}" transform="rotate(180, 12, 12)" /><path d="M12 3 C 11.4477 3 11 3.4477 11 4 C 11 4.5523 11.4477 5 12 5 L 14 5 C 16.7614 5 19 7.2386 19 10 L 19 12 C 19 12.5523 19.4477 13 20 13 C 20.5523 13 21 12.5523 21 12 L 21 10 C 21 6.134 17.866 3 14 3 L 12 3 Z" fill="${primary}" transform="rotate(270, 12, 12)" /></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-left-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.01 20L19.9989 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.01 16L19.9989 16.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.01 12L19.9989 12.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.01 8L19.9989 8.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.01 4L19.9989 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.01 4L7.99889 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.01 4L11.9989 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.01 12L11.9989 12.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.01 4L15.9989 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.01 20L7.99889 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.01 20L11.9989 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.01 20L15.9989 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 4L4 20" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-bottom-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 4.01L20.01 3.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 4.01L16.01 3.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 4.01L12.01 3.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 4.01L8.01 3.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 4.01L4.01 3.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 8.01L4.01 7.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 12.01L4.01 11.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 12.01L12.01 11.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16.01L4.01 15.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 8.01L20.01 7.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 12.01L20.01 11.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 16.01L20.01 15.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20H20" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-right-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.99977 20L4.01088 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.99977 16L4.01088 16.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.99977 12L4.01088 12.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.99977 8L4.01088 8.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.99977 4L4.01088 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.9998 4L16.0109 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.9998 4L12.0109 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.9998 12L12.0109 12.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.99977 4L8.01088 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.9998 20L16.0109 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.9998 20L12.0109 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.99977 20L8.01088 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.0098 4L20.0098 20" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-top-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 20.01L20.01 19.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 20.01L16.01 19.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 20.01L12.01 19.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 20.01L8.01 19.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20.01L4.01 19.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 8.01L4.01 7.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 12.01L4.01 11.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 12.01L12.01 11.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16.01L4.01 15.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 8.01L20.01 7.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 12.01L20.01 11.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 16.01L20.01 15.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 4L20 4" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.0098 12L11.9998 12.0111" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 3.6V20.4C21 20.7314 20.7314 21 20.4 21H3.6C3.26863 21 3 20.7314 3 20.4V3.6C3 3.26863 3.26863 3 3.6 3H20.4C20.7314 3 21 3.26863 21 3.6Z" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-left") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.01 20L19.9989 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.01 16L19.9989 16.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.01 12L19.9989 12.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.01 8L19.9989 8.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.01 4L19.9989 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.01 4L7.99889 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.01 4L11.9989 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.01 4L15.9989 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.01 20L7.99889 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.01 20L11.9989 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.01 20L15.9989 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 4L4 20" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-bottom") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 4.01L20.01 3.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 4.01L16.01 3.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 4.01L12.01 3.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 4.01L8.01 3.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 4.01L4.01 3.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 8.01L4.01 7.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 12.01L4.01 11.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16.01L4.01 15.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 8.01L20.01 7.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 12.01L20.01 11.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 16.01L20.01 15.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20H20" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-right") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.99977 20L4.01088 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.99977 16L4.01088 16.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.99977 12L4.01088 12.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.99977 8L4.01088 8.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.99977 4L4.01088 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.9998 4L16.0109 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.9998 4L12.0109 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.99977 4L8.01088 4.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.9998 20L16.0109 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.9998 20L12.0109 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.99977 20L8.01088 20.01" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.0098 4L20.0098 20" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border-top") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 20.01L20.01 19.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 20.01L16.01 19.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 20.01L12.01 19.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 20.01L8.01 19.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20.01L4.01 19.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 8.01L4.01 7.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 12.01L4.01 11.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16.01L4.01 15.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 8.01L20.01 7.99889" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 12.01L20.01 11.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 16.01L20.01 15.9989" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 4L20 4" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/border") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 3.6V20.4C21 20.7314 20.7314 21 20.4 21H3.6C3.26863 21 3 20.7314 3 20.4V3.6C3 3.26863 3.26863 3 3.6 3H20.4C20.7314 3 21 3.26863 21 3.6Z" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/padding-left-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M5,17c-0.6,0-1-0.4-1-1V8c0-0.6,0.4-1,1-1s1,0.4,1,1v8C6,16.6,5.6,17,5,17z"/></g></g></g><g><g><path d="M23,24H1c-0.6,0-1-0.4-1-1V1c0-0.6,0.4-1,1-1h22c0.6,0,1,0.4,1,1v22C24,23.6,23.6,24,23,24z M2,22h20V2H2V22z"/></g></g><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(45 12 12)"/><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(-45 12 12)"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/padding-bottom-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M16,20H8c-0.6,0-1-0.4-1-1s0.4-1,1-1h8c0.6,0,1,0.4,1,1S16.6,20,16,20z"/></g></g></g><g><g><path d="M23,24H1c-0.6,0-1-0.4-1-1V1c0-0.6,0.4-1,1-1h22c0.6,0,1,0.4,1,1v22C24,23.6,23.6,24,23,24z M2,22h20V2H2V22z"/></g></g><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(45 12 12)"/><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(-45 12 12)"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/padding-right-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M19,17c-0.6,0-1-0.4-1-1V8c0-0.6,0.4-1,1-1s1,0.4,1,1v8C20,16.6,19.6,17,19,17z"/></g></g></g><g><g><path d="M23,24H1c-0.6,0-1-0.4-1-1V1c0-0.6,0.4-1,1-1h22c0.6,0,1,0.4,1,1v22C24,23.6,23.6,24,23,24z M2,22h20V2H2V22z"/></g></g><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(45 12 12)"/><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(-45 12 12)"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/padding-top-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M16,6H8C7.4,6,7,5.6,7,5s0.4-1,1-1h8c0.6,0,1,0.4,1,1S16.6,6,16,6z"/></g></g></g><g><g><path d="M23,24H1c-0.6,0-1-0.4-1-1V1c0-0.6,0.4-1,1-1h22c0.6,0,1,0.4,1,1v22C24,23.6,23.6,24,23,24z M2,22h20V2H2V22z"/></g></g><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(45 12 12)"/><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(-45 12 12)"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/padding-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M16,6H8C7.4,6,7,5.6,7,5s0.4-1,1-1h8c0.6,0,1,0.4,1,1S16.6,6,16,6z"/></g></g><g><g><path d="M16,20H8c-0.6,0-1-0.4-1-1s0.4-1,1-1h8c0.6,0,1,0.4,1,1S16.6,20,16,20z"/></g></g><g><g><path d="M19,17c-0.6,0-1-0.4-1-1V8c0-0.6,0.4-1,1-1s1,0.4,1,1v8C20,16.6,19.6,17,19,17z"/></g></g><g><g><path d="M5,17c-0.6,0-1-0.4-1-1V8c0-0.6,0.4-1,1-1s1,0.4,1,1v8C6,16.6,5.6,17,5,17z"/></g></g></g><g><g><path d="M23,24H1c-0.6,0-1-0.4-1-1V1c0-0.6,0.4-1,1-1h22c0.6,0,1,0.4,1,1v22C24,23.6,23.6,24,23,24z M2,22h20V2H2V22z"/></g></g><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(45 12 12)"/><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(-45 12 12)"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/padding-left") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M5,17c-0.6,0-1-0.4-1-1V8c0-0.6,0.4-1,1-1s1,0.4,1,1v8C6,16.6,5.6,17,5,17z"/></g></g></g><g><g><path d="M23,24H1c-0.6,0-1-0.4-1-1V1c0-0.6,0.4-1,1-1h22c0.6,0,1,0.4,1,1v22C24,23.6,23.6,24,23,24z M2,22h20V2H2V22z"/></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/padding-bottom") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M16,20H8c-0.6,0-1-0.4-1-1s0.4-1,1-1h8c0.6,0,1,0.4,1,1S16.6,20,16,20z"/></g></g></g><g><g><path d="M23,24H1c-0.6,0-1-0.4-1-1V1c0-0.6,0.4-1,1-1h22c0.6,0,1,0.4,1,1v22C24,23.6,23.6,24,23,24z M2,22h20V2H2V22z"/></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/padding-right") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M19,17c-0.6,0-1-0.4-1-1V8c0-0.6,0.4-1,1-1s1,0.4,1,1v8C20,16.6,19.6,17,19,17z"/></g></g></g><g><g><path d="M23,24H1c-0.6,0-1-0.4-1-1V1c0-0.6,0.4-1,1-1h22c0.6,0,1,0.4,1,1v22C24,23.6,23.6,24,23,24z M2,22h20V2H2V22z"/></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/padding-top") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M16,6H8C7.4,6,7,5.6,7,5s0.4-1,1-1h8c0.6,0,1,0.4,1,1S16.6,6,16,6z"/></g></g></g><g><g><path d="M23,24H1c-0.6,0-1-0.4-1-1V1c0-0.6,0.4-1,1-1h22c0.6,0,1,0.4,1,1v22C24,23.6,23.6,24,23,24z M2,22h20V2H2V22z"/></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/padding") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M16,6H8C7.4,6,7,5.6,7,5s0.4-1,1-1h8c0.6,0,1,0.4,1,1S16.6,6,16,6z"/></g></g><g><g><path d="M16,20H8c-0.6,0-1-0.4-1-1s0.4-1,1-1h8c0.6,0,1,0.4,1,1S16.6,20,16,20z"/></g></g><g><g><path d="M19,17c-0.6,0-1-0.4-1-1V8c0-0.6,0.4-1,1-1s1,0.4,1,1v8C20,16.6,19.6,17,19,17z"/></g></g><g><g><path d="M5,17c-0.6,0-1-0.4-1-1V8c0-0.6,0.4-1,1-1s1,0.4,1,1v8C6,16.6,5.6,17,5,17z"/></g></g></g><g><g><path d="M23,24H1c-0.6,0-1-0.4-1-1V1c0-0.6,0.4-1,1-1h22c0.6,0,1,0.4,1,1v22C24,23.6,23.6,24,23,24z M2,22h20V2H2V22z"/></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/margin-left-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M1,20c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1s1,0.4,1,1v14C2,19.6,1.6,20,1,20z"/></g></g><g><g><path d="M19,20H5c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1h14c0.6,0,1,0.4,1,1v14C20,19.6,19.6,20,19,20z M6,18h12V6H6V18z"/></g></g><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(45 12 12)"/><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(-45 12 12)"/></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/margin-bottom-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M19,24H5c-0.6,0-1-0.4-1-1s0.4-1,1-1h14c0.6,0,1,0.4,1,1S19.6,24,19,24z"/></g></g><g><g><path d="M19,20H5c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1h14c0.6,0,1,0.4,1,1v14C20,19.6,19.6,20,19,20z M6,18h12V6H6V18z"/></g></g><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(45 12 12)"/><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(-45 12 12)"/></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/margin-right-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M23,20c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1s1,0.4,1,1v14C24,19.6,23.6,20,23,20z"/></g></g><g><g><path d="M19,20H5c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1h14c0.6,0,1,0.4,1,1v14C20,19.6,19.6,20,19,20z M6,18h12V6H6V18z"/></g></g><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(45 12 12)"/><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(-45 12 12)"/></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/margin-top-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M19,2H5C4.4,2,4,1.6,4,1s0.4-1,1-1h14c0.6,0,1,0.4,1,1S19.6,2,19,2z"/></g></g><g><g><path d="M19,20H5c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1h14c0.6,0,1,0.4,1,1v14C20,19.6,19.6,20,19,20z M6,18h12V6H6V18z"/></g></g><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(45 12 12)"/><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(-45 12 12)"/></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/margin-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M19,2H5C4.4,2,4,1.6,4,1s0.4-1,1-1h14c0.6,0,1,0.4,1,1S19.6,2,19,2z"/></g></g><g><g><path d="M19,24H5c-0.6,0-1-0.4-1-1s0.4-1,1-1h14c0.6,0,1,0.4,1,1S19.6,24,19,24z"/></g></g><g><g><path d="M23,20c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1s1,0.4,1,1v14C24,19.6,23.6,20,23,20z"/></g></g><g><g><path d="M1,20c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1s1,0.4,1,1v14C2,19.6,1.6,20,1,20z"/></g></g><g><g><path d="M19,20H5c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1h14c0.6,0,1,0.4,1,1v14C20,19.6,19.6,20,19,20z M6,18h12V6H6V18z"/></g></g><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(45 12 12)"/><rect x="10.5" y="5.5" width="3" height="13" rx="" ry="2" fill="${primary}" transform="rotate(-45 12 12)"/></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/margin-left") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M1,20c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1s1,0.4,1,1v14C2,19.6,1.6,20,1,20z"/></g></g><g><g><path d="M19,20H5c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1h14c0.6,0,1,0.4,1,1v14C20,19.6,19.6,20,19,20z M6,18h12V6H6V18z"/></g></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/margin-bottom") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M19,24H5c-0.6,0-1-0.4-1-1s0.4-1,1-1h14c0.6,0,1,0.4,1,1S19.6,24,19,24z"/></g></g><g><g><path d="M19,20H5c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1h14c0.6,0,1,0.4,1,1v14C20,19.6,19.6,20,19,20z M6,18h12V6H6V18z"/></g></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/margin-right") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M23,20c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1s1,0.4,1,1v14C24,19.6,23.6,20,23,20z"/></g></g><g><g><path d="M19,20H5c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1h14c0.6,0,1,0.4,1,1v14C20,19.6,19.6,20,19,20z M6,18h12V6H6V18z"/></g></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/margin-top") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M19,2H5C4.4,2,4,1.6,4,1s0.4-1,1-1h14c0.6,0,1,0.4,1,1S19.6,2,19,2z"/></g></g><g><g><path d="M19,20H5c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1h14c0.6,0,1,0.4,1,1v14C20,19.6,19.6,20,19,20z M6,18h12V6H6V18z"/></g></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/margin") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g><g><g><path d="M19,2H5C4.4,2,4,1.6,4,1s0.4-1,1-1h14c0.6,0,1,0.4,1,1S19.6,2,19,2z"/></g></g><g><g><path d="M19,24H5c-0.6,0-1-0.4-1-1s0.4-1,1-1h14c0.6,0,1,0.4,1,1S19.6,24,19,24z"/></g></g><g><g><path d="M23,20c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1s1,0.4,1,1v14C24,19.6,23.6,20,23,20z"/></g></g><g><g><path d="M1,20c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1s1,0.4,1,1v14C2,19.6,1.6,20,1,20z"/></g></g><g><g><path d="M19,20H5c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1h14c0.6,0,1,0.4,1,1v14C20,19.6,19.6,20,19,20z M6,18h12V6H6V18z"/></g></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/layout-top") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 5.5C3 4.11929 4.11929 3 5.5 3H14.5C15.8807 3 17 4.11929 17 5.5V14.5C17 15.8807 15.8807 17 14.5 17H5.5C4.11929 17 3 15.8807 3 14.5V5.5ZM4.5 7V14.5C4.5 15.0523 4.94771 15.5 5.5 15.5H14.5C15.0523 15.5 15.5 15.0523 15.5 14.5V7H4.5Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/h3") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="-4.5 -6.5 24 24" xmlns="http://www.w3.org/2000/svg"><path d='M2 4h4V1a1 1 0 1 1 2 0v8a1 1 0 1 1-2 0V6H2v3a1 1 0 1 1-2 0V1a1 1 0 1 1 2 0v3zm12.453 2.513l.043.055c.254.334.38.728.38 1.172 0 .637-.239 1.187-.707 1.628-.466.439-1.06.658-1.763.658-.671 0-1.235-.209-1.671-.627-.436-.418-.673-.983-.713-1.676L10 7.353h1.803l.047.295c.038.238.112.397.215.49.1.091.23.137.402.137a.566.566 0 0 0 .422-.159.5.5 0 0 0 .158-.38c0-.163-.067-.295-.224-.419-.17-.134-.438-.21-.815-.215l-.345-.004v-1.17l.345-.004c.377-.004.646-.08.815-.215.157-.124.224-.255.224-.418a.5.5 0 0 0-.158-.381.566.566 0 0 0-.422-.159.568.568 0 0 0-.402.138c-.103.092-.177.251-.215.489l-.047.295H10l.022-.37c.04-.693.277-1.258.713-1.675.436-.419 1-.628 1.67-.628.704 0 1.298.22 1.764.658.468.441.708.991.708 1.629a1.892 1.892 0 0 1-.424 1.226z' /></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/h2") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="-4.5 -7 24 24" xmlns="http://www.w3.org/2000/svg" ><path d='M2 4h4V1a1 1 0 1 1 2 0v8a1 1 0 1 1-2 0V6H2v3a1 1 0 1 1-2 0V1a1 1 0 1 1 2 0v3zm12.88 4.352V10H10V8.986l.1-.246 1.785-1.913c.43-.435.793-.77.923-1.011.124-.23.182-.427.182-.587 0-.14-.04-.242-.127-.327a.469.469 0 0 0-.351-.127.443.443 0 0 0-.355.158c-.105.117-.165.288-.173.525l-.012.338h-1.824l.016-.366c.034-.735.272-1.33.718-1.77.446-.44 1.02-.66 1.703-.66.424 0 .805.091 1.14.275.336.186.606.455.806.8.198.343.3.7.3 1.063 0 .416-.23.849-.456 1.307-.222.45-.534.876-1.064 1.555l-.116.123-.254.229h1.938z' /></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/h1") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="-5 -7 24 24" xmlns="http://www.w3.org/2000/svg" ><path d='M2 4h4V1a1 1 0 1 1 2 0v8a1 1 0 1 1-2 0V6H2v3a1 1 0 1 1-2 0V1a1 1 0 1 1 2 0v3zm9.52.779H10V3h3.36v7h-1.84V4.779z' /></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/flex") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" fill="white" fill-opacity="0.01"/><path d="M42 6V42M16 20L12 24L16 28M32 20L36 24L32 28M24 6L24 42M6 6L6 42" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/remove-image") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4H8.8C7.11984 4 6.27976 4 5.63803 4.32698C5.07354 4.6146 4.6146 5.07354 4.32698 5.63803C4 6.27976 4 7.11984 4 8.8V15.2C4 16.8802 4 17.7202 4.32698 18.362C4.6146 18.9265 5.07354 19.3854 5.63803 19.673C6.27976 20 7.11984 20 8.8 20H15.2C16.8802 20 17.7202 20 18.362 19.673C18.9265 19.3854 19.3854 18.9265 19.673 18.362C20 17.7202 20 16.8802 20 15.2V12" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.8787 3.87868C15.3358 4.42157 15 5.17157 15 6C15 7.65685 16.3431 9 18 9C18.8284 9 19.5784 8.66421 20.1213 8.12132M15.8787 3.87868C16.4216 3.33579 17.1716 3 18 3C19.6569 3 21 4.34315 21 6C21 6.82843 20.6642 7.57843 20.1213 8.12132M15.8787 3.87868L18 6L20.1213 8.12132" stroke="${primary}" stroke-width="2" stroke-linecap="round"/><path d="M4 16L8.29289 11.7071C8.68342 11.3166 9.31658 11.3166 9.70711 11.7071L13 15M13 15L15.7929 12.2071C16.1834 11.8166 16.8166 11.8166 17.2071 12.2071L20 15M13 15L15.25 17.25" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/paste-html") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M19.186 2.09c.521.25 1.136.612 1.625 1.101.49.49.852 1.104 1.1 1.625.313.654.11 1.408-.401 1.92l-7.214 7.213c-.31.31-.688.541-1.105.675l-4.222 1.353a.75.75 0 0 1-.943-.944l1.353-4.221a2.75 2.75 0 0 1 .674-1.105l7.214-7.214c.512-.512 1.266-.714 1.92-.402zm.211 2.516a3.608 3.608 0 0 0-.828-.586l-6.994 6.994a1.002 1.002 0 0 0-.178.241L9.9 14.102l2.846-1.496c.09-.047.171-.107.242-.178l6.994-6.994a3.61 3.61 0 0 0-.586-.828zM4.999 5.5A.5.5 0 0 1 5.47 5l5.53.005a1 1 0 0 0 0-2L5.5 3A2.5 2.5 0 0 0 3 5.5v12.577c0 .76.082 1.185.319 1.627.224.419.558.754.977.978.442.236.866.318 1.627.318h12.154c.76 0 1.185-.082 1.627-.318.42-.224.754-.559.978-.978.236-.442.318-.866.318-1.627V13a1 1 0 1 0-2 0v5.077c0 .459-.021.571-.082.684a.364.364 0 0 1-.157.157c-.113.06-.225.082-.684.082H5.923c-.459 0-.57-.022-.684-.082a.363.363 0 0 1-.157-.157c-.06-.113-.082-.225-.082-.684V5.5z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/paste-style") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M14.0358344,2.77749671 C15.5028662,2.38440673 17.0107928,3.25500857 17.4038828,4.72204036 L20.1214828,14.8642615 C20.5145728,16.3312933 19.6439709,17.8392199 18.1769391,18.2323099 L11.8984213,19.9146337 C10.4313895,20.3077237 8.92346284,19.4371219 8.53037286,17.9700901 L5.81277289,7.8278689 C5.41968291,6.36083711 6.29028475,4.85291048 7.75731654,4.4598205 L14.0358344,2.77749671 Z M5.80276379,11.6579669 L7.56444704,18.2289091 C7.74541549,18.9042926 8.09965838,19.4869754 8.56653105,19.9419445 L8.12368161,19.9181345 C6.60697998,19.8386475 5.4418873,18.544681 5.52137427,17.0279794 L5.80276379,11.6579669 Z M14.424063,4.22638545 L8.1455451,5.90870924 C7.47871248,6.08738651 7.08298436,6.7728077 7.26166163,7.43964033 L9.9792616,17.5818615 C10.1579389,18.2486941 10.8433601,18.6444222 11.5101927,18.465745 L17.7887106,16.7834212 C18.4555432,16.6047439 18.8512713,15.9193227 18.672594,15.2524901 L15.9549941,5.11026892 C15.7763168,4.44343629 15.0908956,4.04770818 14.424063,4.22638545 Z M4.87817105,10.1797973 L4.52274473,16.9756434 C4.4861276,17.6743399 4.64319766,18.3383733 4.94700819,18.915604 L4.53260907,18.7550052 C3.11470293,18.210722 2.40649159,16.6200533 2.95077476,15.2021471 L4.87817105,10.1797973 Z M9.74118095,7.03407417 C10.2746471,6.89113236 10.822984,7.20771485 10.9659258,7.74118095 C11.1088676,8.27464706 10.7922851,8.82298401 10.258819,8.96592583 C9.72535294,9.10886764 9.17701599,8.79228515 9.03407417,8.25881905 C8.89113236,7.72535294 9.20771485,7.17701599 9.74118095,7.03407417 Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/copy-style") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.14.93l-.07-.07A2.926 2.926 0 0 0 20.98 0a2.886 2.886 0 0 0-2.08.86L8.858 10.9a3.04 3.04 0 0 0-.53.72 7.793 7.793 0 0 0-4.1 1.621c-.191.144-.36.316-.5.51a6.08 6.08 0 0 0-.98 1.961c-.25.69-.59 1.631-1.22 3-.42.91-.75 1.541-.98 1.981a3.092 3.092 0 0 0-.54 1.631c.014.206.08.406.19.58a2.64 2.64 0 0 0 2.23 1.07 10.462 10.462 0 0 0 8.161-3.371c.378-.44.692-.932.93-1.461a7.882 7.882 0 0 0 .69-3.361.142.142 0 0 1 .02-.04c.325-.144.62-.347.87-.6L23.14 5.1A2.888 2.888 0 0 0 24 3.021 2.927 2.927 0 0 0 23.14.93zM9.7 18.317c-.17.368-.388.711-.65 1.02a8.393 8.393 0 0 1-6.891 2.6c.05-.1.11-.21.17-.32.24-.46.58-1.11 1.02-2.061a39.058 39.058 0 0 0 1.28-3.151c.14-.491.355-.957.64-1.381.062-.08.133-.154.21-.22a5.221 5.221 0 0 1 2.59-1.14c.121.537.396 1.027.79 1.411l.07.07c.35.357.788.616 1.27.75a5.614 5.614 0 0 1-.499 2.422zM21.73 3.691L11.678 13.735a.947.947 0 0 1-.67.28.983.983 0 0 1-.67-.28l-.07-.07a.948.948 0 0 1 0-1.34L20.309 2.271c.18-.173.42-.27.671-.271a.937.937 0 0 1 .67.27l.08.08c.36.374.36.967 0 1.341z" fill="${primary}" fill-rule="evenodd"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/copy-html") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 8V5.2C8 4.0799 8 3.51984 8.21799 3.09202C8.40973 2.71569 8.71569 2.40973 9.09202 2.21799C9.51984 2 10.0799 2 11.2 2H18.8C19.9201 2 20.4802 2 20.908 2.21799C21.2843 2.40973 21.5903 2.71569 21.782 3.09202C22 3.51984 22 4.0799 22 5.2V12.8C22 13.9201 22 14.4802 21.782 14.908C21.5903 15.2843 21.2843 15.5903 20.908 15.782C20.4802 16 19.9201 16 18.8 16H16M5.2 22H12.8C13.9201 22 14.4802 22 14.908 21.782C15.2843 21.5903 15.5903 21.2843 15.782 20.908C16 20.4802 16 19.9201 16 18.8V11.2C16 10.0799 16 9.51984 15.782 9.09202C15.5903 8.71569 15.2843 8.40973 14.908 8.21799C14.4802 8 13.9201 8 12.8 8H5.2C4.0799 8 3.51984 8 3.09202 8.21799C2.71569 8.40973 2.40973 8.71569 2.21799 9.09202C2 9.51984 2 10.0799 2 11.2V18.8C2 19.9201 2 20.4802 2.21799 20.908C2.40973 21.2843 2.71569 21.5903 3.09202 21.782C3.51984 22 4.07989 22 5.2 22Z" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
     }
 
     if (event === "icon/copy-path") {
@@ -6450,6 +7191,66 @@ export class Helper {
       }
 
       const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><defs><style>.a{fill:${primary};}</style></defs><g transform="translate(24.832 14.673)"><circle class="a" cx="2.822" cy="2.822" r="2.822" transform="translate(1.058)"/><path class="a" d="M230.772,234.059V216H224v1.129h2.257v16.931H224v1.129h9.03v-1.129Z" transform="translate(-224 -206.97)"/></g><path class="a" d="M77.347,48a29.347,29.347,0,1,0,29.347,29.347A29.342,29.342,0,0,0,77.347,48Zm0,56.253a26.906,26.906,0,1,1,26.906-26.906A26.937,26.937,0,0,1,77.347,104.253Z" transform="translate(-48 -48)"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/p") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20,3H7.5A4.49,4.49,0,0,0,3,7.5H3A4.49,4.49,0,0,0,7.5,12H13" style="fill: none; stroke: ${primary}; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path><path d="M17,3V21M13,3V21m-2,0h8" style="fill: none; stroke: ${primary}; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/box") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 -0.5 25 25" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M15.5 19H9.5C7.29086 19 5.5 17.2091 5.5 15V9C5.5 6.79086 7.29086 5 9.5 5H15.5C17.7091 5 19.5 6.79086 19.5 9V15C19.5 17.2091 17.7091 19 15.5 19Z" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.5 9.75C19.9142 9.75 20.25 9.41421 20.25 9C20.25 8.58579 19.9142 8.25 19.5 8.25V9.75ZM5.5 8.25C5.08579 8.25 4.75 8.58579 4.75 9C4.75 9.41421 5.08579 9.75 5.5 9.75V8.25ZM11.5 14.25C11.0858 14.25 10.75 14.5858 10.75 15C10.75 15.4142 11.0858 15.75 11.5 15.75V14.25ZM13.5 15.75C13.9142 15.75 14.25 15.4142 14.25 15C14.25 14.5858 13.9142 14.25 13.5 14.25V15.75ZM19.5 8.25H5.5V9.75H19.5V8.25ZM11.5 15.75H13.5V14.25H11.5V15.75Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/background-color") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M 6 1 C 5 0 4 1 5 2 L 6 3 V 3 L 1.6642 7.8357 C 0.8831 8.6168 0.8831 9.8831 1.6642 10.6642 L 5.1997 14.1997 C 5.9807 14.9808 7.2471 14.9808 8.0281 14.1997 L 12.2708 9.9571 C 13.0518 9.176 13.0518 7.9097 12.2708 7.1286 L 8.7352 3.5931 Z M 8 5 L 11 8 C 11.2995 8.2788 11.348 8.3937 11.3555 8.5107 H 3.1105 L 6 5 C 7 4 7.6667 4.6667 8 5 Z M 6.2603 13.1391 L 3.132 10.0107 H 10.0958 L 6.9675 13.1391 C 6.7722 13.3343 6.4556 13.3343 6.2603 13.1391 Z" fill="${primary}"/><path d="M2 17.5V12.4143L3.5 13.9143V17.5C3.5 18.0523 3.94772 18.5 4.5 18.5H19.5C20.0523 18.5 20.5 18.0523 20.5 17.5V6.5C20.5 5.94771 20.0523 5.5 19.5 5.5H12.0563L10.5563 4H19.5C20.8807 4 22 5.11929 22 6.5V17.5C22 18.8807 20.8807 20 19.5 20H4.5C3.11929 20 2 18.8807 2 17.5Z" fill="${primary}"/><path d="M11 14.375C11 13.8816 11.1541 13.4027 11.3418 12.9938C11.5325 12.5784 11.7798 12.1881 12.0158 11.8595C12.2531 11.5289 12.4888 11.247 12.6647 11.0481C12.7502 10.9515 12.9062 10.7867 12.9642 10.7254L12.9697 10.7197C13.2626 10.4268 13.7374 10.4268 14.0303 10.7197L14.3353 11.0481C14.5112 11.247 14.7469 11.5289 14.9842 11.8595C15.2202 12.1881 15.4675 12.5784 15.6582 12.9938C15.8459 13.4027 16 13.8816 16 14.375C16 15.7654 14.9711 17 13.5 17C12.0289 17 11 15.7654 11 14.375ZM13.7658 12.7343C13.676 12.6092 13.5858 12.4916 13.5 12.3844C13.4142 12.4916 13.324 12.6092 13.2342 12.7343C13.0327 13.015 12.8425 13.32 12.7051 13.6195C12.5647 13.9253 12.5 14.1808 12.5 14.375C12.5 15.0663 12.9809 15.5 13.5 15.5C14.0191 15.5 14.5 15.0663 14.5 14.375C14.5 14.1808 14.4353 13.9253 14.2949 13.6195C14.1575 13.32 13.9673 13.015 13.7658 12.7343Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/image") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.2639 15.9375L12.5958 14.2834C11.7909 13.4851 11.3884 13.086 10.9266 12.9401C10.5204 12.8118 10.0838 12.8165 9.68048 12.9536C9.22188 13.1095 8.82814 13.5172 8.04068 14.3326L4.04409 18.2801M14.2639 15.9375L14.6053 15.599C15.4112 14.7998 15.8141 14.4002 16.2765 14.2543C16.6831 14.126 17.12 14.1311 17.5236 14.2687C17.9824 14.4251 18.3761 14.8339 19.1634 15.6514L20 16.4934M14.2639 15.9375L18.275 19.9565M18.275 19.9565C17.9176 20 17.4543 20 16.8 20H7.2C6.07989 20 5.51984 20 5.09202 19.782C4.71569 19.5903 4.40973 19.2843 4.21799 18.908C4.12796 18.7313 4.07512 18.5321 4.04409 18.2801M18.275 19.9565C18.5293 19.9256 18.7301 19.8727 18.908 19.782C19.2843 19.5903 19.5903 19.2843 19.782 18.908C20 18.4802 20 17.9201 20 16.8V16.4934M4.04409 18.2801C4 17.9221 4 17.4575 4 16.8V7.2C4 6.0799 4 5.51984 4.21799 5.09202C4.40973 4.71569 4.71569 4.40973 5.09202 4.21799C5.51984 4 6.07989 4 7.2 4H16.8C17.9201 4 18.4802 4 18.908 4.21799C19.2843 4.40973 19.5903 4.71569 19.782 5.09202C20 5.51984 20 6.0799 20 7.2V16.4934M17 8.99989C17 10.1045 16.1046 10.9999 15 10.9999C13.8954 10.9999 13 10.1045 13 8.99989C13 7.89532 13.8954 6.99989 15 6.99989C16.1046 6.99989 17 7.89532 17 8.99989Z" stroke="${primary}" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>`
       const svg = this.convert("text/svg", svgString)
       svg.style.width = "100%"
 
@@ -6518,6 +7319,171 @@ export class Helper {
       return svg
     }
 
+    if (event === "icon/printer-device") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.75H16C15.8011 16.75 15.6103 16.671 15.4697 16.5303C15.329 16.3897 15.25 16.1989 15.25 16C15.25 15.8011 15.329 15.6103 15.4697 15.4697C15.6103 15.329 15.8011 15.25 16 15.25H18C18.3315 15.25 18.6495 15.1183 18.8839 14.8839C19.1183 14.6495 19.25 14.3315 19.25 14V10C19.25 9.66848 19.1183 9.35054 18.8839 9.11612C18.6495 8.8817 18.3315 8.75 18 8.75H6C5.66848 8.75 5.35054 8.8817 5.11612 9.11612C4.8817 9.35054 4.75 9.66848 4.75 10V14C4.75 14.3315 4.8817 14.6495 5.11612 14.8839C5.35054 15.1183 5.66848 15.25 6 15.25H8C8.19891 15.25 8.38968 15.329 8.53033 15.4697C8.67098 15.6103 8.75 15.8011 8.75 16C8.75 16.1989 8.67098 16.3897 8.53033 16.5303C8.38968 16.671 8.19891 16.75 8 16.75H6C5.27065 16.75 4.57118 16.4603 4.05546 15.9445C3.53973 15.4288 3.25 14.7293 3.25 14V10C3.25 9.27065 3.53973 8.57118 4.05546 8.05546C4.57118 7.53973 5.27065 7.25 6 7.25H18C18.7293 7.25 19.4288 7.53973 19.9445 8.05546C20.4603 8.57118 20.75 9.27065 20.75 10V14C20.75 14.7293 20.4603 15.4288 19.9445 15.9445C19.4288 16.4603 18.7293 16.75 18 16.75Z" fill="${primary}"/><path d="M16 8.75C15.8019 8.74741 15.6126 8.66756 15.4725 8.52747C15.3324 8.38737 15.2526 8.19811 15.25 8V4.75H8.75V8C8.75 8.19891 8.67098 8.38968 8.53033 8.53033C8.38968 8.67098 8.19891 8.75 8 8.75C7.80109 8.75 7.61032 8.67098 7.46967 8.53033C7.32902 8.38968 7.25 8.19891 7.25 8V4.5C7.25 4.16848 7.3817 3.85054 7.61612 3.61612C7.85054 3.3817 8.16848 3.25 8.5 3.25H15.5C15.8315 3.25 16.1495 3.3817 16.3839 3.61612C16.6183 3.85054 16.75 4.16848 16.75 4.5V8C16.7474 8.19811 16.6676 8.38737 16.5275 8.52747C16.3874 8.66756 16.1981 8.74741 16 8.75Z" fill="${primary}"/><path d="M15.5 20.75H8.5C8.16848 20.75 7.85054 20.6183 7.61612 20.3839C7.3817 20.1495 7.25 19.8315 7.25 19.5V12.5C7.25 12.1685 7.3817 11.8505 7.61612 11.6161C7.85054 11.3817 8.16848 11.25 8.5 11.25H15.5C15.8315 11.25 16.1495 11.3817 16.3839 11.6161C16.6183 11.8505 16.75 12.1685 16.75 12.5V19.5C16.75 19.8315 16.6183 20.1495 16.3839 20.3839C16.1495 20.6183 15.8315 20.75 15.5 20.75ZM8.75 19.25H15.25V12.75H8.75V19.25Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/large-device") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M960 95.808H64c-35.184 0-64 28.8-64 64V704c0 35.184 28.816 63.983 64 63.983h416v96.208H320c-17.664 0-32 14.336-32 32s14.336 32 32 32h384c17.664 0 32-14.336 32-32s-14.336-32-32-32H544v-96.208h416c35.184 0 64-28.8 64-63.983V159.808c0-35.2-28.816-64-64-64zM960 704H64V159.808h896V704z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/middle-device") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M832.144 0H191.856c-53.024 0-96 42.976-96 96v832c0 53.024 42.976 96 96 96h640.288c53.024 0 96-42.976 96-96V96c0-53.024-42.976-96-96-96zm32 928c0 17.664-14.336 32-32 32H191.856c-17.664 0-32-14.336-32-32V96c0-17.664 14.336-32 32-32h640.288c17.664 0 32 14.336 32 32v832zM512.048 800.176c-35.28 0-63.84 28.592-63.84 63.824s28.56 63.841 63.84 63.841c35.264 0 63.84-28.608 63.84-63.84 0-35.233-28.576-63.825-63.84-63.825zm64-704.176h-128c-17.664 0-32 14.336-32 32s14.336 32 32 32h128c17.664 0 32-14.336 32-32s-14.336-32-32-32z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/small-device") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M704.144 0H319.856c-53.024 0-96 42.976-96 96v832c0 53.024 42.976 96 96 96h384.288c53.024 0 96-42.976 96-96V96c0-53.024-42.976-96-96-96zm32 928c0 17.664-14.336 32-32 32H319.856c-17.664 0-32-14.336-32-32V96c0-17.664 14.336-32 32-32h384.288c17.664 0 32 14.336 32 32v832zM512.048 800.176c-35.28 0-63.84 28.592-63.84 63.824s28.576 63.841 63.84 63.841c35.28 0 63.84-28.608 63.84-63.84 0-35.233-28.56-63.825-63.84-63.825zm64-704.176h-128c-17.664 0-32 14.336-32 32s14.336 32 32 32h128c17.664 0 32-14.336 32-32s-14.336-32-32-32z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/decrease-width") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M 7 16 L 11 9 L 15 16 L 17 9 C 18 8 19 9 19 9 L 16 18 C 15 19 14 18 14 18 L 11 12 L 8 18 C 7 19 6 18 6 18 L 3 9 C 3 9 4 8 5 9 Z M20.876677,3.33675137 C21.0850834,3.65037943 21.0264848,4.06361153 20.7549114,4.30838932 L20.6671042,4.37650097 L18.4160963,5.8722993 C18.1960388,6.01852788 17.9180282,6.03680645 17.6834824,5.92713502 L17.5859195,5.8722993 L15.3349116,4.37650097 C14.9899208,4.14725399 14.8960918,3.68174224 15.1253388,3.33675137 C15.3337451,3.02312331 15.7374116,2.91706708 16.0682799,3.07261274 L16.1650884,3.12717853 L18.001,4.346 L19.8369274,3.12717853 C20.1819183,2.89793155 20.6474301,2.99176051 20.876677,3.33675137 Z"></path></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/increase-width") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M 7 16 L 11 9 L 15 16 L 17 9 C 18 8 19 9 19 9 L 16 18 C 15 19 14 18 14 18 L 11 12 L 8 18 C 7 19 6 18 6 18 L 3 9 C 3 9 4 8 5 9 Z M 17.6835 3.0704 C 17.8845 2.9764 18.1175 2.9764 18.3185 3.0704 L 18.4161 3.1253 L 20.6671 4.6211 L 20.7549 4.6892 C 21.0265 4.9339 21.0851 5.3472 20.8767 5.6608 C 20.6683 5.9744 20.2646 6.0805 19.9337 5.9249 L 19.8369 5.8704 L 18.001 4.6507 L 16.1651 5.8704 L 16.0683 5.9249 C 15.7374 6.0805 15.3337 5.9744 15.1253 5.6608 C 14.9169 5.3472 14.9755 4.9339 15.2471 4.6892 L 15.3349 4.6211 L 17.5859 3.1253 L 17.6835 3.0704 Z"></path></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/decrease-height") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M 14 13 L 14 9 C 14 8 15 8 15 9 L 15 18 C 15 19 14 19 14 18 L 14 14 L 7 14 L 7 18 C 7 19 6 19 6 18 L 6 9 C 6 8 7 8 7 9 V 13 Z M20.876677,3.33675137 C21.0850834,3.65037943 21.0264848,4.06361153 20.7549114,4.30838932 L20.6671042,4.37650097 L18.4160963,5.8722993 C18.1960388,6.01852788 17.9180282,6.03680645 17.6834824,5.92713502 L17.5859195,5.8722993 L15.3349116,4.37650097 C14.9899208,4.14725399 14.8960918,3.68174224 15.1253388,3.33675137 C15.3337451,3.02312331 15.7374116,2.91706708 16.0682799,3.07261274 L16.1650884,3.12717853 L18.001,4.346 L19.8369274,3.12717853 C20.1819183,2.89793155 20.6474301,2.99176051 20.876677,3.33675137 Z"></path></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/increase-height") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M 14 13 L 14 9 C 14 8 15 8 15 9 L 15 18 C 15 19 14 19 14 18 L 14 14 L 7 14 L 7 18 C 7 19 6 19 6 18 L 6 9 C 6 8 7 8 7 9 V 13 Z Z M 17.6835 3.0704 C 17.8845 2.9764 18.1175 2.9764 18.3185 3.0704 L 18.4161 3.1253 L 20.6671 4.6211 L 20.7549 4.6892 C 21.0265 4.9339 21.0851 5.3472 20.8767 5.6608 C 20.6683 5.9744 20.2646 6.0805 19.9337 5.9249 L 19.8369 5.8704 L 18.001 4.6507 L 16.1651 5.8704 L 16.0683 5.9249 C 15.7374 6.0805 15.3337 5.9744 15.1253 5.6608 C 14.9169 5.3472 14.9755 4.9339 15.2471 4.6892 L 15.3349 4.6211 L 17.5859 3.1253 L 17.6835 3.0704 Z"></path></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/change-si") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><defs><style>.a{fill:none;stroke:${primary};stroke-linecap:round;stroke-linejoin:round;}.b{fill:${primary};}</style></defs><path class="a" d="M40.5,5.5H7.5a2,2,0,0,0-2,2v33a2,2,0,0,0,2,2h33a2,2,0,0,0,2-2V7.5A2,2,0,0,0,40.5,5.5Z"/><path class="a" d="M28,34.3a2.63,2.63,0,0,1,2.63-2.63h0a2.62,2.62,0,0,1,2.62,2.63v4.2"/><line class="a" x1="28" y1="31.67" x2="28" y2="38.5"/><path class="a" d="M33.25,34.3a2.63,2.63,0,0,1,2.63-2.63h0a2.63,2.63,0,0,1,2.63,2.63v4.2"/><circle class="b" cx="9.51" cy="10.39" r="0.75"/><line class="a" x1="9.51" y1="13.61" x2="9.51" y2="20.56"/><path class="a" d="M24.91,37.18a2.64,2.64,0,0,1-2.28,1.32h0A2.63,2.63,0,0,1,20,35.87v-1.7a2.63,2.63,0,0,1,2.63-2.63h0a2.61,2.61,0,0,1,2.27,1.32"/><path class="a" d="M17.86,20.56V16.23a2.62,2.62,0,0,0-2.62-2.62h0a2.62,2.62,0,0,0-2.63,2.62v4.33"/><line class="a" x1="12.61" y1="16.23" x2="12.61" y2="13.61"/><path class="a" d="M17,35H14a4.5,4.5,0,0,1-4.5-4.49h0a4.5,4.5,0,0,1,4.5-4.5H34a4.5,4.5,0,0,0,4.5-4.49h0A4.5,4.5,0,0,0,34,17.07H20.82"/><polyline class="a" points="15.32 33.34 17.02 35.04 15.32 36.74"/><polyline class="a" points="22.52 18.77 20.82 17.07 22.52 15.37"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/toggle-wrap") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 5C2.44772 5 2 5.44772 2 6C2 6.55228 2.44772 7 3 7H21C21.5523 7 22 6.55228 22 6C22 5.44772 21.5523 5 21 5H3Z" fill="${primary}"/><path d="M3 11C2.44772 11 2 11.4477 2 12C2 12.5523 2.44772 13 3 13H19.25C20.3546 13 21.25 13.8954 21.25 15C21.25 16.1046 20.3546 17 19.25 17H15.4142L15.7071 16.7071C16.0976 16.3166 16.0976 15.6834 15.7071 15.2929C15.3166 14.9024 14.6834 14.9024 14.2929 15.2929L12.2929 17.2929C11.9024 17.6834 11.9024 18.3166 12.2929 18.7071L14.2929 20.7071C14.6834 21.0976 15.3166 21.0976 15.7071 20.7071C16.0976 20.3166 16.0976 19.6834 15.7071 19.2929L15.4142 19H19.25C21.4591 19 23.25 17.2091 23.25 15C23.25 12.7909 21.4591 11 19.25 11H3Z" fill="${primary}"/><path d="M2 18C2 17.4477 2.44772 17 3 17H9C9.55228 17 10 17.4477 10 18C10 18.5523 9.55228 19 9 19H3C2.44772 19 2 18.5523 2 18Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/space-around") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 21 15" xmlns="http://www.w3.org/2000/svg"><path d="M 17 6 L 12.9999 6 C 12 6 12 6 11.9999 6.9999 L 11.9999 7.9999 C 12 9 12 9 12.9999 8.9999 L 16.9999 8.9999 C 18 9 18 9 18 8 L 18 7 C 18 6 18 6 17 6 Z M 8 6 L 4 6 C 3 6 3 6 3 7 L 3 8 C 3 9 3 9 4 9 L 8 8.9999 C 9 9 9 9 9 7.9999 L 9 6.9999 C 9 6 9 6 8 6 Z M 4 7 H 8 V 8 H 4 Z M 17 8 H 13 V 7 H 17 Z M 19 2 V 13 C 19 14 20 14 20 13 V 2 C 20 1 19 1 19 2 Z M 1 2 V 13 C 1 14 2 14 2 13 V 2 C 2 1 1 1 1 2 Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
     if (event === "icon/space-between") {
 
       let primary = this.colors.light.text
@@ -6525,7 +7491,7 @@ export class Helper {
         primary = this.colors.dark.text
       }
 
-      const svgString = `<svg viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg"><path d="M14.4999 0.999994C14.2237 0.999994 13.9999 1.22385 13.9999 1.49999L13.9999 5.99995L9.99992 5.99995C9.44764 5.99995 8.99993 6.44766 8.99993 6.99994L8.99993 7.99994C8.99993 8.55222 9.44764 8.99993 9.99992 8.99993L13.9999 8.99993L13.9999 13.4999C13.9999 13.776 14.2237 13.9999 14.4999 13.9999C14.776 13.9999 14.9999 13.776 14.9999 13.4999L14.9999 1.49999C14.9999 1.22385 14.776 0.999994 14.4999 0.999994ZM4.99996 5.99995L0.999992 5.99995L0.999992 1.49999C0.999992 1.22385 0.776136 0.999994 0.499996 0.999994C0.223856 0.999994 -9.7852e-09 1.22385 -2.18557e-08 1.49999L4.07279e-07 13.4999C3.95208e-07 13.776 0.223855 13.9999 0.499996 13.9999C0.776136 13.9999 0.999992 13.776 0.999992 13.4999L0.999992 8.99993L4.99996 8.99993C5.55224 8.99993 5.99995 8.55222 5.99995 7.99993L5.99995 6.99994C5.99995 6.44766 5.55224 5.99995 4.99996 5.99995Z" fill="${primary}"/></svg>`
+      const svgString = `<svg viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg"><path d="M 14.4999 1 C 14.2237 1 13.9999 1.2239 13.9999 1.5 L 13.9999 6 L 9.9999 6 C 9.4476 6 8.9999 6.4477 8.9999 6.9999 L 8.9999 7.9999 C 8.9999 8.5522 9.4476 8.9999 9.9999 8.9999 L 13.9999 8.9999 L 13.9999 13.4999 C 13.9999 13.776 14.2237 13.9999 14.4999 13.9999 C 14.776 13.9999 14.9999 13.776 14.9999 13.4999 L 14.9999 1.5 C 14.9999 1.2239 14.776 1 14.4999 1 Z M 5 6 L 1 6 L 1 1.5 C 1 1.2239 0.7761 1 0.5 1 C 0.2239 1 -0 1.2239 -0 1.5 L 0 13.4999 C 0 13.776 0.2239 13.9999 0.5 13.9999 C 0.7761 13.9999 1 13.776 1 13.4999 L 1 8.9999 L 5 8.9999 C 5.5522 8.9999 6 8.5522 6 7.9999 L 6 6.9999 C 6 6.4477 5.5522 6 5 6 Z M 1 7 H 5 V 8 H 1 Z M 14 8 H 10 V 7 H 14 Z" fill="${primary}"/></svg>`
       const svg = this.convert("text/svg", svgString)
       svg.style.width = "100%"
 
@@ -6703,6 +7669,21 @@ export class Helper {
       return svg
     }
 
+    if (event === "icon/exact-height") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="11" y="8" width="2" height="8" rx="2" ry="2" fill="${primary}" transform="rotate(45 12 12)"/><rect x="11" y="8" width="2" height="8" rx="2" ry="2" fill="${primary}" transform="rotate(-45 12 12)"/><path d="M12 22V16M12 16L15 19M12 16L9 19" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2V8M12 8L15 5M12 8L9 5" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
     if (event === "icon/shrink-height") {
 
       let primary = this.colors.light.text
@@ -6713,6 +7694,22 @@ export class Helper {
       const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 12L6 12" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22V16M12 16L15 19M12 16L9 19" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2V8M12 8L15 5M12 8L9 5" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
       const svg = this.convert("text/svg", svgString)
       svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/exact-width") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="11" y="8" width="2" height="8" rx="2" ry="2" fill="${primary}" transform="rotate(45 12 12)"/><rect x="11" y="8" width="2" height="8" rx="2" ry="2" fill="${primary}" transform="rotate(-45 12 12)"/><path d="M12 22V16M12 16L15 19M12 16L9 19" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2V8M12 8L15 5M12 8L9 5" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+      svg.style.transform = "rotate(90deg)"
 
       if (input) input.append(svg)
       return svg
@@ -6915,6 +7912,807 @@ export class Helper {
       return svg
     }
 
+    if (event === "icon/save") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="-13 -13 85 85" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g stroke="${primary}" stroke-width="2"><path d="M62,55 C62,56.1 61.1,57 60,57 L2,57 C0.9,57 0,56.1 0,55 L0,2 C0,0.9 0.9,0 2,0 L55,0 C56.1,0 62,8.7 62,9.8 L62,55 L62,55 Z"></path><path d="M11,56 L11,38 C11,36.9 11.9,36 13,36 L49,36 C50.1,36 51,36.9 51,38 L51,56.1"></path><path d="M48,19 C48,20.1 47.1,21 46,21 L16,21 C14.9,21 14,20.1 14,19 L14,2 C14,0.9 14.9,0 16,0 L46,0 C47.1,0 48,0.9 48,2 L48,19 L48,19 Z"></path><rect x="18" y="5" width="6" height="11.2"></rect><path d="M17,41.1 L45,41.1"></path><path d="M17,46 L45,46"></path><path d="M17,51.1 L45,51.1"></path><rect x="4" y="50" width="3" height="2.9"></rect></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+
+      input?.append(svg)
+      return svg
+    }
+
+    if (event === "icon/remove-layer") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M59.419 4.822l7.325 7.325l-9.418 9.42l9.418 9.418l-7.325 7.325L50 28.892l-9.419 9.418l-7.325-7.325l9.418-9.419l-9.418-9.419l7.325-7.325L50 14.24z" fill="${primary}"></path><path d="M24.045 29.207L1.383 41.641c-1.847 1.012-1.847 2.655 0 3.668l45.275 24.845c1.846 1.013 4.838 1.013 6.684 0L98.617 45.31c1.847-1.013 1.847-2.656 0-3.668L75.99 29.225l-.013.048l-4.588 4.76l17.207 9.442L50 64.655l-38.594-21.18l17.13-9.4zM4.727 52.857l-3.344 1.834c-1.847 1.013-1.847 2.656 0 3.668l45.275 24.846c1.846 1.013 4.838 1.013 6.684 0L98.617 58.36c1.846-1.013 1.845-2.655-.002-3.668l-3.342-1.834l-6.683 3.666l.004.002L50 77.705l-38.596-21.18l.004-.002z" fill="${primary}"></path></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/exact-layer") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M50.049 24.035c-1.27-.007-2.493.267-3.39.76L1.382 49.64c-1.847 1.012-1.847 2.655 0 3.668l45.275 24.845c1.846 1.013 4.838 1.013 6.684 0L98.617 53.31c1.847-1.013 1.847-2.656 0-3.668L79.266 39.02l-4.43 4.903l13.76 7.55L50 72.655l-38.594-21.18L50 30.295l.78.429l4.49-4.87l-1.928-1.058c-.874-.48-2.057-.753-3.293-.76zM4.727 60.857l-3.344 1.834c-1.847 1.013-1.847 2.656 0 3.668l45.275 24.846c1.846 1.013 4.838 1.013 6.684 0L98.617 66.36c1.846-1.013 1.845-2.655-.002-3.668l-3.342-1.834l-6.683 3.666l.004.002L50 85.705l-38.596-21.18l.004-.002z" fill="${primary}"></path><path d="M90.361.872a2.977 2.977 0 0 0-4.209 0l-34.81 34.81c-.29.29-.508.626-.653.985L45.934 53.29c-.218.687.117.98.858.753l16.541-4.732c.359-.145.695-.362.985-.653l34.81-34.81a2.977 2.977 0 0 0 0-4.21zm-7.576 11.786l4.557 4.557l-25.128 25.13l-4.558-4.559z" fill="${primary}"></path><path d="M90.361.872a2.977 2.977 0 0 0-4.209 0l-34.81 34.81c-.29.29-.508.626-.653.985L45.934 53.29c-.218.687.117.98.858.753l16.541-4.732c.359-.145.695-.362.985-.653l34.81-34.81a2.977 2.977 0 0 0 0-4.21zm-7.576 11.786l4.557 4.557l-25.128 25.13l-4.558-4.559z" fill="${primary}"></path></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/negative-layer") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ><path d="M68.5 16.386v10.36h-37v-10.36z" fill="${primary}"></path><path d="M24.045 29.207L1.383 41.641c-1.847 1.012-1.847 2.655 0 3.668l45.275 24.845c1.846 1.013 4.838 1.013 6.684 0L98.617 45.31c1.847-1.013 1.847-2.656 0-3.668L75.99 29.225l-.013.048l-4.588 4.76l17.207 9.442L50 64.655l-38.594-21.18l17.13-9.4zM4.727 52.857l-3.344 1.834c-1.847 1.013-1.847 2.656 0 3.668l45.275 24.846c1.846 1.013 4.838 1.013 6.684 0L98.617 58.36c1.846-1.013 1.845-2.655-.002-3.668l-3.342-1.834l-6.683 3.666l.004.002L50 77.705l-38.596-21.18l.004-.002z" fill="${primary}"></path></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/positive-layer") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ><path d="M44.82 3.066h10.36v13.32H68.5v10.36H55.18v13.32H44.82v-13.32H31.5v-10.36h13.32z" fill="${primary}"></path><path d="M24.045 29.207L1.383 41.641c-1.847 1.012-1.847 2.655 0 3.668l45.275 24.845c1.846 1.013 4.838 1.013 6.684 0L98.617 45.31c1.847-1.013 1.847-2.656 0-3.668L75.99 29.225l-.013.048l-4.588 4.76l17.207 9.442L50 64.655l-38.594-21.18l17.13-9.4zM4.727 52.857l-3.344 1.834c-1.847 1.013-1.847 2.656 0 3.668l45.275 24.846c1.846 1.013 4.838 1.013 6.684 0L98.617 58.36c1.846-1.013 1.845-2.655-.002-3.668l-3.342-1.834l-6.683 3.666l.004.002L50 77.705l-38.596-21.18l.004-.002z" fill="${primary}"></path></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/layer") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M50.049 16.035a4.725 2.593 0 0 0-3.39.76L1.382 41.641a4.725 2.593 0 0 0 0 3.668l45.275 24.845a4.725 2.593 0 0 0 6.684 0L98.617 45.31a4.725 2.593 0 0 0 0-3.668L53.342 16.795a4.725 2.593 0 0 0-3.293-.76zM50 22.295l38.596 21.18L50 64.655l-38.594-21.18zM4.727 52.857l-3.344 1.834a4.725 2.593 0 0 0 0 3.668l45.275 24.846a4.725 2.593 0 0 0 6.684 0L98.617 58.36a4.725 2.593 0 0 0-.002-3.668l-3.342-1.834l-6.683 3.666l.004.002L50 77.705l-38.596-21.18l.004-.002z" fill="${primary}"></path></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/position-left") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(90, 24, 24)"><path d="M6 36.3056H42" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 42H42" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 12L24 6L18 12V12" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 6V29" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/position-bottom") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 36.3056H42" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 42H42" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 12L24 6L18 12V12" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 6V29" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/position-right") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(270, 24, 24)"><path d="M6 36.3056H42" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 42H42" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 12L24 6L18 12V12" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 6V29" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/position-top") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(180, 24, 24)"><path d="M6 36.3056H42" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 42H42" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 12L24 6L18 12V12" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 6V29" stroke="${primary}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/create-grid") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 11V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22H10" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.03003 8.5H22" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.03003 15.5H12" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.51001 21.99V2.01001" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.51 11.99V2.01001" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.73 14.6701L14.58 18.82C14.42 18.98 14.27 19.29 14.23 19.51L14 21.1C13.92 21.67 14.32 22.08 14.89 21.99L16.48 21.76C16.7 21.73 17.01 21.5701 17.17 21.4101L21.32 17.26C22.03 16.55 22.37 15.7101 21.32 14.6601C20.28 13.6201 19.45 13.9501 18.73 14.6701Z" stroke="${primary}" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.14 15.26C18.49 16.52 19.48 17.5 20.74 17.86" stroke="${primary}" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/create-flex") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 18V6C10 5.06812 10 4.60218 9.84776 4.23463C9.64477 3.74458 9.25542 3.35523 8.76537 3.15224C8.39782 3 7.93188 3 7 3C6.06812 3 5.60218 3 5.23463 3.15224C4.74458 3.35523 4.35523 3.74458 4.15224 4.23463C4 4.60218 4 5.06812 4 6V18C4 18.9319 4 19.3978 4.15224 19.7654C4.35523 20.2554 4.74458 20.6448 5.23463 20.8478C5.60218 21 6.06812 21 7 21C7.93188 21 8.39782 21 8.76537 20.8478C9.25542 20.6448 9.64477 20.2554 9.84776 19.7654C10 19.3978 10 18.9319 10 18Z" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 18V10C20 9.06812 20 8.60218 19.8478 8.23463C19.6448 7.74458 19.2554 7.35523 18.7654 7.15224C18.3978 7 17.9319 7 17 7C16.0681 7 15.6022 7 15.2346 7.15224C14.7446 7.35523 14.3552 7.74458 14.1522 8.23463C14 8.60218 14 9.06812 14 10V18C14 18.9319 14 19.3978 14.1522 19.7654C14.3552 20.2554 14.7446 20.6448 15.2346 20.8478C15.6022 21 16.0681 21 17 21C17.9319 21 18.3978 21 18.7654 20.8478C19.2554 20.6448 19.6448 20.2554 19.8478 19.7654C20 19.3978 20 18.9319 20 18Z" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/z-index") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 76 76" xmlns="http://www.w3.org/2000/svg" baseProfile="full"><path d="M38 38h13.416A5.001 5.001 0 0 1 61 40a5 5 0 0 1-9.584 2H36.828l-11 11H34l-4 4H19V46l4-4v8.172l11-11V24.584A5.001 5.001 0 0 1 36 15a5 5 0 0 1 2 9.584V38Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/transform-translate-y") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 76 76" xmlns="http://www.w3.org/2000/svg" baseProfile="full"><path d="M38 38h13.416A5.001 5.001 0 0 1 61 40a5 5 0 0 1-9.584 2H36.828l-8.172 8.173a5 5 0 1 1-2.828-2.828L34 39.171V22.458l-6 5.625v-5.5l8-7.5 8 7.5v5.5l-6-5.625V38Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/transform-translate-x") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 76 76" xmlns="http://www.w3.org/2000/svg"><path d="M38 38h16.625L49 32h5.5l7.5 8-7.5 8H49l5.625-6H36.828l-8.172 8.173a5 5 0 1 1-2.828-2.828L34 39.171V24.584A5.001 5.001 0 0 1 36 15a5 5 0 0 1 2 9.584V38Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/transform-translate") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M422.957 244.87H272.696V94.609c0-9.22-7.475-16.696-16.696-16.696-9.22 0-16.696 7.475-16.696 16.696V244.87H89.044c-9.22 0-16.696 7.475-16.696 16.696 0 9.22 7.475 16.696 16.696 16.696h150.261v150.261c0 9.22 7.475 16.696 16.696 16.696 9.22 0 16.696-7.475 16.696-16.696V278.261h150.261c9.22 0 16.696-7.475 16.696-16.696-.002-9.22-7.477-16.695-16.697-16.695z"/><path d="M89.044 311.652c-9.22 0-16.696 7.475-16.696 16.696s7.475 16.696 16.696 16.696c46.03 0 83.478 37.448 83.478 83.478 0 9.22 7.475 16.696 16.696 16.696s16.696-7.475 16.696-16.696c-.001-64.442-52.429-116.87-116.87-116.87zm333.913-133.565c-46.03 0-83.478-37.448-83.478-83.478 0-9.22-7.475-16.696-16.696-16.696s-16.696 7.475-16.696 16.696c0 64.442 52.428 116.87 116.87 116.87 9.22 0 16.696-7.475 16.696-16.696-.001-9.221-7.476-16.696-16.696-16.696zM207.459 78.179c-6.002-7.002-16.541-7.812-23.541-1.811l-28.092 24.077-28.091-24.077c-7.001-6.002-17.54-5.191-23.541 1.811-6.002 7-5.191 17.54 1.81 23.541l33.126 28.394v36.843c0 9.22 7.475 16.696 16.696 16.696s16.696-7.475 16.696-16.696v-36.843l33.126-28.394c7.001-6 7.813-16.541 1.811-23.541zm200.152 289.125 21.586-21.586c6.52-6.519 6.52-17.091-.001-23.61-6.519-6.52-17.091-6.52-23.611 0L384 343.693l-21.586-21.586c-6.519-6.52-17.091-6.52-23.611 0s-6.52 17.091 0 23.611l21.586 21.586-21.586 21.586c-6.52 6.52-6.52 17.091 0 23.611 3.26 3.26 7.533 4.89 11.806 4.89s8.546-1.629 11.805-4.891L384 390.915l21.586 21.586c3.259 3.26 7.532 4.89 11.805 4.89s8.546-1.629 11.805-4.891c6.52-6.52 6.52-17.091 0-23.611l-21.585-21.585z"/><path d="M489.739 0H22.261C13.04 0 5.565 7.475 5.565 16.696v478.609c0 9.22 7.475 16.696 16.696 16.696h467.478c9.22 0 16.696-7.475 16.696-16.696V16.696C506.435 7.475 498.96 0 489.739 0zm-16.696 478.609H38.957V33.391h434.087v445.218z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/position-absolute") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M0 0v16h16V0H0zm15 15H1V9h3v1l3-2-3-2v1H1V1h6v3H6l2 3 2-3H9V1h6v14z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/grid-mobile") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35" xml:space="preserve"><path d="M34.998 0H0v35h35V0h-.002zM33 33H2V6.777h31V33z"/><path d="M5 9.889h25v3.498H5zm0 5.497h25v3.5H5zm0 5.501h25v3.495H5zm0 5.497h25v3.505H5z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/grid-gap") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M6 1v3H1V1h5zM1 0a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1H1zm14 12v3h-5v-3h5zm-5-1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5zM6 8v7H1V8h5zM1 7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1H1zm14-6v7h-5V1h5zm-5-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1h-5z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/grid-full-display") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35"><path d="M0 0v35h35V0H0zm33 33H2V2h31v31z"/><path d="M4.5 4.5h26v26h-26z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/grid-two-columns") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35"><path d="M0 0v35h35V0H0zm33 33H2V2h31v31z"/><path d="M4.5 4.5H16v26H4.5zm14.5 0h11.5v26H19z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/grid-three-columns") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35"><path d="M0 0v35h35V0H0zm33 33H2V2h31v31z"/><path d="M4.5 4.5h7v26h-7zm9.5 0h7v26h-7zm9.5 0h7v26h-7z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/grid-fixed") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35"><path d="M0 0v35h35V0H0zm33 33H2V2h31v31z"/><path d="M14 4.5h7v7h-7zm0 9.5h7v7h-7zm0 9.5h7v7h-7zm-9.5-19h7v7h-7zm0 9.5h7v7h-7zm0 9.5h7v7h-7zm19-19h7v7h-7zm0 9.5h7v7h-7zm0 9.5h7v7h-7z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/grid-list-rows") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35"><path d="M0 0v35h35V0H0zm33 33H2V2h31v31z"/><path d="M10 5h20v2.824H10zm0 4.438h20v2.819H10zm0 4.431h20v2.824H10zm0 4.438h20v2.818H10zm0 4.432h20v2.829H10zm0 4.441h20V30H10zM5 5h2.824v2.824H5zm0 4.436h2.824v2.823H5zm0 4.434h2.824v2.823H5zm0 4.435h2.824v2.824H5zm0 4.435h2.824v2.824H5zm0 4.436h2.824V30H5z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/grid-right-list-rows") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35"><path d="M5 5h11.363v25H5zm13.637 0H30v2.82H18.637zm0 4.432H30v2.83H18.637zm0 4.443H30v2.818H18.637zm0 4.432H30v2.818H18.637zm0 4.432H30v2.829H18.637zm0 4.441H30V30H18.637z"/><path d="M0 0v35h35V0H0zm33 33H2V2h31v31z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/grid-span-column") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M0 0v16h16V0H0zm15 15H1V9h3v1l3-2-3-2v1H1V1h6v3H6l2 3 2-3H9V1h6v14z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/grid-span-row") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M0 0v16h16V0H0zm15 15H1V9h3v1l3-2-3-2v1H1V1h6v3H6l2 3 2-3H9V1h6v14z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/grid-add-column") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 3h.01m-.01 9h.01m-.01 9h.01M16.5 3h.01m-.01 9h.01m-.01 9h.01M12 3h.01M12 12h.01M12 21h.01M12 16.5h.01m-.01-9h.01M3 3h.01M3 12h.01M3 21h.01M3 16.5h.01M3 7.5h.01M21 21V3" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/grid-remove-column") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 3h.01m-.01 9h.01m-.01 9h.01M16.5 3h.01m-.01 9h.01m-.01 9h.01M12 3h.01M12 12h.01M12 21h.01M12 16.5h.01m-.01-9h.01M21 3h.01M21 12h.01M21 21h.01M21 16.5h.01m-.01-9h.01M3 21V3" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/grid-add-row") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 3h.01M3 12h.01M3 16.5h.01M3 7.5h.01M7.5 3h.01m-.01 9h.01m8.99-9h.01m-.01 9h.01M12 3h.01M12 12h.01M12 16.5h.01m-.01-9h.01M21 3h.01M21 12h.01M21 16.5h.01m-.01-9h.01M21 21H3" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/grid-remove-row") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21h.01M3 12h.01M3 16.5h.01M3 7.5h.01M7.5 21h.01m-.01-9h.01m8.99 9h.01m-.01-9h.01M12 21h.01M12 12h.01M12 16.5h.01m-.01-9h.01M21 21h.01M21 12h.01M21 16.5h.01m-.01-9h.01M21 3H3" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/media-queries-overview") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><path d="M25 24.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zM23.5 12h2a.499.499 0 1 1 0 1h-2a.499.499 0 1 1 0-1zm-3-2c-.822 0-1.5.678-1.5 1.5v14c0 .822.678 1.5 1.5 1.5h8c.822 0 1.5-.678 1.5-1.5v-14c0-.822-.678-1.5-1.5-1.5zm0 1h8c.286 0 .5.214.5.5v14c0 .286-.214.5-.5.5h-8a.488.488 0 0 1-.5-.5v-14c0-.286.214-.5.5-.5zM14 19.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zM1.5 3C.678 3 0 3.678 0 4.5v16c0 .822.678 1.5 1.5 1.5H11v2H9.5a.499.499 0 1 0 0 1h8a.499.499 0 1 0 0-1H16v-2h1.5c.668 0 .656-1 0-1h-16a.488.488 0 0 1-.5-.5V18h16.5a.499.499 0 1 0 0-1H1V4.5c0-.286.214-.5.5-.5h24c.286 0 .5.214.5.5v4c0 .665 1 .657 1 0v-4c0-.822-.678-1.5-1.5-1.5zM12 22h3v2h-3z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/insert-after") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M11.987 1.16v2.685a1 1 0 0 1-.986 1.16H1a1 1 0 0 1-.999-1V1a1 1 0 0 1 .998-1H11a1 1 0 0 1 .986 1.16zM9.99 2H1.998v1.008h7.991V1.999zM1.588 8.99.313 7.708A1 1 0 0 1 1.729 6.3l1.976 1.987a1 1 0 0 1 0 1.41l-1.998 2.01a.999.999 0 1 1-1.416-1.41l1.297-1.305z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/insert-before") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M1.588 2.986.313 1.703A.999.999 0 1 1 1.729.295L3.705 2.28a.999.999 0 0 1 0 1.409l-1.998 2.01A.999.999 0 0 1 .291 4.29l1.297-1.304zm10.4 5.167v2.683a.999.999 0 0 1-.986 1.16H.998A.999.999 0 0 1 0 10.997V7.991c0-.551.447-.998.999-.998H11a.999.999 0 0 1 .986 1.16zm-1.999.837H1.998v1.008h7.991V8.99z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/insert-left") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M1.59 2.989.313 1.705A1 1 0 0 1 1.731.295L3.71 2.284a1 1 0 0 1 0 1.41l-2 2.011a1 1 0 0 1-1.418-1.41L1.59 2.989zM6 1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V1zm2 1v8h2V2H8z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/insert-right") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m10.41 2.989 1.3 1.306a1 1 0 0 1-1.42 1.41l-2-2.011a1 1 0 0 1 0-1.41l1.98-1.99a1 1 0 1 1 1.418 1.411L10.41 2.99zM6 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1zM4 2H2v8h2V2z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/cut-html") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M26.615 7.318a2.637 2.637 0 0 0-.211-.462 2.696 2.696 0 0 0-.896-.9l-.017-.011a.808.808 0 0 0-.409-.486 6.942 6.942 0 0 0-.771-.324c-.15-.052-.309-.079-.464-.111a4.428 4.428 0 0 0-.485-.071 2.201 2.201 0 0 0-.228-.011c-.222 0-.44.031-.662.077-.627.129-1.197.457-1.692.846-.361.284-.649.654-.902 1.035a3.217 3.217 0 0 0-.508 1.316c-.038.274-.06.52-.031.794a3.17 3.17 0 0 0 .655 1.629c.188.24.42.417.666.595.399.293.864.518 1.355.595.248.04.497.067.746.082.319.02.643.027.956-.038.591-.123 1.125-.424 1.589-.804.209-.17.393-.365.57-.568.225-.257.449-.533.585-.85.077-.182.148-.353.184-.547.036-.188.059-.38.079-.572a3.088 3.088 0 0 0-.012-.706c-.024-.168-.039-.348-.097-.508zm-1.723.492.004.011-.004-.011zm-.002-.004-.022-.052-.013-.032.035.084zm-.045-.106-.021-.049a.883.883 0 0 0 .018.042l.003.007zm-.02-.049s0-.001 0 0a.615.615 0 0 1-.016-.038l.016.038zm.063.742c-.025.15-.058.297-.105.442a2.758 2.758 0 0 1-.209.335 4.343 4.343 0 0 1-.55.568c-.147.102-.3.192-.461.271a2.844 2.844 0 0 1-.269.078 4.7 4.7 0 0 1-.838-.036 2.828 2.828 0 0 1-.394-.096 3.905 3.905 0 0 1-.56-.334 2.21 2.21 0 0 1-.161-.16 2.165 2.165 0 0 1-.111-.2 2.71 2.71 0 0 1-.099-.341 3.351 3.351 0 0 1 0-.317c.028-.148.066-.293.115-.438a3.48 3.48 0 0 1 .303-.494c.15-.178.314-.339.491-.488.168-.111.342-.205.524-.292.135-.046.27-.083.409-.11.091-.003.179-.001.268.006.229.047.453.106.672.187l.22.106c.082.041.164.073.247.095.058.079.13.146.213.211.051.049.097.1.142.153.046.069.088.14.127.213.014.045.025.09.035.135.011.17.007.338-.009.506zm.007-.576.005.009.03.074a2.065 2.065 0 0 1-.035-.083zm-13.19-1.301c-.34-.42-.818-.643-1.301-.846a.585.585 0 0 0-.057-.013.667.667 0 0 0-.336-.185 8.012 8.012 0 0 0-.898-.102l-.07-.001c-.148 0-.298.014-.444.024a4.63 4.63 0 0 0-.428.052 2.773 2.773 0 0 0-.752.255c-.185.089-.352.219-.513.343a3.27 3.27 0 0 0-.552.505 3.203 3.203 0 0 0-.668 1.34c-.098.437-.16.871-.11 1.316.044.39.161.777.38 1.107.234.358.532.643.879.89.165.118.338.212.522.3.422.2.865.272 1.328.318.413.042.837-.059 1.232-.168.259-.071.512-.183.756-.294.263-.121.51-.318.708-.529.209-.225.386-.472.522-.747a4.41 4.41 0 0 0 .324-.883c.092-.382.15-.787.144-1.18a2.042 2.042 0 0 0-.265-.967c-.105-.19-.266-.37-.401-.535zm-1.101 1.85a4.16 4.16 0 0 1-.189.719 2.783 2.783 0 0 1-.221.396 2.944 2.944 0 0 1-.246.241c-.079.05-.16.092-.243.132a4.673 4.673 0 0 1-.725.213 3.034 3.034 0 0 1-.467-.013 2.686 2.686 0 0 1-.394-.103 3.107 3.107 0 0 1-.404-.239 3.478 3.478 0 0 1-.235-.219 2.473 2.473 0 0 1-.145-.243 2.247 2.247 0 0 1-.069-.256 3.068 3.068 0 0 1 .009-.46 3.97 3.97 0 0 1 .149-.606c.06-.119.128-.231.204-.34.092-.102.189-.195.292-.284a3.38 3.38 0 0 1 .352-.219c.066-.018.131-.033.198-.046.297-.024.594-.029.891-.005l.195.032a.605.605 0 0 0 .196.15c.188.083.365.175.535.287.053.051.103.103.153.157.062.086.119.174.171.267l.01.037c.005.134-.002.268-.017.402zM27.53 2.704a3.075 3.075 0 0 0-.068-.052l-.043-.034c.038.028.075.057.111.086zm2.315 3.757a6.348 6.348 0 0 0-.276-.988 7.182 7.182 0 0 0-.583-1.121 6.71 6.71 0 0 0-1.522-1.7 8.123 8.123 0 0 0-1.038-.679 10.03 10.03 0 0 0-1.18-.561A5.711 5.711 0 0 0 23.091 1c-.164 0-.328.006-.494.018a8.986 8.986 0 0 0-1.41.219 7.548 7.548 0 0 0-1.309.441c-.42.178-.785.436-1.146.71-.365.278-.727.564-1.069.871-.881.795-1.582 1.862-1.912 3.021-.173-.811-.461-1.629-.913-2.328-.487-.748-1.211-1.257-2.007-1.629a7.545 7.545 0 0 0-2-.595 9.835 9.835 0 0 0-1.157-.126 6.817 6.817 0 0 0-1.115.063c.065-.01.13-.017.196-.027-.829.111-1.67.205-2.449.529a6.96 6.96 0 0 0-2.197 1.447c-.305.299-.568.65-.81 1.003-.22.323-.427.663-.587 1.022a9.095 9.095 0 0 0-.708 2.441c-.032.245-.069.489-.088.736-.029.374.006.739.069 1.109.069.405.155.81.282 1.201.271.829.606 1.645 1.19 2.305.576.651 1.314 1.081 2.101 1.424.395.173.787.351 1.207.453.424.104.852.176 1.286.226.664.077 1.32-.03 1.973-.159.297-.06.593-.119.89-.173.15-.027.29-.083.434-.125l.312.327a.79.79 0 0 0 .447.217 78.136 78.136 0 0 0-1.698 1.708 49.191 49.191 0 0 0-3.063 3.47 26.298 26.298 0 0 0-1.464 2.036 6.418 6.418 0 0 0-.883 2.19c-.178.833-.123 1.719.058 2.546.18.837.524 1.614.929 2.364.109.2.304.323.517.368.305.262.777.261 1.063-.03.276-.278.509-.603.758-.906.259-.311.516-.625.775-.938.514-.624 1.011-1.263 1.522-1.894 1.034-1.282 2.113-2.531 3.157-3.807.53-.65 1.083-1.282 1.626-1.922.549.668 1.097 1.337 1.631 2.017.492.642.962 1.297 1.435 1.952.249.341.493.689.741 1.032.238.324.487.639.727.961.271.365.535.739.831 1.084.263.307.539.603.804.908.503.58.994 1.169 1.51 1.735.075.084.15.171.24.24.194.154.378.259.633.265.146.003.351-.039.47-.131.146-.111.249-.199.342-.362l.06-.119c.091-.188.158-.388.235-.583.153-.356.292-.71.397-1.086a9.47 9.47 0 0 0 .251-1.397 4.97 4.97 0 0 0 .021-1.056c-.042-.447-.167-.888-.305-1.314a11.398 11.398 0 0 0-.547-1.379 10.756 10.756 0 0 0-.576-1.094 13.375 13.375 0 0 0-.71-1.015c-.286-.38-.574-.758-.875-1.126a15.872 15.872 0 0 0-.992-1.098c-.357-.363-.739-.701-1.107-1.05-.39-.37-.777-.745-1.165-1.119a15.305 15.305 0 0 1-.464-.455l-.079-.085c.26-.345.518-.692.769-1.043.426.133.86.255 1.306.285.434.029.873.01 1.307-.011a12.903 12.903 0 0 0 2.662-.418c.977-.261 1.838-.77 2.629-1.389a5.993 5.993 0 0 0 1.704-2.086c.198-.407.388-.829.52-1.263a6.62 6.62 0 0 0 .274-1.518c.051-.89-.058-1.759-.238-2.627zM15.692 9.31c.032.173.065.346.104.515.129.566.364 1.108.616 1.636-.115.104-.232.207-.344.316l-.39.386c-.267-.281-.532-.564-.8-.845.195-.44.386-.883.574-1.327.096-.225.174-.451.24-.681zm-2.829 4.892-.541-.576c-.013-.014-.032-.018-.046-.031-.209-.277-.575-.43-.923-.325-.225.069-.443.146-.67.204-.203.052-.411.083-.614.125-.215.042-.426.104-.641.148a9.986 9.986 0 0 1-.507.091 4.883 4.883 0 0 1-1.004-.023 8.024 8.024 0 0 1-.883-.178 6.457 6.457 0 0 1-.79-.283 7.096 7.096 0 0 1-1.253-.667 4.63 4.63 0 0 1-.563-.566 5.277 5.277 0 0 1-.477-.873 8.276 8.276 0 0 1-.509-1.812 5.119 5.119 0 0 1 .033-1.05c.11-.713.295-1.411.564-2.081a7.48 7.48 0 0 1 .773-1.275 5.99 5.99 0 0 1 .744-.733c.387-.281.8-.519 1.236-.716.669-.257 1.38-.378 2.089-.486a5.59 5.59 0 0 1 1.142.016 9.137 9.137 0 0 1 1.83.488c.365.164.712.356 1.04.587.18.15.345.311.496.491.16.235.296.477.416.734.192.492.345.996.437 1.516.046.46.023.92-.027 1.378a4.169 4.169 0 0 1-.214.823c-.196.454-.407.902-.608 1.354-.098.221-.154.418-.086.66.003.012.013.022.017.034-.219.33-.201.783.089 1.071.359.358.718.717 1.078 1.073-.272.26-.543.521-.813.782l-.594.576a.888.888 0 0 0-.221-.476zm5.594 4.221c.426.409.844.825 1.272 1.234.438.418.871.834 1.282 1.278.375.404.722.833 1.06 1.266l-.024-.032.04.053.09.116-.058-.073c.274.36.55.724.781 1.111.26.435.491.89.696 1.353.209.528.39 1.065.491 1.623.022.34-.002.672-.04 1.01a7.977 7.977 0 0 1-.331 1.371c-.189-.213-.379-.427-.566-.643-.502-.573-1.019-1.138-1.494-1.732-1.278-1.663-2.479-3.383-3.761-5.042l-.066-.085a84.424 84.424 0 0 0-1.353-1.696c.112-.128.218-.262.33-.39.368-.42.714-.858 1.065-1.292.192.194.389.382.586.57zm-1.866-1.542.116-.151-.023.03-.093.121zm.141-.182-.014.018.016-.021-.002.003zm.004-.005.02-.026-.022.029.002-.003zm11.598-7.385a6.59 6.59 0 0 1-.375 1.348c-.194.437-.418.85-.697 1.238-.252.295-.527.56-.825.806a7.173 7.173 0 0 1-1.246.763 8.833 8.833 0 0 1-1.747.46c-.769.087-1.557.121-2.328.044-.362-.073-.709-.196-1.058-.318-.258-.089-.528-.023-.747.124-.013 0-.025-.005-.038-.005a.827.827 0 0 0-.226.031c-.224.062-.378.202-.507.39a55.926 55.926 0 0 1-1.714 2.385l-.018.024a5.802 5.802 0 0 0-.095.124c-.516.642-1.059 1.261-1.598 1.885a118.09 118.09 0 0 0-1.679 1.996c-.512.622-1.015 1.251-1.524 1.876-.532.652-1.075 1.295-1.602 1.95a91.088 91.088 0 0 0-1.441 1.828l-.016.021a.513.513 0 0 0 .028-.037l-.099.129.024-.032a13.3 13.3 0 0 1-.109.14l.121-.157c-.374.485-.756.963-1.146 1.437-.206.251-.413.506-.625.756-.054-.109-.115-.214-.165-.325a7.216 7.216 0 0 1-.394-1.464 6.65 6.65 0 0 1-.004-1.246 6.34 6.34 0 0 1 .322-1.18c.407-.892.983-1.704 1.577-2.483.949-1.212 1.992-2.343 3.048-3.463 1.05-1.113 2.159-2.174 3.276-3.22.535-.505 1.077-1.006 1.602-1.522.269-.263.535-.527.802-.791.112-.109.228-.215.344-.321a.934.934 0 0 0 .51-.104.928.928 0 0 0 .422-.551c.071-.251.019-.481-.092-.71-.154-.315-.312-.629-.455-.949a6.356 6.356 0 0 1-.291-.888 11.604 11.604 0 0 1-.179-.943 5.873 5.873 0 0 1-.02-1.2c.059-.325.146-.635.263-.945.193-.422.424-.816.695-1.193.393-.479.879-.877 1.362-1.262.303-.226.61-.426.954-.59a7.796 7.796 0 0 1 1.7-.438 6.247 6.247 0 0 1 1.238-.026c.417.07.821.183 1.215.339a8.663 8.663 0 0 1 1.601.948c.297.251.571.533.82.833.274.377.523.778.723 1.201.197.534.306 1.112.393 1.674.062.536.076 1.075.02 1.613zM8.853 26.278l-.011.015-.005.006.016-.021zm-.011.015.012-.016a2.495 2.495 0 0 1-.012.016zm.062-.082-.034.045-.017.022.051-.067zm13.216-3.946a1.545 1.545 0 0 1-.049-.064l.017.021.032.043zm-4.133-.831-.091-.118-.035-.045c.042.054.084.107.126.163z" style="fill:${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/open-eye") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.301 15.577C4.778 14.268 3.691 12.773 3.18 12c.51-.773 1.598-2.268 3.121-3.577C7.874 7.072 9.816 6 12 6c2.184 0 4.126 1.072 5.699 2.423 1.523 1.309 2.61 2.804 3.121 3.577-.51.773-1.598 2.268-3.121 3.577C16.126 16.928 14.184 18 12 18c-2.184 0-4.126-1.072-5.699-2.423ZM12 4C9.148 4 6.757 5.395 4.998 6.906c-1.765 1.517-2.99 3.232-3.534 4.064a1.876 1.876 0 0 0 0 2.06c.544.832 1.769 2.547 3.534 4.064C6.758 18.605 9.148 20 12 20c2.852 0 5.243-1.395 7.002-2.906 1.765-1.517 2.99-3.232 3.534-4.064a1.875 1.875 0 0 0 0-2.06c-.544-.832-1.769-2.547-3.534-4.064C17.242 5.395 14.852 4 12 4Zm-2 8a2 2 0 1 1 4 0 2 2 0 0 1-4 0Zm2-4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/crossed-eye") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M19.707 5.707a1 1 0 0 0-1.414-1.414l-4.261 4.26a4 4 0 0 0-5.478 5.478l-4.261 4.262a1 1 0 1 0 1.414 1.414l4.261-4.26a4 4 0 0 0 5.478-5.478l4.261-4.262Zm-7.189 4.36a2 2 0 0 0-2.45 2.45l2.45-2.45Zm-1.036 3.865 2.45-2.45a2 2 0 0 1-2.45 2.45Zm4.283-9.111C14.63 4.32 13.367 4 12 4 9.148 4 6.757 5.395 4.998 6.906c-1.765 1.517-2.99 3.232-3.534 4.064a1.876 1.876 0 0 0 0 2.06 20.304 20.304 0 0 0 2.748 3.344l1.414-1.414A18.315 18.315 0 0 1 3.18 12c.51-.773 1.598-2.268 3.121-3.577C7.874 7.072 9.816 6 12 6a7.06 7.06 0 0 1 2.22.367l1.545-1.546ZM12 18a7.06 7.06 0 0 1-2.22-.367L8.236 19.18c1.136.5 2.398.821 3.765.821 2.852 0 5.243-1.395 7.002-2.906 1.765-1.517 2.99-3.232 3.534-4.064a1.875 1.875 0 0 0 0-2.06 20.303 20.303 0 0 0-2.748-3.344L18.374 9.04A18.312 18.312 0 0 1 20.82 12c-.51.773-1.598 2.268-3.121 3.577C16.126 16.928 14.184 18 12 18Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/opacity") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M15.945 21.956A9 9 0 0 1 5.635 7.5L12 1.136 18.364 7.5a8.97 8.97 0 0 1 1.991 3.012 9.002 9.002 0 0 1-1.991 9.716 8.987 8.987 0 0 1-2.419 1.728ZM7.05 8.914 12 3.964l4.95 4.95a6.977 6.977 0 0 1 2.048 4.783H5.002A6.976 6.976 0 0 1 7.05 8.914Z" fill="${primary}"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/div-scrollable") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7.293 7.707a1 1 0 0 1 0-1.414l4-4a1 1 0 0 1 1.414 0l4 4a1 1 0 1 1-1.414 1.414L12 4.414 8.707 7.707a1 1 0 0 1-1.414 0Zm0 10 4 4a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L12 19.586l-3.293-3.293a1 1 0 1 0-1.414 1.414Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "header/sticky-nav") {
+
+      const header = document.createElement("header")
+      header.style.display = "flex"
+      header.style.flexDirection = "column"
+      header.style.justifyContent = "space-between"
+
+      const headerLogo = document.createElement("img")
+      headerLogo.src = "/public/image-placeholder.svg"
+      // headerLogo.alt = "SHS Express Logo"
+      headerLogo.style.margin = "8px 34px"
+      headerLogo.style.width = "144px"
+      headerLogo.style.cursor = "pointer"
+      // headerLogo.addEventListener("click", () => window.history.back())
+      header.append(headerLogo)
+
+
+      const navContainer = document.createElement("div")
+      navContainer.style.display = "flex"
+      navContainer.style.justifyContent = "space-evenly"
+      navContainer.style.boxShadow = "0 3px 5px rgba(0, 0, 0, 0.13)"
+
+      const button1 = document.createElement("div")
+      button1.classList.add("button-1")
+      button1.style.display = "flex"
+      button1.style.flexDirection = "column"
+      button1.style.alignItems = "center"
+      button1.style.justifyContent = "center"
+      button1.style.width = "89px"
+      button1.style.margin = "13px"
+      button1.style.cursor = "pointer"
+      // button1.addEventListener("click", async() => await checkAndProceed("/felix/shs/abfrage-haus/"))
+
+      const title1 = document.createElement("div")
+      title1.innerHTML = "Haus"
+      button1.append(title1)
+
+      const index1 = document.createElement("div")
+      index1.innerHTML = "1"
+      index1.style.color = "white"
+
+      const state1 = document.createElement("div")
+      state1.style.display = "flex"
+      state1.style.justifyContent = "center"
+      state1.style.alignItems = "center"
+      state1.style.width = "55px"
+      state1.style.height = "34px"
+      state1.style.margin = "13px 0"
+      state1.style.backgroundColor = "#11841e"
+      button1.append(state1)
+
+      state1.append(index1)
+
+      navContainer.append(button1)
+
+
+      const button2 = document.createElement("div")
+      button2.classList.add("button-1")
+      button2.style.display = "flex"
+      button2.style.flexDirection = "column"
+      button2.style.justifyContent = "center"
+      button2.style.alignItems = "center"
+      button2.style.width = "89px"
+      button2.style.margin = "13px"
+      button2.style.cursor = "pointer"
+      // button2.addEventListener("click", async() => await checkAndProceed("/felix/shs/abfrage-heizung/"))
+
+      const title2 = document.createElement("div")
+      title2.innerHTML = "Heizung"
+      button2.append(title2)
+
+      const index2 = document.createElement("div")
+      index2.innerHTML = "2"
+      index2.style.color = "white"
+
+      const state2 = document.createElement("div")
+      state2.style.display = "flex"
+      state2.style.justifyContent = "center"
+      state2.style.alignItems = "center"
+      state2.style.width = "55px"
+      state2.style.height = "34px"
+      state2.style.margin = "13px 0"
+      state2.style.backgroundColor = "#11841e"
+      button2.append(state2)
+
+      state2.append(index2)
+
+      navContainer.append(button2)
+
+
+
+      const button3 = document.createElement("div")
+      button3.classList.add("button-1")
+      button3.style.display = "flex"
+      button3.style.flexDirection = "column"
+      button3.style.justifyContent = "center"
+      button3.style.alignItems = "center"
+      button3.style.width = "89px"
+      button3.style.margin = "13px"
+      button3.style.cursor = "pointer"
+      // button3.addEventListener("click", async() => await checkAndProceed("/felix/shs/abfrage-strom/"))
+
+      const title3 = document.createElement("div")
+      title3.innerHTML = "Strom"
+      button3.append(title3)
+
+      const index3 = document.createElement("div")
+      index3.innerHTML = "3"
+      index3.style.color = "white"
+
+      const state3 = document.createElement("div")
+      state3.style.display = "flex"
+      state3.style.justifyContent = "center"
+      state3.style.alignItems = "center"
+      state3.style.width = "55px"
+      state3.style.height = "34px"
+      state3.style.margin = "13px 0"
+      state3.style.backgroundColor = "#11841e"
+      button3.append(state3)
+
+      state3.append(index3)
+
+      navContainer.append(button3)
+
+
+
+      const button4 = document.createElement("div")
+      button4.classList.add("button-1")
+      button4.style.display = "flex"
+      button4.style.flexDirection = "column"
+      button4.style.justifyContent = "center"
+      button4.style.alignItems = "center"
+      button4.style.width = "89px"
+      button4.style.margin = "13px"
+      button4.style.cursor = "pointer"
+      // button4.addEventListener("click", async() => await checkAndProceed("/felix/shs/abfrage-technisches/"))
+
+      const title4 = document.createElement("div")
+      title4.innerHTML = "Technisches"
+      button4.append(title4)
+
+      const index4 = document.createElement("div")
+      index4.innerHTML = "4"
+      index4.style.color = "white"
+
+      const state4 = document.createElement("div")
+      state4.style.display = "flex"
+      state4.style.justifyContent = "center"
+      state4.style.alignItems = "center"
+      state4.style.width = "55px"
+      state4.style.height = "34px"
+      state4.style.margin = "13px 0"
+      state4.style.backgroundColor = "#11841e"
+      button4.append(state4)
+
+      state4.append(index4)
+
+      navContainer.append(button4)
+
+
+      header.append(navContainer)
+
+      let observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting === false) {
+            navContainer.style.position = "fixed"
+            navContainer.style.top = "0"
+            navContainer.style.left = "0"
+            navContainer.style.zIndex = "1"
+            navContainer.style.backgroundColor = "white"
+            navContainer.style.width = "100%"
+          }
+
+          if (entry.isIntersecting === true) {
+            navContainer.style.position = "static"
+          }
+
+        })
+      }, {threshold: 0})
+      observer.observe(headerLogo)
+
+
+      input?.append(header)
+      return header
+
+    }
+
     if (event === "header/info") {
 
       const header = document.createElement("div")
@@ -7035,6 +8833,7 @@ export class Helper {
       const header = document.createElement("div")
       header.classList.add("header")
       header.style.display = "flex"
+      header.style.boxShadow = "0 3px 5px rgba(0, 0, 0, 0.13)"
 
       header.left = document.createElement("div")
       header.left.classList.add("left")
@@ -7043,13 +8842,424 @@ export class Helper {
       header.append(header.left)
 
       header.left.image = document.createElement("img")
-      header.left.image.src = "https://bafybeiefo3y5hr4yb7gad55si2x6ovvoqteqlbxaoqyvlc37bm2ktrruu4.ipfs.nftstorage.link"
+      header.left.image.classList.add("logo")
+      header.left.image.src = "/public/image-placeholder.svg"
       header.left.image.alt = "Mein Logo"
       header.left.image.style.width = "100%"
       header.left.append(header.left.image)
 
       if (input !== undefined) input.append(header)
       return header
+    }
+
+    if (event === "div/timer") {
+
+      var timer = duration, minutes, seconds
+      const timerDiv = document.createElement("div")
+      const interval = setInterval(function () {
+        minutes = parseInt(timer / 60, 10)
+        seconds = parseInt(timer % 60, 10)
+
+        minutes = minutes < 10 ? "0" + minutes : minutes
+        seconds = seconds < 10 ? "0" + seconds : seconds
+
+        timerDiv.textContent = minutes + ":" + seconds
+
+        if (--timer < 0) {
+          timerDiv.textContent = "pin abgelaufen"
+          clearInterval(interval)
+        }
+      }, 1000)
+
+      return interval
+    }
+
+    if (event === "div/item-template") {
+
+      const item = document.createElement("div")
+      item.classList.add("checklist-item")
+      item.style.margin = "34px"
+
+      const itemHeader = document.createElement("div")
+      itemHeader.classList.add("item-header")
+      itemHeader.style.display = "flex"
+      itemHeader.style.borderTopRightRadius = "21px"
+      itemHeader.style.borderTopLeftRadius = "21px"
+      itemHeader.style.borderBottomLeftRadius = "21px"
+      itemHeader.style.backgroundColor = "#d1d0d0"
+      itemHeader.style.cursor = "pointer"
+
+      const itemState = document.createElement("div")
+      itemState.classList.add("item-state")
+      itemState.style.display = "flex"
+      itemState.style.justifyContent = "center"
+      itemState.style.alignItems = "center"
+      itemState.style.width = "89px"
+      itemState.style.height = "89px"
+      itemState.style.backgroundColor = "#c6c6c6"
+      itemState.style.fontSize = "34px"
+
+      itemState.style.borderTopLeftRadius = "21px"
+      itemState.style.borderBottomLeftRadius = "21px"
+
+      const itemIndex = document.createElement("div")
+      itemIndex.classList.add("item-index")
+      itemIndex.innerHTML = "client.reputation"
+      itemIndex.style.fontSize = "21px"
+
+      itemState.append(itemIndex)
+
+
+      const itemTitle = document.createElement("div")
+      itemTitle.classList.add("item-title")
+      itemTitle.style.alignSelf = "center"
+      itemTitle.style.marginLeft = "13px"
+      itemTitle.innerHTML = "`${client.firstname} ${client.lastname}`"
+      itemTitle.style.fontSize = "21px"
+
+      itemHeader.append(itemState, itemTitle)
+      item.append(itemHeader)
+
+
+      const itemBody = document.createElement("div")
+      itemBody.classList.add("item-body")
+      itemBody.style.marginLeft = "8%"
+      itemBody.style.backgroundColor = "#dbdbdb"
+      itemBody.style.borderBottomRightRadius = "21px"
+      itemBody.style.borderBottomLeftRadius = "21px"
+      itemBody.style.padding = "21px"
+      itemBody.style.display = "flex"
+      itemBody.style.flexDirection = "column"
+      itemBody.style.boxShadow = "0 3px 5px rgba(0, 0, 0, 0.13)"
+
+      const buttons = document.createElement("div")
+      buttons.style.display = "flex"
+      buttons.style.alignItems = "center"
+
+      {
+        const button = document.createElement("img")
+        button.src = "/public/phone-out.svg"
+        button.alt = "Anrufen"
+        button.style.width = "55px"
+        button.style.padding = "13px"
+        button.style.cursor = "pointer"
+        buttons.append(button)
+      }
+
+      {
+        const button = document.createElement("img")
+        button.src = "/public/mailto.svg"
+        button.alt = "E-Mail schreiben"
+        button.style.width = "55px"
+        button.style.padding = "13px"
+        button.style.cursor = "pointer"
+        buttons.append(button)
+      }
+
+      {
+        const button = document.createElement("img")
+        button.src = "/public/maps.svg"
+        button.alt = "Navigieren"
+        button.style.width = "55px"
+        button.style.padding = "13px"
+        button.style.cursor = "pointer"
+        buttons.append(button)
+      }
+
+      itemBody.append(buttons)
+      item.append(itemBody)
+
+      input?.append(item)
+      return item
+
+
+    }
+
+    if (event === "div/seller-template") {
+
+      const item = document.createElement("div")
+      item.classList.add("checklist-item")
+      item.style.margin = "34px"
+
+      const itemHeader = document.createElement("div")
+      itemHeader.classList.add("item-header")
+      itemHeader.style.display = "flex"
+      itemHeader.style.borderTopRightRadius = "21px"
+      itemHeader.style.borderTopLeftRadius = "21px"
+      itemHeader.style.borderBottomLeftRadius = "21px"
+      itemHeader.style.backgroundColor = "#d1d0d0"
+      itemHeader.style.cursor = "pointer"
+
+      itemHeader.addEventListener("click", () => alert("Bald verfügbar.."))
+
+
+      const itemState = document.createElement("div")
+      itemState.classList.add("item-state")
+      itemState.style.display = "flex"
+      itemState.style.justifyContent = "center"
+      itemState.style.alignItems = "center"
+      itemState.style.width = "89px"
+      itemState.style.height = "89px"
+      itemState.style.backgroundColor = "#c6c6c6"
+      itemState.style.fontSize = "34px"
+
+      // if (seller.state === "offen") {
+      //   itemState.style.backgroundColor = "#006f39"
+      //   itemState.style.color = "#ffffff"
+      // }
+      itemState.style.borderTopLeftRadius = "21px"
+      itemState.style.borderBottomLeftRadius = "21px"
+
+      const itemIndex = document.createElement("div")
+      itemIndex.classList.add("item-index")
+      itemIndex.innerHTML = "seller.reputation"
+      itemIndex.style.fontSize = "21px"
+
+      itemState.append(itemIndex)
+
+
+      const itemTitle = document.createElement("div")
+      itemTitle.classList.add("item-title")
+      itemTitle.style.alignSelf = "center"
+      itemTitle.style.marginLeft = "13px"
+      itemTitle.innerHTML = "`${seller.firstname} ${seller.lastname}`"
+      itemTitle.style.fontSize = "21px"
+
+      itemHeader.append(itemState, itemTitle)
+      item.append(itemHeader)
+
+
+      const itemBody = document.createElement("div")
+      itemBody.classList.add("item-body")
+      itemBody.style.marginLeft = "8%"
+      itemBody.style.backgroundColor = "#dbdbdb"
+      itemBody.style.borderBottomRightRadius = "21px"
+      itemBody.style.borderBottomLeftRadius = "21px"
+      itemBody.style.padding = "21px"
+      itemBody.style.display = "flex"
+      itemBody.style.flexDirection = "column"
+      itemBody.style.boxShadow = "0 3px 5px rgba(0, 0, 0, 0.13)"
+
+      const buttons = document.createElement("div")
+      buttons.style.display = "flex"
+      buttons.style.alignItems = "center"
+
+      {
+        const button = document.createElement("img")
+        button.src = "/public/phone-out.svg"
+        button.alt = "Anrufen"
+        button.style.width = "55px"
+        button.style.padding = "13px"
+        button.style.cursor = "pointer"
+        // button.addEventListener("click", () => {
+          //   const a = document.createElement("a")
+          //   a.href = `tel:${seller.phone}`
+          //   a.click()
+          // })
+          buttons.append(button)
+        // if (seller.phone !== undefined) {
+        // }
+      }
+
+      {
+        const button = document.createElement("img")
+        button.src = "/public/mailto.svg"
+        button.alt = "E-Mail schreiben"
+        button.style.width = "55px"
+        button.style.padding = "13px"
+        button.style.cursor = "pointer"
+        // button.addEventListener("click", () => {
+        //   const a = document.createElement("a")
+        //   a.href = `mailto:${seller.email}`
+        //   a.click()
+        // })
+        buttons.append(button)
+        // if (seller.email !== undefined) {
+        // }
+      }
+
+      itemBody.append(buttons)
+
+      item.append(itemBody)
+      // list.append(item)
+
+      input?.append(item)
+      return item
+
+    }
+
+    if (event === "div/offer-template") {
+
+      const div = this.create("div/scrollable")
+      console.log(div);
+
+      const offer = document.createElement("div")
+      offer.style.backgroundColor = "white"
+      offer.style.borderRadius = "13px"
+      offer.style.margin = "34px"
+      offer.style.padding = "34px"
+      offer.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
+
+      const alignLogo = document.createElement("div")
+      alignLogo.style.display = "flex"
+      alignLogo.style.justifyContent = "flex-end"
+
+      const logo = document.createElement("img")
+      logo.src = "/public/image-placeholder.svg"
+      logo.alt = "Bestprime Logo"
+      logo.style.width = "55vw"
+      logo.style.maxWidth = "377px"
+
+      alignLogo.append(logo)
+
+      offer.append(alignLogo)
+
+      const company = document.createElement("div")
+      company.innerHTML = "offers[i].producer.company"
+      company.style.margin = "21px 0"
+      company.style.fontSize = "21px"
+
+      offer.append(company)
+
+      const website = document.createElement("div")
+      website.style.display = "flex"
+      website.style.alignItems = "center"
+
+      const websiteIcon = document.createElement("img")
+      websiteIcon.src = "/felix/shs/public/website-icon.svg"
+      websiteIcon.alt = "Website Icon"
+
+      const websiteText = document.createElement("a")
+      websiteText.innerHTML = "Website"
+      websiteText.href = "offers[i].producer.website"
+      websiteText.target = "_blank"
+      websiteText.style.textDecoration = "underline"
+      websiteText.style.margin = "8px"
+      websiteText.style.cursor = "pointer"
+
+      website.append(websiteIcon, websiteText)
+
+      offer.append(website)
+
+
+      const product = document.createElement("div")
+      product.innerHTML = "offers[i].producer.product"
+      product.style.marginTop = "34px"
+      product.style.fontSize = "21px"
+
+
+      offer.append(product)
+
+
+      const description = document.createElement("div")
+      description.innerHTML = "offers[i].producer.description"
+      description.style.marginTop = "13px"
+
+      offer.append(description)
+
+
+      const alignContainer = document.createElement("div")
+      alignContainer.style.display = "flex"
+      alignContainer.style.justifyContent = "flex-end"
+
+      const priceContainer = document.createElement("div")
+      priceContainer.style.width = "300px"
+      priceContainer.style.marginTop = "21px"
+
+      const priceTitle = document.createElement("div")
+      priceTitle.innerHTML = "Preisübersicht"
+      priceTitle.style.fontSize = "21px"
+      priceTitle.style.margin = "21px 0"
+
+
+      priceContainer.append(priceTitle)
+
+      const netContainer = document.createElement("div")
+      netContainer.style.display = "flex"
+      netContainer.style.justifyContent = "space-between"
+      netContainer.style.margin = "13px 0"
+
+      const priceNetTitle = document.createElement("div")
+      priceNetTitle.innerHTML = "Nettobetrag"
+
+      const priceNetAmount = document.createElement("div")
+      priceNetAmount.innerHTML = "netto price"// `${offers[i].grossAmount.toFixed(2).replace(".", ",")} €`
+
+      netContainer.append(priceNetTitle, priceNetAmount)
+
+      priceContainer.append(netContainer)
+
+
+
+      const vatContainer = document.createElement("div")
+      vatContainer.style.display = "flex"
+      vatContainer.style.justifyContent = "space-between"
+      vatContainer.style.margin = "13px 0"
+
+
+      const priceVatTitle = document.createElement("div")
+      priceVatTitle.innerHTML = "vat price" // `USt. ${(offers[i].vat * 100).toFixed(2).replace(".", ",")} %`
+
+      const priceVatAmount = document.createElement("div")
+      priceVatAmount.innerHTML = "vat price amount" // `${(offers[i].grossAmount * 0.19).toFixed(2).replace(".", ",")} €`
+
+      vatContainer.append(priceVatTitle, priceVatAmount)
+
+      priceContainer.append(vatContainer)
+
+      const line = document.createElement("hr")
+
+      priceContainer.append(line)
+
+
+      const grossContainer = document.createElement("div")
+      grossContainer.style.display = "flex"
+      grossContainer.style.justifyContent = "space-between"
+      grossContainer.style.margin = "21px 0"
+
+      const priceGrossTitle = document.createElement("div")
+      priceGrossTitle.innerHTML = "Gesamt"
+
+      const priceGrossAmount = document.createElement("div")
+      priceGrossAmount.innerHTML = "gross amount" // `${(offers[i].grossAmount * 1.19).toFixed(2).replace(".", ",")} €`
+
+      grossContainer.append(priceGrossTitle, priceGrossAmount)
+
+      priceContainer.append(grossContainer)
+
+
+      const button = document.createElement("div")
+      button.innerHTML = "Weiter zum Angebot"
+      button.style.marginTop = "34px"
+      button.style.height = "55px"
+      button.style.backgroundColor = "#f7aa20"
+      button.style.borderRadius = "13px"
+      button.style.display = "flex"
+      button.style.justifyContent = "center"
+      button.style.alignItems = "center"
+      button.style.cursor = "pointer"
+      button.addEventListener("mouseover", () => button.style.backgroundColor = "#f19d08")
+      button.addEventListener("mouseout", () => button.style.backgroundColor = "#f7aa20")
+
+      // button.addEventListener("click", () => {
+      //
+      //   for (let i = 0; i < offers.length; i++) {
+      //     offers[i].selected = false
+      //   }
+      //
+      //   offers[i].selected = true
+      //   window.localStorage.setItem("offers", JSON.stringify(offers))
+      //   window.location.assign("/felix/shs/abfrage-persoenliches/")
+      // })
+
+      priceContainer.append(button)
+      alignContainer.append(priceContainer)
+      offer.append(alignContainer)
+      div.append(offer)
+
+      input?.append(div)
+      return div
+
     }
 
     if (event === "div/bottom-left") {
@@ -7272,7 +9482,6 @@ export class Helper {
 
       const div = document.createElement("div")
       div.innerHTML = "div"
-      div.style.outline = "1px solid #777"
       div.style.flex = "1"
 
       if (input) input.append(div)
@@ -7288,7 +9497,6 @@ export class Helper {
 
       const div = document.createElement("div")
       div.innerHTML = "div"
-      div.style.outline = "1px solid #777"
       div.style.flex = "1"
 
       if (input) input.append(div)
@@ -7615,6 +9823,2651 @@ export class Helper {
       return div
     }
 
+    if (event === "button/div-scrollable") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/div-scrollable"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/opacity") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/opacity"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/crossed-eye") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/crossed-eye"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/open-eye") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/open-eye"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/cut-html") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/cut-html"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/insert-right") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/insert-right"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/insert-left") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/insert-left"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/insert-before") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/insert-before"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/insert-after") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/insert-after"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/media-queries-overview") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/media-queries-overview"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/position-absolute") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/position-absolute"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/grid-remove-row") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/grid-remove-row"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/grid-add-row") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/grid-add-row"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/grid-remove-column") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/grid-remove-column"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/grid-add-column") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/grid-add-column"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/grid-span-row") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/grid-span-row"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/grid-span-column") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/grid-span-column"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/grid-right-list-rows") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/grid-right-list-rows"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/grid-list-rows") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/grid-list-rows"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/grid-fixed") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/grid-fixed"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/grid-three-columns") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/grid-three-columns"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/grid-two-columns") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/grid-two-columns"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/grid-full-display") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/grid-full-display"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/grid-gap") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/grid-gap"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/grid-mobile") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/grid-mobile"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/z-index") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/z-index"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/transform-translate-y") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/transform-translate-y"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/transform-translate-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/transform-translate-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/transform-translate") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/transform-translate"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/create-flex") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/create-flex"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/create-grid") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/create-grid"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/position-left") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/position-left"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/position-bottom") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/position-bottom"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/position-right") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/position-right"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/position-top") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/position-top"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/remove-layer") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/remove-layer"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/exact-layer") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/exact-layer"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/negative-layer") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/negative-layer"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/positive-layer") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/positive-layer"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/layer") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/layer"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/key-value-color") {
+
+      const button = this.create("div")
+      button.classList.add("color")
+      button.style.display = "flex"
+      button.style.flexDirection = "column"
+      button.style.justifyContent = "space-between"
+      button.style.fontFamily = "sans-serif"
+      button.style.width = "89px"
+      button.style.height = "55px"
+      button.style.margin = "3px"
+      button.style.overflow = "auto"
+      button.style.padding = "5px"
+      button.style.cursor = "pointer"
+      button.style.borderRadius = "3px"
+      button.style.backgroundColor = input.value
+
+      button.key = this.create("div", button)
+      button.key.classList.add("key")
+      button.key.style.color = this.colors.light.text
+      button.key.innerHTML = input.key
+
+      button.value = this.create("div", button)
+      button.value.classList.add("value")
+      button.value.style.fontFamily = "monospace"
+      button.value.style.color = this.colors.dark.text
+      button.value.innerHTML = input.value
+
+      return button
+    }
+
+    if (event === "button/thumb-down") {
+
+      const button = document.createElement("div")
+      button.innerHTML = "👎"
+      button.style.display = "flex"
+      button.style.justifyContent = "center"
+      button.style.alignItems = "center"
+      button.style.width = "89px"
+      button.style.height = "55px"
+      button.style.background = "rgb(204,50,50)"
+      button.style.borderRadius = "8px"
+      button.style.fontSize = "21px"
+
+      input?.append(button)
+      return button
+    }
+
+    if (event === "button/thumb-up") {
+
+      const button = document.createElement("div")
+      button.innerHTML = "👍"
+      button.style.background = "rgb(45,201,55)"
+      button.style.display = "flex"
+      button.style.justifyContent = "center"
+      button.style.alignItems = "center"
+      button.style.height = "55px"
+      button.style.width = "89px"
+      button.style.color = "white"
+      button.style.borderRadius = "8px"
+      button.style.fontSize = "21px"
+
+      input?.append(button)
+      return button
+    }
+
+    if (event === "button/flex") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/flex"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/box-shadow") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/box-shadow"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-none") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-none"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/set-attribute") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/set-attribute"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/remove-image") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/remove-image"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/layer") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/layer"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/paste-html") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/paste-html"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/paste-style") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/paste-style"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/copy-style") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/copy-style"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/copy-html") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/copy-html"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/arrow-right") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/arrow-right"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/remove-style") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/remove-style"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/remove-inner") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/remove-inner"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/italic") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/italic"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/underline") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/underline"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/remove-inner-with-text") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/remove-inner-with-text"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/scale") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/scale"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/add-space") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/add-space"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/span") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/span"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/font-color") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/font-color"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/display-exact") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/display-exact"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/display-table") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/display-table"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/display-none") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/display-none"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/display-flex") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/display-flex"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/display-block") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/display-block"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/display-inline") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/display-inline"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/display-grid") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/display-grid"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/a-link") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/a-link"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/pdf-link") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/pdf-link"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/font-size") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/font-size"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/bold") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/bold"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/overflow-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/overflow-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/overflow-y") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/overflow-y"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/class") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.style.fontFamily = "monospace"
+      button.icon.style.fontSize = "34px"
+      button.icon.innerHTML = "cl"
+      button.append(button.icon)
+
+      button.icon.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        button.icon.style.color = this.colors.dark.text
+      }
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/id") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.style.fontFamily = "monospace"
+      button.icon.style.fontSize = "34px"
+      button.icon.innerHTML = "id"
+      button.append(button.icon)
+
+      button.icon.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        button.icon.style.color = this.colors.dark.text
+      }
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/large-device") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/large-device"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/printer-device") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/printer-device"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/middle-device") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/middle-device"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/small-device") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/small-device"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/decrease-width") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/decrease-width"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/increase-width") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/increase-width"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/decrease-height") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/decrease-height"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/increase-height") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/increase-height"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/change-si") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/change-si"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/toggle-wrap") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/toggle-wrap"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/wrap") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/wrap"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/box") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/box"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/background-color") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/background-color"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/table-header") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/table-header"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-bottom-left-radius-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-bottom-left-radius-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-bottom-right-radius-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-bottom-right-radius-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-top-right-radius-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-top-right-radius-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-top-left-radius-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-top-left-radius-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-radius-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-radius-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-bottom-left-radius") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-bottom-left-radius"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-bottom-right-radius") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-bottom-right-radius"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-top-right-radius") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-top-right-radius"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-top-left-radius") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-top-left-radius"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-radius") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-radius"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-left-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-left-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-bottom-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-bottom-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-right-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-right-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-top-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-top-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-left") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-left"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-bottom") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-bottom"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-right") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-right"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border-top") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border-top"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/border") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/border"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/padding-left-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/padding-left-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/padding-bottom-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/padding-bottom-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/padding-right-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/padding-right-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/padding-top-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/padding-top-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/padding-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/padding-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/padding-left") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/padding-left"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/padding-bottom") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/padding-bottom"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/padding-right") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/padding-right"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/padding-top") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/padding-top"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/padding") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/padding"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/margin-left-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/margin-left-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/margin-bottom-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/margin-bottom-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/margin-right-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/margin-right-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/margin-top-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/margin-top-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/margin-x") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/margin-x"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/margin-left") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/margin-left"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/margin-bottom") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/margin-bottom"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/margin-right") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/margin-right"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/margin-top") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/margin-top"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/margin") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/margin"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/p") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/p"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/image") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/image"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/layout-top") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/layout-top"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/h3") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/h3"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/h2") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/h2"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/h1") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/h1"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
     if (event === "button/password-input") {
 
       const button = this.create("button/icon")
@@ -7683,6 +12536,25 @@ export class Helper {
       button.icon.style.justifyContent = "center"
       button.icon.style.alignItems = "center"
       button.icon.append(this.create("icon/text-input"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/space-around") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/space-around"))
       button.append(button.icon)
 
       if (input) input.append(button)
@@ -7919,6 +12791,54 @@ export class Helper {
 
     }
 
+    if (event === "button/save") {
+
+      const button = document.createElement("div")
+      button.style.position = "fixed"
+      button.style.bottom = "0"
+      button.style.right = "0"
+
+      const icon = this.create("icon/save", button)
+      icon.style.width = "34px"
+
+      button.style.boxShadow = this.colors.light.boxShadow
+      button.style.border = this.colors.light.border
+      button.style.backgroundColor = this.colors.light.foreground
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        button.style.boxShadow = this.colors.dark.boxShadow
+        button.style.border = this.colors.dark.border
+        button.style.backgroundColor = this.colors.dark.foreground
+      }
+
+      button.style.borderRadius = "50%"
+      button.style.margin = "34px"
+      button.style.padding = "21px"
+      button.style.zIndex = "1"
+      button.style.cursor = "pointer"
+
+      input?.append(button)
+      return button
+    }
+
+    if (event === "button/exact-height") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/exact-height"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
     if (event === "button/shrink-height") {
 
       const button = this.create("button/icon")
@@ -7930,6 +12850,25 @@ export class Helper {
       button.icon.style.justifyContent = "center"
       button.icon.style.alignItems = "center"
       button.icon.append(this.create("icon/shrink-height"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/exact-width") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/exact-width"))
       button.append(button.icon)
 
       if (input) input.append(button)
@@ -8497,6 +13436,108 @@ export class Helper {
 
     }
 
+    if (event === "script/location-list-button") {
+
+      const text = `
+        <script id="location-list-button", type="module">
+          import {Helper} from "/js/Helper.js"
+
+          Helper.overlay("toolbox", overlay => {
+            Helper.add("button/remove-overlay", overlay)
+
+            Helper.render("text/title", "Definiere eine Liste, mit der sich deine Nutzer selber markieren können", overlay)
+
+            const funnel = Helper.create("div/scrollable", overlay)
+
+            const tagField = Helper.create("field/tag", funnel)
+            tagField.label.innerHTML = "Name der Liste (json-tag)"
+            tagField.input.placeholder = "pv-module"
+            Helper.verify("input/value", tagField.input)
+            tagField.input.addEventListener("input", () => Helper.verify("input/value", tagField.input))
+
+            const fieldFunnelField = Helper.create("field/field-funnel", funnel)
+            Helper.verify("input/value", fieldFunnelField.input)
+            fieldFunnelField.input.addEventListener("input", () => Helper.verify("input/value", fieldFunnelField.input))
+
+            const submitButton = Helper.create("button/action", funnel)
+            submitButton.innerHTML = "HTML Skript laden"
+            submitButton.onclick = async () => {
+
+              await Helper.verifyIs("field-funnel/valid", funnel)
+
+              const map = {}
+              map.tag = tagField.input.value
+              map.funnel = fieldFunnelField.input.value
+
+              const script = Helper.create("script/open-popup-list-mirror-event", map)
+
+              await Helper.render("script/onbody", script)
+
+              const button = Helper.create("button/icon-box", document.body)
+              button.bottom.innerHTML = map.tag
+              button.id = \`${map.tag}-mirror-button\`
+
+              Helper.remove("overlay", overlay)
+            }
+
+
+          })
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
+
+    }
+
+    if (event === "script/html-feedback-button") {
+
+      const text = `
+        <script id="html-feedback-button" type="module">
+          import {Helper} from "/js/Helper.js"
+
+          Helper.add("button/html-feedback", document.body)
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
+
+    }
+
+    if (event === "script/back-button") {
+
+      const text = `
+        <script id="back-button" type="module">
+          import {Helper} from "/js/Helper.js"
+
+          Helper.add("button/back", document.body)
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
+
+    }
+
     if (event === "script/soundbox") {
 
       const text = /*html*/`
@@ -8814,7 +13855,6 @@ export class Helper {
       const text = /*html*/`
         <script id="match-maker-get-users-${input.name}" type="module">
           import { Helper } from "/js/Helper.js"
-          import { Request } from "/js/Request.js"
 
           const elements = document.querySelectorAll("[match-maker='${input.name}']")
 
@@ -8849,7 +13889,6 @@ export class Helper {
       const text = /*html*/`
         <script id="match-maker-remove-${input.name}" type="module">
           import { Helper } from "/js/Helper.js"
-          import { Request } from "/js/Request.js"
 
           const elements = document.querySelectorAll("[match-maker='${input.name}']")
 
@@ -8879,7 +13918,6 @@ export class Helper {
       const text = /*html*/`
         <script id="submit-field-funnel-event" type="module">
           import { Helper } from "/js/Helper.js"
-          import { Request } from "/js/Request.js"
 
           document.querySelectorAll(".field-funnel").forEach(funnel => {
 
@@ -8905,7 +13943,7 @@ export class Helper {
                       register.url = "/register/funnel/closed/"
                       register.tag = funnel.id
                       register.funnel = map
-                      const res = await Request.closed(register)
+                      const res = await Helper.request("closed/json", register)
 
                       if (res.status === 200) {
 
@@ -8915,12 +13953,12 @@ export class Helper {
                           window.location.assign(funnel.getAttribute("next-path"))
                         }
 
-                        Helper.removeOverlay(securityOverlay)
+                        Helper.remove("overlay", securityOverlay)
 
                       } else {
                         window.alert("Fehler.. Bitte wiederholen.")
 
-                        Helper.removeOverlay(securityOverlay)
+                        Helper.remove("overlay", securityOverlay)
                       }
                     })
 
@@ -8954,7 +13992,7 @@ export class Helper {
 
     if (event === "script/click-funnel-start-event") {
 
-      const text = /*html*/`
+      const text = `
         <script id="click-funnel-start-event" type="module">
           import { Helper } from "/js/Helper.js"
 
@@ -9064,12 +14102,6 @@ export class Helper {
       create.type = script.type
       create.innerHTML = script.innerHTML
 
-      if (input !== undefined) {
-        if (input.querySelector(`#${create.id}`) === null) {
-          input.append(create)
-        }
-      }
-
       return create
     }
 
@@ -9084,11 +14116,6 @@ export class Helper {
       field.style.margin = "34px"
       field.style.justifyContent = "center"
 
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
-
       field.labelContainer = document.createElement("div")
       field.labelContainer.classList.add("field-label-container")
       field.labelContainer.style.display = "flex"
@@ -9100,7 +14127,6 @@ export class Helper {
       field.label.classList.add("field-label")
       field.label.style.fontFamily = "sans-serif"
       field.label.style.fontSize = "21px"
-      field.label.style.color = this.colors.light.text
       field.labelContainer.append(field.label)
 
       field.input = document.createElement("select")
@@ -9115,11 +14141,39 @@ export class Helper {
           field.input.appendChild(option)
         }
       }
+      field.input.select = (options) => {
+        for (let i = 0; i < field.input.options.length; i++) {
+          const option = field.input.options[i]
+          option.selected = false
+          for (let z = 0; z < options.length; z++) {
+            if (options[z] === option.value) {
+              option.selected = true
+            }
+          }
+        }
+      }
       field.input.style.margin = "21px 89px 21px 34px"
       field.input.style.fontSize = "21px"
+      field.append(field.input)
+
+
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+      field.label.style.color = this.colors.light.text
       field.input.style.backgroundColor = this.colors.light.background
       field.input.style.color = this.colors.light.text
-      field.append(field.input)
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+        field.label.style.color = this.colors.dark.text
+        field.input.style.backgroundColor = this.colors.dark.background
+        field.input.style.color = this.colors.dark.text
+      }
+
 
       if (input !== undefined) input.append(field)
       return field
@@ -9136,47 +14190,6 @@ export class Helper {
 
       field.input.setAttribute("required", "true")
       field.input.setAttribute("accept", "text/operator")
-
-      if (input !== undefined) input.append(field)
-      return field
-    }
-
-    if (event === "field/range") {
-
-      const field = document.createElement("div")
-      field.classList.add("field")
-      field.style.position = "relative"
-      field.style.borderRadius = "13px"
-      field.style.display = "flex"
-      field.style.flexDirection = "column"
-      field.style.margin = "34px"
-      field.style.justifyContent = "center"
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
-
-      field.labelContainer = document.createElement("div")
-      field.labelContainer.classList.add("field-label-container")
-      field.labelContainer.style.display = "flex"
-      field.labelContainer.style.alignItems = "center"
-      field.labelContainer.style.margin = "21px 89px 0 34px"
-      field.label = document.createElement("label")
-      field.label.classList.add("field-label")
-      field.label.style.fontFamily = "sans-serif"
-      field.label.style.fontSize = "21px"
-      field.label.style.color = this.colors.light.text
-      field.labelContainer.append(field.label)
-      field.append(field.labelContainer)
-
-      field.input = document.createElement("input")
-      field.input.classList.add("field-input")
-      field.input.type = "range"
-      field.input.style.margin = "21px 89px 21px 34px"
-      field.input.style.fontSize = "21px"
-      field.input.style.backgroundColor = this.colors.light.background
-      field.input.style.color = this.colors.light.text
-      field.append(field.input)
 
       if (input !== undefined) input.append(field)
       return field
@@ -9479,6 +14492,28 @@ export class Helper {
       return field
     }
 
+    if (event === "field/path") {
+
+      const field = this.create("field/text")
+
+      field.input.setAttribute("accept", "text/path")
+      field.input.setAttribute("required", "true")
+
+      if (input !== undefined) input.append(field)
+      return field
+    }
+
+    if (event === "field/hex") {
+
+      const field = this.create("field/text")
+
+      field.input.setAttribute("accept", "text/hex")
+      field.input.setAttribute("required", "true")
+
+      if (input !== undefined) input.append(field)
+      return field
+    }
+
     if (event === "field/tag") {
 
       const field = this.create("field/text")
@@ -9488,6 +14523,17 @@ export class Helper {
 
       if (input !== undefined) input.append(field)
       return field
+    }
+
+    if (event === "field/pdf-file") {
+
+      const field = this.create("field/file")
+      field.input.setAttribute("required", "true")
+      field.input.setAttribute("accept", "application/pdf")
+
+      input?.append(field)
+      return field
+
     }
 
     if (event === "field/file") {
@@ -9565,6 +14611,214 @@ export class Helper {
       field.input = document.createElement("input")
       field.input.classList.add("field-input")
       field.input.type = "tel"
+      field.input.style.margin = "21px 89px 21px 34px"
+      field.input.style.fontSize = "21px"
+      field.append(field.input)
+
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+      field.label.style.color = this.colors.light.text
+      field.input.style.backgroundColor = this.colors.light.background
+      field.input.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+        field.label.style.color = this.colors.dark.text
+        field.input.style.backgroundColor = this.colors.dark.background
+        field.input.style.color = this.colors.dark.text
+      }
+
+      if (input !== undefined) input.append(field)
+      return field
+    }
+
+    if (event === "field/date") {
+
+      const field = document.createElement("div")
+      field.classList.add("field")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+
+      field.labelContainer = document.createElement("div")
+      field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.display = "flex"
+      field.labelContainer.style.alignItems = "center"
+      field.labelContainer.style.margin = "21px 89px 0 34px"
+      field.append(field.labelContainer)
+
+      field.label = document.createElement("label")
+      field.label.classList.add("field-label")
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "21px"
+      field.labelContainer.append(field.label)
+
+      field.input = document.createElement("input")
+      field.input.classList.add("field-input")
+      field.input.type = "date"
+      field.input.style.margin = "21px 89px 21px 34px"
+      field.input.style.fontSize = "21px"
+      field.append(field.input)
+
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+      field.label.style.color = this.colors.light.text
+      field.input.style.backgroundColor = this.colors.light.background
+      field.input.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+        field.label.style.color = this.colors.dark.text
+        field.input.style.backgroundColor = this.colors.dark.background
+        field.input.style.color = this.colors.dark.text
+      }
+
+      if (input !== undefined) input.append(field)
+      return field
+    }
+
+    if (event === "field/number") {
+
+      const field = document.createElement("div")
+      field.classList.add("field")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+
+      field.labelContainer = document.createElement("div")
+      field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.display = "flex"
+      field.labelContainer.style.alignItems = "center"
+      field.labelContainer.style.margin = "21px 89px 0 34px"
+      field.append(field.labelContainer)
+
+      field.label = document.createElement("label")
+      field.label.classList.add("field-label")
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "21px"
+      field.labelContainer.append(field.label)
+
+      field.input = document.createElement("input")
+      field.input.classList.add("field-input")
+      field.input.type = "number"
+      field.input.style.margin = "21px 89px 21px 34px"
+      field.input.style.fontSize = "21px"
+      field.append(field.input)
+
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+      field.label.style.color = this.colors.light.text
+      field.input.style.backgroundColor = this.colors.light.background
+      field.input.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+        field.label.style.color = this.colors.dark.text
+        field.input.style.backgroundColor = this.colors.dark.background
+        field.input.style.color = this.colors.dark.text
+      }
+
+      if (input !== undefined) input.append(field)
+      return field
+    }
+
+    if (event === "field/password") {
+
+      const field = document.createElement("div")
+      field.classList.add("field")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+
+      field.labelContainer = document.createElement("div")
+      field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.display = "flex"
+      field.labelContainer.style.alignItems = "center"
+      field.labelContainer.style.margin = "21px 89px 0 34px"
+      field.append(field.labelContainer)
+
+      field.label = document.createElement("label")
+      field.label.classList.add("field-label")
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "21px"
+      field.labelContainer.append(field.label)
+
+      field.input = document.createElement("input")
+      field.input.classList.add("field-input")
+      field.input.type = "password"
+      field.input.style.margin = "21px 89px 21px 34px"
+      field.input.style.fontSize = "21px"
+      field.append(field.input)
+
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      field.style.color = this.colors.light.text
+      field.label.style.color = this.colors.light.text
+      field.input.style.backgroundColor = this.colors.light.background
+      field.input.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+        field.style.color = this.colors.dark.text
+        field.label.style.color = this.colors.dark.text
+        field.input.style.backgroundColor = this.colors.dark.background
+        field.input.style.color = this.colors.dark.text
+      }
+
+      if (input !== undefined) input.append(field)
+      return field
+    }
+
+    if (event === "field/range") {
+
+      const field = document.createElement("div")
+      field.classList.add("field")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+
+      field.labelContainer = document.createElement("div")
+      field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.display = "flex"
+      field.labelContainer.style.alignItems = "center"
+      field.labelContainer.style.margin = "21px 89px 0 34px"
+      field.append(field.labelContainer)
+
+      field.label = document.createElement("label")
+      field.label.classList.add("field-label")
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "21px"
+      field.labelContainer.append(field.label)
+
+      field.input = document.createElement("input")
+      field.input.classList.add("field-input")
+      field.input.type = "range"
       field.input.style.margin = "21px 89px 21px 34px"
       field.input.style.fontSize = "21px"
       field.append(field.input)
@@ -9716,18 +14970,19 @@ export class Helper {
 
     if (event === "field/lang") {
 
-      const langField = new SelectionField("lang", input)
+      const langField = this.create("field/select")
       langField.label.innerHTML = "Sprache"
       const options = ["aa","ab","ae","af","ak","am","an","ar","as","av","ay","az","ba","be","bg","bh","bi","bm","bn","bo","br","bs","ca","ce","ch","co","cr","cs","cu","cv","cy","da","de","dv","dz","ee","el","en","eo","es","et","eu","fa","ff","fi","fj","fo","fr","fy","ga","gd","gl","gn","gu","gv","ha","he","hi","ho","hr","ht","hu","hy","hz","ia","id","ie","ig","ii","ik","io","is","it","iu","ja","jv","ka","kg","ki","kj","kk","kl","km","kn","ko","kr","ks","ku","kv","kw","ky","la","lb","lg","li","ln","lo","lt","lu","lv","mg","mh","mi","mk","ml","mn","mr","ms","mt","my","na","nb","nd","ne","ng","nl","nn","no","nr","nv","ny","oc","oj","om","or","os","pa","pi","pl","ps","pt","qu","rm","rn","ro","ru","rw","sa","sc","sd","se","sg","si","sk","sl","sm","sn","so","sq","sr","ss","st","su","sv","sw","ta","te","tg","th","ti","tk","tl","tn","to","tr","ts","tt","tw","ty","ug","uk","ur","uz","ve","vi","vo","wa","wo","xh","yi","yo","za","zh","zu"]
       for (let i = 0; i < options.length; i++) {
         const option = document.createElement("option")
         option.value = options[i]
         option.text = options[i]
-        langField.select.append(option)
+        langField.input.append(option)
       }
-      langField.select.value = "de"
-      this.setValidStyle(langField.select)
+      langField.input.value = "de"
+      this.setValidStyle(langField.input)
 
+      input?.append(langField)
       return langField
 
     }
@@ -10023,6 +15278,117 @@ export class Helper {
 
   static render(event, input, parent) {
     // event = input/algorithm
+
+    if (event === "field-funnel/owner") {
+
+      if (arguments.length === 2) {
+        parent = input
+      }
+
+      const funnel = this.create("div/scrollable", parent)
+
+      const firstnameField = this.create("field/text", funnel)
+      if (input.firstname) firstnameField.input.value = input.firstname
+      firstnameField.label.innerHTML = "Vorname"
+      firstnameField.input.placeholder = "Max"
+      firstnameField.input.setAttribute("required", "true")
+      firstnameField.input.maxLength = "55"
+      firstnameField.input.addEventListener("input", () => this.verify("input/value", firstnameField.input))
+      this.verify("input/value", firstnameField.input)
+
+      const lastnameField = this.create("field/text", funnel)
+      if (input.lastname) lastnameField.input.value = input.lastname
+      lastnameField.label.innerHTML = "Nachname"
+      lastnameField.input.placeholder = "Muster"
+      lastnameField.input.setAttribute("required", "true")
+      lastnameField.input.maxLength = "55"
+      lastnameField.input.addEventListener("input", () => this.verify("input/value", lastnameField.input))
+      this.verify("input/value", lastnameField.input)
+
+      const streetField = this.create("field/text", funnel)
+      if (input.street) streetField.input.value = input.street
+      streetField.label.innerHTML = "Straße und Hausnummer"
+      streetField.input.setAttribute("required", "true")
+      streetField.input.placeholder = "Wiesentalstr. 21"
+      streetField.input.maxLength = "55"
+      streetField.input.addEventListener("input", () => this.verify("input/value", streetField.input))
+      this.verify("input/value", streetField.input)
+
+      const zipField = this.create("field/text", funnel)
+      if (input.zip) zipField.input.value = input.zip
+      zipField.label.innerHTML = "Postleitzahl und Ort"
+      zipField.input.placeholder = "70184 Stuttgart"
+      zipField.input.setAttribute("required", "true")
+      zipField.input.maxLength = "55"
+      zipField.input.addEventListener("input", () => this.verify("input/value", zipField.input))
+      this.verify("input/value", zipField.input)
+
+      const stateField = this.create("field/select", funnel)
+      stateField.label.innerHTML = "Bundesland oder Kanton"
+
+      const countryField = this.create("field/select", funnel)
+      countryField.label.innerHTML = "Land"
+      countryField.input.add(["Deutschland", "Österreich", "Schweiz"])
+      if (input.country) countryField.input.select([input.country])
+      if (countryField.input.value === "Deutschland") stateField.input.add(["Baden-Württemberg", "Bayern", "Berlin", "Brandenburg", "Bremen", "Hamburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen", "Nordrhein Westfalen", "Rheinland-Pfalz", "Saarland", "Sachsen", "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen"])
+      if (countryField.input.value === "Österreich") stateField.input.add(["Burgenland", "Kärnten", "Niederösterreich", "Oberösterreich", "Salzburg", "Steiermark", "Tirol", "Vorarlberg", "Wien"])
+      if (countryField.input.value === "Schweiz") stateField.input.add(["Aargau", "Appenzell Ausserrhoden", "Appenzell Innerrhoden", "Basel-Land", "Basel-Stadt", "Bern", "Fribourg Freiburg", "Genève Geneva", "Glarus", "Graubünden Grischuns Grigioni", "Jura", "Luzern Lucerne", "Neuchâtel", "Nidwalden", "Obwalden", "St.Gallen", "Schaffhausen", "Schwyz", "Solothurn", "Thurgau", "Ticino", "Uri", "Vaud", "Valais Wallis", "Zug", "Zürich"])
+      if (input.state) stateField.input.select([input.state])
+      countryField.input.addEventListener("input", () => {
+
+        if (countryField.input.value === "Deutschland") stateField.input.add(["Baden-Württemberg", "Bayern", "Berlin", "Brandenburg", "Bremen", "Hamburg", "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen", "Nordrhein Westfalen", "Rheinland-Pfalz", "Saarland", "Sachsen", "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen"])
+        if (countryField.input.value === "Österreich") stateField.input.add(["Burgenland", "Kärnten", "Niederösterreich", "Oberösterreich", "Salzburg", "Steiermark", "Tirol", "Vorarlberg", "Wien"])
+        if (countryField.input.value === "Schweiz") stateField.input.add(["Aargau", "Appenzell Ausserrhoden", "Appenzell Innerrhoden", "Basel-Land", "Basel-Stadt", "Bern", "Fribourg Freiburg", "Genève Geneva", "Glarus", "Graubünden Grischuns Grigioni", "Jura", "Luzern Lucerne", "Neuchâtel", "Nidwalden", "Obwalden", "St.Gallen", "Schaffhausen", "Schwyz", "Solothurn", "Thurgau", "Ticino", "Uri", "Vaud", "Valais Wallis", "Zug", "Zürich"])
+
+      })
+      this.verify("input/value", stateField.input)
+      this.verify("input/value", countryField.input)
+
+      const phoneField = this.create("field/tel", funnel)
+      if (input.phone) phoneField.input.value = input.phone
+      phoneField.label.innerHTML = "Telefon"
+      phoneField.input.setAttribute("required", "true")
+      phoneField.input.maxLength = "21"
+      phoneField.input.accept = "text/phone"
+      phoneField.input.placeholder = "+49.."
+      phoneField.input.addEventListener("input", () => this.verify("input/value", phoneField.input))
+      this.verify("input/value", phoneField.input)
+
+      const submit = this.create("button/action", funnel)
+      submit.innerHTML = "Besitzerdaten jetzt speichern"
+      submit.addEventListener("click", async () => {
+
+        await this.verifyIs("field-funnel/valid", funnel)
+
+        this.overlay("security", async securityOverlay => {
+
+          const map = {}
+          map.firstname = firstnameField.input.value
+          map.lastname = lastnameField.input.value
+          map.street = streetField.input.value
+          map.zip = zipField.input.value
+          map.country = countryField.input.value
+          map.state = stateField.input.value
+          map.phone = phoneField.input.value
+          const res = await this.register("owner/user/self", map)
+
+          if (res.status === 200) {
+            window.alert("Besitzerdaten erfolgreich gespeichert.")
+            this.remove("overlay", securityOverlay)
+            this.remove("overlay", parent)
+          }
+
+          if (res.status !== 200) {
+            window.alert("Fehler.. Bitte wiederholen.")
+            this.remove("overlay", securityOverlay)
+          }
+
+
+        })
+
+      })
+
+    }
 
     if (event === "user-keys/update-buttons") {
 
@@ -10350,14 +15716,14 @@ export class Helper {
                   const actionField = this.create("field/select", content)
                   actionField.label.innerHTML = "Wenn alle Bedingungen erfüllt sind dann .."
                   actionField.input.add(["get users", "remove", "show", "onclick", "onload", "get list", "get keys"])
-                  this.verifyIs("input/valid", actionField.input)
+                  this.verify("input/value", actionField.input)
 
                   const dataMirrorField = this.create("field/trees", content)
                   dataMirrorField.label.innerHTML = "Gebe eine JavaScript Liste mit Datenstrukturen ein und spiegel deine Nutzerliste mit den angefragten Daten"
                   dataMirrorField.input.style.fontSize = "13px"
                   dataMirrorField.input.placeholder = `["getyour.expert.name", "getyour.funnel.name"]`
-                  dataMirrorField.input.oninput = () => this.verifyIs("input/valid", dataMirrorField.input)
-                  this.verifyIs("input/valid", dataMirrorField.input)
+                  dataMirrorField.input.oninput = () => this.verify("input/value", dataMirrorField.input)
+                  this.verify("input/value", dataMirrorField.input)
 
                   const jsField = this.create("field/js")
                   jsField.label.innerHTML = "JavaScript Browser Funktionen + Plattform Helper Funktionen (javascript)"
@@ -10542,7 +15908,7 @@ export class Helper {
             if (res.status === 200) {
               conditions = JSON.parse(res.response)
 
-              this.reset(conditionsContainer)
+              this.convert("element/reset", conditionsContainer)
               this.render("text/hr", `Bedingungen von ${matchMaker.name}`, conditionsContainer)
               for (let i = 0; i < conditions.length; i++) {
                 const condition = conditions[i]
@@ -10557,7 +15923,7 @@ export class Helper {
               if (res.status === 200) {
                 conditions = JSON.parse(res.response)
 
-                this.reset(conditionsContainer)
+                this.convert("element/reset", conditionsContainer)
                 this.render("text/hr", `Bedingungen von ${matchMaker.name}`, conditionsContainer)
                 for (let i = 0; i < conditions.length; i++) {
                   const condition = conditions[i]
@@ -10980,7 +16346,7 @@ export class Helper {
 
           })
 
-          this.verify("field-funnel/validity", parent)
+          this.verifyIs("field-funnel/valid", parent)
 
           resolve()
 
@@ -11010,7 +16376,7 @@ export class Helper {
 
           })
 
-          this.verify("field-funnel/validity", parent)
+          this.verifyIs("field-funnel/valid", parent)
 
           resolve()
 
@@ -11123,13 +16489,13 @@ export class Helper {
       const fieldFunnel = this.convert("text/dom", input.funnel)
       content.append(fieldFunnel)
 
-      this.verify("field-funnel/validity", fieldFunnel)
+      this.verifyIs("field-funnel/valid", fieldFunnel)
 
       const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
       submitButton.innerHTML = `${input.tag} jetzt speichern`
       submitButton.onclick = async () => {
 
-        await this.verify("field-funnel/validity", fieldFunnel)
+        await this.verifyIs("field-funnel/valid", fieldFunnel)
 
         const map = await this.convert("field-funnel/map", fieldFunnel)
 
@@ -11298,9 +16664,7 @@ export class Helper {
       item.body.button.style.cursor = "pointer"
       item.body.append(item.body.button)
 
-      item.body.button.setAttribute("onclick", "console.log('hi')")
-
-      parent.append(item)
+      parent?.append(item)
       return item
     }
 
@@ -11352,7 +16716,7 @@ export class Helper {
                   button.innerHTML = "Skript jetzt speichern"
                   button.addEventListener("click", async () => {
 
-                    await this.verify("field-funnel/validity", funnel)
+                    await this.verifyIs("field-funnel/valid", funnel)
 
                     const map = {}
                     map.id = script.id
@@ -11673,7 +17037,7 @@ export class Helper {
         const get = {}
         get.url = event
         get.email = input
-        const res = await Request.closed(get)
+        const res = await this.request("closed/json", get)
 
         if (res.status === 200) {
 
@@ -11736,890 +17100,6 @@ export class Helper {
 
     }
 
-    if (event === "expert-templates/closed") {
-
-
-      if (parent === undefined) {
-        document.querySelectorAll(".expert-templates").forEach(div => {
-          this.render(event, input, div)
-        })
-      }
-
-      if (parent !== undefined) {
-        if (!parent.classList.contains("expert-templates")) {
-          parent.classList.add("expert-templates")
-        }
-      }
-
-      if (parent !== undefined) {
-        parent.innerHTML = ""
-      }
-
-
-      return new Promise(async (resolve, reject) => {
-
-        const get = {}
-        get.url = "/get/expert-templates/closed/"
-        const res = await Request.closed(get)
-
-        if (res.status === 200) {
-          const templates = JSON.parse(res.response)
-
-          this.convert("parent/scrollable", parent)
-
-          for (let i = 0; i < templates.length; i++) {
-            const template = templates[i]
-
-            const item = document.createElement("div")
-            item.style.margin = "34px"
-
-            const itemHeader = document.createElement("div")
-            itemHeader.style.display = "flex"
-            itemHeader.style.borderTopRightRadius = "21px"
-            itemHeader.style.borderTopLeftRadius = "21px"
-            itemHeader.style.borderBottomLeftRadius = "21px"
-            itemHeader.style.fontFamily = "sans-serif"
-
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              itemHeader.style.backgroundColor = this.colors.matte.charcoal
-              itemHeader.style.color = this.colors.matte.dark.text
-
-            } else {
-              itemHeader.style.color = this.colors.matte.light.text
-              itemHeader.style.backgroundColor = this.colors.gray[1]
-            }
-
-
-            itemHeader.style.cursor = "pointer"
-            itemHeader.addEventListener("click", () => {
-              this.overlay("toolbox", overlay => {
-                const templateOverlay = overlay
-                this.headerPicker("removeOverlay", overlay)
-
-                const info = this.headerPicker("info", overlay)
-                info.append(`.templates`)
-
-                const span = document.createElement("span")
-                span.style.fontSize = "21px"
-                span.innerHTML = `#${template.id}`
-                info.append(span)
-
-
-                {
-
-                  const buttons = document.createElement("div")
-                  buttons.style.overflowY = "auto"
-                  buttons.style.paddingBottom = "144px"
-                  buttons.style.overscrollBehavior = "none"
-                  overlay.append(buttons)
-
-                  {
-                    const button = this.buttonPicker("left/right", buttons)
-                    button.left.innerHTML = ".id"
-                    button.right.innerHTML = "Id ändern"
-
-                    button.addEventListener("click", () => {
-                      this.overlay("toolbox", overlay => {
-                        this.headerPicker("removeOverlay", overlay)
-
-                        const info = this.headerPicker("info", overlay)
-                        info.append(`.templates`)
-
-                        {
-                          const span = document.createElement("span")
-                          span.style.fontSize = "21px"
-                          span.innerHTML = `#${template.id}`
-                          info.append(span)
-                        }
-
-                        {
-                          const span = document.createElement("span")
-                          span.innerHTML = `.id`
-                          info.append(span)
-                        }
-
-                        const funnel = this.headerPicker("scrollable", overlay)
-
-
-                        const idField = new TextField("id", funnel)
-                        idField.input.required = true
-                        idField.input.accept = "text/tag"
-                        idField.label.innerHTML = "Template Id"
-                        idField.label.placeholder = "meine-id"
-                        idField.value(() => template.id)
-                        idField.verifyValue()
-                        idField.input.addEventListener("input", () => idField.verifyValue())
-
-                        const button = this.buttonPicker("action", funnel)
-                        button.innerHTML = "Jetzt ändern"
-                        button.addEventListener("click", async () => {
-
-                          const id = idField.validValue()
-
-                          const verify = {}
-                          verify.url = "/verify/template/closed/3/"
-                          verify.type = "id"
-                          verify.id = id
-                          const res = await Request.middleware(verify)
-
-                          if (res.status === 200) {
-                            alert("Id existiert bereits.")
-                            this.setNotValidStyle(idField.input)
-                            throw new Error(`id exist`)
-                          }
-
-                          this.overlay("toolbox", async securityOverlay => {
-                            this.headerPicker("loading", securityOverlay)
-
-                            const register = {}
-                            register.url = "/register/template/closed/3/"
-                            register.type = "id"
-                            register.old = template.id
-                            register.new = id
-                            const res = await Request.middleware(register)
-
-                            if (res.status === 200) {
-                              alert("Template Id erfolgreich gespeichert.")
-                              this.removeOverlay(templatesOverlay)
-                              this.removeOverlay(templateOverlay)
-                              this.removeOverlay(overlay)
-                              this.removeOverlay(securityOverlay)
-                            } else {
-                              alert("Fehler.. Bitte wiederholen.")
-                              this.removeOverlay(securityOverlay)
-                              throw new Error(`register template id failed`)
-                            }
-                          })
-
-                        })
-
-
-
-
-                      })
-                    })
-
-                  }
-
-                  {
-                    const button = this.buttonPicker("left/right", buttons)
-                    button.left.innerHTML = ".alias"
-                    button.right.innerHTML = "Alias ändern"
-
-                    button.addEventListener("click", () => {
-                      this.overlay("toolbox", overlay => {
-                        this.headerPicker("removeOverlay", overlay)
-
-                        const info = this.headerPicker("info", overlay)
-                        info.append(`.templates`)
-
-                        {
-                          const span = document.createElement("span")
-                          span.style.fontSize = "21px"
-                          span.innerHTML = `#${template.id}`
-                          info.append(span)
-                        }
-
-                        {
-                          const span = document.createElement("span")
-                          span.innerHTML = `.alias`
-                          info.append(span)
-                        }
-
-                        const funnel = this.headerPicker("scrollable", overlay)
-
-
-                        const aliasField = new TextField("alias", funnel)
-                        aliasField.input.required = true
-                        aliasField.label.innerHTML = "Template Alias"
-                        aliasField.label.placeholder = "Mein Skript"
-                        aliasField.value(() => template.alias)
-                        aliasField.verifyValue()
-                        aliasField.input.addEventListener("input", () => aliasField.verifyValue())
-
-                        const button = this.buttonPicker("action", funnel)
-                        button.innerHTML = "Jetzt ändern"
-                        button.addEventListener("click", async () => {
-
-                          const alias = aliasField.validValue()
-
-                          this.overlay("toolbox", async securityOverlay => {
-                            this.headerPicker("loading", securityOverlay)
-
-                            const register = {}
-                            register.url = "/register/template/closed/3/"
-                            register.type = "alias"
-                            register.id = template.id
-                            register.alias = alias
-                            const res = await Request.middleware(register)
-
-                            if (res.status === 200) {
-                              alert("Template Alias erfolgreich gespeichert.")
-                              this.removeOverlay(templatesOverlay)
-                              this.removeOverlay(templateOverlay)
-                              this.removeOverlay(overlay)
-                              this.removeOverlay(securityOverlay)
-                            } else {
-                              alert("Fehler.. Bitte wiederholen.")
-                              this.removeOverlay(securityOverlay)
-                              throw new Error(`register template alias failed`)
-                            }
-                          })
-
-                        })
-
-
-
-
-                      })
-                    })
-
-                  }
-
-                  {
-                    const button = this.buttonPicker("left/right", buttons)
-                    button.left.innerHTML = ".dependencies"
-                    button.right.innerHTML = "Abhängigkeiten definieren"
-
-                    button.addEventListener("click", () => {
-                      this.overlay("toolbox", async overlay => {
-                        this.headerPicker("removeOverlay", overlay)
-
-
-                        const info = this.headerPicker("info", overlay)
-                        info.append(`.templates`)
-
-                        {
-                          const span = document.createElement("span")
-                          span.style.fontSize = "21px"
-                          span.innerHTML = `#${template.id}`
-                          info.append(span)
-                        }
-
-                        {
-                          const span = document.createElement("span")
-                          span.innerHTML = `.dependencies`
-                          info.append(span)
-                        }
-
-
-                        const funnel = this.headerPicker("scrollable", overlay)
-
-
-                        const dependenciesField = new TextAreaField("dependencies", funnel)
-                        dependenciesField.input.style.height = "144px"
-                        dependenciesField.input.required = true
-                        dependenciesField.label.innerHTML = "Template Abhängigkeiten"
-                        dependenciesField.input.addEventListener("input", () => dependenciesField.verifyValue())
-
-                        const get = {}
-                        get.url = "/get/templates/closed/3/"
-                        get.type = "dependencies"
-                        get.id = template.id
-                        const res = await Request.middleware(get)
-
-                        if (res.status === 200) {
-                          dependenciesField.value(() => res.response)
-                        }
-                        dependenciesField.verifyValue()
-
-                        const button = this.buttonPicker("action", funnel)
-                        button.innerHTML = "Jetzt ändern"
-                        button.addEventListener("click", async () => {
-
-                          const dependencies = dependenciesField.validValue()
-
-                          this.overlay("toolbox", async securityOverlay => {
-                            this.headerPicker("loading", securityOverlay)
-
-                            const register = {}
-                            register.url = "/register/template/closed/3/"
-                            register.type = "dependencies"
-                            register.id = template.id
-                            register.dependencies = dependencies
-                            const res = await Request.middleware(register)
-
-                            if (res.status === 200) {
-                              alert("Template Abhängigkeiten erfolgreich gespeichert.")
-                              this.removeOverlay(overlay)
-                              this.removeOverlay(securityOverlay)
-                            } else {
-                              alert("Fehler.. Bitte wiederholen.")
-                              this.removeOverlay(securityOverlay)
-                              throw new Error(`register template dependencies failed`)
-                            }
-                          })
-
-                        })
-
-
-
-
-                      })
-                    })
-
-                  }
-
-                  {
-                    const button = this.buttonPicker("left/right", buttons)
-                    button.left.innerHTML = ".description"
-                    button.right.innerHTML = "Template beschreiben"
-
-
-                    button.addEventListener("click", () => {
-                      this.overlay("toolbox", async overlay => {
-                        this.headerPicker("removeOverlay", overlay)
-
-                        const info = this.headerPicker("info", overlay)
-                        info.append(`.templates`)
-
-                        {
-                          const span = document.createElement("span")
-                          span.style.fontSize = "21px"
-                          span.innerHTML = `#${template.id}`
-                          info.append(span)
-                        }
-
-                        {
-                          const span = document.createElement("span")
-                          span.innerHTML = `.description`
-                          info.append(span)
-                        }
-
-
-                        const funnel = this.headerPicker("scrollable", overlay)
-
-
-                        const descriptionField = new TextAreaField("description", funnel)
-                        descriptionField.input.style.height = "144px"
-                        descriptionField.input.required = true
-                        descriptionField.label.innerHTML = "Template Beschreibung"
-                        descriptionField.input.addEventListener("input", () => descriptionField.verifyValue())
-
-                        const get = {}
-                        get.url = "/get/templates/closed/3/"
-                        get.type = "description"
-                        get.id = template.id
-                        const res = await Request.middleware(get)
-
-                        if (res.status === 200) {
-                          descriptionField.value(() => res.response)
-                        }
-                        descriptionField.verifyValue()
-
-                        const button = this.buttonPicker("action", funnel)
-                        button.innerHTML = "Jetzt ändern"
-                        button.addEventListener("click", async () => {
-
-                          const description = descriptionField.validValue()
-
-                          this.overlay("toolbox", async securityOverlay => {
-                            this.headerPicker("loading", securityOverlay)
-
-                            const register = {}
-                            register.url = "/register/template/closed/3/"
-                            register.type = "description"
-                            register.id = template.id
-                            register.description = description
-                            const res = await Request.middleware(register)
-
-                            if (res.status === 200) {
-                              alert("Template Abhängigkeiten erfolgreich gespeichert.")
-                              this.removeOverlay(overlay)
-                              this.removeOverlay(securityOverlay)
-                            } else {
-                              alert("Fehler.. Bitte wiederholen.")
-                              this.removeOverlay(securityOverlay)
-                              throw new Error(`register template description failed`)
-                            }
-                          })
-
-                        })
-
-
-
-
-                      })
-                    })
-
-                  }
-
-                  {
-                    const button = this.buttonPicker("left/right", buttons)
-                    button.left.innerHTML = ".script"
-                    button.right.innerHTML = "Skript ändern"
-
-
-
-                    button.addEventListener("click", () => {
-                      this.overlay("toolbox", async overlay => {
-                        this.headerPicker("removeOverlay", overlay)
-
-                        const info = this.headerPicker("info", overlay)
-                        info.append(`.templates`)
-
-                        {
-                          const span = document.createElement("span")
-                          span.style.fontSize = "21px"
-                          span.innerHTML = `#${template.id}`
-                          info.append(span)
-                        }
-
-                        {
-                          const span = document.createElement("span")
-                          span.innerHTML = `.script`
-                          info.append(span)
-                        }
-
-                        const funnel = this.headerPicker("scrollable", overlay)
-
-
-                        const scriptField = new TextAreaField("script", funnel)
-                        scriptField.input.style.height = "144px"
-                        scriptField.input.required = true
-                        scriptField.label.innerHTML = "Template Skript"
-                        scriptField.input.addEventListener("input", () => scriptField.verifyValue())
-
-                        const get = {}
-                        get.url = "/get/templates/closed/3/"
-                        get.type = "script"
-                        get.id = template.id
-                        const res = await Request.middleware(get)
-
-                        if (res.status === 200) {
-                          scriptField.value(() => res.response)
-                        }
-                        scriptField.verifyValue()
-
-                        const button = this.buttonPicker("action", funnel)
-                        button.innerHTML = "Jetzt ändern"
-                        button.addEventListener("click", async () => {
-
-                          const script = scriptField.validValue()
-
-                          this.overlay("toolbox", async securityOverlay => {
-                            this.headerPicker("loading", securityOverlay)
-
-                            const register = {}
-                            register.url = "/register/template/closed/3/"
-                            register.type = "script"
-                            register.id = template.id
-                            register.script = script
-                            const res = await Request.middleware(register)
-
-                            if (res.status === 200) {
-                              alert("Template Skript erfolgreich gespeichert.")
-                              // this.removeOverlay(overlay)
-                              this.removeOverlay(securityOverlay)
-                            } else {
-                              alert("Fehler.. Bitte wiederholen.")
-                              this.removeOverlay(securityOverlay)
-                              throw new Error(`register template script failed`)
-                            }
-                          })
-
-                        })
-
-
-
-
-                      })
-                    })
-
-                  }
-
-                  {
-                    const button = this.buttonPicker("left/right", buttons)
-                    button.left.innerHTML = ".remove"
-                    button.right.innerHTML = "Template löschen"
-
-                    button.addEventListener("click", () => {
-
-
-                      this.overlay("toolbox", async securityOverlay => {
-                        this.headerPicker("loading", securityOverlay)
-
-                        const del = {}
-                        del.url = "/delete/template/closed/3/"
-                        del.id = template.id
-                        const res = await Request.middleware(del)
-
-                        if (res.status === 200) {
-                          alert("Template erfolgreich gelöscht.")
-                          this.removeOverlay(templatesOverlay)
-                          this.removeOverlay(overlay)
-                          this.removeOverlay(securityOverlay)
-                        } else {
-                          alert("Fehler.. Bitte wiederholen.")
-                          this.removeOverlay(securityOverlay)
-                        }
-                      })
-
-                    })
-                  }
-
-
-                }
-
-
-              })
-            })
-
-            const itemState = document.createElement("div")
-            itemState.classList.add("item-state")
-            itemState.style.display = "flex"
-            itemState.style.justifyContent = "center"
-            itemState.style.alignItems = "center"
-            itemState.style.width = "89px"
-            itemState.style.height = "89px"
-            itemState.style.fontSize = "34px"
-
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              itemState.style.backgroundColor = this.colors.dark.foreground
-            } else {
-              itemState.style.backgroundColor = this.colors.light.foreground
-            }
-
-            itemState.style.borderTopLeftRadius = "21px"
-            itemState.style.borderBottomLeftRadius = "21px"
-
-            const reputation = document.createElement("div")
-            reputation.innerHTML = template.reputation
-            reputation.style.fontSize = "34px"
-
-            itemState.append(reputation)
-
-
-            const itemTitle = document.createElement("div")
-            itemTitle.style.alignSelf = "center"
-            itemTitle.style.marginLeft = "13px"
-
-            {
-              const alias = document.createElement("div")
-              alias.innerHTML = template.alias
-              alias.style.fontSize = "21px"
-              itemTitle.append(alias)
-            }
-
-            {
-              const creator = document.createElement("div")
-              creator.innerHTML = template.id
-              creator.style.fontSize = "13px"
-              itemTitle.append(creator)
-            }
-
-            itemHeader.append(itemState, itemTitle)
-            item.append(itemHeader)
-
-            const itemBody = document.createElement("div")
-            itemBody.classList.add("item-body")
-            itemBody.style.marginLeft = "8%"
-
-
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              itemBody.style.backgroundColor = this.colors.matte.slate
-              itemBody.style.boxShadow = this.colors.dark.boxShadow
-            } else {
-              itemBody.style.boxShadow = this.colors.light.boxShadow
-              itemBody.style.backgroundColor = this.colors.gray[0]
-            }
-
-            itemBody.style.borderBottomRightRadius = "21px"
-            itemBody.style.borderBottomLeftRadius = "21px"
-            itemBody.style.padding = "21px"
-            itemBody.style.display = "flex"
-            itemBody.style.flexDirection = "column"
-
-            const buttons = document.createElement("div")
-            buttons.style.display = "flex"
-            buttons.style.alignItems = "center"
-
-            {
-
-              const button = document.createElement("div")
-              button.style.cursor = "pointer"
-              button.style.position = "relative"
-              button.addEventListener("click", () => {
-
-                this.overlay("toolbox", async overlay => {
-                  const feedbackOverlay = overlay
-
-                  this.headerPicker("removeOverlay", overlay)
-
-                  const info = this.headerPicker("info", overlay)
-                  info.append(this.convert("element/alias", document.body))
-                  info.append(this.convert("text/span", `.templates[${i}].feedback`))
-
-                  // const span = document.createElement("span")
-                  // span.innerHTML = `.templates[${i}].feedback`
-                  // span.style.fontSize = "13px"
-                  // span.style.fontFamily = "monospace"
-                  // info.append(span)
-
-                  const content = this.headerPicker("scrollable", overlay)
-                  // content.style.overflowY = "auto"
-                  // content.style.overscrollBehavior = "none"
-                  // content.style.paddingBottom = "144px"
-                  // overlay.append(content)
-
-                  const feedbackContainer = this.headerPicker("loading", content)
-                  feedbackContainer.info.remove()
-
-                  feedbackContainer.style.margin = "21px 34px"
-                  feedbackContainer.style.overflowY = "auto"
-                  feedbackContainer.style.overscrollBehavior = "none"
-                  feedbackContainer.style.fontFamily = "monospace"
-                  feedbackContainer.style.fontSize = "13px"
-                  feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
-
-
-                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    feedbackContainer.style.color = this.colors.dark.text
-                  } else {
-                    feedbackContainer.style.color = this.colors.light.text
-                  }
-
-                  const get = {}
-                  get.url = "/get/templates/closed/3/"
-                  get.type = "feedback"
-                  get.id = template.id
-                  get.location = window.location.href
-                  get.referer = document.referrer
-                  get.localStorageEmail = await Request.email()
-                  get.localStorageId = await Request.localStorageId()
-                  const res = await Request.middleware(get)
-
-                  if (res.status !== 200) {
-                    feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
-                    throw new Error("feedback not found")
-                  }
-
-                  getFeedbackSuccess: if (res.status === 200) {
-                    const feedback = JSON.parse(res.response)
-
-                    if (feedback.length === 0) {
-                      feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
-                      break getFeedbackSuccess
-                    }
-
-                    this.reset(feedbackContainer)
-                    feedbackContainer.style.margin = "21px 34px"
-                    feedbackContainer.style.overflowY = "auto"
-                    feedbackContainer.style.overscrollBehavior = "none"
-                    feedbackContainer.style.fontFamily = "monospace"
-                    feedbackContainer.style.fontSize = "13px"
-                    feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
-
-                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                      feedbackContainer.style.color = this.colors.dark.text
-                    } else {
-                      feedbackContainer.style.color = this.colors.light.text
-                    }
-
-
-                    for (let i = 0; i < feedback.length; i++) {
-                      const value = feedback[i]
-
-                      const div = document.createElement("div")
-                      div.style.display = "flex"
-                      div.style.justifyContent = "space-between"
-                      div.style.alignItems = "center"
-
-                      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-
-                        if (i % 2 === 0) {
-                          div.style.background = this.colors.light.foreground
-                          div.style.color = this.colors.light.text
-                        } else {
-                          div.style.background = this.colors.dark.foreground
-                          div.style.color = this.colors.dark.text
-                        }
-
-                      } else {
-
-                        if (i % 2 === 1) {
-                          div.style.background = this.colors.light.foreground
-                          div.style.color = this.colors.light.text
-                        } else {
-                          div.style.background = this.colors.dark.foreground
-                          div.style.color = this.colors.dark.text
-                        }
-
-                      }
-
-                      const left = document.createElement("span")
-                      left.innerHTML = `${this.convert("millis/dd.mm.yyyy hh:mm", value.created)}`
-                      div.append(left)
-
-                      const nextToLeft = document.createElement("span")
-                      nextToLeft.style.width = "100%"
-                      nextToLeft.style.margin = "0 13px"
-                      nextToLeft.innerHTML = value.content
-                      div.append(nextToLeft)
-
-                      const right = document.createElement("span")
-                      right.style.padding = "13px"
-                      right.innerHTML = value.importance
-                      div.append(right)
-
-                      feedbackContainer.append(div)
-
-                      div.style.cursor = "pointer"
-                      div.addEventListener("click", () => {
-
-                        this.overlay("toolbox", overlay => {
-                          this.headerPicker("removeOverlay", overlay)
-
-                          const button = this.buttonPicker("left/right", overlay)
-                          const icon = this.iconPicker("delete")
-                          icon.style.width = "34px"
-                          button.left.append(icon)
-                          button.right.innerHTML = "Feedback löschen"
-
-                          button.addEventListener("click", async () => {
-                            const confirm = window.confirm("Möchtest du diesen Beitrag wirklich löschen?")
-
-                            if (confirm === true) {
-                              const del = {}
-                              del.url = "/delete/feedback/closed/3/"
-                              del.type = "template"
-                              del.id = template.id
-                              del.created = value.created
-                              del.location = window.location.href
-                              del.referer = document.referrer
-                              del.localStorageEmail = await Request.email()
-                              del.localStorageId = await Request.localStorageId()
-                              const res = await Request.middleware(del)
-
-                              if (res.status === 200) {
-                                alert("Beitrag erfolgreich gelöscht.")
-                                length.innerHTML = template.feedbackLength - 1
-                                this.removeOverlay(overlay)
-                                this.removeOverlay(feedbackOverlay)
-                              } else {
-                                alert("Fehler.. Bitte wiederholen.")
-                                this.removeOverlay(overlay)
-                              }
-
-
-                            }
-
-                          })
-                        })
-
-                      })
-                    }
-
-
-                  }
-
-                  const contentField = new TextField("feedback", content)
-                  contentField.label.innerHTML = "Feedback"
-                  contentField.input.required = true
-                  contentField.input.maxLength = "377"
-                  contentField.verifyValue()
-                  contentField.input.addEventListener("input", () => contentField.verifyValue())
-
-                  const importanceField = new RangeField("importance", content)
-                  importanceField.input.min = "0"
-                  importanceField.input.max = "13"
-                  importanceField.input.step = "1"
-                  importanceField.input.value = "0"
-                  importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
-                  importanceField.verifyValue()
-                  importanceField.input.addEventListener("input", (event) => {
-                    importanceField.verifyValue()
-                    importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
-                  })
-
-                  const button = this.buttonPicker("action", content)
-                  button.innerHTML = "Jetzt speichern"
-                  button.addEventListener("click", () => {
-
-                    const importance = importanceField.validValue()
-                    const content = contentField.validValue()
-
-
-                    this.overlay("toolbox", async securityOverlay => {
-
-                      this.headerPicker("loading", securityOverlay)
-
-                      const register = {}
-                      register.url = "/register/feedback/closed/3/"
-                      register.type = "template"
-                      register.id = template.id
-                      register.importance = importance
-                      register.content = content
-                      register.location = window.location.href
-                      register.referer = document.referrer
-                      register.localStorageEmail = await Request.email()
-                      register.localStorageId = await Request.localStorageId()
-                      const res = await Request.middleware(register)
-
-                      if (res.status === 200) {
-                        alert("Feedback erfolgreich gespeichert.")
-                        this.removeOverlay(securityOverlay)
-                        this.removeOverlay(overlay)
-                        length.innerHTML = template.feedbackLength + 1
-                      } else {
-                        alert("Fehler.. Bitte wiederholen.")
-                        this.removeOverlay(securityOverlay)
-                      }
-
-                    })
-
-
-                  })
-
-
-
-                })
-
-              })
-
-
-              const icon = this.iconPicker("branch")
-              icon.style.width = "55px"
-              button.append(icon)
-
-              const length = document.createElement("div")
-              length.style.position = "absolute"
-              length.style.top = "0"
-              length.style.right = "0"
-              length.style.fontFamily = "monospace"
-              length.style.fontSize = "13px"
-              length.style.borderRadius = "50%"
-              length.style.padding = "3px 5px"
-              length.innerHTML = template.feedbackLength
-
-              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                length.style.color = this.colors.dark.text
-                length.style.background = this.colors.dark.foreground
-              } else {
-                length.style.color = this.colors.light.text
-                length.style.background = this.colors.light.foreground
-              }
-              button.append(length)
-              buttons.append(button)
-            }
-
-            itemBody.append(buttons)
-            item.append(itemBody)
-            parent.append(item)
-          }
-
-          return resolve()
-
-
-        } else {
-          return reject()
-        }
-      })
-
-
-
-    }
-
     if (event === "select/options") {
 
       if (parent === undefined) {
@@ -12655,7 +17135,7 @@ export class Helper {
 
             option.ok = () => {
               this.render("select/options", input)
-              this.removeOverlay(overlay)
+              this.remove("overlay", overlay)
             }
 
             this.get("funnel/select-option", overlay, option)
@@ -12729,11 +17209,8 @@ export class Helper {
 
     if (event === "text/h3") {
 
-      const h3 = document.createElement("h3")
+      const h3 = this.create("h3")
       h3.innerHTML = input
-      h3.style.margin = "21px 34px"
-      h3.style.fontFamily = "sans-serif"
-      h3.style.fontWeight = "normal"
 
       h3.style.color = this.colors.light.text
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -12746,11 +17223,8 @@ export class Helper {
 
     if (event === "text/h2") {
 
-      const h2 = document.createElement("h2")
+      const h2 = this.create("h2")
       h2.innerHTML = input
-      h2.style.margin = "21px 34px"
-      h2.style.fontFamily = "sans-serif"
-      h2.style.fontWeight = "normal"
 
       h2.style.color = this.colors.light.text
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -12763,11 +17237,8 @@ export class Helper {
 
     if (event === "text/h1") {
 
-      const h1 = document.createElement("h1")
+      const h1 = this.create("h1")
       h1.innerHTML = input
-      h1.style.margin = "21px 34px"
-      h1.style.fontFamily = "sans-serif"
-      h1.style.fontWeight = "normal"
 
       h1.style.color = this.colors.light.text
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -12791,7 +17262,7 @@ export class Helper {
         get.url = "/get/platform/closed"
         get.type = "roles"
         get.platform = platform
-        const res = await Request.closed(get)
+        const res = await this.request("closed/json", get)
 
 
         if (res.status === 200) {
@@ -12832,23 +17303,23 @@ export class Helper {
 
       this.convert("parent/scrollable", parent)
 
-      const visibilityField = new SelectionField("visibility", parent)
+      const visibilityField = this.create("field/select", parent)
       visibilityField.label.innerHTML = "Sichtbarkeit"
-      visibilityField.verifyValue()
-      visibilityField.select.addEventListener("input", () => {
-        const value = visibilityField.validValue()[0].value
+      this.verify("input/value", visibilityField.input)
+      visibilityField.input.addEventListener("input", () => {
+        const value = visibilityField.input.value
         input.visibility = value
         this.render(event, input, parent)
       })
 
       if (input.visibility === "open") {
-        visibilityField.options(["open", "closed"])
+        visibilityField.input.add(["open", "closed"])
 
         const button = this.buttonPicker("action", parent)
         button.innerHTML = "Sichtbarkeit jetzt ändern"
         button.addEventListener("click", async () => {
 
-          const visibility = visibilityField.validValue()[0].value
+          const visibility = visibilityField.input.value
 
           this.overlay("security", async securityOverlay => {
 
@@ -12856,13 +17327,13 @@ export class Helper {
 
             if (res.status === 200) {
               window.alert("Sichtbarkeit erfolgreich geändert.")
-              this.removeOverlay(parent.parentElement.previousSibling.previousSibling)
-              this.removeOverlay(parent.parentElement.previousSibling)
-              this.removeOverlay(parent.parentElement)
-              this.removeOverlay(securityOverlay)
+              this.remove("overlay", parent.parentElement.previousSibling.previousSibling)
+              this.remove("overlay", parent.parentElement.previousSibling)
+              this.remove("overlay", parent.parentElement)
+              this.remove("overlay", securityOverlay)
             } else {
               window.alert("Fehler.. Bitte wiederholen.")
-              this.removeOverlay(securityOverlay)
+              this.remove("overlay", securityOverlay)
             }
 
           })
@@ -12873,11 +17344,11 @@ export class Helper {
 
       if (input.visibility === "closed") {
 
-        visibilityField.options(["closed", "open"])
+        visibilityField.input.add(["closed", "open"])
 
-        const rolesField = new SelectionField("roles", parent)
+        const rolesField = this.create("field/select", parent)
         rolesField.label.innerHTML = "Nutzer mit diesen Rollen dürfen mit deiner Werteinheit interagieren"
-        rolesField.select.multiple = true
+        rolesField.input.multiple = true
 
         const array = []
 
@@ -12893,9 +17364,9 @@ export class Helper {
         }
 
 
-        rolesField.options(array)
+        rolesField.input.add(array)
 
-        rolesField.verifyValue()
+        this.verify("input/value", rolesField.input)
 
         const selected = []
         for (let i = 0; i < input.roles.selected.length; i++) {
@@ -12920,8 +17391,8 @@ export class Helper {
         for (let i = 0; i < selected.length; i++) {
           const value = selected[i]
 
-          for (let i = 0; i < rolesField.select.options.length; i++) {
-            const option = rolesField.select.options[i]
+          for (let i = 0; i < rolesField.input.options.length; i++) {
+            const option = rolesField.input.options[i]
 
             if (option.value === value) {
               option.selected = true
@@ -12931,41 +17402,41 @@ export class Helper {
 
         }
 
-        const authorizedField = new TextAreaField("authorized", parent)
+        const authorizedField = this.create("field/emails", parent)
         authorizedField.label.innerHTML = "Nutzer mit diesen E-Mail Adressen dürfen mit deiner Werteinheit interagieren"
-        authorizedField.input.style.fontSize = "13px"
-        authorizedField.input.style.fontFamily = "monospace"
-        authorizedField.input.style.height = "89px"
-        authorizedField.input.required = true
-        authorizedField.input.accept = "email/array"
         authorizedField.input.value = JSON.stringify(input.authorized)
-        authorizedField.verifyValue()
-        authorizedField.input.addEventListener("input", () => authorizedField.verifyValue())
+        this.verify("input/value", authorizedField.input)
+        authorizedField.input.addEventListener("input", () => this.verify("input/value", authorizedField.input))
 
         const button = this.buttonPicker("action", parent)
         button.innerHTML = "Sichtbarkeit jetzt ändern"
         button.addEventListener("click", async () => {
 
-          const visibility = visibilityField.validValue()[0].value
+          await this.verifyIs("field-funnel/valid", parent)
+
+          const visibility = visibilityField.input.value
 
           const roles = []
-          for (let i = 0; i < rolesField.validValue().length; i++) {
-            const option = rolesField.validValue()[i]
+          for (let i = 0; i < rolesField.input.options.length; i++) {
+            const option = rolesField.input.options[i]
 
-            if (input.roles !== undefined) {
-              if (input.roles.available !== undefined) {
-                for (let i = 0; i < input.roles.available.length; i++) {
-                  const role = input.roles.available[i]
-                  if (role.name === option.value) {
-                    roles.push(role.id)
+            if (option.selected === true) {
+              if (input.roles !== undefined) {
+                if (input.roles.available !== undefined) {
+                  for (let i = 0; i < input.roles.available.length; i++) {
+                    const role = input.roles.available[i]
+                    if (role.name === option.value) {
+                      roles.push(role.id)
+                    }
                   }
                 }
               }
             }
 
+
           }
 
-          const authorized = JSON.parse(authorizedField.validValue())
+          const authorized = JSON.parse(authorizedField.input.value)
 
           this.overlay("security", async securityOverlay => {
 
@@ -12973,14 +17444,14 @@ export class Helper {
 
             if (res.status === 200) {
               window.alert("Sichtbarkeit erfolgreich geändert.")
-              this.removeOverlay(parent.parentElement.previousSibling.previousSibling)
-              this.removeOverlay(parent.parentElement.previousSibling)
-              this.removeOverlay(parent.parentElement)
-              this.removeOverlay(securityOverlay)
+              this.remove("overlay", parent.parentElement.previousSibling.previousSibling)
+              this.remove("overlay", parent.parentElement.previousSibling)
+              this.remove("overlay", parent.parentElement)
+              this.remove("overlay", securityOverlay)
 
             } else {
               window.alert("Fehler.. Bitte wiederholen.")
-              this.removeOverlay(securityOverlay)
+              this.remove("overlay", securityOverlay)
             }
 
           })
@@ -13098,21 +17569,20 @@ export class Helper {
                     const funnel = this. headerPicker("scrollable", overlay)
 
                     {
-                      const pathField = new TextField("path", funnel)
-                      pathField.value(() => value.path.split("/")[3])
+                      const pathField = this.create("field/tag", funnel)
+                      pathField.input.value = value.path.split("/")[3]
                       pathField.label.innerHTML = "Pfad"
-                      pathField.input.accept = "text/tag"
                       pathField.input.maxLength = "144"
-                      pathField.input.required = true
                       pathField.input.placeholder = "Meine Werteinheit"
-                      pathField.input.addEventListener("input", (event) => pathField.verifyValue())
-                      pathField.verifyValue()
+                      pathField.input.addEventListener("input", (event) => this.verify("input/value", pathField.input))
+                      this.verify("input/value", pathField.input)
 
                       const button = this.buttonPicker("action", funnel)
                       button.innerHTML = "Pfad jetzt ändern"
                       button.addEventListener("click", async () => {
 
-                        const path = pathField.validValue()
+                        await this.verify("input/value", pathField.input)
+                        const path = pathField.input.value
 
                         this.overlay("security", async securityOverlay => {
 
@@ -13121,13 +17591,13 @@ export class Helper {
                             verify.url = "/verify/platform-value/open/"
                             verify.type = "path"
                             verify.path = `/${value.path.split("/")[1]}/${value.path.split("/")[2]}/${path}/`
-                            const res = await Request.middleware(verify)
+                            const res = await this.request("closed/json", verify)
 
                             if (res.status === 200) {
                               window.alert("Pfad existiert bereits.")
                               this.setNotValidStyle(pathField.input)
-                              pathField.field.scrollIntoView({behavior: "smooth"})
-                              this.removeOverlay(securityOverlay)
+                              pathField.scrollIntoView({behavior: "smooth"})
+                              this.remove("overlay", securityOverlay)
                               throw new Error("path exist")
                             }
                           }
@@ -13139,20 +17609,20 @@ export class Helper {
                           register.type = "path"
                           register.oldPath = value.path
                           register.newPath = path
-                          const res = await Request.middleware(register)
+                          const res = await this.request("closed/json", register)
 
                           if (res.status === 200) {
-                            window.alert("Pfad erfolgreich geändert..")
+                            window.alert("Pfad erfolgreich geändert.")
 
-                            this.removeOverlay(overlay.previousSibling.previousSibling)
-                            this.removeOverlay(overlay.previousSibling)
-                            this.removeOverlay(overlay)
+                            this.remove("overlay", overlay.previousSibling.previousSibling)
+                            this.remove("overlay", overlay.previousSibling)
+                            this.remove("overlay", overlay)
 
-                            this.removeOverlay(securityOverlay)
+                            this.remove("overlay", securityOverlay)
 
                           } else {
                             window.alert("Fehler.. Bitte wiederholen.")
-                            this.removeOverlay(securityOverlay)
+                            this.remove("overlay", securityOverlay)
                           }
                         })
 
@@ -13181,20 +17651,21 @@ export class Helper {
                     {
                       const funnel = this.headerPicker("scrollable", overlay)
 
-                      const valueAliasField = new TextField("valueAlias", funnel)
-                      valueAliasField.value(() => value.alias)
+                      const valueAliasField = this.create("field/text", funnel)
+                      valueAliasField.input.value = value.alias
                       valueAliasField.label.innerHTML = "Alias"
                       valueAliasField.input.maxLength = "144"
-                      valueAliasField.input.required = true
+                      valueAliasField.input.setAttribute("required", "true")
                       valueAliasField.input.placeholder = "Meine Werteinheit"
-                      valueAliasField.input.addEventListener("input", () => valueAliasField.verifyValue())
-                      valueAliasField.verifyValue()
+                      valueAliasField.input.addEventListener("input", () => this.verify("input/value", valueAliasField.input))
+                      this.verify("input/value", valueAliasField.input)
 
                       const button = this.buttonPicker("action", funnel)
                       button.innerHTML = "Alias jetzt ändern"
                       button.addEventListener("click", async () => {
 
-                        const alias = valueAliasField.validValue()
+                        await this.verify("input/value", valueAliasField.input)
+                        const alias = valueAliasField.input.value
 
                         this.overlay("security", async securityOverlay => {
 
@@ -13203,15 +17674,15 @@ export class Helper {
                           if (res.status === 200) {
                             window.alert("Alias erfolgreich geändert..")
 
-                            this.removeOverlay(overlay.previousSibling.previousSibling)
-                            this.removeOverlay(overlay.previousSibling)
-                            this.removeOverlay(overlay)
+                            this.remove("overlay", overlay.previousSibling.previousSibling)
+                            this.remove("overlay", overlay.previousSibling)
+                            this.remove("overlay", overlay)
 
-                            this.removeOverlay(securityOverlay)
+                            this.remove("overlay", securityOverlay)
 
                           } else {
                             alert("Fehler.. Bitte wiederholen.")
-                            this.removeOverlay(securityOverlay)
+                            this.remove("overlay", securityOverlay)
                           }
                         })
 
@@ -13276,13 +17747,13 @@ export class Helper {
                         if (res.status === 200) {
                           window.alert("Sprache erfolgreich geändert..")
 
-                          this.removeOverlay(overlay)
+                          this.remove("overlay", overlay)
 
-                          this.removeOverlay(securityOverlay)
+                          this.remove("overlay", securityOverlay)
 
                         } else {
                           window.alert("Fehler.. Bitte wiederholen.")
-                          this.removeOverlay(securityOverlay)
+                          this.remove("overlay", securityOverlay)
                         }
 
 
@@ -13320,7 +17791,7 @@ export class Helper {
                       get.url = "/get/platform-value/closed/"
                       get.type = "visibility"
                       get.path = value.path
-                      const res = await Request.closed(get)
+                      const res = await this.request("closed/json", get)
 
                       if (res.status === 200) {
                         const map = JSON.parse(res.response)
@@ -13439,19 +17910,19 @@ export class Helper {
                       const del = {}
                       del.url = "/delete/platform-value/closed/"
                       del.path = value.path
-                      const res = await Request.middleware(del)
+                      const res = await this.request("closed/json", del)
 
                       if (res.status === 200) {
                         window.alert("Werteinheit erfolgreich gelöscht..")
 
-                        this.removeOverlay(overlay.previousSibling)
-                        this.removeOverlay(overlay)
+                        this.remove("overlay", overlay.previousSibling)
+                        this.remove("overlay", overlay)
 
-                        this.removeOverlay(securityOverlay)
+                        this.remove("overlay", securityOverlay)
 
                       } else {
                         window.alert("Fehler.. Bitte wiederholen.")
-                        this.removeOverlay(securityOverlay)
+                        this.remove("overlay", securityOverlay)
                       }
                     })
 
@@ -13673,40 +18144,40 @@ export class Helper {
                   {
                     const funnel = this.headerPicker("scrollable", overlay)
 
-                    const valuePathField = new TextField("valuePath", funnel)
+                    const valuePathField = this.create("field/tag", funnel)
                     valuePathField.label.innerHTML = "Pfad"
-                    valuePathField.input.accept = "text/tag"
                     valuePathField.input.maxLength = "144"
-                    valuePathField.input.required = true
                     valuePathField.input.placeholder = "meine-werteinheit"
-                    valuePathField.input.addEventListener("input", () => valuePathField.verifyValue())
-                    valuePathField.verifyValue()
+                    this.verify("input/value", valuePathField.input)
+                    valuePathField.input.addEventListener("input", () => this.verify("input/value", valuePathField.input))
 
-                    const valueAliasField = new TextField("valueAlias", funnel)
+                    const valueAliasField = this.create("field/text", funnel)
                     valueAliasField.label.innerHTML = "Alias"
                     valueAliasField.input.maxLength = "144"
-                    valueAliasField.input.required = true
+                    valueAliasField.input.setAttribute("required", "true")
                     valueAliasField.input.placeholder = "Meine Werteinheit"
-                    valueAliasField.input.addEventListener("input", () => valueAliasField.verifyValue())
-                    valueAliasField.verifyValue()
+                    valueAliasField.input.addEventListener("input", () => this.verify("input/value", valueAliasField.input))
+                    this.verify("input/value", valueAliasField.input)
 
                     const button = this.buttonPicker("action", funnel)
                     button.innerHTML = "Werteinheit jetzt speichern"
                     button.addEventListener("click", async () => {
 
-                      const path = valuePathField.validValue()
-                      const alias = valueAliasField.validValue()
+                      await this.verifyIs("field-funnel/valid", funnel)
+
+                      const path = valuePathField.input.value
+                      const alias = valueAliasField.input.value
 
                       const verify = {}
                       verify.url = "/verify/platform-value/open/"
                       verify.type = "path"
                       verify.path = `/${window.location.pathname.split("/")[1]}/${platform.name}/${path}/`
-                      const res = await Request.middleware(verify)
+                      const res = await this.request("closed/json", verify)
 
                       if (res.status === 200) {
                         window.alert("Pfad existiert bereits.")
                         this.setNotValidStyle(valuePathField.input)
-                        valuePathField.field.scrollIntoView({behavior: "smooth"})
+                        valuePathField.scrollIntoView({behavior: "smooth"})
                         throw new Error("path exist")
                       }
 
@@ -13717,11 +18188,11 @@ export class Helper {
 
                         if (res.status === 200) {
                           alert("Werteinheit erfolgreich gespeichert..")
-                          this.removeOverlay(securityOverlay)
-                          this.removeOverlay(overlay)
+                          this.remove("overlay", securityOverlay)
+                          this.remove("overlay", overlay)
                         } else {
                           alert("Fehler.. Bitte wiederholen.")
-                          this.removeOverlay(securityOverlay)
+                          this.remove("overlay", securityOverlay)
                         }
 
 
@@ -13755,7 +18226,7 @@ export class Helper {
                   const get = {}
                   get.url = "/get/platform-values/closed/"
                   get.platform = platform.name
-                  const res = await Request.closed(get)
+                  const res = await this.request("closed/json", get)
 
                   if (res.status !== 200) {
                     window.location.assign("/")
@@ -13802,7 +18273,7 @@ export class Helper {
 
                       this.update("platform/role", overlay, {platform: platform.name, ok: async () => {
 
-                        this.reset(roleList)
+                        this.convert("element/reset", roleList)
                         await this.update("platform/roles", roleList, platform.name)
 
                       }})
@@ -13848,15 +18319,15 @@ export class Helper {
                       funnel.nameField = this.create("field/name", funnel)
                       funnel.nameField.label.innerHTML = "Gebe deinem Match Maker einen einzigartigen Namen (json/tag)"
 
-                      this.verifyIs("input/valid", funnel.nameField.input)
-                      funnel.nameField.input.oninput = () => this.verifyIs("input/valid", funnel.nameField.input)
+                      this.verify("input/value", funnel.nameField.input)
+                      funnel.nameField.input.oninput = () => this.verify("input/value", funnel.nameField.input)
 
                       funnel.submit = this.create("button/action", funnel)
                       funnel.submit.innerHTML = "Match Maker jetzt speichern"
 
                       funnel.submit.onclick = async () => {
 
-                        const res = await this.verifyIs("input/valid", funnel.nameField.input)
+                        const res = await this.verify("input/value", funnel.nameField.input)
 
                         if (res === true) {
 
@@ -13910,75 +18381,6 @@ export class Helper {
 
             {
               const button = this.buttonPicker("left/right", buttons)
-              button.right.innerHTML = "Angebot erstellen"
-              button.left.innerHTML = ".offer"
-
-              button.addEventListener("click", () => {
-                this.overlay("toolbox", overlay => {
-                  this.headerPicker("removeOverlay", overlay)
-                  const info = this.headerPicker("info", overlay)
-                  info.append(this.convert("text/span", ".offer"))
-
-                  const input = {}
-                  input.ok = () => window.alert("Angebot erfolgreich gespeichert.")
-                  input.platform = platform.name
-
-                  this.get("offer/closed", overlay, input)
-
-                })
-              })
-            }
-
-            {
-              const button = this.buttonPicker("left/right", buttons)
-              button.left.innerHTML = ".services"
-              button.right.innerHTML = "Leistungen definieren"
-
-              button.addEventListener("click", () => {
-                const input = {}
-                input.platform = platform.name
-                this.overlay("toolbox", async overlay => {
-
-                  this.headerPicker("removeOverlay", overlay)
-                  const info = this.headerPicker("info", overlay)
-                  info.innerHTML = `.services`
-
-                  const create = this.buttonPicker("left/right", overlay)
-                  create.left.innerHTML = ".create"
-                  create.right.innerHTML = "Neue Leistung definieren"
-                  create.addEventListener("click", () => {
-
-
-                    this.overlay("toolbox", overlay => {
-                      this.headerPicker("removeOverlay", overlay)
-                      const info = this.headerPicker("info", overlay)
-                      info.append(this.convert("text/span", ".service"))
-
-                      input.ok = async () => {
-
-                        this.reset(container)
-                        await this.get("services/closed", container, input)
-                        this.removeOverlay(overlay)
-
-                      }
-
-                      this.get("funnel/service", overlay, input)
-
-                    })
-
-                  })
-
-                  this.render("text/hr", "Meine Leistungen", overlay)
-
-                  const container = await this.get("services/closed", overlay, input)
-
-                })
-              })
-
-            }
-
-            {
-              const button = this.buttonPicker("left/right", buttons)
               button.right.innerHTML = "Namen ändern"
               button.left.innerHTML = ".name"
               button.addEventListener("click", () => {
@@ -13993,55 +18395,45 @@ export class Helper {
 
                   const funnel = this.headerPicker("scrollable", overlay)
 
-                  const platformNameField = new TextField("platformName", funnel)
-                  platformNameField.value(() => platform.name)
+                  const platformNameField = this.create("field/tag", funnel)
+                  platformNameField.input.value = platform.name
                   platformNameField.label.innerHTML = "Plattform"
-                  platformNameField.input.accept = "text/tag"
                   platformNameField.input.maxLength = "21"
-                  platformNameField.input.required = true
                   platformNameField.input.placeholder = "meine-plattform"
-                  platformNameField.input.addEventListener("input", () => platformNameField.verifyValue())
-                  platformNameField.verifyValue()
+                  platformNameField.input.addEventListener("input", () => this.verify("input/value", platformNameField.input))
+                  this.verify("input/value", platformNameField.input)
 
                   const button = this.buttonPicker("action", funnel)
                   button.innerHTML = "Namen jetzt ändern"
                   button.addEventListener("click", async () => {
 
-                    const platformName = platformNameField.validValue()
-
+                    await this.verify("input/value", platformNameField.input)
+                    const platformName = platformNameField.input.value
 
                     this.overlay("security", async securityOverlay => {
 
                       {
 
-                        const verify = {}
-                        verify.url = "/verify/platform/open/"
-                        verify.platform = platformName
-                        const res = await Request.middleware(verify)
+                        const res = await this.verify("platform-name/exist-open", platformName)
 
                         if (res.status === 200) {
                           window.alert("Plattform existiert bereits.")
                           this.setNotValidStyle(platformNameField.input)
-                          this.removeOverlay(securityOverlay)
+                          this.remove("overlay", securityOverlay)
                           throw new Error("platform exist")
                         }
 
                       }
 
 
-                      const register = {}
-                      register.url = "/register/platform/closed/"
-                      register.type = "name"
-                      register.newPlatform = platformName
-                      register.oldPlatform = platform.name
-                      const res = await Request.middleware(register)
+                      const res = await this.register("name/platform/location-expert", {old: platform.name, new: platformName})
 
                       if (res.status === 200) {
-                        window.alert("Platform erfolgreich geändert..")
+                        window.alert("Plattform Name erfolgreich gespeichert.")
                         window.location.reload()
                       } else {
                         window.alert("Fehler.. Bitte wiederholen.")
-                        this.removeOverlay(securityOverlay)
+                        this.remove("overlay", securityOverlay)
                       }
                     })
 
@@ -14090,33 +18482,34 @@ export class Helper {
                   const funnel = this.headerPicker("scrollable", overlay)
 
                   {
-                    const visibilityField = new SelectionField("visibility", funnel)
+                    const visibilityField = this.create("field/select", funnel)
                     visibilityField.label.innerHTML = "Sichtbarkeit"
 
                     const get = {}
                     get.url = "/get/platform/closed/"
                     get.type = "visibility"
                     get.platform = platform.name
-                    const res = await Request.closed(get)
+                    const res = await this.request("closed/json", get)
 
                     if (res.status === 200) {
                       const visibility = res.response
 
                       if (visibility === "open") {
-                        visibilityField.options(["open", "closed"])
+                        visibilityField.input.add(["open", "closed"])
                       }
                       if (visibility === "closed") {
-                        visibilityField.options(["closed", "open"])
+                        visibilityField.input.add(["closed", "open"])
                       }
                     }
 
-                    visibilityField.verifyValue()
+
+                    this.verify("input/value", visibilityField.input)
 
                     const button = this.buttonPicker("action", funnel)
                     button.innerHTML = "Sichtbarkeit jetzt ändern"
                     button.addEventListener("click", async () => {
 
-                      const visibility = visibilityField.validValue()[0].value
+                      const visibility = visibilityField.input.value
 
                       this.overlay("security", async securityOverlay => {
 
@@ -14125,15 +18518,15 @@ export class Helper {
                         register.type = "visibility"
                         register.visibility = visibility
                         register.platform = platform.name
-                        const res = await Request.closed(register)
+                        const res = await this.request("closed/json", register)
 
                         if (res.status === 200) {
                           window.alert("Sichtbarkeit erfolgreich geändert.")
-                          this.removeOverlay(overlay)
-                          this.removeOverlay(securityOverlay)
+                          this.remove("overlay", overlay)
+                          this.remove("overlay", securityOverlay)
                         } else {
                           window.alert("Fehler.. Bitte wiederholen.")
-                          this.removeOverlay(securityOverlay)
+                          this.remove("overlay", securityOverlay)
                         }
 
                       })
@@ -14160,14 +18553,14 @@ export class Helper {
                     const del = {}
                     del.url = "/delete/platform/closed/"
                     del.platform = platform.name
-                    const res = await Request.middleware(del)
+                    const res = await this.request("closed/json", del)
 
                     if (res.status === 200) {
                       alert("Plattform erfolgreich gelöscht..")
                       window.location.reload()
                     } else {
                       alert("Fehler.. Bitte wiederholen.")
-                      this.removeOverlay(securityOverlay)
+                      this.remove("overlay", securityOverlay)
                     }
                   })
 
@@ -14207,7 +18600,7 @@ export class Helper {
               const ping = {}
               ping.url = "/get/platform-values/location/"
               ping.platform = platform.name
-              const res = await Request.location(ping)
+              const res = await this.request("location/json", ping)
 
               if (res.status === 200) {
                 const values = JSON.parse(res.response)
@@ -14273,7 +18666,7 @@ export class Helper {
 
                 field.ok = () => {
                   this.get(event, parent, input)
-                  this.removeOverlay(overlay)
+                  this.remove("overlay", overlay)
                 }
 
                 this.get("funnel/field", content, field)
@@ -14383,6 +18776,3032 @@ export class Helper {
 
               }
 
+
+              if (child.tagName === "DIV") {
+
+                const button = this.buttonPicker("left/right", buttons)
+                button.left.innerHTML = ".creator"
+                button.right.innerHTML = "Bearbeite dein Element schnell und einfach"
+                button.addEventListener("click", () => {
+
+                  this.overlay("toolbox", overlay => {
+
+                    this.add("button/remove-overlay", overlay)
+
+                    const save = this.create("button/save", overlay)
+                    save.onclick = async () => {
+                      await this.remove("element/selected-node", preview)
+                      clone.removeAttribute("contenteditable")
+                      child.replaceWith(clone.cloneNode(true))
+                      this.add("event/register-html")
+                    }
+
+                    const info = this.headerPicker("info", overlay)
+                    info.append(this.convert("element/alias", child))
+                    info.append(this.convert("text/span", ".clone"))
+
+                    const content = this.create("div", overlay)
+                    content.style.height = "100vh"
+                    content.style.touchAction = "manipulation"
+
+                    const preview = document.createElement("div")
+                    preview.style.height = `${window.innerHeight * 0.6}px`
+                    preview.style.overflow = "auto"
+                    content.append(preview)
+
+                    const backgroundColor = child.parentElement.style.backgroundColor
+                    if (!backgroundColor || backgroundColor === "transparent") {
+                      preview.style.backgroundColor = "white"
+                    } else {
+                      preview.style.backgroundColor = backgroundColor
+                    }
+
+                    const clone = child.cloneNode(true)
+                    clone.setAttribute("contenteditable", "true")
+                    preview.append(clone)
+
+                    let selectedNode = clone
+
+
+                    preview.addEventListener("keydown", ev => {
+                      if (ev.metaKey && ev.key === 'c') {
+                        ev.preventDefault()
+                        if (selectedNode) {
+                          this.convert("text/clipboard", selectedNode.outerHTML).then(() => console.log("hi"))
+                        }
+                      }
+                    })
+
+                    preview.addEventListener("keydown", ev => {
+                      if (ev.metaKey && ev.key === 'v') {
+                        ev.preventDefault()
+                        if (selectedNode) {
+                          this.convert("clipboard/text").then(text => {
+                            const node = this.convert("text/node", text)
+                            selectedNode.append(node)
+                          })
+                        }
+                      }
+                    })
+
+                    let rememberSelectedNodes = []
+                    // let rememberSelectedParent
+                    // let rememberSelectedIndex
+                    preview.addEventListener("keydown", ev => {
+                      if (ev.metaKey && ev.key === 'Backspace') {
+                        ev.preventDefault()
+                        if (selectedNode) {
+                          // rememberSelectedParent = selectedNode.parentElement
+                          // rememberSelectedIndex = Array.from(selectedNode.parentElement.children).indexOf(selectedNode)
+                          rememberSelectedNodes.push({ node: selectedNode, parent: selectedNode.parentElement, index: Array.from(selectedNode.parentElement.children).indexOf(selectedNode)})
+                          selectedNode.remove()
+                        }
+                      }
+                    })
+
+                    preview.addEventListener("keydown", ev => {
+                      if (ev.metaKey && ev.key === 'z') {
+                        ev.preventDefault()
+                        if (selectedNode) {
+                          if (rememberSelectedNodes.length > 0) {
+                            const { node, parent, index } = rememberSelectedNodes.pop()
+                            const children = Array.from(parent.children)
+                            if (index >= 0 && index < children.length) {
+                              parent.insertBefore(node, children[index])
+                            } else {
+                              parent.appendChild(node)
+                            }
+                          }
+
+                        }
+                      }
+                    })
+
+                    selectedNode.onclick = async (ev) => {
+                      ev.preventDefault()
+                      ev.stopPropagation()
+                      await this.remove("element/selected-node", preview)
+                      selectedNode = clone
+                      this.add("element/selected-node", selectedNode)
+                    }
+
+                    preview.onclick = async (ev) => {
+                      ev.preventDefault()
+                      ev.stopPropagation()
+                      await this.remove("element/selected-node", preview)
+                      selectedNode = clone
+                    }
+
+                    for (let i = 0; i < clone.children.length; i++) {
+                      const cloneChild = clone.children[i]
+
+                      this.add("event/dbltouch", {node: cloneChild, callback: async ev => {
+                        ev.preventDefault()
+                        ev.stopPropagation()
+                        await this.remove("element/selected-node", preview)
+                        selectedNode = ev.target.parentElement
+                        this.add("element/selected-node", selectedNode)
+                      }})
+
+                      cloneChild.ondblclick = async (ev) => {
+                        ev.preventDefault()
+                        ev.stopPropagation()
+                        await this.remove("element/selected-node", preview)
+                        selectedNode = ev.target.parentElement
+                        this.add("element/selected-node", selectedNode)
+                      }
+
+                      cloneChild.onclick = async (ev) => {
+                        ev.preventDefault()
+                        ev.stopPropagation()
+
+                        if (ev.target.hasAttribute("selected-node")) {
+                          await this.remove("element/selected-node", preview)
+                          selectedNode = clone
+                          this.add("element/selected-node", selectedNode)
+                        } else {
+                          await this.remove("element/selected-node", preview)
+                          selectedNode = ev.target
+                          this.add("element/selected-node", selectedNode)
+                        }
+
+                      }
+
+                    }
+
+                    const observer = new MutationObserver((mutationsList) => {
+                      mutationsList.forEach((mutation) => {
+                        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+
+                          mutation.addedNodes.forEach(async (node) => {
+
+                            if (node.nodeType === Node.ELEMENT_NODE) {
+
+
+                              this.add("event/dbltouch", {node: node, callback: async ev => {
+                                ev.preventDefault()
+                                ev.stopPropagation()
+                                await this.remove("element/selected-node", preview)
+                                selectedNode = ev.target.parentElement
+                                this.add("element/selected-node", selectedNode)
+                              }})
+
+                              node.ondblclick = async (ev) => {
+                                ev.preventDefault()
+                                ev.stopPropagation()
+                                await this.remove("element/selected-node", preview)
+                                selectedNode = ev.target.parentElement
+                                this.add("element/selected-node", selectedNode)
+                              }
+
+                              node.onclick = async (ev) => {
+                                ev.preventDefault()
+                                ev.stopPropagation()
+
+                                if (ev.target.hasAttribute("selected-node")) {
+                                  await this.remove("element/selected-node", preview)
+                                  selectedNode = clone
+                                  this.add("element/selected-node", selectedNode)
+                                } else {
+                                  await this.remove("element/selected-node", preview)
+                                  selectedNode = ev.target
+                                  this.add("element/selected-node", selectedNode)
+                                }
+
+                              }
+
+                            }
+                          })
+                        }
+                      })
+                    })
+                    observer.observe(selectedNode, { childList: true, subtree: true })
+
+
+
+
+
+                    const optionsContainer = this.create("div/scrollable", content)
+                    optionsContainer.style.marginTop = "21px"
+                    optionsContainer.style.height = `${window.innerHeight * 0.2}px`
+
+
+
+                    this.render("text/hr", "Anwendungen für Vorlagen einsetzen", optionsContainer)
+                    const templateOptions = this.create("div/flex-row", optionsContainer)
+
+                    const createFlexButton = this.create("button/create-flex", templateOptions)
+                    createFlexButton.onclick = () => {
+
+                      const prompt = window.prompt("Gebe die Breite deiner Flex Elemente ein:")
+
+                      if (prompt) {
+
+                        const widths = prompt.split(" ")
+
+                        const flexContainer = document.createElement("div")
+                        flexContainer.classList.add("flex-container")
+                        flexContainer.style.display = "flex"
+                        flexContainer.style.flexWrap = "wrap"
+
+                        for (var i = 0; i < widths.length; i++) {
+                          const width = widths[i]
+
+                          const flexItem = document.createElement("div")
+                          flexItem.classList.add("flex-item")
+                          flexItem.textContent = `flex-item-${i + 1}`
+                          flexItem.style.flex = `1 1 ${width}`
+                          flexContainer.appendChild(flexItem)
+                        }
+
+                        selectedNode.appendChild(flexContainer)
+
+                      }
+
+                    }
+
+                    const wrapButton = this.create("button/wrap", templateOptions)
+                    wrapButton.onclick = () => {
+                      const prompt = window.prompt("Gebe deine Zeilenmatrix ein: (1 2 2)")
+
+                      const rows = prompt.split(" ")
+
+                      const wrapContainer = document.createElement("div")
+                      wrapContainer.classList.add("flex-container")
+                      wrapContainer.style.display = "flex"
+                      wrapContainer.style.flexWrap = "wrap"
+                      wrapContainer.style.margin = "21px 34px"
+
+                      for (var i = 0; i < rows.length; i++) {
+                        const row = rows[i]
+
+                        const rowNumber = parseInt(row)
+
+                        if (rowNumber >= 1 && rowNumber <= 9) {
+
+                          const rowDiv = document.createElement("div")
+                          rowDiv.classList.add(`row-${i + 1}`)
+                          rowDiv.style.width = "300px"
+                          rowDiv.style.display = "flex"
+                          rowDiv.style.flexWrap = "wrap"
+                          rowDiv.style.margin = "21px 34px"
+
+                          wrapContainer.append(rowDiv)
+
+                          for (let i = 0; i < rowNumber; i++) {
+
+                            const rowPart = document.createElement("div")
+                            rowPart.classList.add("row-part")
+                            rowPart.innerHTML = `flex-item-${i + 1}`
+                            rowPart.style.width = `${100 / rowNumber}%`
+                            rowDiv.append(rowPart)
+
+                          }
+
+                        }
+
+                      }
+
+                      selectedNode.append(wrapContainer)
+
+                      if (wrapContainer.children.length === 0) {
+                        wrapContainer.remove()
+                      }
+
+                    }
+
+                    const createGridButton = this.create("button/create-grid", templateOptions)
+                    createGridButton.onclick = () => {
+
+                      const prompt = window.prompt("Gebe die Matrix deiner Grid Elemente ein:")
+
+                      if (prompt) {
+
+                        const columnsPerRow = prompt.split(" ").map(Number)
+
+                        const gridContainer = document.createElement("div")
+                        gridContainer.classList.add("grid-container")
+                        gridContainer.style.display = "grid"
+
+                        columnsPerRow.forEach(columns => {
+                          const gridRow = document.createElement("div")
+                          gridRow.classList.add("grid-row")
+                          gridRow.style.display = "grid"
+                          gridRow.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`
+
+                          for (let i = 0; i < columns; i++) {
+                            const gridItem = document.createElement("div")
+                            gridItem.classList.add("grid-item")
+                            gridItem.textContent = `grid-item-${i + 1}`
+                            gridRow.appendChild(gridItem)
+                          }
+
+                          gridContainer.appendChild(gridRow)
+                        })
+
+                        selectedNode.appendChild(gridContainer)
+                      }
+
+                    }
+
+                    const rowContainerButton = this.create("button/row-container", templateOptions)
+                    rowContainerButton.onclick = () => {
+                      this.create("div/row-container", selectedNode)
+                    }
+
+                    const columnContainerButton = this.create("button/column-container", templateOptions)
+                    columnContainerButton.onclick = () => {
+                      this.create("div/column-container", selectedNode)
+                    }
+
+                    const imageTextButton = this.create("button/image-text", templateOptions)
+                    imageTextButton.onclick = () => {
+                      this.create("div/image-text", selectedNode)
+                    }
+
+                    const keyValueButton = this.create("button/key-value", templateOptions)
+                    keyValueButton.onclick = () => {
+                      this.create("div/key-value", selectedNode)
+                    }
+
+                    const actionBtnButton = this.create("button/action-button", templateOptions)
+                    actionBtnButton.onclick = () => {
+                      const button = this.create("button/action", selectedNode)
+                      button.innerHTML = "Mein Action Button"
+                      button.classList.add("button")
+                    }
+
+                    const horizontalHrButton = this.create("button/horizontal-hr", templateOptions)
+                    horizontalHrButton.onclick = () => {
+                      this.create("div/hr", selectedNode)
+                    }
+
+                    const simpleHeaderButton = this.create("button/layout-top", templateOptions)
+                    simpleHeaderButton.onclick = () => {
+                      const simpleHeader = this.create("header/left", selectedNode)
+                      simpleHeader.left.style.width = "34px"
+                    }
+
+                    const h1Button = this.create("button/h1", templateOptions)
+                    h1Button.onclick = () => {
+                      const prompt = window.prompt("Gebe den Inhalt deiner Überschrift ein:")
+                      const h1 = this.create("h1", selectedNode)
+                      h1.innerHTML = prompt
+                    }
+
+                    const h2Button = this.create("button/h2", templateOptions)
+                    h2Button.onclick = () => {
+                      const prompt = window.prompt("Gebe den Inhalt deiner Überschrift ein:")
+                      const h2 = this.create("h2", selectedNode)
+                      h2.innerHTML = prompt
+                    }
+
+                    const h3Button = this.create("button/h3", templateOptions)
+                    h3Button.onclick = () => {
+                      const prompt = window.prompt("Gebe den Inhalt deiner Überschrift ein:")
+                      const h3 = this.create("h3", selectedNode)
+                      h3.innerHTML = prompt
+                    }
+
+                    const pButton = this.create("button/p", templateOptions)
+                    pButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den Inhalt deines Paragraphen ein:")
+                      const p = this.create("p", selectedNode)
+                      p.innerHTML = prompt
+                    }
+
+                    const imageButton = this.create("button/image", templateOptions)
+                    imageButton.onclick = () => {
+                      const image = document.createElement("img")
+                      image.src = "/public/image-placeholder.svg"
+                      image.style.width = "100%"
+                      selectedNode.append(image)
+                    }
+
+                    const tableHeaderButton = this.create("button/table-header", templateOptions)
+                    tableHeaderButton.onclick = () => {
+                      const prompt = window.prompt("Gebe die Spalten und die Breite deiner Tabelle ein: (4 1 1 1 1 2)")
+
+                      const columns = prompt.split(" ")
+
+                      const tableHeader = document.createElement("div")
+                      tableHeader.classList.add("table-header")
+                      tableHeader.style.display = "flex"
+                      tableHeader.style.justifyContent = "center"
+                      tableHeader.style.alignItems = "center"
+                      tableHeader.style.margin = "21px 34px"
+
+                      for (var i = 0; i < columns.length; i++) {
+                        const width = columns[i]
+
+                        const number = parseInt(width)
+                        if (number >= 1 && number <= 9) {
+
+                          const columnDiv = document.createElement("div")
+                          columnDiv.classList.add("header-title")
+                          columnDiv.innerHTML = `Überschrift ${i + 1}`
+                          columnDiv.style.width = `${number * 10}%`
+                          columnDiv.style.fontFamily = "sans-serif"
+                          columnDiv.style.fontWeight = "bold"
+                          tableHeader.append(columnDiv)
+
+                        }
+
+                      }
+
+                      selectedNode.append(tableHeader)
+
+                      if (tableHeader.children.length === 0) {
+                        tableHeader.remove()
+                      }
+
+                    }
+
+                    const pdfLinkButton = this.create("button/pdf-link", templateOptions)
+                    pdfLinkButton.onclick = () => {
+
+                      const prompt = window.prompt("Gebe die Quell-Url deiner PDF ein:")
+
+                      const a = document.createElement("a")
+                      a.classList.add("pdf-link")
+                      a.href = prompt
+                      selectedNode.append(a)
+
+
+                      const container = document.createElement("div")
+                      container.style.display = "flex"
+                      container.style.margin = "21px 34px"
+                      container.style.alignItems = "center"
+
+                      const img = document.createElement("img")
+                      img.src = "/public/pdf.svg"
+                      img.style.marginRight = "13px"
+
+                      const title = document.createElement("div")
+                      title.innerHTML = "Link"
+                      title.style.fontFamily = "sans-serif"
+                      title.style.textDecoration = "underline"
+
+                      container.append(img, title)
+                      a.append(container)
+
+                    }
+
+                    const aLinkButton = this.create("button/a-link", templateOptions)
+                    aLinkButton.onclick = () => {
+
+                      const prompt = window.prompt("Gebe die Quell-Url deines Links ein:")
+
+                      const a = document.createElement("a")
+                      a.classList.add("a-link")
+                      a.innerHTML = "Mein Link"
+                      a.href = prompt
+                      selectedNode.append(a)
+
+                    }
+
+                    const spanButton = this.create("button/span", templateOptions)
+                    spanButton.onclick = () => {
+
+                      Array.from(selectedNode.childNodes).forEach(node => {
+                        if (node.nodeType === Node.TEXT_NODE) {
+
+                          const span = document.createElement("span")
+                          span.innerHTML = node.textContent
+
+                          selectedNode.replaceChild(span, node)
+
+                        }
+                      })
+
+                    }
+
+                    const changeSiButton = this.create("button/change-si", templateOptions)
+                    changeSiButton.onclick = () => {
+
+                      const prompt = window.prompt("Gebe deine SI-Einheit ein:")
+
+                      const span1 = document.createElement("span")
+                      span1.classList.add("placeholder")
+
+                      span1.innerHTML = selectedNode.innerHTML
+                      if (prompt === "kWh" || prompt.startsWith("ct")) span1.innerHTML = "0"
+                      if (
+                        prompt === "€" ||
+                        prompt.startsWith("EURO") ||
+                        prompt.startsWith("Euro") ||
+                        prompt === "%"
+                      ) span1.innerHTML = "0,00"
+
+                      const span2 = document.createElement("span")
+                      span2.classList.add("unit")
+                      span2.innerHTML = prompt
+
+                      selectedNode.innerHTML = ""
+                      selectedNode.append(span1)
+                      selectedNode.append(" ")
+                      selectedNode.append(span2)
+
+                    }
+
+                    const addSpaceButton = this.create("button/add-space", templateOptions)
+                    addSpaceButton.onclick = () => {
+
+                      const prompt = window.prompt("Gebe den Abstand deines Leerraums ein:")
+                      const space = document.createElement("div")
+                      space.classList.add("space")
+                      space.style.width = "100%"
+                      space.style.height = prompt
+                      selectedNode.append(space)
+
+                    }
+
+                    const arrowRightButton = this.create("button/arrow-right", templateOptions)
+                    arrowRightButton.onclick = () => {
+
+                      const prompt = window.prompt("Gebe die Farbe deines Pfeils ein:")
+
+                      const arrow = document.createElement("div")
+                      arrow.style.display = "flex"
+                      arrow.style.justifyContent = "center"
+                      arrow.style.alignItems = "center"
+                      arrow.style.width = "100%"
+                      arrow.style.height = "34px"
+                      selectedNode.append(arrow)
+
+                      const line = document.createElement("div")
+                      line.style.height = "3px"
+                      line.style.backgroundColor = prompt
+                      line.style.width = "100%"
+                      arrow.append(line)
+
+                      const symbol = document.createElement("span")
+                      symbol.style.display = "flex"
+                      symbol.style.justifyContent = "center"
+                      symbol.style.alignItems = "center"
+                      symbol.style.fontSize = "21px"
+                      symbol.style.color = prompt
+                      symbol.innerHTML = "➤"
+                      arrow.append(symbol)
+
+                    }
+
+                    const divScrollableButton = this.create("button/div-scrollable", templateOptions)
+                    divScrollableButton.onclick = () => {
+                      const scrollableDiv = this.create("div/scrollable", selectedNode)
+                    }
+
+
+
+
+                    this.render("text/hr", "Anwendungen für Eingabe Felder einsetzen", optionsContainer)
+                    const inputOptions = this.create("div/flex-row", optionsContainer)
+
+                    const textInputButton = this.create("button/text-input", inputOptions)
+                    textInputButton.onclick = () => {
+                      this.create("input/text", selectedNode)
+                    }
+
+                    const numberInputButton = this.create("button/number-input", inputOptions)
+                    numberInputButton.onclick = () => {
+                      this.create("input/tel", selectedNode)
+                    }
+
+                    const checkboxInputButton = this.create("button/checkbox-input", inputOptions)
+                    checkboxInputButton.onclick = () => {
+                      this.create("input/checkbox", selectedNode)
+                    }
+
+                    const passwordInputButton = this.create("button/password-input", inputOptions)
+                    passwordInputButton.onclick = () => {
+                      this.create("input/password", selectedNode)
+                    }
+
+
+
+                    this.render("text/hr", "Anwendungen für die Höhe und Breite", optionsContainer)
+                    const dimensionOptions = this.create("div/flex-row", optionsContainer)
+
+                    let originalWidth
+                    const growWidthButton = this.create("button/grow-width", dimensionOptions)
+                    growWidthButton.onclick = () => {
+
+                      if (selectedNode.style.width === "100%") {
+                        if (originalWidth) {
+                          selectedNode.style.width = originalWidth
+                        } else {
+                          selectedNode.style.width = null
+                        }
+
+                      } else {
+                        originalWidth = selectedNode.style.width
+                        selectedNode.style.width = "100%"
+                      }
+
+                    }
+
+                    const exactWidthButton = this.create("button/exact-width", dimensionOptions)
+                    exactWidthButton.onclick = () => {
+                      const prompt = window.prompt("Gebe die exakte Breite ein:")
+                      selectedNode.style.width = prompt
+                    }
+
+                    const increaseWidthButton = this.create("button/increase-width", dimensionOptions)
+                    increaseWidthButton.onclick = () => {
+
+                      if (selectedNode.style.width) {
+                        const match = selectedNode.style.width.match(/(\d+(\.\d+)?)(\D.*)/)
+
+                        if (match) {
+                          let number = parseFloat(match[1])
+                          number++
+                          const remainingChars = match[3]
+                          selectedNode.style.width = `${number}${remainingChars}`
+                        }
+                      }
+
+                    }
+
+                    const decreaseWidthButton = this.create("button/decrease-width", dimensionOptions)
+                    decreaseWidthButton.onclick = () => {
+
+                      if (selectedNode.style.width) {
+                        const match = selectedNode.style.width.match(/(\d+(\.\d+)?)(\D.*)/)
+
+                        if (match) {
+                          let number = parseFloat(match[1])
+                          number--
+                          const remainingChars = match[3]
+                          selectedNode.style.width = `${number}${remainingChars}`
+                        }
+                      }
+
+                    }
+
+                    let originalHeight
+                    const growHeightButton = this.create("button/grow-height", dimensionOptions)
+                    growHeightButton.onclick = () => {
+
+                      if (selectedNode.style.height === "100%") {
+                        if (originalHeight) {
+                          selectedNode.style.height = originalHeight
+                        } else {
+                          selectedNode.style.height = null
+                        }
+
+                      } else {
+                        originalHeight = selectedNode.style.height
+                        selectedNode.style.height = "100%"
+                      }
+
+                    }
+
+                    const exactHeightButton = this.create("button/exact-height", dimensionOptions)
+                    exactHeightButton.onclick = () => {
+                      const prompt = window.prompt("Gebe die exakte Höhe ein:")
+                      selectedNode.style.height = prompt
+                    }
+
+                    const increaseHeightButton = this.create("button/increase-height", dimensionOptions)
+                    increaseHeightButton.onclick = () => {
+
+                      if (selectedNode.style.height) {
+                        const match = selectedNode.style.height.match(/(\d+(\.\d+)?)(\D.*)/)
+
+                        if (match) {
+                          let number = parseFloat(match[1])
+                          number++
+                          const remainingChars = match[3]
+                          selectedNode.style.height = `${number}${remainingChars}`
+                        }
+                      }
+
+                    }
+
+                    const decreaseHeightButton = this.create("button/decrease-height", dimensionOptions)
+                    decreaseHeightButton.onclick = () => {
+
+                      if (selectedNode.style.height) {
+                        const match = selectedNode.style.height.match(/(\d+(\.\d+)?)(\D.*)/)
+
+                        if (match) {
+                          let number = parseFloat(match[1])
+                          number--
+                          const remainingChars = match[3]
+                          selectedNode.style.height = `${number}${remainingChars}`
+                        }
+                      }
+
+                    }
+
+
+
+
+
+
+
+
+                    this.render("text/hr", "Anwendungen für Display Elemente", optionsContainer)
+                    const displayOptions = this.create("div/flex-row", optionsContainer)
+
+                    const exactDisplayButton = this.create("button/display-exact", displayOptions)
+                    exactDisplayButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Display Wert ein:")
+                      if (prompt || prompt === "") selectedNode.style.display = prompt
+                    }
+
+                    let originalDisplayBlock
+                    const displayBlockButton = this.create("button/display-block", displayOptions)
+                    displayBlockButton.onclick = () => {
+
+                      if (selectedNode.style.display === "block") {
+                        if (originalDisplayBlock) {
+                            selectedNode.style.display = originalDisplayBlock
+                        } else {
+                            selectedNode.style.display = null
+                        }
+
+                      } else {
+                          originalDisplayBlock = selectedNode.style.display
+                          selectedNode.style.display = "block"
+                      }
+
+                    }
+
+                    let originalDisplayInline
+                    const displayInlineButton = this.create("button/display-inline", displayOptions)
+                    displayInlineButton.onclick = () => {
+
+                      if (selectedNode.style.display === "inline") {
+                        if (originalDisplayInline) {
+                            selectedNode.style.display = originalDisplayInline
+                        } else {
+                            selectedNode.style.display = null
+                        }
+
+                      } else {
+                          originalDisplayInline = selectedNode.style.display
+                          selectedNode.style.display = "inline"
+                      }
+
+                    }
+
+                    let originalDisplayGrid
+                    const toggleDisplayGridButton = this.create("button/display-grid", displayOptions)
+                    toggleDisplayGridButton.onclick = () => {
+
+                      if (selectedNode.style.display === "grid") {
+                        if (originalDisplayGrid) {
+                          selectedNode.style.display = originalDisplayGrid
+                        } else {
+                          selectedNode.style.display = null
+                        }
+
+                      } else {
+
+                        originalDisplayGrid = selectedNode.style.display
+                        selectedNode.style.display = "grid"
+
+                      }
+
+                    }
+
+                    let originalDisplayFlex
+                    const toggleDisplayFlexButton = this.create("button/display-flex", displayOptions)
+                    toggleDisplayFlexButton.onclick = () => {
+
+                      if (selectedNode.style.display === "flex") {
+                        if (originalDisplayFlex) {
+                          selectedNode.style.display = originalDisplayFlex
+                        } else {
+                          selectedNode.style.display = null
+                        }
+
+                      } else {
+
+                        originalDisplayFlex = selectedNode.style.display
+                        selectedNode.style.display = "flex"
+
+                      }
+
+                    }
+
+                    let originalDisplayTable
+                    const toggleDisplayTableButton = this.create("button/display-table", displayOptions)
+                    toggleDisplayTableButton.onclick = () => {
+
+                      if (selectedNode.style.display === "table") {
+                        if (originalDisplayTable) {
+                          selectedNode.style.display = originalDisplayTable
+                        } else {
+                          selectedNode.style.display = null
+                        }
+
+                      } else {
+
+                        originalDisplayTable = selectedNode.style.display
+                        selectedNode.style.display = "table"
+
+                      }
+
+                    }
+
+
+
+                    this.render("text/hr", "Anwendungen für Grid Elemente", optionsContainer)
+                    const gridOptions = this.create("div/flex-row", optionsContainer)
+
+                    let originalGridMobileStyle
+                    const gridMobileButton = this.create("button/grid-mobile", gridOptions)
+                    gridMobileButton.onclick = () => {
+
+                      if (originalGridMobileStyle) {
+                        selectedNode.setAttribute("style", originalGridMobileStyle)
+                        originalGridMobileStyle = undefined
+                      } else {
+                        originalGridMobileStyle = selectedNode.getAttribute("style")
+                        selectedNode.style.display = "grid"
+                        selectedNode.style.gridTemplateColumns = "1fr"
+                        selectedNode.style.gridGap = "21px"
+                      }
+
+                    }
+
+                    let originalGridFullDisplayStyle
+                    let originalGridFullDisplayChildrenStyle = []
+                    const gridFullDisplayButton = this.create("button/grid-full-display", gridOptions)
+                    gridFullDisplayButton.onclick = () => {
+
+                      if (originalGridFullDisplayStyle) {
+                        selectedNode.setAttribute("style", originalGridFullDisplayStyle)
+                        originalGridFullDisplayStyle = undefined
+
+                        if (originalGridFullDisplayChildrenStyle.length > 0) {
+                          for (var i = 0; i < selectedNode.children.length; i++) {
+                            const child = selectedNode.children[i]
+
+                            const style = originalGridFullDisplayChildrenStyle.pop()
+                            if (style) {
+                              child.setAttribute("style", style)
+                            } else {
+                              child.removeAttribute("style")
+                            }
+
+                          }
+                        }
+
+                      } else {
+                        originalGridFullDisplayStyle = selectedNode.getAttribute("style")
+                        selectedNode.style.display = "grid"
+                        selectedNode.style.gridTemplateColumns = "1fr"
+                        selectedNode.style.gridGap = "21px"
+
+                        for (var i = 0; i < selectedNode.children.length; i++) {
+                          const child = selectedNode.children[i]
+
+                          originalGridFullDisplayChildrenStyle.push(child.getAttribute("style"))
+                          child.style.width = "100%"
+                          child.style.height = "89vh"
+                          child.style.overflow = "auto"
+
+                        }
+
+                      }
+
+                    }
+
+                    let originalGridTwoColumnsStyle
+                    let originalGridTwoColumnsChildrenStyle = []
+                    const gridTwoColumnsButton = this.create("button/grid-two-columns", gridOptions)
+                    gridTwoColumnsButton.onclick = () => {
+
+                      if (originalGridTwoColumnsStyle) {
+                        selectedNode.setAttribute("style", originalGridTwoColumnsStyle)
+                        originalGridTwoColumnsStyle = undefined
+
+                        if (originalGridTwoColumnsChildrenStyle.length > 0) {
+                          for (var i = 0; i < selectedNode.children.length; i++) {
+                            const child = selectedNode.children[i]
+
+                            const style = originalGridTwoColumnsChildrenStyle.pop()
+                            if (style) {
+                              child.setAttribute("style", style)
+                            } else {
+                              child.removeAttribute("style")
+                            }
+
+                          }
+                        }
+
+                      } else {
+                        originalGridTwoColumnsStyle = selectedNode.getAttribute("style")
+                        selectedNode.style.display = "grid"
+                        selectedNode.style.gridTemplateColumns = "1fr 1fr"
+                        selectedNode.style.gridGap = "21px"
+
+                        for (var i = 0; i < selectedNode.children.length; i++) {
+                          const child = selectedNode.children[i]
+
+                          originalGridTwoColumnsChildrenStyle.push(child.getAttribute("style"))
+                          child.style.width = "100%"
+                          child.style.height = "89vh"
+                          child.style.overflow = "auto"
+
+                        }
+
+                      }
+
+                    }
+
+                    let originalGridThreeColumnsStyle
+                    let originalGridThreeColumnsChildrenStyle = []
+                    const gridThreeColumnsButton = this.create("button/grid-three-columns", gridOptions)
+                    gridThreeColumnsButton.onclick = () => {
+
+                      if (originalGridThreeColumnsStyle) {
+                        selectedNode.setAttribute("style", originalGridThreeColumnsStyle)
+                        originalGridThreeColumnsStyle = undefined
+
+                        if (originalGridThreeColumnsChildrenStyle.length > 0) {
+                          for (var i = 0; i < selectedNode.children.length; i++) {
+                            const child = selectedNode.children[i]
+
+                            const style = originalGridThreeColumnsChildrenStyle.pop()
+                            if (style) {
+                              child.setAttribute("style", style)
+                            } else {
+                              child.removeAttribute("style")
+                            }
+
+                          }
+                        }
+
+                      } else {
+                        originalGridThreeColumnsStyle = selectedNode.getAttribute("style")
+                        selectedNode.style.display = "grid"
+                        selectedNode.style.gridTemplateColumns = "1fr 1fr 1fr"
+                        selectedNode.style.gridGap = "21px"
+
+                        for (var i = 0; i < selectedNode.children.length; i++) {
+                          const child = selectedNode.children[i]
+
+                          originalGridThreeColumnsChildrenStyle.push(child.getAttribute("style"))
+                          child.style.width = "100%"
+                          child.style.height = "89vh"
+                          child.style.overflow = "auto"
+
+                        }
+
+                      }
+
+                    }
+
+                    let originalGridFixedStyle
+                    let originalGridFixedChildrenStyle = []
+                    const gridFixedButton = this.create("button/grid-fixed", gridOptions)
+                    gridFixedButton.onclick = () => {
+
+                      if (originalGridFixedStyle) {
+                        selectedNode.setAttribute("style", originalGridFixedStyle)
+                        originalGridFixedStyle = undefined
+
+                        if (originalGridFixedChildrenStyle.length > 0) {
+                          for (var i = 0; i < selectedNode.children.length; i++) {
+                            const child = selectedNode.children[i]
+
+                            const style = originalGridFixedChildrenStyle.pop()
+                            if (style) {
+                              child.setAttribute("style", style)
+                            } else {
+                              child.removeAttribute("style")
+                            }
+
+                          }
+                        }
+
+                      } else {
+
+                        const prompt = window.prompt("Gebe die exakte Dimension der Grid Elemente ein: (Breite = Höhe)")
+
+                        originalGridFixedStyle = selectedNode.getAttribute("style")
+                        selectedNode.style.display = "grid"
+                        selectedNode.style.gridTemplateColumns = `repeat(auto-fit, minmax(${prompt}, 1fr))`
+                        selectedNode.style.gridTemplateRows = `repeat(auto-fit, minmax(0, ${prompt}))`
+                        selectedNode.style.gridGap = "21px"
+
+                        for (var i = 0; i < selectedNode.children.length; i++) {
+                          const child = selectedNode.children[i]
+
+                          originalGridFixedChildrenStyle.push(child.getAttribute("style"))
+                          child.style.width = "100%"
+                          child.style.height = prompt
+                          child.style.overflow = "auto"
+
+                        }
+
+                      }
+
+                    }
+
+                    let originalGridListRowsStyle
+                    let originalGridListRowsChildrenStyle = []
+                    const gridListRowsButton = this.create("button/grid-list-rows", gridOptions)
+                    gridListRowsButton.onclick = () => {
+
+                      if (originalGridListRowsStyle) {
+                        selectedNode.setAttribute("style", originalGridListRowsStyle)
+                        originalGridListRowsStyle = undefined
+
+                        if (originalGridListRowsChildrenStyle.length > 0) {
+                          for (var i = 0; i < selectedNode.children.length; i++) {
+                            const child = selectedNode.children[i]
+
+                            const style = originalGridListRowsChildrenStyle.pop()
+                            if (style) {
+                              child.setAttribute("style", style)
+                            } else {
+                              child.removeAttribute("style")
+                            }
+
+                          }
+                        }
+
+                      } else {
+
+                        originalGridListRowsStyle = selectedNode.getAttribute("style")
+                        selectedNode.style.display = "grid"
+                        selectedNode.style.gridTemplateColumns = `89px 1fr`
+                        selectedNode.style.gridTemplateRows = `repeat(auto-fit, 55px)`
+                        selectedNode.style.gridGap = "21px"
+
+                        for (var i = 0; i < selectedNode.children.length; i++) {
+                          const child = selectedNode.children[i]
+
+                          originalGridListRowsChildrenStyle.push(child.getAttribute("style"))
+                          child.style.width = "100%"
+                          child.style.height = "55px"
+                          child.style.overflow = "hidden"
+
+                        }
+
+                      }
+
+                    }
+
+                    const gridSpanColumnButton = this.create("button/span", gridOptions)
+                    gridSpanColumnButton.onclick = () => {
+
+                      const prompt = window.prompt("Gebe die Anzabl an Spalten ein, die dein Grid Elemente einnehmen soll:")
+                      const columns = parseInt(prompt)
+
+                      if (columns > 0) {
+                        selectedNode.style.gridColumn = `span ${columns}`
+                      }
+
+                    }
+
+                    const gridSpanRowButton = this.create("button/span", gridOptions)
+                    gridSpanRowButton.icon.style.transform = "rotate(90deg)"
+                    gridSpanRowButton.onclick = () => {
+
+                      const prompt = window.prompt("Gebe die Anzabl an Zeilen ein, die dein Grid Elemente einnehmen soll:")
+                      const rows = parseInt(prompt)
+
+                      if (rows > 0) {
+                        selectedNode.style.gridRow = `span ${rows}`
+                        selectedNode.style.height = "100%"
+                      }
+
+                    }
+
+                    const exactGridGapButton = this.create("button/grid-gap", gridOptions)
+                    exactGridGapButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Abstand zwischen deinen Grid Elementen ein:")
+
+                      if (prompt || prompt === "") {
+                        selectedNode.style.gap = prompt
+                      }
+
+                    }
+
+                    const gridAddColumnButton = this.create("button/grid-add-column", gridOptions)
+                    gridAddColumnButton.onclick = () => {
+
+                      selectedNode.style.gridTemplateColumns = `${selectedNode.style.gridTemplateColumns} 1fr`
+
+                      if (selectedNode.lastElementChild) {
+                        selectedNode.append(selectedNode.lastElementChild.cloneNode(true))
+                      }
+
+                    }
+                    const gridRemoveColumnButton = this.create("button/grid-remove-column", gridOptions)
+                    gridRemoveColumnButton.onclick = () => {
+
+                      const templateColumns = selectedNode.style.gridTemplateColumns.split(" ")
+                      templateColumns.pop()
+                      selectedNode.style.gridTemplateColumns = templateColumns.join(" ")
+
+                      if (selectedNode.lastElementChild) {
+                        selectedNode.lastElementChild.remove()
+                      }
+
+                    }
+                    const gridAddRowButton = this.create("button/grid-add-row", gridOptions)
+                    gridAddRowButton.onclick = () => {
+
+                      selectedNode.style.gridTemplateRows = `${selectedNode.style.gridTemplateRows} 1fr`
+
+                      if (selectedNode.lastElementChild) {
+                        selectedNode.append(selectedNode.lastElementChild.cloneNode(true))
+                      }
+
+                    }
+                    const gridRemoveRowButton = this.create("button/grid-remove-row", gridOptions)
+                    gridRemoveRowButton.onclick = () => {
+
+                      const templateRows = selectedNode.style.gridTemplateRows.split(" ")
+                      templateRows.pop()
+                      selectedNode.style.gridTemplateRows = templateRows.join(" ")
+
+                      if (selectedNode.lastElementChild) {
+                        selectedNode.lastElementChild.remove()
+                      }
+
+                    }
+
+
+
+                    this.render("text/hr", "Anwendungen für Flex Elemente", optionsContainer)
+                    const flexOptions = this.create("div/flex-row", optionsContainer)
+
+                    const alignColumnButton = this.create("button/align-column", flexOptions)
+                    alignColumnButton.onclick = () => {
+                      this.convert("parent/flex-column", selectedNode)
+                    }
+
+                    let originalAlignLeft
+                    const alignLeftButton = this.create("button/align-left", flexOptions)
+                    alignLeftButton.onclick = () => {
+
+                      if (selectedNode.style.justifyContent === "flex-start") {
+                        if (originalAlignLeft) {
+                          selectedNode.style.justifyContent = originalAlignLeft
+                        } else {
+                          selectedNode.style.justifyContent = null
+                        }
+
+                      } else {
+                        originalAlignLeft = selectedNode.style.justifyContent
+
+                        selectedNode.style.display = "flex"
+                        selectedNode.style.justifyContent = "flex-start"
+                      }
+
+
+                    }
+
+                    let originalAlignCenter
+                    const alignCenterButton = this.create("button/align-center", flexOptions)
+                    alignCenterButton.onclick = () => {
+
+                      if (selectedNode.style.justifyContent === "center") {
+                        if (originalAlignCenter) {
+                          selectedNode.style.justifyContent = originalAlignCenter
+                        } else {
+                          selectedNode.style.justifyContent = null
+                        }
+
+                      } else {
+                        originalAlignCenter = selectedNode.style.justifyContent
+
+                        selectedNode.style.display = "flex"
+                        selectedNode.style.justifyContent = "center"
+                      }
+
+
+                    }
+
+                    let originalAlignRight
+                    const alignRightButton = this.create("button/align-right", flexOptions)
+                    alignRightButton.onclick = () => {
+
+                      if (selectedNode.style.justifyContent === "flex-end") {
+                        if (originalAlignRight) {
+                          selectedNode.style.justifyContent = originalAlignRight
+                        } else {
+                          selectedNode.style.justifyContent = null
+                        }
+
+                      } else {
+                        originalAlignRight = selectedNode.style.justifyContent
+
+                        selectedNode.style.display = "flex"
+                        selectedNode.style.justifyContent = "flex-end"
+                      }
+
+                    }
+
+                    const alignRowButton = this.create("button/align-row", flexOptions)
+                    alignRowButton.onclick = () => {
+                      this.convert("parent/flex-row", selectedNode)
+                    }
+
+                    let originalAlignTop
+                    const alignTopButton = this.create("button/align-top", flexOptions)
+                    alignTopButton.onclick = () => {
+
+                      if (selectedNode.style.alignItems === "flex-start") {
+                        if (originalAlignTop) {
+                          selectedNode.style.alignItems = originalAlignTop
+                        } else {
+                          selectedNode.style.alignItems = null
+                        }
+
+                      } else {
+                        originalAlignTop = selectedNode.style.alignItems
+
+                        selectedNode.style.display = "flex"
+                        selectedNode.style.alignItems = "flex-start"
+                      }
+
+
+                    }
+
+                    let originalAlignVertical
+                    const alignVerticalButton = this.create("button/align-vertical", flexOptions)
+                    alignVerticalButton.onclick = () => {
+
+                      if (selectedNode.style.alignItems === "center") {
+                        if (originalAlignVertical) {
+                          selectedNode.style.alignItems = originalAlignVertical
+                        } else {
+                          selectedNode.style.alignItems = null
+                        }
+
+                      } else {
+                        originalAlignVertical = selectedNode.style.alignItems
+
+                        selectedNode.style.display = "flex"
+                        selectedNode.style.alignItems = "center"
+                      }
+
+
+                    }
+
+                    let originalAlignBottom
+                    const alignBottomButton = this.create("button/align-bottom", flexOptions)
+                    alignBottomButton.onclick = () => {
+
+                      if (selectedNode.style.alignItems === "flex-end") {
+                        if (originalAlignBottom) {
+                          selectedNode.style.alignItems = originalAlignBottom
+                        } else {
+                          selectedNode.style.alignItems = null
+                        }
+
+                      } else {
+                        originalAlignBottom = selectedNode.style.alignItems
+
+                        selectedNode.style.display = "flex"
+                        selectedNode.style.alignItems = "flex-end"
+                      }
+
+
+                    }
+
+                    const flexButton = this.create("button/flex", flexOptions)
+                    flexButton.onclick = () => {
+
+                      const prompt = window.prompt("Gebe die Flex Matrix für dein Element ein: (grow shrink basis)")
+                      selectedNode.style.flex = prompt
+
+                    }
+
+                    let originalSpaceBetween
+                    const spaceBetweenButton = this.create("button/space-between", flexOptions)
+                    spaceBetweenButton.onclick = () => {
+
+                      if (selectedNode.style.justifyContent === "space-between") {
+                        if (originalSpaceBetween) {
+                          selectedNode.style.justifyContent = originalSpaceBetween
+                        } else {
+                          selectedNode.style.justifyContent = null
+                        }
+
+                      } else {
+
+                        originalSpaceBetween = selectedNode.style.justifyContent
+                        this.convert("parent/space-between", selectedNode)
+
+                      }
+
+                    }
+
+
+                    let originalSpaceAround
+                    const spaceAroundButton = this.create("button/space-around", flexOptions)
+                    spaceAroundButton.onclick = () => {
+
+
+                      if (selectedNode.style.justifyContent === "space-around") {
+                        if (originalSpaceAround) {
+                          selectedNode.style.justifyContent = originalSpaceAround
+                        } else {
+                          selectedNode.style.justifyContent = null
+                        }
+
+                      } else {
+                        originalSpaceAround = selectedNode.style.justifyContent
+                        this.convert("parent/space-around", selectedNode)
+                      }
+
+                    }
+
+                    let originalToggleWrap
+                    const toggleWrapButton = this.create("button/toggle-wrap", flexOptions)
+                    toggleWrapButton.onclick = () => {
+
+                      if (selectedNode.style.flexWrap === "wrap") {
+                        if (originalToggleWrap) {
+                          selectedNode.style.flexWrap = originalToggleWrap
+                        } else {
+                          selectedNode.style.flexWrap = null
+                        }
+
+                      } else {
+                        originalToggleWrap = selectedNode.style.flexWrap
+
+                        selectedNode.style.display = "flex"
+                        selectedNode.style.flexWrap = "wrap"
+
+                      }
+
+                    }
+
+
+
+
+
+
+
+
+                    this.render("text/hr", "Anwendungen für die Layer Elemente", optionsContainer)
+                    const layerOptions = this.create("div/flex-row", optionsContainer)
+
+                    const layerButton = this.create("button/layer", layerOptions)
+                    layerButton.onclick = async () => {
+
+                      const result = await this.verifyIs("class/found", {node: selectedNode, class: "layer" })
+                      if (result === true) {
+
+                        this.overlay("toolbox", async layerOverlay => {
+                          this.add("button/remove-overlay", layerOverlay)
+
+                          this.render("text/title", "Wähle einen Layer aus", layerOverlay)
+
+                          const layers = this.create("div/scrollable", layerOverlay)
+
+
+                          const fatherButton = this.create("button/left-right", layers)
+                          fatherButton.classList.add("father-button")
+
+                          let fatherZIndex = 0
+                          if (selectedNode.style.zIndex) fatherZIndex = selectedNode.style.zIndex
+                          fatherButton.left.innerHTML = "Ebene " + fatherZIndex
+
+                          fatherButton.style.backgroundColor = this.colors.light.error
+
+                          const fatherSelector = await this.convert("element/selector", selectedNode)
+                          fatherButton.right.innerHTML = fatherSelector
+
+                          fatherButton.onclick = () => {
+                            // add selectedNode options
+                            this.remove("overlay", layerOverlay)
+                          }
+
+                          selectedNode.querySelectorAll("*").forEach(async(item, i) => {
+                            if (item.classList.contains("layer")) {
+
+                              const selector = await this.convert("element/selector", item)
+
+                              const button = this.create("button/left-right")
+                              button.left.innerHTML = "Ebene " + item.style.zIndex
+                              button.right.innerHTML = selector
+                              button.onclick = async () => {
+                                await this.remove("element/selected-node", preview)
+                                selectedNode = item
+                                this.add("element/selected-node", selectedNode)
+                                this.remove("overlay", layerOverlay)
+                              }
+
+                              if (item.style.zIndex >= fatherZIndex) {
+                                fatherButton.before(button)
+                              }
+
+                              if (item.style.zIndex < fatherZIndex) {
+                                layers.append(button)
+                              }
+
+                            }
+                          })
+
+                        })
+
+                      }
+                      if (result === false) {
+                        window.alert("In diesem Element sind keine Layer enthalten.")
+                      }
+
+                    }
+
+                    const positiveLayerButton = this.create("button/positive-layer", layerOptions)
+                    positiveLayerButton.onclick = () => {
+                      selectedNode.style.position = "relative"
+
+                      const layer = document.createElement("div")
+                      layer.classList.add("layer")
+                      layer.style.position = "absolute"
+                      layer.style.top = "0"
+                      layer.style.left = "0"
+                      layer.style.backgroundColor = selectedNode.style.backgroundColor
+                      layer.style.width = `${selectedNode.offsetWidth}px`
+                      layer.style.height = `${selectedNode.offsetHeight}px`
+                      let zIndex = 0
+                      if (selectedNode.style.zIndex) zIndex = selectedNode.style.zIndex
+                      zIndex++
+                      layer.style.zIndex = zIndex
+                      selectedNode.append(layer)
+
+                      this.convert("node/sort-children-by-z-index", selectedNode)
+
+                      window.alert("Layer erfolgreich angehängt.")
+
+                    }
+
+                    const negativeLayerButton = this.create("button/negative-layer", layerOptions)
+                    negativeLayerButton.onclick = () => {
+
+                      selectedNode.style.position = "relative"
+
+                      let fatherZIndex = 0
+                      if (selectedNode.style.zIndex) fatherZIndex = selectedNode.style.zIndex
+
+
+                      const layer = document.createElement("div")
+                      layer.classList.add("layer")
+                      layer.style.position = "absolute"
+                      layer.style.top = "0"
+                      layer.style.left = "0"
+                      layer.style.backgroundColor = selectedNode.style.backgroundColor
+                      layer.style.width = `${selectedNode.offsetWidth}px`
+                      layer.style.height = `${selectedNode.offsetHeight}px`
+                      let zIndex = 0
+                      if (selectedNode.style.zIndex) zIndex = selectedNode.style.zIndex
+                      zIndex--
+                      layer.style.zIndex = zIndex
+                      selectedNode.append(layer)
+
+                      this.convert("node/sort-children-by-z-index", selectedNode)
+
+                      window.alert("Layer erfolgreich angehängt.")
+
+                    }
+
+                    const exactLayerButton = this.create("button/exact-layer", layerOptions)
+                    exactLayerButton.onclick = async () => {
+                      const prompt = window.prompt("Gebe die exakte Ebene für deinen Layer ein: (integer)")
+
+                      const zIndex = parseInt(prompt) || 0
+
+                      selectedNode.style.position = "relative"
+
+                      const layer = document.createElement("div")
+                      layer.classList.add("layer")
+                      layer.style.position = "absolute"
+                      layer.style.top = "0"
+                      layer.style.left = "0"
+                      layer.style.backgroundColor = selectedNode.style.backgroundColor
+                      layer.style.width = `${selectedNode.offsetWidth}px`
+                      layer.style.height = `${selectedNode.offsetHeight}px`
+                      layer.style.zIndex = zIndex
+                      selectedNode.append(layer)
+
+                      this.convert("node/sort-children-by-z-index", selectedNode)
+
+                      window.alert("Layer erfolgreich angehängt.")
+
+                    }
+
+                    const removeLayerButton = this.create("button/remove-layer", layerOptions)
+                    removeLayerButton.onclick = () => {
+                      selectedNode.querySelectorAll("*").forEach((item, i) => {
+                        if (item.classList.contains("layer")) {
+                          item.remove()
+                        }
+                      })
+                      window.alert("Alle Layer wurden erfolgreich entfernt.")
+                    }
+
+                    let originalPositionAbsolute
+                    const positionAbsoluteButton = this.create("button/position-absolute", layerOptions)
+                    positionAbsoluteButton.onclick = () => {
+
+                      if (selectedNode.style.position === "absolute") {
+                        if (originalPositionAbsolute) {
+                            selectedNode.style.position = originalPositionAbsolute
+                        } else {
+                            selectedNode.style.position = null
+                        }
+
+                      } else {
+                          originalPositionAbsolute = selectedNode.style.position
+                          selectedNode.style.position = "absolute"
+                      }
+
+                    }
+
+                    const positionTopButton = this.create("button/position-top", layerOptions)
+                    positionTopButton.onclick = () => {
+
+                      if (selectedNode.classList.contains("layer")) {
+                        const prompt = window.prompt("Geben den exakten Abstand nach oben ein:")
+
+                        selectedNode.style.top = prompt
+
+                      }
+
+                    }
+
+                    const positionRightButton = this.create("button/position-right", layerOptions)
+                    positionRightButton.onclick = () => {
+
+                      if (selectedNode.classList.contains("layer")) {
+                        const prompt = window.prompt("Geben den exakten Abstand nach rechts ein:")
+
+                        selectedNode.style.right = prompt
+
+                      }
+
+                    }
+
+                    const positionBottomButton = this.create("button/position-bottom", layerOptions)
+                    positionBottomButton.onclick = () => {
+
+                      if (selectedNode.classList.contains("layer")) {
+                        const prompt = window.prompt("Geben den exakten Abstand nach unten ein:")
+
+                        selectedNode.style.bottom = prompt
+
+                      }
+
+                    }
+
+                    const positionLeftButton = this.create("button/position-left", layerOptions)
+                    positionLeftButton.onclick = () => {
+
+                      if (selectedNode.classList.contains("layer")) {
+                        const prompt = window.prompt("Geben den exakten Abstand nach links ein:")
+
+                        selectedNode.style.left = prompt
+
+                      }
+
+                    }
+
+
+
+
+
+
+                    this.render("text/hr", "Anwendungen für die Transformation", optionsContainer)
+                    const transformationOptions = this.create("div/flex-row", optionsContainer)
+
+                    const transformTranslateButton = this.create("button/transform-translate", transformationOptions)
+                    transformTranslateButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den X und Y Wert ein und bewege dein Element in die gewünschte Richtung: (21px -34px)")
+                      selectedNode.style.transform = `translate(${prompt})`
+                    }
+
+                    const transformTranslateXButton = this.create("button/transform-translate-x", transformationOptions)
+                    transformTranslateXButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den X-Wert ein und bewege dein Element in die gewünschte Richtung: (-34px)")
+                      selectedNode.style.transform = `translateX(${prompt})`
+                    }
+
+                    const transformTranslateYButton = this.create("button/transform-translate-y", transformationOptions)
+                    transformTranslateYButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den Y-Wert ein und bewege dein Element in die gewünschte Richtung: (34px)")
+                      selectedNode.style.transform = `translateY(${prompt})`
+                    }
+
+                    const zIndexButton = this.create("button/z-index", transformationOptions)
+                    zIndexButton.onclick = () => {
+                      const prompt = window.prompt("Gebe deinen Z-Index ein:")
+                      selectedNode.style.position = "relative"
+                      selectedNode.style.zIndex = prompt
+                    }
+
+                    const scaleButton = this.create("button/scale", transformationOptions)
+                    scaleButton.onclick = () => {
+                      const prompt = window.prompt("Gebe die Höhe deiner Skalierung ein:")
+
+                      const scaleNumber = parseFloat(prompt)
+                      selectedNode.style.transform = `scale(${scaleNumber})`
+                    }
+
+                    let rotationDegree = 0
+                    const rotateRightButton = this.create("button/rotate-right", transformationOptions)
+                    rotateRightButton.onclick = () => {
+                      rotationDegree += 90
+                      if (rotationDegree === 360) rotationDegree = 0
+                      selectedNode.style.transform = `rotate(${rotationDegree}deg)`
+                    }
+
+                    const rotateLeftButton = this.create("button/rotate-left", transformationOptions)
+                    rotateLeftButton.onclick = () => {
+                      rotationDegree -= 90
+                      if (rotationDegree === -360) rotationDegree = 0
+                      selectedNode.style.transform = `rotate(${rotationDegree}deg)`
+                    }
+
+
+
+
+
+
+
+                    this.render("text/hr", "Anwendungen für die Textverarbeitung", optionsContainer)
+                    const textManipulationOptions = this.create("div/flex-row", optionsContainer)
+
+                    let originalFontWeight
+                    const fontWeightButton = this.create("button/bold", textManipulationOptions)
+                    fontWeightButton.onclick = () => {
+
+                      if (selectedNode.style.fontWeight === "bold") {
+                        if (originalFontWeight) {
+                            selectedNode.style.fontWeight = originalFontWeight
+                        } else {
+                            selectedNode.style.fontWeight = null
+                        }
+
+                      } else {
+                          originalFontWeight = selectedNode.style.fontWeight
+                          selectedNode.style.fontWeight = "bold"
+                      }
+
+                    }
+
+                    let originalFontStyle
+                    const fontStyleButton = this.create("button/italic", textManipulationOptions)
+                    fontStyleButton.onclick = () => {
+
+                      if (selectedNode.style.fontStyle === "italic") {
+                        if (originalFontStyle) {
+                            selectedNode.style.fontStyle = originalFontStyle
+                        } else {
+                            selectedNode.style.fontStyle = null
+                        }
+
+                      } else {
+                          originalFontStyle = selectedNode.style.fontStyle
+                          selectedNode.style.fontStyle = "italic"
+                      }
+
+                    }
+
+                    let originalTextDecoration
+                    const textDecorationButton = this.create("button/underline", textManipulationOptions)
+                    textDecorationButton.onclick = () => {
+
+                      if (selectedNode.style.textDecoration === "underline") {
+                        if (originalTextDecoration) {
+                            selectedNode.style.textDecoration = originalTextDecoration
+                        } else {
+                            selectedNode.style.textDecoration = null
+                        }
+
+                      } else {
+                          originalTextDecoration = selectedNode.style.textDecoration
+                          selectedNode.style.textDecoration = "underline"
+                      }
+
+                    }
+
+                    const fontSizeButton = this.create("button/font-size", textManipulationOptions)
+                    fontSizeButton.onclick = () => {
+                      const prompt = window.prompt("Gebe deine Schriftgröße ein:")
+                      selectedNode.style.fontSize = prompt
+                    }
+
+                    const fontColorButton = this.create("button/font-color", textManipulationOptions)
+                    fontColorButton.onclick = () => {
+                      const prompt = window.prompt("Gebe deine Schriftfarbe ein: (text, hex, rgb, rgba)")
+                      selectedNode.style.color = prompt
+                    }
+
+                    const backgroundColorButton = this.create("button/background-color", textManipulationOptions)
+                    backgroundColorButton.onclick = () => {
+                      const prompt = window.prompt("Gebe deinen Hintergrund Farbcode ein: (text, hex, rgb, rgba)")
+                      selectedNode.style.backgroundColor = prompt
+                    }
+
+                    let originalUnorderedListInner
+                    const unorderedListButton = this.create("button/unordered-list", textManipulationOptions)
+                    unorderedListButton.onclick = () => {
+
+                      const ul = document.createElement("ul")
+                      const li = document.createElement("li")
+                      ul.append(li)
+
+                      if (selectedNode.firstChild.tagName === "UL") {
+                        li.innerHTML = originalUnorderedListInner
+                        selectedNode.firstChild.append(li)
+                      } else {
+                        originalUnorderedListInner = selectedNode.innerHTML
+                        li.innerHTML = originalUnorderedListInner
+                        selectedNode.innerHTML = ""
+                        selectedNode.append(ul)
+                      }
+
+                    }
+
+                    let originalOrderedListInner
+                    const orderedListButton = this.create("button/ordered-list", textManipulationOptions)
+                    orderedListButton.onclick = () => {
+
+                      const ol = document.createElement("ol")
+                      const li = document.createElement("li")
+                      ol.append(li)
+
+                      if (selectedNode.firstChild.tagName === "OL") {
+                        li.innerHTML = originalOrderedListInner
+                        selectedNode.firstChild.append(li)
+                      } else {
+                        originalOrderedListInner = selectedNode.innerHTML
+                        li.innerHTML = originalOrderedListInner
+                        selectedNode.innerHTML = ""
+                        selectedNode.append(ol)
+                      }
+
+
+                    }
+
+
+
+
+
+                    this.render("text/hr", "Anwendungen für die Sichtbarkeit", optionsContainer)
+                    const visibilityOptions = this.create("div/flex-row", optionsContainer)
+
+                    let originalOverflowY
+                    const overflowYButton = this.create("button/overflow-y", visibilityOptions)
+                    overflowYButton.onclick = () => {
+
+                      if (selectedNode.style.overflowY === "auto") {
+                        if (originalOverflowY) {
+                            selectedNode.style.overflowY = originalOverflowY
+                        } else {
+                            selectedNode.style.overflowY = null
+                        }
+
+                      } else {
+                          originalOverflowY = selectedNode.style.overflowY
+                          selectedNode.style.overflowY = "auto"
+                      }
+
+                    }
+
+                    let originalOverflowX
+                    const overflowXButton = this.create("button/overflow-x", visibilityOptions)
+                    overflowXButton.onclick = () => {
+
+                      if (selectedNode.style.overflowX === "auto") {
+                        if (originalOverflowX) {
+                            selectedNode.style.overflowX = originalOverflowX
+                        } else {
+                            selectedNode.style.overflowX = null
+                        }
+
+                      } else {
+                          originalOverflowX = selectedNode.style.overflowX
+                          selectedNode.style.overflowX = "auto"
+                      }
+
+                    }
+
+                    let originalDisplayNone
+                    const toggleDisplayNoneButton = this.create("button/display-none", visibilityOptions)
+                    toggleDisplayNoneButton.onclick = () => {
+
+                      if (selectedNode.style.display === "none") {
+                        if (originalDisplayNone) {
+                          selectedNode.style.display = originalDisplayNone
+                        } else {
+                          selectedNode.style.display = null
+                        }
+
+                      } else {
+
+                        originalDisplayNone = selectedNode.style.display
+                        selectedNode.style.display = "none"
+
+                      }
+
+                    }
+
+                    let originalVisibilityHidden
+                    const toggleVisibilityHiddenButton = this.create("button/open-eye", visibilityOptions)
+                    toggleVisibilityHiddenButton.onclick = () => {
+
+                      if (selectedNode.style.visibility === "hidden") {
+                        if (originalVisibilityHidden) {
+                          selectedNode.style.visibility = originalVisibilityHidden
+                        } else {
+                          selectedNode.style.visibility = null
+                        }
+
+                      } else {
+
+                        originalVisibilityHidden = selectedNode.style.visibility
+                        selectedNode.style.visibility = "hidden"
+
+                      }
+
+                    }
+
+                    const exactOpacityButton = this.create("button/opacity", visibilityOptions)
+                    exactOpacityButton.onclick = () => {
+
+                      const prompt = window.prompt("Geben die Sichtbarkeit in Prozent ein: (0-100)")
+
+                      const opacity = parseInt(prompt)
+
+                      if (opacity >= 0 && opacity <= 100) {
+                        selectedNode.style.opacity = `${prompt / 100}`
+                      }
+
+                    }
+
+
+
+
+
+
+
+                    this.render("text/hr", "Anwendungen für die Abstände", optionsContainer)
+                    const spacingOptions = this.create("div/flex-row", optionsContainer)
+
+                    let originalMargin
+                    const toggleMarginButton = this.create("button/margin", spacingOptions)
+                    toggleMarginButton.onclick = () => {
+
+                      if (selectedNode.style.margin === "21px 34px") {
+                        if (originalMargin) {
+                            selectedNode.style.margin = originalMargin
+                        } else {
+                            selectedNode.style.margin = "0"
+                        }
+
+                      } else {
+                          originalMargin = selectedNode.style.margin
+                          selectedNode.style.margin = "21px 34px"
+                      }
+
+                    }
+
+                    let originalMarginTop
+                    const toggleMarginTopButton = this.create("button/margin-top", spacingOptions)
+                    toggleMarginTopButton.onclick = () => {
+
+                      if (selectedNode.style.marginTop === "21px") {
+                        if (originalMarginTop) {
+                            selectedNode.style.marginTop = originalMarginTop
+                        } else {
+                            selectedNode.style.marginTop = "0"
+                        }
+
+                      } else {
+                          originalMarginTop = selectedNode.style.marginTop
+                          selectedNode.style.marginTop = "21px"
+                      }
+
+                    }
+
+                    let originalMarginRight
+                    const toggleMarginRightButton = this.create("button/margin-right", spacingOptions)
+                    toggleMarginRightButton.onclick = () => {
+
+                      if (selectedNode.style.marginRight === "34px") {
+                        if (originalMarginRight) {
+                            selectedNode.style.marginRight = originalMarginRight
+                        } else {
+                            selectedNode.style.marginRight = "0"
+                        }
+
+                      } else {
+                          originalMarginRight = selectedNode.style.marginRight
+                          selectedNode.style.marginRight = "34px"
+                      }
+
+                    }
+
+                    let originalMarginBottom
+                    const toggleMarginBottomButton = this.create("button/margin-bottom", spacingOptions)
+                    toggleMarginBottomButton.onclick = () => {
+
+                      if (selectedNode.style.marginBottom === "21px") {
+                        if (originalMarginBottom) {
+                            selectedNode.style.marginBottom = originalMarginBottom
+                        } else {
+                            selectedNode.style.marginBottom = "0"
+                        }
+
+                      } else {
+                          originalMarginBottom = selectedNode.style.marginBottom
+                          selectedNode.style.marginBottom = "21px"
+                      }
+
+                    }
+
+                    let originalMarginLeft
+                    const toggleMarginLeftButton = this.create("button/margin-left", spacingOptions)
+                    toggleMarginLeftButton.onclick = () => {
+
+                      if (selectedNode.style.marginLeft === "34px") {
+                        if (originalMarginLeft) {
+                            selectedNode.style.marginLeft = originalMarginLeft
+                        } else {
+                            selectedNode.style.marginLeft = "0"
+                        }
+
+                      } else {
+                          originalMarginLeft = selectedNode.style.marginLeft
+                          selectedNode.style.marginLeft = "34px"
+                      }
+
+                    }
+
+                    const exactMarginButton = this.create("button/margin-x", spacingOptions)
+                    exactMarginButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Außenabstand ein: (oben rechts unten links) oder (oben-unten rechts-links) oder (oben-unten-rechts-links)")
+                      selectedNode.style.margin = prompt
+                    }
+
+                    const exactMarginTopButton = this.create("button/margin-top-x", spacingOptions)
+                    exactMarginTopButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Außenabstand nach oben ein:")
+                      selectedNode.style.marginTop = prompt
+                    }
+
+                    const exactMarginRightButton = this.create("button/margin-right-x", spacingOptions)
+                    exactMarginRightButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Außenabstand nach rechts ein:")
+                      selectedNode.style.marginRight = prompt
+                    }
+
+                    const exactMarginBottomButton = this.create("button/margin-bottom-x", spacingOptions)
+                    exactMarginBottomButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Außenabstand nach unten ein:")
+                      selectedNode.style.marginBottom = prompt
+                    }
+
+                    const exactMarginLeftButton = this.create("button/margin-left-x", spacingOptions)
+                    exactMarginLeftButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Außenabstand nach links ein:")
+                      selectedNode.style.marginLeft = prompt
+                    }
+
+                    let originalPadding
+                    const togglePaddingButton = this.create("button/padding", spacingOptions)
+                    togglePaddingButton.onclick = () => {
+                      if (selectedNode.style.padding === "21px 34px") {
+                        if (originalPadding) {
+                            selectedNode.style.padding = originalPadding
+                        } else {
+                            selectedNode.style.padding = "0"
+                        }
+
+                      } else {
+                          originalPadding = selectedNode.style.padding
+                          selectedNode.style.padding = "21px 34px"
+                      }
+
+                    }
+
+                    let originalPaddingTop
+                    const togglePaddingTopButton = this.create("button/padding-top", spacingOptions)
+                    togglePaddingTopButton.onclick = () => {
+
+                      if (selectedNode.style.paddingTop === "21px") {
+                        if (originalPaddingTop) {
+                            selectedNode.style.paddingTop = originalPaddingTop
+                        } else {
+                            selectedNode.style.paddingTop = "0"
+                        }
+
+                      } else {
+                          originalPaddingTop = selectedNode.style.paddingTop
+                          selectedNode.style.paddingTop = "21px"
+                      }
+
+                    }
+
+                    let originalPaddingRight
+                    const togglePaddingRightButton = this.create("button/padding-right", spacingOptions)
+                    togglePaddingRightButton.onclick = () => {
+                      if (selectedNode.style.paddingRight === "34px") {
+                        if (originalPaddingRight) {
+                            selectedNode.style.paddingRight = originalPaddingRight
+                        } else {
+                            selectedNode.style.paddingRight = "0"
+                        }
+
+                      } else {
+                          originalPaddingRight = selectedNode.style.paddingRight
+                          selectedNode.style.paddingRight = "34px"
+                      }
+
+                    }
+
+                    let originalPaddingBottom
+                    const togglePaddingBottomButton = this.create("button/padding-bottom", spacingOptions)
+                    togglePaddingBottomButton.onclick = () => {
+
+                      if (selectedNode.style.paddingBottom === "21px") {
+                        if (originalPaddingBottom) {
+                            selectedNode.style.paddingBottom = originalPaddingBottom
+                        } else {
+                            selectedNode.style.paddingBottom = "0"
+                        }
+
+                      } else {
+                          originalPaddingBottom = selectedNode.style.paddingBottom
+                          selectedNode.style.paddingBottom = "21px"
+                      }
+
+
+                    }
+
+                    let originalPaddingLeft
+                    const togglePaddingLeftButton = this.create("button/padding-left", spacingOptions)
+                    togglePaddingLeftButton.onclick = () => {
+
+                      if (selectedNode.style.paddingLeft === "34px") {
+                        if (originalPaddingLeft) {
+                            selectedNode.style.paddingLeft = originalPaddingLeft
+                        } else {
+                            selectedNode.style.paddingLeft = "0"
+                        }
+
+                      } else {
+                          originalPaddingLeft = selectedNode.style.paddingLeft
+                          selectedNode.style.paddingLeft = "34px"
+                      }
+
+                    }
+
+                    const exactPaddingButton = this.create("button/padding-x", spacingOptions)
+                    exactPaddingButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Innenabstand ein: (oben rechts unten links) oder (oben-unten rechts-links) oder (oben-unten-rechts-links)")
+                      selectedNode.style.padding = prompt
+                    }
+
+                    const exactPaddingTopButton = this.create("button/padding-top-x", spacingOptions)
+                    exactPaddingTopButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Innenabstand nach oben ein:")
+                      selectedNode.style.paddingTop = prompt
+                    }
+
+                    const exactPaddingRightButton = this.create("button/padding-right-x", spacingOptions)
+                    exactPaddingRightButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Innenabstand nach rechts ein:")
+                      selectedNode.style.paddingRight = prompt
+                    }
+
+                    const exactPaddingBottomButton = this.create("button/padding-bottom-x", spacingOptions)
+                    exactPaddingBottomButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Innenabstand nach unten ein:")
+                      selectedNode.style.paddingBottom = prompt
+                    }
+
+                    const exactPaddingLeftButton = this.create("button/padding-left-x", spacingOptions)
+                    exactPaddingLeftButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Innenabstand nach links ein:")
+                      selectedNode.style.paddingLeft = prompt
+                    }
+
+
+
+
+
+
+                    this.render("text/hr", "Anwendungen für die Grenzlinien", optionsContainer)
+                    const borderOptions = this.create("div/flex-row", optionsContainer)
+
+                    let originalBorder
+                    const toggleBorderButton = this.create("button/border", borderOptions)
+                    toggleBorderButton.onclick = () => {
+                      if (selectedNode.style.border === "1px solid black") {
+                        if (originalBorder) {
+                            selectedNode.style.border = originalBorder
+                        } else {
+                            selectedNode.style.border = null
+                        }
+
+                      } else {
+                          originalBorder = selectedNode.style.border
+                          selectedNode.style.border = "1px solid black"
+                      }
+
+                    }
+
+                    let originalBorderTop
+                    const toggleBorderTopButton = this.create("button/border-top", borderOptions)
+                    toggleBorderTopButton.onclick = () => {
+
+                      if (selectedNode.style.borderTop === "1px solid black") {
+                        if (originalBorderTop) {
+                            selectedNode.style.borderTop = originalBorderTop
+                        } else {
+                            selectedNode.style.borderTop = null
+                        }
+
+                      } else {
+                          originalBorderTop = selectedNode.style.borderTop
+                          selectedNode.style.borderTop = "1px solid black"
+                      }
+
+                    }
+
+                    let originalBorderRight
+                    const toggleBorderRightButton = this.create("button/border-right", borderOptions)
+                    toggleBorderRightButton.onclick = () => {
+                      if (selectedNode.style.borderRight === "1px solid black") {
+                        if (originalBorderRight) {
+                            selectedNode.style.borderRight = originalBorderRight
+                        } else {
+                            selectedNode.style.borderRight = null
+                        }
+
+                      } else {
+                          originalBorderRight = selectedNode.style.borderRight
+                          selectedNode.style.borderRight = "1px solid black"
+                      }
+
+                    }
+
+                    let originalBorderBottom
+                    const toggleBorderBottomButton = this.create("button/border-bottom", borderOptions)
+                    toggleBorderBottomButton.onclick = () => {
+
+                      if (selectedNode.style.borderBottom === "1px solid black") {
+                        if (originalBorderBottom) {
+                            selectedNode.style.borderBottom = originalBorderBottom
+                        } else {
+                            selectedNode.style.borderBottom = null
+                        }
+
+                      } else {
+                          originalBorderBottom = selectedNode.style.borderBottom
+                          selectedNode.style.borderBottom = "1px solid black"
+                      }
+
+
+                    }
+
+                    let originalBorderLeft
+                    const toggleBorderLeftButton = this.create("button/border-left", borderOptions)
+                    toggleBorderLeftButton.onclick = () => {
+
+                      if (selectedNode.style.borderLeft === "1px solid black") {
+                        if (originalBorderLeft) {
+                            selectedNode.style.borderLeft = originalBorderLeft
+                        } else {
+                            selectedNode.style.borderLeft = null
+                        }
+
+                      } else {
+                          originalBorderLeft = selectedNode.style.borderLeft
+                          selectedNode.style.borderLeft = "1px solid black"
+                      }
+
+                    }
+
+                    const exactBorderButton = this.create("button/border-x", borderOptions)
+                    exactBorderButton.onclick = () => {
+                      const prompt = window.prompt("Gebe die exakten Grenzlinien ein: (width style color)")
+                      selectedNode.style.border = prompt
+                    }
+
+                    const exactBorderTopButton = this.create("button/border-top-x", borderOptions)
+                    exactBorderTopButton.onclick = () => {
+                      const prompt = window.prompt("Gebe die exakten Grenzlinien nach oben ein: (width style color)")
+                      selectedNode.style.borderTop = prompt
+                    }
+
+                    const exactBorderRightButton = this.create("button/border-right-x", borderOptions)
+                    exactBorderRightButton.onclick = () => {
+                      const prompt = window.prompt("Gebe die exakten Grenzlinien nach rechts ein: (width style color)")
+                      selectedNode.style.borderRight = prompt
+                    }
+
+                    const exactBorderBottomButton = this.create("button/border-bottom-x", borderOptions)
+                    exactBorderBottomButton.onclick = () => {
+                      const prompt = window.prompt("Gebe die exakten Grenzlinien nach unten ein: (width style color)")
+                      selectedNode.style.borderBottom = prompt
+                    }
+
+                    const exactBorderLeftButton = this.create("button/border-left-x", borderOptions)
+                    exactBorderLeftButton.onclick = () => {
+                      const prompt = window.prompt("Gebe die exakten Grenzlinien nach links ein: (width style color)")
+                      selectedNode.style.borderLeft = prompt
+                    }
+
+                    let originalBorderRadius
+                    const toggleBorderRadiusButton = this.create("button/border-radius", borderOptions)
+                    toggleBorderRadiusButton.onclick = () => {
+                      if (selectedNode.style.borderRadius === "3px") {
+                        if (originalBorderRadius) {
+                            selectedNode.style.borderRadius = originalBorderRadius
+                        } else {
+                            selectedNode.style.borderRadius = null
+                        }
+
+                      } else {
+                          originalBorderRadius = selectedNode.style.borderRadius
+                          selectedNode.style.borderRadius = "3px"
+                      }
+
+                    }
+
+                    let originalBorderTopLeftRadius
+                    const toggleBorderTopLeftRadiusButton = this.create("button/border-top-left-radius", borderOptions)
+                    toggleBorderTopLeftRadiusButton.onclick = () => {
+
+                      if (selectedNode.style.borderTopLeftRadius === "3px") {
+                        if (originalBorderTopLeftRadius) {
+                            selectedNode.style.borderTopLeftRadius = originalBorderTopLeftRadius
+                        } else {
+                            selectedNode.style.borderTopLeftRadius = null
+                        }
+
+                      } else {
+                          originalBorderTopLeftRadius = selectedNode.style.borderTopLeftRadius
+                          selectedNode.style.borderTopLeftRadius = "3px"
+                      }
+
+                    }
+
+                    let originalBorderTopRightRadius
+                    const toggleBorderTopRightRadiusButton = this.create("button/border-top-right-radius", borderOptions)
+                    toggleBorderTopRightRadiusButton.onclick = () => {
+                      if (selectedNode.style.borderTopRightRadius === "3px") {
+                        if (originalBorderTopRightRadius) {
+                            selectedNode.style.borderTopRightRadius = originalBorderTopRightRadius
+                        } else {
+                            selectedNode.style.borderTopRightRadius = null
+                        }
+
+                      } else {
+                          originalBorderTopRightRadius = selectedNode.style.borderTopRightRadius
+                          selectedNode.style.borderTopRightRadius = "3px"
+                      }
+
+                    }
+
+                    let originalBorderBottomRightRadius
+                    const toggleBorderBottomRightRadiusButton = this.create("button/border-bottom-right-radius", borderOptions)
+                    toggleBorderBottomRightRadiusButton.onclick = () => {
+
+                      if (selectedNode.style.borderBottomRightRadius === "3px") {
+                        if (originalBorderBottomRightRadius) {
+                            selectedNode.style.borderBottomRightRadius = originalBorderBottomRightRadius
+                        } else {
+                            selectedNode.style.borderBottomRightRadius = null
+                        }
+
+                      } else {
+                          originalBorderBottomRightRadius = selectedNode.style.borderBottomRightRadius
+                          selectedNode.style.borderBottomRightRadius = "3px"
+                      }
+
+
+                    }
+
+                    let originalBorderBottomLeftRadius
+                    const toggleBorderBottomLeftRadiusButton = this.create("button/border-bottom-left-radius", borderOptions)
+                    toggleBorderBottomLeftRadiusButton.onclick = () => {
+
+                      if (selectedNode.style.borderBottomLeftRadius === "3px") {
+                        if (originalBorderBottomLeftRadius) {
+                            selectedNode.style.borderBottomLeftRadius = originalBorderBottomLeftRadius
+                        } else {
+                            selectedNode.style.borderBottomLeftRadius = null
+                        }
+
+                      } else {
+                          originalBorderBottomLeftRadius = selectedNode.style.borderBottomLeftRadius
+                          selectedNode.style.borderBottomLeftRadius = "3px"
+                      }
+
+                    }
+
+                    const exactBorderRadiusButton = this.create("button/border-radius-x", borderOptions)
+                    exactBorderRadiusButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Radius, für alle Ecken, ein:")
+                      selectedNode.style.borderRadius = prompt
+                    }
+
+                    const exactBorderTopLeftRadiusButton = this.create("button/border-top-left-radius-x", borderOptions)
+                    exactBorderTopLeftRadiusButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Radius, für die Ecken Oben-Links, ein:")
+                      selectedNode.style.borderTopLeftRadius = prompt
+                    }
+
+                    const exactBorderTopRightRadiusButton = this.create("button/border-top-right-radius-x", borderOptions)
+                    exactBorderTopRightRadiusButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Radius, für die Ecken Oben-Rechts, ein:")
+                      selectedNode.style.borderTopRightRadius = prompt
+                    }
+
+                    const exactBorderBottomRightRadiusButton = this.create("button/border-bottom-right-radius-x", borderOptions)
+                    exactBorderBottomRightRadiusButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Radius, für die Ecken Unten-Rechts, ein:")
+                      selectedNode.style.borderBottomRightRadius = prompt
+                    }
+
+                    const exactBorderBottomLeftRadiusButton = this.create("button/border-bottom-left-radius-x", borderOptions)
+                    exactBorderBottomLeftRadiusButton.onclick = () => {
+                      const prompt = window.prompt("Gebe den exakten Radius, für die Ecken Unten-Links, ein:")
+                      selectedNode.style.borderBottomLeftRadius = prompt
+                    }
+
+                    let originalBorderNone
+                    const toggleBorderNoneButton = this.create("button/border-none", borderOptions)
+                    toggleBorderNoneButton.onclick = () => {
+                      console.log(originalBorderNone);
+                      if (selectedNode.style.border === "none") {
+                        if (originalBorderNone) {
+                            selectedNode.style.border = originalBorderNone
+                        } else {
+                            selectedNode.style.border = null
+                        }
+
+                      } else {
+                          originalBorderNone = selectedNode.style.border
+                          selectedNode.style.border = "none"
+                      }
+
+                    }
+
+                    let originalBoxStyle
+                    const boxButton = this.create("button/box", borderOptions)
+                    boxButton.onclick = () => {
+
+                      if (selectedNode.style.boxShadow === "rgba(0, 0, 0, 0.13) 0px 1px 3px") {
+                        if (originalBoxStyle) {
+                            selectedNode.setAttribute("style", originalBoxStyle)
+                        } else {
+                            selectedNode.removeAttribute("style")
+                        }
+
+                      } else {
+                          originalBoxStyle = selectedNode.getAttribute("style")
+                          selectedNode.style.margin = "21px 34px"
+                          selectedNode.style.padding = "8px"
+                          selectedNode.style.borderRadius = "3px"
+                          selectedNode.style.boxShadow = "rgba(0, 0, 0, 0.13) 0px 1px 3px"
+                      }
+
+                    }
+
+                    const exactBoxShadowButton = this.create("button/box-shadow", borderOptions)
+                    exactBoxShadowButton.onclick = () => {
+                      const prompt = window.prompt("Geben den exakten Schatten ein:")
+                      selectedNode.style.boxShadow = prompt
+                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    this.render("text/hr", "Anwendungen für Media Queries", optionsContainer)
+                    const mediaQueriesOptions = this.create("div/flex-row", optionsContainer)
+
+                    const mediaQueriesOverviewButton = this.create("button/media-queries-overview", mediaQueriesOptions)
+                    mediaQueriesOverviewButton.onclick = async () => {
+
+                      this.overlay("toolbox", queriesOverlay => {
+                        this.add("button/remove-overlay", queriesOverlay)
+
+                        const content = this.create("div/scrollable", queriesOverlay)
+
+
+                        document.head.querySelectorAll("style").forEach((style, i) => {
+
+                          if (style.id === "large-device") this.render("text/hr", "Für Bildschirme breiter als 1025 Pixel", content)
+                          if (style.id === "middle-device") this.render("text/hr", "Für Bildschirme zwischen 601 und 1024 Pixel", content)
+                          if (style.id === "small-device") this.render("text/hr", "Für Bildschirme kleiner als 600 Pixel", content)
+                          if (style.id === "printer-device") this.render("text/hr", "Für Drucker", content)
+
+                          const queries = style.textContent.split("@")
+                          for (var i = 0; i < queries.length; i++) {
+                            const query = queries[i]
+
+                            if (query.trim() === "") continue
+
+                            const queryButton = this.create("button/left-right", content)
+                            queryButton.left.innerHTML = this.convert("query/selector", query)
+                            queryButton.right.innerHTML = `Media Query ${i}`
+
+                            queryButton.onclick = () => {
+                              this.overlay("toolbox", queryOverlay => {
+                                this.add("button/remove-overlay", queryOverlay)
+
+                                const buttons = this.create("div/scrollable", queryOverlay)
+
+                                const currentSelector = this.convert("query/selector", query)
+                                const cssSplit = this.convert("query/css", query).split(" ")
+                                const currentCss = cssSplit[0] + " " + cssSplit[1]
+
+                                const info = this.create("header/info", queryOverlay)
+                                info.innerHTML = currentSelector
+
+                                {
+                                  const button = this.create("button/left-right", buttons)
+                                  button.left.innerHTML = ".selector"
+                                  button.right.innerHTML = "Ziel Element ändern"
+                                  button.onclick = () => {
+                                    this.overlay("toolbox", selectorOverlay => {
+                                      this.add("button/remove-overlay", selectorOverlay)
+
+                                      const info = this.create("header/info", selectorOverlay)
+                                      info.innerHTML = `${currentSelector}.selector`
+
+                                      const funnel = this.create("div/scrollable", selectorOverlay)
+
+                                      const selectorField = this.create("field/textarea", funnel)
+                                      selectorField.label.innerHTML = "CSS Selektor"
+                                      selectorField.input.style.fontSize = "13px"
+                                      selectorField.input.value = currentSelector
+                                      this.verify("input/value", selectorField.input)
+
+                                      const submit = this.create("button/action", funnel)
+                                      submit.innerHTML = "Selektor jetzt speichern"
+                                      submit.onclick = () => {
+
+                                        try {
+
+                                          const newSelector = selectorField.input.value
+                                          style.textContent = style.textContent.replace(currentSelector, newSelector)
+                                          window.alert("Selektor erfolgreich gespeichert.")
+
+                                          this.remove("overlay", queriesOverlay)
+                                          this.remove("overlay", queryOverlay)
+                                          this.remove("overlay", selectorOverlay)
+
+                                        } catch (error) {
+                                          console.error(error)
+                                          window.alert("Fehler.. Bitte wiederholen.")
+                                        }
+
+                                      }
+
+
+
+                                    })
+                                  }
+                                }
+
+                                {
+                                  const button = this.create("button/left-right", buttons)
+                                  button.left.innerHTML = ".css"
+                                  button.right.innerHTML = "Style anpassen"
+                                  button.onclick = () => {
+                                    this.overlay("toolbox", cssOverlay => {
+                                      this.add("button/remove-overlay", cssOverlay)
+
+                                      const info = this.create("header/info", cssOverlay)
+                                      info.innerHTML = `${currentSelector}.css`
+
+                                      const funnel = this.create("div/scrollable", cssOverlay)
+
+                                      const cssField = this.create("field/textarea", funnel)
+                                      cssField.label.innerHTML = "CSS Regel"
+                                      cssField.input.style.fontSize = "13px"
+                                      cssField.input.value = currentCss
+                                      this.verify("input/value", cssField.input)
+
+                                      const submit = this.create("button/action", funnel)
+                                      submit.innerHTML = "CSS jetzt speichern"
+                                      submit.onclick = () => {
+
+                                        try {
+
+                                          const newCss = cssField.input.value
+                                          style.textContent = style.textContent.replace(currentCss, newCss)
+                                          window.alert("CSS erfolgreich gespeichert.")
+
+                                          this.remove("overlay", queriesOverlay)
+                                          this.remove("overlay", queryOverlay)
+                                          this.remove("overlay", cssOverlay)
+
+                                        } catch (error) {
+                                          console.error(error)
+                                          window.alert("Fehler.. Bitte wiederholen.")
+                                        }
+
+                                      }
+
+
+
+                                    })
+                                  }
+                                }
+
+                                {
+                                  const button = this.create("button/left-right", buttons)
+                                  button.left.innerHTML = ".remove"
+                                  button.right.innerHTML = "Media Query entfernen"
+                                  button.onclick = () => {
+                                    try {
+                                      style.textContent = style.textContent.replace(`@${query}`, "")
+                                      this.remove("overlay", queriesOverlay)
+                                      this.remove("overlay", queryOverlay)
+                                      window.alert("Media Query erfolgreich entfernt.")
+                                    } catch (error) {
+                                      console.error(error)
+                                      window.alert("Fehler.. Bitte wiederholen.")
+                                    }
+                                  }
+                                }
+
+                              })
+
+                            }
+
+                          }
+
+                        })
+
+                      })
+
+
+
+                    }
+
+                    const largeDeviceButton = this.create("button/large-device", mediaQueriesOptions)
+                    largeDeviceButton.onclick = async () => {
+
+                      const query = "(min-width: 1025px)"
+
+                      const prompt = window.prompt("Gebe die CSS Eigenschaft, nur für Bildschirme größer als 1025px, ein:")
+
+                      if (prompt) {
+
+                        let largeStyle = document.querySelector("style[id='large-device']")
+
+                        if (largeStyle === null) {
+                          const style = document.createElement("style")
+                          style.type = "text/css"
+                          style.id = "large-device"
+                          document.head.appendChild(style)
+                        }
+
+                        largeStyle = document.querySelector("style[id='large-device']")
+
+                        const selector = await this.convert("element/selector", selectedNode)
+
+                        largeStyle.append(`\n@media only screen and ${query} {${selector}{${prompt} !important;}}`)
+
+                      }
+
+
+                    }
+
+                    const middleDeviceButton = this.create("button/middle-device", mediaQueriesOptions)
+                    middleDeviceButton.onclick = async () => {
+
+                      const query = "(min-width: 601px) and (max-width: 1024px)"
+
+                      const prompt = window.prompt("Gebe die CSS Eigenschaft, nur für Bildschirme zwischen 601px und 1024px, ein:")
+
+                      if (prompt) {
+
+                        let middleStyle = document.querySelector("style[id='middle-device']")
+
+                        if (middleStyle === null) {
+                          const style = document.createElement("style")
+                          style.type = "text/css"
+                          style.id = "middle-device"
+                          document.head.appendChild(style)
+                        }
+
+                        middleStyle = document.querySelector("style[id='middle-device']")
+
+                        const selector = await this.convert("element/selector", selectedNode)
+
+                        middleStyle.append(`\n@media only screen and ${query} {${selector}{${prompt} !important;}}`)
+
+                      }
+
+                    }
+
+                    const smallDeviceButton = this.create("button/small-device", mediaQueriesOptions)
+                    smallDeviceButton.onclick = async () => {
+
+                      const query = "(max-width: 600px)"
+
+                      const prompt = window.prompt("Gebe die CSS Eigenschaft, nur für Bildschirme kleiner als 600px, ein:")
+
+                      if (prompt) {
+
+                        let smallStyle = document.querySelector("style[id='small-device']")
+
+                        if (smallStyle === null) {
+                          const style = document.createElement("style")
+                          style.type = "text/css"
+                          style.id = "small-device"
+                          document.head.appendChild(style)
+                        }
+
+                        smallStyle = document.querySelector("style[id='small-device']")
+
+                        const selector = await this.convert("element/selector", selectedNode)
+
+                        smallStyle.append(`\n@media only screen and ${query} {${selector}{${prompt} !important;}}`)
+
+                      }
+
+
+                    }
+
+                    const printerDeviceButton = this.create("button/printer-device", mediaQueriesOptions)
+                    printerDeviceButton.onclick = async () => {
+
+                      const prompt = window.prompt("Gebe die CSS Eigenschaft, nur für Drucker, ein:")
+
+                      if (prompt) {
+
+                        let printerStyle = document.querySelector("style[id='printer-device']")
+
+                        if (printerStyle === null) {
+                          const style = document.createElement("style")
+                          style.type = "text/css"
+                          style.id = "printer-device"
+                          document.head.appendChild(style)
+                        }
+
+                        printerStyle = document.querySelector("style[id='printer-device']")
+
+                        const selector = await this.convert("element/selector", selectedNode)
+
+                        printerStyle.append(`\n@media print {${selector}{${prompt} !important;}}`)
+
+                      }
+
+
+                    }
+
+
+
+
+
+
+                    this.render("text/hr", "Anwendungen für schnelle Korrekturen", optionsContainer)
+                    const optimizeWorkOptions = this.create("div/flex-row", optionsContainer)
+
+                    const insertAfterButton = this.create("button/insert-after", optimizeWorkOptions)
+                    insertAfterButton.onclick = () => {
+
+                      if (selectedNode) {
+                        if (rememberCuttedNodes.length > 0) {
+
+                          const { node } = rememberCuttedNodes.pop()
+                          selectedNode.after(node)
+
+                        } else {
+
+                          this.convert("clipboard/text").then(text => {
+                            const node = this.convert("text/node", text)
+                            selectedNode.after(node)
+                          })
+
+                        }
+                      }
+
+                    }
+
+                    const insertBeforeButton = this.create("button/insert-before", optimizeWorkOptions)
+                    insertBeforeButton.onclick = () => {
+
+                      if (selectedNode) {
+                        if (rememberCuttedNodes.length > 0) {
+                          const { node } = rememberCuttedNodes.pop()
+                          selectedNode.before(node)
+                        } else {
+
+                          this.convert("clipboard/text").then(text => {
+                            const node = this.convert("text/node", text)
+                            selectedNode.before(node)
+                          })
+
+                        }
+                      }
+
+                    }
+
+                    const insertLeftButton = this.create("button/insert-left", optimizeWorkOptions)
+                    insertLeftButton.onclick = () => {
+
+                      if (selectedNode) {
+
+                        if (rememberCuttedNodes.length > 0) {
+
+                          const { node, parent, index } = rememberCuttedNodes.pop()
+
+                          if (selectedNode.firstChild) {
+                            selectedNode.insertBefore(node, selectedNode.firstChild)
+                          } else {
+                            selectedNode.appendChild(node)
+                          }
+
+                        } else {
+
+                          this.convert("clipboard/text").then(text => {
+                            const node = this.convert("text/node", text)
+
+                            if (selectedNode.firstChild) {
+                              selectedNode.insertBefore(node, selectedNode.firstChild)
+                            } else {
+                              selectedNode.appendChild(node)
+                            }
+
+                          })
+
+                        }
+                      }
+
+                    }
+
+                    const insertRightButton = this.create("button/insert-right", optimizeWorkOptions)
+                    insertRightButton.onclick = () => {
+
+                      if (selectedNode) {
+
+                        if (rememberCuttedNodes.length > 0) {
+
+                          const { node, parent, index } = rememberCuttedNodes.pop()
+                          selectedNode.appendChild(node)
+
+                        } else {
+
+                          this.convert("clipboard/text").then(text => {
+                            const node = this.convert("text/node", text)
+                            selectedNode.appendChild(node)
+                          })
+
+                        }
+                      }
+
+                    }
+
+                    let rememberCuttedNodes = []
+                    const cutOuterHtmlButton = this.create("button/cut-html", optimizeWorkOptions)
+                    cutOuterHtmlButton.onclick = () => {
+                      if (selectedNode) {
+                        rememberCuttedNodes.push({ node: selectedNode, parent: selectedNode.parentElement, index: this.convert("node/index", selectedNode)})
+                        selectedNode.remove()
+                      }
+                    }
+
+                    const copyOuterHtmlButton = this.create("button/copy-html", optimizeWorkOptions)
+                    copyOuterHtmlButton.onclick = () => {
+
+                      this.convert("text/clipboard", selectedNode.outerHTML).then(() => {
+                        window.alert("Element wurde erfolgreich in die Zwischenablage gespeichert.")
+                      })
+
+                    }
+
+                    const pasteOuterHtmlButton = this.create("button/paste-html", optimizeWorkOptions)
+                    pasteOuterHtmlButton.onclick = () => {
+
+                      this.convert("clipboard/text").then(text => {
+                        const node = this.convert("text/node", text)
+                        selectedNode.append(node)
+                      })
+
+                    }
+
+                    const copyStyleButton = this.create("button/copy-style", optimizeWorkOptions)
+                    copyStyleButton.onclick = () => {
+
+                      if (selectedNode.hasAttribute("style")) {
+                        this.convert("text/clipboard", selectedNode.getAttribute("style")).then(() => {
+                          window.alert("Style wurde erfolgreich in die Zwischenablage gespeichert.")
+                        })
+                      }
+
+                    }
+
+                    const pasteStyleButton = this.create("button/paste-style", optimizeWorkOptions)
+                    pasteStyleButton.onclick = () => {
+
+                      this.convert("clipboard/text").then(text => {
+                        selectedNode.setAttribute("style", text)
+                      })
+
+                    }
+
+                    let originalRemoveStyle
+                    const removeStyleButton = this.create("button/remove-style", optimizeWorkOptions)
+                    removeStyleButton.onclick = () => {
+
+                      if (!selectedNode.hasAttribute("style")) {
+                        if (originalRemoveStyle) {
+                          selectedNode.setAttribute("style", originalRemoveStyle)
+                        } else {
+                          selectedNode.removeAttribute("style")
+                        }
+                      } else {
+                          originalRemoveStyle = selectedNode.getAttribute("style")
+                          selectedNode.removeAttribute("style")
+                      }
+
+                    }
+
+                    let originalRemoveInner
+                    const removeInnerButton = this.create("button/remove-inner", optimizeWorkOptions)
+                    removeInnerButton.onclick = () => {
+
+                      if (this.verifyIs("text/empty", selectedNode.innerHTML)) {
+                        if (originalRemoveInner) {
+                          selectedNode.innerHTML = originalRemoveInner
+                        } else {
+                          selectedNode.innerHTML = ""
+                        }
+                      } else {
+                          originalRemoveInner = selectedNode.innerHTML
+                          selectedNode.innerHTML = ""
+                      }
+
+                    }
+
+                    let originalRemoveInnerWithText
+                    const removeInnerWithTextButton = this.create("button/remove-inner-with-text", optimizeWorkOptions)
+                    removeInnerWithTextButton.onclick = () => {
+                      const prompt = window.prompt("Ersetze den Inhalt deines Elements mit folgendem Text:")
+                      selectedNode.innerHTML = prompt
+                    }
+
+                    let originalRemoveNode
+                    let originalParentNode
+                    let originalIndex
+                    const removeNodeButton = this.create("button/remove-image", optimizeWorkOptions)
+                    removeNodeButton.onclick = () => {
+
+                      if (originalRemoveNode) {
+
+                        if (originalParentNode) {
+                          originalParentNode.insertBefore(originalRemoveNode, originalParentNode.childNodes[originalIndex])
+                        }
+
+                        selectedNode = originalRemoveNode
+                        originalRemoveNode = undefined
+                        originalParentNode = undefined
+                        originalIndex = undefined
+
+                      } else {
+                        originalParentNode = selectedNode.parentElement
+                        originalIndex = Array.from(originalParentNode.childNodes).indexOf(selectedNode)
+                        originalRemoveNode = selectedNode.cloneNode(true)
+                        selectedNode.remove()
+                      }
+
+                    }
+
+                    const idButton = this.create("button/id", optimizeWorkOptions)
+                    idButton.onclick = () => {
+                      const prompt = window.prompt("Gebe deinem Element einen eindeutigen Namen:")
+
+                      const found = document.getElementById(prompt)
+
+                      if (found === null) {
+                        selectedNode.setAttribute("id", prompt)
+                      } else {
+                        window.alert("Diese Id existiert bereits.")
+                      }
+
+                    }
+
+                    const addClassButton = this.create("button/class", optimizeWorkOptions)
+                    addClassButton.onclick = () => {
+                      const prompt = window.prompt("Füge deinem Element einen Klassen Namen hinzu:")
+                      try {
+                        selectedNode.classList.add(prompt)
+                      } catch (error) {
+                        window.alert("Dieser Name ist ungültig.")
+                      }
+                    }
+
+                    const setAttributeButton = this.create("button/set-attribute", optimizeWorkOptions)
+                    setAttributeButton.onclick = () => {
+                      const prompt = window.prompt("Markiere dein Element mit einem Attribut: (attribute=value)")
+
+                      try {
+                        const promptSplit = prompt.split("=")
+                        if (promptSplit.length === 2) {
+                          selectedNode.setAttribute(promptSplit[0], promptSplit[1])
+                        }
+                      } catch (error) {
+                        window.alert("Du musst ein 'Gleichheitszeichen =' nutzen, um dein Attribut vom Wert zu trennen.")
+                      }
+
+                    }
+
+
+
+
+
+
+
+                    this.render("text/hr", "Anwendungen für Code und Farben wählen", optionsContainer)
+                    const colorPickerOptions = this.create("div/flex-row", optionsContainer)
+                    colorPickerOptions.style.height = "144px"
+                    colorPickerOptions.style.overflow = "auto"
+
+                    for (const [key, value] of Object.entries(this.colors)) {
+
+                      if (typeof value === "string") {
+                        if (!this.verifyIs("text/empty", value)) {
+                          const color = this.create("button/key-value-color", {key, value})
+                          color.onclick = () => {
+                            this.convert("text/clipboard", value).then(() => {
+                              window.alert("Code wurde erfolgreich in die Zwischenablage gespeichert.")
+                            })
+                          }
+                          colorPickerOptions.append(color)
+                        }
+                      }
+
+                      if (typeof value === "object") {
+
+                        this.render("text/hr", key, colorPickerOptions)
+
+                        for (const [key, val] of Object.entries(value)) {
+
+                          if (typeof val === "string") {
+                            if (!this.verifyIs("text/empty", val)) {
+                              const color = this.create("button/key-value-color", {key, value: val})
+                              color.onclick = () => {
+                                this.convert("text/clipboard", val).then(() => {
+                                  window.alert("Code wurde erfolgreich in die Zwischenablage gespeichert.")
+                                })
+                              }
+                              colorPickerOptions.append(color)
+                            }
+                          }
+
+
+                        }
+                      }
+                    }
+
+
+                    this.render("text/hr", "Anwendungen für jedes Kind Element", optionsContainer)
+                    const forEachChildrenOptions = this.create("div/flex-row", optionsContainer)
+
+                    const fontSizeForEachChildButton = this.create("button/font-size", forEachChildrenOptions)
+                    fontSizeForEachChildButton.onclick = () => {
+
+                      const prompt = window.prompt("Gebe die Schriftgröße für jede Kind Element ein:")
+                      for (var i = 0; i < selectedNode.children.length; i++) {
+                        const child = selectedNode.children[i]
+                        child.style.fontSize = prompt
+                      }
+
+                    }
+
+
+
+
+
+                  })
+
+                })
+
+              }
+
               if (child.classList.contains("field-funnel")) {
 
                 {
@@ -14390,6 +21809,8 @@ export class Helper {
                   const button = this.buttonPicker("left/right", buttons)
                   button.left.innerHTML = ".fields"
                   button.right.innerHTML = "Datenfelder anhängen"
+
+                  // refactor all this make it easier now with new api
                   button.addEventListener("click", () => {
 
                     this.overlay("toolbox", overlay => {
@@ -14417,7 +21838,7 @@ export class Helper {
 
                             child.ok = () => {
                               this.render("field-funnel/fields", child)
-                              this.removeOverlay(overlay)
+                              this.remove("overlay", overlay)
                             }
 
                             this.get("funnel/field", overlay, child)
@@ -14455,23 +21876,21 @@ export class Helper {
 
                       const content = this.headerPicker("scrollable", overlay)
 
-                      const pathField = new TextField("path", content)
+                      const pathField = this.create("field/text", content)
                       pathField.input.placeholder = "/mein/pfad/"
-                      pathField.input.required = true
+                      pathField.input.setAttribute("required", "true")
                       pathField.label.textContent = "https://www.get-your.de"
                       if (child.hasAttribute("next-path")) {
-                        pathField.value(() => child.getAttribute("next-path"))
+                        pathField.input.value = child.getAttribute("next-path")
                           pathField.label.textContent = `https://www.get-your.de${child.getAttribute("next-path")}`
                       }
-                      pathField.verifyValue()
+                      this.verify("input/value", pathField.input)
                       pathField.input.addEventListener("input", (event) => {
 
                         if (this.stringIsEmpty(event.target.value)) {
                           this.setNotValidStyle(event.target)
                           child.removeAttribute("next-path")
                         }
-
-                        // this.verifyIs("text/path", event.target.value)
 
                         if (!this.stringIsEmpty(event.target.value)) {
                           this.setValidStyle(event.target)
@@ -14495,7 +21914,7 @@ export class Helper {
                 {
                   const button = this.buttonPicker("left/right", buttons)
                   button.left.innerHTML = ".scripts"
-                  button.right.innerHTML = "Nutze geprüfte HTML Sktipte"
+                  button.right.innerHTML = "Nutze geprüfte HTML Skripte"
 
                   button.addEventListener("click", () => {
 
@@ -14647,13 +22066,13 @@ export class Helper {
                       jsField.label.innerHTML = "JavaScript Browser Funktionen + Plattform Helper Funktionen"
                       jsField.input.oninput = () => this.verify("input/value", jsField.input)
 
-                      this.verify("field-funnel/validity", funnel)
+                      this.verifyIs("field-funnel/valid", funnel)
 
                       const submit = this.create("button/action", funnel)
                       submit.innerHTML = "Skript jetzt anhängen"
                       submit.onclick = async () => {
 
-                        await this.verify("field-funnel/validity", funnel)
+                        await this.verifyIs("field-funnel/valid", funnel)
 
                         const map = {}
                         map.id = nameField.input.value
@@ -14676,7 +22095,7 @@ export class Helper {
                 {
                   const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".soundbox"
-                  button.right.innerHTML = "Konvertiere deine Lieblingslieder"
+                  button.right.innerHTML = "Konvertiere MP3 zu Audio"
 
                   button.onclick = () => {
                     try {
@@ -14698,6 +22117,7 @@ export class Helper {
               if (child.tagName === "DIV" || child.tagName === "BODY") {
 
                 {
+
                   const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".access"
                   button.right.innerHTML = "Zugang anhängen"
@@ -14861,7 +22281,7 @@ export class Helper {
                           const element = this.create("click-funnel", child)
                           element.id = id
 
-                          this.create("script/click-funnel-start-event", document.body)
+                          this.add("script/click-funnel-start-event", document.body)
 
                           this.remove("overlay", overlay)
                         }
@@ -14881,10 +22301,53 @@ export class Helper {
 
                 {
 
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = ".md-to-div"
+                  button.right.innerHTML = "Markdown konvertieren und anhängen"
+                  button.onclick = async () => {
+
+                    this.overlay("toolbox", markdownToHtmlOverlay => {
+                      this.add("button/remove-overlay", markdownToHtmlOverlay)
+                      this.add("button/register-html", markdownToHtmlOverlay)
+
+                      const funnel = this.create("div/scrollable", markdownToHtmlOverlay)
+
+                      const markdownField = this.create("field/textarea", funnel)
+                      markdownField.label.innerHTML = "Markdown zu HTML konvertieren (md/html)"
+                      markdownField.input.placeholder = " # Hello, Markdown! .. "
+                      markdownField.input.style.fontSize = "13px"
+                      markdownField.input.style.height = "55vh"
+                      markdownField.input.setAttribute("required", "true")
+                      markdownField.input.oninput = () => this.verify("input/value", markdownField.input)
+                      this.verify("input/value", markdownField.input)
+
+                      const submit = this.create("button/action", funnel)
+                      submit.innerHTML = "Markdown jetzt anhängen"
+                      submit.onclick = async () => {
+
+                        await this.verify("input/value", markdownField.input)
+                        const markdown = markdownField.input.value
+                        const markdownContainer = this.convert("markdown/div", markdown)
+                        markdownContainer.classList.add("markdown-container")
+                        child.append(markdownContainer)
+
+                        window.alert(`Markdown erfolgreich konvertiert und im ${child.tagName} angehängt.`)
+
+                      }
+
+
+                    })
+
+                  }
+
+                }
+
+
+                {
+
                   const button = this.buttonPicker("left/right", buttons)
                   button.left.innerHTML = ".image"
                   button.right.innerHTML = "Neues Bild anhängen"
-
                   button.addEventListener("click", () => {
 
                     this.overlay("toolbox", async overlay => {
@@ -14922,7 +22385,6 @@ export class Helper {
                   const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".background-image"
                   button.right.innerHTML = "Hintergrund Bild anhängen"
-
                   button.addEventListener("click", () => {
 
                     this.overlay("toolbox", async overlay => {
@@ -14952,6 +22414,24 @@ export class Helper {
                   })
 
                 }
+
+
+                {
+
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = ".div-scrollable"
+                  button.right.innerHTML = "Scrollbares DIV-Element anhängen"
+                  button.addEventListener("click", () => {
+                    try {
+                      this.create("div/scrollable", child)
+                      window.alert("Element erfolgreich angehängt.")
+                    } catch (error) {
+                      window.alert("Fehler.. Bitte wiederholen.")
+                    }
+                  })
+
+                }
+
 
               }
 
@@ -14992,15 +22472,15 @@ export class Helper {
 
                             const appendQuestionFunnel = this.headerPicker("scrollable", appendQuestionOverlay)
 
-                            const idField = new TextField("questionId", appendQuestionFunnel)
+                            const idField = this.create("field/tag", appendQuestionFunnel)
                             idField.label.innerHTML = "Gebe deiner Frage eine Id"
-                            idField.input.required = true
-                            idField.input.accept = "text/tag"
-                            idField.verifyValue()
-                            idField.input.addEventListener("input", () => {
+                            this.verify("input/value", idField.input)
+                            idField.input.addEventListener("input", async () => {
+
+                              await this.verify("input/value", idField.input)
 
                               try {
-                                const value = idField.validValue()
+                                const value = idField.input.value
                                 if (document.querySelectorAll(`#${value}`).length === 0) {
                                   this.setValidStyle(idField.input)
                                 } else this.setNotValidStyle(idField.input)
@@ -15010,28 +22490,31 @@ export class Helper {
 
                             })
 
-                            const questionField = new TextAreaField("question", appendQuestionFunnel)
+                            const questionField = this.create("field/textarea", appendQuestionFunnel)
                             questionField.label.innerHTML = "Stelle eine Frage an dein Netzwerk"
-                            questionField.input.required = true
-                            questionField.verifyValue()
-                            questionField.input.addEventListener("input", () => questionField.verifyValue())
+                            questionField.input.setAttribute("required", "true")
+                            this.verify("input/value", questionField.input)
+                            questionField.input.addEventListener("input", () => this.verify("input/value", questionField.input))
 
                             const appendQuestionButton = this.buttonPicker("action", appendQuestionFunnel)
                             appendQuestionButton.innerHTML = "Jetzt anhängen"
-                            appendQuestionButton.addEventListener("click", () => {
-                              const question = questionField.validValue()
-                              const id = idField.validValue()
+                            appendQuestionButton.addEventListener("click", async () => {
+
+                              await this.verifyIs("field-funnel/valid", appendQuestionFunnel)
+
+                              const question = questionField.input.value
+                              const id = idField.input.value
 
                               if (document.getElementById(id) === null) {
                                 const clickField = this.create("click-field", child)
                                 clickField.id = id
                                 clickField.question.textContent = question
-                                this.removeOverlay(appendQuestionOverlay)
+                                this.remove("overlay", appendQuestionOverlay)
                                 this.render("click-funnel/questions", child, questions)
                               } else {
                                 window.alert("Id existiert bereits.")
                                 this.setNotValidStyle(idField.input)
-                                idField.field.scrollIntoView({behavior: "smooth"})
+                                idField.scrollIntoView({behavior: "smooth"})
                               }
 
 
@@ -15068,23 +22551,21 @@ export class Helper {
 
                       const content = this.headerPicker("scrollable", overlay)
 
-                      const pathField = new TextField("path", content)
+                      const pathField = this.create("field/text", content)
                       pathField.input.placeholder = "/mein/pfad/"
-                      pathField.input.required = true
+                      pathField.input.setAttribute("required", "true")
                       pathField.label.textContent = "https://www.get-your.de"
                       if (child.hasAttribute("next-path")) {
-                        pathField.value(() => child.getAttribute("next-path"))
+                        pathField.input.value = child.getAttribute("next-path")
                           pathField.label.textContent = `https://www.get-your.de${child.getAttribute("next-path")}`
                       }
-                      pathField.verifyValue()
+                      this.verify("input/value", pathField.input)
                       pathField.input.addEventListener("input", (event) => {
 
                         if (this.stringIsEmpty(event.target.value)) {
                           this.setNotValidStyle(event.target)
                           child.removeAttribute("next-path")
                         }
-
-                        // this.verifyIs("text/path", event.target.value)
 
                         if (!this.stringIsEmpty(event.target.value)) {
                           this.setValidStyle(event.target)
@@ -15125,22 +22606,6 @@ export class Helper {
 
               }
 
-              if (child.classList.contains("field")) {
-
-                // if child is an input element
-                // required
-                // accept
-
-                // do this for every child ???
-                // class
-                // id
-                // label
-                // no bulk action
-                // no javascript
-                // only dom maninpulation
-
-              }
-
               if (child.tagName === "TITLE") {
 
                 const button = this.buttonPicker("left/right", buttons)
@@ -15160,10 +22625,10 @@ export class Helper {
                     info.append(this.convert("element/alias", child))
                     info.append(this.convert("text/span", ".textContent"))
 
-                    const textFieldIdField = new TextField("textFieldId", overlay)
+                    const textFieldIdField = this.create("field/text", overlay)
                     textFieldIdField.label.innerHTML = "Dokumententitel"
-                    textFieldIdField.value(() => child.textContent)
-                    textFieldIdField.verifyValue()
+                    textFieldIdField.input.value = child.textContent
+                    this.verify("input/value", textFieldIdField.input)
 
                     textFieldIdField.input.addEventListener("input", (event) => {
 
@@ -15475,7 +22940,7 @@ export class Helper {
                       htmlField.input.style.fontSize = "13px"
                       htmlField.input.placeholder = "<body>..</body>"
                       htmlField.input.value = child.innerHTML
-                      this.verifyIs("input/valid", htmlField.input)
+                      this.verify("input/value", htmlField.input)
 
                       const submit = this.create("button/action", funnel)
                       submit.innerHTML = "Inhalte jetzt ersetzen"
@@ -15485,7 +22950,7 @@ export class Helper {
 
                         child.innerHTML = htmlField.input.value
 
-                        this.remove("toolbox", child)
+                        await this.remove("toolbox", child)
 
                         await this.add("script/toolbox-getter")
 
@@ -15568,338 +23033,6 @@ export class Helper {
                 })
 
 
-                {
-                  const button = this.buttonPicker("left/right", buttons)
-                  button.left.innerHTML = ".clone"
-                  button.right.innerHTML = "Klone und bearbeite das Element"
-
-                  button.addEventListener("click", () => {
-
-                    this.overlay("toolbox", overlay => {
-
-                      this.add("button/remove-overlay", overlay)
-                      this.add("button/register-html", overlay)
-
-                      const info = this.headerPicker("info", overlay)
-                      info.append(this.convert("element/alias", child))
-                      info.append(this.convert("text/span", ".clone"))
-
-                      const content = this.create("div", overlay)
-                      content.style.height = "100vh"
-
-                      {
-                        const preview = document.createElement("div")
-                        preview.style.height = `${window.innerHeight * 0.4}px`
-                        preview.style.overflow = "auto"
-                        const clone = child.cloneNode(true)
-                        clone.setAttribute("contenteditable", "true")
-                        preview.append(clone)
-                        content.append(preview)
-
-                        let parent = clone
-
-                        for (let i = 0; i < clone.children.length; i++) {
-                          const cloneChild = clone.children[i]
-
-                          cloneChild.onclick = async (ev) => {
-                            ev.preventDefault()
-                            ev.stopPropagation()
-
-                            if (ev.target.hasAttribute("selected-node") === true) {
-
-                              const promises = []
-                              clone.querySelectorAll("*").forEach(element => {
-                                const promise = new Promise((innerResolve, innerReject) => {
-                                  element.style.outline = null
-                                  element.removeAttribute("selected-node")
-                                  innerResolve()
-                                })
-                                promises.push(promise)
-                              })
-                              await Promise.all(promises)
-
-                              parent = clone
-
-                              return
-
-                            }
-
-                            if (ev.target.hasAttribute("selected-node") === false) {
-
-                              const promises = []
-                              clone.querySelectorAll("*").forEach(element => {
-                                const promise = new Promise((innerResolve, innerReject) => {
-                                  element.style.outline = null
-                                  element.removeAttribute("selected-node")
-                                  innerResolve()
-                                })
-                                promises.push(promise)
-                              })
-                              await Promise.all(promises)
-
-                              parent = ev.target
-
-                              ev.target.setAttribute("selected-node", "true")
-                              ev.target.style.outline = "2px solid #777"
-
-
-                            }
-
-                          }
-
-                        }
-
-                        const observer = new MutationObserver((mutationsList) => {
-                          mutationsList.forEach((mutation) => {
-                            if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
-
-                              mutation.addedNodes.forEach(async (node) => {
-
-                                if (node.nodeType === Node.ELEMENT_NODE) {
-
-                                  node.onclick = async (ev) => {
-                                    ev.preventDefault()
-                                    ev.stopPropagation()
-
-                                    if (ev.target.hasAttribute("selected-node") === true) {
-
-                                      const promises = []
-                                      clone.querySelectorAll("*").forEach(element => {
-                                        const promise = new Promise((innerResolve, innerReject) => {
-                                          element.style.outline = null
-                                          element.removeAttribute("selected-node")
-                                          innerResolve()
-                                        })
-                                        promises.push(promise)
-                                      })
-                                      await Promise.all(promises)
-
-                                      parent = clone
-
-                                      return
-
-                                    }
-
-
-                                    if (ev.target.hasAttribute("selected-node") === false) {
-
-                                      const promises = []
-                                      clone.querySelectorAll("*").forEach(element => {
-                                        const promise = new Promise((innerResolve, innerReject) => {
-                                          element.style.outline = null
-                                          element.removeAttribute("selected-node")
-                                          innerResolve()
-                                        })
-                                        promises.push(promise)
-                                      })
-                                      await Promise.all(promises)
-
-                                      parent = ev.target
-
-                                      ev.target.setAttribute("selected-node", "true")
-                                      ev.target.style.outline = "2px solid #777"
-
-                                    }
-
-                                  }
-
-                                }
-                              })
-                            }
-                          })
-                        })
-                        observer.observe(parent, { childList: true, subtree: true })
-
-                        const actionButton = this.create("button/action", content)
-                        actionButton.innerHTML = "Klon jetzt kopieren"
-                        actionButton.onclick = () => {
-
-                          const parser = clone.cloneNode(true)
-
-                          parser.removeAttribute("contenteditable")
-
-                          for (let i = 0; i < parser.children.length; i++) {
-                            parser.children[i].style.outline = null
-                          }
-
-                          navigator.clipboard.writeText(parser.outerHTML)
-                            .then(() => window.alert("Klon Kopie erfolgreich in die Zwischenablage gespeichert."))
-
-                        }
-
-                        const optionsContainer = this.create("div/scrollable", content)
-                        optionsContainer.style.height = `${window.innerHeight * 0.2}px`
-
-                        this.render("text/hr", "Anwendungen für das Vater Element", optionsContainer)
-                        const parentOptions = this.create("div/flex-row", optionsContainer)
-
-                        const alignColumnButton = this.create("button/align-column", parentOptions)
-                        alignColumnButton.onclick = () => {
-                          this.convert("parent/flex-column", parent)
-                        }
-
-                        const alignLeftButton = this.create("button/align-left", parentOptions)
-                        alignLeftButton.onclick = () => {
-                          this.convert("parent/flex-left", parent)
-                        }
-
-                        const alignCenterButton = this.create("button/align-center", parentOptions)
-                        alignCenterButton.onclick = () => {
-                          this.convert("parent/flex-center", parent)
-                        }
-
-                        const alignRightButton = this.create("button/align-right", parentOptions)
-                        alignRightButton.onclick = () => {
-                          this.convert("parent/flex-right", parent)
-                        }
-
-                        const alignRowButton = this.create("button/align-row", parentOptions)
-                        alignRowButton.onclick = () => {
-                          this.convert("parent/flex-row", parent)
-                        }
-
-                        const alignTopButton = this.create("button/align-top", parentOptions)
-                        alignTopButton.onclick = () => {
-                          this.convert("parent/flex-top", parent)
-                        }
-
-                        const alignVerticalButton = this.create("button/align-vertical", parentOptions)
-                        alignVerticalButton.onclick = () => {
-                          this.convert("parent/flex-vertical", parent)
-                        }
-
-                        const alignBottomButton = this.create("button/align-bottom", parentOptions)
-                        alignBottomButton.onclick = () => {
-                          this.convert("parent/flex-bottom", parent)
-                        }
-
-                        const growWidthButton = this.create("button/grow-width", parentOptions)
-                        growWidthButton.onclick = () => {
-                          this.convert("parent/flex-grow-width", parent)
-                        }
-
-                        const shrinkWidthButton = this.create("button/shrink-width", parentOptions)
-                        shrinkWidthButton.onclick = () => {
-                          this.convert("parent/flex-shrink-width", parent)
-                        }
-
-                        const growHeightButton = this.create("button/grow-height", parentOptions)
-                        growHeightButton.onclick = () => {
-                          this.convert("parent/flex-grow-height", parent)
-                        }
-
-                        const shrinkHeightButton = this.create("button/shrink-height", parentOptions)
-                        shrinkHeightButton.onclick = () => {
-                          this.convert("parent/flex-shrink-height", parent)
-                        }
-
-                        let rotationDegree = 0
-                        const rotateRightButton = this.create("button/rotate-right", parentOptions)
-                        rotateRightButton.onclick = () => {
-                          rotationDegree += 90
-                          if (rotationDegree === 360) rotationDegree = 0
-                          parent.style.transform = `rotate(${rotationDegree}deg)`
-                        }
-
-                        const rotateLeftButton = this.create("button/rotate-left", parentOptions)
-                        rotateLeftButton.onclick = () => {
-                          rotationDegree -= 90
-                          if (rotationDegree === -360) rotationDegree = 0
-                          parent.style.transform = `rotate(${rotationDegree}deg)`
-                        }
-
-                        const spaceBetweenButton = this.create("button/space-between", parentOptions)
-                        spaceBetweenButton.onclick = () => {
-                          this.convert("parent/space-between", parent)
-                        }
-
-                        // todo add some features for each child
-                        //this.render("text/hr", "Anwendungen für jedes Kind Element", optionsContainer)
-                        //const forEachChildrenOptions = this.create("div/flex-row", optionsContainer)
-
-                        this.render("text/hr", "Vorlage einsetzen", optionsContainer)
-                        const templateOptions = this.create("div/flex-row", optionsContainer)
-
-
-                        const rowContainerButton = this.create("button/row-container", templateOptions)
-                        rowContainerButton.onclick = () => {
-                          this.create("div/row-container", parent)
-                        }
-
-                        const columnContainerButton = this.create("button/column-container", templateOptions)
-                        columnContainerButton.onclick = () => {
-                          this.create("div/column-container", parent)
-                        }
-
-                        const imageTextButton = this.create("button/image-text", templateOptions)
-                        imageTextButton.onclick = () => {
-                          this.create("div/image-text", parent)
-                        }
-
-                        const keyValueButton = this.create("button/key-value", templateOptions)
-                        keyValueButton.onclick = () => {
-                          this.create("div/key-value", parent)
-                        }
-
-                        const actionBtnButton = this.create("button/action-button", templateOptions)
-                        actionBtnButton.onclick = () => {
-                          const button = this.create("button/action", parent)
-                          button.innerHTML = "Mein Action Button"
-                          button.classList.add("button")
-                        }
-
-                        const horizontalHrButton = this.create("button/horizontal-hr", templateOptions)
-                        horizontalHrButton.onclick = () => {
-                          this.create("div/hr", parent)
-                        }
-
-                        const unorderedListButton = this.create("button/unordered-list", templateOptions)
-                        unorderedListButton.onclick = () => {
-                          this.create("ul", parent)
-                        }
-
-                        const orderedListButton = this.create("button/ordered-list", templateOptions)
-                        orderedListButton.onclick = () => {
-                          this.create("ol", parent)
-                        }
-
-                        this.render("text/hr", "Eingabe Felder einsetzen", optionsContainer)
-                        const inputOptions = this.create("div/flex-row", optionsContainer)
-
-                        const textInputButton = this.create("button/text-input", inputOptions)
-                        textInputButton.onclick = () => {
-                          this.create("input/text", parent)
-                        }
-
-                        const numberInputButton = this.create("button/number-input", inputOptions)
-                        numberInputButton.onclick = () => {
-                          this.create("input/number", parent)
-                        }
-
-                        const checkboxInputButton = this.create("button/checkbox-input", inputOptions)
-                        checkboxInputButton.onclick = () => {
-                          this.create("input/checkbox", parent)
-                        }
-
-                        const passwordInputButton = this.create("button/password-input", inputOptions)
-                        passwordInputButton.onclick = () => {
-                          this.create("input/password", parent)
-                        }
-
-
-
-                      }
-
-
-                    })
-
-                  })
-
-                }
-
-
-
-
               }
 
               if (child.tagName !== "BODY") {
@@ -15928,7 +23061,7 @@ export class Helper {
                     htmlField.input.style.fontSize = "13px"
                     htmlField.input.placeholder = "<div>..</div>"
                     htmlField.input.value = child.innerHTML
-                    this.verifyIs("input/valid", htmlField.input)
+                    this.verify("input/value", htmlField.input)
 
                     htmlField.input.oninput = async () => {
 
@@ -16179,60 +23312,22 @@ export class Helper {
 
                   const answerFunnel = this.headerPicker("scrollable", answersFunnelOverlay)
 
-                  const answerField = new TextAreaField("answer", answerFunnel)
-                  answerField.value(() => answer.textContent)
+                  const answerField = this.create("field/textarea", answerFunnel)
+                  answerField.input.value = answer.textContent
                   answerField.label.innerHTML = "Antwortmöglichkeit ändern"
-                  answerField.input.required = true
-                  answerField.verifyValue()
-                  answerField.input.addEventListener("input", () => {
+                  answerField.input.setAttribute("required", "true")
+                  this.verify("input/value", answerField.input)
+                  answerField.input.addEventListener("input", async () => {
 
+                    await this.verify("input/value", answerField.input)
                     try {
-                      const value = answerField.validValue()
+                      const value = answerField.input.value
                       answer.textContent = value
                     } catch (error) {
                       this.setNotValidStyle(answerField.input)
                     }
 
                     this.render(event, input, parent)
-
-                  })
-
-                  const imageField = new FileField("image", answerFunnel)
-                  imageField.label.textContent = "Bild Upload (PNG, SVG, JPEG)"
-                  imageField.input.accept = "image/jpeg, image/png, image/svg+xml"
-                  imageField.verifyValue()
-                  imageField.input.addEventListener("input", async (event) => {
-
-                    const image = document.createElement("div")
-                    image.classList.add("image")
-                    image.style.width = "144px"
-                    image.style.display = "flex"
-                    image.style.overflow = "hidden"
-
-                    const imageContainer = child.querySelector(".image")
-                    this.reset(imageContainer)
-                    imageContainer.style.width = "144px"
-                    imageContainer.style.display = "flex"
-                    imageContainer.style.overflow = "hidden"
-                    imageContainer.append(image)
-
-                    if (event.target.files[0].type === "image/svg+xml") {
-
-                      const svgFile = await imageField.validSvg(event.target.files[0])
-                      const svg = this.convert("text/svg", svgFile.svg)
-                      svg.setAttribute("width", "100%")
-                      image.append(svg)
-
-                    } else {
-
-                      const imageFile = await imageField.validImage(event.target.files[0])
-                      const img = document.createElement("img")
-                      img.style.width = "100%"
-                      img.src = imageFile.dataUrl
-                      img.alt = imageFile.name
-                      image.append(img)
-
-                    }
 
                   })
 
@@ -16254,49 +23349,46 @@ export class Helper {
 
                       const content = this.headerPicker("scrollable", conditionFunnelOverlay)
 
-                      const actionField = new SelectionField("condition-action", content)
+                      const actionField = this.create("field/select", content)
                       actionField.label.innerHTML = "Wähle ein Event"
-                      actionField.options(["skip", "path"])
+                      actionField.input.add(["skip", "path"])
                       if (answer.hasAttribute("onclick-condition")) {
                         const condition = JSON.parse(answer.getAttribute("onclick-condition"))
-                        actionField.value(() => [condition.event])
+                        actionField.input.select([condition.event])
                       }
-                      actionField.verifyValue()
-                      actionField.select.addEventListener("input", () => {
 
-                        actionField.withOptionSelected(option => {
+                      this.verify("input/value", actionField.input)
+                      actionField.input.addEventListener("input", () => {
 
-                          if (option.value === "skip") {
+                        if (actionField.input.value === "skip") {
 
-                            skipNumberField.input.disabled = false
-                            skipNumberField.input.required = true
-                            this.setNotValidStyle(skipNumberField.input)
+                          skipNumberField.input.disabled = false
+                          skipNumberField.input.setAttribute("required", "true")
+                          this.setNotValidStyle(skipNumberField.input)
 
-                            pathField.input.disabled = true
-                            pathField.input.required = false
-                            pathField.input.value = ""
-                            this.setValidStyle(pathField.input)
+                          pathField.input.disabled = true
+                          pathField.input.required = false
+                          pathField.input.value = ""
+                          this.setValidStyle(pathField.input)
 
-                          }
+                        }
 
-                          if (option.value === "path") {
+                        if (actionField.input.value === "path") {
 
-                            skipNumberField.input.disabled = true
-                            skipNumberField.input.required = false
-                            skipNumberField.input.value = ""
-                            this.setValidStyle(skipNumberField.input)
+                          skipNumberField.input.disabled = true
+                          skipNumberField.input.required = false
+                          skipNumberField.input.value = ""
+                          this.setValidStyle(skipNumberField.input)
 
-                            pathField.input.disabled = false
-                            pathField.input.required = true
-                            this.setNotValidStyle(pathField.input)
+                          pathField.input.disabled = false
+                          pathField.input.setAttribute("required", "true")
+                          this.setNotValidStyle(pathField.input)
 
-                          }
-
-                        })
+                        }
 
                       })
 
-                      const skipNumberField = new TelField("skip", content)
+                      const skipNumberField = this.create("field/tel", content)
                       skipNumberField.input.disabled = false
                       skipNumberField.input.required = true
                       skipNumberField.input.pattern = "[1-9]"
@@ -16304,45 +23396,47 @@ export class Helper {
                       if (answer.hasAttribute("onclick-condition")) {
                         const condition = JSON.parse(answer.getAttribute("onclick-condition"))
                         if (condition.event === "skip") {
-                          skipNumberField.value(() => condition.skip)
+                          skipNumberField.input.value = condition.skip
                         }
                       }
-                      skipNumberField.verifyValue()
-                      skipNumberField.input.addEventListener("input", () => skipNumberField.verifyValue())
+                      this.verify("input/value", skipNumberField.input)
+                      skipNumberField.input.addEventListener("input", () => this.verify("input/value", skipNumberField.input))
 
-                      const pathField = new TextField("path", content)
+                      const pathField = this.create("field/text", content)
                       pathField.input.disabled = true
-                      pathField.input.required = false
+                      pathField.input.setAttribute("required", "false")
                       pathField.input.accept = "text/path"
                       pathField.input.placeholder = "/meine-platform/mein-username/meine-werteinheit/"
                       pathField.label.innerHTML = "Gebe eine Pfad ein"
                       if (answer.hasAttribute("onclick-condition")) {
                         const condition = JSON.parse(answer.getAttribute("onclick-condition"))
                         if (condition.event === "path") {
-                          pathField.value(() => condition.path)
+                          pathField.input.value = condition.path
                         }
                       }
                       this.setValidStyle(pathField.input)
-                      pathField.input.addEventListener("input", () => pathField.verifyValue())
+                      pathField.input.addEventListener("input", () => this.verify("input/value", pathField.input))
 
                       const conditionSubmitButton = this.buttonPicker("action", content)
                       conditionSubmitButton.innerHTML = "Klick Bedingung hinzufügen"
-                      conditionSubmitButton.addEventListener("click", () => {
+                      conditionSubmitButton.addEventListener("click", async () => {
+
+                        await this.verifyIs("field-funnel/valid", content)
 
                         const condition = {}
-                        condition.event = actionField.validValue()[0].value
+                        condition.event = actionField.input.value
 
                         if (condition.event === "skip") {
-                          condition.skip = skipNumberField.validValue()
+                          condition.skip = skipNumberField.input.value
                         }
 
                         if (condition.event === "path") {
-                          condition.path = pathField.validValue()
+                          condition.path = pathField.input.value
                         }
 
                         answer.setAttribute("onclick-condition", JSON.stringify(condition))
 
-                        this.removeOverlay(conditionFunnelOverlay)
+                        this.remove("overlay", conditionFunnelOverlay)
                       })
 
                     })
@@ -16390,16 +23484,15 @@ export class Helper {
 
                 const questionsFunnel = this.headerPicker("scrollable", questionsFunnelOverlay)
 
-                const idField = new TextField("id", questionsFunnel)
-                idField.value(() => child.id)
+                const idField = this.create("field/tag", questionsFunnel)
+                idField.input.value = child.id
                 idField.label.innerHTML = "Id"
-                idField.input.required = true
-                idField.input.accept = "text/tag"
-                idField.verifyValue()
-                idField.input.addEventListener("input", () => {
+                this.verify("input/value", idField.input)
+                idField.input.addEventListener("input", async () => {
 
+                  await this.verify("input/value", idField.input)
                   try {
-                    const value = idField.validValue()
+                    const value = idField.input.value
                     if (document.querySelectorAll(`#${value}`).length === 0) {
                       child.id = value
                     } else this.setNotValidStyle(idField.input)
@@ -16417,15 +23510,18 @@ export class Helper {
 
 
                 const question = child.querySelector(".question")
-                const labelField = new TextAreaField("label", questionsFunnel)
-                labelField.value(() => question.textContent)
+                const labelField = this.create("field/textarea", questionsFunnel)
+                labelField.input.value = question.textContent
                 labelField.label.innerHTML = "Frage"
-                labelField.input.required = true
-                labelField.verifyValue()
-                labelField.input.addEventListener("input", () => {
+                labelField.input.setAttribute("required", "true")
+                this.verify("input/value", labelField.input)
+
+                labelField.input.addEventListener("input", async () => {
+
+                  await this.verify("input/value", labelField.input)
 
                   try {
-                    const value = labelField.validValue()
+                    const value = labelField.input.value
                     question.textContent = value
                   } catch (error) {
                     this.setNotValidStyle(labelField.input)
@@ -16471,11 +23567,11 @@ export class Helper {
 
                           const answerFunnel = this.headerPicker("scrollable", appendAnswerOverlay)
 
-                          const answerField = new TextAreaField("answer", answerFunnel)
+                          const answerField = this.create("field/textarea", answerFunnel)
                           answerField.label.innerHTML = "Antwortmöglichkeit"
-                          answerField.input.required = true
-                          answerField.verifyValue()
-                          answerField.input.addEventListener("input", () => answerField.verifyValue())
+                          answerField.input.setAttribute("required", "true")
+                          this.verify("input/value", answerField.input)
+                          answerField.input.addEventListener("input", () => this.verify("input/value", answerField.input))
 
                           const selectedConditionButton = this.buttonPicker("left/right", answerFunnel)
                           selectedConditionButton.left.innerHTML = ".onclick"
@@ -16496,77 +23592,75 @@ export class Helper {
 
                               const content = this.headerPicker("scrollable", conditionFunnelOverlay)
 
-                              const actionField = new SelectionField("condition-action", content)
+                              const actionField = this.create("field/select", content)
                               actionField.label.innerHTML = "Wähle ein Event"
-                              actionField.options(["skip", "path"])
-                              actionField.verifyValue()
-                              actionField.select.addEventListener("input", () => {
+                              actionField.input.add(["skip", "path"])
+                              this.verify("input/value", actionField.input)
+                              actionField.input.addEventListener("input", () => {
 
-                                actionField.withOptionSelected(option => {
+                                if (actionField.input.value === "skip") {
 
-                                  if (option.value === "skip") {
+                                  skipNumberField.input.disabled = false
+                                  skipNumberField.input.required = true
+                                  this.setNotValidStyle(skipNumberField.input)
 
-                                    skipNumberField.input.disabled = false
-                                    skipNumberField.input.required = true
-                                    this.setNotValidStyle(skipNumberField.input)
+                                  pathField.input.disabled = true
+                                  pathField.input.required = false
+                                  pathField.input.value = ""
+                                  this.setValidStyle(pathField.input)
 
-                                    pathField.input.disabled = true
-                                    pathField.input.required = false
-                                    pathField.input.value = ""
-                                    this.setValidStyle(pathField.input)
+                                }
 
-                                  }
+                                if (actionField.input.value === "path") {
 
-                                  if (option.value === "path") {
+                                  skipNumberField.input.disabled = true
+                                  skipNumberField.input.required = false
+                                  skipNumberField.input.value = ""
+                                  this.setValidStyle(skipNumberField.input)
 
-                                    skipNumberField.input.disabled = true
-                                    skipNumberField.input.required = false
-                                    skipNumberField.input.value = ""
-                                    this.setValidStyle(skipNumberField.input)
+                                  pathField.input.disabled = false
+                                  pathField.input.required = true
+                                  this.setNotValidStyle(pathField.input)
 
-                                    pathField.input.disabled = false
-                                    pathField.input.required = true
-                                    this.setNotValidStyle(pathField.input)
-
-                                  }
-
-                                })
+                                }
 
                               })
 
-                              const skipNumberField = new TelField("skip", content)
-                              skipNumberField.input.required = true
+                              const skipNumberField = this.create("field/tel", content)
+                              skipNumberField.input.setAttribute("required", "true")
                               skipNumberField.input.pattern = "[1-9]"
                               skipNumberField.label.innerHTML = "Wieviele Fragen möchtest du überspringen"
-                              skipNumberField.verifyValue()
-                              skipNumberField.input.addEventListener("input", () => skipNumberField.verifyValue())
+                              this.verify("input/value", skipNumberField.input)
+                              skipNumberField.input.addEventListener("input", () => this.verify("input/value", skipNumberField.input))
 
-                              const pathField = new TextField("path", content)
+                              const pathField = this.create("field/text", content)
                               pathField.input.disabled = true
                               pathField.input.accept = "text/path"
                               pathField.input.placeholder = "/meine-platform/mein-username/meine-werteinheit/"
                               pathField.label.innerHTML = "Gebe eine Pfad ein"
                               this.setValidStyle(pathField.input)
-                              pathField.input.addEventListener("input", () => pathField.verifyValue())
+                              pathField.input.addEventListener("input", () => this.verify("input/value", pathField.input))
 
                               const conditionSubmitButton = this.buttonPicker("action", content)
                               conditionSubmitButton.innerHTML = "Klick Bedingung hinzufügen"
-                              conditionSubmitButton.addEventListener("click", () => {
+                              conditionSubmitButton.addEventListener("click", async () => {
 
                                 const condition = {}
-                                condition.event = actionField.validValue()[0].value
+                                condition.event = actionField.input.value
 
                                 if (condition.event === "skip") {
-                                  condition.skip = skipNumberField.validValue()
+                                  await this.verify("input/value", skipNumberField.input)
+                                  condition.skip = skipNumberField.input.value
                                   answerBox.answer.setAttribute("onclick-condition", JSON.stringify(condition))
                                 }
 
                                 if (condition.event === "path") {
-                                  condition.path = pathField.validValue()
+                                  await this.verify("input/value", pathField.input)
+                                  condition.path = pathField.input.value
                                   answerBox.answer.setAttribute("onclick-condition", JSON.stringify(condition))
                                 }
 
-                                this.removeOverlay(conditionFunnelOverlay)
+                                this.remove("overlay", conditionFunnelOverlay)
                               })
 
                             })
@@ -16579,7 +23673,8 @@ export class Helper {
                           appendAnswerButton.innerHTML = "Option jetzt anhängen"
                           appendAnswerButton.addEventListener("click", async () => {
 
-                            const answer = answerField.validValue()
+                            await this.verify("input/value", answerField.input)
+                            const answer = answerField.input.value
 
                             answerBox.answer.textContent = answer
 
@@ -16587,7 +23682,7 @@ export class Helper {
 
                             this.render("click-field/answers", document.getElementById(child.id), answers)
 
-                            this.removeOverlay(appendAnswerOverlay)
+                            this.remove("overlay", appendAnswerOverlay)
 
                           })
 
@@ -16676,9 +23771,9 @@ export class Helper {
 
         if (input.type !== "select") {
 
-          const requiredField = new CheckboxField("required", parent)
+          const requiredField = this.create("field/checkbox", parent)
           requiredField.label.innerHTML = "Dieses Datenfeld ist notwendig"
-          requiredField.verifyValue()
+          this.verify("input/value", requiredField.input)
           if (input.field !== undefined) {
             if (input.field.classList.contains("field")) {
               const fieldInput = input.field.querySelector(".field-input")
@@ -16743,7 +23838,7 @@ export class Helper {
 
                       fieldInput.ok = () => {
                         this.render("select/options", fieldInput)
-                        this.removeOverlay(overlay)
+                        this.remove("overlay", overlay)
                       }
 
                       this.get("funnel/select-option", overlay, fieldInput)
@@ -16798,6 +23893,205 @@ export class Helper {
 
   static verifyIs(event, input) {
 
+    if (event === "array") {
+      if (typeof input === "object") {
+        if (Array.isArray(input)) return true
+      }
+      return false
+    }
+
+    if (event === "object") {
+      if (typeof input === "object") return true
+      return false
+    }
+
+    if (event === "object/empty") {
+      return typeof input !== "object" ||
+      input === undefined ||
+      input === null ||
+      Object.getOwnPropertyNames(input).length <= 0
+    }
+
+    if (event === "file/extension") {
+      try {
+
+        const fileExtension = input.file.name.split('.').pop()
+        if (fileExtension === input.extension) return true
+        return false
+
+      } catch (error) {
+        return false
+      }
+    }
+
+    if (event === "file/extensions") {
+      return new Promise((resolve, reject) => {
+        try {
+          const fileExtension = input.file.name.split('.').pop()
+          for (let i = 0; i < input.extensions.length; i++) {
+            const extension = input.extensions[i]
+
+            if (this.verifyIs("file/extension", {file: input.file, extension})) {
+              resolve()
+            }
+
+          }
+          throw new Error("file extension not allowed")
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "file/type") {
+      if (input.file.type === input.type) return true
+      return false
+    }
+
+    if (event === "file/types") {
+      return new Promise((resolve, reject) => {
+        try {
+          for (let i = 0; i < input.types.length; i++) {
+            const type = input.types[i]
+            if (this.verifyIs("file/type", {file: input.file, type })) {
+              resolve()
+            }
+          }
+          throw new Error("mime type not allowed")
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "file/image") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const allowedMimeTypes = ["image/jpeg", "image/png", "image/svg+xml"]
+          const allowedExtensions = ["jpg", "jpeg", "png", "svg"]
+
+          const types = await this.verifyIs("file/mime-types", {file: input, types: allowedMimeTypes})
+
+          if (types === false) {
+            window.alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            throw new Error("no image")
+          }
+
+          const extensions = await this.verifyIs("file/extensions", {file: input, extensions: allowedExtensions})
+
+          if (extensions === false) {
+            window.alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            throw new Error("no image")
+          }
+
+          resolve(true)
+
+        } catch (error) {
+          resolve(false)
+        }
+      })
+
+
+    }
+
+    if (event === "file/pdf") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const allowedMimeTypes = ["application/pdf"]
+          const allowedExtensions = ["pdf"]
+
+          const types = await this.verifyIs("file/mime-types", {file: input, types: allowedMimeTypes})
+
+          if (types === false) {
+            window.alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            throw new Error("no pdf")
+          }
+
+          const extensions = await this.verifyIs("file/extensions", {file: input, extensions: allowedExtensions})
+
+          if (extensions === false) {
+            window.alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            throw new Error("no pdf")
+          }
+
+          resolve(true)
+
+        } catch (error) {
+          resolve(false)
+        }
+      })
+
+
+    }
+
+    if (event === "file/html") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const allowedMimeTypes = ["text/html"]
+          const allowedExtensions = ["html"]
+
+          const types = await this.verifyIs("file/mime-types", {file: input, types: allowedMimeTypes})
+
+          if (types === false) {
+            window.alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            throw new Error("no html")
+          }
+
+          const extensions = await this.verifyIs("file/extensions", {file: input, extensions: allowedExtensions})
+
+          if (extensions === false) {
+            window.alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            throw new Error("no html")
+          }
+
+          resolve(true)
+
+        } catch (error) {
+          resolve(false)
+        }
+      })
+
+
+    }
+
+    if (event === "file/svg+xml") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const allowedMimeTypes = ["image/svg+xml"]
+          const allowedExtensions = ["svg"]
+
+          const types = await this.verifyIs("file/mime-types", {file: input, types: allowedMimeTypes})
+
+          if (types === false) {
+            window.alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            throw new Error("no svg")
+          }
+
+          const extensions = await this.verifyIs("file/extensions", {file: input, extensions: allowedExtensions})
+
+          if (extensions === false) {
+            window.alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
+            throw new Error("no svg")
+          }
+
+          resolve(true)
+
+        } catch (error) {
+          resolve(false)
+        }
+      })
+
+
+    }
+
     if (event === "file/mp3") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -16832,6 +24126,26 @@ export class Helper {
       })
     }
 
+    if (event === "text/json") {
+      try {
+        JSON.parse(input)
+        return true
+      } catch (error) {
+        return false
+      }
+      return false
+    }
+
+    if (event === "text/operator") {
+      if (input === "=") return true
+      if (input === ">=") return true
+      if (input === "<=") return true
+      if (input === "!=") return true
+      if (input === "<") return true
+      if (input === ">") return true
+      return false
+    }
+
     if (event === "text/url") {
       try {
         new URL(input)
@@ -16855,8 +24169,10 @@ export class Helper {
 
     if (event === "text/empty") {
       return typeof input !== "string" ||
+        input === "undefined" ||
         input === undefined ||
         input === null ||
+        input === "null" ||
         input === "" ||
         input.replace(/\s/g, "") === ""
     }
@@ -16891,7 +24207,7 @@ export class Helper {
           const promises = []
           input.querySelectorAll(".field").forEach(async field => {
             const input = field.querySelector(".field-input")
-            const promise = this.verifyIs("input/valid", input)
+            const promise = this.verify("input/value", input)
 
             promises.push(promise)
           })
@@ -16903,6 +24219,7 @@ export class Helper {
           } else {
             return resolve(false)
           }
+
         } catch (error) {
           return reject(error)
         }
@@ -16918,7 +24235,7 @@ export class Helper {
           const verify = {}
           verify.url = "/verify/user/closed/"
           verify.type = "location-writable"
-          const res = await Request.closed(verify)
+          const res = await this.request("closed/json", verify)
 
           resolve(res)
 
@@ -16941,7 +24258,7 @@ export class Helper {
           const verify = {}
           verify.url = "/verify/user/closed/"
           verify.type = "location-expert"
-          const res = await Request.closed(verify)
+          const res = await this.request("closed/json", verify)
 
           resolve(res)
 
@@ -16964,7 +24281,7 @@ export class Helper {
           const verify = {}
           verify.url = "/verify/user/closed/"
           verify.type = "closed"
-          const res = await Request.closed(verify)
+          const res = await this.request("closed/json", verify)
 
           resolve(res)
 
@@ -17084,6 +24401,35 @@ export class Helper {
 
     if (event === "input/accepted") {
 
+      if (input.getAttribute("accept") === "application/pdf") {
+
+        return new Promise(async(resolve, reject) => {
+
+          try {
+
+            const promises = []
+            for (var i = 0; i < input.files.length; i++) {
+              const file = input.files[i]
+              const promise = this.verifyIs("file/pdf", file)
+              promises.push(promise)
+            }
+
+            const results = await Promise.all(promises)
+
+            if (results.every((element) => element === true)) {
+              resolve(true)
+            } else {
+              resolve(false)
+            }
+
+          } catch (error) {
+            resolve(false)
+          }
+
+        })
+
+      }
+
       if (input.getAttribute("accept") === "text/js") {
 
         try {
@@ -17123,13 +24469,7 @@ export class Helper {
       }
 
       if (input.getAttribute("accept") === "text/operator") {
-        if (input.value === "=") return true
-        if (input.value === ">=") return true
-        if (input.value === "<=") return true
-        if (input.value === "!=") return true
-        if (input.value === "<") return true
-        if (input.value === ">") return true
-        return false
+        return this.verifyIs("text/operator", input.value)
       }
 
       if (input.getAttribute("accept") === "text/email") {
@@ -17328,6 +24668,23 @@ export class Helper {
       }
     }
 
+    if (event === "class/found") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          let found = false
+          input.node.querySelectorAll("*").forEach((item, i) => {
+            if (item.classList.contains(input.class)) {
+              found = true
+            }
+          })
+          resolve(found)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "class/loaded") {
      return new Promise(async (resolve, reject) => {
         try {
@@ -17424,22 +24781,6 @@ export class Helper {
 
   }
 
-  static hexToRgba(hex, alpha) {
-    hex = hex.replace('#', '')
-
-    var r = parseInt(hex.substring(0, 2), 16)
-    var g = parseInt(hex.substring(2, 4), 16)
-    var b = parseInt(hex.substring(4, 6), 16)
-
-    if (alpha < 0 || alpha > 1) {
-      throw new Error('The alpha value must be between 0 and 1.');
-    }
-
-    var rgba = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
-
-    return rgba
-  }
-
   static headerPicker(name, parent) {
 
 
@@ -17476,36 +24817,6 @@ export class Helper {
           this.convert("parent/navigation-open", content)
         })
       })
-
-      if (parent !== undefined) parent.append(header)
-
-      return header
-    }
-
-    if (name === "save") {
-
-      const icon = this.iconPicker("save")
-      icon.style.width = "34px"
-      const header = document.createElement("div")
-      header.append(icon)
-      header.style.position = "fixed"
-      header.style.bottom = "0"
-      header.style.right = "0"
-
-      header.style.boxShadow = this.colors.light.boxShadow
-      header.style.border = this.colors.light.border
-      header.style.backgroundColor = this.colors.light.foreground
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        header.style.boxShadow = this.colors.dark.boxShadow
-        header.style.border = this.colors.dark.border
-        header.style.backgroundColor = this.colors.dark.foreground
-      }
-
-      header.style.borderRadius = "50%"
-      header.style.margin = "34px"
-      header.style.padding = "21px"
-      header.style.zIndex = "1"
-      header.style.cursor = "pointer"
 
       if (parent !== undefined) parent.append(header)
 
@@ -17725,7 +25036,7 @@ export class Helper {
       header.style.padding = "21px"
       header.style.zIndex = "1"
       header.style.cursor = "pointer"
-      header.addEventListener("click", () => this.removeOverlay(parent))
+      header.addEventListener("click", () => this.remove("overlay", parent))
       parent.append(header)
 
       return header
@@ -18349,7 +25660,7 @@ export class Helper {
       // add more events like action color
       // add more events like css - boxShadow, border, ??
       background: '#28282B',
-      boxShadow: `0 1px 3px ${this.hexToRgba("#ffffff", "0.13")}`,
+      boxShadow: `0 1px 3px ${this.convert("hex/rgba", {hex: "#ffffff", alpha: "0.13"})}`,
       border: '0.3px solid #2E4369',
       // boxShadow: '0 1px 3px #2E4369',
 
@@ -18364,7 +25675,7 @@ export class Helper {
       foreground: '#FAFAFA',
       background: '#F0F0F0',
       border: '0.3px solid #A0A0A0',
-      boxShadow: `0 1px 3px ${this.hexToRgba("#000000", "0.13")}`,
+      boxShadow: `0 1px 3px ${this.convert("hex/rgba", {hex: "#000000", alpha: "0.13"})}`,
       primary: '#A0A0A0',
       secondary: '#7C7C7C',
       accent: '#595959',
@@ -18381,6 +25692,143 @@ export class Helper {
   }
 
   static convert(event, input) {
+
+    if (event === "query/css") {
+      const match = input.match(/{([^{}]*)}/)
+
+      if (match && match[1]) {
+        return match[1].trim()
+      }
+
+    }
+
+    if (event === "query/selector") {
+      const match = input.match(/{(.*?){/)
+
+      if (match && match[1]) {
+        return match[1].trim()
+      }
+
+    }
+
+    if (event === "array/reduce-selected-price") {
+      return input.filter(it => it.selected === true).reduce((prev, curr) => prev + curr.price, 0)
+    }
+
+    if (event === "canvas/file") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          input.toBlob(blob => {
+            resolve({
+              created: Date.now(),
+              type: blob.type,
+              size: blob.size,
+              dataURL: input.toDataURL()
+            })
+          })
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "hex/rgba") {
+      const hex = input.hex.replace('#', '')
+
+      var r = parseInt(hex.substring(0, 2), 16)
+      var g = parseInt(hex.substring(2, 4), 16)
+      var b = parseInt(hex.substring(4, 6), 16)
+
+      if (input.alpha < 0 || input.alpha > 1) {
+        throw new Error('The alpha value must be between 0 and 1.');
+      }
+
+      var rgba = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + input.alpha + ')';
+
+      return rgba
+    }
+
+    if (event === "markdown/div") {
+
+      // test the convert results
+      // convert(markdown/html)
+      // Convert '#' at the beginning of a line to <h1> tag
+      input = input.replace(/^# (.+)$/gm, '<h1>$1</h1>')
+
+      // Convert '##' at the beginning of a line to <h2> tag
+      input = input.replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      input = input.replace(/^### (.+)$/gm, '<h3>$1</h3>')
+
+      // Convert '*' and '_' for emphasis to <em> tags
+      input = input.replace(/(\*|_)(.+?)\1/g, '<em>$2</em>')
+
+      // Convert '**' and '__' for strong emphasis to <strong> tags
+      input = input.replace(/(\*\*|__)(.+?)\1/g, '<strong>$2</strong>')
+
+      // Convert lists
+      input = input.replace(/^\* (.+)$/gm, '<li>$1</li>')
+      input = input.replace(/<li>(.+)<\/li>/g, '<ul>$&</ul>')
+
+      // Convert paragraphs
+      input = input.replace(/(.+)$/gm, '<p>$1</p>')
+
+      // Convert fenced code blocks (```)
+      input = input.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+
+      // Convert blockquotes
+      // input = input.replace(/>(.+)/gm, '<blockquote>$1</blockquote>')
+
+      // Convert links ([text](url))
+      input = input.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+
+      // Convert inline code (`code`)
+      input = input.replace(/`([^`]+)`/g, '<code>$1</code>')
+
+      // Convert images (![alt text](url))
+      input = input.replace(/!\[([^\]]+)\]\(([^)]+)\)/g, '<img alt="$1" src="$2">')
+
+      // Convert horizontal rules (--- or *** or ___)
+      input = input.replace(/(\*\*\*|---|___)/g, '<hr>')
+
+      // Convert tables
+      input = input.replace(/^[|].*[|]$/gm, function(match) {
+        // Extract table headers and rows
+        const rows = match.split('\n').filter(Boolean)
+        const headers = rows[0].split('|').filter(Boolean)
+
+        // Create the table HTML
+        let tableHTML = '<table><thead><tr>'
+        headers.forEach(header => {
+          tableHTML += `<th>${header.trim()}</th>`
+        })
+        tableHTML += '</tr></thead><tbody>'
+
+        for (let i = 1; i < rows.length; i++) {
+          const cells = rows[i].split('|').filter(Boolean)
+          tableHTML += '<tr>'
+          cells.forEach(cell => {
+            tableHTML += `<td>${cell.trim()}</td>`
+          })
+          tableHTML += '</tr>'
+        }
+
+        tableHTML += '</tbody></table>'
+        return tableHTML
+      })
+
+      // Convert strikethrough (~~text~~)
+      input = input.replace(/~~(.+?)~~/g, '<del>$1</del>')
+
+      // Convert task lists
+      input = input.replace(/\[ \]/g, '<input type="checkbox" disabled>')
+      input = input.replace(/\[x\]/g, '<input type="checkbox" checked disabled>')
+
+      // convert(html/div)
+      const div = document.createElement("div")
+      div.innerHTML = input
+
+      return div
+    }
 
     if (event === "tag/capital-first-letter") {
       if (input.includes("-")) {
@@ -18400,6 +25848,125 @@ export class Helper {
         return this.convert("text/capital-first-letter", input)
       }
 
+    }
+
+    if (event === "file/data-url") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const reader = new FileReader()
+          reader.addEventListener("loadend", () => {
+            resolve(reader.result)
+          })
+          reader.readAsDataURL(input)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "file/image-size") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const reader = new FileReader()
+          reader.addEventListener("loadend", () => {
+            const canvas = document.createElement("canvas")
+            const ctx = canvas.getContext("2d")
+            const image = document.createElement("img")
+            image.src = reader.result
+            image.onload = () => {
+              const width = input.size
+              const height = input.size * image.height / image.width
+              canvas.width = width
+              canvas.height = height
+              ctx.drawImage(image, 0, 0, width, height)
+              resolve(canvas.toDataURL(input.file.type))
+            }
+          })
+          reader.readAsDataURL(input.file)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "file/pdf") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const fileReader = new FileReader()
+          fileReader.onload = async(event) => {
+
+            const dataUrlSize = fileReader.result.length
+            if (dataUrlSize > 5 * 1024 * 1024) {
+              alert("PDF ist zu groß.")
+              throw new Error("pdf too large")
+            }
+
+            const newFile = {}
+            newFile.name = file.name
+            newFile.type = file.type
+            newFile.size = dataUrlSize
+            newFile.modified = Date.now()
+            newFile.dataUrl = fileReader.result
+
+            resolve(newFile)
+          }
+          fileReader.readAsDataURL(input)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "file/html") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const fileReader = new FileReader()
+          fileReader.onload = async () => {
+
+            const newFile = {}
+            newFile.name = input.name
+            newFile.type = input.type
+            newFile.size = input.size
+            newFile.modified = Date.now()
+            newFile.svg = fileReader.result
+
+            resolve(newFile)
+          }
+          fileReader.readAsText(input)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "file/svg+xml") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const fileReader = new FileReader()
+          fileReader.onload = async () => {
+
+            const newFile = {}
+            newFile.name = input.name
+            newFile.type = input.type
+            newFile.size = input.size
+            newFile.modified = Date.now()
+            newFile.svg = fileReader.result
+
+            resolve(newFile)
+          }
+          fileReader.readAsText(input)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
     }
 
     if (event === "file/binary") {
@@ -18457,7 +26024,7 @@ export class Helper {
         const allowedExtensions = ["jpg", "jpeg", "png"]
 
         if (allowedMimeTypes !== undefined) {
-          await this.verifyFileMimeTypes(file, allowedMimeTypes)
+          await this.verifyIs("file/types", {file, types: allowedMimeTypes})
           .catch(error => {
             alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
             this.setNotValidStyle(input)
@@ -18466,7 +26033,7 @@ export class Helper {
         }
 
         if (allowedExtensions !== undefined) {
-          await this.verifyFileExtension(file, allowedExtensions)
+          await this.verifyIs("file/extensions", {file, extensions: allowedExtensions})
           .catch(error => {
             alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
             this.setNotValidStyle(input)
@@ -18474,8 +26041,8 @@ export class Helper {
           })
         }
 
-        const dataUrl = await this.convertImageFileToDataUrl(file, 2584)
-        const dataUrlSize = this.calculateDataUrlSize(dataUrl)
+        const dataUrl = await this.convert("file/image-size", {file, size: 2584})
+        const dataUrlSize = this.convert("text/length", dataUrl)
         if (dataUrlSize > 1024 * 1024) {
           alert("Datei ist zu groß.")
           this.setNotValidStyle(input)
@@ -18803,58 +26370,6 @@ export class Helper {
 
     }
 
-    if (event === "element/textarea") {
-
-      const create = document.createElement("textarea")
-
-      if (input.hasAttribute("id")) {
-        create.setAttribute("id", input.getAttribute("id"))
-      }
-
-      if (input.hasAttribute("class")) {
-        create.setAttribute("class", input.getAttribute("class"))
-      }
-
-      if (input.hasAttribute("style")) {
-        create.setAttribute("style", input.getAttribute("style"))
-      }
-
-      if (input.hasAttribute("required")) {
-        create.setAttribute("required", input.getAttribute("required"))
-      }
-
-      if (input.hasAttribute("on-info-click")) {
-        create.setAttribute("on-info-click", input.getAttribute("on-info-click"))
-      }
-
-      input.before(create)
-      input.remove()
-    }
-
-    if (event === "element/select") {
-
-      const create = document.createElement("select")
-
-      if (input.hasAttribute("id")) {
-        create.setAttribute("id", input.getAttribute("id"))
-      }
-
-      if (input.hasAttribute("class")) {
-        create.setAttribute("class", input.getAttribute("class"))
-      }
-
-      if (input.hasAttribute("style")) {
-        create.setAttribute("style", input.getAttribute("style"))
-      }
-
-      if (input.hasAttribute("on-info-click")) {
-        create.setAttribute("on-info-click", input.getAttribute("on-info-click"))
-      }
-
-      input.before(create)
-      input.remove()
-    }
-
     if (event === "field/value") {
       return new Promise(async(resolve, reject) => {
 
@@ -19160,13 +26675,13 @@ export class Helper {
           const allowedMimeTypes = ["image/png"]
           const allowedExtensions = ["png"]
 
-          await this.verifyFileMimeTypes(input, allowedMimeTypes)
+          await this.verifyIs("file/types", {file: input, types: allowedMimeTypes})
           .catch(error => {
             alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
             return reject(error)
           })
 
-          await this.verifyFileExtension(input, allowedExtensions)
+          await this.verifyIs("file/extensions", {file: input, extensions: allowedExtensions})
           .catch(error => {
             alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
             return reject(error)
@@ -19175,7 +26690,7 @@ export class Helper {
           const fileReader = new FileReader()
           fileReader.onload = () => {
 
-            const dataUrlSize = this.calculateDataUrlSize(fileReader.result)
+            const dataUrlSize = this.convert("text/length", fileReader.result)
             if (dataUrlSize > 5 * 1024 * 1024) {
               window.alert("Datei ist zu groß: max 5MB")
               return reject(new Error("file too large"))
@@ -19200,13 +26715,13 @@ export class Helper {
           const allowedMimeTypes = ["image/jpeg"]
           const allowedExtensions = ["jpg", "jpeg"]
 
-          await this.verifyFileMimeTypes(input, allowedMimeTypes)
+          await this.verifyIs("file/types", {file: input, types: allowedMimeTypes})
           .catch(error => {
             alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
             return reject(error)
           })
 
-          await this.verifyFileExtension(input, allowedExtensions)
+          await this.verifyIs("file/extensions", {file: input, extensions: allowedExtensions})
           .catch(error => {
             alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
             return reject(error)
@@ -19215,7 +26730,7 @@ export class Helper {
           const fileReader = new FileReader()
           fileReader.onload = () => {
 
-            const dataUrlSize = this.calculateDataUrlSize(fileReader.result)
+            const dataUrlSize = this.convert("text/length", fileReader.result)
             if (dataUrlSize > 5 * 1024 * 1024) {
               window.alert("Datei ist zu groß: max 5MB")
               return reject(new Error("file too large"))
@@ -19240,13 +26755,13 @@ export class Helper {
           const allowedMimeTypes = ["application/pdf"]
           const allowedExtensions = ["pdf"]
 
-          await this.verifyFileMimeTypes(input, allowedMimeTypes)
+          await this.verifyIs("file/types", {file: input, types: allowedMimeTypes})
           .catch(error => {
             alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
             return reject(error)
           })
 
-          await this.verifyFileExtension(input, allowedExtensions)
+          await this.verifyIs("file/extensions", {file: input, extensions: allowedExtensions})
           .catch(error => {
             alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
             return reject(error)
@@ -19255,7 +26770,7 @@ export class Helper {
           const fileReader = new FileReader()
           fileReader.onload = () => {
 
-            const dataUrlSize = this.calculateDataUrlSize(fileReader.result)
+            const dataUrlSize = this.convert("text/length", fileReader.result)
             if (dataUrlSize > 5 * 1024 * 1024) {
               window.alert("Datei ist zu groß: max 5MB")
               return reject(new Error("file too large"))
@@ -19280,13 +26795,13 @@ export class Helper {
           const allowedMimeTypes = ["text/html"]
           const allowedExtensions = ["html"]
 
-          await this.verifyFileMimeTypes(input, allowedMimeTypes)
+          await this.verifyIs("file/types", {file: input, types: allowedMimeTypes})
           .catch(error => {
             alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
             return reject(error)
           })
 
-          await this.verifyFileExtension(input, allowedExtensions)
+          await this.verifyIs("file/extensions", {file: input, extensions: allowedExtensions})
           .catch(error => {
             alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
             return reject(error)
@@ -19300,7 +26815,7 @@ export class Helper {
             map.type = input.type
             map.size = input.size
             map.modified = Date.now()
-            map.html = this.sanitizeHtml(fileReader.result)
+            map.html = this.convert("text/sanatized-html", fileReader.result)
 
             return resolve(map)
           }
@@ -19314,13 +26829,13 @@ export class Helper {
           const allowedMimeTypes = ["image/svg+xml"]
           const allowedExtensions = ["svg"]
 
-          await this.verifyFileMimeTypes(input, allowedMimeTypes)
+          await this.verifyIs("file/types", {file: input, types: allowedMimeTypes})
           .catch(error => {
             window.alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
             return reject(error)
           })
 
-          await this.verifyFileExtension(input, allowedExtensions)
+          await this.verifyIs("file/extensions", {file: input, extensions: allowedExtensions})
           .catch(error => {
             window.alert(`Erlaubte Formate: ${allowedExtensions.join(", ")}`)
             return reject(error)
@@ -19334,7 +26849,7 @@ export class Helper {
             map.type = input.type
             map.size = input.size
             map.modified = Date.now()
-            map.svg = this.sanitizeHtml(fileReader.result)
+            map.svg = this.convert("text/sanatized-html", fileReader.result)
 
             return resolve(map)
           }
@@ -19354,6 +26869,14 @@ export class Helper {
       }
       return div.innerHTML
 
+    }
+
+    if (event === "clipboard/text") {
+      return navigator.clipboard.readText()
+    }
+
+    if (event === "text/clipboard") {
+      return navigator.clipboard.writeText(input)
     }
 
     if (event === "text/number") {
@@ -19395,6 +26918,108 @@ export class Helper {
       script.innerHTML = input
       return script
 
+    }
+
+    if (event === "uri/text") {
+
+      input.replace(/%20/g, "-")
+      input.replace(/u%CC%88/g, "ue")
+      input.replace(/a%CC%88/g, "ae")
+      input.replace(/o%CC%88/g, "oe")
+      input.replace(/%2F/g, "-")
+      input.replace(/%C3%A4/g, "ae")
+      input.replace(/%C3%BC/g, "ue")
+      input.replace(/\(/g, "")
+      input.replace(/\)/g, "")
+      input.replace(/%C3%B6/g, "oe")
+      input.replace(/%C3%96/g, "Oe")
+      input.replace(/\./g, "-")
+      input.replace(/%C3%9F/g, "ss")
+      input.replace(/%3F/g, "")
+      input.replace(/-$/g, "")
+
+      return input
+    }
+
+    if (event === "text/uri") {
+      return encodeURIComponent(input)
+    }
+
+    if (event === "text/sanatized-html") {
+      // events
+      input = input.replace(/on\w+="[^"]*"/gi, "")
+
+      // chars
+      input = input.replace(/{{(.*?)}}/g, "")
+      input = input.replace(/\[\[(.*?)\]\]/g, "")
+
+      // attributes
+      input = input.replace(/src=["'`](.*?)["'`]/gi, "")
+      input = input.replace(/href=["'`](.*?)["'`]/gi, "")
+
+      // css
+      input = input.replace(/expression\([^)]*\)/gi, "")
+      input = input.replace(/url\((['"]?)(.*?)\1\)/gi, "")
+
+      // js
+      input = input.replace(/javascript:/gi, "")
+
+      // tags
+      input = input.replace(/<img\b[^>]*>/gi, "")
+      input = input.replace(/<link\b[^>]*>/gi, "")
+      input = input.replace(/<input\b[^>]*>/gi, "")
+      input = input.replace(/<a\b[^>]*>/gi, "")
+      input = input.replace(/<meta\b[^>]*>/gi, "")
+      input = input.replace(/<datalist\b[^>]*>/gi, "")
+      input = input.replace(/<source\b[^>]*>/gi, "")
+      input = input.replace(/<progress\b[^>]*>/gi, "")
+      input = input.replace(/<details\b[^>]*>/gi, "")
+      input = input.replace(/<summary\b[^>]*>/gi, "")
+      input = input.replace(/<script\b[^>]*>/gi, "")
+      input = input.replace(/<iframe\b[^>]*>/gi, "")
+      input = input.replace(/<object\b[^>]*>/gi, "")
+      input = input.replace(/<embed\b[^>]*>/gi, "")
+      input = input.replace(/<form\b[^>]*>/gi, "")
+      input = input.replace(/<textarea\b[^>]*>/gi, "")
+      input = input.replace(/<select\b[^>]*>/gi, "")
+      input = input.replace(/<button\b[^>]*>/gi, "")
+      input = input.replace(/<base\b[^>]*>/gi, "")
+      input = input.replace(/<frame\b[^>]*>/gi, "")
+      input = input.replace(/<frameset\b[^>]*>/gi, "")
+      input = input.replace(/<applet\b[^>]*>/gi, "")
+      input = input.replace(/<audio\b[^>]*>/gi, "")
+      input = input.replace(/<video\b[^>]*>/gi, "")
+      input = input.replace(/<source\b[^>]*>/gi, "")
+      input = input.replace(/<track\b[^>]*>/gi, "")
+      input = input.replace(/<canvas\b[^>]*>/gi, "")
+      input = input.replace(/<svg\b[^>]*>/gi, "")
+      input = input.replace(/<math\b[^>]*>/gi, "")
+      input = input.replace(/<template\b[^>]*>/gi, "")
+      input = input.replace(/<noscript\b[^>]*>/gi, "")
+      input = input.replace(/<noembed\b[^>]*>/gi, "")
+      input = input.replace(/<plaintext\b[^>]*>/gi, "")
+      input = input.replace(/<marquee\b[^>]*>/gi, "")
+      input = input.replace(/<blink\b[^>]*>/gi, "")
+      input = input.replace(/<layer\b[^>]*>/gi, "")
+      input = input.replace(/<ilayer\b[^>]*>/gi, "")
+      input = input.replace(/<basefont\b[^>]*>/gi, "")
+      input = input.replace(/<isindex\b[^>]*>/gi, "")
+      input = input.replace(/<keygen\b[^>]*>/gi, "")
+      input = input.replace(/<command\b[^>]*>/gi, "")
+
+      return input
+    }
+
+    if (event === "text/length") {
+      return input.length
+    }
+
+    if (event === "text/node") {
+
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(input, "text/html")
+
+      return doc.body.firstChild
     }
 
     if (event === "text/html") {
@@ -19957,6 +27582,8 @@ export class Helper {
       return h2
     }
 
+    // remove this a bring this to render
+    // this is a render function
     if (event === "text/hr") {
 
       const container = document.createElement("div")
@@ -19996,6 +27623,36 @@ export class Helper {
 
     if (event === "text/capital-first-letter") {
       return input.charAt(0).toUpperCase() + input.slice(1)
+    }
+
+    if (event === "parent/box") {
+
+      if (input.classList.contains("box")) {
+        input.classList.toggle("box")
+
+        input.style.margin = null
+        input.style.padding = null
+        input.style.borderRadius = null
+        input.style.boxShadow = null
+
+      } else {
+
+        input.style.margin = "21px 34px"
+        input.style.padding = "8px"
+        input.style.borderRadius = "3px"
+        input.style.boxShadow = "rgba(0, 0, 0, 0.16) 0px 1px 4px"
+      }
+
+      return input
+    }
+
+    if (event === "parent/space-around") {
+
+      input.style.display = "flex"
+      input.style.flexWrap = "wrap"
+      input.style.justifyContent = "space-around"
+
+      return input
     }
 
     if (event === "parent/space-between") {
@@ -20120,7 +27777,7 @@ export class Helper {
 
     if (event === "parent/loading") {
 
-      this.reset(input)
+      this.convert("element/reset", input)
       input.style.display = "flex"
       input.style.flexDirection = "column"
       input.style.justifyContent = "center"
@@ -20144,7 +27801,7 @@ export class Helper {
     }
 
     if (event === "parent/scrollable") {
-      this.reset(input)
+      this.convert("element/reset", input)
       input.style.overflowY = "auto"
       input.style.overscrollBehavior = "none"
       input.style.paddingBottom = "144px"
@@ -20152,7 +27809,7 @@ export class Helper {
     }
 
     if (event === "parent/info") {
-      this.reset(input)
+      this.convert("element/reset", input)
       input.style.position = "absolute"
       input.style.top = "0"
       input.style.left = "0"
@@ -20171,7 +27828,7 @@ export class Helper {
     }
 
     if (event === "parent/navigation-open") {
-      this.reset(input)
+      this.convert("element/reset", input)
       input.style.overflowY = "auto"
       input.style.overscrollBehavior = "none"
       input.style.paddingBottom = "144px"
@@ -20182,7 +27839,7 @@ export class Helper {
     }
 
     if (event === "element/button-right") {
-      this.reset(input)
+      this.convert("element/reset", input)
       input.style.margin = "21px 34px"
       input.style.fontSize = "13px"
       input.style.fontFamily = "sans-serif"
@@ -20196,7 +27853,7 @@ export class Helper {
     }
 
     if (event === "element/checked") {
-      this.reset(input)
+      this.convert("element/reset", input)
       input.innerHTML = "✓"
       input.style.margin = "21px 34px"
       input.style.color = "#00c853"
@@ -20206,7 +27863,7 @@ export class Helper {
     }
 
     if (event === "element/scrollable") {
-      this.reset(input)
+      this.convert("element/reset", input)
       input.style.overflowY = "auto"
       input.style.overscrollBehavior = "none"
       input.style.paddingBottom = "144px"
@@ -20236,7 +27893,7 @@ export class Helper {
     }
 
     if (event === "element/center") {
-      this.reset(input)
+      this.convert("element/reset", input)
       input.style.position = "absolute"
       input.style.top = "0"
       input.style.left = "0"
@@ -20297,6 +27954,106 @@ export class Helper {
       return output
     }
 
+    if (event === "element/zero-z-index-child") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const nodes = Array.from(input.querySelectorAll("*"))
+          // const minZIndex = Math.min(...nodes.map(item => parseInt(item.style.zIndex) || 0))
+
+          for (var i = 0; i < nodes.length; i++) {
+            const item = nodes[i]
+
+            const itemZIndex = parseInt(item.style.zIndex)
+
+            if (itemZIndex === 0) {
+              resolve(item)
+            }
+
+          }
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "element/min-z-index-child") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const nodes = Array.from(input.querySelectorAll("*"))
+          const minZIndex = Math.min(...nodes.map(item => parseInt(item.style.zIndex) || 0))
+
+          for (var i = 0; i < nodes.length; i++) {
+            const item = nodes[i]
+
+            const itemZIndex = parseInt(item.style.zIndex) || 0
+
+            if (itemZIndex === minZIndex) {
+              resolve(item)
+            }
+
+          }
+
+
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "element/max-z-index-child") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const nodes = Array.from(input.querySelectorAll("*"))
+          const maxZIndex = Math.max(...nodes.map(item => parseInt(item.style.zIndex) || 0))
+
+          for (var i = 0; i < nodes.length; i++) {
+            const item = nodes[i]
+
+            const itemZIndex = parseInt(item.style.zIndex) || 0
+
+            if (itemZIndex === maxZIndex) {
+              resolve(item)
+            }
+
+          }
+
+
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "element/selector") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          if (!(input instanceof Element)) throw new Error("not an input")
+
+          const tagName = input.tagName.toLowerCase()
+
+          const id = input.id ? `#${input.id}` : ''
+
+          const classes = input.className
+            ? `.${input.className.split(' ').join('.')}`
+            : ''
+
+          const selector = `${tagName}${id}${classes}`
+
+          resolve(selector)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "element/tagName") {
 
       return input.tagName
@@ -20343,310 +28100,77 @@ export class Helper {
       return output
     }
 
-  }
-
-  static sanitizeHtml(html) {
-    // events
-    html = html.replace(/on\w+="[^"]*"/gi, "")
-
-    // chars
-    html = html.replace(/{{(.*?)}}/g, "")
-    html = html.replace(/\[\[(.*?)\]\]/g, "")
-
-    // attributes
-    html = html.replace(/src=["'`](.*?)["'`]/gi, "")
-    html = html.replace(/href=["'`](.*?)["'`]/gi, "")
-
-    // css
-    html = html.replace(/expression\([^)]*\)/gi, "")
-    html = html.replace(/url\((['"]?)(.*?)\1\)/gi, "")
-
-    // js
-    html = html.replace(/javascript:/gi, "")
-
-    // tags
-    html = html.replace(/<img\b[^>]*>/gi, "")
-    html = html.replace(/<link\b[^>]*>/gi, "")
-    html = html.replace(/<input\b[^>]*>/gi, "")
-    html = html.replace(/<a\b[^>]*>/gi, "")
-    html = html.replace(/<meta\b[^>]*>/gi, "")
-    html = html.replace(/<datalist\b[^>]*>/gi, "")
-    html = html.replace(/<source\b[^>]*>/gi, "")
-    html = html.replace(/<progress\b[^>]*>/gi, "")
-    html = html.replace(/<details\b[^>]*>/gi, "")
-    html = html.replace(/<summary\b[^>]*>/gi, "")
-    html = html.replace(/<script\b[^>]*>/gi, "")
-    html = html.replace(/<iframe\b[^>]*>/gi, "")
-    html = html.replace(/<object\b[^>]*>/gi, "")
-    html = html.replace(/<embed\b[^>]*>/gi, "")
-    html = html.replace(/<form\b[^>]*>/gi, "")
-    html = html.replace(/<textarea\b[^>]*>/gi, "")
-    html = html.replace(/<select\b[^>]*>/gi, "")
-    html = html.replace(/<button\b[^>]*>/gi, "")
-    html = html.replace(/<base\b[^>]*>/gi, "")
-    html = html.replace(/<frame\b[^>]*>/gi, "")
-    html = html.replace(/<frameset\b[^>]*>/gi, "")
-    html = html.replace(/<applet\b[^>]*>/gi, "")
-    html = html.replace(/<audio\b[^>]*>/gi, "")
-    html = html.replace(/<video\b[^>]*>/gi, "")
-    html = html.replace(/<source\b[^>]*>/gi, "")
-    html = html.replace(/<track\b[^>]*>/gi, "")
-    html = html.replace(/<canvas\b[^>]*>/gi, "")
-    html = html.replace(/<svg\b[^>]*>/gi, "")
-    html = html.replace(/<math\b[^>]*>/gi, "")
-    html = html.replace(/<template\b[^>]*>/gi, "")
-    html = html.replace(/<noscript\b[^>]*>/gi, "")
-    html = html.replace(/<noembed\b[^>]*>/gi, "")
-    html = html.replace(/<plaintext\b[^>]*>/gi, "")
-    html = html.replace(/<marquee\b[^>]*>/gi, "")
-    html = html.replace(/<blink\b[^>]*>/gi, "")
-    html = html.replace(/<layer\b[^>]*>/gi, "")
-    html = html.replace(/<ilayer\b[^>]*>/gi, "")
-    html = html.replace(/<basefont\b[^>]*>/gi, "")
-    html = html.replace(/<isindex\b[^>]*>/gi, "")
-    html = html.replace(/<keygen\b[^>]*>/gi, "")
-    html = html.replace(/<command\b[^>]*>/gi, "")
-    return html
-  }
-
-  static reset(element) {
-    element.removeAttribute("style")
-    element.innerHTML = ""
-  }
-
-  static createButton(event, options) {
-    if (event === "service") {
-      const {name, units, price, selected} = options
-
-      const item = document.createElement("div")
-      item.style.position = "relative"
-      item.style.margin = "21px 34px"
-      item.style.fontSize = "21px"
-      item.style.display = "flex"
-      item.style.flexDirection = "column"
-      item.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-      item.style.border = "0.3px solid black"
-      item.style.borderRadius = "13px"
-      item.style.padding = "21px 34px"
-
-      const firstRow = document.createElement("div")
-      firstRow.style.display = "flex"
-      firstRow.style.alignItems = "center"
-      firstRow.style.margin = "13px 0"
-      firstRow.style.cursor = "pointer"
-      firstRow.addEventListener("click", () => {
-        this.overlay("toolbox", overlay => {
-
-
-          const header = document.createElement("div")
-          header.style.position = "fixed"
-          header.style.bottom = "0"
-          header.style.left = "0"
-          header.style.width = "100%"
-          header.style.display = "flex"
-          header.style.justifyContent = "flex-start"
-          header.style.alignItems = "center"
-          header.style.boxShadow = "0px 5px 10px rgba(0, 0, 0, 0.5)"
-          header.style.background = "white"
-          header.style.cursor = "pointer"
-          header.style.zIndex = "1"
-          header.addEventListener("click", () => this.removeOverlay(overlay))
-
-          const logo = document.createElement("img")
-          logo.src = "/felix/shs/public/ep-logo.svg"
-          logo.alt = "Energie Portal"
-          logo.style.width = "55px"
-          logo.style.margin = "21px 34px"
-          header.append(logo)
-          const title = document.createElement("div")
-          title.innerHTML = name
-          title.style.fontWeight = "bold"
-          title.style.fontSize = "21px"
-          header.append(title)
-          overlay.append(header)
-
-
-          {
-            const button = document.createElement("div")
-            button.style.display = "flex"
-            button.style.flexWrap = "wrap"
-            button.style.justifyContent = "space-between"
-            button.style.alignItems = "center"
-            button.style.margin = "21px 34px"
-            button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-            button.style.borderRadius = "13px"
-            button.style.border = "0.3px solid black"
-            button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-            button.style.cursor = "pointer"
-            button.addEventListener("click", async () => {
-
-              try {
-                const securityOverlay = this.addOverlay()
-                this.setWaitCursor()
-                {
-                  const del = {}
-                  del.url = "/delete/service/closed/5/"
-                  del.name = name
-                  del.localStorageId = await Request.localStorageId()
-                  del.localStorageEmail = await Request.email()
-                  del.location = window.location.href
-                  del.referer = document.referrer
-                  await Request.sequence(del)
-                }
-
-                alert("Dienst erfolgreich gelöscht.")
-                item.remove()
-                this.removeOverlay(securityOverlay)
-                this.removeOverlay(overlay)
-              } catch (error) {
-                alert("Fehler.. Bitte wiederholen.")
-                window.location.reload()
-              }
-
-
-
-
-            })
-
-            const icon = document.createElement("img")
-            icon.style.margin = "13px 34px"
-            icon.style.width = "34px"
-            icon.src = "/public/delete.svg"
-            icon.alt = "Löschen"
-            button.append(icon)
-
-            const title = document.createElement("div")
-            title.innerHTML = "Löschen"
-            title.style.margin = "21px 34px"
-            title.style.fontSize = "21px"
-            button.append(title)
-
-            overlay.append(button)
-          }
-
-        })
-      })
-
-      const amount = document.createElement("div")
-      amount.innerHTML = `${units}x`
-      amount.style.marginRight = "8px"
-      firstRow.append(amount)
-
-      const title = document.createElement("div")
-      title.innerHTML = name
-      firstRow.append(title)
-
-      item.append(firstRow)
-
-      const secondRow = document.createElement("div")
-      secondRow.style.display = "flex"
-      secondRow.style.justifyContent = "flex-end"
-      secondRow.style.alignItems = "center"
-      secondRow.style.margin = "13px 0"
-
-      {
-        const div = document.createElement("div")
-        div.innerHTML = `${price}€`
-        secondRow.append(div)
-      }
-
-      const input = document.createElement("input")
-      input.type = "checkbox"
-      input.checked = selected
-      input.style.width = "21px"
-      input.style.height = "21px"
-      input.style.margin = "0 0 3px 13px"
-      input.addEventListener("input", (event) => {
-
-        const services = JSON.parse(window.sessionStorage.getItem("services"))
-        if (services !== null) {
-          for (let i = 0; i < services.length; i++) {
-            if (services[i].name === name) {
-              services[i].selected = event.target.checked
-            }
-          }
-          window.sessionStorage.setItem("services", JSON.stringify(services))
-        }
-
-      })
-      secondRow.append(input)
-
-      item.append(secondRow)
-
-      return item
-    }
-  }
-
-  static calculateDataUrlSize(dataUrl) {
-    var base64Marker = ';base64,'
-    var dataSize
-
-    if (dataUrl.indexOf(base64Marker) === -1) {
-      dataSize = dataUrl.length - dataUrl.indexOf(':') - 1
-    } else {
-      dataSize = (dataUrl.length - dataUrl.indexOf(base64Marker) - base64Marker.length) * 0.75
+    if (event === "element/reset") {
+      input.removeAttribute("style")
+      input.innerHTML = ""
     }
 
-    return dataSize
-  }
+    if (event === "element/textarea") {
 
-  static convertImageFileToDataUrl(file, size) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.addEventListener("loadend", () => {
-        const canvas = document.createElement("canvas")
-        const ctx = canvas.getContext("2d")
-        const image = document.createElement("img")
-        image.src = reader.result
-        image.onload = () => {
-          const width = size
-          const height = size * image.height / image.width
-          canvas.width = width
-          canvas.height = height
-          ctx.drawImage(image, 0, 0, width, height)
-          return resolve(canvas.toDataURL(file.type))
-        }
+      const create = document.createElement("textarea")
+
+      if (input.hasAttribute("id")) {
+        create.setAttribute("id", input.getAttribute("id"))
+      }
+
+      if (input.hasAttribute("class")) {
+        create.setAttribute("class", input.getAttribute("class"))
+      }
+
+      if (input.hasAttribute("style")) {
+        create.setAttribute("style", input.getAttribute("style"))
+      }
+
+      if (input.hasAttribute("required")) {
+        create.setAttribute("required", input.getAttribute("required"))
+      }
+
+      if (input.hasAttribute("on-info-click")) {
+        create.setAttribute("on-info-click", input.getAttribute("on-info-click"))
+      }
+
+      input.before(create)
+      input.remove()
+    }
+
+    if (event === "element/select") {
+
+      const create = document.createElement("select")
+
+      if (input.hasAttribute("id")) {
+        create.setAttribute("id", input.getAttribute("id"))
+      }
+
+      if (input.hasAttribute("class")) {
+        create.setAttribute("class", input.getAttribute("class"))
+      }
+
+      if (input.hasAttribute("style")) {
+        create.setAttribute("style", input.getAttribute("style"))
+      }
+
+      if (input.hasAttribute("on-info-click")) {
+        create.setAttribute("on-info-click", input.getAttribute("on-info-click"))
+      }
+
+      input.before(create)
+      input.remove()
+    }
+
+    if (event === "node/sort-children-by-z-index") {
+      Array.from(input.children)
+      .sort((a, b) => {
+        const zIndexA = parseInt(a.style.zIndex) || 0
+        const zIndexB = parseInt(b.style.zIndex) || 0
+        return zIndexB - zIndexA
       })
-    })
-  }
+      .forEach(child => input.appendChild(child))
+    }
 
-  static verifyFileMimeTypes(file, types) {
-    return new Promise((resolve, reject) => {
-      try {
-        let allowed = false
-        for (let i = 0; i < types.length; i++) {
-          if (file.type === types[i]) {
-            return resolve()
-          }
-        }
-        if (allowed === false) throw new Error("file type not allowed")
-      } catch (error) {
-        reject(error)
-      }
-    })
-  }
+    if (event === "node/index") {
+      return Array.from(input.parentElement.children).indexOf(input)
+    }
 
-  static verifyFileExtension(file, extensions) {
-    return new Promise((resolve, reject) => {
-      try {
-        const fileExtension = file.name.split('.').pop()
-        let allowed = false
-        for (let i = 0; i < extensions.length; i++) {
-          if (fileExtension === extensions[i]) {
-            return resolve()
-          }
-        }
-        if (allowed === false) throw new Error("file extension not allowed")
-      } catch (error) {
-        reject(error)
-      }
-    })
-  }
-
-  static removeOverlay(overlay) {
-    //document.body.style.overflow = "visible"
-    overlay.remove()
   }
 
   static overlay(event, callback) {
@@ -20687,7 +28211,7 @@ export class Helper {
           { opacity: 0, transform: 'translateY(13px)' },
           { opacity: 1, transform: 'translateY(0)' },
         ], {
-          duration: 344,
+          duration: 233,
           easing: 'ease-in-out',
           fill: "forwards"
         })
@@ -20867,149 +28391,6 @@ export class Helper {
     }
   }
 
-  static popupInfo({withImage, withText, withEvent}) {
-    const popup = document.createElement("div")
-    popup.style.height = "100vh"
-    popup.style.width = "100%"
-    popup.style.zIndex = "2"
-    popup.style.position = "fixed"
-    popup.style.top = "0"
-    popup.style.left = "0"
-    popup.style.background = "white"
-    popup.style.display = "flex"
-    popup.style.flexDirection = "column"
-    popup.style.justifyContent = "space-between"
-    popup.style.overflowY = "scroll"
-    popup.style.opacity = 0
-
-    const header = document.createElement("div")
-    header.style.background = "rgb(0, 135, 0)"
-    header.style.display = "flex"
-    header.style.alignItems = "center"
-    header.style.padding = "34px"
-
-    const infoIcon = document.createElement("img")
-    infoIcon.src = "../../../../public/info-white.svg"
-    infoIcon.alt = "Info"
-
-    const infoTitle = document.createElement("div")
-    infoTitle.innerHTML = "Wissenswertes"
-    infoTitle.style.fontSize = "21px"
-    infoTitle.style.margin = "21px"
-    infoTitle.style.color = "rgb(234, 234, 234)"
-    header.append(infoIcon, infoTitle)
-    popup.append(header)
-
-    const imageContainer = document.createElement("div")
-    imageContainer.style.display = "flex"
-    imageContainer.style.justifyContent = "center"
-    imageContainer.style.margin = "34px"
-
-    if (withImage !== undefined) {
-      const image = document.createElement("img")
-      withImage(image)
-      imageContainer.append(image)
-    }
-    popup.append(imageContainer)
-
-    const textContainer = document.createElement("div")
-    textContainer.style.margin = "34px"
-
-    if (withText !== undefined) {
-      const text = document.createElement("p")
-      withText(text)
-      textContainer.append(text)
-    }
-    popup.append(textContainer)
-
-    const buttonContainer = document.createElement("div")
-    buttonContainer.style.display = "flex"
-    buttonContainer.style.justifyContent = "space-between"
-    buttonContainer.style.margin = "34px"
-
-    const helpfulButton = document.createElement("div")
-    helpfulButton.innerHTML = "👍"
-    helpfulButton.style.background = "rgb(45,201,55)"
-    helpfulButton.style.display = "flex"
-    helpfulButton.style.justifyContent = "center"
-    helpfulButton.style.alignItems = "center"
-    helpfulButton.style.height = "55px"
-    helpfulButton.style.width = "89px"
-    helpfulButton.style.color = "white"
-    helpfulButton.style.borderRadius = "8px"
-    helpfulButton.style.fontSize = "21px"
-    helpfulButton.style.cursor = "pointer"
-    helpfulButton.addEventListener("click", () => popup.remove())
-
-    const notHelpfulButton = document.createElement("div")
-    notHelpfulButton.innerHTML = "👎"
-    notHelpfulButton.style.display = "flex"
-    notHelpfulButton.style.justifyContent = "center"
-    notHelpfulButton.style.alignItems = "center"
-    notHelpfulButton.style.width = "89px"
-    notHelpfulButton.style.height = "55px"
-    notHelpfulButton.style.background = "rgb(204,50,50)"
-    notHelpfulButton.style.borderRadius = "8px"
-    notHelpfulButton.style.fontSize = "21px"
-    notHelpfulButton.style.cursor = "pointer"
-    notHelpfulButton.addEventListener("click", () => popup.remove())
-
-    buttonContainer.append(notHelpfulButton, helpfulButton)
-    popup.append(buttonContainer)
-
-    document.body.append(popup)
-
-    const animation = popup.animate([
-      { opacity: 0, transform: 'translateY(13px)' },
-      { opacity: 1, transform: 'translateY(0)' },
-    ], {
-      duration: 344,
-      easing: 'ease-in-out',
-      fill: "forwards"
-    })
-  }
-
-  static startTimer({duration, display}) {
-
-    var timer = duration, minutes, seconds
-    const timerDiv = document.createElement("div")
-    const interval = setInterval(function () {
-      minutes = parseInt(timer / 60, 10)
-      seconds = parseInt(timer % 60, 10)
-
-      minutes = minutes < 10 ? "0" + minutes : minutes
-      seconds = seconds < 10 ? "0" + seconds : seconds
-
-      timerDiv.textContent = minutes + ":" + seconds
-
-      if (--timer < 0) {
-        timerDiv.textContent = "pin abgelaufen"
-        clearInterval(interval)
-      }
-    }, 1000)
-
-    display.append(timerDiv)
-    return interval
-  }
-
-  static canvasToFile(canvas) {
-    return new Promise((resolve, reject) => {
-      try {
-        canvas.toBlob(blob => {
-          return resolve({
-            created: Date.now(),
-            type: blob.type,
-            size: blob.size,
-            dataURL: canvas.toDataURL()
-          })
-        })
-
-      } catch (error) {
-        return reject(error)
-      }
-    })
-  }
-
   static setNotValidStyle(element) {
 
     let color
@@ -21094,30 +28475,6 @@ export class Helper {
     return element
   }
 
-  static sumSelectedPrice(array) {
-    return array.filter(it => it.selected === true).reduce((prev, curr) => prev + curr.price, 0)
-  }
-
-  static substring(string, length) {
-    if (string.length >= length) {
-      string = string.substring(0, length - 2) + ".."
-    }
-    return string
-  }
-
-  static arrayExist(array) {
-    return typeof array === "object" &&
-    array !== undefined &&
-    array !== null &&
-    Array.isArray(array)
-  }
-
-  static objectExist(object) {
-    return typeof object === "object" &&
-    object !== undefined &&
-    object !== null
-  }
-
   static arrayIsEmpty(array) {
     return typeof array !== "object" ||
     array === undefined ||
@@ -21141,16 +28498,6 @@ export class Helper {
     string === "null" ||
     string.replace(/\s/g, "") === "" ||
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(string)
-  }
-
-  static pathIsEmpty(string) {
-    return typeof string !== "string" ||
-    string === undefined ||
-    string === null ||
-    string === "" ||
-    string === "null" ||
-    string.replace(/\s/g, "") === "" ||
-    !/^\/[\w\-._~!$&'()*+,;=:@/]+\/$/.test(string) // not working correct
   }
 
   static tagIsEmpty(string) {
@@ -21186,42 +28533,6 @@ export class Helper {
     typeof value !== "boolean"
   }
 
-  static encodeStringToUri(string) {
-    return encodeURIComponent(string)
-    .replace(/%20/g, "-")
-    .replace(/u%CC%88/g, "ue")
-    .replace(/a%CC%88/g, "ae")
-    .replace(/o%CC%88/g, "oe")
-    .replace(/%2F/g, "-")
-    .replace(/%C3%A4/g, "ae")
-    .replace(/%C3%BC/g, "ue")
-    .replace(/\(/g, "")
-    .replace(/\)/g, "")
-    .replace(/%C3%B6/g, "oe")
-    .replace(/%C3%96/g, "Oe")
-    .replace(/\./g, "-")
-    .replace(/%C3%9F/g, "ss")
-    .replace(/%3F/g, "")
-    .replace(/-$/g, "")
-  }
-
-  static isJson(string) {
-    try {
-      JSON.parse(string)
-      return true
-    } catch {
-      return false
-    }
-  }
-
-  static sortedObjectToArray(object) {
-    let array = []
-    for (let key in object) {
-      array.push(object[key])
-    }
-    return array
-  }
-
   static async digest(message) {
     const data = new TextEncoder().encode(message)
     const hashBuffer = await crypto.subtle.digest('SHA-256', data)
@@ -21230,9 +28541,171 @@ export class Helper {
     return hashHex
   }
 
-  static async fileToArray(file) {
-    const fileBuffer = await file.arrayBuffer()
-    return Array.from(new Uint8Array(fileBuffer))
+  static async withVerifiedEmail(email, callback) {
+    const event = {}
+
+    this.overlay("toolbox", async securityOverlay => {
+
+      securityOverlay.style.backgroundColor = this.colors.light.background
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        securityOverlay.style.backgroundColor = this.colors.dark.background
+      }
+
+      document.body.style.overflow = "hidden"
+
+      const content = document.createElement("div")
+      content.style.display = "flex"
+      content.style.flexDirection = "column"
+      content.style.justifyContent = "center"
+      content.style.alignItems = "center"
+      content.style.height = `${window.innerHeight}px`
+
+
+      const loading = this.iconPicker("loading")
+
+      loading.style.width = "55px"
+
+      loading.style.fill = this.colors.light.error
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        loading.style.fill = this.colors.dark.error
+      }
+
+      content.append(loading)
+
+      const info = document.createElement("div")
+      info.innerHTML = "Das kann einen Moment dauern .."
+      info.style.fontSize = "13px"
+      info.style.color = this.colors.light.error
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        info.style.color = this.colors.dark.error
+      }
+      info.style.margin = "13px"
+      content.append(info)
+      securityOverlay.append(content)
+
+      try {
+        const send = {}
+        send.url = "/request/send/email/with/pin/"
+        send.email = email
+        send.location = window.location.href
+        send.referer = document.referrer
+        const res = await this.request("location/json", send)
+
+        if (res.status === 200) {
+
+          this.convert("element/reset", content)
+          content.style.overflowY = "auto"
+
+          const pinField = this.create("field/hex", content)
+          pinField.label.textContent = "Meine PIN"
+          this.setNotValidStyle(pinField.input)
+          pinField.input.addEventListener("input", () => {
+            this.verify("input/value", pinField.input)
+          })
+
+          const button = this.buttonPicker("action", content)
+          button.innerHTML = "PIN bestätigen"
+
+          button.addEventListener("click", async () => {
+
+            this.overlay("security", async securityOverlay => {
+
+              try {
+
+                await this.verify("input/value", pinField.input)
+
+                const pin = pinField.input.value
+
+                const verify = {}
+                verify.url = "/request/verify/pin/"
+                verify.userPin = pin
+                verify.location = window.location.href
+                verify.referer = document.referrer
+                const res = await this.request("location/json", verify)
+
+                if (res.status === 200) {
+
+                  const id = await this.digest(JSON.stringify({email: email, verified: true}))
+                  window.localStorage.setItem("localStorageId", id)
+                  window.localStorage.setItem("email", email)
+
+                  callback(event)
+
+                }
+
+              } catch (error) {
+
+                EventTarget.prototype.addEventListener = function(type, listener, options) {
+                  console.log('Event listeners blocked')
+                }
+                window.XMLHttpRequest = function() {
+                  console.log('XHR blocked')
+                }
+                alert("Es tut uns sehr leid, dass ein Fehler aufgetreten ist. Wir verstehen, wie frustrierend es sein kann, wenn Dinge nicht so funktionieren, wie sie sollten. Wir möchten Sie gerne beruhigen und Ihnen versichern, dass unser Team hart daran arbeitet, diesen Fehler so schnell wie möglich zu beheben. Wir hoffen, dass Sie uns die Gelegenheit geben werden, das Problem zu lösen. Falls der Fehler noch einmal auftritt, stehen wir Ihnen gerne zur Verfügung. Bitte zögern Sie nicht, uns unter 'datenschutz@get-your.de' zu kontaktieren, damit wir Ihnen helfen können. In der Zwischenzeit möchten wir Sie ermutigen, es einfach noch einmal zu versuchen. Vielen Dank für Ihr Verständnis und Ihre Geduld.")
+                window.location.reload()
+                throw error
+
+              }
+
+            })
+
+          })
+
+          {
+            const infoBox = document.createElement("div")
+
+            infoBox.style.display = "flex"
+
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              infoBox.style.color = this.colors.matte.dark.text
+              infoBox.style.backgroundColor = this.colors.matte.dark.error
+            } else {
+              infoBox.style.color = this.colors.matte.light.text
+              infoBox.style.backgroundColor = this.colors.matte.apricot
+            }
+
+            infoBox.style.fontSize = "13px"
+            infoBox.style.margin = "21px 34px"
+            infoBox.style.padding = "21px"
+            infoBox.style.borderRadius = "13px"
+
+            const icon = this.iconPicker("warn")
+            icon.style.width = "144px"
+            icon.style.marginRight = "13px"
+            infoBox.append(icon)
+
+            const message = document.createElement("div")
+            message.style.fontSize = "13px"
+
+            message.innerHTML = `
+            <p>PIN erfolgreich an '${email}' gesendet. ✓</p>
+            <p>Es ist wichtig, dass deine PIN geheim gehalten wird, da sie als persönliches Kennwort dient und den Zugriff auf sensible Informationen oder Ressourcen ermöglicht. Teile deine PIN niemals mit anderen Personen. Das gilt selbst für enge Freunde, Familienmitglieder oder Mitarbeiter. Deine PIN sollte nur dir bekannt sein.</p>
+            <p>Bitte bestätige deine PIN um fortzufahren.</p>
+            `
+
+            infoBox.append(message)
+
+            content.append(infoBox)
+          }
+
+        }
+
+
+
+      } catch (error) {
+        EventTarget.prototype.addEventListener = function(type, listener, options) {
+          console.log('Event listeners blocked')
+        }
+        window.XMLHttpRequest = function() {
+          console.log('XHR blocked')
+        }
+        alert(`Es konnte keine E-Mail an '${email}' verschickt werden.`)
+        // window.location.reload()
+        throw error
+      }
+
+    })
+
   }
 
 }
