@@ -763,6 +763,16 @@ export class Helper {
 
           {
             const button = this.buttonPicker("left/right", buttons)
+            button.left.innerHTML = "document.copy"
+            button.right.innerHTML = "Aktuelles Dokument kopieren"
+            button.onclick = () => {
+              this.convert("text/clipboard", document.documentElement.outerHTML)
+              .then(() => window.alert("Dokument erfolgreich in die Zwischenablage kopiert."))
+            }
+          }
+
+          {
+            const button = this.buttonPicker("left/right", buttons)
             button.left.innerHTML = "update.toolbox"
             button.right.innerHTML = "Mit nur einem Klick erhälst du die aktuellste Version unserer Toolbox"
             button.addEventListener("click", async () => {
@@ -865,6 +875,67 @@ export class Helper {
           return resolve()
         }, input)
       })
+    }
+
+    if (event === "event/offer-options") {
+      const options = document.querySelector(".offer-options")
+
+      // add more options from location cart
+      // dc-montage option exist always
+
+      if (options) {
+
+        for (let i = 0; i < options.children.length; i++) {
+          const option = options.children[i]
+
+          const checkbox = option.querySelector("input[type='checkbox']")
+
+          checkbox.onclick = (ev) => {
+            ev.preventDefault()
+            this.overlay("popup", overlay => {
+              const actions = this.create("div/scrollable", overlay)
+
+              console.log(checkbox);
+              console.log(option);
+
+              {
+                const button = this.create("button/left-right", actions)
+                button.right.innerHTML = "Leistung auswählen"
+                button.left.innerHTML = ".select"
+                button.onclick = () => {
+                  checkbox.checked = true
+                  this.remove("overlay", overlay)
+                }
+              }
+
+              {
+                const button = this.create("button/left-right", actions)
+                button.right.innerHTML = "Leistung entfernen"
+                button.left.innerHTML = ".remove"
+                button.onclick = () => {
+                  checkbox.checked = false
+                  this.remove("overlay", overlay)
+                }
+              }
+
+              {
+                const button = this.create("button/left-right", actions)
+                button.right.innerHTML = "Leistung vergleichen"
+                button.left.innerHTML = ".compare"
+              }
+
+              {
+                const button = this.create("button/left-right", actions)
+                button.right.innerHTML = "Ansprechpartner kontaktieren"
+                button.left.innerHTML = ".support"
+              }
+
+
+            })
+          }
+        }
+
+      }
     }
 
     if (event === "event/dbltouch") {
@@ -31618,13 +31689,8 @@ export class Helper {
 
       const overlay = document.createElement("div")
       overlay.classList.add("overlay")
-
-      // mobile issues
       overlay.style.height = "100%"
       overlay.style.overscrollBehavior = "none"
-      //document.body.style.overscrollBehavior = "none"
-      //document.body.style.overflow = "hidden"
-
       overlay.style.width = "100%"
       overlay.style.zIndex = "99999999999999"
       overlay.style.position = "fixed"
@@ -31632,10 +31698,15 @@ export class Helper {
       overlay.style.left = "0"
 
       overlay.style.background = this.colors.matte.light.background
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        overlay.style.background = this.colors.matte.dark.background
+      }
 
       overlay.style.display = "flex"
       overlay.style.flexDirection = "column"
       overlay.style.opacity = 0
+
+      this.add("button/remove-overlay", overlay)
 
       if (callback) callback(overlay)
 
@@ -31645,7 +31716,7 @@ export class Helper {
         { opacity: 0, transform: 'translateY(13px)' },
         { opacity: 1, transform: 'translateY(0)' },
       ], {
-        duration: 344,
+        duration: 233,
         easing: 'ease-in-out',
         fill: "forwards"
       })
