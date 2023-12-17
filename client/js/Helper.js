@@ -238,6 +238,9 @@ export class Helper {
           })
           await Promise.all(promises)
 
+          input.style.outline = null
+          input.removeAttribute("selected-node")
+
           resolve()
 
         } catch (error) {
@@ -665,8 +668,11 @@ export class Helper {
     if (event === "toolbox/buttons") {
 
 
-      const back = this.headerPicker("back")
+      const back = this.create("button/back")
+      back.setAttribute("onclick", "window.history.back()")
       const toolbox = this.headerPicker("app")
+
+      toolbox.style.zIndex = "2"
 
       back.setAttribute("data-id", "toolbox")
       toolbox.setAttribute("data-id", "toolbox")
@@ -1030,23 +1036,124 @@ export class Helper {
               for (let i = 0; i < sounds.length; i++) {
                 const sound = sounds[i]
 
-                console.log(sound);
+                const audioField = this.create("field/audio", audioList)
+                audioField.audio.id = sound.created
+                audioField.audio.src = `https://ipfs.io/ipfs/${sound.cid}/`
 
-                // create and append audio fields
-                // with title, creator, album, played,
-                // more meta data about the sound
-                // more interaction with that sound
-                // sound = value unit for soundbox
-                // refresh button to get the audio
+                const track = document.createElement("div")
+                track.classList.add("track")
+                track.innerHTML = sound.track
+                audioField.label.append(track)
 
-                const audio = document.createElement("audio")
-                audio.id = sound.created
-                audio.src = `https://ipfs.io/ipfs/${sound.cid}/`
-                audio.style.width = "100%"
-                audio.setAttribute("controls", "")
-                audioList.append(audio)
+                const creator = document.createElement("div")
+                creator.classList.add("creator")
+                creator.innerHTML = `${sound.creator} - ${sound.album}`
+                audioField.label.append(creator)
+
+                const played = document.createElement("div")
+                played.classList.add("played")
+
+                if (sound.played) {
+                  played.innerHTML = sound.played
+                } else {
+                  played.innerHTML = "0"
+                }
+
+                played.style.position = "absolute"
+                played.style.top = "0"
+                played.style.right = "0"
+                played.style.margin = "21px 34px 0 0"
+                audioField.label.append(played)
+
+                const reloadTimeout = setTimeout(audioField.audio.load(), 3000)
+                audioField.audio.addEventListener("canplay", () => {
+                  clearTimeout(reloadTimeout)
+                })
+                audioField.audio.addEventListener("error", () => {
+                  audioField.remove()
+                })
+
+                audioField.label.style.cursor = "pointer"
+                audioField.label.addEventListener("click", () => {
+                  console.log(audioField.audio.id)
+
+                  this.overlay("toolbox", overlay => {
+                    this.add("button/remove-overlay", overlay)
+
+                    const funnel = this.create("div/scrollable", overlay)
+
+                    const trackField = this.create("field/textarea", funnel)
+                    trackField.label.innerHTML = "Track"
+                    trackField.input.style.fontSize = "13px"
+                    trackField.input.setAttribute("required", "true")
+                    if (sound.track) trackField.input.value = sound.track
+                    trackField.input.oninput = () => this.verify("input/value", trackField.input)
+                    this.verify("input/value", trackField.input)
+
+                    const creatorField = this.create("field/textarea", funnel)
+                    creatorField.label.innerHTML = "Schöpfer"
+                    creatorField.input.style.fontSize = "13px"
+                    creatorField.input.setAttribute("required", "true")
+                    if (sound.creator) creatorField.input.value = sound.creator
+                    creatorField.input.oninput = () => this.verify("input/value", creatorField.input)
+                    this.verify("input/value", creatorField.input)
+
+                    const albumField = this.create("field/textarea", funnel)
+                    albumField.label.innerHTML = "Album"
+                    albumField.input.style.fontSize = "13px"
+                    albumField.input.setAttribute("required", "true")
+                    if (sound.album) albumField.input.value = sound.album
+                    albumField.input.oninput = () => this.verify("input/value", albumField.input)
+                    this.verify("input/value", albumField.input)
+
+                    const submit = this.create("button/action", funnel)
+                    submit.innerHTML = "Daten jetzt speichern"
+                    submit.onclick = async () => {
+                      await this.verify("input/value", trackField.input)
+                      await this.verify("input/value", creatorField.input)
+                      await this.verify("input/value", albumField.input)
+
+                      this.overlay("security", async securityOverlay => {
+
+                        const register = {}
+                        register.id = audioField.audio.id
+                        register.track = trackField.input.value
+                        register.creator = creatorField.input.value
+                        register.album = albumField.input.value
+                        const res = await this.register("meta/soundbox/self", register)
+
+                        if (res.status === 200) {
+                          window.alert("Metadaten erfolgreich gespeichert.")
+                          window.location.reload()
+                        }
+
+                        if (res.status !== 200) {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                          this.remove("overlay", securityOverlay)
+                        }
+                      })
+
+                    }
+
+
+
+
+                  })
+
+                })
+
+                audioField.audio.addEventListener("ended", () => {
+                  const res = this.register("played/soundbox/open", audioField.audio.id)
+
+                  if (res === true) {
+                    played.innerHTML = parseInt(played.innerHTML) + 1
+                  }
+                })
+
 
               }
+
+
 
             }
 
@@ -1101,6 +1208,2977 @@ export class Helper {
 
     }
 
+    if (event === "event/html-creator") {
+
+      const htmlCreatorButton = document.querySelector(".html-creator")
+
+      if (htmlCreatorButton !== null) {
+        htmlCreatorButton.onclick = () => {
+
+          this.overlay("html-creator", overlay => {
+
+            const body = document.body
+
+            let selectedNode = body
+
+            body.onkeydown = (ev) => {
+              ev.preventDefault()
+
+              if (ev.metaKey && ev.key === 'c') {
+                if (selectedNode) {
+                  this.convert("text/clipboard", selectedNode.outerHTML).then(() => window.alert("Dein HTML Element wurde erfolgreich in die Zwischenablage gespeichert."))
+                }
+              }
+
+              if (ev.metaKey && ev.key === 'v') {
+                if (selectedNode) {
+                  this.convert("clipboard/text").then(text => {
+                    const node = this.convert("text/node", text)
+                    selectedNode.append(node)
+                  })
+                }
+              }
+
+              let rememberSelectedNodes = []
+              if (ev.metaKey && ev.key === 'Backspace') {
+                if (selectedNode) {
+                  rememberSelectedNodes.push({ node: selectedNode, parent: selectedNode.parentElement, index: Array.from(selectedNode.parentElement.children).indexOf(selectedNode)})
+                  selectedNode.remove()
+                }
+              }
+
+              if (ev.metaKey && ev.key === 'z') {
+                if (selectedNode) {
+                  if (rememberSelectedNodes.length > 0) {
+                    const { node, parent, index } = rememberSelectedNodes.pop()
+                    const children = Array.from(parent.children)
+                    if (index >= 0 && index < children.length) {
+                      parent.insertBefore(node, children[index])
+                    } else {
+                      parent.appendChild(node)
+                    }
+                  }
+
+                }
+              }
+
+            }
+
+            for (let i = 0; i < body.children.length; i++) {
+              const child = body.children[i]
+
+              if (child.classList.contains("html-creator")) continue
+              if (child.classList.contains("overlay")) continue
+              if (child.parentElement.classList.contains("overlay")) continue
+
+              this.add("event/dbltouch", {node: child, callback: async ev => {
+                ev.preventDefault()
+                ev.stopPropagation()
+                await this.remove("element/selected-node", body)
+                selectedNode = ev.target.parentElement
+                this.add("element/selected-node", selectedNode)
+              }})
+
+              child.ondblclick = async (ev) => {
+                ev.preventDefault()
+                ev.stopPropagation()
+                await this.remove("element/selected-node", body)
+                selectedNode = ev.target.parentElement
+                this.add("element/selected-node", selectedNode)
+              }
+
+              child.onclick = async (ev) => {
+                ev.preventDefault()
+                ev.stopPropagation()
+
+                if (ev.target.hasAttribute("selected-node")) {
+                  await this.remove("element/selected-node", body)
+                  selectedNode = body
+                  this.add("element/selected-node", selectedNode)
+                } else {
+                  await this.remove("element/selected-node", body)
+                  selectedNode = ev.target
+                  console.log(selectedNode);
+                  this.add("element/selected-node", selectedNode)
+                }
+
+              }
+
+            }
+
+            const observer = new MutationObserver((mutationsList) => {
+              mutationsList.forEach((mutation) => {
+                if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+
+
+                  for (var i = 0; i < mutation.addedNodes.length; i++) {
+                    const node = mutation.addedNodes[i]
+
+                    if (node.classList.contains("overlay")) continue
+
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+
+                      this.add("event/dbltouch", {node: node, callback: async ev => {
+                        ev.preventDefault()
+                        ev.stopPropagation()
+                        await this.remove("element/selected-node", body)
+                        selectedNode = ev.target.parentElement
+                        this.add("element/selected-node", selectedNode)
+                      }})
+
+                      node.ondblclick = async (ev) => {
+                        ev.preventDefault()
+                        ev.stopPropagation()
+                        await this.remove("element/selected-node", body)
+                        selectedNode = ev.target.parentElement
+                        this.add("element/selected-node", selectedNode)
+                      }
+
+                      node.onclick = async (ev) => {
+                        ev.preventDefault()
+                        ev.stopPropagation()
+
+                        if (ev.target.hasAttribute("selected-node")) {
+                          await this.remove("element/selected-node", body)
+                          selectedNode = body
+                          this.add("element/selected-node", selectedNode)
+                        } else {
+                          await this.remove("element/selected-node", body)
+                          selectedNode = ev.target
+                          this.add("element/selected-node", selectedNode)
+                        }
+
+                      }
+
+                    }
+
+                  }
+
+                }
+              })
+            })
+            observer.observe(body, { childList: true, subtree: true })
+
+            const optionsContainer = this.create("div/scrollable", overlay)
+            optionsContainer.style.marginTop = "21px"
+
+
+            this.render("text/hr", "Anwendungen für Vorlagen einsetzen", optionsContainer)
+            const templateOptions = this.create("div/flex-row", optionsContainer)
+
+
+            const createFlexButton = this.create("button/create-flex", templateOptions)
+            createFlexButton.onclick = () => {
+
+              const prompt = window.prompt("Gebe die Breite deiner Flex Elemente ein:")
+
+              if (prompt) {
+
+                const widths = prompt.split(" ")
+
+                const flexContainer = document.createElement("div")
+                flexContainer.classList.add("flex-container")
+                flexContainer.style.display = "flex"
+                flexContainer.style.flexWrap = "wrap"
+
+                for (var i = 0; i < widths.length; i++) {
+                  const width = widths[i]
+
+                  const flexItem = document.createElement("div")
+                  flexItem.classList.add("flex-item")
+                  flexItem.textContent = `flex-item-${i + 1}`
+                  flexItem.style.flex = `1 1 ${width}`
+                  flexContainer.appendChild(flexItem)
+                }
+
+                selectedNode.appendChild(flexContainer)
+
+              }
+
+            }
+
+            const wrapButton = this.create("button/wrap", templateOptions)
+            wrapButton.onclick = () => {
+              const prompt = window.prompt("Gebe deine Zeilenmatrix ein: (1 2 2)")
+
+              const rows = prompt.split(" ")
+
+              const wrapContainer = document.createElement("div")
+              wrapContainer.classList.add("flex-container")
+              wrapContainer.style.display = "flex"
+              wrapContainer.style.flexWrap = "wrap"
+              wrapContainer.style.margin = "21px 34px"
+
+              for (var i = 0; i < rows.length; i++) {
+                const row = rows[i]
+
+                const rowNumber = parseInt(row)
+
+                if (rowNumber >= 1 && rowNumber <= 9) {
+
+                  const rowDiv = document.createElement("div")
+                  rowDiv.classList.add(`row-${i + 1}`)
+                  rowDiv.style.width = "300px"
+                  rowDiv.style.display = "flex"
+                  rowDiv.style.flexWrap = "wrap"
+                  rowDiv.style.margin = "21px 34px"
+
+                  wrapContainer.append(rowDiv)
+
+                  for (let i = 0; i < rowNumber; i++) {
+
+                    const rowPart = document.createElement("div")
+                    rowPart.classList.add("row-part")
+                    rowPart.innerHTML = `flex-item-${i + 1}`
+                    rowPart.style.width = `${100 / rowNumber}%`
+                    rowDiv.append(rowPart)
+
+                  }
+
+                }
+
+              }
+
+              selectedNode.append(wrapContainer)
+
+              if (wrapContainer.children.length === 0) {
+                wrapContainer.remove()
+              }
+
+            }
+
+            const createGridButton = this.create("button/create-grid", templateOptions)
+            createGridButton.onclick = () => {
+
+              const prompt = window.prompt("Gebe die Matrix deiner Grid Elemente ein:")
+
+              if (prompt) {
+
+                const columnsPerRow = prompt.split(" ").map(Number)
+
+                const gridContainer = document.createElement("div")
+                gridContainer.classList.add("grid-container")
+                gridContainer.style.display = "grid"
+
+                columnsPerRow.forEach(columns => {
+                  const gridRow = document.createElement("div")
+                  gridRow.classList.add("grid-row")
+                  gridRow.style.display = "grid"
+                  gridRow.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`
+
+                  for (let i = 0; i < columns; i++) {
+                    const gridItem = document.createElement("div")
+                    gridItem.classList.add("grid-item")
+                    gridItem.textContent = `grid-item-${i + 1}`
+                    gridRow.appendChild(gridItem)
+                  }
+
+                  gridContainer.appendChild(gridRow)
+                })
+
+                selectedNode.appendChild(gridContainer)
+              }
+
+            }
+
+            const rowContainerButton = this.create("button/row-container", templateOptions)
+            rowContainerButton.onclick = () => {
+              this.create("div/row-container", selectedNode)
+            }
+
+            const columnContainerButton = this.create("button/column-container", templateOptions)
+            columnContainerButton.onclick = () => {
+              this.create("div/column-container", selectedNode)
+            }
+
+            const imageTextButton = this.create("button/image-text", templateOptions)
+            imageTextButton.onclick = () => {
+              this.create("div/image-text", selectedNode)
+            }
+
+            const keyValueButton = this.create("button/key-value", templateOptions)
+            keyValueButton.onclick = () => {
+              this.create("div/key-value", selectedNode)
+            }
+
+            const actionBtnButton = this.create("button/action-button", templateOptions)
+            actionBtnButton.onclick = () => {
+              const button = this.create("button/action", selectedNode)
+              button.innerHTML = "Mein Action Button"
+              button.classList.add("button")
+            }
+
+            const horizontalHrButton = this.create("button/horizontal-hr", templateOptions)
+            horizontalHrButton.onclick = () => {
+              this.create("div/hr", selectedNode)
+            }
+
+            const simpleHeaderButton = this.create("button/layout-top", templateOptions)
+            simpleHeaderButton.onclick = () => {
+              const simpleHeader = this.create("header/left", selectedNode)
+              simpleHeader.left.style.width = "34px"
+            }
+
+            const h1Button = this.create("button/h1", templateOptions)
+            h1Button.onclick = () => {
+              const prompt = window.prompt("Gebe den Inhalt deiner Überschrift ein:")
+              const h1 = this.create("h1", selectedNode)
+              h1.innerHTML = prompt
+            }
+
+            const h2Button = this.create("button/h2", templateOptions)
+            h2Button.onclick = () => {
+              const prompt = window.prompt("Gebe den Inhalt deiner Überschrift ein:")
+              const h2 = this.create("h2", selectedNode)
+              h2.innerHTML = prompt
+            }
+
+            const h3Button = this.create("button/h3", templateOptions)
+            h3Button.onclick = () => {
+              const prompt = window.prompt("Gebe den Inhalt deiner Überschrift ein:")
+              const h3 = this.create("h3", selectedNode)
+              h3.innerHTML = prompt
+            }
+
+            const pButton = this.create("button/p", templateOptions)
+            pButton.onclick = () => {
+              const prompt = window.prompt("Gebe den Inhalt deines Paragraphen ein:")
+              const p = this.create("p", selectedNode)
+              p.innerHTML = prompt
+            }
+
+            const imageButton = this.create("button/image", templateOptions)
+            imageButton.onclick = () => {
+              const image = document.createElement("img")
+              image.src = "/public/image-placeholder.svg"
+              image.style.width = "100%"
+              selectedNode.append(image)
+            }
+
+            const tableHeaderButton = this.create("button/table-header", templateOptions)
+            tableHeaderButton.onclick = () => {
+              const prompt = window.prompt("Gebe die Spalten und die Breite deiner Tabelle ein: (4 1 1 1 1 2)")
+
+              const columns = prompt.split(" ")
+
+              const tableHeader = document.createElement("div")
+              tableHeader.classList.add("table-header")
+              tableHeader.style.display = "flex"
+              tableHeader.style.justifyContent = "center"
+              tableHeader.style.alignItems = "center"
+              tableHeader.style.margin = "21px 34px"
+
+              for (var i = 0; i < columns.length; i++) {
+                const width = columns[i]
+
+                const number = parseInt(width)
+                if (number >= 1 && number <= 9) {
+
+                  const columnDiv = document.createElement("div")
+                  columnDiv.classList.add("header-title")
+                  columnDiv.innerHTML = `Überschrift ${i + 1}`
+                  columnDiv.style.width = `${number * 10}%`
+                  columnDiv.style.fontFamily = "sans-serif"
+                  columnDiv.style.fontWeight = "bold"
+                  tableHeader.append(columnDiv)
+
+                }
+
+              }
+
+              selectedNode.append(tableHeader)
+
+              if (tableHeader.children.length === 0) {
+                tableHeader.remove()
+              }
+
+            }
+
+            const pdfLinkButton = this.create("button/pdf-link", templateOptions)
+            pdfLinkButton.onclick = () => {
+
+              const prompt = window.prompt("Gebe die Quell-Url deiner PDF ein:")
+
+              const a = document.createElement("a")
+              a.classList.add("pdf-link")
+              a.href = prompt
+              selectedNode.append(a)
+
+
+              const container = document.createElement("div")
+              container.style.display = "flex"
+              container.style.margin = "21px 34px"
+              container.style.alignItems = "center"
+
+              const img = document.createElement("img")
+              img.src = "/public/pdf.svg"
+              img.style.marginRight = "13px"
+
+              const title = document.createElement("div")
+              title.innerHTML = "Link"
+              title.style.fontFamily = "sans-serif"
+              title.style.textDecoration = "underline"
+
+              container.append(img, title)
+              a.append(container)
+
+            }
+
+            const aLinkButton = this.create("button/a-link", templateOptions)
+            aLinkButton.onclick = () => {
+
+              const prompt = window.prompt("Gebe die Quell-Url deines Links ein:")
+
+              const a = document.createElement("a")
+              a.classList.add("a-link")
+              a.innerHTML = "Mein Link"
+              a.href = prompt
+              selectedNode.append(a)
+
+            }
+
+            const spanButton = this.create("button/span", templateOptions)
+            spanButton.onclick = () => {
+
+              Array.from(selectedNode.childNodes).forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+
+                  const span = document.createElement("span")
+                  span.innerHTML = node.textContent
+
+                  selectedNode.replaceChild(span, node)
+
+                }
+              })
+
+            }
+
+            const changeSiButton = this.create("button/change-si", templateOptions)
+            changeSiButton.onclick = () => {
+
+              const prompt = window.prompt("Gebe deine SI-Einheit ein:")
+
+              const span1 = document.createElement("span")
+              span1.classList.add("placeholder")
+
+              span1.innerHTML = selectedNode.innerHTML
+              if (prompt === "kWh" || prompt.startsWith("ct")) span1.innerHTML = "0"
+              if (
+                prompt === "€" ||
+                prompt.startsWith("EURO") ||
+                prompt.startsWith("Euro") ||
+                prompt === "%"
+              ) span1.innerHTML = "0,00"
+
+              const span2 = document.createElement("span")
+              span2.classList.add("unit")
+              span2.innerHTML = prompt
+
+              selectedNode.innerHTML = ""
+              selectedNode.append(span1)
+              selectedNode.append(" ")
+              selectedNode.append(span2)
+
+            }
+
+            const addSpaceButton = this.create("button/add-space", templateOptions)
+            addSpaceButton.onclick = () => {
+
+              const prompt = window.prompt("Gebe den Abstand deines Leerraums ein:")
+              const space = document.createElement("div")
+              space.classList.add("space")
+              space.style.width = "100%"
+              space.style.height = prompt
+              selectedNode.append(space)
+
+            }
+
+            const arrowRightButton = this.create("button/arrow-right", templateOptions)
+            arrowRightButton.onclick = () => {
+
+              const prompt = window.prompt("Gebe die Farbe deines Pfeils ein:")
+
+              const arrow = document.createElement("div")
+              arrow.style.display = "flex"
+              arrow.style.justifyContent = "center"
+              arrow.style.alignItems = "center"
+              arrow.style.width = "100%"
+              arrow.style.height = "34px"
+              selectedNode.append(arrow)
+
+              const line = document.createElement("div")
+              line.style.height = "3px"
+              line.style.backgroundColor = prompt
+              line.style.width = "100%"
+              arrow.append(line)
+
+              const symbol = document.createElement("span")
+              symbol.style.display = "flex"
+              symbol.style.justifyContent = "center"
+              symbol.style.alignItems = "center"
+              symbol.style.fontSize = "21px"
+              symbol.style.color = prompt
+              symbol.innerHTML = "➤"
+              arrow.append(symbol)
+
+            }
+
+            const divScrollableButton = this.create("button/div-scrollable", templateOptions)
+            divScrollableButton.onclick = () => {
+              const scrollableDiv = this.create("div/scrollable", selectedNode)
+            }
+
+
+
+            this.render("text/hr", "Anwendungen für Eingabe Felder einsetzen", optionsContainer)
+            const inputOptions = this.create("div/flex-row", optionsContainer)
+
+            const textInputButton = this.create("button/text-input", inputOptions)
+            textInputButton.onclick = () => {
+              this.create("input/text", selectedNode)
+            }
+
+            const numberInputButton = this.create("button/number-input", inputOptions)
+            numberInputButton.onclick = () => {
+              this.create("input/tel", selectedNode)
+            }
+
+            const checkboxInputButton = this.create("button/checkbox-input", inputOptions)
+            checkboxInputButton.onclick = () => {
+              this.create("input/checkbox", selectedNode)
+            }
+
+            const passwordInputButton = this.create("button/password-input", inputOptions)
+            passwordInputButton.onclick = () => {
+              this.create("input/password", selectedNode)
+            }
+
+
+
+            this.render("text/hr", "Anwendungen für die Höhe und Breite", optionsContainer)
+            const dimensionOptions = this.create("div/flex-row", optionsContainer)
+
+            let originalWidth
+            const growWidthButton = this.create("button/grow-width", dimensionOptions)
+            growWidthButton.onclick = () => {
+
+              if (selectedNode.style.width === "100%") {
+                if (originalWidth) {
+                  selectedNode.style.width = originalWidth
+                } else {
+                  selectedNode.style.width = null
+                }
+
+              } else {
+                originalWidth = selectedNode.style.width
+                selectedNode.style.width = "100%"
+              }
+
+            }
+
+            const exactWidthButton = this.create("button/exact-width", dimensionOptions)
+            exactWidthButton.onclick = () => {
+              const prompt = window.prompt("Gebe die exakte Breite ein:")
+              selectedNode.style.width = prompt
+            }
+
+            const increaseWidthButton = this.create("button/increase-width", dimensionOptions)
+            increaseWidthButton.onclick = () => {
+
+              if (selectedNode.style.width) {
+                const match = selectedNode.style.width.match(/(\d+(\.\d+)?)(\D.*)/)
+
+                if (match) {
+                  let number = parseFloat(match[1])
+                  number++
+                  const remainingChars = match[3]
+                  selectedNode.style.width = `${number}${remainingChars}`
+                }
+              }
+
+            }
+
+            const decreaseWidthButton = this.create("button/decrease-width", dimensionOptions)
+            decreaseWidthButton.onclick = () => {
+
+              if (selectedNode.style.width) {
+                const match = selectedNode.style.width.match(/(\d+(\.\d+)?)(\D.*)/)
+
+                if (match) {
+                  let number = parseFloat(match[1])
+                  number--
+                  const remainingChars = match[3]
+                  selectedNode.style.width = `${number}${remainingChars}`
+                }
+              }
+
+            }
+
+            let originalHeight
+            const growHeightButton = this.create("button/grow-height", dimensionOptions)
+            growHeightButton.onclick = () => {
+
+              if (selectedNode.style.height === "100%") {
+                if (originalHeight) {
+                  selectedNode.style.height = originalHeight
+                } else {
+                  selectedNode.style.height = null
+                }
+
+              } else {
+                originalHeight = selectedNode.style.height
+                selectedNode.style.height = "100%"
+              }
+
+            }
+
+            const exactHeightButton = this.create("button/exact-height", dimensionOptions)
+            exactHeightButton.onclick = () => {
+              const prompt = window.prompt("Gebe die exakte Höhe ein:")
+              selectedNode.style.height = prompt
+            }
+
+            const increaseHeightButton = this.create("button/increase-height", dimensionOptions)
+            increaseHeightButton.onclick = () => {
+
+              if (selectedNode.style.height) {
+                const match = selectedNode.style.height.match(/(\d+(\.\d+)?)(\D.*)/)
+
+                if (match) {
+                  let number = parseFloat(match[1])
+                  number++
+                  const remainingChars = match[3]
+                  selectedNode.style.height = `${number}${remainingChars}`
+                }
+              }
+
+            }
+
+            const decreaseHeightButton = this.create("button/decrease-height", dimensionOptions)
+            decreaseHeightButton.onclick = () => {
+
+              if (selectedNode.style.height) {
+                const match = selectedNode.style.height.match(/(\d+(\.\d+)?)(\D.*)/)
+
+                if (match) {
+                  let number = parseFloat(match[1])
+                  number--
+                  const remainingChars = match[3]
+                  selectedNode.style.height = `${number}${remainingChars}`
+                }
+              }
+
+            }
+
+
+
+
+
+
+
+
+            this.render("text/hr", "Anwendungen für Display Elemente", optionsContainer)
+            const displayOptions = this.create("div/flex-row", optionsContainer)
+
+            const exactDisplayButton = this.create("button/display-exact", displayOptions)
+            exactDisplayButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Display Wert ein:")
+              if (prompt || prompt === "") selectedNode.style.display = prompt
+            }
+
+            let originalDisplayBlock
+            const displayBlockButton = this.create("button/display-block", displayOptions)
+            displayBlockButton.onclick = () => {
+
+              if (selectedNode.style.display === "block") {
+                if (originalDisplayBlock) {
+                    selectedNode.style.display = originalDisplayBlock
+                } else {
+                    selectedNode.style.display = null
+                }
+
+              } else {
+                  originalDisplayBlock = selectedNode.style.display
+                  selectedNode.style.display = "block"
+              }
+
+            }
+
+            let originalDisplayInline
+            const displayInlineButton = this.create("button/display-inline", displayOptions)
+            displayInlineButton.onclick = () => {
+
+              if (selectedNode.style.display === "inline") {
+                if (originalDisplayInline) {
+                    selectedNode.style.display = originalDisplayInline
+                } else {
+                    selectedNode.style.display = null
+                }
+
+              } else {
+                  originalDisplayInline = selectedNode.style.display
+                  selectedNode.style.display = "inline"
+              }
+
+            }
+
+            let originalDisplayGrid
+            const toggleDisplayGridButton = this.create("button/display-grid", displayOptions)
+            toggleDisplayGridButton.onclick = () => {
+
+              if (selectedNode.style.display === "grid") {
+                if (originalDisplayGrid) {
+                  selectedNode.style.display = originalDisplayGrid
+                } else {
+                  selectedNode.style.display = null
+                }
+
+              } else {
+
+                originalDisplayGrid = selectedNode.style.display
+                selectedNode.style.display = "grid"
+
+              }
+
+            }
+
+            let originalDisplayFlex
+            const toggleDisplayFlexButton = this.create("button/display-flex", displayOptions)
+            toggleDisplayFlexButton.onclick = () => {
+
+              if (selectedNode.style.display === "flex") {
+                if (originalDisplayFlex) {
+                  selectedNode.style.display = originalDisplayFlex
+                } else {
+                  selectedNode.style.display = null
+                }
+
+              } else {
+
+                originalDisplayFlex = selectedNode.style.display
+                selectedNode.style.display = "flex"
+
+              }
+
+            }
+
+            let originalDisplayTable
+            const toggleDisplayTableButton = this.create("button/display-table", displayOptions)
+            toggleDisplayTableButton.onclick = () => {
+
+              if (selectedNode.style.display === "table") {
+                if (originalDisplayTable) {
+                  selectedNode.style.display = originalDisplayTable
+                } else {
+                  selectedNode.style.display = null
+                }
+
+              } else {
+
+                originalDisplayTable = selectedNode.style.display
+                selectedNode.style.display = "table"
+
+              }
+
+            }
+
+
+
+            this.render("text/hr", "Anwendungen für Grid Elemente", optionsContainer)
+            const gridOptions = this.create("div/flex-row", optionsContainer)
+
+            let originalGridMobileStyle
+            const gridMobileButton = this.create("button/grid-mobile", gridOptions)
+            gridMobileButton.onclick = () => {
+
+              if (originalGridMobileStyle) {
+                selectedNode.setAttribute("style", originalGridMobileStyle)
+                originalGridMobileStyle = undefined
+              } else {
+                originalGridMobileStyle = selectedNode.getAttribute("style")
+                selectedNode.style.display = "grid"
+                selectedNode.style.gridTemplateColumns = "1fr"
+                selectedNode.style.gridGap = "21px"
+              }
+
+            }
+
+            let originalGridFullDisplayStyle
+            let originalGridFullDisplayChildrenStyle = []
+            const gridFullDisplayButton = this.create("button/grid-full-display", gridOptions)
+            gridFullDisplayButton.onclick = () => {
+
+              if (originalGridFullDisplayStyle) {
+                selectedNode.setAttribute("style", originalGridFullDisplayStyle)
+                originalGridFullDisplayStyle = undefined
+
+                if (originalGridFullDisplayChildrenStyle.length > 0) {
+                  for (var i = 0; i < selectedNode.children.length; i++) {
+                    const child = selectedNode.children[i]
+
+                    const style = originalGridFullDisplayChildrenStyle.pop()
+                    if (style) {
+                      child.setAttribute("style", style)
+                    } else {
+                      child.removeAttribute("style")
+                    }
+
+                  }
+                }
+
+              } else {
+                originalGridFullDisplayStyle = selectedNode.getAttribute("style")
+                selectedNode.style.display = "grid"
+                selectedNode.style.gridTemplateColumns = "1fr"
+                selectedNode.style.gridGap = "21px"
+
+                for (var i = 0; i < selectedNode.children.length; i++) {
+                  const child = selectedNode.children[i]
+
+                  originalGridFullDisplayChildrenStyle.push(child.getAttribute("style"))
+                  child.style.width = "100%"
+                  child.style.height = "89vh"
+                  child.style.overflow = "auto"
+
+                }
+
+              }
+
+            }
+
+            let originalGridTwoColumnsStyle
+            let originalGridTwoColumnsChildrenStyle = []
+            const gridTwoColumnsButton = this.create("button/grid-two-columns", gridOptions)
+            gridTwoColumnsButton.onclick = () => {
+
+              if (originalGridTwoColumnsStyle) {
+                selectedNode.setAttribute("style", originalGridTwoColumnsStyle)
+                originalGridTwoColumnsStyle = undefined
+
+                if (originalGridTwoColumnsChildrenStyle.length > 0) {
+                  for (var i = 0; i < selectedNode.children.length; i++) {
+                    const child = selectedNode.children[i]
+
+                    const style = originalGridTwoColumnsChildrenStyle.pop()
+                    if (style) {
+                      child.setAttribute("style", style)
+                    } else {
+                      child.removeAttribute("style")
+                    }
+
+                  }
+                }
+
+              } else {
+                originalGridTwoColumnsStyle = selectedNode.getAttribute("style")
+                selectedNode.style.display = "grid"
+                selectedNode.style.gridTemplateColumns = "1fr 1fr"
+                selectedNode.style.gridGap = "21px"
+
+                for (var i = 0; i < selectedNode.children.length; i++) {
+                  const child = selectedNode.children[i]
+
+                  originalGridTwoColumnsChildrenStyle.push(child.getAttribute("style"))
+                  child.style.width = "100%"
+                  child.style.height = "89vh"
+                  child.style.overflow = "auto"
+
+                }
+
+              }
+
+            }
+
+            let originalGridThreeColumnsStyle
+            let originalGridThreeColumnsChildrenStyle = []
+            const gridThreeColumnsButton = this.create("button/grid-three-columns", gridOptions)
+            gridThreeColumnsButton.onclick = () => {
+
+              if (originalGridThreeColumnsStyle) {
+                selectedNode.setAttribute("style", originalGridThreeColumnsStyle)
+                originalGridThreeColumnsStyle = undefined
+
+                if (originalGridThreeColumnsChildrenStyle.length > 0) {
+                  for (var i = 0; i < selectedNode.children.length; i++) {
+                    const child = selectedNode.children[i]
+
+                    const style = originalGridThreeColumnsChildrenStyle.pop()
+                    if (style) {
+                      child.setAttribute("style", style)
+                    } else {
+                      child.removeAttribute("style")
+                    }
+
+                  }
+                }
+
+              } else {
+                originalGridThreeColumnsStyle = selectedNode.getAttribute("style")
+                selectedNode.style.display = "grid"
+                selectedNode.style.gridTemplateColumns = "1fr 1fr 1fr"
+                selectedNode.style.gridGap = "21px"
+
+                for (var i = 0; i < selectedNode.children.length; i++) {
+                  const child = selectedNode.children[i]
+
+                  originalGridThreeColumnsChildrenStyle.push(child.getAttribute("style"))
+                  child.style.width = "100%"
+                  child.style.height = "89vh"
+                  child.style.overflow = "auto"
+
+                }
+
+              }
+
+            }
+
+            let originalGridFixedStyle
+            let originalGridFixedChildrenStyle = []
+            const gridFixedButton = this.create("button/grid-fixed", gridOptions)
+            gridFixedButton.onclick = () => {
+
+              if (originalGridFixedStyle) {
+                selectedNode.setAttribute("style", originalGridFixedStyle)
+                originalGridFixedStyle = undefined
+
+                if (originalGridFixedChildrenStyle.length > 0) {
+                  for (var i = 0; i < selectedNode.children.length; i++) {
+                    const child = selectedNode.children[i]
+
+                    const style = originalGridFixedChildrenStyle.pop()
+                    if (style) {
+                      child.setAttribute("style", style)
+                    } else {
+                      child.removeAttribute("style")
+                    }
+
+                  }
+                }
+
+              } else {
+
+                const prompt = window.prompt("Gebe die exakte Dimension der Grid Elemente ein: (Breite = Höhe)")
+
+                originalGridFixedStyle = selectedNode.getAttribute("style")
+                selectedNode.style.display = "grid"
+                selectedNode.style.gridTemplateColumns = `repeat(auto-fit, minmax(${prompt}, 1fr))`
+                selectedNode.style.gridTemplateRows = `repeat(auto-fit, minmax(0, ${prompt}))`
+                selectedNode.style.gridGap = "21px"
+
+                for (var i = 0; i < selectedNode.children.length; i++) {
+                  const child = selectedNode.children[i]
+
+                  originalGridFixedChildrenStyle.push(child.getAttribute("style"))
+                  child.style.width = "100%"
+                  child.style.height = prompt
+                  child.style.overflow = "auto"
+
+                }
+
+              }
+
+            }
+
+            let originalGridListRowsStyle
+            let originalGridListRowsChildrenStyle = []
+            const gridListRowsButton = this.create("button/grid-list-rows", gridOptions)
+            gridListRowsButton.onclick = () => {
+
+              if (originalGridListRowsStyle) {
+                selectedNode.setAttribute("style", originalGridListRowsStyle)
+                originalGridListRowsStyle = undefined
+
+                if (originalGridListRowsChildrenStyle.length > 0) {
+                  for (var i = 0; i < selectedNode.children.length; i++) {
+                    const child = selectedNode.children[i]
+
+                    const style = originalGridListRowsChildrenStyle.pop()
+                    if (style) {
+                      child.setAttribute("style", style)
+                    } else {
+                      child.removeAttribute("style")
+                    }
+
+                  }
+                }
+
+              } else {
+
+                originalGridListRowsStyle = selectedNode.getAttribute("style")
+                selectedNode.style.display = "grid"
+                selectedNode.style.gridTemplateColumns = `89px 1fr`
+                selectedNode.style.gridTemplateRows = `repeat(auto-fit, 55px)`
+                selectedNode.style.gridGap = "21px"
+
+                for (var i = 0; i < selectedNode.children.length; i++) {
+                  const child = selectedNode.children[i]
+
+                  originalGridListRowsChildrenStyle.push(child.getAttribute("style"))
+                  child.style.width = "100%"
+                  child.style.height = "55px"
+                  child.style.overflow = "hidden"
+
+                }
+
+              }
+
+            }
+
+            const gridSpanColumnButton = this.create("button/span", gridOptions)
+            gridSpanColumnButton.onclick = () => {
+
+              const prompt = window.prompt("Gebe die Anzabl an Spalten ein, die dein Grid Elemente einnehmen soll:")
+              const columns = parseInt(prompt)
+
+              if (columns > 0) {
+                selectedNode.style.gridColumn = `span ${columns}`
+              }
+
+            }
+
+            const gridSpanRowButton = this.create("button/span", gridOptions)
+            gridSpanRowButton.icon.style.transform = "rotate(90deg)"
+            gridSpanRowButton.onclick = () => {
+
+              const prompt = window.prompt("Gebe die Anzabl an Zeilen ein, die dein Grid Elemente einnehmen soll:")
+              const rows = parseInt(prompt)
+
+              if (rows > 0) {
+                selectedNode.style.gridRow = `span ${rows}`
+                selectedNode.style.height = "100%"
+              }
+
+            }
+
+            const exactGridGapButton = this.create("button/grid-gap", gridOptions)
+            exactGridGapButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Abstand zwischen deinen Grid Elementen ein:")
+
+              if (prompt || prompt === "") {
+                selectedNode.style.gap = prompt
+              }
+
+            }
+
+            const gridAddColumnButton = this.create("button/grid-add-column", gridOptions)
+            gridAddColumnButton.onclick = () => {
+
+              selectedNode.style.gridTemplateColumns = `${selectedNode.style.gridTemplateColumns} 1fr`
+
+              if (selectedNode.lastElementChild) {
+                selectedNode.append(selectedNode.lastElementChild.cloneNode(true))
+              }
+
+            }
+            const gridRemoveColumnButton = this.create("button/grid-remove-column", gridOptions)
+            gridRemoveColumnButton.onclick = () => {
+
+              const templateColumns = selectedNode.style.gridTemplateColumns.split(" ")
+              templateColumns.pop()
+              selectedNode.style.gridTemplateColumns = templateColumns.join(" ")
+
+              if (selectedNode.lastElementChild) {
+                selectedNode.lastElementChild.remove()
+              }
+
+            }
+            const gridAddRowButton = this.create("button/grid-add-row", gridOptions)
+            gridAddRowButton.onclick = () => {
+
+              selectedNode.style.gridTemplateRows = `${selectedNode.style.gridTemplateRows} 1fr`
+
+              if (selectedNode.lastElementChild) {
+                selectedNode.append(selectedNode.lastElementChild.cloneNode(true))
+              }
+
+            }
+            const gridRemoveRowButton = this.create("button/grid-remove-row", gridOptions)
+            gridRemoveRowButton.onclick = () => {
+
+              const templateRows = selectedNode.style.gridTemplateRows.split(" ")
+              templateRows.pop()
+              selectedNode.style.gridTemplateRows = templateRows.join(" ")
+
+              if (selectedNode.lastElementChild) {
+                selectedNode.lastElementChild.remove()
+              }
+
+            }
+
+
+
+            this.render("text/hr", "Anwendungen für Flex Elemente", optionsContainer)
+            const flexOptions = this.create("div/flex-row", optionsContainer)
+
+            const alignColumnButton = this.create("button/align-column", flexOptions)
+            alignColumnButton.onclick = () => {
+              this.convert("parent/flex-column", selectedNode)
+            }
+
+            let originalAlignLeft
+            const alignLeftButton = this.create("button/align-left", flexOptions)
+            alignLeftButton.onclick = () => {
+
+              if (selectedNode.style.justifyContent === "flex-start") {
+                if (originalAlignLeft) {
+                  selectedNode.style.justifyContent = originalAlignLeft
+                } else {
+                  selectedNode.style.justifyContent = null
+                }
+
+              } else {
+                originalAlignLeft = selectedNode.style.justifyContent
+
+                selectedNode.style.display = "flex"
+                selectedNode.style.justifyContent = "flex-start"
+              }
+
+
+            }
+
+            let originalAlignCenter
+            const alignCenterButton = this.create("button/align-center", flexOptions)
+            alignCenterButton.onclick = () => {
+
+              if (selectedNode.style.justifyContent === "center") {
+                if (originalAlignCenter) {
+                  selectedNode.style.justifyContent = originalAlignCenter
+                } else {
+                  selectedNode.style.justifyContent = null
+                }
+
+              } else {
+                originalAlignCenter = selectedNode.style.justifyContent
+
+                selectedNode.style.display = "flex"
+                selectedNode.style.justifyContent = "center"
+              }
+
+
+            }
+
+            let originalAlignRight
+            const alignRightButton = this.create("button/align-right", flexOptions)
+            alignRightButton.onclick = () => {
+
+              if (selectedNode.style.justifyContent === "flex-end") {
+                if (originalAlignRight) {
+                  selectedNode.style.justifyContent = originalAlignRight
+                } else {
+                  selectedNode.style.justifyContent = null
+                }
+
+              } else {
+                originalAlignRight = selectedNode.style.justifyContent
+
+                selectedNode.style.display = "flex"
+                selectedNode.style.justifyContent = "flex-end"
+              }
+
+            }
+
+            const alignRowButton = this.create("button/align-row", flexOptions)
+            alignRowButton.onclick = () => {
+              this.convert("parent/flex-row", selectedNode)
+            }
+
+            let originalAlignTop
+            const alignTopButton = this.create("button/align-top", flexOptions)
+            alignTopButton.onclick = () => {
+
+              if (selectedNode.style.alignItems === "flex-start") {
+                if (originalAlignTop) {
+                  selectedNode.style.alignItems = originalAlignTop
+                } else {
+                  selectedNode.style.alignItems = null
+                }
+
+              } else {
+                originalAlignTop = selectedNode.style.alignItems
+
+                selectedNode.style.display = "flex"
+                selectedNode.style.alignItems = "flex-start"
+              }
+
+
+            }
+
+            let originalAlignVertical
+            const alignVerticalButton = this.create("button/align-vertical", flexOptions)
+            alignVerticalButton.onclick = () => {
+
+              if (selectedNode.style.alignItems === "center") {
+                if (originalAlignVertical) {
+                  selectedNode.style.alignItems = originalAlignVertical
+                } else {
+                  selectedNode.style.alignItems = null
+                }
+
+              } else {
+                originalAlignVertical = selectedNode.style.alignItems
+
+                selectedNode.style.display = "flex"
+                selectedNode.style.alignItems = "center"
+              }
+
+
+            }
+
+            let originalAlignBottom
+            const alignBottomButton = this.create("button/align-bottom", flexOptions)
+            alignBottomButton.onclick = () => {
+
+              if (selectedNode.style.alignItems === "flex-end") {
+                if (originalAlignBottom) {
+                  selectedNode.style.alignItems = originalAlignBottom
+                } else {
+                  selectedNode.style.alignItems = null
+                }
+
+              } else {
+                originalAlignBottom = selectedNode.style.alignItems
+
+                selectedNode.style.display = "flex"
+                selectedNode.style.alignItems = "flex-end"
+              }
+
+
+            }
+
+            const flexButton = this.create("button/flex", flexOptions)
+            flexButton.onclick = () => {
+
+              const prompt = window.prompt("Gebe die Flex Matrix für dein Element ein: (grow shrink basis)")
+              selectedNode.style.flex = prompt
+
+            }
+
+            let originalSpaceBetween
+            const spaceBetweenButton = this.create("button/space-between", flexOptions)
+            spaceBetweenButton.onclick = () => {
+
+              if (selectedNode.style.justifyContent === "space-between") {
+                if (originalSpaceBetween) {
+                  selectedNode.style.justifyContent = originalSpaceBetween
+                } else {
+                  selectedNode.style.justifyContent = null
+                }
+
+              } else {
+
+                originalSpaceBetween = selectedNode.style.justifyContent
+                this.convert("parent/space-between", selectedNode)
+
+              }
+
+            }
+
+
+            let originalSpaceAround
+            const spaceAroundButton = this.create("button/space-around", flexOptions)
+            spaceAroundButton.onclick = () => {
+
+
+              if (selectedNode.style.justifyContent === "space-around") {
+                if (originalSpaceAround) {
+                  selectedNode.style.justifyContent = originalSpaceAround
+                } else {
+                  selectedNode.style.justifyContent = null
+                }
+
+              } else {
+                originalSpaceAround = selectedNode.style.justifyContent
+                this.convert("parent/space-around", selectedNode)
+              }
+
+            }
+
+            let originalToggleWrap
+            const toggleWrapButton = this.create("button/toggle-wrap", flexOptions)
+            toggleWrapButton.onclick = () => {
+
+              if (selectedNode.style.flexWrap === "wrap") {
+                if (originalToggleWrap) {
+                  selectedNode.style.flexWrap = originalToggleWrap
+                } else {
+                  selectedNode.style.flexWrap = null
+                }
+
+              } else {
+                originalToggleWrap = selectedNode.style.flexWrap
+
+                selectedNode.style.display = "flex"
+                selectedNode.style.flexWrap = "wrap"
+
+              }
+
+            }
+
+
+
+
+
+
+
+
+            this.render("text/hr", "Anwendungen für die Layer Elemente", optionsContainer)
+            const layerOptions = this.create("div/flex-row", optionsContainer)
+
+            const layerButton = this.create("button/layer", layerOptions)
+            layerButton.onclick = async () => {
+
+              const result = await this.verifyIs("class/found", {node: selectedNode, class: "layer" })
+              if (result === true) {
+
+                this.overlay("toolbox", async layerOverlay => {
+                  this.add("button/remove-overlay", layerOverlay)
+
+                  this.render("text/title", "Wähle einen Layer aus", layerOverlay)
+
+                  const layers = this.create("div/scrollable", layerOverlay)
+
+
+                  const fatherButton = this.create("button/left-right", layers)
+                  fatherButton.classList.add("father-button")
+
+                  let fatherZIndex = 0
+                  if (selectedNode.style.zIndex) fatherZIndex = selectedNode.style.zIndex
+                  fatherButton.left.innerHTML = "Ebene " + fatherZIndex
+
+                  fatherButton.style.backgroundColor = this.colors.light.error
+
+                  const fatherSelector = await this.convert("element/selector", selectedNode)
+                  fatherButton.right.innerHTML = fatherSelector
+
+                  fatherButton.onclick = () => {
+                    // add selectedNode options
+                    this.remove("overlay", layerOverlay)
+                  }
+
+                  selectedNode.querySelectorAll("*").forEach(async(item, i) => {
+                    if (item.classList.contains("layer")) {
+
+                      const selector = await this.convert("element/selector", item)
+
+                      const button = this.create("button/left-right")
+                      button.left.innerHTML = "Ebene " + item.style.zIndex
+                      button.right.innerHTML = selector
+                      button.onclick = async () => {
+                        await this.remove("element/selected-node", preview)
+                        selectedNode = item
+                        this.add("element/selected-node", selectedNode)
+                        this.remove("overlay", layerOverlay)
+                      }
+
+                      if (item.style.zIndex >= fatherZIndex) {
+                        fatherButton.before(button)
+                      }
+
+                      if (item.style.zIndex < fatherZIndex) {
+                        layers.append(button)
+                      }
+
+                    }
+                  })
+
+                })
+
+              }
+              if (result === false) {
+                window.alert("In diesem Element sind keine Layer enthalten.")
+              }
+
+            }
+
+            const positiveLayerButton = this.create("button/positive-layer", layerOptions)
+            positiveLayerButton.onclick = () => {
+              selectedNode.style.position = "relative"
+
+              const layer = document.createElement("div")
+              layer.classList.add("layer")
+              layer.style.position = "absolute"
+              layer.style.top = "0"
+              layer.style.left = "0"
+              layer.style.backgroundColor = selectedNode.style.backgroundColor
+              layer.style.width = `${selectedNode.offsetWidth}px`
+              layer.style.height = `${selectedNode.offsetHeight}px`
+              let zIndex = 0
+              if (selectedNode.style.zIndex) zIndex = selectedNode.style.zIndex
+              zIndex++
+              layer.style.zIndex = zIndex
+              selectedNode.append(layer)
+
+              this.convert("node/sort-children-by-z-index", selectedNode)
+
+              window.alert("Layer erfolgreich angehängt.")
+
+            }
+
+            const negativeLayerButton = this.create("button/negative-layer", layerOptions)
+            negativeLayerButton.onclick = () => {
+
+              selectedNode.style.position = "relative"
+
+              let fatherZIndex = 0
+              if (selectedNode.style.zIndex) fatherZIndex = selectedNode.style.zIndex
+
+
+              const layer = document.createElement("div")
+              layer.classList.add("layer")
+              layer.style.position = "absolute"
+              layer.style.top = "0"
+              layer.style.left = "0"
+              layer.style.backgroundColor = selectedNode.style.backgroundColor
+              layer.style.width = `${selectedNode.offsetWidth}px`
+              layer.style.height = `${selectedNode.offsetHeight}px`
+              let zIndex = 0
+              if (selectedNode.style.zIndex) zIndex = selectedNode.style.zIndex
+              zIndex--
+              layer.style.zIndex = zIndex
+              selectedNode.append(layer)
+
+              this.convert("node/sort-children-by-z-index", selectedNode)
+
+              window.alert("Layer erfolgreich angehängt.")
+
+            }
+
+            const exactLayerButton = this.create("button/exact-layer", layerOptions)
+            exactLayerButton.onclick = async () => {
+              const prompt = window.prompt("Gebe die exakte Ebene für deinen Layer ein: (integer)")
+
+              const zIndex = parseInt(prompt) || 0
+
+              selectedNode.style.position = "relative"
+
+              const layer = document.createElement("div")
+              layer.classList.add("layer")
+              layer.style.position = "absolute"
+              layer.style.top = "0"
+              layer.style.left = "0"
+              layer.style.backgroundColor = selectedNode.style.backgroundColor
+              layer.style.width = `${selectedNode.offsetWidth}px`
+              layer.style.height = `${selectedNode.offsetHeight}px`
+              layer.style.zIndex = zIndex
+              selectedNode.append(layer)
+
+              this.convert("node/sort-children-by-z-index", selectedNode)
+
+              window.alert("Layer erfolgreich angehängt.")
+
+            }
+
+            const removeLayerButton = this.create("button/remove-layer", layerOptions)
+            removeLayerButton.onclick = () => {
+              selectedNode.querySelectorAll("*").forEach((item, i) => {
+                if (item.classList.contains("layer")) {
+                  item.remove()
+                }
+              })
+              window.alert("Alle Layer wurden erfolgreich entfernt.")
+            }
+
+            let originalPositionAbsolute
+            const positionAbsoluteButton = this.create("button/position-absolute", layerOptions)
+            positionAbsoluteButton.onclick = () => {
+
+              if (selectedNode.style.position === "absolute") {
+                if (originalPositionAbsolute) {
+                    selectedNode.style.position = originalPositionAbsolute
+                } else {
+                    selectedNode.style.position = null
+                }
+
+              } else {
+                  originalPositionAbsolute = selectedNode.style.position
+                  selectedNode.style.position = "absolute"
+              }
+
+            }
+
+            const positionTopButton = this.create("button/position-top", layerOptions)
+            positionTopButton.onclick = () => {
+
+              if (selectedNode.classList.contains("layer")) {
+                const prompt = window.prompt("Geben den exakten Abstand nach oben ein:")
+
+                selectedNode.style.top = prompt
+
+              }
+
+            }
+
+            const positionRightButton = this.create("button/position-right", layerOptions)
+            positionRightButton.onclick = () => {
+
+              if (selectedNode.classList.contains("layer")) {
+                const prompt = window.prompt("Geben den exakten Abstand nach rechts ein:")
+
+                selectedNode.style.right = prompt
+
+              }
+
+            }
+
+            const positionBottomButton = this.create("button/position-bottom", layerOptions)
+            positionBottomButton.onclick = () => {
+
+              if (selectedNode.classList.contains("layer")) {
+                const prompt = window.prompt("Geben den exakten Abstand nach unten ein:")
+
+                selectedNode.style.bottom = prompt
+
+              }
+
+            }
+
+            const positionLeftButton = this.create("button/position-left", layerOptions)
+            positionLeftButton.onclick = () => {
+
+              if (selectedNode.classList.contains("layer")) {
+                const prompt = window.prompt("Geben den exakten Abstand nach links ein:")
+
+                selectedNode.style.left = prompt
+
+              }
+
+            }
+
+
+
+
+
+
+            this.render("text/hr", "Anwendungen für die Transformation", optionsContainer)
+            const transformationOptions = this.create("div/flex-row", optionsContainer)
+
+            const transformTranslateButton = this.create("button/transform-translate", transformationOptions)
+            transformTranslateButton.onclick = () => {
+              const prompt = window.prompt("Gebe den X und Y Wert ein und bewege dein Element in die gewünschte Richtung: (21px -34px)")
+              selectedNode.style.transform = `translate(${prompt})`
+            }
+
+            const transformTranslateXButton = this.create("button/transform-translate-x", transformationOptions)
+            transformTranslateXButton.onclick = () => {
+              const prompt = window.prompt("Gebe den X-Wert ein und bewege dein Element in die gewünschte Richtung: (-34px)")
+              selectedNode.style.transform = `translateX(${prompt})`
+            }
+
+            const transformTranslateYButton = this.create("button/transform-translate-y", transformationOptions)
+            transformTranslateYButton.onclick = () => {
+              const prompt = window.prompt("Gebe den Y-Wert ein und bewege dein Element in die gewünschte Richtung: (34px)")
+              selectedNode.style.transform = `translateY(${prompt})`
+            }
+
+            const zIndexButton = this.create("button/z-index", transformationOptions)
+            zIndexButton.onclick = () => {
+              const prompt = window.prompt("Gebe deinen Z-Index ein:")
+              selectedNode.style.position = "relative"
+              selectedNode.style.zIndex = prompt
+            }
+
+            const scaleButton = this.create("button/scale", transformationOptions)
+            scaleButton.onclick = () => {
+              const prompt = window.prompt("Gebe die Höhe deiner Skalierung ein:")
+
+              const scaleNumber = parseFloat(prompt)
+              selectedNode.style.transform = `scale(${scaleNumber})`
+            }
+
+            let rotationDegree = 0
+            const rotateRightButton = this.create("button/rotate-right", transformationOptions)
+            rotateRightButton.onclick = () => {
+              rotationDegree += 90
+              if (rotationDegree === 360) rotationDegree = 0
+              selectedNode.style.transform = `rotate(${rotationDegree}deg)`
+            }
+
+            const rotateLeftButton = this.create("button/rotate-left", transformationOptions)
+            rotateLeftButton.onclick = () => {
+              rotationDegree -= 90
+              if (rotationDegree === -360) rotationDegree = 0
+              selectedNode.style.transform = `rotate(${rotationDegree}deg)`
+            }
+
+
+
+
+
+
+
+            this.render("text/hr", "Anwendungen für die Textverarbeitung", optionsContainer)
+            const textManipulationOptions = this.create("div/flex-row", optionsContainer)
+
+            let originalFontWeight
+            const fontWeightButton = this.create("button/bold", textManipulationOptions)
+            fontWeightButton.onclick = () => {
+
+              if (selectedNode.style.fontWeight === "bold") {
+                if (originalFontWeight) {
+                    selectedNode.style.fontWeight = originalFontWeight
+                } else {
+                    selectedNode.style.fontWeight = null
+                }
+
+              } else {
+                  originalFontWeight = selectedNode.style.fontWeight
+                  selectedNode.style.fontWeight = "bold"
+              }
+
+            }
+
+            let originalFontStyle
+            const fontStyleButton = this.create("button/italic", textManipulationOptions)
+            fontStyleButton.onclick = () => {
+
+              if (selectedNode.style.fontStyle === "italic") {
+                if (originalFontStyle) {
+                    selectedNode.style.fontStyle = originalFontStyle
+                } else {
+                    selectedNode.style.fontStyle = null
+                }
+
+              } else {
+                  originalFontStyle = selectedNode.style.fontStyle
+                  selectedNode.style.fontStyle = "italic"
+              }
+
+            }
+
+            let originalTextDecoration
+            const textDecorationButton = this.create("button/underline", textManipulationOptions)
+            textDecorationButton.onclick = () => {
+
+              if (selectedNode.style.textDecoration === "underline") {
+                if (originalTextDecoration) {
+                    selectedNode.style.textDecoration = originalTextDecoration
+                } else {
+                    selectedNode.style.textDecoration = null
+                }
+
+              } else {
+                  originalTextDecoration = selectedNode.style.textDecoration
+                  selectedNode.style.textDecoration = "underline"
+              }
+
+            }
+
+            const fontSizeButton = this.create("button/font-size", textManipulationOptions)
+            fontSizeButton.onclick = () => {
+              const prompt = window.prompt("Gebe deine Schriftgröße ein:")
+              selectedNode.style.fontSize = prompt
+            }
+
+            const fontColorButton = this.create("button/font-color", textManipulationOptions)
+            fontColorButton.onclick = () => {
+              const prompt = window.prompt("Gebe deine Schriftfarbe ein: (text, hex, rgb, rgba)")
+              selectedNode.style.color = prompt
+            }
+
+            const backgroundColorButton = this.create("button/background-color", textManipulationOptions)
+            backgroundColorButton.onclick = () => {
+              const prompt = window.prompt("Gebe deinen Hintergrund Farbcode ein: (text, hex, rgb, rgba)")
+              selectedNode.style.backgroundColor = prompt
+            }
+
+            let originalUnorderedListInner
+            const unorderedListButton = this.create("button/unordered-list", textManipulationOptions)
+            unorderedListButton.onclick = () => {
+
+              const ul = document.createElement("ul")
+              const li = document.createElement("li")
+              ul.append(li)
+
+              if (selectedNode.firstChild.tagName === "UL") {
+                li.innerHTML = originalUnorderedListInner
+                selectedNode.firstChild.append(li)
+              } else {
+                originalUnorderedListInner = selectedNode.innerHTML
+                li.innerHTML = originalUnorderedListInner
+                selectedNode.innerHTML = ""
+                selectedNode.append(ul)
+              }
+
+            }
+
+            let originalOrderedListInner
+            const orderedListButton = this.create("button/ordered-list", textManipulationOptions)
+            orderedListButton.onclick = () => {
+
+              const ol = document.createElement("ol")
+              const li = document.createElement("li")
+              ol.append(li)
+
+              if (selectedNode.firstChild.tagName === "OL") {
+                li.innerHTML = originalOrderedListInner
+                selectedNode.firstChild.append(li)
+              } else {
+                originalOrderedListInner = selectedNode.innerHTML
+                li.innerHTML = originalOrderedListInner
+                selectedNode.innerHTML = ""
+                selectedNode.append(ol)
+              }
+
+
+            }
+
+
+
+
+
+            this.render("text/hr", "Anwendungen für die Sichtbarkeit", optionsContainer)
+            const visibilityOptions = this.create("div/flex-row", optionsContainer)
+
+            let originalOverflowY
+            const overflowYButton = this.create("button/overflow-y", visibilityOptions)
+            overflowYButton.onclick = () => {
+
+              if (selectedNode.style.overflowY === "auto") {
+                if (originalOverflowY) {
+                    selectedNode.style.overflowY = originalOverflowY
+                } else {
+                    selectedNode.style.overflowY = null
+                }
+
+              } else {
+                  originalOverflowY = selectedNode.style.overflowY
+                  selectedNode.style.overflowY = "auto"
+              }
+
+            }
+
+            let originalOverflowX
+            const overflowXButton = this.create("button/overflow-x", visibilityOptions)
+            overflowXButton.onclick = () => {
+
+              if (selectedNode.style.overflowX === "auto") {
+                if (originalOverflowX) {
+                    selectedNode.style.overflowX = originalOverflowX
+                } else {
+                    selectedNode.style.overflowX = null
+                }
+
+              } else {
+                  originalOverflowX = selectedNode.style.overflowX
+                  selectedNode.style.overflowX = "auto"
+              }
+
+            }
+
+            let originalDisplayNone
+            const toggleDisplayNoneButton = this.create("button/display-none", visibilityOptions)
+            toggleDisplayNoneButton.onclick = () => {
+
+              if (selectedNode.style.display === "none") {
+                if (originalDisplayNone) {
+                  selectedNode.style.display = originalDisplayNone
+                } else {
+                  selectedNode.style.display = null
+                }
+
+              } else {
+
+                originalDisplayNone = selectedNode.style.display
+                selectedNode.style.display = "none"
+
+              }
+
+            }
+
+            let originalVisibilityHidden
+            const toggleVisibilityHiddenButton = this.create("button/open-eye", visibilityOptions)
+            toggleVisibilityHiddenButton.onclick = () => {
+
+              if (selectedNode.style.visibility === "hidden") {
+                if (originalVisibilityHidden) {
+                  selectedNode.style.visibility = originalVisibilityHidden
+                } else {
+                  selectedNode.style.visibility = null
+                }
+
+              } else {
+
+                originalVisibilityHidden = selectedNode.style.visibility
+                selectedNode.style.visibility = "hidden"
+
+              }
+
+            }
+
+            const exactOpacityButton = this.create("button/opacity", visibilityOptions)
+            exactOpacityButton.onclick = () => {
+
+              const prompt = window.prompt("Geben die Sichtbarkeit in Prozent ein: (0-100)")
+
+              const opacity = parseInt(prompt)
+
+              if (opacity >= 0 && opacity <= 100) {
+                selectedNode.style.opacity = `${prompt / 100}`
+              }
+
+            }
+
+
+
+
+
+
+
+            this.render("text/hr", "Anwendungen für die Abstände", optionsContainer)
+            const spacingOptions = this.create("div/flex-row", optionsContainer)
+
+            let originalMargin
+            const toggleMarginButton = this.create("button/margin", spacingOptions)
+            toggleMarginButton.onclick = () => {
+
+              if (selectedNode.style.margin === "21px 34px") {
+                if (originalMargin) {
+                    selectedNode.style.margin = originalMargin
+                } else {
+                    selectedNode.style.margin = "0"
+                }
+
+              } else {
+                  originalMargin = selectedNode.style.margin
+                  selectedNode.style.margin = "21px 34px"
+              }
+
+            }
+
+            let originalMarginTop
+            const toggleMarginTopButton = this.create("button/margin-top", spacingOptions)
+            toggleMarginTopButton.onclick = () => {
+
+              if (selectedNode.style.marginTop === "21px") {
+                if (originalMarginTop) {
+                    selectedNode.style.marginTop = originalMarginTop
+                } else {
+                    selectedNode.style.marginTop = "0"
+                }
+
+              } else {
+                  originalMarginTop = selectedNode.style.marginTop
+                  selectedNode.style.marginTop = "21px"
+              }
+
+            }
+
+            let originalMarginRight
+            const toggleMarginRightButton = this.create("button/margin-right", spacingOptions)
+            toggleMarginRightButton.onclick = () => {
+
+              if (selectedNode.style.marginRight === "34px") {
+                if (originalMarginRight) {
+                    selectedNode.style.marginRight = originalMarginRight
+                } else {
+                    selectedNode.style.marginRight = "0"
+                }
+
+              } else {
+                  originalMarginRight = selectedNode.style.marginRight
+                  selectedNode.style.marginRight = "34px"
+              }
+
+            }
+
+            let originalMarginBottom
+            const toggleMarginBottomButton = this.create("button/margin-bottom", spacingOptions)
+            toggleMarginBottomButton.onclick = () => {
+
+              if (selectedNode.style.marginBottom === "21px") {
+                if (originalMarginBottom) {
+                    selectedNode.style.marginBottom = originalMarginBottom
+                } else {
+                    selectedNode.style.marginBottom = "0"
+                }
+
+              } else {
+                  originalMarginBottom = selectedNode.style.marginBottom
+                  selectedNode.style.marginBottom = "21px"
+              }
+
+            }
+
+            let originalMarginLeft
+            const toggleMarginLeftButton = this.create("button/margin-left", spacingOptions)
+            toggleMarginLeftButton.onclick = () => {
+
+              if (selectedNode.style.marginLeft === "34px") {
+                if (originalMarginLeft) {
+                    selectedNode.style.marginLeft = originalMarginLeft
+                } else {
+                    selectedNode.style.marginLeft = "0"
+                }
+
+              } else {
+                  originalMarginLeft = selectedNode.style.marginLeft
+                  selectedNode.style.marginLeft = "34px"
+              }
+
+            }
+
+            const exactMarginButton = this.create("button/margin-x", spacingOptions)
+            exactMarginButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Außenabstand ein: (oben rechts unten links) oder (oben-unten rechts-links) oder (oben-unten-rechts-links)")
+              selectedNode.style.margin = prompt
+            }
+
+            const exactMarginTopButton = this.create("button/margin-top-x", spacingOptions)
+            exactMarginTopButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Außenabstand nach oben ein:")
+              selectedNode.style.marginTop = prompt
+            }
+
+            const exactMarginRightButton = this.create("button/margin-right-x", spacingOptions)
+            exactMarginRightButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Außenabstand nach rechts ein:")
+              selectedNode.style.marginRight = prompt
+            }
+
+            const exactMarginBottomButton = this.create("button/margin-bottom-x", spacingOptions)
+            exactMarginBottomButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Außenabstand nach unten ein:")
+              selectedNode.style.marginBottom = prompt
+            }
+
+            const exactMarginLeftButton = this.create("button/margin-left-x", spacingOptions)
+            exactMarginLeftButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Außenabstand nach links ein:")
+              selectedNode.style.marginLeft = prompt
+            }
+
+            let originalPadding
+            const togglePaddingButton = this.create("button/padding", spacingOptions)
+            togglePaddingButton.onclick = () => {
+              if (selectedNode.style.padding === "21px 34px") {
+                if (originalPadding) {
+                    selectedNode.style.padding = originalPadding
+                } else {
+                    selectedNode.style.padding = "0"
+                }
+
+              } else {
+                  originalPadding = selectedNode.style.padding
+                  selectedNode.style.padding = "21px 34px"
+              }
+
+            }
+
+            let originalPaddingTop
+            const togglePaddingTopButton = this.create("button/padding-top", spacingOptions)
+            togglePaddingTopButton.onclick = () => {
+
+              if (selectedNode.style.paddingTop === "21px") {
+                if (originalPaddingTop) {
+                    selectedNode.style.paddingTop = originalPaddingTop
+                } else {
+                    selectedNode.style.paddingTop = "0"
+                }
+
+              } else {
+                  originalPaddingTop = selectedNode.style.paddingTop
+                  selectedNode.style.paddingTop = "21px"
+              }
+
+            }
+
+            let originalPaddingRight
+            const togglePaddingRightButton = this.create("button/padding-right", spacingOptions)
+            togglePaddingRightButton.onclick = () => {
+              if (selectedNode.style.paddingRight === "34px") {
+                if (originalPaddingRight) {
+                    selectedNode.style.paddingRight = originalPaddingRight
+                } else {
+                    selectedNode.style.paddingRight = "0"
+                }
+
+              } else {
+                  originalPaddingRight = selectedNode.style.paddingRight
+                  selectedNode.style.paddingRight = "34px"
+              }
+
+            }
+
+            let originalPaddingBottom
+            const togglePaddingBottomButton = this.create("button/padding-bottom", spacingOptions)
+            togglePaddingBottomButton.onclick = () => {
+
+              if (selectedNode.style.paddingBottom === "21px") {
+                if (originalPaddingBottom) {
+                    selectedNode.style.paddingBottom = originalPaddingBottom
+                } else {
+                    selectedNode.style.paddingBottom = "0"
+                }
+
+              } else {
+                  originalPaddingBottom = selectedNode.style.paddingBottom
+                  selectedNode.style.paddingBottom = "21px"
+              }
+
+
+            }
+
+            let originalPaddingLeft
+            const togglePaddingLeftButton = this.create("button/padding-left", spacingOptions)
+            togglePaddingLeftButton.onclick = () => {
+
+              if (selectedNode.style.paddingLeft === "34px") {
+                if (originalPaddingLeft) {
+                    selectedNode.style.paddingLeft = originalPaddingLeft
+                } else {
+                    selectedNode.style.paddingLeft = "0"
+                }
+
+              } else {
+                  originalPaddingLeft = selectedNode.style.paddingLeft
+                  selectedNode.style.paddingLeft = "34px"
+              }
+
+            }
+
+            const exactPaddingButton = this.create("button/padding-x", spacingOptions)
+            exactPaddingButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Innenabstand ein: (oben rechts unten links) oder (oben-unten rechts-links) oder (oben-unten-rechts-links)")
+              selectedNode.style.padding = prompt
+            }
+
+            const exactPaddingTopButton = this.create("button/padding-top-x", spacingOptions)
+            exactPaddingTopButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Innenabstand nach oben ein:")
+              selectedNode.style.paddingTop = prompt
+            }
+
+            const exactPaddingRightButton = this.create("button/padding-right-x", spacingOptions)
+            exactPaddingRightButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Innenabstand nach rechts ein:")
+              selectedNode.style.paddingRight = prompt
+            }
+
+            const exactPaddingBottomButton = this.create("button/padding-bottom-x", spacingOptions)
+            exactPaddingBottomButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Innenabstand nach unten ein:")
+              selectedNode.style.paddingBottom = prompt
+            }
+
+            const exactPaddingLeftButton = this.create("button/padding-left-x", spacingOptions)
+            exactPaddingLeftButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Innenabstand nach links ein:")
+              selectedNode.style.paddingLeft = prompt
+            }
+
+
+
+
+
+
+            this.render("text/hr", "Anwendungen für die Grenzlinien", optionsContainer)
+            const borderOptions = this.create("div/flex-row", optionsContainer)
+
+            let originalBorder
+            const toggleBorderButton = this.create("button/border", borderOptions)
+            toggleBorderButton.onclick = () => {
+              if (selectedNode.style.border === "1px solid black") {
+                if (originalBorder) {
+                    selectedNode.style.border = originalBorder
+                } else {
+                    selectedNode.style.border = null
+                }
+
+              } else {
+                  originalBorder = selectedNode.style.border
+                  selectedNode.style.border = "1px solid black"
+              }
+
+            }
+
+            let originalBorderTop
+            const toggleBorderTopButton = this.create("button/border-top", borderOptions)
+            toggleBorderTopButton.onclick = () => {
+
+              if (selectedNode.style.borderTop === "1px solid black") {
+                if (originalBorderTop) {
+                    selectedNode.style.borderTop = originalBorderTop
+                } else {
+                    selectedNode.style.borderTop = null
+                }
+
+              } else {
+                  originalBorderTop = selectedNode.style.borderTop
+                  selectedNode.style.borderTop = "1px solid black"
+              }
+
+            }
+
+            let originalBorderRight
+            const toggleBorderRightButton = this.create("button/border-right", borderOptions)
+            toggleBorderRightButton.onclick = () => {
+              if (selectedNode.style.borderRight === "1px solid black") {
+                if (originalBorderRight) {
+                    selectedNode.style.borderRight = originalBorderRight
+                } else {
+                    selectedNode.style.borderRight = null
+                }
+
+              } else {
+                  originalBorderRight = selectedNode.style.borderRight
+                  selectedNode.style.borderRight = "1px solid black"
+              }
+
+            }
+
+            let originalBorderBottom
+            const toggleBorderBottomButton = this.create("button/border-bottom", borderOptions)
+            toggleBorderBottomButton.onclick = () => {
+
+              if (selectedNode.style.borderBottom === "1px solid black") {
+                if (originalBorderBottom) {
+                    selectedNode.style.borderBottom = originalBorderBottom
+                } else {
+                    selectedNode.style.borderBottom = null
+                }
+
+              } else {
+                  originalBorderBottom = selectedNode.style.borderBottom
+                  selectedNode.style.borderBottom = "1px solid black"
+              }
+
+
+            }
+
+            let originalBorderLeft
+            const toggleBorderLeftButton = this.create("button/border-left", borderOptions)
+            toggleBorderLeftButton.onclick = () => {
+
+              if (selectedNode.style.borderLeft === "1px solid black") {
+                if (originalBorderLeft) {
+                    selectedNode.style.borderLeft = originalBorderLeft
+                } else {
+                    selectedNode.style.borderLeft = null
+                }
+
+              } else {
+                  originalBorderLeft = selectedNode.style.borderLeft
+                  selectedNode.style.borderLeft = "1px solid black"
+              }
+
+            }
+
+            const exactBorderButton = this.create("button/border-x", borderOptions)
+            exactBorderButton.onclick = () => {
+              const prompt = window.prompt("Gebe die exakten Grenzlinien ein: (width style color)")
+              selectedNode.style.border = prompt
+            }
+
+            const exactBorderTopButton = this.create("button/border-top-x", borderOptions)
+            exactBorderTopButton.onclick = () => {
+              const prompt = window.prompt("Gebe die exakten Grenzlinien nach oben ein: (width style color)")
+              selectedNode.style.borderTop = prompt
+            }
+
+            const exactBorderRightButton = this.create("button/border-right-x", borderOptions)
+            exactBorderRightButton.onclick = () => {
+              const prompt = window.prompt("Gebe die exakten Grenzlinien nach rechts ein: (width style color)")
+              selectedNode.style.borderRight = prompt
+            }
+
+            const exactBorderBottomButton = this.create("button/border-bottom-x", borderOptions)
+            exactBorderBottomButton.onclick = () => {
+              const prompt = window.prompt("Gebe die exakten Grenzlinien nach unten ein: (width style color)")
+              selectedNode.style.borderBottom = prompt
+            }
+
+            const exactBorderLeftButton = this.create("button/border-left-x", borderOptions)
+            exactBorderLeftButton.onclick = () => {
+              const prompt = window.prompt("Gebe die exakten Grenzlinien nach links ein: (width style color)")
+              selectedNode.style.borderLeft = prompt
+            }
+
+            let originalBorderRadius
+            const toggleBorderRadiusButton = this.create("button/border-radius", borderOptions)
+            toggleBorderRadiusButton.onclick = () => {
+              if (selectedNode.style.borderRadius === "3px") {
+                if (originalBorderRadius) {
+                    selectedNode.style.borderRadius = originalBorderRadius
+                } else {
+                    selectedNode.style.borderRadius = null
+                }
+
+              } else {
+                  originalBorderRadius = selectedNode.style.borderRadius
+                  selectedNode.style.borderRadius = "3px"
+              }
+
+            }
+
+            let originalBorderTopLeftRadius
+            const toggleBorderTopLeftRadiusButton = this.create("button/border-top-left-radius", borderOptions)
+            toggleBorderTopLeftRadiusButton.onclick = () => {
+
+              if (selectedNode.style.borderTopLeftRadius === "3px") {
+                if (originalBorderTopLeftRadius) {
+                    selectedNode.style.borderTopLeftRadius = originalBorderTopLeftRadius
+                } else {
+                    selectedNode.style.borderTopLeftRadius = null
+                }
+
+              } else {
+                  originalBorderTopLeftRadius = selectedNode.style.borderTopLeftRadius
+                  selectedNode.style.borderTopLeftRadius = "3px"
+              }
+
+            }
+
+            let originalBorderTopRightRadius
+            const toggleBorderTopRightRadiusButton = this.create("button/border-top-right-radius", borderOptions)
+            toggleBorderTopRightRadiusButton.onclick = () => {
+              if (selectedNode.style.borderTopRightRadius === "3px") {
+                if (originalBorderTopRightRadius) {
+                    selectedNode.style.borderTopRightRadius = originalBorderTopRightRadius
+                } else {
+                    selectedNode.style.borderTopRightRadius = null
+                }
+
+              } else {
+                  originalBorderTopRightRadius = selectedNode.style.borderTopRightRadius
+                  selectedNode.style.borderTopRightRadius = "3px"
+              }
+
+            }
+
+            let originalBorderBottomRightRadius
+            const toggleBorderBottomRightRadiusButton = this.create("button/border-bottom-right-radius", borderOptions)
+            toggleBorderBottomRightRadiusButton.onclick = () => {
+
+              if (selectedNode.style.borderBottomRightRadius === "3px") {
+                if (originalBorderBottomRightRadius) {
+                    selectedNode.style.borderBottomRightRadius = originalBorderBottomRightRadius
+                } else {
+                    selectedNode.style.borderBottomRightRadius = null
+                }
+
+              } else {
+                  originalBorderBottomRightRadius = selectedNode.style.borderBottomRightRadius
+                  selectedNode.style.borderBottomRightRadius = "3px"
+              }
+
+
+            }
+
+            let originalBorderBottomLeftRadius
+            const toggleBorderBottomLeftRadiusButton = this.create("button/border-bottom-left-radius", borderOptions)
+            toggleBorderBottomLeftRadiusButton.onclick = () => {
+
+              if (selectedNode.style.borderBottomLeftRadius === "3px") {
+                if (originalBorderBottomLeftRadius) {
+                    selectedNode.style.borderBottomLeftRadius = originalBorderBottomLeftRadius
+                } else {
+                    selectedNode.style.borderBottomLeftRadius = null
+                }
+
+              } else {
+                  originalBorderBottomLeftRadius = selectedNode.style.borderBottomLeftRadius
+                  selectedNode.style.borderBottomLeftRadius = "3px"
+              }
+
+            }
+
+            const exactBorderRadiusButton = this.create("button/border-radius-x", borderOptions)
+            exactBorderRadiusButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Radius, für alle Ecken, ein:")
+              selectedNode.style.borderRadius = prompt
+            }
+
+            const exactBorderTopLeftRadiusButton = this.create("button/border-top-left-radius-x", borderOptions)
+            exactBorderTopLeftRadiusButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Radius, für die Ecken Oben-Links, ein:")
+              selectedNode.style.borderTopLeftRadius = prompt
+            }
+
+            const exactBorderTopRightRadiusButton = this.create("button/border-top-right-radius-x", borderOptions)
+            exactBorderTopRightRadiusButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Radius, für die Ecken Oben-Rechts, ein:")
+              selectedNode.style.borderTopRightRadius = prompt
+            }
+
+            const exactBorderBottomRightRadiusButton = this.create("button/border-bottom-right-radius-x", borderOptions)
+            exactBorderBottomRightRadiusButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Radius, für die Ecken Unten-Rechts, ein:")
+              selectedNode.style.borderBottomRightRadius = prompt
+            }
+
+            const exactBorderBottomLeftRadiusButton = this.create("button/border-bottom-left-radius-x", borderOptions)
+            exactBorderBottomLeftRadiusButton.onclick = () => {
+              const prompt = window.prompt("Gebe den exakten Radius, für die Ecken Unten-Links, ein:")
+              selectedNode.style.borderBottomLeftRadius = prompt
+            }
+
+            let originalBorderNone
+            const toggleBorderNoneButton = this.create("button/border-none", borderOptions)
+            toggleBorderNoneButton.onclick = () => {
+              console.log(originalBorderNone);
+              if (selectedNode.style.border === "none") {
+                if (originalBorderNone) {
+                    selectedNode.style.border = originalBorderNone
+                } else {
+                    selectedNode.style.border = null
+                }
+
+              } else {
+                  originalBorderNone = selectedNode.style.border
+                  selectedNode.style.border = "none"
+              }
+
+            }
+
+            let originalBoxStyle
+            const boxButton = this.create("button/box", borderOptions)
+            boxButton.onclick = () => {
+
+              if (selectedNode.style.boxShadow === "rgba(0, 0, 0, 0.13) 0px 1px 3px") {
+                if (originalBoxStyle) {
+                    selectedNode.setAttribute("style", originalBoxStyle)
+                } else {
+                    selectedNode.removeAttribute("style")
+                }
+
+              } else {
+                  originalBoxStyle = selectedNode.getAttribute("style")
+                  selectedNode.style.margin = "21px 34px"
+                  selectedNode.style.padding = "8px"
+                  selectedNode.style.borderRadius = "3px"
+                  selectedNode.style.boxShadow = "rgba(0, 0, 0, 0.13) 0px 1px 3px"
+              }
+
+            }
+
+            const exactBoxShadowButton = this.create("button/box-shadow", borderOptions)
+            exactBoxShadowButton.onclick = () => {
+              const prompt = window.prompt("Geben den exakten Schatten ein:")
+              selectedNode.style.boxShadow = prompt
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            this.render("text/hr", "Anwendungen für Media Queries", optionsContainer)
+            const mediaQueriesOptions = this.create("div/flex-row", optionsContainer)
+
+            const mediaQueriesOverviewButton = this.create("button/media-queries-overview", mediaQueriesOptions)
+            mediaQueriesOverviewButton.onclick = async () => {
+
+              this.overlay("toolbox", queriesOverlay => {
+                this.add("button/remove-overlay", queriesOverlay)
+
+                const content = this.create("div/scrollable", queriesOverlay)
+
+
+                document.head.querySelectorAll("style").forEach((style, i) => {
+
+                  if (style.id === "large-device") this.render("text/hr", "Für Bildschirme breiter als 1025 Pixel", content)
+                  if (style.id === "middle-device") this.render("text/hr", "Für Bildschirme zwischen 601 und 1024 Pixel", content)
+                  if (style.id === "small-device") this.render("text/hr", "Für Bildschirme kleiner als 600 Pixel", content)
+                  if (style.id === "printer-device") this.render("text/hr", "Für Drucker", content)
+
+                  const queries = style.textContent.split("@")
+                  for (var i = 0; i < queries.length; i++) {
+                    const query = queries[i]
+
+                    if (query.trim() === "") continue
+
+                    const queryButton = this.create("button/left-right", content)
+                    queryButton.left.innerHTML = this.convert("query/selector", query)
+                    queryButton.right.innerHTML = `Media Query ${i}`
+
+                    queryButton.onclick = () => {
+                      this.overlay("toolbox", queryOverlay => {
+                        this.add("button/remove-overlay", queryOverlay)
+
+                        const buttons = this.create("div/scrollable", queryOverlay)
+
+                        const currentSelector = this.convert("query/selector", query)
+                        const cssSplit = this.convert("query/css", query).split(" ")
+                        const currentCss = cssSplit[0] + " " + cssSplit[1]
+
+                        const info = this.create("header/info", queryOverlay)
+                        info.innerHTML = currentSelector
+
+                        {
+                          const button = this.create("button/left-right", buttons)
+                          button.left.innerHTML = ".selector"
+                          button.right.innerHTML = "Ziel Element ändern"
+                          button.onclick = () => {
+                            this.overlay("toolbox", selectorOverlay => {
+                              this.add("button/remove-overlay", selectorOverlay)
+
+                              const info = this.create("header/info", selectorOverlay)
+                              info.innerHTML = `${currentSelector}.selector`
+
+                              const funnel = this.create("div/scrollable", selectorOverlay)
+
+                              const selectorField = this.create("field/textarea", funnel)
+                              selectorField.label.innerHTML = "CSS Selektor"
+                              selectorField.input.style.fontSize = "13px"
+                              selectorField.input.value = currentSelector
+                              this.verify("input/value", selectorField.input)
+
+                              const submit = this.create("button/action", funnel)
+                              submit.innerHTML = "Selektor jetzt speichern"
+                              submit.onclick = () => {
+
+                                try {
+
+                                  const newSelector = selectorField.input.value
+                                  style.textContent = style.textContent.replace(currentSelector, newSelector)
+                                  window.alert("Selektor erfolgreich gespeichert.")
+
+                                  this.remove("overlay", queriesOverlay)
+                                  this.remove("overlay", queryOverlay)
+                                  this.remove("overlay", selectorOverlay)
+
+                                } catch (error) {
+                                  console.error(error)
+                                  window.alert("Fehler.. Bitte wiederholen.")
+                                }
+
+                              }
+
+
+
+                            })
+                          }
+                        }
+
+                        {
+                          const button = this.create("button/left-right", buttons)
+                          button.left.innerHTML = ".css"
+                          button.right.innerHTML = "Style anpassen"
+                          button.onclick = () => {
+                            this.overlay("toolbox", cssOverlay => {
+                              this.add("button/remove-overlay", cssOverlay)
+
+                              const info = this.create("header/info", cssOverlay)
+                              info.innerHTML = `${currentSelector}.css`
+
+                              const funnel = this.create("div/scrollable", cssOverlay)
+
+                              const cssField = this.create("field/textarea", funnel)
+                              cssField.label.innerHTML = "CSS Regel"
+                              cssField.input.style.fontSize = "13px"
+                              cssField.input.value = currentCss
+                              this.verify("input/value", cssField.input)
+
+                              const submit = this.create("button/action", funnel)
+                              submit.innerHTML = "CSS jetzt speichern"
+                              submit.onclick = () => {
+
+                                try {
+
+                                  const newCss = cssField.input.value
+                                  style.textContent = style.textContent.replace(currentCss, newCss)
+                                  window.alert("CSS erfolgreich gespeichert.")
+
+                                  this.remove("overlay", queriesOverlay)
+                                  this.remove("overlay", queryOverlay)
+                                  this.remove("overlay", cssOverlay)
+
+                                } catch (error) {
+                                  console.error(error)
+                                  window.alert("Fehler.. Bitte wiederholen.")
+                                }
+
+                              }
+
+
+
+                            })
+                          }
+                        }
+
+                        {
+                          const button = this.create("button/left-right", buttons)
+                          button.left.innerHTML = ".remove"
+                          button.right.innerHTML = "Media Query entfernen"
+                          button.onclick = () => {
+                            try {
+                              style.textContent = style.textContent.replace(`@${query}`, "")
+                              this.remove("overlay", queriesOverlay)
+                              this.remove("overlay", queryOverlay)
+                              window.alert("Media Query erfolgreich entfernt.")
+                            } catch (error) {
+                              console.error(error)
+                              window.alert("Fehler.. Bitte wiederholen.")
+                            }
+                          }
+                        }
+
+                      })
+
+                    }
+
+                  }
+
+                })
+
+              })
+
+
+
+            }
+
+            const largeDeviceButton = this.create("button/large-device", mediaQueriesOptions)
+            largeDeviceButton.onclick = async () => {
+
+              const query = "(min-width: 1025px)"
+
+              const prompt = window.prompt("Gebe die CSS Eigenschaft, nur für Bildschirme größer als 1025px, ein:")
+
+              if (prompt) {
+
+                let largeStyle = document.querySelector("style[id='large-device']")
+
+                if (largeStyle === null) {
+                  const style = document.createElement("style")
+                  style.type = "text/css"
+                  style.id = "large-device"
+                  document.head.appendChild(style)
+                }
+
+                largeStyle = document.querySelector("style[id='large-device']")
+
+                const selector = await this.convert("element/selector", selectedNode)
+
+                largeStyle.append(`\n@media only screen and ${query} {${selector}{${prompt} !important;}}`)
+
+              }
+
+
+            }
+
+            const middleDeviceButton = this.create("button/middle-device", mediaQueriesOptions)
+            middleDeviceButton.onclick = async () => {
+
+              const query = "(min-width: 601px) and (max-width: 1024px)"
+
+              const prompt = window.prompt("Gebe die CSS Eigenschaft, nur für Bildschirme zwischen 601px und 1024px, ein:")
+
+              if (prompt) {
+
+                let middleStyle = document.querySelector("style[id='middle-device']")
+
+                if (middleStyle === null) {
+                  const style = document.createElement("style")
+                  style.type = "text/css"
+                  style.id = "middle-device"
+                  document.head.appendChild(style)
+                }
+
+                middleStyle = document.querySelector("style[id='middle-device']")
+
+                const selector = await this.convert("element/selector", selectedNode)
+
+                middleStyle.append(`\n@media only screen and ${query} {${selector}{${prompt} !important;}}`)
+
+              }
+
+            }
+
+            const smallDeviceButton = this.create("button/small-device", mediaQueriesOptions)
+            smallDeviceButton.onclick = async () => {
+
+              const query = "(max-width: 600px)"
+
+              const prompt = window.prompt("Gebe die CSS Eigenschaft, nur für Bildschirme kleiner als 600px, ein:")
+
+              if (prompt) {
+
+                let smallStyle = document.querySelector("style[id='small-device']")
+
+                if (smallStyle === null) {
+                  const style = document.createElement("style")
+                  style.type = "text/css"
+                  style.id = "small-device"
+                  document.head.appendChild(style)
+                }
+
+                smallStyle = document.querySelector("style[id='small-device']")
+
+                const selector = await this.convert("element/selector", selectedNode)
+
+                smallStyle.append(`\n@media only screen and ${query} {${selector}{${prompt} !important;}}`)
+
+              }
+
+
+            }
+
+            const printerDeviceButton = this.create("button/printer-device", mediaQueriesOptions)
+            printerDeviceButton.onclick = async () => {
+
+              const prompt = window.prompt("Gebe die CSS Eigenschaft, nur für Drucker, ein:")
+
+              if (prompt) {
+
+                let printerStyle = document.querySelector("style[id='printer-device']")
+
+                if (printerStyle === null) {
+                  const style = document.createElement("style")
+                  style.type = "text/css"
+                  style.id = "printer-device"
+                  document.head.appendChild(style)
+                }
+
+                printerStyle = document.querySelector("style[id='printer-device']")
+
+                const selector = await this.convert("element/selector", selectedNode)
+
+                printerStyle.append(`\n@media print {${selector}{${prompt} !important;}}`)
+
+              }
+
+
+            }
+
+
+
+
+
+
+            this.render("text/hr", "Anwendungen für schnelle Korrekturen", optionsContainer)
+            const optimizeWorkOptions = this.create("div/flex-row", optionsContainer)
+
+            const insertAfterButton = this.create("button/insert-after", optimizeWorkOptions)
+            insertAfterButton.onclick = () => {
+
+              if (selectedNode) {
+                if (rememberCuttedNodes.length > 0) {
+
+                  const { node } = rememberCuttedNodes.pop()
+                  selectedNode.after(node)
+
+                } else {
+
+                  this.convert("clipboard/text").then(text => {
+                    const node = this.convert("text/node", text)
+                    selectedNode.after(node)
+                  })
+
+                }
+              }
+
+            }
+
+            const insertBeforeButton = this.create("button/insert-before", optimizeWorkOptions)
+            insertBeforeButton.onclick = () => {
+
+              if (selectedNode) {
+                if (rememberCuttedNodes.length > 0) {
+                  const { node } = rememberCuttedNodes.pop()
+                  selectedNode.before(node)
+                } else {
+
+                  this.convert("clipboard/text").then(text => {
+                    const node = this.convert("text/node", text)
+                    selectedNode.before(node)
+                  })
+
+                }
+              }
+
+            }
+
+            const insertLeftButton = this.create("button/insert-left", optimizeWorkOptions)
+            insertLeftButton.onclick = () => {
+
+              if (selectedNode) {
+
+                if (rememberCuttedNodes.length > 0) {
+
+                  const { node, parent, index } = rememberCuttedNodes.pop()
+
+                  if (selectedNode.firstChild) {
+                    selectedNode.insertBefore(node, selectedNode.firstChild)
+                  } else {
+                    selectedNode.appendChild(node)
+                  }
+
+                } else {
+
+                  this.convert("clipboard/text").then(text => {
+                    const node = this.convert("text/node", text)
+
+                    if (selectedNode.firstChild) {
+                      selectedNode.insertBefore(node, selectedNode.firstChild)
+                    } else {
+                      selectedNode.appendChild(node)
+                    }
+
+                  })
+
+                }
+              }
+
+            }
+
+            const insertRightButton = this.create("button/insert-right", optimizeWorkOptions)
+            insertRightButton.onclick = () => {
+
+              if (selectedNode) {
+
+                if (rememberCuttedNodes.length > 0) {
+
+                  const { node, parent, index } = rememberCuttedNodes.pop()
+                  selectedNode.appendChild(node)
+
+                } else {
+
+                  this.convert("clipboard/text").then(text => {
+                    const node = this.convert("text/node", text)
+                    selectedNode.appendChild(node)
+                  })
+
+                }
+              }
+
+            }
+
+            let rememberCuttedNodes = []
+            const cutOuterHtmlButton = this.create("button/cut-html", optimizeWorkOptions)
+            cutOuterHtmlButton.onclick = () => {
+              if (selectedNode) {
+                rememberCuttedNodes.push({ node: selectedNode, parent: selectedNode.parentElement, index: this.convert("node/index", selectedNode)})
+                selectedNode.remove()
+              }
+            }
+
+            const copyOuterHtmlButton = this.create("button/copy-html", optimizeWorkOptions)
+            copyOuterHtmlButton.onclick = () => {
+
+              this.convert("text/clipboard", selectedNode.outerHTML).then(() => {
+                window.alert("Element wurde erfolgreich in die Zwischenablage gespeichert.")
+              })
+
+            }
+
+            const pasteOuterHtmlButton = this.create("button/paste-html", optimizeWorkOptions)
+            pasteOuterHtmlButton.onclick = () => {
+
+              this.convert("clipboard/text").then(text => {
+                const node = this.convert("text/node", text)
+                selectedNode.append(node)
+              })
+
+            }
+
+            const copyStyleButton = this.create("button/copy-style", optimizeWorkOptions)
+            copyStyleButton.onclick = () => {
+
+              if (selectedNode.hasAttribute("style")) {
+                this.convert("text/clipboard", selectedNode.getAttribute("style")).then(() => {
+                  window.alert("Style wurde erfolgreich in die Zwischenablage gespeichert.")
+                })
+              }
+
+            }
+
+            const pasteStyleButton = this.create("button/paste-style", optimizeWorkOptions)
+            pasteStyleButton.onclick = () => {
+
+              this.convert("clipboard/text").then(text => {
+                selectedNode.setAttribute("style", text)
+              })
+
+            }
+
+            let originalRemoveStyle
+            const removeStyleButton = this.create("button/remove-style", optimizeWorkOptions)
+            removeStyleButton.onclick = () => {
+
+              if (!selectedNode.hasAttribute("style")) {
+                if (originalRemoveStyle) {
+                  selectedNode.setAttribute("style", originalRemoveStyle)
+                } else {
+                  selectedNode.removeAttribute("style")
+                }
+              } else {
+                  originalRemoveStyle = selectedNode.getAttribute("style")
+                  selectedNode.removeAttribute("style")
+              }
+
+            }
+
+            let originalRemoveInner
+            const removeInnerButton = this.create("button/remove-inner", optimizeWorkOptions)
+            removeInnerButton.onclick = () => {
+
+              if (this.verifyIs("text/empty", selectedNode.innerHTML)) {
+                if (originalRemoveInner) {
+                  selectedNode.innerHTML = originalRemoveInner
+                } else {
+                  selectedNode.innerHTML = ""
+                }
+              } else {
+                  originalRemoveInner = selectedNode.innerHTML
+                  selectedNode.innerHTML = ""
+              }
+
+            }
+
+            let originalRemoveInnerWithText
+            const removeInnerWithTextButton = this.create("button/remove-inner-with-text", optimizeWorkOptions)
+            removeInnerWithTextButton.onclick = () => {
+              const prompt = window.prompt("Ersetze den Inhalt deines Elements mit folgendem Text:")
+              selectedNode.innerHTML = prompt
+            }
+
+            let originalRemoveNode
+            let originalParentNode
+            let originalIndex
+            const removeNodeButton = this.create("button/remove-image", optimizeWorkOptions)
+            removeNodeButton.onclick = () => {
+
+              if (originalRemoveNode) {
+
+                if (originalParentNode) {
+                  originalParentNode.insertBefore(originalRemoveNode, originalParentNode.childNodes[originalIndex])
+                }
+
+                selectedNode = originalRemoveNode
+                originalRemoveNode = undefined
+                originalParentNode = undefined
+                originalIndex = undefined
+
+              } else {
+                originalParentNode = selectedNode.parentElement
+                originalIndex = Array.from(originalParentNode.childNodes).indexOf(selectedNode)
+                originalRemoveNode = selectedNode.cloneNode(true)
+                selectedNode.remove()
+              }
+
+            }
+
+            const idButton = this.create("button/id", optimizeWorkOptions)
+            idButton.onclick = () => {
+              const prompt = window.prompt("Gebe deinem Element einen eindeutigen Namen:")
+
+              const found = document.getElementById(prompt)
+
+              if (found === null) {
+                selectedNode.setAttribute("id", prompt)
+              } else {
+                window.alert("Diese Id existiert bereits.")
+              }
+
+            }
+
+            const addClassButton = this.create("button/class", optimizeWorkOptions)
+            addClassButton.onclick = () => {
+              const prompt = window.prompt("Füge deinem Element einen Klassen Namen hinzu:")
+              try {
+                selectedNode.classList.add(prompt)
+              } catch (error) {
+                window.alert("Dieser Name ist ungültig.")
+              }
+            }
+
+            const setAttributeButton = this.create("button/set-attribute", optimizeWorkOptions)
+            setAttributeButton.onclick = () => {
+              const prompt = window.prompt("Markiere dein Element mit einem Attribut: (attribute=value)")
+
+              try {
+                const promptSplit = prompt.split("=")
+                if (promptSplit.length === 2) {
+                  selectedNode.setAttribute(promptSplit[0], promptSplit[1])
+                }
+              } catch (error) {
+                window.alert("Du musst ein 'Gleichheitszeichen =' nutzen, um dein Attribut vom Wert zu trennen.")
+              }
+
+            }
+
+
+
+
+
+
+
+            this.render("text/hr", "Anwendungen für Code und Farben wählen", optionsContainer)
+            const colorPickerOptions = this.create("div/flex-row", optionsContainer)
+            colorPickerOptions.style.height = "144px"
+            colorPickerOptions.style.overflow = "auto"
+
+            for (const [key, value] of Object.entries(this.colors)) {
+
+              if (typeof value === "string") {
+                if (!this.verifyIs("text/empty", value)) {
+                  const color = this.create("button/key-value-color", {key, value})
+                  color.onclick = () => {
+                    this.convert("text/clipboard", value).then(() => {
+                      window.alert("Code wurde erfolgreich in die Zwischenablage gespeichert.")
+                    })
+                  }
+                  colorPickerOptions.append(color)
+                }
+              }
+
+              if (typeof value === "object") {
+
+                this.render("text/hr", key, colorPickerOptions)
+
+                for (const [key, val] of Object.entries(value)) {
+
+                  if (typeof val === "string") {
+                    if (!this.verifyIs("text/empty", val)) {
+                      const color = this.create("button/key-value-color", {key, value: val})
+                      color.onclick = () => {
+                        this.convert("text/clipboard", val).then(() => {
+                          window.alert("Code wurde erfolgreich in die Zwischenablage gespeichert.")
+                        })
+                      }
+                      colorPickerOptions.append(color)
+                    }
+                  }
+
+
+                }
+              }
+            }
+
+
+            this.render("text/hr", "Anwendungen für jedes Kind Element", optionsContainer)
+            const forEachChildrenOptions = this.create("div/flex-row", optionsContainer)
+
+            const fontSizeForEachChildButton = this.create("button/font-size", forEachChildrenOptions)
+            fontSizeForEachChildButton.onclick = () => {
+
+              const prompt = window.prompt("Gebe die Schriftgröße für jede Kind Element ein:")
+              for (var i = 0; i < selectedNode.children.length; i++) {
+                const child = selectedNode.children[i]
+                child.style.fontSize = prompt
+              }
+
+            }
+
+
+
+
+
+          })
+        }
+      }
+
+
+    }
+
     if (event === "script/submit-field-funnel-event") {
 
       const script = this.create(event)
@@ -1127,11 +4205,25 @@ export class Helper {
 
     }
 
-    if (event === "script/html-feedback-button") {
+    if (event === "script/html-creator") {
 
       const script = this.create(event)
 
       if (input !== undefined) {
+        document.querySelectorAll(`.${script.id}`).forEach(script => script.remove())
+        document.querySelectorAll(`#${script.id}`).forEach(script => script.remove())
+        input.append(script)
+      }
+
+      return script
+    }
+
+    if (event === "script/html-feedback") {
+
+      const script = this.create(event)
+
+      if (input !== undefined) {
+        document.querySelectorAll(`.${script.id}`).forEach(script => script.remove())
         document.querySelectorAll(`#${script.id}`).forEach(script => script.remove())
         input.append(script)
       }
@@ -1321,7 +4413,7 @@ export class Helper {
             const res = await this.verify("platform-name/exist-open", platformName)
 
             if (res.status === 200) {
-              window.alert("Plattform Name existiert bereits.")
+              window.alert("Plattform existiert bereits.")
               this.setNotValidStyle(platformNameField.input)
               throw new Error("platform exist")
             }
@@ -1329,13 +4421,10 @@ export class Helper {
 
             this.overlay("toolbox", async securityOverlay => {
 
-              const register = {}
-              register.url = "/register/platform/closed/"
-              register.platform = platformName
-              const res = await this.request("closed/json", register)
+              const res = await this.register("platform/expert/self", platformName)
 
               if (res.status === 200) {
-                alert("Plattform erfolgreich hinzugefügt..")
+                alert("Plattform erfolgreich gespeichert.")
                 window.location.reload()
               } else {
                 alert("Fehler.. Bitte wiederholen.")
@@ -1564,7 +4653,7 @@ export class Helper {
 
       button.onclick = () => window.history.back()
 
-      if (input) input.append(button)
+      input?.append(button)
       return button
     }
 
@@ -1740,58 +4829,66 @@ export class Helper {
 
     }
 
-    if (event === "button/html-feedback") {
+    if (event === "event/html-feedback") {
 
-      return new Promise(async(resolve, reject) => {
+      const button = document.querySelector(".html-feedback-button")
+      const counter = document.querySelector(".feedback-counter")
 
-        const feedbackButton = this.create("button/branch")
-        feedbackButton.classList.add("button")
-        feedbackButton.classList.add("html-feedback")
+      const res = this.get("feedback/length/location")
+
+      counter.innerHTML = "0"
+      if (res.status === 200) {
+        counter.innerHTML = res.response
+      }
+
+      button.onclick = () => {
+
+        this.overlay("toolbox", async overlay => {
+          const feedbackOverlay = overlay
+
+          this.headerPicker("removeOverlay", overlay)
+
+          const info = this.headerPicker("info", overlay)
+          info.append(this.convert("text/span", window.location.pathname))
+          info.append(this.convert("text/span", `.feedback`))
+
+          const content = this.headerPicker("scrollable", overlay)
+
+          const feedbackContainer = this.headerPicker("loading", content)
+          feedbackContainer.info.remove()
+
+          feedbackContainer.style.margin = "21px 34px"
+          feedbackContainer.style.overflowY = "auto"
+          feedbackContainer.style.overscrollBehavior = "none"
+          feedbackContainer.style.fontFamily = "monospace"
+          feedbackContainer.style.fontSize = "13px"
+          feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
 
 
-        // convert style
-        feedbackButton.style.position = "fixed"
-        feedbackButton.style.bottom = "0"
-        feedbackButton.style.right = "0"
-        feedbackButton.style.display = "flex"
-        feedbackButton.style.justifyContent = "center"
-        feedbackButton.style.alignItems = "center"
-        feedbackButton.style.boxShadow = this.colors.light.boxShadow
-        feedbackButton.style.border = this.colors.light.border
-        feedbackButton.style.backgroundColor = this.colors.light.foreground
-        feedbackButton.style.borderRadius = "50%"
-        feedbackButton.style.margin = "34px"
-        feedbackButton.style.padding = "8px"
-        feedbackButton.style.zIndex = "1"
-        feedbackButton.style.cursor = "pointer"
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            feedbackContainer.style.color = this.colors.dark.text
+          } else {
+            feedbackContainer.style.color = this.colors.light.text
+          }
 
 
-        const get = {}
-        get.url = "/get/feedback/location/"
-        get.type = "html-value-length"
-        const res = await this.request("location/json", get)
 
-        feedbackButton.counter.innerHTML = "0"
-        if (res.status === 200) {
-          feedbackButton.counter.innerHTML = res.response
-        }
 
-        feedbackButton.onclick = () => {
+          const res = await this.get("feedback/values/location")
 
-          this.overlay("toolbox", async overlay => {
-            const feedbackOverlay = overlay
+          if (res.status !== 200) {
+            feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
+          }
 
-            this.headerPicker("removeOverlay", overlay)
+          getFeedbackSuccess: if (res.status === 200) {
+            const feedback = JSON.parse(res.response)
 
-            const info = this.headerPicker("info", overlay)
-            info.append(this.convert("text/span", window.location.pathname))
-            info.append(this.convert("text/span", `.feedback`))
+            if (feedback.length === 0) {
+              feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
+              break getFeedbackSuccess
+            }
 
-            const content = this.headerPicker("scrollable", overlay)
-
-            const feedbackContainer = this.headerPicker("loading", content)
-            feedbackContainer.info.remove()
-
+            this.convert("element/reset", feedbackContainer)
             feedbackContainer.style.margin = "21px 34px"
             feedbackContainer.style.overflowY = "auto"
             feedbackContainer.style.overscrollBehavior = "none"
@@ -1799,219 +4896,163 @@ export class Helper {
             feedbackContainer.style.fontSize = "13px"
             feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
 
-
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
               feedbackContainer.style.color = this.colors.dark.text
             } else {
               feedbackContainer.style.color = this.colors.light.text
             }
 
-            const get = {}
-            get.url = "/get/feedback/location/"
-            get.type = "html-value"
-            // get.id = input.id
-            const res = await this.request("location/json", get)
+            for (let i = 0; i < feedback.length; i++) {
+              const value = feedback[i]
 
-            if (res.status !== 200) {
-              feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
-            }
+              // console.log(value);
 
-            getFeedbackSuccess: if (res.status === 200) {
-              const feedback = JSON.parse(res.response)
-              // console.log(feedback);
-
-              if (feedback.length === 0) {
-                feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
-                break getFeedbackSuccess
-              }
-
-              this.convert("element/reset", feedbackContainer)
-              feedbackContainer.style.margin = "21px 34px"
-              feedbackContainer.style.overflowY = "auto"
-              feedbackContainer.style.overscrollBehavior = "none"
-              feedbackContainer.style.fontFamily = "monospace"
-              feedbackContainer.style.fontSize = "13px"
-              feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
+              const div = document.createElement("div")
+              div.style.display = "flex"
+              div.style.justifyContent = "space-between"
+              div.style.alignItems = "center"
 
               if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                feedbackContainer.style.color = this.colors.dark.text
-              } else {
-                feedbackContainer.style.color = this.colors.light.text
-              }
 
-              for (let i = 0; i < feedback.length; i++) {
-                const value = feedback[i]
-
-                // console.log(value);
-
-                const div = document.createElement("div")
-                div.style.display = "flex"
-                div.style.justifyContent = "space-between"
-                div.style.alignItems = "center"
-
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-
-                  if (i % 2 === 0) {
-                    div.style.background = this.colors.light.foreground
-                    div.style.color = this.colors.light.text
-                  } else {
-                    div.style.background = this.colors.dark.foreground
-                    div.style.color = this.colors.dark.text
-                  }
-
+                if (i % 2 === 0) {
+                  div.style.background = this.colors.light.foreground
+                  div.style.color = this.colors.light.text
                 } else {
-
-                  if (i % 2 === 1) {
-                    div.style.background = this.colors.light.foreground
-                    div.style.color = this.colors.light.text
-                  } else {
-                    div.style.background = this.colors.dark.foreground
-                    div.style.color = this.colors.dark.text
-                  }
-
+                  div.style.background = this.colors.dark.foreground
+                  div.style.color = this.colors.dark.text
                 }
 
-                const left = document.createElement("span")
-                left.innerHTML = `${this.convert("millis/dd.mm.yyyy hh:mm", value.id)}`
-                div.append(left)
+              } else {
 
-                const nextToLeft = document.createElement("span")
-                nextToLeft.style.width = "100%"
-                nextToLeft.style.margin = "0 13px"
-                nextToLeft.innerHTML = value.content
-                div.append(nextToLeft)
+                if (i % 2 === 1) {
+                  div.style.background = this.colors.light.foreground
+                  div.style.color = this.colors.light.text
+                } else {
+                  div.style.background = this.colors.dark.foreground
+                  div.style.color = this.colors.dark.text
+                }
 
-                const right = document.createElement("span")
-                right.style.padding = "13px"
-                right.innerHTML = value.importance
-                div.append(right)
+              }
 
-                feedbackContainer.append(div)
+              const left = document.createElement("span")
+              left.innerHTML = `${this.convert("millis/dd.mm.yyyy hh:mm", value.id)}`
+              div.append(left)
 
-                div.style.cursor = "pointer"
-                div.addEventListener("click", () => {
+              const nextToLeft = document.createElement("span")
+              nextToLeft.style.width = "100%"
+              nextToLeft.style.margin = "0 13px"
+              nextToLeft.innerHTML = value.content
+              div.append(nextToLeft)
 
-                  this.overlay("toolbox", overlay => {
-                    this.headerPicker("removeOverlay", overlay)
+              const right = document.createElement("span")
+              right.style.padding = "13px"
+              right.innerHTML = value.importance
+              div.append(right)
 
-                    const button = this.buttonPicker("left/right", overlay)
-                    const icon = this.iconPicker("delete")
-                    icon.style.width = "34px"
-                    button.left.append(icon)
-                    button.right.innerHTML = "Feedback löschen"
+              feedbackContainer.append(div)
 
-                    button.addEventListener("click", async () => {
-                      const confirm = window.confirm("Möchtest du diesen Beitrag wirklich löschen?")
+              div.style.cursor = "pointer"
+              div.addEventListener("click", () => {
 
-                      if (confirm === true) {
-                        const del = {}
-                        del.url = "/delete/feedback/location/"
-                        del.type = "html-value"
-                        // del.scriptId = input.id
-                        del.id = value.id
-                        const res = await this.request("location/json", del)
+                this.overlay("toolbox", overlay => {
+                  this.headerPicker("removeOverlay", overlay)
 
-                        if (res.status === 200) {
-                          feedbackButton.counter.innerHTML = parseInt(feedbackButton.counter.innerHTML) - 1
-                          this.remove("overlay", overlay)
-                          this.remove("overlay", feedbackOverlay)
-                        } else {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          this.remove("overlay", overlay)
-                        }
+                  const button = this.buttonPicker("left/right", overlay)
+                  const icon = this.iconPicker("delete")
+                  icon.style.width = "34px"
+                  button.left.append(icon)
+                  button.right.innerHTML = "Feedback löschen"
 
+                  button.addEventListener("click", async () => {
+                    const confirm = window.confirm("Möchtest du diesen Beitrag wirklich löschen?")
 
+                    if (confirm === true) {
+                      const del = {}
+                      del.url = "/delete/feedback/location/"
+                      del.type = "html-value"
+                      // del.scriptId = input.id
+                      del.id = value.id
+                      const res = await this.request("location/json", del)
+
+                      if (res.status === 200) {
+                        feedbackButton.counter.innerHTML = parseInt(feedbackButton.counter.innerHTML) - 1
+                        this.remove("overlay", overlay)
+                        this.remove("overlay", feedbackOverlay)
+                      } else {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        this.remove("overlay", overlay)
                       }
 
-                    })
+
+                    }
+
                   })
-
                 })
-              }
 
-
+              })
             }
 
-            const contentField = this.create("field/textarea", content)
-            contentField.label.innerHTML = "Feedback"
-            contentField.input.setAttribute("required", "true")
-            contentField.input.maxLength = "377"
-            contentField.input.style.fontSize = "13px"
-            contentField.input.placeholder = "Schreibe ein anonymes Feedback, wenn du möchtest.."
 
-            this.verify("input/value", contentField.input)
-            contentField.input.addEventListener("input", () => this.verify("input/value", contentField.input))
+          }
+
+          const contentField = this.create("field/textarea", content)
+          contentField.label.innerHTML = "Feedback"
+          contentField.input.setAttribute("required", "true")
+          contentField.input.maxLength = "377"
+          contentField.input.style.fontSize = "13px"
+          contentField.input.placeholder = "Schreibe ein anonymes Feedback, wenn du möchtest.."
+
+          this.verify("input/value", contentField.input)
+          contentField.input.addEventListener("input", () => this.verify("input/value", contentField.input))
 
 
-            const importanceField = this.create("field/range", content)
-            importanceField.input.min = "0"
-            importanceField.input.max = "13"
-            importanceField.input.step = "1"
-            importanceField.input.value = "0"
-            importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
+          const importanceField = this.create("field/range", content)
+          importanceField.input.min = "0"
+          importanceField.input.max = "13"
+          importanceField.input.step = "1"
+          importanceField.input.value = "0"
+          importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
 
+          this.verify("input/value", importanceField.input)
+
+          importanceField.input.addEventListener("input", (event) => {
             this.verify("input/value", importanceField.input)
+            importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
+          })
 
-            importanceField.input.addEventListener("input", (event) => {
-              this.verify("input/value", importanceField.input)
-              importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
-            })
+          const button = this.buttonPicker("action", content)
+          button.innerHTML = "Feedback jetzt speichern"
+          button.addEventListener("click", async () => {
 
-            const button = this.buttonPicker("action", content)
-            button.innerHTML = "Feedback jetzt speichern"
-            button.addEventListener("click", async () => {
+            await this.verify("input/value", contentField.input)
 
-              const res = await this.verify("input/value", contentField.input)
+            this.overlay("toolbox", async securityOverlay => {
 
-              if (res === true) {
+              const register = {}
+              register.content = contentField.input.value
+              register.importance = importanceField.input.value
+              const res = await this.register("feedback/html/location", register)
 
-                const content = contentField.input.value
-                const importance = importanceField.input.value
-
-                this.overlay("toolbox", async securityOverlay => {
-
-                  this.headerPicker("loading", securityOverlay)
-
-                  const register = {}
-                  register.url = "/register/feedback/location/"
-                  register.type = "html-value"
-                  // register.id = input.id
-                  register.importance = importance
-                  register.content = content
-                  const res = await this.request("location/json", register)
-
-                  if (res.status === 200) {
-                    this.remove("overlay", securityOverlay)
-                    this.remove("overlay", overlay)
-                    feedbackButton.counter.innerHTML = parseInt(feedbackButton.counter.innerHTML) + 1
-                  } else {
-                    window.alert("Fehler.. Bitte wiederholen.")
-                    this.remove("overlay", securityOverlay)
-                  }
-
-                })
-
+              if (res.status === 200) {
+                window.alert("Vielen Dank für dein Feedback.\n\nDein Feedback ist vollkommen anonym, dynamisch und hilft dabei diese Webseite, noch besser für dich, zu optimieren.")
+                this.remove("overlay", securityOverlay)
+                this.remove("overlay", overlay)
+                feedbackButton.counter.innerHTML = parseInt(feedbackButton.counter.innerHTML) + 1
+              } else {
+                window.alert("Fehler.. Bitte wiederholen.")
+                this.remove("overlay", securityOverlay)
               }
 
-
             })
-
 
 
           })
 
-        }
 
-        if (input) {
 
-          input.append(feedbackButton)
-          return resolve(feedbackButton)
-        } else {
-          await this.add("ms/timeout", 3000)
-          await this.add(event, input)
-        }
-        // return feedbackButton
-      })
+        })
+
+      }
 
     }
 
@@ -2164,6 +5205,64 @@ export class Helper {
           reject(error)
         }
       })
+    }
+
+    if (event === "feedback/script/location") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/feedback/location/"
+          get.type = "script"
+          get.id = input
+          const res = await this.request("location/json", get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "feedback/values/location") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/feedback/location/"
+          get.type = "html-value"
+          const res = await this.request("location/json", get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "feedback/length/location") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/feedback/location/"
+          get.type = "html-value-length"
+          const res = await this.request("location/json", get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
     }
 
     if (event === "html/url/admin") {
@@ -4165,6 +7264,71 @@ export class Helper {
   static register(event, input) {
     // event = tag/on/algorithm
 
+    if (event === "feedback/script/location") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const register = {}
+          register.url = "/register/feedback/location/"
+          register.type = "script"
+          register.id = input.id
+          register.importance = input.importance
+          register.content = input.content
+          const res = await this.request("location/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "feedback/html/location") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const register = {}
+          register.url = "/register/feedback/location/"
+          register.type = "html-value"
+          register.importance = input.importance
+          register.content = input.content
+          const res = await this.request("location/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "played/soundbox/open") {
+
+      const url = new URL("/register/soundbox/played/", window.location.origin)
+      url.searchParams.append("id", input)
+
+      return navigator.sendBeacon(url.href)
+
+    }
+
+    if (event === "meta/soundbox/self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const register = {}
+          register.url = "/register/soundbox/closed/"
+          register.type = "meta-self"
+          register.id = input.id
+          register.track = input.track
+          register.creator = input.creator
+          register.album = input.album
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
 
     if (event === "email/super-admin") {
       return new Promise(async(resolve, reject) => {
@@ -4231,22 +7395,6 @@ export class Helper {
           register.country = input.country
           register.state = input.state
           register.phone = input.phone
-          const res = await this.request("closed/json", register)
-
-          resolve(res)
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-
-    if (event === "video-url/soundbox/self") {
-      return new Promise(async(resolve, reject) => {
-        try {
-          const register = {}
-          register.url = "/register/soundbox/closed/"
-          register.type = "video-url/audio-cid/self"
-          register.videoUrl = input
           const res = await this.request("closed/json", register)
 
           resolve(res)
@@ -4530,6 +7678,27 @@ export class Helper {
       })
     }
 
+    if (event === "platform/expert/self") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const register = {}
+          register.url = "/register/platform/closed/"
+          register.type = "expert-self"
+          register.platform = input
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
   }
 
   static update(event, parent, input) {
@@ -4538,6 +7707,22 @@ export class Helper {
     // no parent needed to get data
     if (arguments.length === 2) {
       input = parent
+    }
+
+    if (event === "toolbox/html/path") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/update/toolbox/closed/"
+          register.type = "path/location-expert"
+          register.path = input
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
     }
 
     if (event === "key-name/user-tree/admin") {
@@ -4680,235 +7865,6 @@ export class Helper {
       }
 
       return parent
-    }
-
-    if (event === "feedback/script/location") {
-
-      parent.onclick = () => {
-
-        this.overlay("toolbox", async overlay => {
-          const feedbackOverlay = overlay
-
-          this.headerPicker("removeOverlay", overlay)
-
-          const info = this.headerPicker("info", overlay)
-
-          info.append(this.convert("element/alias", document.body))
-          info.append(this.convert("text/span", `.${input.name}.feedback`))
-
-          const content = this.headerPicker("scrollable", overlay)
-
-          const feedbackContainer = this.headerPicker("loading", content)
-          feedbackContainer.info.remove()
-
-          feedbackContainer.style.margin = "21px 34px"
-          feedbackContainer.style.overflowY = "auto"
-          feedbackContainer.style.overscrollBehavior = "none"
-          feedbackContainer.style.fontFamily = "monospace"
-          feedbackContainer.style.fontSize = "13px"
-          feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
-
-
-          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            feedbackContainer.style.color = this.colors.dark.text
-          } else {
-            feedbackContainer.style.color = this.colors.light.text
-          }
-
-          const get = {}
-          get.url = "/get/feedback/location/"
-          get.type = "script"
-          get.id = input.id
-          const res = await this.request("location/json", get)
-
-          if (res.status !== 200) {
-            feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
-          }
-
-          getFeedbackSuccess: if (res.status === 200) {
-            const feedback = JSON.parse(res.response)
-
-            if (feedback.length === 0) {
-              feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
-              break getFeedbackSuccess
-            }
-
-            this.convert("element/reset", feedbackContainer)
-            feedbackContainer.style.margin = "21px 34px"
-            feedbackContainer.style.overflowY = "auto"
-            feedbackContainer.style.overscrollBehavior = "none"
-            feedbackContainer.style.fontFamily = "monospace"
-            feedbackContainer.style.fontSize = "13px"
-            feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
-
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              feedbackContainer.style.color = this.colors.dark.text
-            } else {
-              feedbackContainer.style.color = this.colors.light.text
-            }
-
-
-            for (let i = 0; i < feedback.length; i++) {
-              const value = feedback[i]
-
-              const div = document.createElement("div")
-              div.style.display = "flex"
-              div.style.justifyContent = "space-between"
-              div.style.alignItems = "center"
-
-              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-
-                if (i % 2 === 0) {
-                  div.style.background = this.colors.light.foreground
-                  div.style.color = this.colors.light.text
-                } else {
-                  div.style.background = this.colors.dark.foreground
-                  div.style.color = this.colors.dark.text
-                }
-
-              } else {
-
-                if (i % 2 === 1) {
-                  div.style.background = this.colors.light.foreground
-                  div.style.color = this.colors.light.text
-                } else {
-                  div.style.background = this.colors.dark.foreground
-                  div.style.color = this.colors.dark.text
-                }
-
-              }
-
-              const left = document.createElement("span")
-              left.innerHTML = `${this.convert("millis/dd.mm.yyyy hh:mm", value.id)}`
-              div.append(left)
-
-              const nextToLeft = document.createElement("span")
-              nextToLeft.style.width = "100%"
-              nextToLeft.style.margin = "0 13px"
-              nextToLeft.innerHTML = value.content
-              div.append(nextToLeft)
-
-              const right = document.createElement("span")
-              right.style.padding = "13px"
-              right.innerHTML = value.importance
-              div.append(right)
-
-              feedbackContainer.append(div)
-
-              div.style.cursor = "pointer"
-              div.addEventListener("click", () => {
-
-                this.overlay("toolbox", overlay => {
-                  this.headerPicker("removeOverlay", overlay)
-
-                  const button = this.buttonPicker("left/right", overlay)
-                  const icon = this.iconPicker("delete")
-                  icon.style.width = "34px"
-                  button.left.append(icon)
-                  button.right.innerHTML = "Feedback löschen"
-
-                  button.addEventListener("click", async () => {
-                    const confirm = window.confirm("Möchtest du diesen Beitrag wirklich löschen?")
-
-                    if (confirm === true) {
-                      const del = {}
-                      del.url = "/delete/feedback/location/"
-                      del.type = "script"
-                      del.scriptId = input.id
-                      del.feedbackId = value.id
-                      const res = await this.request("location/json", del)
-
-                      if (res.status === 200) {
-                        parent.counter.innerHTML = parseInt(parent.counter.innerHTML) - 1
-                        this.remove("overlay", overlay)
-                        this.remove("overlay", feedbackOverlay)
-                      } else {
-                        window.alert("Fehler.. Bitte wiederholen.")
-                        this.remove("overlay", overlay)
-                      }
-
-
-                    }
-
-                  })
-                })
-
-              })
-            }
-
-
-          }
-
-          const contentField = this.create("field/textarea", content)
-          contentField.label.innerHTML = "Feedback"
-          contentField.input.setAttribute("required", "true")
-          contentField.input.maxLength = "377"
-          contentField.input.style.fontSize = "13px"
-          contentField.input.placeholder = "Schreibe ein Feedback an unsere Web-Entwickler"
-
-          this.verify("input/value", contentField.input)
-          contentField.input.addEventListener("input", () => this.verify("input/value", contentField.input))
-
-
-          const importanceField = this.create("field/range", content)
-          importanceField.input.min = "0"
-          importanceField.input.max = "13"
-          importanceField.input.step = "1"
-          importanceField.input.value = "0"
-          importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
-
-          this.verify("input/value", importanceField.input)
-
-          importanceField.input.addEventListener("input", (event) => {
-            this.verify("input/value", importanceField.input)
-            importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
-          })
-
-          const button = this.buttonPicker("action", content)
-          button.innerHTML = "Feedback jetzt speichern"
-          button.addEventListener("click", async () => {
-
-            const res = await this.verify("input/value", contentField.input)
-
-            if (res === true) {
-
-              const content = contentField.input.value
-              const importance = importanceField.input.value
-
-              this.overlay("toolbox", async securityOverlay => {
-
-                this.headerPicker("loading", securityOverlay)
-
-                const register = {}
-                register.url = "/register/feedback/location/"
-                register.type = "script"
-                register.id = input.id
-                register.importance = importance
-                register.content = content
-                const res = await this.request("location/json", register)
-
-                if (res.status === 200) {
-                  this.remove("overlay", securityOverlay)
-                  this.remove("overlay", overlay)
-                  parent.counter.innerHTML = parseInt(parent.counter.innerHTML) + 1
-                } else {
-                  window.alert("Fehler.. Bitte wiederholen.")
-                  this.remove("overlay", securityOverlay)
-                }
-
-              })
-
-            }
-
-
-          })
-
-
-
-        })
-
-      }
-
     }
 
     if (event === "toolbox-getter") {
@@ -8519,6 +11475,21 @@ export class Helper {
       }
 
       const svgString = `<svg fill="${primary}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7.293 7.707a1 1 0 0 1 0-1.414l4-4a1 1 0 0 1 1.414 0l4 4a1 1 0 1 1-1.414 1.414L12 4.414 8.707 7.707a1 1 0 0 1-1.414 0Zm0 10 4 4a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L12 19.586l-3.293-3.293a1 1 0 1 0-1.414 1.414Z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/tools") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="m10 17.414-3.293 3.293A1 1 0 0 1 6 21H2a1 1 0 0 1-1-1v-4a1 1 0 0 1 .293-.707L4.586 12 .293 7.707a1 1 0 0 1 0-1.414l6-6a1 1 0 0 1 1.414 0L12 4.586 16.293.293a1 1 0 0 1 1.414 0l4 4a1 1 0 0 1 0 1.414L17.414 10l4.293 4.293a1 1 0 0 1 0 1.414l-6 6a1 1 0 0 1-1.414 0L10 17.414zM11.414 16l1.086 1.086.793-.793a1 1 0 0 1 1.414 1.414l-.793.793L15 19.586 19.586 15 16 11.414 11.414 16zM14.5 4.914 3 16.414V19h2.586l11.5-11.5L14.5 4.914zM15.914 3.5 18.5 6.086 19.586 5 17 2.414 15.914 3.5zM10.586 6 7 2.414 2.414 7 3.5 8.086l.793-.793a1 1 0 0 1 1.414 1.414l-.793.793L6 10.586 10.586 6z" fill="${primary}"/></svg>`
       const svg = this.convert("text/svg", svgString)
       svg.style.width = "100%"
 
@@ -13150,8 +16121,7 @@ export class Helper {
       this.create("icon/back", icon)
 
       const header = document.createElement("div")
-      header.classList.add("button")
-      header.classList.add("back")
+      header.classList.add("back-button")
       header.append(icon)
 
       header.style.position = "fixed"
@@ -13349,6 +16319,7 @@ export class Helper {
       button.counter.style.fontSize = "13px"
       button.counter.style.borderRadius = "50%"
       button.counter.style.padding = "3px 5px"
+      button.counter.innerHTML = "0"
 
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         button.counter.style.color = this.colors.dark.text
@@ -13359,7 +16330,77 @@ export class Helper {
       }
       button.append(button.counter)
 
-      if (input !== undefined) input.append(button)
+      input?.append(button)
+      return button
+    }
+
+    if (event === "button/html-feedback") {
+
+      const button = this.create("button/branch")
+      button.classList.add("html-feedback-button")
+      button.counter.classList.add("feedback-counter")
+
+      button.style.position = "fixed"
+      button.style.bottom = "0"
+      button.style.right = "0"
+      button.style.display = "flex"
+      button.style.justifyContent = "center"
+      button.style.alignItems = "center"
+
+      button.style.boxShadow = this.colors.light.boxShadow
+      button.style.border = this.colors.light.border
+      button.style.backgroundColor = this.colors.light.foreground
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        button.style.backgroundColor = this.colors.dark.foreground
+        button.style.border = this.colors.dark.border
+        button.style.boxShadow = this.colors.dark.boxShadow
+      }
+
+      button.style.borderRadius = "50%"
+      button.style.margin = "34px"
+      button.style.padding = "8px"
+      button.style.zIndex = "1"
+      button.style.cursor = "pointer"
+
+      input?.append(button)
+      return button
+
+    }
+
+    if (event === "button/tools") {
+
+      const button = document.createElement("div")
+
+      button.icon = document.createElement("div")
+      button.icon.style.width = "34px"
+      button.append(button.icon)
+
+      const icon = this.create("icon/tools")
+      button.icon.append(icon)
+
+      button.style.position = "fixed"
+      button.style.bottom = "0"
+      button.style.right = "0"
+      button.style.display = "flex"
+      button.style.justifyContent = "center"
+      button.style.alignItems = "center"
+
+      button.style.boxShadow = this.colors.light.boxShadow
+      button.style.border = this.colors.light.border
+      button.style.backgroundColor = this.colors.light.foreground
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        button.style.backgroundColor = this.colors.dark.foreground
+        button.style.border = this.colors.dark.border
+        button.style.boxShadow = this.colors.dark.boxShadow
+      }
+
+      button.style.borderRadius = "50%"
+      button.style.margin = "34px"
+      button.style.padding = "21px"
+      button.style.zIndex = "1"
+      button.style.cursor = "pointer"
+
+      input?.append(button)
       return button
     }
 
@@ -13496,13 +16537,34 @@ export class Helper {
 
     }
 
-    if (event === "script/html-feedback-button") {
+    if (event === "script/html-creator") {
 
       const text = `
-        <script id="html-feedback-button" type="module">
+        <script id="html-creator" type="module">
           import {Helper} from "/js/Helper.js"
 
-          Helper.add("button/html-feedback", document.body)
+          Helper.add("event/html-creator")
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      return create
+
+    }
+
+    if (event === "script/html-feedback") {
+
+      const text = `
+        <script id="html-feedback" type="module">
+          import {Helper} from "/js/Helper.js"
+
+          Helper.add("event/html-feedback")
         </script>
       `
 
@@ -14998,6 +18060,52 @@ export class Helper {
       if (input !== undefined) input.append(fieldFunnel)
 
       return fieldFunnel
+    }
+
+    if (event === "field/audio") {
+
+      const field = document.createElement("div")
+      field.classList.add("field")
+      field.style.position = "relative"
+      field.style.borderRadius = "13px"
+      field.style.display = "flex"
+      field.style.flexDirection = "column"
+      field.style.margin = "34px"
+      field.style.justifyContent = "center"
+
+      field.labelContainer = document.createElement("div")
+      field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.display = "flex"
+      field.labelContainer.style.alignItems = "center"
+      field.labelContainer.style.margin = "21px 89px 21px 34px"
+      field.labelContainer.style.overflow = "auto"
+      field.append(field.labelContainer)
+
+      field.label = document.createElement("label")
+      field.label.classList.add("field-label")
+      field.label.style.fontFamily = "sans-serif"
+      field.label.style.fontSize = "13px"
+      field.labelContainer.append(field.label)
+
+      field.audio = document.createElement("audio")
+      field.audio.classList.add("field-audio")
+      field.audio.style.fontSize = "21px"
+      field.audio.style.width = "100%"
+      field.audio.style.borderRadius = "13px"
+      field.audio.setAttribute("controls", "")
+      field.append(field.audio)
+
+      field.style.backgroundColor = this.colors.light.foreground
+      field.style.border = this.colors.light.border
+      field.style.boxShadow = this.colors.light.boxShadow
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        field.style.backgroundColor = this.colors.dark.foreground
+        field.style.border = this.colors.dark.border
+        field.style.boxShadow = this.colors.dark.boxShadow
+      }
+
+      input?.append(field)
+      return field
     }
 
     if (event === "answer-box") {
@@ -16930,14 +20038,220 @@ export class Helper {
           buttons.append(button)
         }
 
-
-
-        // get feedback length
-        // all in one button
         {
           const button = this.create("button/branch", buttons)
           button.counter.innerHTML = script.feedbackLength
-          this.update("feedback/script/location", button, script)
+          button.onclick = () => {
+
+            this.overlay("toolbox", async overlay => {
+              const feedbackOverlay = overlay
+
+              this.add("button/remove-overlay", overlay)
+
+              const info = this.create("header/info", overlay)
+
+              info.append(this.convert("element/alias", document.body))
+              info.append(this.convert("text/span", `.${script.name}.feedback`))
+
+              const content = this.create("div/scrollable", overlay)
+
+              const feedbackContainer = this.create("info/loading", content)
+              feedbackContainer.info.remove()
+
+              feedbackContainer.style.margin = "21px 34px"
+              feedbackContainer.style.overflowY = "auto"
+              feedbackContainer.style.overscrollBehavior = "none"
+              feedbackContainer.style.fontFamily = "monospace"
+              feedbackContainer.style.fontSize = "13px"
+              feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
+
+
+              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                feedbackContainer.style.color = this.colors.dark.text
+              } else {
+                feedbackContainer.style.color = this.colors.light.text
+              }
+
+              const res = await this.get("feedback/script/location", script.id)
+
+              if (res.status !== 200) {
+                feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
+              }
+
+              getFeedbackSuccess: if (res.status === 200) {
+                const feedback = JSON.parse(res.response)
+
+                console.log(feedback);
+
+                if (feedback.length === 0) {
+                  feedbackContainer.innerHTML = `<span style="margin: 21px 34px;">Kein Feedback gefunden.</span>`
+                  break getFeedbackSuccess
+                }
+
+                this.convert("element/reset", feedbackContainer)
+                feedbackContainer.style.margin = "21px 34px"
+                feedbackContainer.style.overflowY = "auto"
+                feedbackContainer.style.overscrollBehavior = "none"
+                feedbackContainer.style.fontFamily = "monospace"
+                feedbackContainer.style.fontSize = "13px"
+                feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
+
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                  feedbackContainer.style.color = this.colors.dark.text
+                } else {
+                  feedbackContainer.style.color = this.colors.light.text
+                }
+
+
+                for (let i = 0; i < feedback.length; i++) {
+                  const value = feedback[i]
+
+                  const div = document.createElement("div")
+                  div.style.display = "flex"
+                  div.style.justifyContent = "space-between"
+                  div.style.alignItems = "center"
+
+                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+
+                    if (i % 2 === 0) {
+                      div.style.background = this.colors.light.foreground
+                      div.style.color = this.colors.light.text
+                    } else {
+                      div.style.background = this.colors.dark.foreground
+                      div.style.color = this.colors.dark.text
+                    }
+
+                  } else {
+
+                    if (i % 2 === 1) {
+                      div.style.background = this.colors.light.foreground
+                      div.style.color = this.colors.light.text
+                    } else {
+                      div.style.background = this.colors.dark.foreground
+                      div.style.color = this.colors.dark.text
+                    }
+
+                  }
+
+                  const left = document.createElement("span")
+                  left.innerHTML = `${this.convert("millis/dd.mm.yyyy hh:mm", value.id)}`
+                  div.append(left)
+
+                  const nextToLeft = document.createElement("span")
+                  nextToLeft.style.width = "100%"
+                  nextToLeft.style.margin = "0 13px"
+                  nextToLeft.innerHTML = value.content
+                  div.append(nextToLeft)
+
+                  const right = document.createElement("span")
+                  right.style.padding = "13px"
+                  right.innerHTML = value.importance
+                  div.append(right)
+
+                  feedbackContainer.append(div)
+
+                  div.style.cursor = "pointer"
+                  div.addEventListener("click", () => {
+
+                    this.overlay("toolbox", overlay => {
+                      this.headerPicker("removeOverlay", overlay)
+
+                      const button = this.buttonPicker("left/right", overlay)
+                      const icon = this.iconPicker("delete")
+                      icon.style.width = "34px"
+                      button.left.append(icon)
+                      button.right.innerHTML = "Feedback löschen"
+
+                      button.addEventListener("click", async () => {
+                        const confirm = window.confirm("Möchtest du diesen Beitrag wirklich löschen?")
+
+                        if (confirm === true) {
+                          const del = {}
+                          del.url = "/delete/feedback/location/"
+                          del.type = "script"
+                          del.scriptId = script.id
+                          del.feedbackId = value.id
+                          const res = await this.request("location/json", del)
+
+                          if (res.status === 200) {
+                            button.counter.innerHTML = parseInt(button.counter.innerHTML) - 1
+                            this.remove("overlay", overlay)
+                            this.remove("overlay", feedbackOverlay)
+                          } else {
+                            window.alert("Fehler.. Bitte wiederholen.")
+                            this.remove("overlay", overlay)
+                          }
+
+
+                        }
+
+                      })
+                    })
+
+                  })
+                }
+
+
+              }
+
+              const contentField = this.create("field/textarea", content)
+              contentField.label.innerHTML = "Feedback"
+              contentField.input.setAttribute("required", "true")
+              contentField.input.maxLength = "377"
+              contentField.input.style.fontSize = "13px"
+              contentField.input.placeholder = "Schreibe ein Feedback an unsere Web-Entwickler"
+
+              this.verify("input/value", contentField.input)
+              contentField.input.addEventListener("input", () => this.verify("input/value", contentField.input))
+
+
+              const importanceField = this.create("field/range", content)
+              importanceField.input.min = "0"
+              importanceField.input.max = "13"
+              importanceField.input.step = "1"
+              importanceField.input.value = "0"
+              importanceField.label.innerHTML = `Wichtigkeit - ${importanceField.input.value}`
+
+              this.verify("input/value", importanceField.input)
+
+              importanceField.input.addEventListener("input", (event) => {
+                this.verify("input/value", importanceField.input)
+                importanceField.label.innerHTML = `Wichtigkeit - ${event.target.value}`
+              })
+
+              const submit = this.create("button/action", content)
+              submit.innerHTML = "Feedback jetzt speichern"
+              submit.addEventListener("click", async () => {
+
+                await this.verify("input/value", contentField.input)
+
+                this.overlay("security", async securityOverlay => {
+
+                  const register = {}
+                  register.id = script.id
+                  register.importance = importanceField.input.value
+                  register.content = contentField.input.value
+                  const res = await this.register("feedback/script/location", register)
+
+                  if (res.status === 200) {
+                    window.alert("Vielen Dank für dein Feedback.\n\nDein Feedback ist vollkommen anonym, dynamisch und hilft dabei dieses Skript, noch besser für dich, zu optimieren.")
+                    this.remove("overlay", securityOverlay)
+                    this.remove("overlay", overlay)
+                    button.counter.innerHTML = parseInt(button.counter.innerHTML) + 1
+                  } else {
+                    window.alert("Fehler.. Bitte wiederholen.")
+                    this.remove("overlay", securityOverlay)
+                  }
+
+                })
+
+              })
+
+
+
+            })
+
+          }
         }
 
 
@@ -17895,6 +21209,20 @@ export class Helper {
 
               }
 
+              {
+                const button = this.create("button/left-right", buttons)
+                button.right.innerHTML = "Update deine Toolbox"
+                button.left.innerHTML = ".update-toolbox"
+                button.onclick = async () => {
+                  const res = await this.update("toolbox/html/path", value.path)
+
+                  if (res.status === 200) {
+                    window.alert("Toolbox wurde erfolgreich aktualisiert.")
+                  } else {
+                    window.alert("Fehler.. Bitte wiederholen.")
+                  }
+                }
+              }
 
               {
                 const button = this.buttonPicker("left/right", buttons)
@@ -18827,7 +22155,7 @@ export class Helper {
                       if (ev.metaKey && ev.key === 'c') {
                         ev.preventDefault()
                         if (selectedNode) {
-                          this.convert("text/clipboard", selectedNode.outerHTML).then(() => console.log("hi"))
+                          this.convert("text/clipboard", selectedNode.outerHTML).then(() => window.alert("Dein HTML Element wurde erfolgreich in die Zwischenablage gespeichert."))
                         }
                       }
                     })
@@ -18845,14 +22173,10 @@ export class Helper {
                     })
 
                     let rememberSelectedNodes = []
-                    // let rememberSelectedParent
-                    // let rememberSelectedIndex
                     preview.addEventListener("keydown", ev => {
                       if (ev.metaKey && ev.key === 'Backspace') {
                         ev.preventDefault()
                         if (selectedNode) {
-                          // rememberSelectedParent = selectedNode.parentElement
-                          // rememberSelectedIndex = Array.from(selectedNode.parentElement.children).indexOf(selectedNode)
                           rememberSelectedNodes.push({ node: selectedNode, parent: selectedNode.parentElement, index: Array.from(selectedNode.parentElement.children).indexOf(selectedNode)})
                           selectedNode.remove()
                         }
@@ -18986,9 +22310,9 @@ export class Helper {
                     optionsContainer.style.height = `${window.innerHeight * 0.2}px`
 
 
-
                     this.render("text/hr", "Anwendungen für Vorlagen einsetzen", optionsContainer)
                     const templateOptions = this.create("div/flex-row", optionsContainer)
+
 
                     const createFlexButton = this.create("button/create-flex", templateOptions)
                     createFlexButton.onclick = () => {
@@ -21936,10 +25260,10 @@ export class Helper {
                 }
 
                 {
+
                   const button = this.buttonPicker("left/right", buttons)
                   button.left.innerHTML = ".match-maker"
                   button.right.innerHTML = "Match Maker Skripte anhängen"
-
                   button.onclick = () => {
                     this.overlay("toolbox", async overlay => {
                       this.add("button/remove-overlay", overlay)
@@ -22048,7 +25372,6 @@ export class Helper {
                   const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".script"
                   button.right.innerHTML = "JavaScript anhängen"
-
                   button.onclick = () => {
 
                     this.overlay("toolbox", overlay => {
@@ -22093,10 +25416,10 @@ export class Helper {
                 }
 
                 {
+
                   const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".soundbox"
                   button.right.innerHTML = "Konvertiere MP3 zu Audio"
-
                   button.onclick = () => {
                     try {
 
@@ -22111,6 +25434,135 @@ export class Helper {
                   }
 
                 }
+
+                {
+
+                  const button = this.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = ".style"
+                  button.right.innerHTML = "CSS Import"
+                  button.addEventListener("click", () => {
+
+                    this.overlay("toolbox", overlay => {
+
+                      this.add("button/remove-overlay", overlay)
+                      this.add("button/register-html", overlay)
+
+                      const info = this.headerPicker("info", overlay)
+                      info.append(this.convert("element/alias", child))
+                      info.append(this.convert("text/span", ".style"))
+
+                      const content = this.create("div/scrollable", overlay)
+
+                      const cssField = this.create("field/textarea", content)
+                      cssField.label.textContent = "CSS Eigenschaften"
+                      cssField.input.style.height = "55vh"
+                      cssField.input.style.fontFamily = "monospace"
+                      cssField.input.style.fontSize = "13px"
+                      cssField.input.placeholder = "color: blue;\nborder: 1px solid black;\n\n  ..\n\nkey: value;"
+
+                      if (child.hasAttribute("style")) {
+                        cssField.input.value = this.convert("styles/text", child)
+                      }
+
+                      this.verify("input/value", cssField.input)
+
+                      cssField.input.oninput = async () => {
+
+                        await this.verify("input/value", cssField.input)
+
+                        const css = cssField.input.value
+
+                        if (this.stringIsEmpty(css)) {
+                          child.removeAttribute("style")
+                        } else {
+                          child.setAttribute("style", css)
+                        }
+
+
+                      }
+
+                    })
+                  })
+
+                }
+
+                {
+
+                  const button = this.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = ".innerHTML"
+                  button.right.innerHTML = "Body Inhalt ersetzen"
+                  button.addEventListener("click", () => {
+
+                    this.overlay("toolbox", overlay => {
+
+                      this.add("button/remove-overlay", overlay)
+                      this.add("button/register-html", overlay)
+
+                      const info = this.create("header/info", overlay)
+                      info.append(this.convert("element/alias", document.body))
+                      info.append(this.convert("text/span", ".innerHTML"))
+
+                      const funnel = this.create("div/scrollable", overlay)
+
+                      const htmlField = this.create("field/textarea", funnel)
+                      htmlField.label.innerHTML = "Body Inhalt"
+                      htmlField.input.style.height = "55vh"
+                      htmlField.input.style.fontFamily = "monospace"
+                      htmlField.input.style.fontSize = "13px"
+                      htmlField.input.placeholder = "<body>..</body>"
+                      htmlField.input.value = child.innerHTML
+                      this.verify("input/value", htmlField.input)
+
+                      const submit = this.create("button/action", funnel)
+                      submit.innerHTML = "Inhalte jetzt ersetzen"
+                      submit.onclick = async () => {
+
+                        await this.verify("input/value", htmlField.input)
+
+                        child.innerHTML = htmlField.input.value
+
+                        await this.remove("toolbox", child)
+
+                        await this.add("script/toolbox-getter")
+
+                        this.remove("overlay", overlay)
+
+                      }
+
+                    })
+
+
+                  })
+
+                }
+
+                {
+
+                  const button = this.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = ".feedback-button"
+                  button.right.innerHTML = "Lass dir Feedback für deine Werteinheiten geben"
+                  button.onclick = () => {
+                    this.add("script/html-feedback-button", child)
+                    window.alert("Feedback Button wurde erfolgreich angehängt.")
+                  }
+
+                }
+
+                {
+
+                  const button = this.buttonPicker("left/right", buttons)
+                  button.left.innerHTML = ".creator-button"
+                  button.right.innerHTML = "Erlaube Nutzer deine Werteinheit zu bearbeiten"
+                  button.onclick = () => {
+                    this.add("script/html-creator", document.body)
+                    const button = this.create("button/tools", child)
+                    button.classList.add("html-creator")
+                    window.alert("Creator Anwendung wurde erfolgreich angehängt.")
+                  }
+
+                }
+
+
 
               }
 
@@ -22866,104 +26318,7 @@ export class Helper {
               }
 
               if (child.tagName === "BODY") {
-                const button = this.buttonPicker("left/right", buttons)
-                button.left.innerHTML = ".style"
-                button.right.innerHTML = "CSS Import"
 
-                button.addEventListener("click", () => {
-
-                  this.overlay("toolbox", overlay => {
-
-                    this.add("button/remove-overlay", overlay)
-                    this.add("button/register-html", overlay)
-
-                    const info = this.headerPicker("info", overlay)
-                    info.append(this.convert("element/alias", child))
-                    info.append(this.convert("text/span", ".style"))
-
-                    const content = this.create("div/scrollable", overlay)
-
-                    const cssField = this.create("field/textarea", content)
-                    cssField.label.textContent = "CSS Eigenschaften"
-                    cssField.input.style.height = "55vh"
-                    cssField.input.style.fontFamily = "monospace"
-                    cssField.input.style.fontSize = "13px"
-                    cssField.input.placeholder = "color: blue;\nborder: 1px solid black;\n\n  ..\n\nkey: value;"
-
-                    if (child.hasAttribute("style")) {
-                      cssField.input.value = this.convert("styles/text", child)
-                    }
-
-                    this.verify("input/value", cssField.input)
-
-                    cssField.input.oninput = async () => {
-
-                      await this.verify("input/value", cssField.input)
-
-                      const css = cssField.input.value
-
-                      if (this.stringIsEmpty(css)) {
-                        child.removeAttribute("style")
-                      } else {
-                        child.setAttribute("style", css)
-                      }
-
-
-                    }
-
-                  })
-                })
-
-
-                {
-                  const button = this.buttonPicker("left/right", buttons)
-                  button.left.innerHTML = ".innerHTML"
-                  button.right.innerHTML = "Body Inhalt ersetzen"
-
-                  button.addEventListener("click", () => {
-
-                    this.overlay("toolbox", overlay => {
-
-                      this.add("button/remove-overlay", overlay)
-                      this.add("button/register-html", overlay)
-
-                      const info = this.create("header/info", overlay)
-                      info.append(this.convert("element/alias", document.body))
-                      info.append(this.convert("text/span", ".innerHTML"))
-
-                      const funnel = this.create("div/scrollable", overlay)
-
-                      const htmlField = this.create("field/textarea", funnel)
-                      htmlField.label.innerHTML = "Body Inhalt"
-                      htmlField.input.style.height = "55vh"
-                      htmlField.input.style.fontFamily = "monospace"
-                      htmlField.input.style.fontSize = "13px"
-                      htmlField.input.placeholder = "<body>..</body>"
-                      htmlField.input.value = child.innerHTML
-                      this.verify("input/value", htmlField.input)
-
-                      const submit = this.create("button/action", funnel)
-                      submit.innerHTML = "Inhalte jetzt ersetzen"
-                      submit.onclick = async () => {
-
-                        await this.verify("input/value", htmlField.input)
-
-                        child.innerHTML = htmlField.input.value
-
-                        await this.remove("toolbox", child)
-
-                        await this.add("script/toolbox-getter")
-
-                        this.remove("overlay", overlay)
-
-                      }
-
-                    })
-
-
-                  })
-
-                }
 
               }
 
@@ -28175,189 +31530,57 @@ export class Helper {
 
   static overlay(event, callback) {
 
-    if (callback !== undefined) {
+    if (event === "html-creator") {
 
-      if (event === "toolbox") {
-
-        const overlay = document.createElement("div")
-        overlay.classList.add("overlay")
-
-        // mobile issues
-        overlay.style.height = "100%"
-        overlay.style.overscrollBehavior = "none"
-        //document.body.style.overscrollBehavior = "none"
-        //document.body.style.overflow = "hidden"
-
-        overlay.style.width = "100%"
-        overlay.style.zIndex = "99999999999999"
-        overlay.style.position = "fixed"
-        overlay.style.top = "0"
-        overlay.style.left = "0"
-
-        overlay.style.background = this.colors.matte.light.background
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          overlay.style.background = this.colors.matte.dark.background
-        }
-
-        overlay.style.display = "flex"
-        overlay.style.flexDirection = "column"
-        overlay.style.opacity = 0
-
-        callback(overlay)
-
-        document.body.append(overlay)
-
-        const animation = overlay.animate([
-          { opacity: 0, transform: 'translateY(13px)' },
-          { opacity: 1, transform: 'translateY(0)' },
-        ], {
-          duration: 233,
-          easing: 'ease-in-out',
-          fill: "forwards"
-        })
-
-        return overlay
-
-      }
-
-      if (event === "popup") {
-
-        const overlay = document.createElement("div")
-        overlay.classList.add("overlay")
-
-        // mobile issues
-        overlay.style.height = "100%"
-        overlay.style.overscrollBehavior = "none"
-        //document.body.style.overscrollBehavior = "none"
-        //document.body.style.overflow = "hidden"
-
-        overlay.style.width = "100%"
-        overlay.style.zIndex = "99999999999999"
-        overlay.style.position = "fixed"
-        overlay.style.top = "0"
-        overlay.style.left = "0"
-
-        overlay.style.background = this.colors.matte.light.background
-
-        overlay.style.display = "flex"
-        overlay.style.flexDirection = "column"
-        overlay.style.opacity = 0
-
-        callback(overlay)
-
-        document.body.append(overlay)
-
-        const animation = overlay.animate([
-          { opacity: 0, transform: 'translateY(13px)' },
-          { opacity: 1, transform: 'translateY(0)' },
-        ], {
-          duration: 344,
-          easing: 'ease-in-out',
-          fill: "forwards"
-        })
-
-        return overlay
-
-      }
-
-      if (event === "info") {
-
-        const overlay = document.createElement("div")
-        overlay.classList.add("overlay")
-
-        // mobile issues
-        overlay.style.height = "100%"
-        overlay.style.overscrollBehavior = "none"
-        //document.body.style.overscrollBehavior = "none"
-        //document.body.style.overflow = "hidden"
-
-        overlay.style.width = "100%"
-        overlay.style.zIndex = "99999999999999"
-        overlay.style.position = "fixed"
-        overlay.style.top = "0"
-        overlay.style.left = "0"
-        // overlay.style.overflow = "auto"
-
-
-        overlay.style.background = this.colors.matte.light.background
-
-
-        overlay.style.display = "flex"
-        overlay.style.flexDirection = "column"
-        overlay.style.opacity = 0
-
-        this.headerPicker("removeOverlay", overlay)
-
-        callback(overlay)
-
-        document.body.append(overlay)
-
-        const animation = overlay.animate([
-          { opacity: 0, transform: 'translateY(13px)' },
-          { opacity: 1, transform: 'translateY(0)' },
-        ], {
-          duration: 344,
-          easing: 'ease-in-out',
-          fill: "forwards"
-        })
-
-        return overlay
-
-      }
-
-      if (event === "security") {
-        const overlay = document.createElement("div")
-        overlay.classList.add("overlay")
-
-        this.headerPicker("loading", overlay)
-
-        // mobile issues
-        overlay.style.height = "100%"
-        overlay.style.overscrollBehavior = "none"
-        //document.body.style.overscrollBehavior = "none"
-        //document.body.style.overflow = "hidden"
-
-        overlay.style.width = "100%"
-        overlay.style.zIndex = "99999999999999"
-        overlay.style.position = "fixed"
-        overlay.style.top = "0"
-        overlay.style.left = "0"
-
-        overlay.style.background = this.colors.matte.light.background
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          overlay.style.background = this.colors.matte.dark.background
-        }
-
-        overlay.style.display = "flex"
-        overlay.style.flexDirection = "column"
-
-        callback(overlay)
-
-        document.body.append(overlay)
-
-        return overlay
-      }
-
-    }
-  }
-
-  static popup(callback) {
-    if (callback !== undefined) {
       const overlay = document.createElement("div")
       overlay.classList.add("overlay")
 
-      const removeOverlayButton = this.create("button/remove-overlay", overlay)
-      removeOverlayButton.onclick = () => {
-        document.body.style.overscrollBehavior = null
-        document.body.style.overflow = null
-        overlay.remove()
+      overlay.style.height = "34vh"
+      overlay.style.overscrollBehavior = "none"
+      overlay.style.width = "100%"
+      overlay.style.zIndex = "99999999999999"
+      overlay.style.position = "fixed"
+      overlay.style.bottom = "0"
+      overlay.style.left = "0"
+
+      overlay.style.background = this.colors.matte.light.background
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        overlay.style.background = this.colors.matte.dark.background
       }
+
+      overlay.style.display = "flex"
+      overlay.style.flexDirection = "column"
+      overlay.style.opacity = 0
+
+      this.add("button/remove-overlay", overlay)
+
+      if (callback) callback(overlay)
+
+      document.body.append(overlay)
+
+      const animation = overlay.animate([
+        { opacity: 0, transform: 'translateY(13px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ], {
+        duration: 233,
+        easing: 'ease-in-out',
+        fill: "forwards"
+      })
+
+      return overlay
+
+    }
+
+    if (event === "toolbox") {
+
+      const overlay = document.createElement("div")
+      overlay.classList.add("overlay")
 
       // mobile issues
       overlay.style.height = "100%"
       overlay.style.overscrollBehavior = "none"
-      document.body.style.overscrollBehavior = "none"
-      document.body.style.overflow = "hidden"
+      //document.body.style.overscrollBehavior = "none"
+      //document.body.style.overflow = "hidden"
 
       overlay.style.width = "100%"
       overlay.style.zIndex = "99999999999999"
@@ -28374,7 +31597,47 @@ export class Helper {
       overlay.style.flexDirection = "column"
       overlay.style.opacity = 0
 
-      callback(overlay)
+      if (callback) callback(overlay)
+
+      document.body.append(overlay)
+
+      const animation = overlay.animate([
+        { opacity: 0, transform: 'translateY(13px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ], {
+        duration: 233,
+        easing: 'ease-in-out',
+        fill: "forwards"
+      })
+
+      return overlay
+
+    }
+
+    if (event === "popup") {
+
+      const overlay = document.createElement("div")
+      overlay.classList.add("overlay")
+
+      // mobile issues
+      overlay.style.height = "100%"
+      overlay.style.overscrollBehavior = "none"
+      //document.body.style.overscrollBehavior = "none"
+      //document.body.style.overflow = "hidden"
+
+      overlay.style.width = "100%"
+      overlay.style.zIndex = "99999999999999"
+      overlay.style.position = "fixed"
+      overlay.style.top = "0"
+      overlay.style.left = "0"
+
+      overlay.style.background = this.colors.matte.light.background
+
+      overlay.style.display = "flex"
+      overlay.style.flexDirection = "column"
+      overlay.style.opacity = 0
+
+      if (callback) callback(overlay)
 
       document.body.append(overlay)
 
@@ -28388,7 +31651,135 @@ export class Helper {
       })
 
       return overlay
+
     }
+
+    if (event === "info") {
+
+      const overlay = document.createElement("div")
+      overlay.classList.add("overlay")
+
+      // mobile issues
+      overlay.style.height = "100%"
+      overlay.style.overscrollBehavior = "none"
+      //document.body.style.overscrollBehavior = "none"
+      //document.body.style.overflow = "hidden"
+
+      overlay.style.width = "100%"
+      overlay.style.zIndex = "99999999999999"
+      overlay.style.position = "fixed"
+      overlay.style.top = "0"
+      overlay.style.left = "0"
+      // overlay.style.overflow = "auto"
+
+
+      overlay.style.background = this.colors.matte.light.background
+
+
+      overlay.style.display = "flex"
+      overlay.style.flexDirection = "column"
+      overlay.style.opacity = 0
+
+      this.headerPicker("removeOverlay", overlay)
+
+      if (callback) callback(overlay)
+
+      document.body.append(overlay)
+
+      const animation = overlay.animate([
+        { opacity: 0, transform: 'translateY(13px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ], {
+        duration: 344,
+        easing: 'ease-in-out',
+        fill: "forwards"
+      })
+
+      return overlay
+
+    }
+
+    if (event === "security") {
+      const overlay = document.createElement("div")
+      overlay.classList.add("overlay")
+
+      this.headerPicker("loading", overlay)
+
+      // mobile issues
+      overlay.style.height = "100%"
+      overlay.style.overscrollBehavior = "none"
+      //document.body.style.overscrollBehavior = "none"
+      //document.body.style.overflow = "hidden"
+
+      overlay.style.width = "100%"
+      overlay.style.zIndex = "99999999999999"
+      overlay.style.position = "fixed"
+      overlay.style.top = "0"
+      overlay.style.left = "0"
+
+      overlay.style.background = this.colors.matte.light.background
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        overlay.style.background = this.colors.matte.dark.background
+      }
+
+      overlay.style.display = "flex"
+      overlay.style.flexDirection = "column"
+
+      if (callback) callback(overlay)
+
+      document.body.append(overlay)
+
+      return overlay
+    }
+
+  }
+
+  static popup(callback) {
+    const overlay = document.createElement("div")
+    overlay.classList.add("overlay")
+
+    const removeOverlayButton = this.create("button/remove-overlay", overlay)
+    removeOverlayButton.onclick = () => {
+      document.body.style.overscrollBehavior = null
+      document.body.style.overflow = null
+      overlay.remove()
+    }
+
+    // mobile issues
+    overlay.style.height = "100%"
+    overlay.style.overscrollBehavior = "none"
+    document.body.style.overscrollBehavior = "none"
+    document.body.style.overflow = "hidden"
+
+    overlay.style.width = "100%"
+    overlay.style.zIndex = "99999999999999"
+    overlay.style.position = "fixed"
+    overlay.style.top = "0"
+    overlay.style.left = "0"
+
+    overlay.style.background = this.colors.matte.light.background
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      overlay.style.background = this.colors.matte.dark.background
+    }
+
+    overlay.style.display = "flex"
+    overlay.style.flexDirection = "column"
+    overlay.style.opacity = 0
+
+    if (callback) callback(overlay)
+
+    document.body.append(overlay)
+
+    const animation = overlay.animate([
+      { opacity: 0, transform: 'translateY(13px)' },
+      { opacity: 1, transform: 'translateY(0)' },
+    ], {
+      duration: 344,
+      easing: 'ease-in-out',
+      fill: "forwards"
+    })
+
+    return overlay
   }
 
   static setNotValidStyle(element) {
