@@ -566,6 +566,7 @@ app.post(`/:method/:type/:event/`,
   // open context
   Request.verify,
   Request.get,
+  Request.register,
 
 
 
