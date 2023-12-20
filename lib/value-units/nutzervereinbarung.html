@@ -27,7 +27,8 @@
       document.body.style.background = Helper.colors.dark.background
     }
 
-    Helper.add("button/back", document.body)
+    const backButton = Helper.create("button/back", document.body)
+    Helper.convert("node/dark-light", backButton)
 
     Helper.render("text/h1", "Nutzervereinbarung", document.body)
 
@@ -48,7 +49,7 @@
         <p>Inhaltlich Verantwortlicher</p>
         <p>
           <b>Panagiotis Tsivelekidis</b><br>
-          Staigerbacher Str. 188<br>
+          Schwarenbergstr Str. 188<br>
           70184 Stuttgart<br>
           Deutschland<br>
         </p>
