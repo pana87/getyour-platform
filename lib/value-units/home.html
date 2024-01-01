@@ -43,7 +43,17 @@
 
               const closedButtons = Helper.create("div/scrollable", content)
               Helper.add("button/network", closedButtons)
+
               Helper.add("button/assign-expert-home", closedButtons)
+
+              const res = await Helper.verifyIs("user/getyour-admin")
+              if (res.status === 200) {
+                const button = Helper.create("button/left-right", closedButtons)
+                button.left.innerHTML = ".admin"
+                button.right.innerHTML = "Der Bereich für Admins"
+                button.onclick = () => window.location.assign("/admin/")
+              }
+
             }
 
             Helper.render("text/hr", "open apps", content)
