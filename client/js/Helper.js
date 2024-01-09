@@ -681,6 +681,238 @@ export class Helper {
       })
     }
 
+    if (event === "event/service-creator") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const companyName = document.querySelector("div.company-name")
+          const totalPrice = document.querySelector("span.total-price")
+          const singlePrice = document.querySelector("span.single-price")
+          const serviceUnits = document.querySelectorAll("span.service-unit")
+          const quantityInput = document.querySelector("input.quantity")
+          const serviceSelect = document.querySelector("div.service-select").firstChild
+
+          let selectedServices
+          serviceSelect.oninput = (ev) => {
+            const selected = ev.target.value
+
+            companyName.innerHTML = "Firma"
+            singlePrice.innerHTML = "0,00"
+            totalPrice.innerHTML = "0,00"
+            selectedServices = []
+
+            this.overlay("toolbox", async roleListOverlay => {
+              this.add("button/remove-overlay", roleListOverlay)
+
+              const buttons = this.create("info/loading", roleListOverlay)
+
+              const res = await this.get("trees/users/open", [`${window.location.pathname.split("/")[2]}.${selected}`, `${window.location.pathname.split("/")[2]}.company.name`, `${window.location.pathname.split("/")[2]}.services`, "reputation"])
+
+              if (res.status === 200) {
+                const users = JSON.parse(res.response)
+
+                this.sort("array/reputation/descending", users)
+
+                this.convert("parent/scrollable", buttons)
+
+                this.render("text/h1", `${this.convert("text/capital-first-letter", selected)} auswählen`, buttons)
+
+                for (let i = 0; i < users.length; i++) {
+                  const user = users[i]
+
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = user[`${window.location.pathname.split("/")[2]}.company.name`]
+                  button.right.innerHTML = `${user[`${window.location.pathname.split("/")[2]}.services`].length} Dienstleistungen`
+                  button.onclick = () => {
+                    this.overlay("toolbox", selectServicesOverlay => {
+                      this.add("button/remove-overlay", selectServicesOverlay)
+
+                      const save = this.create("button/save", selectServicesOverlay)
+                      save.onclick = () => {
+
+                        if (selectedServices === undefined || selectedServices.length === 0) {
+                          window.alert("Es wurde keine Leistung ausgewählt.")
+                        }
+
+                        if (selectedServices !== undefined && selectedServices.length > 0) {
+                          const serviceOptions = document.querySelector("div.service-options")
+                          const serviceBox = this.create("div/service-box", serviceOptions)
+                          serviceBox.checkbox.checked = true
+                          serviceBox.quantity.innerHTML = document.querySelector("input.quantity").value
+                          const company = document.createElement("p")
+                          company.style.fontWeight = "bold"
+                          company.innerHTML = document.querySelector("div.company-name").innerHTML
+                          serviceBox.service.appendChild(company)
+                          for (let i = 0; i < selectedServices.length; i++) {
+                            const service = selectedServices[i]
+                            const serviceDiv = document.createElement("div")
+                            serviceDiv.innerHTML = service.name
+                            serviceBox.service.append(serviceDiv)
+                          }
+                          serviceBox.singlePrice.innerHTML = document.querySelector("div.single-price").innerHTML
+                          serviceBox.totalPrice.innerHTML = document.querySelector("div.total-price").innerHTML
+                          this.remove("overlays")
+                        }
+
+                      }
+
+                      const serviceButtons = this.create("div/scrollable", selectServicesOverlay)
+
+                      this.render("text/h1", `Leistungen auswählen`, serviceButtons)
+
+                      for (let i = 0; i < user[`${window.location.pathname.split("/")[2]}.services`].length; i++) {
+                        const locationList = user[`${window.location.pathname.split("/")[2]}.services`][i]
+
+                        const button = this.create("button/left-right", serviceButtons)
+
+                        const checkbox = this.create("input/checkbox", button.left)
+                        checkbox.style.transform = "scale(2)"
+                        checkbox.style.margin = "0 21px"
+                        checkbox.style.cursor = "pointer"
+                        for (let i = 0; i < selectedServices.length; i++) {
+                          const selectedService = selectedServices[i]
+                          if (selectedService.name === locationList.funnel.name) {
+                            checkbox.checked = true
+                          }
+                        }
+                        checkbox.addEventListener("click", () => checkbox.checked = !checkbox.checked)
+
+                        button.left.style.display = "flex"
+                        button.left.style.alignItems = "center"
+                        button.left.style.width = "233px"
+                        button.left.append(locationList.funnel.name)
+                        button.right.innerHTML = `${locationList.funnel.price} €`
+                        button.right.style.fontSize = "34px"
+                        if (locationList.funnel.unit !== undefined) {
+                          button.right.innerHTML = `${locationList.funnel.price} ${locationList.funnel.unit}`
+                        }
+
+                        button.onclick = () => {
+                          this.remove("node/sign", serviceSelect)
+                          checkbox.checked = !checkbox.checked
+
+                          const service = {}
+                          service.name = locationList.funnel.name
+                          service.price = locationList.funnel.price
+
+                          companyName.innerHTML = user[`${window.location.pathname.split("/")[2]}.company.name`]
+
+                          if (checkbox.checked === true) {
+                            selectedServices.push(service)
+                          }
+
+                          if (checkbox.checked === false) {
+                            const index = selectedServices.findIndex(it => it.name === service.name)
+                            if (index !== -1) {
+                              selectedServices.splice(index, 1)
+                            }
+                          }
+
+                          const sum = selectedServices.reduce((accumulator, current) => {
+                            return accumulator + Number(current.price)
+                          }, 0)
+
+                          singlePrice.innerHTML = `${sum.toFixed(2).replace(".", ",")} `
+                          totalPrice.innerHTML = `${sum.toFixed(2).replace(".", ",")} `
+                          quantityInput.value = 1
+
+                          if (locationList.funnel.unit !== undefined) {
+                            serviceUnit.innerHTML = locationList.funnel.unit
+                          }
+
+                        }
+
+
+                      }
+
+                    })
+                  }
+
+                }
+
+              }
+
+              if (res.status !== 200) {
+                this.convert("parent/info", buttons)
+                buttons.innerHTML = `Keine ${this.convert("text/capital-first-letter", selected)} gefunden.`
+              }
+
+            })
+          }
+
+          const res = await this.get("trees/users/open", ["getyour.expert.platforms"])
+          if (res.status === 200) {
+            const users = JSON.parse(res.response)
+
+            for (let i = 0; i < users.length; i++) {
+              const user = users[i]
+              if (user["getyour.expert.platforms"] !== undefined) {
+                for (let i = 0; i < user["getyour.expert.platforms"].length; i++) {
+                  const platform = user["getyour.expert.platforms"][i]
+                  if (platform.name === window.location.pathname.split("/")[2]) {
+                    if (platform.roles !== undefined) {
+                      serviceSelect.innerHTML = ""
+                      for (let i = 0; i < platform.roles.length; i++) {
+                        const role = platform.roles[i]
+                        const option = document.createElement("option")
+                        option.text = this.convert("text/capital-first-letter", role.name)
+                        option.value = role.name
+                        serviceSelect.append(option)
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+
+          }
+
+          quantityInput.oninput = (ev) => {
+            const totalPrice = document.querySelector("span.total-price")
+            const singlePrice = document.querySelector("span.single-price")
+            totalPrice.innerHTML = `${(Number(singlePrice.innerHTML.replace(",", ".")) * ev.target.value).toFixed(2).replace(".", ",")} `
+          }
+
+          const addService = document.querySelector("div.add-service")
+          addService.style.cursor = "pointer"
+          addService.onclick = () => {
+
+            if (selectedServices === undefined || selectedServices.length === 0) {
+              window.alert("Es wurde keine Leistung ausgewählt.")
+              this.setNotValidStyle(serviceSelect)
+            }
+
+            if (selectedServices !== undefined && selectedServices.length > 0) {
+              const serviceOptions = document.querySelector("div.service-options")
+              const serviceBox = this.create("div/service-box", serviceOptions)
+              serviceBox.checkbox.checked = true
+              serviceBox.quantity.innerHTML = document.querySelector("input.quantity").value
+              const company = document.createElement("p")
+              company.style.fontWeight = "bold"
+              company.innerHTML = document.querySelector("div.company-name").innerHTML
+              serviceBox.service.appendChild(company)
+              for (let i = 0; i < selectedServices.length; i++) {
+                const service = selectedServices[i]
+                const serviceDiv = document.createElement("div")
+                serviceDiv.innerHTML = service.name
+                serviceBox.service.append(serviceDiv)
+              }
+              serviceBox.singlePrice.innerHTML = document.querySelector("div.single-price").innerHTML
+              serviceBox.totalPrice.innerHTML = document.querySelector("div.total-price").innerHTML
+            }
+
+          }
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+
+    }
+
     if (event === "event/back-button") {
       const button = document.querySelector(".back-button")
       if (button) {
@@ -881,94 +1113,6 @@ export class Helper {
           this.convert("field/on-info-click", field)
         }
       })
-
-    }
-
-    if (event === "event/offer-options") {
-
-      return new Promise(async(resolve, reject) => {
-        try {
-
-          const options = document.querySelector(".offer-options")
-
-          console.log(options);
-
-          // add more options from location cart
-          // dc-montage option exist always
-
-          if (options) {
-
-            // get location cart
-            const res = await this.get("cart/location/self")
-
-            if (res.status === 200) {
-              const cart = JSON.parse(res.response)
-              console.log(cart)
-            }
-            // add more options before doing the for loop
-
-
-
-            // add events for each option
-            for (let i = 0; i < options.children.length; i++) {
-              const option = options.children[i]
-
-              const checkbox = option.querySelector("input[type='checkbox']")
-
-              checkbox.onclick = (ev) => {
-                ev.preventDefault()
-                this.overlay("popup", overlay => {
-                  const actions = this.create("div/scrollable", overlay)
-
-                  // console.log(checkbox);
-                  // console.log(option);
-
-                  {
-                    const button = this.create("button/left-right", actions)
-                    button.right.innerHTML = "Leistung auswählen"
-                    button.left.innerHTML = ".select"
-                    button.onclick = () => {
-                      checkbox.checked = true
-                      this.remove("overlay", overlay)
-                    }
-                  }
-
-                  {
-                    const button = this.create("button/left-right", actions)
-                    button.right.innerHTML = "Leistung entfernen"
-                    button.left.innerHTML = ".remove"
-                    button.onclick = () => {
-                      checkbox.checked = false
-                      this.remove("overlay", overlay)
-                    }
-                  }
-
-                  {
-                    const button = this.create("button/left-right", actions)
-                    button.right.innerHTML = "Leistung vergleichen"
-                    button.left.innerHTML = ".compare"
-                  }
-
-                  {
-                    const button = this.create("button/left-right", actions)
-                    button.right.innerHTML = "Ansprechpartner kontaktieren"
-                    button.left.innerHTML = ".support"
-                  }
-
-
-                })
-              }
-            }
-
-          }
-
-        } catch (error) {
-          reject(error)
-        }
-      })
-
-
-
 
     }
 
@@ -1880,6 +2024,11 @@ export class Helper {
             const passwordInputButton = this.create("button/password-input", inputOptions)
             passwordInputButton.onclick = () => {
               this.create("input/password", selectedNode)
+            }
+
+            const selectInputButton = this.create("button/select-input", inputOptions)
+            selectInputButton.onclick = () => {
+              this.create("input/select", selectedNode)
             }
 
 
@@ -2981,6 +3130,24 @@ export class Helper {
 
             this.render("text/hr", "Anwendungen für die Textverarbeitung", optionsContainer)
             const textManipulationOptions = this.create("div/flex-row", optionsContainer)
+
+            let originalWhiteSpaceNoWrap
+            const whiteSpaceNoWrapButton = this.create("button/white-space-nowrap", textManipulationOptions)
+            whiteSpaceNoWrapButton.onclick = () => {
+
+              if (selectedNode.style.whiteSpace === "nowrap") {
+                if (originalWhiteSpaceNoWrap) {
+                    selectedNode.style.whiteSpace = originalWhiteSpaceNoWrap
+                } else {
+                    selectedNode.style.whiteSpace = null
+                }
+
+              } else {
+                  originalWhiteSpaceNoWrap = selectedNode.style.whiteSpace
+                  selectedNode.style.whiteSpace = "nowrap"
+              }
+
+            }
 
             let originalFontFamily
             const fontFamilyButton = this.create("button/font-family", textManipulationOptions)
@@ -4882,6 +5049,16 @@ export class Helper {
 
     }
 
+    if (event === "icon/touch") {
+      const icon = this.create("icon/touch")
+      icon.classList.add("icon-touch")
+      icon.style.fill = this.colors.light.text
+      icon.style.width = "34px"
+      icon.style.marginLeft = "21px"
+      input?.querySelectorAll(".icon-touch").forEach(it => it.remove())
+      input?.append(icon)
+    }
+
     if (event === "script/click-funnel-event") {
 
       const script = this.create(event)
@@ -5194,7 +5371,7 @@ await Helper.add("toolbox/onbody")
       button.onclick = () => {
         this.overlay("toolbox", async nextStepOverlay => {
           this.add("button/remove-overlay", nextStepOverlay)
-          this.render("text/h3", "Nächster Schritt", nextStepOverlay)
+          this.render("text/h1", "Nächste Schritte", nextStepOverlay)
           this.render("text/bottom-left", ".network", nextStepOverlay)
           const app = this.create("button/getyour", nextStepOverlay)
 
@@ -5207,8 +5384,116 @@ await Helper.add("toolbox/onbody")
 
               {
                 const button = this.create("button/left-right", buttons)
-                button.left.innerHTML = ".children"
-                button.right.innerHTML = "Meine Nutzer Liste"
+                button.left.innerHTML = ".contacts"
+                button.right.innerHTML = "Meine Kontakte"
+                button.onclick = () => {
+                  this.overlay("popup", async overlay => {
+                    const addButton = this.create("button/quick-add", overlay)
+                    addButton.onclick = () => {
+
+                      this.overlay("popup", overlay => {
+                        this.render("text/h1", "Neuen Kontakt erstellen", overlay)
+
+                        const funnel = this.create("div/scrollable", overlay)
+
+                        const emailField = this.create("field/email", funnel)
+                        emailField.label.innerHTML = "Welche E-Mail Adresse möchtest du zu deiner Kontaktliste hinzufügen"
+                        emailField.input.placeholder = "neue@email.de"
+                        this.verify("input/value", emailField.input)
+                        emailField.input.oninput = () => this.verify("input/value", emailField.input)
+
+                        const submit = this.create("button/action", funnel)
+                        submit.innerHTML = "Kontakt jetzt speichern"
+                        submit.onclick = async () => {
+                          await this.verify("input/value", emailField.input)
+
+                          this.overlay("security", async securityOverlay => {
+                            const res = await this.register("email/contacts/self", emailField.input.value)
+
+                            if (res.status === 200) {
+                              window.alert("Kontakt erfolgreich gespeichert.")
+                              this.render("contacts/node/update-self", contactsDiv)
+                              securityOverlay.remove()
+                              overlay.remove()
+                            }
+
+                            if (res.status !== 200) {
+                              window.alert("Fehler.. Bitte wiederholen.")
+                              securityOverlay.remove()
+                            }
+                          })
+
+                        }
+
+                      })
+                    }
+
+                    this.render("text/h1", "Meine Kontaktliste", overlay)
+
+                    const contactsDiv = this.create("div", overlay)
+                    contactsDiv.className = "children"
+                    this.render("contacts/node/update-self", contactsDiv)
+
+                  })
+                }
+              }
+
+              {
+                const button = this.create("button/left-right", buttons)
+                button.left.innerHTML = ".pager"
+                button.right.innerHTML = "Schreibe schnell, einfach und sicher deine Nachrichten"
+                button.onclick = () => {
+                  this.overlay("popup", async overlay => {
+                    const addButton = this.create("button/quick-add", overlay)
+                    addButton.onclick = () => {
+                      this.overlay("popup", overlay => {
+                        this.render("text/h1", "Neuen Pager erstellen", overlay)
+
+                        const funnel = this.create("div/scrollable", overlay)
+
+                        // create select field instead and fill it with children contacts
+                        // not a selected field
+                        // a search field that checks the children emails
+                        const emailsField = this.create("field/emails", funnel)
+                        emailsField.label.innerHTML = "Welche E-Mail Adressen dürfen auf diesen Pager zugreifen?"
+                        this.verify("input/value", emailsField.input)
+                        emailsField.oninput = () => {
+
+                          this.verify("input/value", emailsField.input)
+                          if (emailsField.input.value === "[]") {
+                            this.setNotValidStyle(emailsField.input)
+                          }
+                        }
+
+                      })
+                    }
+
+                    this.render("text/h1", "Meine Pager", overlay)
+
+                    const pagerList = this.create("info/loading", overlay)
+
+
+
+                    // search the platform closed
+                    const res = await this.get("pager/email/closed")
+
+
+
+                    if (res.status === 200) {
+                      const pager = JSON.parse(res.response)
+                      console.log(pager);
+
+                      this.convert("parent/scrollable", pagerList)
+
+                    }
+
+                    if (res.status !== 200) {
+                      this.convert("parent/info", pagerList)
+                      pagerList.innerHTML = `Deine E-Mail Adresse wurde in keinem Pager gefunden. Erstelle einen neuen Pager in dem du auf <span style="width: 34px; margin: 0 5px">${this.create("icon/quick-add").outerHTML}</span> klickst.`
+                    }
+
+                  })
+                }
               }
 
               {
@@ -5592,6 +5877,9 @@ await Helper.add("toolbox/onbody")
         })
       }
 
+
+
+
     }
 
     if (event === "input/value") {
@@ -5619,6 +5907,53 @@ await Helper.add("toolbox/onbody")
         }
 
       }
+
+    }
+
+  }
+
+  static animate(event, input) {
+    // event = input/animation
+
+    if (event === "node/pulsate") {
+      return input?.animate(
+        [
+          { transform: 'scale(1)' },
+          { transform: 'scale(1.1)' },
+          { transform: 'scale(1)' }
+        ],
+        {
+          duration: 3000,
+          easing: 'ease-in-out',
+          iterations: Infinity
+        }
+      )
+    }
+
+    if (event === "node/border-ripple-out") {
+
+      input.style.position = "relative"
+
+      const rippleNode = input.cloneNode("true")
+      rippleNode.classList.add("ripple-out")
+      rippleNode.innerHTML = ""
+      rippleNode.style.position = "absolute"
+      rippleNode.style.top = "-8px"
+      rippleNode.style.left = "-8px"
+      input.querySelectorAll(".ripple-out").forEach(it => it.remove())
+      input.appendChild(rippleNode)
+
+      rippleNode.animate(
+        [
+          { transform: 'scale(1)', opacity: 1 },
+          { transform: 'scale(2)', opacity: 0 }
+        ],
+        {
+          duration: 3000,
+          easing: 'ease-in-out',
+          iterations: Infinity,
+        }
+      )
 
     }
 
@@ -5697,6 +6032,12 @@ await Helper.add("toolbox/onbody")
       div.top.setAttribute("soundbox-tools", "")
       div.bottom.setAttribute("soundbox-audio-list", "")
 
+    }
+
+    if (event === "input/select") {
+      const select = document.createElement("select")
+      input?.append(select)
+      return select
     }
 
     if (event === "input/password") {
@@ -5836,6 +6177,22 @@ await Helper.add("toolbox/onbody")
 
       if (input !== undefined) input.append(funnel)
       return funnel
+    }
+
+    if (event === "icon/touch") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 512.001 512.001" xml:space="preserve"><g><g><path d="M401.809,212.523c-12.295-1.17-24.556,2.892-33.639,11.15c-1.122,1.021-2.186,2.096-3.188,3.217 c-6.805-12.704-19.329-21.819-33.946-23.214c-12.295-1.17-24.556,2.892-33.639,11.15c-1.122,1.021-2.186,2.096-3.188,3.217 c-5.941-11.089-16.24-19.443-28.485-22.315c21.223-21.098,33.958-50.2,33.958-81.275C299.681,51.344,248.337,0,185.227,0 S70.774,51.344,70.774,114.454c0,46.302,28.254,88.244,70.773,105.817v49.155l-31.869,22.764 c-18.882,13.488-26.638,37.341-19.3,59.353l31.431,94.297c13.193,39.573,50.082,66.162,91.796,66.162h130.862 c53.354,0,96.76-43.406,96.76-96.76V257.522C441.227,234.396,423.913,214.632,401.809,212.523z M87.361,114.454 c0-53.963,43.903-97.866,97.866-97.866c53.963,0,97.866,43.903,97.866,97.866c0,37.248-21.382,71.191-54.186,87.594v-21.686 c21.942-14.579,35.387-39.4,35.387-65.908c0-43.597-35.47-79.067-79.067-79.067c-43.597,0-79.067,35.47-79.067,79.067 c0,26.506,13.446,51.328,35.387,65.908v21.686C108.745,185.645,87.361,151.701,87.361,114.454z M189.489,70.978 c-12.296-1.172-24.556,2.89-33.638,11.149c-9.09,8.265-14.304,20.048-14.304,32.327v44.644 c-11.839-11.626-18.799-27.699-18.799-44.644c0-34.451,28.028-62.479,62.479-62.479c34.451,0,62.479,28.028,62.479,62.479 c0,16.947-6.96,33.019-18.799,44.645v-43.123C228.908,92.85,211.594,73.084,189.489,70.978z M344.467,495.413H213.604 c-34.564,0-65.129-22.03-76.059-54.819l-31.431-94.296c-5.022-15.061,0.285-31.381,13.205-40.609l22.228-15.878v72.352 c0,4.58,3.712,8.294,8.294,8.294c4.581,0,8.294-3.713,8.294-8.294V114.454c0-7.617,3.235-14.927,8.874-20.053 c5.716-5.197,13.146-7.652,20.906-6.91c13.686,1.304,24.406,13.816,24.406,28.484v175.413c0,4.58,3.712,8.294,8.294,8.294 c4.581,0,8.294-3.713,8.294-8.294v-53.08c0-7.617,3.235-14.927,8.874-20.053c5.715-5.196,13.137-7.657,20.906-6.91 c13.685,1.305,24.405,13.817,24.405,28.485v7.325v53.08c0,4.58,3.712,8.294,8.294,8.294s8.294-3.713,8.294-8.294v-53.08 c0-7.617,3.235-14.927,8.874-20.053c5.715-5.196,13.137-7.657,20.906-6.91c13.685,1.305,24.405,13.817,24.405,28.485V256v53.08 c0,4.58,3.712,8.294,8.294,8.294s8.294-3.713,8.294-8.294V256c0-7.617,3.234-14.927,8.874-20.053 c5.715-5.196,13.137-7.657,20.906-6.91c13.685,1.305,24.405,13.817,24.405,28.485V415.24h0.003 C424.64,459.448,388.675,495.413,344.467,495.413z"/></g></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      input?.append(svg)
+      return svg
     }
 
     if (event === "icon/arrow-right") {
@@ -7018,6 +7375,7 @@ await Helper.add("toolbox/onbody")
 
       const svgString = `<svg fill="${primary}" viewBox="0 0 32 32" id="icon" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1 {fill: none;}</style></defs><path d="M11.9474,19a4.9476,4.9476,0,0,1-3.4991-8.4465l5.1053-5.1043a4.9482,4.9482,0,0,1,6.9981,6.9976l-.5523.5526-1.4158-1.4129.5577-.5579a2.95,2.95,0,0,0-.0039-4.1653,3.02,3.02,0,0,0-4.17,0l-5.1047,5.104a2.9474,2.9474,0,0,0,0,4.1692,3.02,3.02,0,0,0,4.17,0l1.4143,1.4145A4.9176,4.9176,0,0,1,11.9474,19Z"/><path d="M19.9474,17a4.9476,4.9476,0,0,1-3.4991-8.4465l.5526-.5526,1.4143,1.4146-.5526.5523a2.9476,2.9476,0,0,0,0,4.1689,3.02,3.02,0,0,0,4.17,0c.26-.26,4.7293-4.7293,5.1053-5.1045a2.951,2.951,0,0,0,0-4.1687,3.02,3.02,0,0,0-4.17,0L21.5536,3.449a4.9483,4.9483,0,0,1,6.9981,6.9978c-.3765.376-4.844,4.8428-5.1038,5.1035A4.9193,4.9193,0,0,1,19.9474,17Z"/><path d="M24,30H4a2.0021,2.0021,0,0,1-2-2V8A2.0021,2.0021,0,0,1,4,6H8V8H4V28H24V18h2V28A2.0021,2.0021,0,0,1,24,30Z"/><rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/></svg>`
       const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
 
       if (input) input.append(svg)
       return svg
@@ -7777,8 +8135,9 @@ await Helper.add("toolbox/onbody")
 
       const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 17L7 14L10 11" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14L13.5 14C15.433 14 17 12.433 17 10.5V10.5C17 8.567 15.433 7 13.5 7L12 7" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
       const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
 
-      if (input) input.append(svg)
+      input?.append(svg)
       return svg
     }
 
@@ -8556,6 +8915,51 @@ await Helper.add("toolbox/onbody")
       }
 
       const svgString = `<svg class="icon-line-height" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="none"><path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01-.184-.092Z"/><path d="m6.707 3.293 2.121 2.121a1 1 0 0 1-1.414 1.414L7 6.414v11.172l.414-.414a1 1 0 1 1 1.414 1.414l-2.12 2.121a1 1 0 0 1-1.415 0l-2.121-2.121a1 1 0 1 1 1.414-1.414l.414.414V6.414l-.414.414a1 1 0 0 1-1.414-1.414l2.12-2.121a1 1 0 0 1 1.415 0ZM20 18a1 1 0 0 1 .117 1.993L20 20h-8a1 1 0 0 1-.117-1.993L12 18h8Zm0-7a1 1 0 0 1 .117 1.993L20 13h-8a1 1 0 0 1-.117-1.993L12 11h8Zm0-7a1 1 0 1 1 0 2h-8a1 1 0 1 1 0-2h8Z" fill="${primary}"/></g></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/select-input") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg fill="${primary}" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M15 4H1c-.6 0-1 .4-1 1v6c0 .6.4 1 1 1h14c.6 0 1-.4 1-1V5c0-.6-.4-1-1-1zm-3 5-2-2h4l-2 2z"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/white-space-nowrap") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h48v48H0z"/><path d="M8 8v32M40 8v32M20.052 24.008H40" stroke="${primary}" stroke-width="4" stroke-linecap="round"/></svg>`
+      const svg = this.convert("text/svg", svgString)
+      svg.style.width = "100%"
+
+      if (input) input.append(svg)
+      return svg
+    }
+
+    if (event === "icon/quick-add") {
+
+      let primary = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        primary = this.colors.dark.text
+      }
+
+      const svgString = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 12h4m0 0h4m-4 0v4m0-4V8m0 13a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
       const svg = this.convert("text/svg", svgString)
       svg.style.width = "100%"
 
@@ -9858,6 +10262,114 @@ await Helper.add("toolbox/onbody")
       if (input !== undefined) input.append(div)
 
       return div
+    }
+
+    if (event === "div/service-box") {
+
+      const div = document.createElement("div")
+      div.className = "service-box"
+      div.style.display = "flex"
+      div.style.flexWrap = "wrap"
+      div.style.margin = "21px 34px"
+      div.style.padding = "8px"
+      div.style.borderRadius = "3px"
+      div.style.boxShadow = "rgba(0, 0, 0, 0.16) 0px 1px 4px"
+
+      const checkboxWrapper = document.createElement("div")
+      checkboxWrapper.className = "checkbox-wrapper"
+      checkboxWrapper.style.width = "89px"
+      checkboxWrapper.style.display = "flex"
+      checkboxWrapper.style.justifyContent = "center"
+      checkboxWrapper.style.alignItems = "center"
+      div.checkbox = document.createElement("input")
+      div.checkbox.type = "checkbox"
+      div.checkbox.style.transform = "scale(2)"
+      checkboxWrapper.append(div.checkbox)
+      div.append(checkboxWrapper)
+
+      div.service = document.createElement("div")
+      div.service.className = "service"
+      div.service.style.minWidth = "233px"
+      div.service.style.display = "flex"
+      div.service.style.flexDirection = "column"
+      div.service.style.margin = "21px 34px"
+      div.service.style.fontSize = "21px"
+      div.service.style.fontFamily = "sans-serif"
+      div.service.style.flex = "1 1 0px"
+      div.appendChild(div.service)
+
+      div.quantity = document.createElement("div")
+      div.quantity.className = "quantity"
+      div.quantity.style.fontFamily = "sans-serif"
+      div.quantity.style.fontSize = "34px"
+      div.quantity.style.display = "flex"
+      div.quantity.style.alignItems = "center"
+      div.quantity.style.justifyContent = "flex-end"
+      div.quantity.style.margin = "21px 34px"
+      div.appendChild(div.quantity)
+
+      div.singlePrice = document.createElement("div")
+      div.singlePrice.className = "single-price"
+      div.singlePrice.style.width = "233px"
+      div.singlePrice.style.fontFamily = "sans-serif"
+      div.singlePrice.style.fontSize = "34px"
+      div.singlePrice.style.display = "flex"
+      div.singlePrice.style.alignItems = "center"
+      div.singlePrice.style.justifyContent = "flex-end"
+      div.singlePrice.style.margin = "21px 34px"
+      div.appendChild(div.singlePrice)
+
+      div.totalPrice = document.createElement("div")
+      div.totalPrice.className = "total-price"
+      div.totalPrice.style.width = "233px"
+      div.totalPrice.style.fontFamily = "sans-serif"
+      div.totalPrice.style.fontSize = "34px"
+      div.totalPrice.style.display = "flex"
+      div.totalPrice.style.alignItems = "center"
+      div.totalPrice.style.justifyContent = "flex-end"
+      div.totalPrice.style.margin = "21px 34px"
+      div.appendChild(div.totalPrice)
+
+      input?.append(div)
+      return div
+    }
+
+    if (event === "button/white-space-nowrap") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/white-space-nowrap"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
+    }
+
+    if (event === "button/select-input") {
+
+      const button = this.create("button/icon")
+
+      button.icon = this.create("div")
+      button.icon.classList.add("icon")
+      button.icon.style.width = "100%"
+      button.icon.style.display = "flex"
+      button.icon.style.justifyContent = "center"
+      button.icon.style.alignItems = "center"
+      button.icon.append(this.create("icon/select-input"))
+      button.append(button.icon)
+
+      if (input) input.append(button)
+
+      return button
+
     }
 
     if (event === "button/font-weight-normal") {
@@ -12983,6 +13495,9 @@ await Helper.add("toolbox/onbody")
     if (event === "button/save") {
 
       const button = document.createElement("div")
+      button.style.display = "flex"
+      button.style.justifyContent = "center"
+      button.style.alignItems = "center"
       button.style.position = "fixed"
       button.style.bottom = "0"
       button.style.right = "0"
@@ -13406,6 +13921,42 @@ await Helper.add("toolbox/onbody")
       return header
     }
 
+    if (event === "button/quick-add") {
+
+      const icon = document.createElement("div")
+      icon.classList.add("icon")
+      icon.style.width = "34px"
+      icon.style.display = "flex"
+      icon.style.justifyContent = "center"
+      icon.style.alignItems = "center"
+      this.create("icon/quick-add", icon)
+
+      const button = document.createElement("div")
+      button.classList.add("quick-add")
+      button.append(icon)
+
+      button.style.position = "fixed"
+      button.style.bottom = "0"
+      button.style.right = "0"
+      button.style.borderRadius = "50%"
+      button.style.margin = "34px"
+      button.style.padding = "21px"
+      button.style.zIndex = "1"
+      button.style.cursor = "pointer"
+
+      button.style.boxShadow = this.colors.light.boxShadow
+      button.style.border = this.colors.light.border
+      button.style.backgroundColor = this.colors.light.foreground
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        button.style.boxShadow = this.colors.dark.boxShadow
+        button.style.border = this.colors.dark.border
+        button.style.backgroundColor = this.colors.dark.foreground
+      }
+
+      input?.append(button)
+      return button
+    }
+
     if (event === "button/back") {
 
       const icon = document.createElement("div")
@@ -13564,31 +14115,34 @@ await Helper.add("toolbox/onbody")
 
     if (event === "button/remove-overlay") {
 
-      const icon = this.iconPicker("back")
-      icon.style.width = "34px"
-      const header = document.createElement("div")
-      header.append(icon)
-      header.style.position = "fixed"
-      header.style.bottom = "0"
-      header.style.left = "0"
+      const icon = this.create("icon/back")
+      const button = document.createElement("div")
+      button.style.width = "34px"
+      button.style.display = "flex"
+      button.style.justifyContent = "center"
+      button.style.alignItems = "center"
+      button.append(icon)
+      button.style.position = "fixed"
+      button.style.bottom = "0"
+      button.style.left = "0"
 
-      header.style.boxShadow = this.colors.light.boxShadow
-      header.style.border = this.colors.light.border
-      header.style.backgroundColor = this.colors.light.foreground
+      button.style.boxShadow = this.colors.light.boxShadow
+      button.style.border = this.colors.light.border
+      button.style.backgroundColor = this.colors.light.foreground
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        header.style.boxShadow = this.colors.dark.boxShadow
-        header.style.border = this.colors.dark.border
-        header.style.backgroundColor = this.colors.dark.foreground
+        button.style.boxShadow = this.colors.dark.boxShadow
+        button.style.border = this.colors.dark.border
+        button.style.backgroundColor = this.colors.dark.foreground
       }
 
-      header.style.borderRadius = "50%"
-      header.style.margin = "34px"
-      header.style.padding = "21px"
-      header.style.zIndex = "1"
-      header.style.cursor = "pointer"
+      button.style.borderRadius = "50%"
+      button.style.margin = "34px"
+      button.style.padding = "21px"
+      button.style.zIndex = "1"
+      button.style.cursor = "pointer"
 
-      if (input) input.append(header)
-      return header
+      if (input) input.append(button)
+      return button
     }
 
     if (event === "button/branch") {
@@ -13762,6 +14316,7 @@ await Helper.add("toolbox/onbody")
       this.create("field/dsgvo", input)
 
       const loginbutton = this.buttonPicker("action", input)
+      loginbutton.style.fontSize = "34px"
       loginbutton.classList.add("start-login-event")
       loginbutton.innerHTML = "Jetzt anmelden"
 
@@ -13878,7 +14433,7 @@ await Helper.add("event/soundbox")
 
       const text = /*html*/`
         <script id="open-login-event" type="module">
-          import { Helper } from "/js/Helper.js"
+          import {Helper} from "/js/Helper.js"
 
           const submit = document.querySelector(".start-login-event")
           const emailInput = document.querySelector(".email-input")
@@ -13909,7 +14464,7 @@ await Helper.add("event/soundbox")
 
       const scriptText = /*html*/`
         <script id="${input.tag}-list-mirror-event" type="module">
-import { Helper } from "/js/Helper.js"
+import {Helper} from "/js/Helper.js"
 
 const map = {}
 map.tag = '${input.tag}'
@@ -13933,7 +14488,7 @@ await Helper.add("event/location-list-funnel", map)
 
       const text = /*html*/`
         <script id="${input.id}" type="module">
-import { Helper } from "/js/Helper.js"
+import {Helper} from "/js/Helper.js"
 
 ${input.js}
 
@@ -13956,7 +14511,7 @@ ${input.js}
 
       const text = /*html*/`
         <script id="match-maker-onload-${input.name}" type="module">
-          import { Helper } from "/js/Helper.js"
+          import {Helper} from "/js/Helper.js"
 
           const res = await Helper.verify("match-maker-conditions/closed", ${conditionsString})
 
@@ -13985,7 +14540,7 @@ ${input.js}
 
       const text = /*html*/`
         <script id="match-maker-onclick-${input.name}" type="module">
-          import { Helper } from "/js/Helper.js"
+          import {Helper} from "/js/Helper.js"
 
           const elements = document.querySelectorAll("[match-maker='${input.name}']")
 
@@ -14022,7 +14577,7 @@ ${input.js}
 
       const text = /*html*/`
         <script id="match-maker-show-${input.name}" type="module">
-          import { Helper } from "/js/Helper.js"
+          import {Helper} from "/js/Helper.js"
 
           const elements = document.querySelectorAll("[match-maker='${input.name}']")
 
@@ -14059,7 +14614,7 @@ ${input.js}
 
       const text = /*html*/`
         <script id="match-maker-get-list-${input.name}" type="module">
-          import { Helper } from "/js/Helper.js"
+          import {Helper} from "/js/Helper.js"
 
           const elements = document.querySelectorAll("[match-maker='${input.name}']")
 
@@ -14092,7 +14647,7 @@ ${input.js}
 
       const text = /*html*/`
         <script id="match-maker-get-keys-${input.name}" type="module">
-          import { Helper } from "/js/Helper.js"
+          import {Helper} from "/js/Helper.js"
 
           const elements = document.querySelectorAll("[match-maker='${input.name}']")
 
@@ -14127,7 +14682,7 @@ ${input.js}
 
       const text = /*html*/`
         <script id="match-maker-get-users-${input.name}" type="module">
-          import { Helper } from "/js/Helper.js"
+          import {Helper} from "/js/Helper.js"
 
           const elements = document.querySelectorAll("[match-maker='${input.name}']")
 
@@ -14161,7 +14716,7 @@ ${input.js}
 
       const text = /*html*/`
         <script id="match-maker-remove-${input.name}" type="module">
-          import { Helper } from "/js/Helper.js"
+          import {Helper} from "/js/Helper.js"
 
           const elements = document.querySelectorAll("[match-maker='${input.name}']")
 
@@ -14244,7 +14799,7 @@ await Helper.add("event/prefill-field-funnel")
         <script id="on-info-click-event" type="module">
 import {Helper} from "/js/Helper.js"
 
-await Helper.add("event/on-info-click")
+Helper.add("event/on-info-click")
         </script>
       `
 
@@ -14474,24 +15029,9 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
-      field.label.style.color = this.colors.light.text
-      field.input.style.backgroundColor = this.colors.light.background
-      field.input.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        field.style.backgroundColor = this.colors.dark.foreground
-        field.style.border = this.colors.dark.border
-        field.style.boxShadow = this.colors.dark.boxShadow
-        field.style.color = this.colors.dark.text
-        field.label.style.color = this.colors.dark.text
-        field.input.style.backgroundColor = this.colors.dark.background
-        field.input.style.color = this.colors.dark.text
-      }
+      this.convert("node/dark-light", field)
 
-      if (input !== undefined) input.append(field)
+      input?.append(field)
       return field
     }
 
@@ -14637,12 +15177,13 @@ await Helper.add("event/click-funnel")
       const field = this.create("field/checkbox")
       field.input.classList.add("dsgvo-input")
 
-      field.label.innerHTML = `<div style="font-size: 13px;">Ich habe die <a href="/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>`
+      field.label.innerHTML = `<div style="font-size: 21px;">Ich habe die <a href="/nutzervereinbarung/">Nutzervereinbarungen</a> und die <a href="/datenschutz/">Datenschutz Richtlinien</a> gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.</div>`
 
       const icon = this.create("icon/info")
       field.image.append(icon)
 
       field.input.setAttribute("required", "true")
+      field.input.style.transform = "scale(1.4)"
 
       if (input !== undefined) input.append(field)
       return field
@@ -14745,20 +15286,9 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
-      field.input.style.backgroundColor = this.colors.light.background
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        field.style.backgroundColor = this.colors.dark.foreground
-        field.style.border = this.colors.dark.border
-        field.style.boxShadow = this.colors.dark.boxShadow
-        field.style.color = this.colors.dark.text
-        field.input.style.backgroundColor = this.colors.dark.background
-      }
+      this.convert("node/dark-light", field)
 
-      if (input !== undefined) input.append(field)
+      input?.append(field)
       return field
     }
 
@@ -14793,24 +15323,9 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
-      field.label.style.color = this.colors.light.text
-      field.input.style.backgroundColor = this.colors.light.background
-      field.input.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        field.style.backgroundColor = this.colors.dark.foreground
-        field.style.border = this.colors.dark.border
-        field.style.boxShadow = this.colors.dark.boxShadow
-        field.style.color = this.colors.dark.text
-        field.label.style.color = this.colors.dark.text
-        field.input.style.backgroundColor = this.colors.dark.background
-        field.input.style.color = this.colors.dark.text
-      }
+      this.convert("node/dark-light", field)
 
-      if (input !== undefined) input.append(field)
+      input?.append(field)
       return field
     }
 
@@ -14845,24 +15360,9 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
-      field.label.style.color = this.colors.light.text
-      field.input.style.backgroundColor = this.colors.light.background
-      field.input.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        field.style.backgroundColor = this.colors.dark.foreground
-        field.style.border = this.colors.dark.border
-        field.style.boxShadow = this.colors.dark.boxShadow
-        field.style.color = this.colors.dark.text
-        field.label.style.color = this.colors.dark.text
-        field.input.style.backgroundColor = this.colors.dark.background
-        field.input.style.color = this.colors.dark.text
-      }
+      this.convert("node/dark-light", field)
 
-      if (input !== undefined) input.append(field)
+      input?.append(field)
       return field
     }
 
@@ -14897,22 +15397,7 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
-      field.label.style.color = this.colors.light.text
-      field.input.style.backgroundColor = this.colors.light.background
-      field.input.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        field.style.backgroundColor = this.colors.dark.foreground
-        field.style.border = this.colors.dark.border
-        field.style.boxShadow = this.colors.dark.boxShadow
-        field.style.color = this.colors.dark.text
-        field.label.style.color = this.colors.dark.text
-        field.input.style.backgroundColor = this.colors.dark.background
-        field.input.style.color = this.colors.dark.text
-      }
+      this.convert("node/dark-light", field)
 
       if (input !== undefined) input.append(field)
       return field
@@ -14949,24 +15434,9 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
-      field.label.style.color = this.colors.light.text
-      field.input.style.backgroundColor = this.colors.light.background
-      field.input.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        field.style.backgroundColor = this.colors.dark.foreground
-        field.style.border = this.colors.dark.border
-        field.style.boxShadow = this.colors.dark.boxShadow
-        field.style.color = this.colors.dark.text
-        field.label.style.color = this.colors.dark.text
-        field.input.style.backgroundColor = this.colors.dark.background
-        field.input.style.color = this.colors.dark.text
-      }
+      this.convert("node/dark-light", field)
 
-      if (input !== undefined) input.append(field)
+      input?.append(field)
       return field
     }
 
@@ -15001,24 +15471,9 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
-      field.label.style.color = this.colors.light.text
-      field.input.style.backgroundColor = this.colors.light.background
-      field.input.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        field.style.backgroundColor = this.colors.dark.foreground
-        field.style.border = this.colors.dark.border
-        field.style.boxShadow = this.colors.dark.boxShadow
-        field.style.color = this.colors.dark.text
-        field.label.style.color = this.colors.dark.text
-        field.input.style.backgroundColor = this.colors.dark.background
-        field.input.style.color = this.colors.dark.text
-      }
+      this.convert("node/dark-light", field)
 
-      if (input !== undefined) input.append(field)
+      input?.append(field)
       return field
     }
 
@@ -15053,24 +15508,9 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
-      field.label.style.color = this.colors.light.text
-      field.input.style.backgroundColor = this.colors.light.background
-      field.input.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        field.style.backgroundColor = this.colors.dark.foreground
-        field.style.border = this.colors.dark.border
-        field.style.boxShadow = this.colors.dark.boxShadow
-        field.style.color = this.colors.dark.text
-        field.label.style.color = this.colors.dark.text
-        field.input.style.backgroundColor = this.colors.dark.background
-        field.input.style.color = this.colors.dark.text
-      }
+      this.convert("node/dark-light", field)
 
-      if (input !== undefined) input.append(field)
+      input?.append(field)
       return field
     }
 
@@ -15085,7 +15525,7 @@ await Helper.add("event/click-funnel")
       field.input.setAttribute("required", "true")
       field.input.setAttribute("accept", "email/array")
 
-      if (input !== undefined) input.append(field)
+      input?.append(field)
       return field
     }
 
@@ -15125,24 +15565,9 @@ await Helper.add("event/click-funnel")
       field.input.setAttribute("required", "true")
       field.input.setAttribute("accept", "text/email")
 
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
-      field.label.style.color = this.colors.light.text
-      field.input.style.backgroundColor = this.colors.light.background
-      field.input.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        field.style.backgroundColor = this.colors.dark.foreground
-        field.style.border = this.colors.dark.border
-        field.style.boxShadow = this.colors.dark.boxShadow
-        field.style.color = this.colors.dark.text
-        field.label.style.color = this.colors.dark.text
-        field.input.style.backgroundColor = this.colors.dark.background
-        field.input.style.color = this.colors.dark.text
-      }
+      this.convert("node/dark-light", field)
 
-      if (input !== undefined) input.append(field)
+      input?.append(field)
       return field
     }
 
@@ -15458,7 +15883,7 @@ await Helper.add("event/click-funnel")
       header.info = document.createElement("div")
       header.info.innerHTML = "Das kann einen Moment dauern .."
       header.info.style.color = this.colors.light.error
-      header.info.style.fontSize = "13px"
+      header.info.style.fontSize = "21px"
       header.info.style.fontFamily = "sans-serif"
       header.append(header.info)
 
@@ -15498,6 +15923,91 @@ await Helper.add("event/click-funnel")
       return element
     }
 
+  }
+
+  // https://simplicable.com/colors/
+  static colors = {
+    matte: {
+      lightGray: '#EAEAEA',
+      orange: '#E8A435',
+      sunflower: '#EFA514',
+      apricot: '#FBCEB1',
+      red: '#EE7A7A',
+      mint: '#72E6CB',
+      seaGreen: '#277E71',
+      black: '#303030',
+      charcoal: '#444444',
+      slate: '#555555',
+      deepBlue: '#003366',
+      forest: '#09443C',
+      maroon: '#801515',
+      mustard: '#9A8700',
+      plum: '#4F2D56',
+      chocolate: '#3D1F0D',
+      steel: '#555B6E',
+      white: '#F0F0F0',
+      snow: '#FAFAFA',
+      ash: '#C0C0C0',
+      skyBlue: '#A3C1D1',
+      mintGreen: '#84B082',
+      coral: '#D46A6A',
+      lemon: '#FFEB99',
+      lavender: '#D8C8EA',
+      almond: '#E9D6AF',
+      pearl: '#F2F2F2',
+      chartreuse: '#B5E288',
+      celadon: '#ACE1Af',
+      royalBlue: '#4169E1',
+      olive: '#808000',
+      teal: '#008080',
+      raspberry: '#B5014E',
+      sand: '#CDB79E',
+      navy: '#000080',
+      emerald: '#50C878',
+      tangerine: '#FFA500',
+      lilac: '#C8A2C8',
+      taupe: '#483C32',
+      lime: '#9FCB8D',
+      lightYellow: "#F7AA20"
+    },
+    gray: {
+      0: "#EAEAEA",
+      1: "#DCDCDC",
+      2: "#CDCDCD",
+      3: "#C6C6C6",
+      4: "#ADADAD",
+      5: "#939393",
+    },
+    dark: {
+      foreground: '#303030',
+      background: '#28282B',
+      boxShadow: `0 1px 3px ${this.convert("hex/rgba", {hex: "#FFFFFF", alpha: "0.13"})}`,
+      border: '0.3px solid #2E4369',
+      primary: '#2E4369',
+      secondary: '#4E6172',
+      accent: '#6D8898',
+      text: '#CDD9E5',
+      error: '#9B3C38',
+      success: '#285D34',
+    },
+    light: {
+      foreground: '#FAFAFA',
+      background: '#F0F0F0',
+      border: '0.3px solid #A0A0A0',
+      boxShadow: `0 1px 3px ${this.convert("hex/rgba", {hex: "#000000", alpha: "0.13"})}`,
+      primary: '#A0A0A0',
+      secondary: '#7C7C7C',
+      accent: '#595959',
+      text: '#333333',
+      error: '#B03535',
+      success: '#9FCB8D',
+    },
+    link: {
+      color: "#4169E1",
+      active: "#D46A6A"
+    },
+    key: "#2E95D3",
+    value: "#CE9178",
   }
 
   static convert(event, input) {
@@ -16841,538 +17351,48 @@ await Helper.add("event/click-funnel")
     if (event === "text/field") {
 
       if (input === "text") {
-
-        const field = document.createElement("div")
-        field.classList.add("field")
-
-        field.labelContainer = document.createElement("div")
-        field.labelContainer.classList.add("field-label-container")
-        field.append(field.labelContainer)
-
-        field.label = document.createElement("label")
-        field.label.classList.add("field-label")
-        field.labelContainer.append(field.label)
-
-        field.input = document.createElement("input")
-        field.input.type = input
-        field.input.classList.add("field-input")
-        field.append(field.input)
-
-
-        field.style.position = "relative"
-        field.style.borderRadius = "13px"
-        field.style.display = "flex"
-        field.style.flexDirection = "column"
-        field.style.margin = "34px"
-        field.style.justifyContent = "center"
-        field.style.backgroundColor = this.colors.light.foreground
-        field.style.border = this.colors.light.border
-        field.style.boxShadow = this.colors.light.boxShadow
-        field.style.color = this.colors.light.text
-
-        field.labelContainer.style.display = "flex"
-        field.labelContainer.style.alignItems = "center"
-        field.labelContainer.style.margin = "21px 89px 0 34px"
-
-        field.label.style.fontFamily = "sans-serif"
-        field.label.style.fontSize = "21px"
-        field.label.style.color = this.colors.light.text
-
-        field.input.style.margin = "21px 89px 21px 34px"
-        field.input.style.fontSize = "21px"
-        field.input.style.backgroundColor = this.colors.light.background
-        field.input.style.color = this.colors.light.text
-
-        return field
-
+        return this.create("field/text")
       }
 
       if (input === "textarea") {
-
-        const field = document.createElement("div")
-        field.classList.add("field")
-
-        field.labelContainer = document.createElement("div")
-        field.labelContainer.classList.add("field-label-container")
-        field.append(field.labelContainer)
-
-        field.label = document.createElement("label")
-        field.label.classList.add("field-label")
-        field.labelContainer.append(field.label)
-
-        field.input = document.createElement(input)
-        field.input.classList.add("field-input")
-        field.append(field.input)
-
-
-        field.style.position = "relative"
-        field.style.borderRadius = "13px"
-        field.style.display = "flex"
-        field.style.flexDirection = "column"
-        field.style.margin = "34px"
-        field.style.justifyContent = "center"
-        field.style.backgroundColor = this.colors.light.foreground
-        field.style.border = this.colors.light.border
-        field.style.boxShadow = this.colors.light.boxShadow
-        field.style.color = this.colors.light.text
-
-        field.labelContainer.style.display = "flex"
-        field.labelContainer.style.alignItems = "center"
-        field.labelContainer.style.margin = "21px 89px 0 34px"
-
-        field.label.style.fontFamily = "sans-serif"
-        field.label.style.fontSize = "21px"
-        field.label.style.color = this.colors.light.text
-
-        field.input.style.margin = "21px 89px 21px 34px"
-        field.input.style.backgroundColor = this.colors.light.background
-        field.input.style.color = this.colors.light.text
-
-        return field
-
-
+        return this.create("field/textarea")
       }
 
       if (input === "email") {
-
-        const field = document.createElement("div")
-        field.classList.add("field")
-
-        field.labelContainer = document.createElement("div")
-        field.labelContainer.classList.add("field-label-container")
-        field.append(field.labelContainer)
-
-        field.label = document.createElement("label")
-        field.label.classList.add("field-label")
-        field.labelContainer.append(field.label)
-
-        field.input = document.createElement("input")
-        field.input.type = input
-        field.input.classList.add("field-input")
-        field.append(field.input)
-
-
-        field.style.position = "relative"
-        field.style.borderRadius = "13px"
-        field.style.display = "flex"
-        field.style.flexDirection = "column"
-        field.style.margin = "34px"
-        field.style.justifyContent = "center"
-        field.style.backgroundColor = this.colors.light.foreground
-        field.style.border = this.colors.light.border
-        field.style.boxShadow = this.colors.light.boxShadow
-        field.style.color = this.colors.light.text
-
-        field.labelContainer.style.display = "flex"
-        field.labelContainer.style.alignItems = "center"
-        field.labelContainer.style.margin = "21px 89px 0 34px"
-
-        field.label.style.fontFamily = "sans-serif"
-        field.label.style.fontSize = "21px"
-        field.label.style.color = this.colors.light.text
-
-        field.input.style.margin = "21px 89px 21px 34px"
-        field.input.style.fontSize = "21px"
-        field.input.style.backgroundColor = this.colors.light.background
-        field.input.style.color = this.colors.light.text
-
-        return field
-
+        return this.create("field/email")
       }
 
       if (input === "tel") {
-
-
-        const field = document.createElement("div")
-        field.classList.add("field")
-
-        field.labelContainer = document.createElement("div")
-        field.labelContainer.classList.add("field-label-container")
-        field.append(field.labelContainer)
-
-        field.label = document.createElement("label")
-        field.label.classList.add("field-label")
-        field.labelContainer.append(field.label)
-
-        field.input = document.createElement("input")
-        field.input.type = input
-        field.input.classList.add("field-input")
-        field.append(field.input)
-
-
-        field.style.position = "relative"
-        field.style.borderRadius = "13px"
-        field.style.display = "flex"
-        field.style.flexDirection = "column"
-        field.style.margin = "34px"
-        field.style.justifyContent = "center"
-        field.style.backgroundColor = this.colors.light.foreground
-        field.style.border = this.colors.light.border
-        field.style.boxShadow = this.colors.light.boxShadow
-        field.style.color = this.colors.light.text
-
-        field.labelContainer.style.display = "flex"
-        field.labelContainer.style.alignItems = "center"
-        field.labelContainer.style.margin = "21px 89px 0 34px"
-
-        field.label.style.fontFamily = "sans-serif"
-        field.label.style.fontSize = "21px"
-        field.label.style.color = this.colors.light.text
-
-        field.input.style.margin = "21px 89px 21px 34px"
-        field.input.style.fontSize = "21px"
-        field.input.style.backgroundColor = this.colors.light.background
-        field.input.style.color = this.colors.light.text
-
-        return field
-
-
+        return this.create("field/tel")
       }
 
       if (input === "range") {
-
-
-        const field = document.createElement("div")
-        field.classList.add("field")
-
-        field.labelContainer = document.createElement("div")
-        field.labelContainer.classList.add("field-label-container")
-        field.append(field.labelContainer)
-
-        field.label = document.createElement("label")
-        field.label.classList.add("field-label")
-        field.labelContainer.append(field.label)
-
-        field.input = document.createElement("input")
-        field.input.type = input
-        field.input.classList.add("field-input")
-        field.append(field.input)
-
-
-        field.style.position = "relative"
-        field.style.borderRadius = "13px"
-        field.style.display = "flex"
-        field.style.flexDirection = "column"
-        field.style.margin = "34px"
-        field.style.justifyContent = "center"
-        field.style.backgroundColor = this.colors.light.foreground
-        field.style.border = this.colors.light.border
-        field.style.boxShadow = this.colors.light.boxShadow
-        field.style.color = this.colors.light.text
-
-        field.labelContainer.style.display = "flex"
-        field.labelContainer.style.alignItems = "center"
-        field.labelContainer.style.margin = "21px 89px 0 34px"
-
-        field.label.style.fontFamily = "sans-serif"
-        field.label.style.fontSize = "21px"
-        field.label.style.color = this.colors.light.text
-
-        field.input.style.margin = "21px 89px 21px 34px"
-        field.input.style.fontSize = "21px"
-        field.input.style.backgroundColor = this.colors.light.background
-        field.input.style.color = this.colors.light.text
-
-        return field
-
-
+        return this.create("field/range")
       }
 
       if (input === "password") {
-
-
-        const field = document.createElement("div")
-        field.classList.add("field")
-
-        field.labelContainer = document.createElement("div")
-        field.labelContainer.classList.add("field-label-container")
-        field.append(field.labelContainer)
-
-        field.label = document.createElement("label")
-        field.label.classList.add("field-label")
-        field.labelContainer.append(field.label)
-
-        field.input = document.createElement("input")
-        field.input.type = input
-        field.input.classList.add("field-input")
-        field.append(field.input)
-
-
-        field.style.position = "relative"
-        field.style.borderRadius = "13px"
-        field.style.display = "flex"
-        field.style.flexDirection = "column"
-        field.style.margin = "34px"
-        field.style.justifyContent = "center"
-        field.style.backgroundColor = this.colors.light.foreground
-        field.style.border = this.colors.light.border
-        field.style.boxShadow = this.colors.light.boxShadow
-        field.style.color = this.colors.light.text
-
-        field.labelContainer.style.display = "flex"
-        field.labelContainer.style.alignItems = "center"
-        field.labelContainer.style.margin = "21px 89px 0 34px"
-
-        field.label.style.fontFamily = "sans-serif"
-        field.label.style.fontSize = "21px"
-        field.label.style.color = this.colors.light.text
-
-        field.input.style.margin = "21px 89px 21px 34px"
-        field.input.style.fontSize = "21px"
-        field.input.style.backgroundColor = this.colors.light.background
-        field.input.style.color = this.colors.light.text
-
-        return field
-
-
+        return this.create("field/password")
       }
 
       if (input === "number") {
-
-
-        const field = document.createElement("div")
-        field.classList.add("field")
-
-        field.labelContainer = document.createElement("div")
-        field.labelContainer.classList.add("field-label-container")
-        field.append(field.labelContainer)
-
-        field.label = document.createElement("label")
-        field.label.classList.add("field-label")
-        field.labelContainer.append(field.label)
-
-        field.input = document.createElement("input")
-        field.input.type = input
-        field.input.classList.add("field-input")
-        field.append(field.input)
-
-
-        field.style.position = "relative"
-        field.style.borderRadius = "13px"
-        field.style.display = "flex"
-        field.style.flexDirection = "column"
-        field.style.margin = "34px"
-        field.style.justifyContent = "center"
-        field.style.backgroundColor = this.colors.light.foreground
-        field.style.border = this.colors.light.border
-        field.style.boxShadow = this.colors.light.boxShadow
-        field.style.color = this.colors.light.text
-
-        field.labelContainer.style.display = "flex"
-        field.labelContainer.style.alignItems = "center"
-        field.labelContainer.style.margin = "21px 89px 0 34px"
-
-        field.label.style.fontFamily = "sans-serif"
-        field.label.style.fontSize = "21px"
-        field.label.style.color = this.colors.light.text
-
-        field.input.style.margin = "21px 89px 21px 34px"
-        field.input.style.fontSize = "21px"
-        field.input.style.backgroundColor = this.colors.light.background
-        field.input.style.color = this.colors.light.text
-
-        return field
-
-
+        return this.create("field/number")
       }
 
       if (input === "file") {
-
-
-        const field = document.createElement("div")
-        field.classList.add("field")
-
-        field.labelContainer = document.createElement("div")
-        field.labelContainer.classList.add("field-label-container")
-        field.append(field.labelContainer)
-
-        field.label = document.createElement("label")
-        field.label.classList.add("field-label")
-        field.labelContainer.append(field.label)
-
-        field.input = document.createElement("input")
-        field.input.type = input
-        field.input.classList.add("field-input")
-        field.append(field.input)
-
-
-        field.style.position = "relative"
-        field.style.borderRadius = "13px"
-        field.style.display = "flex"
-        field.style.flexDirection = "column"
-        field.style.margin = "34px"
-        field.style.justifyContent = "center"
-        field.style.backgroundColor = this.colors.light.foreground
-        field.style.border = this.colors.light.border
-        field.style.boxShadow = this.colors.light.boxShadow
-        field.style.color = this.colors.light.text
-
-        field.labelContainer.style.display = "flex"
-        field.labelContainer.style.alignItems = "center"
-        field.labelContainer.style.margin = "21px 89px 0 34px"
-
-        field.label.style.fontFamily = "sans-serif"
-        field.label.style.fontSize = "21px"
-        field.label.style.color = this.colors.light.text
-
-        field.input.style.margin = "21px 89px 21px 34px"
-        field.input.style.fontSize = "21px"
-        field.input.style.backgroundColor = this.colors.light.background
-        field.input.style.color = this.colors.light.text
-
-        return field
-
-
+        return this.create("field/file")
       }
 
       if (input === "date") {
-
-
-        const field = document.createElement("div")
-        field.classList.add("field")
-
-        field.labelContainer = document.createElement("div")
-        field.labelContainer.classList.add("field-label-container")
-        field.append(field.labelContainer)
-
-        field.label = document.createElement("label")
-        field.label.classList.add("field-label")
-        field.labelContainer.append(field.label)
-
-        field.input = document.createElement("input")
-        field.input.type = input
-        field.input.classList.add("field-input")
-        field.append(field.input)
-
-
-        field.style.position = "relative"
-        field.style.borderRadius = "13px"
-        field.style.display = "flex"
-        field.style.flexDirection = "column"
-        field.style.margin = "34px"
-        field.style.justifyContent = "center"
-        field.style.backgroundColor = this.colors.light.foreground
-        field.style.border = this.colors.light.border
-        field.style.boxShadow = this.colors.light.boxShadow
-        field.style.color = this.colors.light.text
-
-        field.labelContainer.style.display = "flex"
-        field.labelContainer.style.alignItems = "center"
-        field.labelContainer.style.margin = "21px 89px 0 34px"
-
-        field.label.style.fontFamily = "sans-serif"
-        field.label.style.fontSize = "21px"
-        field.label.style.color = this.colors.light.text
-
-        field.input.style.margin = "21px 89px 21px 34px"
-        field.input.style.fontSize = "21px"
-        field.input.style.backgroundColor = this.colors.light.background
-        field.input.style.color = this.colors.light.text
-
-        return field
-
-
+        return this.create("field/date")
       }
 
       if (input === "checkbox") {
-
-
-        const field = document.createElement("div")
-        field.classList.add("field")
-
-        field.labelContainer = document.createElement("div")
-        field.labelContainer.classList.add("field-label-container")
-        field.append(field.labelContainer)
-
-        field.label = document.createElement("label")
-        field.label.classList.add("field-label")
-        field.labelContainer.append(field.label)
-
-        field.input = document.createElement("input")
-        field.input.type = input
-        field.input.classList.add("field-input")
-        field.append(field.input)
-
-
-        field.style.position = "relative"
-        field.style.borderRadius = "13px"
-        field.style.display = "flex"
-        field.style.flexDirection = "column"
-        field.style.margin = "34px"
-        field.style.justifyContent = "center"
-        field.style.backgroundColor = this.colors.light.foreground
-        field.style.border = this.colors.light.border
-        field.style.boxShadow = this.colors.light.boxShadow
-        field.style.color = this.colors.light.text
-
-        field.labelContainer.style.display = "flex"
-        field.labelContainer.style.alignItems = "center"
-        field.labelContainer.style.margin = "21px 89px 0 34px"
-
-        field.label.style.fontFamily = "sans-serif"
-        field.label.style.fontSize = "21px"
-        field.label.style.color = this.colors.light.text
-
-        field.input.style.margin = "21px 89px 21px 34px"
-        field.input.style.fontSize = "21px"
-        field.input.style.backgroundColor = this.colors.light.background
-        field.input.style.color = this.colors.light.text
-
-        return field
-
-
+        return this.create("field/checkbox")
       }
 
       if (input === "select") {
-
-
-        const field = document.createElement("div")
-        field.classList.add("field")
-
-        field.labelContainer = document.createElement("div")
-        field.labelContainer.classList.add("field-label-container")
-        field.append(field.labelContainer)
-
-        field.label = document.createElement("label")
-        field.label.classList.add("field-label")
-        field.labelContainer.append(field.label)
-
-        field.input = document.createElement(input)
-        field.input.classList.add("field-input")
-        field.append(field.input)
-
-
-        field.style.position = "relative"
-        field.style.borderRadius = "13px"
-        field.style.display = "flex"
-        field.style.flexDirection = "column"
-        field.style.margin = "34px"
-        field.style.justifyContent = "center"
-        field.style.backgroundColor = this.colors.light.foreground
-        field.style.border = this.colors.light.border
-        field.style.boxShadow = this.colors.light.boxShadow
-        field.style.color = this.colors.light.text
-
-        field.labelContainer.style.display = "flex"
-        field.labelContainer.style.alignItems = "center"
-        field.labelContainer.style.margin = "21px 89px 0 34px"
-
-        field.label.style.fontFamily = "sans-serif"
-        field.label.style.fontSize = "21px"
-        field.label.style.color = this.colors.light.text
-
-        field.input.style.margin = "21px 89px 21px 34px"
-        field.input.style.fontSize = "21px"
-        field.input.style.backgroundColor = this.colors.light.background
-        field.input.style.color = this.colors.light.text
-
-        return field
-
-
-
+        return this.create("field/select")
       }
-
-
 
     }
 
@@ -18131,6 +18151,27 @@ await Helper.add("event/click-funnel")
   static delete(event, input) {
     // event = thing/from/algorithm
 
+    if (event === "id/contacts/self") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const del = {}
+          del.url = "/delete/contacts/closed/"
+          del.type = "id-self"
+          del.id = input
+          const res = await this.request("closed/json", del)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
     if (event === "logs/db/admin") {
 
       return new Promise(async (resolve, reject) => {
@@ -18320,6 +18361,38 @@ await Helper.add("event/click-funnel")
 
           resolve(res)
 
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "children/user/self") {
+
+      return new Promise(async (resolve, reject) => {
+        try {
+          const get = {}
+          get.url = "/get/user/closed/"
+          get.type = "children-self"
+          const res = await this.request("closed/json", get)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "contacts/user/self") {
+
+      return new Promise(async (resolve, reject) => {
+        try {
+          const get = {}
+          get.url = "/get/contacts/closed/"
+          get.type = "self"
+          const res = await this.request("closed/json", get)
+          resolve(res)
         } catch (error) {
           reject(error)
         }
@@ -18570,6 +18643,22 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "pager/email/closed") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const get = {}
+          get.url = "/get/pager/closed"
+          get.type = "jwt-email"
+          const res = await this.request("closed/json", get)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
     if (event === "platform-values/writability-closed") {
 
       return new Promise(async(resolve, reject) => {
@@ -18673,6 +18762,26 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "tree/user/self") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const get = {}
+          get.url = "/get/user/closed/"
+          get.type = "tree-self"
+          get.tree = input
+          const res = await this.request("closed/json", get)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
     if (event === "trees/user/closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -18684,6 +18793,27 @@ await Helper.add("event/click-funnel")
           get.type = "trees"
           get.trees = input
           const res = await this.request("closed/json", get)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
+    if (event === "trees/users/open") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const get = {}
+          get.url = "/get/user/open/"
+          get.type = "trees"
+          get.trees = input
+          const res = await this.request("open/json", get)
 
           resolve(res)
         } catch (error) {
@@ -19175,6 +19305,22 @@ await Helper.add("event/click-funnel")
         }
 
 
+      })
+
+    }
+
+    if (event === "parent/user/self") {
+
+      return new Promise(async (resolve, reject) => {
+        try {
+          const get = {}
+          get.url = "/get/user/closed/"
+          get.type = "parent-self"
+          const res = await this.request("closed/json", get)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
       })
 
     }
@@ -20412,6 +20558,42 @@ await Helper.add("event/click-funnel")
   static register(event, input) {
     // event = tag/on/algorithm
 
+    if (event === "alias/contacts/self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const register = {}
+          register.url = "/register/contacts/closed/"
+          register.type = "alias-self"
+          register.id = input.id
+          register.alias = input.alias
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "text/tree/self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const register = {}
+          register.url = "/register/user/closed/"
+          register.type = "text-on-tree-self"
+          register.text = input.text
+          register.tree = input.tree
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "click-funnel/location/self") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -20521,6 +20703,23 @@ await Helper.add("event/click-funnel")
           const register = {}
           register.url = "/register/user/open/"
           register.type = "super-admin"
+          register.email = input
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "email/contacts/self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const register = {}
+          register.url = "/register/contacts/closed/"
+          register.type = "email-self"
           register.email = input
           const res = await this.request("closed/json", register)
 
@@ -20885,940 +21084,331 @@ await Helper.add("event/click-funnel")
 
   }
 
-  static remove(event, input) {
-
-    if (event === "element/inner") {
-      input.innerHTML = ""
-    }
-
-    if (event === "element/style") {
-      input.removeAttribute("style")
-    }
-
-    if (event === "element/selector") {
-      return new Promise(async(resolve, reject) => {
-        try {
-
-          const promises = []
-          input.element.querySelectorAll(input.selector).forEach(it => {
-            const promise = new Promise(innerResolve => {
-              it.remove()
-              innerResolve()
-            })
-            promises.push(promise)
-          })
-          await Promise.all(promises)
-
-          resolve()
-
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-
-    if (event === "toolbox") {
-
-      return new Promise(async(resolve, reject) => {
-        try {
-
-          await this.remove("element/selector", {element: input, selector: "#toolbox-getter"})
-          await this.remove("element/selector", {element: input, selector: "[data-id]"})
-          await this.remove("element/selector", {element: input, selector: "#toolbox"})
-          await this.remove("element/selector", {element: input, selector: ".overlay"})
-
-          resolve()
-
-        } catch (error) {
-          reject(error)
-        }
-      })
-
-    }
-
-    if (event === "element/selected-node") {
-
-      return new Promise(async(resolve, reject) => {
-        try {
-
-          const promises = []
-          input.querySelectorAll("*").forEach(element => {
-            const promise = new Promise(innerResolve => {
-              element.style.outline = null
-              element.removeAttribute("selected-node")
-              innerResolve()
-            })
-            promises.push(promise)
-          })
-          await Promise.all(promises)
-
-          input.style.outline = null
-          input.removeAttribute("selected-node")
-
-          resolve()
-
-        } catch (error) {
-          reject(error)
-        }
-      })
-
-    }
-
-    if (event === "element") {
-      input.remove()
-    }
-
-    if (event === "event-listener") {
-      Array.from(document.querySelectorAll('*')).forEach(element => element.replaceWith(element.cloneNode(true)));
-    }
-
-    if (event === "overlay") {
-      input.remove()
-    }
-  }
-
-  static async request(event, input) {
-
-    if (event === "closed/json") {
-      return new Promise(async(resolve, reject) => {
-        try {
-
-          input.location = window.location.href
-          input.referer = document.referrer
-          input.localStorageEmail = await this.get("email/local-storage")
-          input.localStorageId = await this.get("id/local-storage")
-
-          const xhr = new XMLHttpRequest()
-          xhr.open("POST", input.url)
-          xhr.setRequestHeader("Accept", "application/json")
-          xhr.setRequestHeader("Content-Type", "application/json")
-          xhr.overrideMimeType("text/html")
-          xhr.withCredentials = true
-          xhr.onload = () => resolve(xhr)
-          xhr.send(JSON.stringify(input))
-
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-
-    if (event === "location/json") {
-      return new Promise(async(resolve, reject) => {
-        try {
-
-          input.location = window.location.href
-          input.referer = document.referrer
-
-          const xhr = new XMLHttpRequest()
-          xhr.open("POST", input.url)
-          xhr.setRequestHeader("Accept", "application/json")
-          xhr.setRequestHeader("Content-Type", "application/json")
-          xhr.overrideMimeType("text/html")
-          xhr.withCredentials = true
-          xhr.onload = () => resolve(xhr)
-          xhr.send(JSON.stringify(input))
-
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-
-    if (event === "open/json") {
-      return new Promise(async(resolve, reject) => {
-        try {
-
-          const xhr = new XMLHttpRequest()
-          xhr.open("POST", input.url)
-          xhr.setRequestHeader("Accept", "application/json")
-          xhr.setRequestHeader("Content-Type", "application/json")
-          xhr.overrideMimeType("text/html")
-          xhr.withCredentials = true
-          xhr.onload = () => resolve(xhr)
-          xhr.send(JSON.stringify(input))
-
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-
-  }
-
-  static run(event, input) {
-
-    if (event === "text/js") {
-
-      return new Promise((resolve, reject) => {
-
-        try {
-          eval(input)
-          resolve()
-        } catch (error) {
-          reject(error)
-        }
-      })
-
-    }
-
-  }
-
-  static update(event, parent, input) {
-    // event = tag/on/algorithm
-
-    // no parent needed to get data
+  static render(event, input, parent) {
+    // event = thing/in/algorithm
     if (arguments.length === 2) {
-      input = parent
+      parent = input
     }
 
-    if (event === "toolbox/html/path") {
+    if (event === "color/node/foreground") {
+
+      parent.style.position = "relative"
+
+      const foreground = parent.cloneNode("true")
+      foreground.classList.add("foreground")
+      foreground.innerHTML = ""
+      foreground.style.position = "absolute"
+      foreground.style.background = input
+      parent.querySelectorAll(".foreground").forEach(it => it.remove())
+      parent.appendChild(foreground)
+
+      return foreground
+    }
+
+    if (event === "color/node/border") {
+
+      parent.style.position = "relative"
+
+      const border = parent.cloneNode("true")
+      border.classList.add("border")
+      border.innerHTML = ""
+      border.style.position = "absolute"
+      border.style.background = "transparent"
+      border.style.border = `8px solid ${input}`
+      parent.querySelectorAll(".border").forEach(it => it.remove())
+      parent.appendChild(border)
+
+    }
+
+    if (event === "cart/selector/self") {
+
       return new Promise(async(resolve, reject) => {
         try {
-          const register = {}
-          register.url = "/update/toolbox/closed/"
-          register.type = "path/location-expert"
-          register.path = input
-          const res = await this.request("closed/json", register)
 
-          resolve(res)
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
+          console.log(parent);
+          const node = document.querySelector(parent)
 
-    if (event === "key-name/user-tree/admin") {
-      return new Promise(async(resolve, reject) => {
-        try {
-          const register = {}
-          register.url = "/update/user/closed/"
-          register.type = "key-name/tree-admin"
-          register.id = input.id
-          register.tree = input.tree
-          register.name = input.name
-          const res = await this.request("closed/json", register)
+          console.log(node);
 
-          resolve(res)
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
+          // add more node from location cart
+          // dc-montage option exist always
 
-    if (event === "number/user-tree/admin") {
-      return new Promise(async(resolve, reject) => {
-        try {
-          const register = {}
-          register.url = "/update/user/closed/"
-          register.type = "number/tree-admin"
-          register.id = input.id
-          register.tree = input.tree
-          register.number = input.number
-          const res = await this.request("closed/json", register)
+          if (node) {
 
-          resolve(res)
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
+            // get location cart
+            const res = await this.get("cart/location/self")
 
-    if (event === "text/user-tree/admin") {
-      return new Promise(async(resolve, reject) => {
-        try {
-          const register = {}
-          register.url = "/update/user/closed/"
-          register.type = "text/tree-admin"
-          register.id = input.id
-          register.tree = input.tree
-          register.text = input.text
-          const res = await this.request("closed/json", register)
-
-          resolve(res)
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-
-    if (event === "script/closed") {
-      return new Promise(async (resolve, reject) => {
-
-        try {
-          const update = {}
-          update.url = "/update/script/closed/"
-          update.type = "closed"
-          update.id = input.id
-          update.name = input.name
-          update.script = input.script
-          const res = await this.request("closed/json", update)
-
-          resolve(res)
-
-        } catch (error) {
-          reject(error)
-        }
-
-      })
-    }
-
-    if (event === "condition/match-maker/closed") {
-      return new Promise(async (resolve, reject) => {
-
-        try {
-          const update = {}
-          update.url = "/update/match-maker/closed/"
-          update.type = "condition"
-          update.id = input.id
-          update.left = input.left
-          update.operator = input.operator
-          update.right = input.right
-          const res = await this.request("closed/json", update)
-
-          resolve(res)
-
-        } catch (error) {
-          reject(error)
-        }
+            if (res.status === 200) {
+              const cart = JSON.parse(res.response)
+              console.log(cart)
+            }
+            // add more node before doing the for loop
 
 
-      })
-    }
 
-    if (event === "funnel/location-list/closed") {
+            // add events for each option
+            for (let i = 0; i < node.querySelectorAll("*").length; i++) {
+              const child = node.querySelectorAll("*")[i]
 
-      const fieldFunnel = this.convert("text/dom", input.funnel)
-      parent.append(fieldFunnel)
+              const checkbox = child.querySelector("input[type='checkbox']")
 
-      this.add("field-funnel/oninput-sign-support", fieldFunnel)
+              checkbox.onclick = (ev) => {
+                ev.preventDefault()
+                this.overlay("popup", overlay => {
+                  const actions = this.create("div/scrollable", overlay)
 
-      this.render("id-map/field-funnel", input.idMap, fieldFunnel)
+                  {
+                    const button = this.create("button/left-right", actions)
+                    button.right.innerHTML = "Leistung auswählen"
+                    button.left.innerHTML = ".select"
+                    button.onclick = () => {
+                      checkbox.checked = true
+                      this.remove("overlay", overlay)
+                    }
+                  }
 
-      const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
-      submitButton.innerHTML = `${input.tag} jetzt speichern`
-      submitButton.onclick = async () => {
+                  {
+                    const button = this.create("button/left-right", actions)
+                    button.right.innerHTML = "Leistung entfernen"
+                    button.left.innerHTML = ".remove"
+                    button.onclick = () => {
+                      checkbox.checked = false
+                      this.remove("overlay", overlay)
+                    }
+                  }
 
-        await this.verify("field-funnel", fieldFunnel)
+                  {
+                    const button = this.create("button/left-right", actions)
+                    button.right.innerHTML = "Leistung vergleichen"
+                    button.left.innerHTML = ".compare"
+                  }
 
-        const map = await this.convert("field-funnel/map", fieldFunnel)
+                  {
+                    const button = this.create("button/left-right", actions)
+                    button.right.innerHTML = "Ansprechpartner kontaktieren"
+                    button.left.innerHTML = ".support"
+                  }
 
-        this.overlay("security", async securityOverlay => {
-          const update = {}
-          update.url = "/update/location-list/closed/"
-          update.tag = input.tag
-          update.id = input.id
-          update.map = map
-          const res = await this.request("closed/json", update)
 
-          if (res.status === 200) {
-            window.alert("Daten erfolgreich gespeichert.")
-            if (input.ok !== undefined) await input.ok()
-            this.remove("overlay", parent)
-            this.remove("overlay", securityOverlay)
+                })
+              }
+            }
+
           }
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+
+
+
+    }
+
+    if (event === "contacts/node/update-self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const res = await this.get("contacts/user/self")
 
           if (res.status !== 200) {
-            window.alert("Fehler.. Bitte wiederholen.")
-            this.remove("overlay", securityOverlay)
-          }
-
-        })
-
-      }
-
-      return parent
-    }
-
-    if (event === "toolbox-getter") {
-
-      return new Promise(async resolve => {
-
-        document.querySelectorAll("#toolbox-getter").forEach(getter => getter.remove())
-        document.querySelectorAll("#toolbox").forEach(toolbox => toolbox.remove())
-        document.querySelectorAll("[data-id='toolbox']").forEach(toolbox => toolbox.remove())
-
-        if (document.getElementById("#toolbox-getter") === null) {
-          await this.add("script/toolbox-getter")
-          return resolve()
-        }
-
-      })
-
-    }
-
-    if (event === "image/onclick") {
-
-      const funnel = this.create("div/scrollable", parent)
-
-      const urlField = this.create("field/url", funnel)
-      urlField.input.required = true
-      urlField.input.accept = "text/https"
-      urlField.label.innerHTML = "Gebe hier die Quell-Url für dein Bild ein"
-      urlField.input.placeholder = "https://www.meine-quelle.de"
-
-      this.verify("input/value", urlField.input)
-      urlField.input.addEventListener("input", () => this.verify("input/value", urlField.input))
-
-      const button = this.buttonPicker("action", funnel)
-      button.innerHTML = "Bild jetzt ändern"
-      button.addEventListener("click", async () => {
-
-        if (this.verify("input/value", urlField.input)) {
-
-          const url = urlField.input.value
-
-          if (input !== undefined) {
-            if (input.ok !== undefined) await input.ok(url)
-          }
-        }
-
-      })
-
-    }
-
-    if (event === "image/platform-value/closed") {
-
-      const funnel = this.create("div/scrollable", parent)
-
-      const urlField = this.create("field/url", funnel)
-      urlField.input.required = true
-      urlField.input.accept = "text/https"
-      urlField.label.innerHTML = "Gebe hier die Quell-Url für dein Bild ein"
-      urlField.input.placeholder = "https://www.meine-quelle.de"
-      // this.setNotValidStyle(urlField.input)
-      // urlField
-      this.verify("input/value", urlField.input)
-      urlField.input.addEventListener("input", () => this.verify("input/value", urlField.input))
-
-      const button = this.buttonPicker("action", funnel)
-      button.innerHTML = "Bild jetzt ändern"
-      button.addEventListener("click", () => {
-
-        if (this.verify("input/value", urlField.input)) {
-
-          const url = urlField.input.value
-
-          this.overlay("security", async securityOverlay => {
-
-            // let image
-            // if (imageFile !== undefined) {
-
-            //   if (imageFile.type === "image/svg+xml") {
-
-            //     image = await imageField.validSvg(imageFile)
-
-            //   } else {
-
-            //     image = await imageField.validImage(imageFile)
-
-            //   }
-
-            // }
-
-
-            // quick update
-            // on success no message
-            // just remove security overlay
-            const register = {}
-            register.url = "/update/platform-value-image/closed/"
-            // register.type = "image"
-            register.image = url
-            register.path = input.path
-            const res = await this.request("closed/json", register)
-
-            if (res.status === 200) {
-              window.alert("Bild erfolgreich gespeichert..")
-              this.remove("overlay", parent)
-              this.remove("overlay", securityOverlay)
-
-            } else {
-              window.alert("Fehler.. Bitte wiederholen.")
-              this.remove("overlay", securityOverlay)
-            }
-
-          })
-
-        }
-
-      })
-
-    }
-
-    if (event === "image/platform/closed") {
-
-      const funnel = this.create("div/scrollable", parent)
-
-      const urlField = this.create("field/url", funnel)
-      urlField.input.required = true
-      urlField.input.accept = "text/https"
-      urlField.label.innerHTML = "Gebe hier die Quell-Url für dein Bild ein"
-      urlField.input.placeholder = "https://www.meine-quelle.de"
-      // this.setNotValidStyle(urlField.input)
-      // urlField
-      this.verify("input/value", urlField.input)
-      urlField.input.addEventListener("input", () => this.verify("input/value", urlField.input))
-
-      const button = this.buttonPicker("action", funnel)
-      button.innerHTML = "Bild jetzt ändern"
-      button.addEventListener("click", () => {
-
-        if (this.verify("input/value", urlField.input)) {
-
-          const url = urlField.input.value
-
-          this.overlay("security", async securityOverlay => {
-
-            // let image
-            // if (imageFile !== undefined) {
-
-            //   if (imageFile.type === "image/svg+xml") {
-
-            //     image = await imageField.validSvg(imageFile)
-
-            //   } else {
-
-            //     image = await imageField.validImage(imageFile)
-
-            //   }
-
-            // }
-
-
-            // quick update
-            // on success no message
-            // just remove security overlay
-            const register = {}
-            register.url = "/update/platform-image/closed/"
-            // register.type = "image"
-            register.image = url
-            register.platform = input
-            const res = await this.request("closed/json", register)
-
-            if (res.status === 200) {
-              window.alert("Bild erfolgreich gespeichert..")
-              // window.location.reload()
-              this.remove("overlay", parent)
-              this.remove("overlay", securityOverlay)
-
-            } else {
-              window.alert("Fehler.. Bitte wiederholen.")
-              this.remove("overlay", securityOverlay)
-            }
-
-          })
-
-        }
-
-      })
-
-    }
-
-    if (event === "element/type") {
-
-      const create = document.createElement(input)
-
-      if (parent.hasAttribute("id")) {
-        create.setAttribute("id", parent.getAttribute("id"))
-      }
-
-      create.setAttribute("type", input)
-
-      if (parent.hasAttribute("class")) {
-        create.setAttribute("class", parent.getAttribute("class"))
-      }
-
-      if (parent.hasAttribute("style")) {
-        create.setAttribute("style", parent.getAttribute("style"))
-      }
-
-      parent.before(create)
-      parent.remove()
-    }
-
-    if (event === "input/type") {
-
-      const create = document.createElement("input")
-
-      if (parent.hasAttribute("id")) {
-        create.setAttribute("id", parent.getAttribute("id"))
-      }
-
-      create.setAttribute("type", input)
-
-      if (parent.hasAttribute("class")) {
-        create.setAttribute("class", parent.getAttribute("class"))
-      }
-
-      if (parent.hasAttribute("style")) {
-        create.setAttribute("style", parent.getAttribute("style"))
-      }
-
-      if (parent.hasAttribute("required")) {
-        create.setAttribute("required", parent.getAttribute("required"))
-      }
-
-      if (parent.hasAttribute("on-info-click")) {
-        create.setAttribute("on-info-click", parent.getAttribute("on-info-click"))
-      }
-
-      parent.before(create)
-      parent.remove()
-    }
-
-    if (event === "field-input/type") {
-
-      if (parent.tagName !== "TEXTAREA") {
-
-        if (input === "textarea") {
-          this.convert("element/textarea", parent)
-        }
-
-      }
-
-      if (parent.tagName !== "SELECT") {
-        if (input === "select") {
-          this.convert("element/select", parent)
-        }
-      }
-
-      this.update("input/type", parent, input)
-
-    }
-
-    if (event === "script/on-field-info-click-event") {
-
-      const text = /*html*/`
-      <script id="on-field-info-click-event" type="module">
-        import { Helper } from "/js/Helper.js"
-
-        document.querySelectorAll(".field").forEach(field => {
-          if (field.hasAttribute("on-info-click")) {
-            Helper.convert("field/on-info-click", field)
-          }
-        })
-
-      </script>
-      `
-
-      const script = this.convert("text/script", text)
-
-      const create = document.createElement("script")
-      create.id = script.id
-      create.type = script.type
-      create.innerHTML = script.innerHTML
-
-      if (parent !== undefined) {
-
-        if (parent.querySelector(`#${create.id}`) === null) {
-          parent.append(create)
-          this.render("children", parent)
-        }
-
-      }
-
-      return create
-
-    }
-
-    if (event === "service-condition/closed") {
-
-      return new Promise(async (resolve, reject) => {
-
-        const update = {}
-        update.url = "/update/service-condition/closed/"
-
-        if (input !== undefined) {
-          update.platform = input.platform
-          update.service = input.service
-          update.id = input.id
-          update.left = input.left
-          update.operator = input.operator
-          update.right = input.right
-          update.action = input.action
-        }
-
-        const res = await this.request("closed/json", update)
-
-
-        if (res.status === 200) {
-          return resolve()
-        }
-
-
-        if (res.status !== 200) {
-          this.redirect("session-expired")
-          return reject()
-        }
-
-      })
-    }
-
-    if (event === "service/closed") {
-
-      return new Promise(async (resolve, reject) => {
-
-        const update = {}
-        update.url = "/update/service/closed/"
-
-        if (input !== undefined) {
-          update.platform = input.platform
-          update.id = input.id
-          update.quantity = input.quantity
-          update.unit = input.unit
-          update.title = input.title
-          update.price = input.price
-          update.currency = input.currency
-          update.selected = input.selected
-        }
-
-        const res = await this.request("closed/json", update)
-
-
-        if (res.status === 200) {
-          return resolve()
-        }
-
-
-        if (res.status !== 200) {
-          this.redirect("session-expired")
-          return reject()
-        }
-
-      })
-    }
-
-    if (event === "platform/roles") {
-
-      return new Promise(async (resolve, reject) => {
-
-
-        const content = this.headerPicker("loading", parent)
-
-
-        const get = {}
-        get.url = "/get/platform/closed"
-        get.type = "roles"
-        get.platform = input
-        const res = await this.request("closed/json", get)
-
-
-        if (res.status === 200) {
-          const roles = JSON.parse(res.response)
-
-          this.convert("parent/scrollable", content)
-
-          for (let i = 0; i < roles.length; i++) {
-            const role = roles[i]
-
-            const button = this.buttonPicker("left/right", content)
-            button.left.innerHTML = role.name
-            button.right.innerHTML = "Rolle bearbeiten"
-
-            button.addEventListener("click", () => {
-
-              this.overlay("toolbox", async overlay => {
-
-                this.headerPicker("removeOverlay", overlay)
-                const info = this.headerPicker("info", overlay)
-                info.innerHTML = `${input}.roles`
-
-                await this.update("platform/role", overlay, {platform: input, roleId: role.id, ok: () => {
-                  this.convert("element/reset", content)
-                  this.update(event, content, input)
-                  this.remove("overlay", overlay)
-                }})
-
-              })
-
-            })
-
-
-          }
-
-          return resolve(content)
-
-        }
-
-
-        if (res.status !== 200) {
-          this.redirect("session-expired")
-          return reject()
-        }
-
-      })
-    }
-
-    if (event === "platform/role") {
-
-      return new Promise(async (resolve, reject) => {
-
-        const content = this.headerPicker("scrollable", parent)
-
-        const {platform, roleId, ok} = input
-
-        const nameField = this.create("field/tag", content)
-        nameField.label.textContent = "Rolle"
-        nameField.input.placeholder = "meine-neue-rolle"
-        this.verify("input/value", nameField.input)
-        nameField.input.addEventListener("input", () => this.verify("input/value", nameField.input))
-
-        const pathsField = await this.get("field/platform-value-path-select", content, input)
-
-        const appsField = this.create("field/textarea", content)
-        appsField.label.innerHTML = "Schalte Apps für deine Rolle frei (mit einer Javascript String Liste)"
-        appsField.input.style.height = "144px"
-        appsField.input.placeholder = `["offer", "funnel", ..]`
-        appsField.input.accept = `string/array`
-        appsField.input.required = true
-        appsField.input.value = JSON.stringify([])
-        this.verify("input/value", appsField.input)
-        appsField.input.addEventListener("input", () => this.verify("input/value", appsField.input))
-
-        const button = this.buttonPicker("action", content)
-        button.innerHTML = "Rolle jetzt speichern"
-        button.addEventListener("click", async () => {
-
-          await this.verify("field-funnel", content)
-
-          const name = nameField.input.value
-          const path = pathsField.input.value
-          const apps = JSON.parse(appsField.input.value)
-
-          if (roleId === undefined) {
-
-            const verify = {}
-            verify.url = "/verify/platform/closed/"
-            verify.type = "role/name"
-            verify.name = name
-            verify.platform = platform
-            const res = await this.request("closed/json", verify)
-
-            if (res.status === 200) {
-              window.alert("Diese Rolle existiert bereits.")
-              this.setNotValidStyle(nameField.input)
-              throw new Error("name exist")
-            }
-
-          }
-
-          this.overlay("security", async securityOverlay => {
-
-            const register = {}
-            register.url = "/update/platform/closed/"
-            register.type = "role"
-
-            register.platform = platform
-
-            if (roleId !== undefined) {
-              register.id = roleId
-            }
-
-            register.name = name
-            register.apps = apps
-            register.home = path
-
-            const res = await this.request("closed/json", register)
-
-            if (res.status === 200) {
-              window.alert("Rolle erfolgreich gespeichert.")
-              if (ok !== undefined) ok()
-              this.remove("overlay", parent)
-              this.remove("overlay", securityOverlay)
-            }
-
-          })
-
-        })
-
-        if (roleId !== undefined) {
-
-          const get = {}
-          get.url = "/get/platform/closed/"
-          get.type = "role"
-          get.id = roleId
-          get.platform = platform
-          const res = await this.request("closed/json", get)
-
-          if (res.status !== 200) {
-            reject()
+            this.convert("parent/info", parent)
+            parent.innerHTML = "Keine Kontakte gefunden"
           }
 
           if (res.status === 200) {
-            const role = JSON.parse(res.response)
+            const contacts = JSON.parse(res.response)
 
-            if (role.id !== roleId) throw new Error("somethng wrong here")
+            this.convert("parent/scrollable", parent)
 
-            nameField.input.value = role.name
-            this.verify("input/value", nameField.input)
+            for (let i = 0; i < contacts.length; i++) {
+              const contact = contacts[i]
 
-            appsField.input.value = JSON.stringify(role.apps)
-            this.verify("input/value", appsField.input)
+              const contactButton = this.create("button/left-right", parent)
+              contactButton.left.innerHTML = contact.email
+              if (contact.alias !== undefined) {
+                contactButton.left.innerHTML = contact.alias
+              }
 
-            const deleteButton = this.buttonPicker("delete", content)
-            deleteButton.innerHTML = "Rolle entfernen"
-            deleteButton.addEventListener("click", () => {
+              contactButton.onclick = () => {
+                this.overlay("popup", updateOverlay => {
+                  const buttons = this.create("div/scrollable", updateOverlay)
 
-              this.overlay("security", async securityOverlay => {
-                const del = {}
-                del.url = "/delete/platform/closed/"
-                del.type = "role"
-                del.id = role.id
-                del.platform = platform
-                const res = await this.request("closed/json", del)
+                  {
+                    const button = this.create("button/left-right", buttons)
+                    button.left.innerHTML = ".alias"
+                    button.right.innerHTML = "Gib deinem Kontakt einen alternativen Namen"
+                    button.onclick = () => {
+                      this.overlay("popup", overlay => {
+                        const funnel = this.create("div/scrollable", overlay)
+
+                        const aliasField = this.create("field/text", funnel)
+                        aliasField.label.innerHTML = "Alternative Bezeichnung für deinen Kontakt"
+                        aliasField.input.setAttribute("required", "true")
+                        if (contact.alias !== undefined) {
+                          aliasField.input.value = contact.alias
+                        }
+                        this.verify("input/value", aliasField.input)
+                        aliasField.input.oninput = () => this.verify("input/value", aliasField.input)
+
+                        const submit = this.create("button/action", funnel)
+                        submit.innerHTML = "Alias jetzt speichern"
+                        submit.onclick = async () => {
+
+                          await this.verify("input/value", aliasField.input)
+
+                          this.overlay("security", async securityOverlay => {
+                            const res = await this.register("alias/contacts/self", {id: contact.created, alias: aliasField.input.value})
+
+                            if (res.status !== 200) {
+                              window.alert("Fehler.. Bitte wiederholen.")
+                              securityOverlay.remove()
+                            }
+
+                            if (res.status === 200) {
+                              window.alert("Alias erfolgreich gespeichert.")
+                              this.render(event, input, parent)
+                              overlay.remove()
+                              updateOverlay.remove()
+                              securityOverlay.remove()
+                            }
+                          })
+
+                        }
+
+                      })
+                    }
+                  }
+
+                  {
+                    const button = this.create("button/left-right", buttons)
+                    button.left.innerHTML = ".delete"
+                    button.right.innerHTML = "Kontakt entfernen"
+                    button.onclick = () => {
+
+                      const confirm = window.confirm("Möchtest du deinen Kontakt wirklich entfernen?")
+                      if (confirm === true) {
+
+                        this.overlay("security", async securityOverlay => {
+                          const res = await this.delete("id/contacts/self", contact.created)
+
+                          if (res.status === 200) {
+                            window.alert("Kontakt erfolgreich entfernt.")
+                            this.render(event, input, parent)
+                            updateOverlay.remove()
+                            securityOverlay.remove()
+                          }
+
+                          if (res.status !== 200) {
+                            window.alert("Fehler.. Bitte wiederholen.")
+                            securityOverlay.remove()
+                          }
+                        })
+
+
+                      }
+                    }
+                  }
+
+                })
+              }
+
+            }
+
+          }
+
+          resolve()
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "image-url/selector/self") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const parentNode = document.querySelector(parent)
+          if (parentNode === null) throw new Error("selector not found")
+
+          const res = await this.get("tree/user/self", input)
+
+          if (res.status === 200) {
+
+            const oldHtml = parentNode.innerHTML
+
+            parentNode.innerHTML = ""
+
+            parentNode.style.display = "flex"
+            parentNode.style.justifyContent = "center"
+            parentNode.style.alignItems = "center"
+
+            const image = document.createElement("img")
+            parentNode.append(image)
+            image.src = res.response
+            image.style.width = "300px"
+            image.style.margin = "34px"
+
+            parentNode.onclick = () => {
+
+              parentNode.innerHTML = oldHtml
+              parentNode.onclick = null
+
+              const urlInput = parentNode.querySelector(".field-input")
+              urlInput.oninput = () => this.verify("input/value", urlInput)
+              const submitButton = parentNode.querySelector(".submit-field-funnel-button")
+
+              submitButton.addEventListener("click", async () => {
+                await this.verify("input/value", urlInput)
+
+                const res = await this.register("text/tree/self", {text: urlInput.value, tree: input})
 
                 if (res.status === 200) {
-                  window.alert("Rolle erfolgreich gelöscht.")
-                  if (ok !== undefined) ok()
-                  this.remove("overlay", securityOverlay)
+                  window.alert("Daten erfolgreich gespeichert.")
+
+                  if (submitButton.hasAttribute("next-path")) {
+                    window.location.assign(submitButton.getAttribute("next-path"))
+                  } else {
+                    window.location.reload()
+                  }
+
                 }
 
               })
 
+            }
+
+          }
+
+          if (res.status !== 200) {
+
+            const urlInput = parentNode.querySelector(".field-input")
+            urlInput.oninput = () => this.verify("input/value", urlInput)
+            const submitButton = parentNode.querySelector(".submit-field-funnel-button")
+
+            submitButton.addEventListener("click", async () => {
+              await this.verify("input/value", urlInput)
+
+              const res = await this.register("text/tree/self", {text: urlInput.value, tree: input})
+
+              if (res.status === 200) {
+                window.alert("Daten erfolgreich gespeichert.")
+                window.location.reload()
+              }
 
             })
 
-            resolve()
           }
 
+        } catch (error) {
+          reject(error)
         }
-
       })
 
     }
-
-  }
-
-  static skipSiblings(index, sibling) {
-
-    let count = 0
-    let currentSibling = sibling
-
-    while (currentSibling) {
-      if (count >= index) break
-
-      const nextSibling = currentSibling.nextSibling
-
-      if (currentSibling.nodeType === Node.ELEMENT_NODE) {
-        count++
-        currentSibling.style.visibility = 'hidden'
-        currentSibling.style.position = 'absolute'
-      }
-
-      currentSibling = nextSibling
-    }
-
-    if (currentSibling && currentSibling.nodeType === Node.ELEMENT_NODE) {
-      currentSibling.style.visibility = 'visible'
-      currentSibling.style.position = 'static'
-    }
-
-    if (count < index) throw new Error("out of bounds")
-
-  }
-
-  static render(event, input, parent) {
-    // event = input/algorithm
 
     if (event === "node/insert-before") {
       return new Promise(async(resolve, reject) => {
@@ -21832,10 +21422,6 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "field-funnel/owner") {
-
-      if (arguments.length === 2) {
-        parent = input
-      }
 
       const funnel = this.create("div/scrollable", parent)
 
@@ -25385,6 +24971,127 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
     }
 
+    if (event === "field-funnel/div/update-fields") {
+
+      if (input.classList.contains("field-funnel")) {
+        parent.innerHTML = ""
+
+        for (let i = 0; i < input.children.length; i++) {
+          const field = input.children[i]
+
+          if (field.classList.contains("submit-field-funnel-button")) continue
+
+          if (field.classList.contains("field")) {
+            const fieldInput = field.querySelector(".field-input")
+
+            const button = this.create("button/left-right", parent)
+            button.left.innerHTML = field.id
+
+            button.right.append(this.convert("input/alias", fieldInput))
+            button.addEventListener("click", () => {
+              this.overlay("toolbox", overlay => {
+                this.add("button/remove-overlay", overlay)
+                this.add("button/register-html", overlay)
+
+                const info = this.create("header/info", overlay)
+                info.append(this.convert("input/alias", fieldInput))
+
+                const buttons = this.create("div/scrollable", overlay)
+
+                {
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = ".id"
+                  button.right.innerHTML = "Datenfeld Id aktualisieren"
+                  button.onclick = () => {
+                    this.overlay("popup", overlay => {
+                      this.add("button/register-html", overlay)
+
+                      overlay.info.append(this.convert("input/alias", fieldInput))
+                      overlay.info.append(".id")
+
+                      const idField = this.create("field/tag", overlay)
+                      idField.label.innerHTML = "Gebe deinem Datenfeld eine Id"
+                      idField.input.value = field.id
+                      this.verify("input/value", idField.input)
+                      idField.input.addEventListener("input", () => {
+
+                        this.verify("input/value", idField.input)
+
+                        const id = idField.input.value
+
+                        if (document.querySelectorAll(`#${id}`).length > 0) {
+                          this.setNotValidStyle(idField.input)
+                        }
+
+                        if (document.querySelectorAll(`#${id}`).length === 0) {
+                          field.setAttribute("id", id)
+                          this.render(event, input, parent)
+                        }
+
+                      })
+
+                    })
+                  }
+                }
+
+                {
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = ".on-info-click"
+                  button.right.innerHTML = "Erweitere dein Datenfeld mit mehr Informationen"
+                  button.onclick = () => {
+                    this.overlay("popup", overlay => {
+                      this.add("button/register-html", overlay)
+
+                      overlay.info.append(this.convert("input/alias", fieldInput))
+                      overlay.info.append(".on-info-click")
+
+                      const infoField = this.create("field/textarea", overlay)
+                      infoField.label.innerHTML = "Hier kannst du, wenn du möchtest, mehr Informationen zu diesem Datenfeld, als HTML, für deine Nutzer, bereitstellen"
+                      infoField.input.style.height = "144px"
+                      infoField.input.placeholder = "<div>..</div>"
+                      infoField.input.style.fontFamily = "monospace"
+                      infoField.input.style.fontSize = "13px"
+                      if (field.hasAttribute("on-info-click")) {
+                        infoField.input.value = field.getAttribute("on-info-click")
+                      }
+                      this.verify("input/value", infoField.input)
+
+                      infoField.input.addEventListener("input", () => {
+                        field.setAttribute("on-info-click", infoField.input.value)
+                        this.create("script/on-info-click-event", document.body)
+                      })
+
+                    })
+                  }
+                }
+
+                {
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = ".remove"
+                  button.right.innerHTML = "Datenfeld entfernen"
+                  button.onclick = () => {
+                    try {
+                      field.remove()
+                      this.render(event, input, parent)
+                      this.remove("overlay", overlay)
+                      window.alert("Datenfeld erfolgreich entfernt.")
+                    } catch (error) {
+                      window.alert("Fehler.. Bitte wiederholen.")
+                      console.error(error)
+                    }
+                  }
+                }
+
+              })
+            })
+          }
+
+        }
+
+      }
+
+    }
+
     if (event === "field-funnel/fields") {
 
       if (parent === undefined) {
@@ -26147,6 +25854,10 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                       this.create("input/password", selectedNode)
                     }
 
+                    const selectInputButton = this.create("button/select-input", inputOptions)
+                    selectInputButton.onclick = () => {
+                      this.create("input/select", selectedNode)
+                    }
 
 
                     this.render("text/hr", "Anwendungen für die Höhe und Breite", optionsContainer)
@@ -27245,6 +26956,24 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                     this.render("text/hr", "Anwendungen für die Textverarbeitung", optionsContainer)
                     const textManipulationOptions = this.create("div/flex-row", optionsContainer)
+
+                    let originalWhiteSpaceNoWrap
+                    const whiteSpaceNoWrapButton = this.create("button/white-space-nowrap", textManipulationOptions)
+                    whiteSpaceNoWrapButton.onclick = () => {
+
+                      if (selectedNode.style.whiteSpace === "nowrap") {
+                        if (originalWhiteSpaceNoWrap) {
+                            selectedNode.style.whiteSpace = originalWhiteSpaceNoWrap
+                        } else {
+                            selectedNode.style.whiteSpace = null
+                        }
+
+                      } else {
+                          originalWhiteSpaceNoWrap = selectedNode.style.whiteSpace
+                          selectedNode.style.whiteSpace = "nowrap"
+                      }
+
+                    }
 
                     let originalFontFamily
                     const fontFamilyButton = this.create("button/font-family", textManipulationOptions)
@@ -28685,13 +28414,12 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                   button.addEventListener("click", () => {
 
                     this.overlay("toolbox", overlay => {
-                      this.headerPicker("removeOverlay", overlay)
+                      this.add("button/remove-overlay", overlay)
                       this.add("button/register-html", overlay)
 
                       const info = this.headerPicker("info", overlay)
                       info.append(this.convert("element/alias", child))
                       info.append(this.convert("text/span", ".fields"))
-
 
                       {
                         const button = this.buttonPicker("left/right", overlay)
@@ -28700,19 +28428,73 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                         button.addEventListener("click", () => {
 
                           this.overlay("toolbox", overlay => {
-                            this.headerPicker("removeOverlay", overlay)
+                            this.add("button/remove-overlay", overlay)
                             this.add("button/register-html", overlay)
 
-                            const info = this.headerPicker("info", overlay)
+                            const info = this.create("header/info", overlay)
                             info.append(this.convert("element/alias", child))
                             info.append(this.convert("text/span", ".append"))
 
-                            child.ok = () => {
-                              this.render("field-funnel/fields", child)
-                              this.remove("overlay", overlay)
-                            }
+                            const funnel = this.create("div/scrollable", overlay)
 
-                            this.get("funnel/field", overlay, child)
+                            const idField = this.create("field/tag", funnel)
+                            idField.label.innerHTML = "Gebe deinem Datenfeld eine Id"
+                            this.verify("input/value", idField.input)
+                            idField.input.addEventListener("input", () => {
+
+                              this.verify("input/value", idField.input)
+
+                              const id = idField.input.value
+
+                              if (document.querySelectorAll(`#${id}`).length > 0) {
+                                this.setNotValidStyle(idField.input)
+                              }
+
+                            })
+
+                            const labelField = this.create("field/textarea", funnel)
+                            labelField.label.innerHTML = "Beschreibe das Datenfeld für dein Netzwerk"
+                            labelField.input.setAttribute("required", "true")
+                            this.verify("input/value", labelField.input)
+                            labelField.input.addEventListener("input", () => this.verify("input/value", labelField.input))
+
+                            const typeField = this.create("field/select", funnel)
+                            typeField.label.innerHTML = "Welchen Datentyp soll dein Netzwerk eingeben können"
+                            typeField.input.add(["text", "textarea", "email", "tel", "range", "password", "number", "file", "date", "checkbox", "select"])
+                            this.verify("input/value", typeField.input)
+
+                            const button = this.create("button/action", funnel)
+                            button.innerHTML = "Datenfeld jetzt anhängen"
+                            button.addEventListener("click", async () => {
+
+                              await this.verify("field-funnel", funnel)
+
+                              const id = idField.input.value
+                              const label = labelField.input.value
+                              const type = typeField.input.value
+
+                              if (document.querySelectorAll(`#${id}`).length !== 0) {
+                                window.alert("Id existiert bereits.")
+                                idField.scrollIntoView({behavior: "smooth"})
+                                this.setNotValidStyle(idField.input)
+                                throw new Error("id exist")
+                              }
+
+                              if (document.getElementById(id) === null) {
+
+                                const field = this.convert("text/field", type)
+                                field.id = id
+                                field.label.textContent = label
+
+                                child.querySelector(".submit-field-funnel-button").before(field)
+
+                                this.render("field-funnel/div/update-fields", child, fieldsContainer)
+
+                                this.remove("overlay", overlay)
+
+                              }
+
+                            })
 
                           })
 
@@ -28722,9 +28504,8 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                       overlay.append(this.convert("text/hr", "Meine Datenfelder"))
 
-
                       const fieldsContainer = this.create("div/scrollable", overlay)
-                      this.render("field-funnel/fields", child, fieldsContainer)
+                      this.render("field-funnel/div/update-fields", child, fieldsContainer)
 
                     })
 
@@ -28988,9 +28769,13 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                         const script = this.create("script/empty-helper", map)
 
-                        await this.render("script/onbody", script)
-
-                        window.alert("Skript wurde erfolgreich anhgehängt.")
+                        if (document.querySelectorAll(`#${script.id}`).length === 0) {
+                          document.body.append(script)
+                          window.alert("Skript wurde erfolgreich anhgehängt.")
+                        } else {
+                          this.setNotValidStyle(nameField.input)
+                          window.alert("Id existiert bereits.")
+                        }
 
                       }
 
@@ -30906,6 +30691,957 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
   }
 
+  static remove(event, input) {
+
+    if (event === "element/inner") {
+      input.innerHTML = ""
+    }
+
+    if (event === "element/style") {
+      input.removeAttribute("style")
+    }
+
+    if (event === "element/selector") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const promises = []
+          input.element.querySelectorAll(input.selector).forEach(it => {
+            const promise = new Promise(innerResolve => {
+              it.remove()
+              innerResolve()
+            })
+            promises.push(promise)
+          })
+          await Promise.all(promises)
+
+          resolve()
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "toolbox") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          await this.remove("element/selector", {element: input, selector: "#toolbox-getter"})
+          await this.remove("element/selector", {element: input, selector: "[data-id]"})
+          await this.remove("element/selector", {element: input, selector: "#toolbox"})
+          await this.remove("element/selector", {element: input, selector: ".overlay"})
+
+          resolve()
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "element/selected-node") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const promises = []
+          input.querySelectorAll("*").forEach(element => {
+            const promise = new Promise(innerResolve => {
+              element.style.outline = null
+              element.removeAttribute("selected-node")
+              innerResolve()
+            })
+            promises.push(promise)
+          })
+          await Promise.all(promises)
+
+          input.style.outline = null
+          input.removeAttribute("selected-node")
+
+          resolve()
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "element") {
+      input.remove()
+    }
+
+    if (event === "event-listener") {
+      Array.from(document.querySelectorAll('*')).forEach(element => element.replaceWith(element.cloneNode(true)));
+    }
+
+    if (event === "overlays") {
+      document.querySelectorAll(".overlay").forEach(it => it.remove())
+    }
+
+    if (event === "overlay") {
+      input.remove()
+    }
+
+    if (event === "node/sign") {
+      input.style.border = ""
+      input.parentElement.querySelectorAll("div.sign").forEach(it => it.remove())
+    }
+
+  }
+
+  static request(event, input) {
+
+    if (event === "closed/json") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          input.location = window.location.href
+          input.referer = document.referrer
+          input.localStorageEmail = await this.get("email/local-storage")
+          input.localStorageId = await this.get("id/local-storage")
+
+          const xhr = new XMLHttpRequest()
+          xhr.open("POST", input.url)
+          xhr.setRequestHeader("Accept", "application/json")
+          xhr.setRequestHeader("Content-Type", "application/json")
+          xhr.overrideMimeType("text/html")
+          xhr.withCredentials = true
+          xhr.onload = () => resolve(xhr)
+          xhr.send(JSON.stringify(input))
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "location/json") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          input.location = window.location.href
+          input.referer = document.referrer
+
+          const xhr = new XMLHttpRequest()
+          xhr.open("POST", input.url)
+          xhr.setRequestHeader("Accept", "application/json")
+          xhr.setRequestHeader("Content-Type", "application/json")
+          xhr.overrideMimeType("text/html")
+          xhr.withCredentials = true
+          xhr.onload = () => resolve(xhr)
+          xhr.send(JSON.stringify(input))
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "open/json") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const xhr = new XMLHttpRequest()
+          xhr.open("POST", input.url)
+          xhr.setRequestHeader("Accept", "application/json")
+          xhr.setRequestHeader("Content-Type", "application/json")
+          xhr.overrideMimeType("text/html")
+          xhr.withCredentials = true
+          xhr.onload = () => resolve(xhr)
+          xhr.send(JSON.stringify(input))
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+  }
+
+  static run(event, input) {
+
+    if (event === "text/js") {
+
+      return new Promise((resolve, reject) => {
+
+        try {
+          eval(input)
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+  }
+
+  static sort(event, input) {
+    // event = input/by/algorithm
+
+    if (event === "array/reputation/descending") {
+      return input?.sort((a, b) => b.reputation - a.reputation)
+    }
+
+  }
+
+  static update(event, parent, input) {
+    // event = tag/on/algorithm
+
+    // no parent needed to get data
+    if (arguments.length === 2) {
+      input = parent
+    }
+
+    if (event === "toolbox/html/path") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/update/toolbox/closed/"
+          register.type = "path/location-expert"
+          register.path = input
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "key-name/user-tree/admin") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/update/user/closed/"
+          register.type = "key-name/tree-admin"
+          register.id = input.id
+          register.tree = input.tree
+          register.name = input.name
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "number/user-tree/admin") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/update/user/closed/"
+          register.type = "number/tree-admin"
+          register.id = input.id
+          register.tree = input.tree
+          register.number = input.number
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "text/user-tree/admin") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/update/user/closed/"
+          register.type = "text/tree-admin"
+          register.id = input.id
+          register.tree = input.tree
+          register.text = input.text
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "script/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const update = {}
+          update.url = "/update/script/closed/"
+          update.type = "closed"
+          update.id = input.id
+          update.name = input.name
+          update.script = input.script
+          const res = await this.request("closed/json", update)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+    }
+
+    if (event === "condition/match-maker/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const update = {}
+          update.url = "/update/match-maker/closed/"
+          update.type = "condition"
+          update.id = input.id
+          update.left = input.left
+          update.operator = input.operator
+          update.right = input.right
+          const res = await this.request("closed/json", update)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
+    if (event === "funnel/location-list/closed") {
+
+      const fieldFunnel = this.convert("text/dom", input.funnel)
+      parent.append(fieldFunnel)
+
+      this.add("field-funnel/oninput-sign-support", fieldFunnel)
+
+      this.render("id-map/field-funnel", input.idMap, fieldFunnel)
+
+      const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
+      submitButton.innerHTML = `${input.tag} jetzt speichern`
+      submitButton.onclick = async () => {
+
+        await this.verify("field-funnel", fieldFunnel)
+
+        const map = await this.convert("field-funnel/map", fieldFunnel)
+
+        this.overlay("security", async securityOverlay => {
+          const update = {}
+          update.url = "/update/location-list/closed/"
+          update.tag = input.tag
+          update.id = input.id
+          update.map = map
+          const res = await this.request("closed/json", update)
+
+          if (res.status === 200) {
+            window.alert("Daten erfolgreich gespeichert.")
+            if (input.ok !== undefined) await input.ok()
+            this.remove("overlay", parent)
+            this.remove("overlay", securityOverlay)
+          }
+
+          if (res.status !== 200) {
+            window.alert("Fehler.. Bitte wiederholen.")
+            this.remove("overlay", securityOverlay)
+          }
+
+        })
+
+      }
+
+      return parent
+    }
+
+    if (event === "toolbox-getter") {
+
+      return new Promise(async resolve => {
+
+        document.querySelectorAll("#toolbox-getter").forEach(getter => getter.remove())
+        document.querySelectorAll("#toolbox").forEach(toolbox => toolbox.remove())
+        document.querySelectorAll("[data-id='toolbox']").forEach(toolbox => toolbox.remove())
+
+        if (document.getElementById("#toolbox-getter") === null) {
+          await this.add("script/toolbox-getter")
+          return resolve()
+        }
+
+      })
+
+    }
+
+    if (event === "image/onclick") {
+
+      const funnel = this.create("div/scrollable", parent)
+
+      const urlField = this.create("field/url", funnel)
+      urlField.input.required = true
+      urlField.input.accept = "text/https"
+      urlField.label.innerHTML = "Gebe hier die Quell-Url für dein Bild ein"
+      urlField.input.placeholder = "https://www.meine-quelle.de"
+
+      this.verify("input/value", urlField.input)
+      urlField.input.addEventListener("input", () => this.verify("input/value", urlField.input))
+
+      const button = this.buttonPicker("action", funnel)
+      button.innerHTML = "Bild jetzt ändern"
+      button.addEventListener("click", async () => {
+
+        if (this.verify("input/value", urlField.input)) {
+
+          const url = urlField.input.value
+
+          if (input !== undefined) {
+            if (input.ok !== undefined) await input.ok(url)
+          }
+        }
+
+      })
+
+    }
+
+    if (event === "image/platform-value/closed") {
+
+      const funnel = this.create("div/scrollable", parent)
+
+      const urlField = this.create("field/url", funnel)
+      urlField.input.required = true
+      urlField.input.accept = "text/https"
+      urlField.label.innerHTML = "Gebe hier die Quell-Url für dein Bild ein"
+      urlField.input.placeholder = "https://www.meine-quelle.de"
+      // this.setNotValidStyle(urlField.input)
+      // urlField
+      this.verify("input/value", urlField.input)
+      urlField.input.addEventListener("input", () => this.verify("input/value", urlField.input))
+
+      const button = this.buttonPicker("action", funnel)
+      button.innerHTML = "Bild jetzt ändern"
+      button.addEventListener("click", () => {
+
+        if (this.verify("input/value", urlField.input)) {
+
+          const url = urlField.input.value
+
+          this.overlay("security", async securityOverlay => {
+
+            // let image
+            // if (imageFile !== undefined) {
+
+            //   if (imageFile.type === "image/svg+xml") {
+
+            //     image = await imageField.validSvg(imageFile)
+
+            //   } else {
+
+            //     image = await imageField.validImage(imageFile)
+
+            //   }
+
+            // }
+
+
+            // quick update
+            // on success no message
+            // just remove security overlay
+            const register = {}
+            register.url = "/update/platform-value-image/closed/"
+            // register.type = "image"
+            register.image = url
+            register.path = input.path
+            const res = await this.request("closed/json", register)
+
+            if (res.status === 200) {
+              window.alert("Bild erfolgreich gespeichert..")
+              this.remove("overlay", parent)
+              this.remove("overlay", securityOverlay)
+
+            } else {
+              window.alert("Fehler.. Bitte wiederholen.")
+              this.remove("overlay", securityOverlay)
+            }
+
+          })
+
+        }
+
+      })
+
+    }
+
+    if (event === "image/platform/closed") {
+
+      const funnel = this.create("div/scrollable", parent)
+
+      const urlField = this.create("field/url", funnel)
+      urlField.input.required = true
+      urlField.input.accept = "text/https"
+      urlField.label.innerHTML = "Gebe hier die Quell-Url für dein Bild ein"
+      urlField.input.placeholder = "https://www.meine-quelle.de"
+      // this.setNotValidStyle(urlField.input)
+      // urlField
+      this.verify("input/value", urlField.input)
+      urlField.input.addEventListener("input", () => this.verify("input/value", urlField.input))
+
+      const button = this.buttonPicker("action", funnel)
+      button.innerHTML = "Bild jetzt ändern"
+      button.addEventListener("click", () => {
+
+        if (this.verify("input/value", urlField.input)) {
+
+          const url = urlField.input.value
+
+          this.overlay("security", async securityOverlay => {
+
+            // let image
+            // if (imageFile !== undefined) {
+
+            //   if (imageFile.type === "image/svg+xml") {
+
+            //     image = await imageField.validSvg(imageFile)
+
+            //   } else {
+
+            //     image = await imageField.validImage(imageFile)
+
+            //   }
+
+            // }
+
+
+            // quick update
+            // on success no message
+            // just remove security overlay
+            const register = {}
+            register.url = "/update/platform-image/closed/"
+            // register.type = "image"
+            register.image = url
+            register.platform = input
+            const res = await this.request("closed/json", register)
+
+            if (res.status === 200) {
+              window.alert("Bild erfolgreich gespeichert..")
+              // window.location.reload()
+              this.remove("overlay", parent)
+              this.remove("overlay", securityOverlay)
+
+            } else {
+              window.alert("Fehler.. Bitte wiederholen.")
+              this.remove("overlay", securityOverlay)
+            }
+
+          })
+
+        }
+
+      })
+
+    }
+
+    if (event === "element/type") {
+
+      const create = document.createElement(input)
+
+      if (parent.hasAttribute("id")) {
+        create.setAttribute("id", parent.getAttribute("id"))
+      }
+
+      create.setAttribute("type", input)
+
+      if (parent.hasAttribute("class")) {
+        create.setAttribute("class", parent.getAttribute("class"))
+      }
+
+      if (parent.hasAttribute("style")) {
+        create.setAttribute("style", parent.getAttribute("style"))
+      }
+
+      parent.before(create)
+      parent.remove()
+    }
+
+    if (event === "input/type") {
+
+      const create = document.createElement("input")
+
+      if (parent.hasAttribute("id")) {
+        create.setAttribute("id", parent.getAttribute("id"))
+      }
+
+      create.setAttribute("type", input)
+
+      if (parent.hasAttribute("class")) {
+        create.setAttribute("class", parent.getAttribute("class"))
+      }
+
+      if (parent.hasAttribute("style")) {
+        create.setAttribute("style", parent.getAttribute("style"))
+      }
+
+      if (parent.hasAttribute("required")) {
+        create.setAttribute("required", parent.getAttribute("required"))
+      }
+
+      if (parent.hasAttribute("on-info-click")) {
+        create.setAttribute("on-info-click", parent.getAttribute("on-info-click"))
+      }
+
+      parent.before(create)
+      parent.remove()
+    }
+
+    if (event === "field-input/type") {
+
+      if (parent.tagName !== "TEXTAREA") {
+
+        if (input === "textarea") {
+          this.convert("element/textarea", parent)
+        }
+
+      }
+
+      if (parent.tagName !== "SELECT") {
+        if (input === "select") {
+          this.convert("element/select", parent)
+        }
+      }
+
+      this.update("input/type", parent, input)
+
+    }
+
+    if (event === "script/on-field-info-click-event") {
+
+      const text = /*html*/`
+      <script id="on-field-info-click-event" type="module">
+        import {Helper} from "/js/Helper.js"
+
+        document.querySelectorAll(".field").forEach(field => {
+          if (field.hasAttribute("on-info-click")) {
+            Helper.convert("field/on-info-click", field)
+          }
+        })
+
+      </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      if (parent !== undefined) {
+
+        if (parent.querySelector(`#${create.id}`) === null) {
+          parent.append(create)
+          this.render("children", parent)
+        }
+
+      }
+
+      return create
+
+    }
+
+    if (event === "service-condition/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const update = {}
+        update.url = "/update/service-condition/closed/"
+
+        if (input !== undefined) {
+          update.platform = input.platform
+          update.service = input.service
+          update.id = input.id
+          update.left = input.left
+          update.operator = input.operator
+          update.right = input.right
+          update.action = input.action
+        }
+
+        const res = await this.request("closed/json", update)
+
+
+        if (res.status === 200) {
+          return resolve()
+        }
+
+
+        if (res.status !== 200) {
+          this.redirect("session-expired")
+          return reject()
+        }
+
+      })
+    }
+
+    if (event === "service/closed") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const update = {}
+        update.url = "/update/service/closed/"
+
+        if (input !== undefined) {
+          update.platform = input.platform
+          update.id = input.id
+          update.quantity = input.quantity
+          update.unit = input.unit
+          update.title = input.title
+          update.price = input.price
+          update.currency = input.currency
+          update.selected = input.selected
+        }
+
+        const res = await this.request("closed/json", update)
+
+
+        if (res.status === 200) {
+          return resolve()
+        }
+
+
+        if (res.status !== 200) {
+          this.redirect("session-expired")
+          return reject()
+        }
+
+      })
+    }
+
+    if (event === "platform/roles") {
+
+      return new Promise(async (resolve, reject) => {
+
+
+        const content = this.headerPicker("loading", parent)
+
+
+        const get = {}
+        get.url = "/get/platform/closed"
+        get.type = "roles"
+        get.platform = input
+        const res = await this.request("closed/json", get)
+
+
+        if (res.status === 200) {
+          const roles = JSON.parse(res.response)
+
+          this.convert("parent/scrollable", content)
+
+          for (let i = 0; i < roles.length; i++) {
+            const role = roles[i]
+
+            const button = this.buttonPicker("left/right", content)
+            button.left.innerHTML = role.name
+            button.right.innerHTML = "Rolle bearbeiten"
+
+            button.addEventListener("click", () => {
+
+              this.overlay("toolbox", async overlay => {
+
+                this.headerPicker("removeOverlay", overlay)
+                const info = this.headerPicker("info", overlay)
+                info.innerHTML = `${input}.roles`
+
+                await this.update("platform/role", overlay, {platform: input, roleId: role.id, ok: () => {
+                  this.convert("element/reset", content)
+                  this.update(event, content, input)
+                  this.remove("overlay", overlay)
+                }})
+
+              })
+
+            })
+
+
+          }
+
+          return resolve(content)
+
+        }
+
+
+        if (res.status !== 200) {
+          this.redirect("session-expired")
+          return reject()
+        }
+
+      })
+    }
+
+    if (event === "platform/role") {
+
+      return new Promise(async (resolve, reject) => {
+
+        const content = this.headerPicker("scrollable", parent)
+
+        const {platform, roleId, ok} = input
+
+        const nameField = this.create("field/tag", content)
+        nameField.label.textContent = "Rolle"
+        nameField.input.placeholder = "meine-neue-rolle"
+        this.verify("input/value", nameField.input)
+        nameField.input.addEventListener("input", () => this.verify("input/value", nameField.input))
+
+        const pathsField = await this.get("field/platform-value-path-select", content, input)
+
+        const appsField = this.create("field/textarea", content)
+        appsField.label.innerHTML = "Schalte Apps für deine Rolle frei (mit einer Javascript String Liste)"
+        appsField.input.style.height = "144px"
+        appsField.input.placeholder = `["offer", "funnel", ..]`
+        appsField.input.accept = `string/array`
+        appsField.input.required = true
+        appsField.input.value = JSON.stringify([])
+        this.verify("input/value", appsField.input)
+        appsField.input.addEventListener("input", () => this.verify("input/value", appsField.input))
+
+        const button = this.buttonPicker("action", content)
+        button.innerHTML = "Rolle jetzt speichern"
+        button.addEventListener("click", async () => {
+
+          await this.verify("field-funnel", content)
+
+          const name = nameField.input.value
+          const path = pathsField.input.value
+          const apps = JSON.parse(appsField.input.value)
+
+          if (roleId === undefined) {
+
+            const verify = {}
+            verify.url = "/verify/platform/closed/"
+            verify.type = "role/name"
+            verify.name = name
+            verify.platform = platform
+            const res = await this.request("closed/json", verify)
+
+            if (res.status === 200) {
+              window.alert("Diese Rolle existiert bereits.")
+              this.setNotValidStyle(nameField.input)
+              throw new Error("name exist")
+            }
+
+          }
+
+          this.overlay("security", async securityOverlay => {
+
+            const register = {}
+            register.url = "/update/platform/closed/"
+            register.type = "role"
+
+            register.platform = platform
+
+            if (roleId !== undefined) {
+              register.id = roleId
+            }
+
+            register.name = name
+            register.apps = apps
+            register.home = path
+
+            const res = await this.request("closed/json", register)
+
+            if (res.status === 200) {
+              window.alert("Rolle erfolgreich gespeichert.")
+              if (ok !== undefined) ok()
+              this.remove("overlay", parent)
+              this.remove("overlay", securityOverlay)
+            }
+
+          })
+
+        })
+
+        if (roleId !== undefined) {
+
+          const get = {}
+          get.url = "/get/platform/closed/"
+          get.type = "role"
+          get.id = roleId
+          get.platform = platform
+          const res = await this.request("closed/json", get)
+
+          if (res.status !== 200) {
+            reject()
+          }
+
+          if (res.status === 200) {
+            const role = JSON.parse(res.response)
+
+            if (role.id !== roleId) throw new Error("somethng wrong here")
+
+            nameField.input.value = role.name
+            this.verify("input/value", nameField.input)
+
+            appsField.input.value = JSON.stringify(role.apps)
+            this.verify("input/value", appsField.input)
+
+            const deleteButton = this.buttonPicker("delete", content)
+            deleteButton.innerHTML = "Rolle entfernen"
+            deleteButton.addEventListener("click", () => {
+
+              this.overlay("security", async securityOverlay => {
+                const del = {}
+                del.url = "/delete/platform/closed/"
+                del.type = "role"
+                del.id = role.id
+                del.platform = platform
+                const res = await this.request("closed/json", del)
+
+                if (res.status === 200) {
+                  window.alert("Rolle erfolgreich gelöscht.")
+                  if (ok !== undefined) ok()
+                  this.remove("overlay", securityOverlay)
+                }
+
+              })
+
+
+            })
+
+            resolve()
+          }
+
+        }
+
+      })
+
+    }
+
+  }
+
+  static skipSiblings(index, sibling) {
+
+    let count = 0
+    let currentSibling = sibling
+
+    while (currentSibling) {
+      if (count >= index) break
+
+      const nextSibling = currentSibling.nextSibling
+
+      if (currentSibling.nodeType === Node.ELEMENT_NODE) {
+        count++
+        currentSibling.style.visibility = 'hidden'
+        currentSibling.style.position = 'absolute'
+      }
+
+      currentSibling = nextSibling
+    }
+
+    if (currentSibling && currentSibling.nodeType === Node.ELEMENT_NODE) {
+      currentSibling.style.visibility = 'visible'
+      currentSibling.style.position = 'static'
+    }
+
+    if (count < index) throw new Error("out of bounds")
+
+  }
+
   static headerPicker(name, parent) {
 
 
@@ -31669,121 +32405,6 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
   }
 
-  static colorPicker(palette, element) {
-    const colors = document.createElement("div")
-    colors.style.overflowY = "auto"
-    colors.style.overscrollBehavior = "none"
-    element.append(colors)
-
-    for (const [key, value] of Object.entries(this.colors[palette])) {
-      const color = document.createElement("div")
-      color.style.height = "34px"
-      color.style.margin = "8px 34px"
-      color.style.borderRadius = "3px"
-      color.style.padding = "5px"
-      color.innerHTML = key
-      color.style.background = value
-      colors.append(color)
-
-      if (typeof value === "object") {
-        for (const [key, val] of Object.entries(value)) {
-          const color = document.createElement("div")
-          color.style.height = "34px"
-          color.style.margin = "8px 34px"
-          color.style.borderRadius = "3px"
-          color.style.padding = "5px"
-          color.innerHTML = key
-          color.style.background = val
-          colors.append(color)
-        }
-      }
-    }
-  }
-
-  // https://simplicable.com/colors/
-  static colors = {
-    matte: {
-      lightGray: '#EAEAEA',
-      orange: '#E8A435',
-      sunflower: '#EFA514',
-      apricot: '#FBCEB1',
-      red: '#EE7A7A',
-      mint: '#72E6CB',
-      seaGreen: '#277E71',
-      black: '#303030',
-      charcoal: '#444444',
-      slate: '#555555',
-      deepBlue: '#003366',
-      forest: '#09443C',
-      maroon: '#801515',
-      mustard: '#9A8700',
-      plum: '#4F2D56',
-      chocolate: '#3D1F0D',
-      steel: '#555B6E',
-      white: '#F0F0F0',
-      snow: '#FAFAFA',
-      ash: '#C0C0C0',
-      skyBlue: '#A3C1D1',
-      mintGreen: '#84B082',
-      coral: '#D46A6A',
-      lemon: '#FFEB99',
-      lavender: '#D8C8EA',
-      almond: '#E9D6AF',
-      pearl: '#F2F2F2',
-      chartreuse: '#B5E288',
-      celadon: '#ACE1Af',
-      royalBlue: '#4169E1',
-      olive: '#808000',
-      teal: '#008080',
-      raspberry: '#B5014E',
-      sand: '#CDB79E',
-      navy: '#000080',
-      emerald: '#50C878',
-      tangerine: '#FFA500',
-      lilac: '#C8A2C8',
-      taupe: '#483C32',
-      lime: '#9FCB8D',
-      lightYellow: "#F7AA20"
-    },
-    gray: {
-      0: '#EAEAEA',
-      1: '#DCDCDC',
-      2: '#CDCDCD',
-      3: '#ADADAD',
-      4: '#939393',
-    },
-    dark: {
-      foreground: '#303030',
-      background: '#28282B',
-      boxShadow: `0 1px 3px ${this.convert("hex/rgba", {hex: "#FFFFFF", alpha: "0.13"})}`,
-      border: '0.3px solid #2E4369',
-      primary: '#2E4369',
-      secondary: '#4E6172',
-      accent: '#6D8898',
-      text: '#CDD9E5',
-      error: '#9B3C38',
-      success: '#285D34',
-    },
-    light: {
-      foreground: '#FAFAFA',
-      background: '#F0F0F0',
-      border: '0.3px solid #A0A0A0',
-      boxShadow: `0 1px 3px ${this.convert("hex/rgba", {hex: "#000000", alpha: "0.13"})}`,
-      primary: '#A0A0A0',
-      secondary: '#7C7C7C',
-      accent: '#595959',
-      text: '#333333',
-      error: '#B03535',
-      success: '#9FCB8D',
-    },
-    link: {
-      color: "#4169E1",
-      active: "#D46A6A"
-    },
-    key: "#2E95D3",
-    value: "#CE9178",
-  }
-
   static overlay(event, callback) {
 
     if (event === "html-creator") {
@@ -32165,7 +32786,6 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
     const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
     return hashHex
   }
-
 
   // event = input/algorithm
   static verify(event, input) {
@@ -33266,7 +33886,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
       const info = document.createElement("div")
       info.innerHTML = "Das kann einen Moment dauern .."
-      info.style.fontSize = "13px"
+      info.style.fontSize = "21px"
       info.style.color = this.colors.light.error
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         info.style.color = this.colors.dark.error
@@ -33296,8 +33916,8 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
           })
 
           const button = this.buttonPicker("action", content)
+          button.style.fontSize = "34px"
           button.innerHTML = "PIN bestätigen"
-
           button.addEventListener("click", async () => {
 
             this.overlay("security", async securityOverlay => {
@@ -33343,42 +33963,13 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
           })
 
-          {
-            const infoBox = document.createElement("div")
-
-            infoBox.style.display = "flex"
-
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              infoBox.style.color = this.colors.dark.text
-              infoBox.style.backgroundColor = this.colors.dark.error
-            } else {
-              infoBox.style.color = this.colors.light.text
-              infoBox.style.backgroundColor = this.colors.matte.apricot
-            }
-
-            infoBox.style.fontSize = "13px"
-            infoBox.style.margin = "21px 34px"
-            infoBox.style.padding = "21px"
-            infoBox.style.borderRadius = "13px"
-
-            const icon = this.iconPicker("warn")
-            icon.style.width = "144px"
-            icon.style.marginRight = "13px"
-            infoBox.append(icon)
-
-            const message = document.createElement("div")
-            message.style.fontSize = "13px"
-
-            message.innerHTML = `
-            <p>PIN erfolgreich an '${email}' gesendet. ✓</p>
+          const infoBox = this.create("info/success", content)
+          infoBox.style.fontSize = "21px"
+          infoBox.innerHTML = `
+            <p>PIN erfolgreich an '${email}' gesendet. <span style="font-size:34px;">✓</span></p>
             <p>Es ist wichtig, dass deine PIN geheim gehalten wird, da sie als persönliches Kennwort dient und den Zugriff auf sensible Informationen oder Ressourcen ermöglicht. Teile deine PIN niemals mit anderen Personen. Das gilt selbst für enge Freunde, Familienmitglieder oder Mitarbeiter. Deine PIN sollte nur dir bekannt sein.</p>
-            <p>Bitte bestätige deine PIN um fortzufahren.</p>
-            `
-
-            infoBox.append(message)
-
-            content.append(infoBox)
-          }
+            <p><b><span style="font-size:34px;">Bitte bestätige deine PIN um fortzufahren.</span></b></p>
+          `
 
         }
 

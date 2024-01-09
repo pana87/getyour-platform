@@ -21,7 +21,7 @@
   <body>
 
   <script type="module">
-    import { Helper } from "/js/Helper.js"
+    import {Helper} from "/js/Helper.js"
 
     {
 
@@ -30,7 +30,8 @@
         document.body.style.background = Helper.colors.dark.background
       }
 
-      Helper.headerPicker("back", document.body)
+      const backButton = Helper.create("button/back", document.body)
+      Helper.convert("node/dark-light", backButton)
 
       const app = Helper.headerPicker("app", document.body)
 
@@ -52,15 +53,12 @@
 
     Helper.add("script/open-login", document.body)
 
-    {
-
-      const info = Helper.create("info/success", document.body)
-      info.innerHTML = /*html*/`
-        <div>Unser Login Prozess ist intuitiv gestaltet und erfordert nur wenige Klicks. Sie müssen lediglich Ihre E-Mail Adresse eingeben, um sich einzuloggen. Wir möchten, dass Sie den Login Prozess als einfach und stressfrei erleben. <a href="mailto:datenschutz@get-your.de">Wenn Sie Probleme haben oder Hilfe benötigen, stehen wir Ihnen jederzeit zur Verfügung, um Ihnen schnell und effektiv weiter zu helfen.</a></div>
-        <div style="margin-top: 13px;">Die Plattform von getyour soll ein sicheres und vertrauenswürdiges Umfeld bieten, damit Sie sich auf Ihre Daten verlassen können.</div>
-      `
-
-    }
+    const info = Helper.create("info/success", document.body)
+    info.style.fontSize = "21px"
+    info.innerHTML = `
+      <div>Unser Login Prozess ist intuitiv gestaltet und erfordert nur wenige Klicks. Sie müssen lediglich Ihre E-Mail Adresse eingeben, um sich einzuloggen. Wir möchten, dass Sie den Login Prozess als einfach und stressfrei erleben. <a href="mailto:datenschutz@get-your.de">Wenn Sie Probleme haben oder Hilfe benötigen, stehen wir Ihnen jederzeit zur Verfügung, um Ihnen schnell und effektiv weiter zu helfen.</a></div>
+      <div style="margin-top: 13px;">Die Plattform von getyour soll ein sicheres und vertrauenswürdiges Umfeld bieten, damit Sie sich auf Ihre Daten verlassen können.</div>
+    `
 
     for (let i = 0; i < document.links.length; i++) {
       const link = document.links[i]
