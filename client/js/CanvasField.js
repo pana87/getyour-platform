@@ -1,4 +1,4 @@
-import { Helper } from "/js/Helper.js"
+import {Helper} from "/js/Helper.js"
 
 export class CanvasField {
 

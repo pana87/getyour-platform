@@ -22,7 +22,7 @@
   <body>
 
     <script type="module">
-      import { Helper } from "/js/Helper.js"
+      import {Helper} from "/js/Helper.js"
 
       document.body.style.background = Helper.colors.light.background
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -132,11 +132,26 @@
                   for (let i = 0; i < values.length; i++) {
                     const value = values[i]
 
-
                     const button = Helper.create("button/left-right", platformButtonsContainer)
-                    button.right.innerHTML = value.alias
-                    button.left.innerHTML = value.path
-                    button.onclick = () => window.open(value.path, "_blank")
+                    button.right.style.margin = ""
+                    button.left.innerHTML = `<span style="font-size:13px;">${value.alias}</span><br/><span>${value.path}</span>`
+
+                    const copy = Helper.create("icon/copy-path", button.right)
+                    copy.style.width = "55px"
+                    copy.style.margin = "0 13px 0 34px"
+                    copy.onclick = () => {
+
+                      navigator.clipboard.writeText(value.path)
+                      .then(() => window.alert(`Der Pfad '${value.path}' wurde erfolgreich in deinen Zwischenspeicher kopiert.`))
+                      .catch(() => window.alert("Fehler.. Bitte wiederholen."))
+
+                    }
+
+                    const toolbox = Helper.create("icon/tools", button.right)
+                    toolbox.style.width = "50px"
+                    toolbox.style.margin = "0 34px 0 13px"
+                    toolbox.onclick = () => window.open(value.path, "_blank")
+
                   }
 
 

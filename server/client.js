@@ -1,7 +1,7 @@
 const express = require('express')
 const cookieParser = require('cookie-parser')
 const { clientLocation, docsLocation } = require('../config/ServerLocation.js')
-const { Helper } = require('../lib/Helper.js')
+const {Helper} = require('../lib/Helper.js')
 const { Request } = require('../lib/Request.js')
 const { UserRole } = require('../lib/UserRole.js')
 const crypto = require("node:crypto")
