@@ -2,7 +2,7 @@ export class Helper {
 
   // no dom creation, only events
   static add(event, input) {
-    // event = input/algorithm
+    // event = thing/to
 
     if (event === "id/total-amount") {
 
@@ -4979,6 +4979,26 @@ export class Helper {
 
     }
 
+    if (event === "outline-hover/node") {
+      input.addEventListener("mouseover", () => {
+        input.style.outline = "3px solid #999"
+      })
+
+      input.addEventListener("mouseout", () => {
+        input.style.outline = null
+      })
+    }
+
+    if (event === "underline-hover/node") {
+      input.addEventListener("mouseover", () => {
+        input.style.textDecoration = "underline"
+      })
+
+      input.addEventListener("mouseout", () => {
+        input.style.textDecoration = null
+      })
+    }
+
     if (event === "click-funnel/end") {
 
       const endButton = input.querySelector(".end-click-funnel-button")
@@ -6036,6 +6056,15 @@ await Helper.add("toolbox/onbody")
 
     if (event === "input/select") {
       const select = document.createElement("select")
+      select.add = (options) => {
+        select.innerHTML = ""
+        for (let i = 0; i < options.length; i++) {
+          const option = document.createElement("option")
+          option.value = options[i]
+          option.text = options[i]
+          select.appendChild(option)
+        }
+      }
       input?.append(select)
       return select
     }
@@ -14344,6 +14373,34 @@ Helper.convert("node/dark-light", document.body)
 
     }
 
+    if (event === "script/trees-id") {
+
+      const text = `
+        <script id="${input.id}" type="module">
+import {Helper} from "/js/Helper.js"
+const res = await Helper.get("trees/users/open", ${JSON.stringify(input.trees)})
+if (res.status === 200) {
+  const users = JSON.parse(res.response)
+  for (let i = 0; i < users.length; i++) {
+    const user = users[i]
+    Helper.render("user/selector/all", user, ".${input.id}")
+  }
+}
+        </script>
+      `
+
+      const script = this.convert("text/script", text)
+
+      const create = document.createElement("script")
+      create.id = script.id
+      create.type = script.type
+      create.innerHTML = script.innerHTML
+
+      // input?.append(create)
+      return create
+
+    }
+
     if (event === "script/html-creator") {
 
       const text = `
@@ -16011,6 +16068,7 @@ await Helper.add("event/click-funnel")
   }
 
   static convert(event, input) {
+    // event = input/to
 
     if (event === "query/css") {
       const match = input.match(/{([^{}]*)}/)
@@ -16049,6 +16107,12 @@ await Helper.add("event/click-funnel")
           reject(error)
         }
       })
+    }
+
+    if (event === "rgb/luminance") {
+      const rgb = input.match(/\d+/g).map(Number)
+      const luminance = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255
+      return luminance
     }
 
     if (event === "hex/rgba") {
@@ -17453,6 +17517,10 @@ await Helper.add("event/click-funnel")
       return input.charAt(0).toUpperCase() + input.slice(1)
     }
 
+    if (event === "tree/class") {
+      return input.replace(/\./g, "-")
+    }
+
     if (event === "parent/box") {
 
       if (input.classList.contains("box")) {
@@ -17664,6 +17732,74 @@ await Helper.add("event/click-funnel")
       this.create("nav/open", input)
 
       return input
+    }
+
+    if (event === "script/disabled-aware") {
+
+      if (this.verifyIs("text/empty", input.id)) {
+        const confirm = window.confirm("Dein Skript hat keine Id. Möchtest du deinem Skript eine Id vergeben?")
+        if (confirm) {
+          const prompt = window.prompt("Gebe eine Id ein:")
+          if (!this.verifyIs("text/empty", prompt)) {
+            input.id = prompt
+          }
+        } else {
+          window.alert("Dein Skript braucht eine Id um es schaltbar zu machen.")
+          throw new Error("script id required")
+        }
+      }
+
+      const first = `import {Helper} from "/js/Helper.js"`
+      const second = `if (Helper.verifyIs("script-id/disabled", "${input.id}")) throw new Error("script#${input.id} disabled")`
+
+      if (!input.textContent.includes(second)) {
+        let text = input.textContent
+
+        if (input.textContent.includes(first)) {
+          const regex = new RegExp(`.*${first}.*\n`, "g")
+          text = text.replace(regex, "")
+        }
+
+        text = first + "\n" + second + "\n" + text
+        input.textContent = text
+      }
+
+      if (input.innerHTML.includes("Helper")) {
+        input.type = "module"
+      } else {
+        input.type = "text/javascript"
+      }
+
+      return input
+    }
+
+    if (event === "script/disabled") {
+
+      this.convert("script/disabled-aware", input)
+
+      const scripts = JSON.parse(window.localStorage.getItem("scripts")) || []
+      const map = {}
+      map.id = input.id
+      map.disabled = true
+      scripts.unshift(map)
+      window.localStorage.setItem("scripts", JSON.stringify(scripts))
+      window.alert("Skript wurde ausgeschaltet.")
+    }
+
+    if (event === "script/enabled") {
+
+      this.convert("script/disabled-aware", input)
+
+      const scripts = JSON.parse(window.localStorage.getItem("scripts")) || []
+      for (let i = 0; i < scripts.length; i++) {
+        const script = scripts[i]
+        if (script.id === input.id) {
+          scripts.splice(i, 1)
+          window.localStorage.setItem("scripts", JSON.stringify(scripts))
+          window.alert("Skript wurde eingeschaltet.")
+        }
+      }
+
     }
 
     if (event === "element/button-right") {
@@ -18146,6 +18282,40 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "node/dark-light-toggle") {
+
+      const textColor = window.getComputedStyle(input).color
+      const luminance = this.convert("rgb/luminance", textColor)
+
+      if (luminance > 0.5) {
+        // text color ist sehr hell
+
+        if (input.classList.contains("field")) {
+          input.style.backgroundColor = this.colors.light.foreground
+          input.style.border = this.colors.light.border
+          input.style.boxShadow = this.colors.light.boxShadow
+          input.style.color = this.colors.light.text
+          input.querySelector(".field-label").style.color = this.colors.light.text
+          input.querySelector(".field-input").style.backgroundColor = this.colors.light.background
+          input.querySelector(".field-input").style.color = this.colors.light.text
+          for (let i = 0; i < input.querySelectorAll("*").length; i++) {
+            const child = input.querySelectorAll("*")[i]
+            if (child.tagName === "A") {
+              child.style.color = this.colors.link.color
+            }
+            if (child.hasAttribute("fill")) {
+              child.setAttribute("fill", this.colors.light.text)
+            }
+          }
+        }
+
+      } else {
+        // text ist sehr dunkel
+
+      }
+
+    }
+
   }
 
   static delete(event, input) {
@@ -18358,6 +18528,25 @@ await Helper.add("event/click-funnel")
           get.url = "/get/cart/closed/"
           get.type = "location-self"
           const res = await this.request("closed/json", get)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "cassa/location/path") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const get = {}
+          get.url = "/get/location/location/"
+          get.type = "cassa-path"
+          const res = await this.request("location/json", get)
 
           resolve(res)
 
@@ -19316,6 +19505,40 @@ await Helper.add("event/click-funnel")
           const get = {}
           get.url = "/get/user/closed/"
           get.type = "parent-self"
+          const res = await this.request("closed/json", get)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "paths/platform/self") {
+
+      return new Promise(async (resolve, reject) => {
+        try {
+          const get = {}
+          get.url = "/get/platform/closed/"
+          get.type = "paths"
+          get.platform = input
+          const res = await this.request("closed/json", get)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+    }
+
+    if (event === "path/cassa/location-platform") {
+
+      return new Promise(async (resolve, reject) => {
+        try {
+          const get = {}
+          get.url = "/get/cassa/closed/"
+          get.type = "path-location-platform"
+          get.platform = input
           const res = await this.request("closed/json", get)
           resolve(res)
         } catch (error) {
@@ -20576,6 +20799,28 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "alias/platform-value/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const register = {}
+          register.url = "/register/platform-value/closed/"
+          register.type = "alias"
+          register.alias = input.alias
+          register.path = input.path
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
     if (event === "text/tree/self") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -20659,6 +20904,24 @@ await Helper.add("event/click-funnel")
           register.importance = input.importance
           register.content = input.content
           const res = await this.request("location/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "path/cassa/platform-expert") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const register = {}
+          register.url = "/register/cassa/closed/"
+          register.type = "path-platform-expert"
+          register.path = input.path
+          register.platform = input.platform
+          const res = await this.request("closed/json", register)
 
           resolve(res)
         } catch (error) {
@@ -20844,6 +21107,27 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "reputation/user/closed") {
+      return new Promise(async (resolve, reject) => {
+
+        try {
+
+          const register = {}
+          register.url = "/register/user/closed/"
+          register.type = "reputation-closed"
+          register.reputation = input.reputation
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+
+        } catch (error) {
+          reject(error)
+        }
+
+
+      })
+    }
+
     if (event === "value/platform/closed") {
       return new Promise(async (resolve, reject) => {
 
@@ -20876,28 +21160,6 @@ await Helper.add("event/click-funnel")
           register.url = "/register/platform-value/closed/"
           register.type = "lang"
           register.lang = input.lang
-          register.path = input.path
-          const res = await this.request("closed/json", register)
-
-          resolve(res)
-
-        } catch (error) {
-          reject(error)
-        }
-
-
-      })
-    }
-
-    if (event === "alias/platform-value/closed") {
-      return new Promise(async (resolve, reject) => {
-
-        try {
-
-          const register = {}
-          register.url = "/register/platform-value/closed/"
-          register.type = "alias"
-          register.alias = input.alias
           register.path = input.path
           const res = await this.request("closed/json", register)
 
@@ -21090,6 +21352,74 @@ await Helper.add("event/click-funnel")
       parent = input
     }
 
+
+    if (event === "button/action") {
+      const button = this.create(event)
+      button.innerHTML = input
+      parent?.append(button)
+      return button
+    }
+
+    if (event === "left-right/local-script-toggle") {
+
+      const scripts = JSON.parse(window.localStorage.getItem("scripts")) || []
+
+      for (let i = 0; i < scripts.length; i++) {
+        const script = scripts[i]
+
+        if (script.id === input) {
+          if (script.disabled) {
+            parent.right.innerHTML = ""
+            const red = this.create("div", parent.right)
+            red.style.width = "34px"
+            red.style.padding = "8px 34px"
+            red.style.display = "flex"
+            red.style.justifyContent = "center"
+            red.style.alignItems = "center"
+            red.style.borderRadius = "13px"
+            red.style.background = "red"
+            red.innerHTML = "Disabled"
+            return parent
+          }
+        }
+      }
+
+      parent.right.innerHTML = ""
+      const green = this.create("div", parent.right)
+      green.style.width = "34px"
+      green.style.padding = "8px 34px"
+      green.style.display = "flex"
+      green.style.justifyContent = "center"
+      green.style.alignItems = "center"
+      green.style.borderRadius = "13px"
+      green.style.background = "green"
+      green.innerHTML = "OK"
+
+      return parent
+    }
+
+    if (event === "left-right/disable-script-local") {
+      parent.left.innerHTML = ".disable"
+      parent.right.innerHTML = "Schalte dein Skript aus"
+      parent.onclick = () => {
+        this.convert("script/disabled", input.script)
+        this.render("left-right/enable-script-local", {script: input.script}, parent)
+        input?.ok()
+      }
+      return parent
+    }
+
+    if (event === "left-right/enable-script-local") {
+      parent.left.innerHTML = ".enable"
+      parent.right.innerHTML = "Schalte dein Skript an"
+      parent.onclick = () => {
+        this.convert("script/enabled", input.script)
+        this.render("left-right/disable-script-local", {script: input.script}, parent)
+        input?.ok()
+      }
+      return parent
+    }
+
     if (event === "color/node/foreground") {
 
       parent.style.position = "relative"
@@ -21203,6 +21533,356 @@ await Helper.add("event/click-funnel")
 
 
 
+
+    }
+
+    if (event === "cart/node/open") {
+
+      const cart = this.create("div/scrollable")
+      cart.className = "cart"
+      parent?.append(cart)
+
+      for (let i = 0; i < input.length; i++) {
+        const item = input[i]
+
+        const container = this.create("div", cart)
+
+        const itemDiv = this.create("div", container)
+        itemDiv.className = "item"
+        itemDiv.style.display = "flex"
+        itemDiv.style.margin = "21px 34px"
+        itemDiv.style.justifyContent = "space-between"
+
+        const left = this.create("div", itemDiv)
+        left.style.width = "144px"
+        const img = document.createElement("img")
+        img.src = item.image
+        img.style.width = "100%"
+        left.appendChild(img)
+        const middle = this.create("div", itemDiv)
+        middle.style.flex = "1 1 0"
+        this.render("text/h2", item.titel, middle)
+        this.render("text/h3", this.convert("text/capital-first-letter", item.tag), middle)
+
+        if (Number(item.stocked) > 21) {
+          const text = this.create("div", middle)
+          text.innerHTML = "Auf Lager"
+          text.style.fontFamily = "sans-serif"
+          text.style.color = this.colors.light.success
+          text.style.margin = "0 34px"
+        } else if (Number(item.stocked) === 0) {
+          const text = this.create("div", middle)
+          text.innerHTML = "Ausverkauft"
+          text.style.fontFamily = "sans-serif"
+          text.style.color = this.colors.light.error
+          text.style.margin = "0 34px"
+        } else if (Number(item.stocked) < 21) {
+          const text = this.create("div", middle)
+          text.innerHTML = `Nur noch ${item.stocked} Artikel vorhanden`
+          text.style.fontFamily = "sans-serif"
+          text.style.color = this.colors.matte.orange
+          text.style.margin = "0 34px"
+        }
+
+        if (Number(item.shipping) === 0) {
+          const text = this.create("div", middle)
+          text.innerHTML = "Dieser Hersteller bietet KOSTENLOSEN Versand"
+          text.style.fontFamily = "sans-serif"
+          text.style.color = "#999"
+          text.style.margin = "0 34px"
+
+        } else if (Number(item.shipping) > 0) {
+          const text = this.create("div", middle)
+          text.innerHTML = `Versandkosten: ${Number(item.shipping).toFixed(2).replace(".", ",")} €`
+          text.style.fontFamily = "sans-serif"
+          text.style.color = "#999"
+          text.style.margin = "0 34px"
+        }
+
+        const tools = this.create("div", middle)
+        tools.style.display = "flex"
+
+        const quantity = this.create("div", tools)
+
+        const select = this.create("input/select", quantity)
+        this.add("outline-hover/node", select)
+
+
+        if (Number(item.quantity) >= 10) {
+          select.add(["0 - Löschen", "1", "2", "3", "4", "5", "6", "7", "8", "9", `${item.quantity}`, `${item.quantity}+`])
+        } else {
+          select.add(["0 - Löschen", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10+"])
+        }
+
+        if (Number(item.quantity) > Number(item.stocked)) {
+          select.add(["0 - Löschen", "1", "2", "3", "4", "5", "6", "7", "8", "9", `${item.stocked}`, `${item.stocked}+`])
+        }
+
+        if (Number(item.quantity) > Number(item.stocked)) {
+          select.value = item.stocked
+        } else {
+          select.value = item.quantity
+        }
+
+        select.style.margin = "21px 34px"
+        select.style.fontSize = "21px"
+        select.style.padding = "21px 34px"
+        select.oninput = (ev) => {
+
+          if (ev.target.value.startsWith("0")) {
+            const cart = JSON.parse(window.localStorage.getItem("cart"))
+            for (let i = 0; i < cart.length; i++) {
+              const cartItem = cart[i]
+              if (item.id === cartItem.id) {
+                cart.splice(i, 1)
+                window.localStorage.setItem("cart", JSON.stringify(cart))
+                container.remove()
+
+                const localCart = JSON.parse(window.localStorage.getItem("cart"))
+                if (localCart.length <= 0) {
+                  rightHr.remove()
+                  parent.remove()
+                }
+
+                if (localCart.length > 0) {
+                  const totalQuantity = localCart.reduce((acc, cur) => acc + cur.quantity, 0)
+
+                  let totalPrice = 0
+                  for (let i = 0; i < localCart.length; i++) {
+                    const cartItem = localCart[i]
+                    totalPrice = totalPrice + (cartItem.quantity * Number(cartItem.price))
+                  }
+
+                  rightHr.text.innerHTML = `Zusammenfassung (${totalQuantity} Artikel): ${totalPrice.toFixed(2).replace(".", ",")} €`
+                }
+
+
+              }
+
+            }
+          }
+
+          if (ev.target.value.includes("+")) {
+            quantity.innerHTML = ""
+            quantity.style.display = "flex"
+            quantity.style.justifyContent = "center"
+            quantity.style.alignItems = "center"
+            const tel = this.create("input/tel", quantity)
+            this.add("outline-hover/node", tel)
+
+            const cart = JSON.parse(window.localStorage.getItem("cart"))
+            for (let i = 0; i < cart.length; i++) {
+              const cartItem = cart[i]
+              if (item.id === cartItem.id) {
+                tel.value = cartItem.quantity
+              }
+            }
+            tel.style.borderRadius = "8px"
+            tel.style.border = "none"
+            tel.style.margin = "21px 34px"
+            tel.style.width = "89px"
+            tel.style.fontSize = "34px"
+            const submit = this.render("text/link", "Aktualisieren", quantity)
+            submit.style.margin = "0"
+            submit.innerHTML = "Aktualisieren"
+            submit.onclick = () => {
+
+              const cart = JSON.parse(window.localStorage.getItem("cart"))
+              for (let i = 0; i < cart.length; i++) {
+                const cartItem = cart[i]
+                if (item.id === cartItem.id) {
+                  if (this.verifyIs("text/+int", tel.value)) {
+
+                    if (Number(tel.value) > Number(item.stocked)) {
+                      cartItem.quantity = Number(item.stocked)
+                    } else {
+                      cartItem.quantity = Number(tel.value)
+                    }
+                    window.localStorage.setItem("cart", JSON.stringify(cart))
+                  }
+                }
+              }
+
+
+              quantity.innerHTML = ""
+              quantity.append(select)
+              select.innerHTML = ""
+              if (this.verifyIs("text/+int", tel.value)) {
+
+                if (tel.value >= 10) {
+                  if (Number(tel.value) > Number(item.stocked)) {
+                    select.add(["0 - Löschen", "1", "2", "3", "4", "5", "6", "7", "8", "9", `${item.stocked}`, `${item.stocked}+`])
+                  } else {
+                    select.add(["0 - Löschen", "1", "2", "3", "4", "5", "6", "7", "8", "9", `${tel.value}`, `${tel.value}+`])
+                  }
+
+                } else {
+                  select.add(["0 - Löschen", "1", "2", "3", "4", "5", "6", "7", "8", "9", `10+`])
+                }
+
+              } else {
+                const cart = JSON.parse(window.localStorage.getItem("cart"))
+                for (let i = 0; i < cart.length; i++) {
+                  const cartItem = cart[i]
+                  if (item.id === cartItem.id) {
+                    select.add(["0 - Löschen", "1", "2", "3", "4", "5", "6", "7", "8", "9", `${cartItem.quantity}`, `${cartItem.quantity}+`])
+                  }
+                }
+              }
+
+              let result = 0
+              if (Number(tel.value) > Number(item.stocked)) {
+                result = Number(item.stocked)
+              } else {
+                result = Number(tel.value)
+              }
+              select.value = result
+
+
+
+              const localCart = JSON.parse(window.localStorage.getItem("cart"))
+              if (localCart.length > 0) {
+                const totalQuantity = localCart.reduce((acc, cur) => acc + Number(cur.quantity), 0)
+
+                let totalPrice = 0
+                for (let i = 0; i < localCart.length; i++) {
+                  const cartItem = localCart[i]
+                  totalPrice = totalPrice + (cartItem.quantity * Number(cartItem.price))
+                }
+
+                rightHr.text.innerHTML = `Zusammenfassung (${totalQuantity} Artikel): ${totalPrice.toFixed(2).replace(".", ",")} €`
+              }
+
+
+
+            }
+
+          }
+
+          if (Number(ev.target.value) > 0 && Number(ev.target.value) < 10) {
+
+            let result = 0
+            if (Number(ev.target.value) > Number(item.stocked)) {
+              result = Number(item.stocked)
+            } else {
+              result = Number(ev.target.value)
+            }
+            select.value = result
+
+
+            let cart = JSON.parse(window.localStorage.getItem("cart"))
+            for (let i = 0; i < cart.length; i++) {
+              const cartItem = cart[i]
+              if (item.id === cartItem.id) {
+                if (this.verifyIs("text/+int", Number(ev.target.value))) {
+                  if (Number(ev.target.value) > Number(item.stocked)) {
+                    cartItem.quantity = Number(item.stocked)
+                  } else {
+                    cartItem.quantity = Number(ev.target.value)
+                  }
+                  window.localStorage.setItem("cart", JSON.stringify(cart))
+                }
+              }
+            }
+
+            cart = JSON.parse(window.localStorage.getItem("cart"))
+            if (cart.length > 0) {
+              const totalQuantity = cart.reduce((acc, cur) => acc + Number(cur.quantity), 0)
+              let totalPrice = 0
+              for (let i = 0; i < cart.length; i++) {
+                const cartItem = cart[i]
+                totalPrice = totalPrice + (Number(cartItem.quantity) * Number(cartItem.price))
+              }
+              rightHr.text.innerHTML = `Zusammenfassung (${totalQuantity} Artikel): ${totalPrice.toFixed(2).replace(".", ",")} €`
+            }
+          }
+
+        }
+
+        if (Number(item.quantity) > Number(item.stocked)) {
+          const cart = JSON.parse(window.localStorage.getItem("cart"))
+          for (let i = 0; i < cart.length; i++) {
+            const cartItem = cart[i]
+            if (item.id === cartItem.id) {
+              cartItem.quantity = Number(item.stocked)
+              window.localStorage.setItem("cart", JSON.stringify(cart))
+            }
+          }
+        }
+
+        const del = this.render("text/link", "Löschen", tools)
+        del.onclick = () => {
+          const cart = JSON.parse(window.localStorage.getItem("cart"))
+          for (let i = 0; i < cart.length; i++) {
+            const cartItem = cart[i]
+            if (item.id === cartItem.id) {
+              cart.splice(i, 1)
+              window.localStorage.setItem("cart", JSON.stringify(cart))
+              container.remove()
+
+              const localCart = JSON.parse(window.localStorage.getItem("cart"))
+              if (localCart.length <= 0) {
+                rightHr.remove()
+                parent.remove()
+              }
+
+              if (localCart.length > 0) {
+                const totalQuantity = localCart.reduce((acc, cur) => acc + Number(cur.quantity), 0)
+
+                let totalPrice = 0
+                for (let i = 0; i < localCart.length; i++) {
+                  const cartItem = localCart[i]
+                  totalPrice = totalPrice + (cartItem.quantity * Number(cartItem.price))
+                }
+
+                rightHr.text.innerHTML = `Zusammenfassung (${totalQuantity} Artikel): ${totalPrice.toFixed(2).replace(".", ",")} €`
+              }
+
+
+            }
+
+          }
+        }
+        const more = this.render("text/link", "Weitere Artikel wie dieser", tools)
+
+        const right = this.create("div", itemDiv)
+        right.style.display = "flex"
+        right.style.justifyContent = "flex-end"
+        const title = this.render("text/title", `${Number(item.price).toFixed(2).replace(".", ",")} €`, right)
+        title.style.margin = "21px 0"
+
+      }
+
+
+      const localCart = JSON.parse(window.localStorage.getItem("cart"))
+      let rightHr
+      if (localCart.length > 0) {
+        const totalQuantity = localCart.reduce((acc, cur) => acc + Number(cur.quantity), 0)
+
+        let totalPrice = 0
+        for (let i = 0; i < localCart.length; i++) {
+          const cartItem = localCart[i]
+          totalPrice = totalPrice + (cartItem.quantity * Number(cartItem.price))
+        }
+
+        rightHr = this.render("text/right-hr", `Zusammenfassung (${totalQuantity} Artikel): ${totalPrice.toFixed(2).replace(".", ",")} €`, cart)
+      }
+
+      const buttonContainer = this.create("div", cart)
+      buttonContainer.style.display = "flex"
+      buttonContainer.style.justifyContent = "flex-end"
+      const button = this.render("button/action", "Zur Kasse gehen", buttonContainer)
+      button.style.width = "50vw"
+      button.style.height = "55px"
+      button.onclick = async () => {
+        const res = await this.get("cassa/location/path")
+        if (res.status === 200) {
+          window.location.assign(res.response)
+        } else {
+          window.alert("Es wurde keine Weiterleitung definiert.")
+        }
+      }
+      this.add("outline-hover/node", button)
 
     }
 
@@ -22183,6 +22863,161 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "user/selector/all") {
+
+      const node = document.querySelector(parent)
+
+      if (node) {
+
+        let list = document.querySelector(`.${node.className}-list`)
+        if (!list) {
+          list = this.create("div", document.body)
+          list.className = `${node.className}-list`
+        }
+        list.style.paddingBottom = "144px"
+
+        const clone = node.cloneNode(true)
+        node.style.display = "none"
+
+        Object.entries(input).forEach(([key, value]) => {
+          if (this.verifyIs("array", value)) {
+            for (let i = 0; i < value.length; i++) {
+              const item = value[i]
+              if (item.created) clone.id = item.created
+              if (item.tag) clone.setAttribute("tag", item.tag)
+              if (item.funnel) this.render("object/node/all", item.funnel, clone)
+
+              Object.entries(input).forEach(([key, value]) => {
+                const className = this.convert("tree/class", key)
+                for (let i = 0; i < clone.querySelectorAll("*").length; i++) {
+                  const child = clone.querySelectorAll("*")[i]
+                  if (child.classList.contains(className)) {
+                    child.innerHTML = value
+                  }
+                }
+              })
+              const itemNode = clone.cloneNode(true)
+              if (itemNode.style.display === "none") itemNode.style.display = null
+              list.append(itemNode)
+
+            }
+          }
+        })
+
+
+        for (let i = 0; i < list.children.length; i++) {
+          const item = list.children[i]
+
+          const singlePrice = item.querySelector("span.single-price")
+          const totalAmount = item.querySelector("span.total-amount")
+          const quantityInput = item.querySelector("input.quantity")
+          if (singlePrice && totalAmount && quantityInput) {
+            quantityInput.value = 1
+            totalAmount.innerHTML = `${Number(singlePrice.innerHTML) * Number(quantityInput.value)}`
+
+            quantityInput.oninput = () => {
+              totalAmount.innerHTML = `${Number(singlePrice.innerHTML) * Number(quantityInput.value)}`
+
+              if (this.verifyIs("text/+int", quantityInput.value)) {
+                this.setValidStyle(quantityInput)
+              } else {
+                this.setNotValidStyle(quantityInput)
+              }
+
+            }
+          }
+
+
+
+          for (let i = 0; i < item.querySelectorAll("*").length; i++) {
+            const child = item.querySelectorAll("*")[i]
+
+            if (child.tagName === "INPUT") {
+              this.add("outline-hover/node", child)
+            }
+
+            if (child.hasAttribute("popup-details")) {
+              this.add("outline-hover/node", child)
+              Object.entries(input).forEach(([key, value]) => {
+                if (this.verifyIs("array", value)) {
+                  for (let i = 0; i < value.length; i++) {
+                    const locationListItem = value[i]
+                    if (item.id === `${locationListItem.created}`) {
+                      this.render("object/node/popup-details", locationListItem.funnel, child)
+                    }
+                  }
+                }
+              })
+            }
+
+            if (child.hasAttribute("open-cart")) {
+              this.add("outline-hover/node", child)
+              child.onclick = () => {
+
+                const quantityInput = item.querySelector("input.quantity")
+                if (this.verifyIs("text/+int", quantityInput.value)) {
+
+                  const cart = JSON.parse(window.localStorage.getItem("cart")) || []
+
+                  let found = false
+                  for (let i = 0; i < cart.length; i++) {
+                    const cartItem = cart[i]
+
+                    if (item.id === `${cartItem.id}`) {
+                      cartItem.quantity = Number(cartItem.quantity) + Number(quantityInput.value)
+                      window.localStorage.setItem("cart", JSON.stringify(cart))
+                      found = true
+                    }
+
+                  }
+
+                  if (found === false) {
+                    const map = {}
+                    map.id = item.id
+                    map.tag = item.getAttribute("tag")
+                    map.quantity = Number(quantityInput.value)
+
+                    Object.entries(input).forEach(([key, value]) => {
+                      if (this.verifyIs("array", value)) {
+                        for (let i = 0; i < value.length; i++) {
+                          const locationListItem = value[i]
+                          if (item.id === `${locationListItem.created}`) {
+                            map.titel = locationListItem.funnel.titel
+                            map.image = locationListItem.funnel.image
+                            map.shipping = locationListItem.funnel.shipping
+                            map.stocked = locationListItem.funnel.stocked
+                            map.price = locationListItem.funnel.price
+                          }
+                        }
+                      }
+                    })
+                    cart.unshift(map)
+                  }
+                  window.localStorage.setItem("cart", JSON.stringify(cart))
+
+                  this.overlay("popup", overlay => {
+                    this.render("text/h1", "Mein Angebot", overlay)
+
+                    const cart = JSON.parse(window.localStorage.getItem("cart")) || []
+
+                    this.render("text/right-hr", "Preis", overlay)
+                    this.render("cart/node/open", cart, overlay)
+                  })
+
+                } else {
+                  this.setNotValidStyle(quantityInput)
+                }
+
+              }
+            }
+
+          }
+
+        }
+
+      }
+    }
+
     if (event === "mirror/match-maker-get-keys") {
 
       return new Promise(async(resolve, reject) => {
@@ -22240,37 +23075,7 @@ await Helper.add("event/click-funnel")
 
                 const funnel = input.filter(it => `${it.id}` === child.id)[0].funnel
 
-                element.removeAttribute("style")
-                element.innerHTML = ""
-                element.style.display = "flex"
-                element.style.flexDirection = "column"
-                element.style.gap = "8px"
-                element.style.maxHeight = "144px"
-                element.style.overflow = "auto"
-
-                Object.entries(funnel).forEach(([key, value]) => {
-
-                  const keyValuePair = document.createElement("div")
-                  keyValuePair.classList.add("key-value-pair")
-                  keyValuePair.style.display = "flex"
-                  keyValuePair.style.flexWrap = "wrap"
-                  keyValuePair.style.borderRadius = "5px"
-                  element.append(keyValuePair)
-
-                  const keyDiv = document.createElement("key")
-                  keyDiv.classList.add("key")
-                  keyDiv.innerHTML = this.convert("tag/capital-first-letter", key) + ":"
-                  keyValuePair.append(keyDiv)
-
-                  const valueDiv = document.createElement("div")
-                  valueDiv.innerHTML = value
-                  valueDiv.classList.add("value")
-                  valueDiv.style.fontWeight = "bold"
-                  valueDiv.style.marginLeft = "5px"
-                  keyValuePair.append(valueDiv)
-
-                })
-
+                this.render("object/node/write-details", funnel, element)
 
               }
 
@@ -23546,6 +24351,33 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
       return code
     }
 
+    if (event === "text/link") {
+      const link = this.create("div")
+      link.innerHTML = input
+      link.style.fontFamily = "sans-serif"
+      link.style.padding = "13px 21px"
+      link.style.display = "flex"
+      link.style.justifyContent = "center"
+      link.style.alignItems = "center"
+      link.style.cursor = "pointer"
+
+      link.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        link.style.color = this.colors.dark.text
+      }
+
+      link.onmouseover = () => {
+        link.style.outline = "3px solid #999"
+      }
+
+      link.onmouseout = () => {
+        link.style.outline = null
+      }
+
+      parent?.append(link)
+      return link
+    }
+
     if (event === "text/h3") {
 
       const h3 = this.create("h3")
@@ -23636,6 +24468,37 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
     if (event === "text/hr") {
       if (parent !== undefined) parent.append(this.convert(event, input))
+    }
+
+    if (event === "text/right-hr") {
+
+      const container = document.createElement("div")
+
+      container.text = document.createElement("div")
+      container.text.innerHTML = input
+      container.text.style.display = "flex"
+      container.text.style.justifyContent = "flex-end"
+      container.append(container.text)
+
+      container.hr = document.createElement("hr")
+      container.append(container.hr)
+
+      container.text.style.fontFamily = "sans-serif"
+      container.text.style.fontSize = "21px"
+      container.text.style.margin = "0 34px"
+
+      container.hr.style.margin = "0 21px"
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        container.text.style.color = this.colors.dark.text
+        container.hr.style.border = `1px solid ${this.colors.dark.text}`
+      } else {
+        container.text.style.color = this.colors.light.text
+        container.hr.style.border = `1px solid ${this.colors.light.text}`
+      }
+
+      parent?.append(container)
+      return container
     }
 
     if (event === "visibility/platform-value-closed") {
@@ -24645,6 +25508,50 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
             }
 
             {
+              const button = this.create("button/left-right", buttons)
+              button.left.innerHTML = ".cassa"
+              button.right.innerHTML = "Verwalte die Zahlungsströme auf deiner Plattform"
+              button.onclick = () => {
+                this.overlay("popup", async overlay => {
+
+                  const res = await this.get("paths/platform/self", platform.name)
+
+                  if (res.status === 200) {
+                    const paths = JSON.parse(res.response)
+
+                    const pathsField = this.create("field/select", overlay)
+                    pathsField.label.innerHTML = "Zur-Kasse-gehen Weiterleitung nach"
+                    pathsField.input.add(paths)
+                    this.verify("input/value", pathsField.input)
+                    this.get("path/cassa/location-platform", platform.name).then(res => {
+                      if (res.status === 200) {
+                        pathsField.input.value = res.response
+                      }
+                    })
+                    pathsField.input.oninput = (ev) => {
+                      this.overlay("security", async securityOverlay => {
+                        const map = {}
+                        map.path = ev.target.value
+                        map.platform = platform.name
+                        const res = await this.register("path/cassa/platform-expert", map)
+                        if (res.status === 200) {
+                          window.alert("Weiterleitung erfolgreich eingerichtet.")
+                          securityOverlay.remove()
+                        }
+                      })
+                    }
+
+                    if (paths.length <= 0) {
+                      this.setNotValidStyle(pathsField.input)
+                    }
+
+                  }
+
+                })
+              }
+            }
+
+            {
               const button = this.buttonPicker("left/right", buttons)
               button.left.innerHTML = ".match-maker"
               button.right.innerHTML = "Match Maker definieren"
@@ -25199,8 +26106,13 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
         }
 
         const button = this.buttonPicker("left/right", parent)
+        const childrenButton = button
         button.left.append(this.convert("element/alias", child))
         button.right.innerHTML = "Element bearbeiten"
+
+        if (child.tagName === "SCRIPT") {
+          this.render("left-right/local-script-toggle", child.id, childrenButton)
+        }
 
         button.addEventListener("click", () => {
 
@@ -25249,7 +26161,6 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                 })
 
               }
-
 
               if (child.tagName === "DIV") {
 
@@ -29011,6 +29922,50 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 }
 
+                {
+                  const button = this.create("button/left-right", buttons)
+                  button.left.innerHTML = ".open-users"
+                  button.right.innerHTML = "Hol dir eine Liste von Nutzern"
+                  button.onclick = () => {
+                    this.overlay("popup", overlay => {
+                      this.add("button/register-html", overlay)
+
+                      const funnel = this.create("div/scrollable", overlay)
+
+                      const idField = this.create("field/tag", funnel)
+                      idField.label.innerHTML = "Vordefiniertes Design mit einer Id finden"
+                      idField.input.placeholder = "meine-element"
+                      this.verify("input/value", idField.input)
+                      idField.input.oninput = () => this.verify("input/value", idField.input)
+
+                      const treesField = this.create("field/trees", funnel)
+                      treesField.label.innerHTML = "Liste mit Datenstrukturen eingeben"
+                      treesField.input.placeholder = `[\n  "getyour.expert.name",\n  "platform.company.name",\n  "email"\n]`
+                      treesField.input.style.height = "144px"
+                      this.verify("input/value", treesField.input)
+                      treesField.input.oninput = () => this.verify("input/value", treesField.input)
+
+                      const submit = this.create("button/action", funnel)
+                      submit.innerHTML = "Skript jetzt anhängen"
+                      submit.onclick = async () => {
+                        await this.verify("field-funnel", funnel)
+
+                        const script = this.create("script/trees-id", {id: idField.input.value, trees: JSON.parse(treesField.input.value)})
+
+                        if (document.querySelectorAll(`#${script.id}`).length === 0) {
+                          document.body.append(script)
+                          window.alert("Skript wurde erfolgreich angehängt.")
+                        } else {
+                          window.alert("Id existiert bereits.")
+                          this.setNotValidStyle(idField.input)
+                        }
+
+                      }
+
+                    })
+                  }
+                }
+
               }
 
               if (child.tagName === "DIV" || child.tagName === "BODY") {
@@ -29544,6 +30499,39 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
               }
 
+              if (child.tagName !== "SCRIPT") {
+                const button = this.create("button/left-right", buttons)
+                button.left.innerHTML = ".dark-light"
+                button.right.innerHTML = "Dark Light Modus auf dein Element umschalten"
+                button.onclick = () => {
+                  this.convert("node/dark-light-toggle", child)
+                  window.alert("Dark Light Modus erfolgreich umgeschaltet.")
+                }
+              }
+
+              if (child.tagName === "SCRIPT") {
+                {
+                  const button = this.create("button/left-right", buttons)
+                  this.render("left-right/disable-script-local", {script: child, ok: () => {
+                    this.render("left-right/local-script-toggle", child.id, childrenButton)
+                    overlay.remove()
+                  }}, button)
+
+                  const scripts = JSON.parse(window.localStorage.getItem("scripts")) || []
+                  for (let i = 0; i < scripts.length; i++) {
+                    const script = scripts[i]
+                    if (script.id === child.id) {
+                      if (script.disabled) {
+                        this.render("left-right/enable-script-local", {script: child, ok: () => {
+                          this.render("left-right/local-script-toggle", child.id, childrenButton)
+                          overlay.remove()
+                        }}, button)
+                      }
+                    }
+                  }
+                }
+              }
+
               {
 
                 const button = this.create("button/left-right", buttons)
@@ -29772,10 +30760,10 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                 child.tagName !== "BODY" &&
                 child.tagName !== "HEAD"
               ) {
+
                 const button = this.buttonPicker("left/right", buttons)
                 button.left.innerHTML = ".style"
                 button.right.innerHTML = "CSS Import mit Vorschau bearbeiten"
-
                 button.addEventListener("click", () => {
 
                   this.overlay("toolbox", overlay => {
@@ -29832,7 +30820,6 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                   })
                 })
 
-
               }
 
               if (child.tagName !== "BODY") {
@@ -29840,7 +30827,6 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                 const button = this.buttonPicker("left/right", buttons)
                 button.left.innerHTML = ".innerHTML"
                 button.right.innerHTML = "Element Inhalt ändern"
-
                 button.addEventListener("click", () => {
 
                   this.overlay("toolbox", overlay => {
@@ -29883,7 +30869,6 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                 const button = this.buttonPicker("left/right", buttons)
                 button.left.innerHTML = ".assign"
                 button.right.innerHTML = "Klick Weiterleitung definieren"
-
                 button.addEventListener("click", () => {
 
                   this.overlay("toolbox", overlay => {
@@ -29955,10 +30940,10 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                 child.tagName !== "SCRIPT" &&
                 child.tagName !== "HEAD"
               ) {
+
                 const button = this.buttonPicker("left/right", buttons)
                 button.left.innerHTML = ".paste"
                 button.right.innerHTML = "Kopiertes Element anhängen"
-
                 button.addEventListener("click", () => {
                   const elementString = window.sessionStorage.getItem("copied")
 
@@ -29990,7 +30975,6 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 })
 
-
               }
 
               if (
@@ -30001,7 +30985,6 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                 const button = this.buttonPicker("left/right", buttons)
                 button.left.innerHTML = ".remove"
                 button.right.innerHTML = "Element entfernen"
-
                 button.addEventListener("click", async () => {
 
                   child.remove()
@@ -30687,6 +31670,221 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
       if (parent !== undefined) parent.append(output)
       return output
+    }
+
+    if (event === "object/selector/write-details") {
+
+      const node = document.querySelector(parent)
+
+      for (let i = 0; i < document.querySelectorAll("*").length; i++) {
+        const child = document.querySelectorAll("*")[i]
+
+        if (child.hasAttribute("write-details")) {
+
+          child.removeAttribute("style")
+          child.innerHTML = ""
+          child.style.display = "flex"
+          child.style.flexDirection = "column"
+          child.style.gap = "8px"
+          child.style.maxHeight = "144px"
+          child.style.overflow = "auto"
+
+          Object.entries(input).forEach(([key, value]) => {
+
+            const keyValuePair = document.createElement("div")
+            keyValuePair.classList.add("key-value-pair")
+            keyValuePair.style.display = "flex"
+            keyValuePair.style.flexWrap = "wrap"
+            keyValuePair.style.borderRadius = "5px"
+            child.append(keyValuePair)
+
+            const keyDiv = document.createElement("key")
+            keyDiv.classList.add("key")
+            keyDiv.innerHTML = this.convert("tag/capital-first-letter", key) + ":"
+            keyValuePair.append(keyDiv)
+
+            const valueDiv = document.createElement("div")
+            valueDiv.innerHTML = value
+            valueDiv.classList.add("value")
+            valueDiv.style.fontWeight = "bold"
+            valueDiv.style.marginLeft = "5px"
+            keyValuePair.append(valueDiv)
+
+          })
+
+        }
+
+      }
+
+    }
+
+    if (event === "object/node/write-details") {
+
+      if (parent.hasAttribute("write-details")) {
+
+        parent.removeAttribute("style")
+        parent.innerHTML = ""
+        parent.style.display = "flex"
+        parent.style.flexDirection = "column"
+        parent.style.gap = "8px"
+        parent.style.maxHeight = "144px"
+        parent.style.overflow = "auto"
+
+        Object.entries(input).forEach(([key, value]) => {
+
+          const keyValuePair = document.createElement("div")
+          keyValuePair.classList.add("key-value-pair")
+          keyValuePair.style.display = "flex"
+          keyValuePair.style.flexWrap = "wrap"
+          keyValuePair.style.borderRadius = "5px"
+          parent.append(keyValuePair)
+
+          const keyDiv = document.createElement("key")
+          keyDiv.classList.add("key")
+          keyDiv.innerHTML = this.convert("tag/capital-first-letter", key) + ":"
+          keyValuePair.append(keyDiv)
+
+          const valueDiv = document.createElement("div")
+          valueDiv.innerHTML = value
+          valueDiv.classList.add("value")
+          valueDiv.style.fontWeight = "bold"
+          valueDiv.style.marginLeft = "5px"
+          keyValuePair.append(valueDiv)
+
+        })
+
+      }
+
+    }
+
+    if (event === "object/node/popup-details") {
+      if (parent.hasAttribute("popup-details")) {
+
+        parent.style.cursor = "pointer"
+        parent.onclick = () => {
+          this.overlay("popup", overlay => {
+            this.render("text/title", "Detailansicht", overlay)
+
+            const content = this.create("div/scrollable", overlay)
+            content.style.display = "grid"
+            content.style.gridTemplateColumns = "repeat(auto-fit, minmax(300px, 1fr))"
+            content.style.gap = "21px"
+            content.style.margin = "21px 34px"
+
+            Object.entries(input).forEach(([key, value]) => {
+
+              const keyValuePair = document.createElement("div")
+              keyValuePair.classList.add("key-value-pair")
+
+              keyValuePair.style.backgroundColor = this.colors.gray[0]
+              keyValuePair.style.border = this.colors.light.border
+              keyValuePair.style.color = this.colors.light.text
+              keyValuePair.style.boxShadow = this.colors.light.boxShadow
+              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                keyValuePair.style.backgroundColor = this.colors.matte.black
+                keyValuePair.style.border = this.colors.dark.border
+                keyValuePair.style.boxShadow = this.colors.dark.boxShadow
+                keyValuePair.style.color = this.colors.dark.text
+              }
+              keyValuePair.style.display = "flex"
+              keyValuePair.style.flexDirection = "column"
+              keyValuePair.style.padding = "1rem"
+              keyValuePair.style.borderRadius = "5px"
+              content.append(keyValuePair)
+
+              const keyDiv = document.createElement("key")
+              keyDiv.classList.add("key")
+              keyDiv.style.fontWeight = "bold"
+              keyDiv.style.marginBottom = "0.5rem"
+              keyDiv.innerHTML = key
+              keyDiv.style.color = this.colors.key
+              keyValuePair.append(keyDiv)
+
+              const valueDiv = document.createElement("div")
+              valueDiv.innerHTML = value
+              valueDiv.classList.add("value")
+              valueDiv.style.color = this.colors.value
+              keyValuePair.append(valueDiv)
+
+            })
+
+          })
+        }
+
+      }
+
+    }
+
+    if (event === "object/selector/class") {
+
+      const node = document.querySelector(parent)
+
+      if (node) {
+
+        Object.entries(input).forEach(([key, value]) => {
+          for (let i = 0; i < node.querySelectorAll("*").length; i++) {
+            const child = node.querySelectorAll("*")[i]
+
+            if (child.classList.contains(key)) {
+              child.innerHTML = value
+            }
+          }
+        })
+
+      }
+
+    }
+
+    if (event === "object/selector/all") {
+
+      const node = document.querySelector(parent)
+
+      if (node) {
+
+        Object.entries(input).forEach(([key, value]) => {
+          for (let i = 0; i < node.querySelectorAll("*").length; i++) {
+            const child = node.querySelectorAll("*")[i]
+
+            this.render("object/node/write-details", input, child)
+            this.render("object/node/popup-details", input, child)
+
+            if (child.classList.contains(key)) {
+
+              if (key === "bild") {
+                child.src = value
+              } else {
+                child.innerHTML = value
+              }
+
+            }
+          }
+        })
+
+      }
+
+    }
+
+    if (event === "object/node/all") {
+
+      Object.entries(input).forEach(([key, value]) => {
+        for (let i = 0; i < parent.querySelectorAll("*").length; i++) {
+          const child = parent.querySelectorAll("*")[i]
+
+          this.render("object/node/write-details", input, child)
+          this.render("object/node/popup-details", input, child)
+
+          if (child.classList.contains(key)) {
+
+            if (key === "image") {
+              child.src = value
+            } else {
+              child.innerHTML = value
+            }
+
+          }
+        }
+      })
+
     }
 
   }
@@ -33121,6 +34319,21 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
           reject(error)
         }
       })
+    }
+
+    if (event === "script-id/disabled") {
+      if (!this.verifyIs("text/empty", input)) {
+        const scripts = JSON.parse(window.localStorage.getItem("scripts")) || []
+        for (let i = 0; i < scripts.length; i++) {
+          const script = scripts[i]
+          if (script.id === input) {
+            if (script.disabled) {
+              return true
+            }
+          }
+        }
+      }
+      return false
     }
 
     if (event === "text/json") {
