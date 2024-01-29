@@ -166,7 +166,7 @@ export class CanvasField {
   }
 
   constructor(name) {
-    if (Helper.stringIsEmpty(name)) throw new Error("class name is empty")
+    if (Helper.verifyIs("text/empty", name)) throw new Error("class name is empty")
     this.name = name
     this.fieldSelector = `div[class='${this.name}']`
     this.inputSelector = `canvas[class='${this.name}']`

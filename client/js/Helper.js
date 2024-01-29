@@ -296,7 +296,7 @@ export class Helper {
             mutation.removedNodes.forEach(node => {
 
 
-              if (!this.stringIsEmpty(node.id)) {
+              if (!this.verifyIs("text/empty", node.id)) {
 
                 const borderStyle = "2px dashed rgb(176, 53, 53)"
 
@@ -353,7 +353,7 @@ export class Helper {
 
             mutation.addedNodes.forEach(node => {
 
-              if (!this.stringIsEmpty(node.id)) {
+              if (!this.verifyIs("text/empty", node.id)) {
 
                 const borderStyle = "2px dashed rgb(176, 53, 53)"
 
@@ -412,7 +412,7 @@ export class Helper {
 
           if (mutation.type === 'attributes' && mutation.attributeName === 'id') {
 
-            if (!this.stringIsEmpty(mutation.target.id)) {
+            if (!this.verifyIs("text/empty", mutation.target.id)) {
 
 
               const borderStyle = "2px dashed rgb(176, 53, 53)"
@@ -503,7 +503,7 @@ export class Helper {
           const buttons = this.headerPicker("scrollable", overlay)
 
           {
-            const button = this.buttonPicker("left/right", buttons)
+            const button = this.create("button/left-right", buttons)
             button.left.innerHTML = "document.children"
             button.right.innerHTML = "Dokumenten Inhalt"
             button.addEventListener("click", () => {
@@ -525,7 +525,7 @@ export class Helper {
 
           {
 
-            const button = this.buttonPicker("left/right", buttons)
+            const button = this.create("button/left-right", buttons)
             button.left.innerHTML = "document.write"
             button.right.innerHTML = "Aktuelles Dokument ersetzen"
             button.addEventListener("click", () => {
@@ -566,7 +566,7 @@ export class Helper {
           }
 
           {
-            const button = this.buttonPicker("left/right", buttons)
+            const button = this.create("button/left-right", buttons)
             button.left.innerHTML = "document.copy"
             button.right.innerHTML = "Aktuelles Dokument kopieren"
             button.onclick = () => {
@@ -576,7 +576,7 @@ export class Helper {
           }
 
           {
-            const button = this.buttonPicker("left/right", buttons)
+            const button = this.create("button/left-right", buttons)
             button.left.innerHTML = "update.toolbox"
             button.right.innerHTML = "Mit nur einem Klick erhälst du die aktuellste Version unserer Toolbox"
             button.addEventListener("click", async () => {
@@ -1055,7 +1055,7 @@ export class Helper {
           if (submitButton.onclick === null) {
             submitButton.onclick = async () => {
 
-              if (this.tagIsEmpty(funnel.id)) {
+              if (this.verifyIs("tag/empty", funnel.id)) {
                 window.alert("Funnel ist nicht gültig: id ist kein tag")
                 throw new Error("funnel tag is empty")
               }
@@ -4786,7 +4786,7 @@ export class Helper {
                 this.overlay("toolbox", overlay => {
                   this.headerPicker("removeOverlay", overlay)
 
-                  const button = this.buttonPicker("left/right", overlay)
+                  const button = this.create("button/left-right", overlay)
                   const icon = this.iconPicker("delete")
                   icon.style.width = "34px"
                   button.left.append(icon)
@@ -5225,7 +5225,7 @@ await Helper.add("toolbox/onbody")
         if (confirm === true) {
           const prompt = window.prompt("Bitte bestätige deine E-Mail Adresse, um fortzufahren.")
 
-          if (this.stringIsEmpty(prompt)) {
+          if (this.verifyIs("text/empty", prompt)) {
             alert("Fehler.. Bitte wiederholen.")
             throw new Error("not found")
           }
@@ -5338,7 +5338,7 @@ await Helper.add("toolbox/onbody")
       button.right.innerHTML = "Experten Name ändern"
       button.left.innerHTML = ".name"
       button.addEventListener("click", () => {
-        this.popup(overlay => {
+        this.overlay("popup", overlay => {
 
           const funnel = this.create("div/scrollable", overlay)
 
@@ -5408,6 +5408,38 @@ await Helper.add("toolbox/onbody")
                 button.right.innerHTML = "Meine Kontakte"
                 button.onclick = () => {
                   this.overlay("popup", async overlay => {
+                    this.render("text/h1", "Meine Kontaktliste", overlay)
+
+                    const searchField = this.create("field/text", overlay)
+                    searchField.label.innerHTML = "Suche nach E-Mail Adresse"
+                    searchField.input.placeholder = "domain.de"
+                    searchField.style.margin = "0 34px"
+                    this.verify("input/value", searchField.input)
+                    this.add("outline-hover/node", searchField.input)
+
+                    const contactsDiv = this.create("div/scrollable", overlay)
+
+                    const res = await this.get("contacts/user/self")
+                    if (res.status !== 200) {
+                      this.convert("parent/info", contactsDiv)
+                      parent.innerHTML = "Keine Kontakte gefunden"
+                    }
+                    if (res.status === 200) {
+                      const contacts = JSON.parse(res.response)
+
+                      searchField.input.oninput = (ev) => {
+                        const filtered = contacts.filter(it => it.email.toLowerCase().includes(ev.target.value.toLowerCase()))
+                        const highlighted = filtered.map(it => {
+                          const highlightedEmail = it.email.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
+                          return { ...it, email: highlightedEmail }
+                        })
+                        this.render("contacts/node/update-self", highlighted, contactsDiv)
+                      }
+
+                      this.render("contacts/node/update-self", contacts, contactsDiv)
+                    }
+
+
                     const addButton = this.create("button/quick-add", overlay)
                     addButton.onclick = () => {
 
@@ -5432,7 +5464,17 @@ await Helper.add("toolbox/onbody")
 
                             if (res.status === 200) {
                               window.alert("Kontakt erfolgreich gespeichert.")
-                              this.render("contacts/node/update-self", contactsDiv)
+
+                              const res = await this.get("contacts/user/self")
+                              if (res.status !== 200) {
+                                this.convert("parent/info", contactsDiv)
+                                parent.innerHTML = "Keine Kontakte gefunden"
+                              }
+                              if (res.status === 200) {
+                                const contacts = JSON.parse(res.response)
+                                this.render("contacts/node/update-self", contacts, contactsDiv)
+                              }
+
                               securityOverlay.remove()
                               overlay.remove()
                             }
@@ -5447,12 +5489,6 @@ await Helper.add("toolbox/onbody")
 
                       })
                     }
-
-                    this.render("text/h1", "Meine Kontaktliste", overlay)
-
-                    const contactsDiv = this.create("div", overlay)
-                    contactsDiv.className = "children"
-                    this.render("contacts/node/update-self", contactsDiv)
 
                   })
                 }
@@ -5854,7 +5890,7 @@ await Helper.add("toolbox/onbody")
 
                   if (res.status === 200) {
                     window.location.assign(res.response)
-                  } else if (!Helper.stringIsEmpty(document.referrer)) {
+                  } else if (!Helper.verifyIs("text/empty", document.referrer)) {
                     window.location.assign(document.referrer)
                   } else {
                     window.history.back()
@@ -10282,6 +10318,20 @@ await Helper.add("toolbox/onbody")
       return div
     }
 
+    if (event === "div/overlay") {
+      const div = this.create("div")
+      div.style.display = "flex"
+      div.style.flexDirection = "column"
+      div.style.height = "100%"
+      div.style.overscrollBehavior = "none"
+      div.style.width = "100%"
+      div.style.position = "fixed"
+      div.style.top = "0"
+      div.style.left = "0"
+      input?.append(div)
+      return div
+    }
+
     if (event === "div/scrollable") {
       const div = document.createElement("div")
       div.style.overflowY = "auto"
@@ -14311,21 +14361,21 @@ await Helper.add("toolbox/onbody")
       this.add("button/start", content)
 
       {
-        const button = this.buttonPicker("left/right", content)
+        const button = this.create("button/left-right", content)
         button.left.innerHTML = ".login"
         button.right.innerHTML = "Dein Zugang zur personalisierten Erfahrung"
         button.addEventListener("click", () => window.location.assign("/login/"))
       }
 
       {
-        const button = this.buttonPicker("left/right", content)
+        const button = this.create("button/left-right", content)
         button.left.innerHTML = ".user-agreement"
         button.right.innerHTML = "Für Klarheit und Fairness im Umgang miteinander"
         button.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
       }
 
       {
-        const button = this.buttonPicker("left/right", content)
+        const button = this.create("button/left-right", content)
         button.left.innerHTML = ".data-protection"
         button.right.innerHTML = "Fördert Vertrauen in digitale Interaktionen"
         button.addEventListener("click", () => window.location.assign("/datenschutz/"))
@@ -15982,7 +16032,6 @@ await Helper.add("event/click-funnel")
 
   }
 
-  // https://simplicable.com/colors/
   static colors = {
     matte: {
       lightGray: '#EAEAEA',
@@ -16973,7 +17022,7 @@ await Helper.add("event/click-funnel")
 
         try {
 
-          if (this.tagIsEmpty(input.id)) {
+          if (this.verifyIs("tag/empty", input.id)) {
             window.alert("Field Funnel ist nicht gültig: id ist kein tag")
             throw new Error("field funnel id is empty")
           }
@@ -16982,7 +17031,7 @@ await Helper.add("event/click-funnel")
           input.querySelectorAll(".field").forEach(field => {
 
 
-            if (this.tagIsEmpty(field.id)) {
+            if (this.verifyIs("tag/empty", field.id)) {
               window.alert("Datenfeld ist nicht gültig: id ist kein tag")
               throw new Error("field id is empty")
             }
@@ -17012,7 +17061,7 @@ await Helper.add("event/click-funnel")
             const promises = []
             input.querySelectorAll(".field").forEach(field => {
 
-              if (this.tagIsEmpty(field.id)) {
+              if (this.verifyIs("tag/empty", field.id)) {
                 window.alert("Datenfeld ist nicht gültig: id ist kein tag")
                 return reject(new Error("field tag is empty"))
               }
@@ -17241,6 +17290,52 @@ await Helper.add("event/click-funnel")
       }
     }
 
+    if (event === "date/life-path") {
+      const digits = [...input.toString()].map(digit => parseInt(digit))
+
+      let sum = 0
+      for (let i = 0; i < digits.length; i++) {
+        const digit = digits[i]
+        if (this.verifyIs("number/empty", digit)) continue
+        sum += digit
+      }
+
+      while (sum > 9) {
+        sum = [...sum.toString()].reduce((acc, digit) => acc + parseInt(digit), 0)
+      }
+
+      return sum
+    }
+
+    if (event === "date/master") {
+      const digits = [...input.toString()].map(digit => parseInt(digit))
+
+      let sum = 0
+      for (let i = 0; i < digits.length; i++) {
+        const digit = digits[i]
+        if (this.verifyIs("number/empty", digit)) continue
+        sum += digit
+      }
+
+      return sum
+    }
+
+    if (event === "date/life-path-calc-text") {
+      const digits = [...input.toString()].map(digit => parseInt(digit))
+
+      let text
+      for (let i = 0; i < digits.length; i++) {
+        const digit = digits[i]
+        if (this.verifyIs("number/empty", digit)) continue
+        if (text === undefined) {
+          text = digit
+        } else {
+          text = text + " + " + digit
+        }
+      }
+      return text
+    }
+
     if (event === "styles/text") {
       const styles = input.style
       const div = document.createElement("div")
@@ -17259,6 +17354,31 @@ await Helper.add("event/click-funnel")
 
     if (event === "text/clipboard") {
       return navigator.clipboard.writeText(input)
+    }
+
+    if (event === "text/digest") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const data = new TextEncoder().encode(input)
+          const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+          const hashArray = Array.from(new Uint8Array(hashBuffer))
+          const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+          resolve(hashHex)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "text/js") {
+      return new Promise((resolve, reject) => {
+        try {
+          eval(input)
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      })
     }
 
     if (event === "text/number") {
@@ -18971,6 +19091,26 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "tree/user/open-self") {
+
+      return new Promise(async (resolve, reject) => {
+
+        try {
+          const get = {}
+          get.url = "/get/user/closed/"
+          get.type = "tree-self"
+          get.tree = input
+          const res = await this.request("open-closed/json", get)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+
+      })
+
+    }
+
     if (event === "trees/user/closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -19396,7 +19536,7 @@ await Helper.add("event/click-funnel")
                         const info = this.headerPicker("info", overlay)
                         info.innerHTML = `.conditions`
 
-                        const create = this.buttonPicker("left/right", overlay)
+                        const create = this.create("button/left-right", overlay)
                         create.left.innerHTML = ".create"
                         create.right.innerHTML = "Neue Bedingung definieren"
                         create.addEventListener("click", () => {
@@ -19731,7 +19871,7 @@ await Helper.add("event/click-funnel")
             const error = errors[i]
 
 
-            const button = this.buttonPicker("left/right", content)
+            const button = this.create("button/left-right", content)
             button.addEventListener("click", () => {
 
               this.overlay("toolbox", overlay => {
@@ -19790,7 +19930,7 @@ await Helper.add("event/click-funnel")
           for (let i = 0; i < infos.length; i++) {
             const info = infos[i]
 
-            const button = this.buttonPicker("left/right", content)
+            const button = this.create("button/left-right", content)
 
             if (typeof info.input === "object") {
               info.input = JSON.stringify(info.input, null, 2)
@@ -19896,7 +20036,7 @@ await Helper.add("event/click-funnel")
             const fieldInput = field.querySelector(".field-input")
 
 
-            const button = this.buttonPicker("left/right", parent)
+            const button = this.create("button/left-right", parent)
             button.left.innerHTML = field.id
 
             button.right.append(this.convert("input/alias", fieldInput))
@@ -19917,7 +20057,7 @@ await Helper.add("event/click-funnel")
 
 
                   {
-                    const button = this.buttonPicker("left/right", content)
+                    const button = this.create("button/left-right", content)
                     button.left.innerHTML = ".options"
                     button.right.innerHTML = "Antwortmöglichkeiten definieren"
                     button.addEventListener("click", () => {
@@ -19929,7 +20069,7 @@ await Helper.add("event/click-funnel")
                         info.append(this.convert("text/span", ".options"))
 
                         {
-                          const button = this.buttonPicker("left/right", overlay)
+                          const button = this.create("button/left-right", overlay)
                           button.left.innerHTML = ".append"
                           button.right.innerHTML = "Neue Antwortmöglichkeit anhängen"
                           button.addEventListener("click", () => {
@@ -20089,7 +20229,7 @@ await Helper.add("event/click-funnel")
 
         this.update("script/on-field-info-click-event", document.body)
 
-        if (this.stringIsEmpty(info)) return input.removeAttribute("on-info-click")
+        if (this.verifyIs("text/empty", info)) return input.removeAttribute("on-info-click")
 
         if (input !== undefined) {
           if (input.classList.contains("field")) {
@@ -20191,7 +20331,7 @@ await Helper.add("event/click-funnel")
               field.id = id
               field.label.textContent = label
 
-              if (!this.stringIsEmpty(info)) {
+              if (!this.verifyIs("text/empty", info)) {
                 field.setAttribute("on-info-click", info)
                 this.update("script/on-field-info-click-event", document.body)
               }
@@ -20235,10 +20375,10 @@ await Helper.add("event/click-funnel")
         get.url = "/get/conditions/closed/"
 
         if (input !== undefined) {
-          if (!this.numberIsEmpty(input.service)) {
+          if (!this.verifyIs("number/empty", input.service)) {
             get.service = input.service
           }
-          if (!this.stringIsEmpty(input.platform)) {
+          if (!this.verifyIs("text/empty", input.platform)) {
             get.platform = input.platform
           }
         }
@@ -20253,7 +20393,7 @@ await Helper.add("event/click-funnel")
           for (let i = 0; i < conditions.length; i++) {
             const condition = conditions[i]
 
-            const button = this.buttonPicker("left/right", content)
+            const button = this.create("button/left-right", content)
             button.right.innerHTML = condition.left
             button.left.innerHTML = `Bedingung ${conditions.length - i}`
 
@@ -20265,10 +20405,10 @@ await Helper.add("event/click-funnel")
 
 
                 if (input !== undefined) {
-                  if (!this.numberIsEmpty(input.service)) {
+                  if (!this.verifyIs("number/empty", input.service)) {
                     condition.service = input.service
                   }
-                  if (!this.stringIsEmpty(input.platform)) {
+                  if (!this.verifyIs("text/empty", input.platform)) {
                     condition.platform = input.platform
                   }
                 }
@@ -20294,11 +20434,6 @@ await Helper.add("event/click-funnel")
 
         }
 
-
-        if (res.status !== 200) {
-          this.redirect("session-expired")
-          return reject(new Error("get conditions failed"))
-        }
 
       })
 
@@ -20418,12 +20553,12 @@ await Helper.add("event/click-funnel")
             const service = services[i]
 
             if (input !== undefined) {
-              if (!this.stringIsEmpty(input.platform)) {
+              if (!this.verifyIs("text/empty", input.platform)) {
                 service.platform = input.platform
               }
             }
 
-            const button = this.buttonPicker("left/right", content)
+            const button = this.create("button/left-right", content)
             button.right.innerHTML = service.title
             button.left.innerHTML = `Leistung ${services.length - i}`
 
@@ -20450,12 +20585,6 @@ await Helper.add("event/click-funnel")
 
           return resolve(content)
 
-        }
-
-
-        if (res.status !== 200) {
-          this.redirect("session-expired")
-          return reject(new Error("get services failed"))
         }
 
       })
@@ -20485,7 +20614,7 @@ await Helper.add("event/click-funnel")
             for (let i = 0; i < apps.length; i++) {
               const app = apps[i]
 
-              const button = this.buttonPicker("left/right", content)
+              const button = this.create("button/left-right", content)
               button.left.innerHTML = `.${app}`
 
               if (app === "scripts") {
@@ -20734,7 +20863,7 @@ await Helper.add("event/click-funnel")
           for (let i = 0; i < roles.length; i++) {
             const role = roles[i]
 
-            const button = this.buttonPicker("left/right", content)
+            const button = this.create("button/left-right", content)
             button.classList.add("role-button")
             button.left.innerHTML = role.name
             button.left.classList.add("button-left")
@@ -20751,29 +20880,191 @@ await Helper.add("event/click-funnel")
 
         }
 
-
-        if (res.status !== 200) {
-          this.redirect("session-expired")
-          return reject()
-        }
-
       })
     }
 
   }
 
-  static redirect(event, input) {
+  static overlay(event, callback) {
 
-    if (event === "image-not-found") {
-      window.alert("Fehler..\n\nMögliche Fehlerquellen:\n\nSession abgelaufen\nPlattform Image nicht gefunden.\n\nSollte dieser Fehler weiterhin bestehen, dann melde bitte einen Konflikt.")
-      window.location.assign(`/${window.location.pathname.split("/")[1]}/`)
-      throw new Error("session-expired")
+    if (event === "html-creator") {
+
+      const overlay = document.createElement("div")
+      overlay.classList.add("overlay")
+
+      overlay.style.height = "34vh"
+      overlay.style.overscrollBehavior = "none"
+      overlay.style.width = "100%"
+      overlay.style.zIndex = "99999999999999"
+      overlay.style.position = "fixed"
+      overlay.style.bottom = "0"
+      overlay.style.left = "0"
+
+      overlay.style.background = this.colors.light.background
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        overlay.style.background = this.colors.dark.background
+      }
+
+      overlay.style.display = "flex"
+      overlay.style.flexDirection = "column"
+      overlay.style.opacity = 0
+
+      this.add("button/remove-overlay", overlay)
+
+      if (callback) callback(overlay)
+
+      document.body.append(overlay)
+
+      const animation = overlay.animate([
+        { opacity: 0, transform: 'translateY(13px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ], {
+        duration: 233,
+        easing: 'ease-in-out',
+        fill: "forwards"
+      })
+
+      return overlay
+
     }
 
-    if (event === "session-expired") {
-      window.alert("Fehler..\n\nMögliche Fehlerquellen:\n\nSession abgelaufen\n\nDu wirst zum Login Bereich weitergeleitet. Sollte dieser Fehler weiterhin bestehen, dann melde bitte einen Konflikt.")
-      window.location.assign("/login/")
-      throw new Error("session-expired")
+    if (event === "toolbox") {
+
+      const overlay = document.createElement("div")
+      overlay.classList.add("overlay")
+      overlay.style.height = "100%"
+      overlay.style.overscrollBehavior = "none"
+      overlay.style.width = "100%"
+      overlay.style.zIndex = "99999999999999"
+      overlay.style.position = "fixed"
+      overlay.style.top = "0"
+      overlay.style.left = "0"
+
+      overlay.style.background = this.colors.light.background
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        overlay.style.background = this.colors.dark.background
+      }
+
+      overlay.style.display = "flex"
+      overlay.style.flexDirection = "column"
+      overlay.style.opacity = 0
+
+      if (callback) callback(overlay)
+
+      document.body.append(overlay)
+
+      const animation = overlay.animate([
+        { opacity: 0, transform: 'translateY(13px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ], {
+        duration: 233,
+        easing: 'ease-in-out',
+        fill: "forwards"
+      })
+
+      return overlay
+
+    }
+
+    if (event === "popup") {
+
+      const overlay = document.createElement("div")
+      overlay.classList.add("overlay")
+      overlay.style.height = "100%"
+      overlay.style.overscrollBehavior = "none"
+      overlay.style.width = "100%"
+      overlay.style.zIndex = "99999999999999"
+      overlay.style.position = "fixed"
+      overlay.style.top = "0"
+      overlay.style.left = "0"
+
+      overlay.style.background = this.colors.light.background
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        overlay.style.background = this.colors.dark.background
+      }
+
+      overlay.style.display = "flex"
+      overlay.style.flexDirection = "column"
+      overlay.style.opacity = 0
+
+      overlay.info = this.create("header/info", overlay)
+      this.add("button/remove-overlay", overlay)
+
+      if (callback) callback(overlay)
+
+      document.body.append(overlay)
+
+      const animation = overlay.animate([
+        { opacity: 0, transform: 'translateY(13px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ], {
+        duration: 233,
+        easing: 'ease-in-out',
+        fill: "forwards"
+      })
+
+      return overlay
+
+    }
+
+    if (event === "info") {
+
+      const overlay = document.createElement("div")
+      overlay.classList.add("overlay")
+      overlay.style.height = "100%"
+      overlay.style.overscrollBehavior = "none"
+      overlay.style.width = "100%"
+      overlay.style.zIndex = "99999999999999"
+      overlay.style.position = "fixed"
+      overlay.style.top = "0"
+      overlay.style.left = "0"
+      overlay.style.background = this.colors.light.background
+      overlay.style.display = "flex"
+      overlay.style.flexDirection = "column"
+      overlay.style.opacity = 0
+
+      this.add("button/remove-overlay", overlay)
+
+      if (callback) callback(overlay)
+
+      document.body.append(overlay)
+
+      const animation = overlay.animate([
+        { opacity: 0, transform: 'translateY(13px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ], {
+        duration: 344,
+        easing: 'ease-in-out',
+        fill: "forwards"
+      })
+
+      return overlay
+
+    }
+
+    if (event === "security") {
+      const overlay = document.createElement("div")
+      overlay.classList.add("overlay")
+      overlay.style.height = "100%"
+      overlay.style.overscrollBehavior = "none"
+      overlay.style.width = "100%"
+      overlay.style.zIndex = "99999999999999"
+      overlay.style.position = "fixed"
+      overlay.style.top = "0"
+      overlay.style.left = "0"
+      overlay.style.display = "flex"
+      overlay.style.flexDirection = "column"
+
+      this.create("info/loading", overlay)
+
+      overlay.style.background = this.colors.light.background
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        overlay.style.background = this.colors.dark.background
+      }
+
+      if (callback) callback(overlay)
+      document.body.append(overlay)
+      return overlay
     }
 
   }
@@ -20818,6 +21109,24 @@ await Helper.add("event/click-funnel")
         }
 
 
+      })
+    }
+
+    if (event === "birthday/contacts/self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const register = {}
+          register.url = "/register/contacts/closed/"
+          register.type = "birthday-self"
+          register.id = input.id
+          register.birthday = input.birthday
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
       })
     }
 
@@ -21353,8 +21662,8 @@ await Helper.add("event/click-funnel")
     }
 
 
-    if (event === "button/action") {
-      const button = this.create(event)
+    if (event === "text/node/action-button") {
+      const button = this.create("button/action")
       button.innerHTML = input
       parent?.append(button)
       return button
@@ -21887,123 +22196,192 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "contacts/node/update-self") {
-      return new Promise(async(resolve, reject) => {
-        try {
 
-          const res = await this.get("contacts/user/self")
+      this.convert("parent/scrollable", parent)
+      for (let i = 0; i < input.length; i++) {
+        const contact = input[i]
 
-          if (res.status !== 200) {
-            this.convert("parent/info", parent)
-            parent.innerHTML = "Keine Kontakte gefunden"
-          }
+        const contactButton = this.create("button/left-right", parent)
+        contactButton.left.innerHTML = contact.email
+        if (contact.alias !== undefined) {
+          contactButton.left.innerHTML = `<div>${contact.alias}</div><div style="font-size:13px;">${contact.email}</div>`
+        }
 
-          if (res.status === 200) {
-            const contacts = JSON.parse(res.response)
+        contactButton.onclick = () => {
+          this.overlay("popup", updateOverlay => {
+            this.create("header/info", updateOverlay).innerHTML = contact.email
+            const buttons = this.create("div/scrollable", updateOverlay)
 
-            this.convert("parent/scrollable", parent)
+            {
+              const button = this.create("button/left-right", buttons)
+              button.left.innerHTML = ".alias"
+              button.right.innerHTML = "Gib deinem Kontakt einen alternativen Namen"
+              button.onclick = () => {
+                this.overlay("popup", overlay => {
+                  this.create("header/info", overlay).innerHTML = contact.email
 
-            for (let i = 0; i < contacts.length; i++) {
-              const contact = contacts[i]
+                  const funnel = this.create("div/scrollable", overlay)
 
-              const contactButton = this.create("button/left-right", parent)
-              contactButton.left.innerHTML = contact.email
-              if (contact.alias !== undefined) {
-                contactButton.left.innerHTML = contact.alias
-              }
-
-              contactButton.onclick = () => {
-                this.overlay("popup", updateOverlay => {
-                  const buttons = this.create("div/scrollable", updateOverlay)
-
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.left.innerHTML = ".alias"
-                    button.right.innerHTML = "Gib deinem Kontakt einen alternativen Namen"
-                    button.onclick = () => {
-                      this.overlay("popup", overlay => {
-                        const funnel = this.create("div/scrollable", overlay)
-
-                        const aliasField = this.create("field/text", funnel)
-                        aliasField.label.innerHTML = "Alternative Bezeichnung für deinen Kontakt"
-                        aliasField.input.setAttribute("required", "true")
-                        if (contact.alias !== undefined) {
-                          aliasField.input.value = contact.alias
-                        }
-                        this.verify("input/value", aliasField.input)
-                        aliasField.input.oninput = () => this.verify("input/value", aliasField.input)
-
-                        const submit = this.create("button/action", funnel)
-                        submit.innerHTML = "Alias jetzt speichern"
-                        submit.onclick = async () => {
-
-                          await this.verify("input/value", aliasField.input)
-
-                          this.overlay("security", async securityOverlay => {
-                            const res = await this.register("alias/contacts/self", {id: contact.created, alias: aliasField.input.value})
-
-                            if (res.status !== 200) {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
-                            }
-
-                            if (res.status === 200) {
-                              window.alert("Alias erfolgreich gespeichert.")
-                              this.render(event, input, parent)
-                              overlay.remove()
-                              updateOverlay.remove()
-                              securityOverlay.remove()
-                            }
-                          })
-
-                        }
-
-                      })
-                    }
+                  const aliasField = this.create("field/text", funnel)
+                  aliasField.label.innerHTML = "Alternative Bezeichnung für deinen Kontakt"
+                  aliasField.input.setAttribute("required", "true")
+                  if (contact.alias !== undefined) {
+                    aliasField.input.value = contact.alias
                   }
+                  this.verify("input/value", aliasField.input)
+                  aliasField.input.oninput = () => this.verify("input/value", aliasField.input)
 
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.left.innerHTML = ".delete"
-                    button.right.innerHTML = "Kontakt entfernen"
-                    button.onclick = () => {
+                  const submit = this.create("button/action", funnel)
+                  submit.innerHTML = "Alias jetzt speichern"
+                  submit.onclick = async () => {
 
-                      const confirm = window.confirm("Möchtest du deinen Kontakt wirklich entfernen?")
-                      if (confirm === true) {
+                    await this.verify("input/value", aliasField.input)
 
-                        this.overlay("security", async securityOverlay => {
-                          const res = await this.delete("id/contacts/self", contact.created)
+                    this.overlay("security", async securityOverlay => {
+                      const res = await this.register("alias/contacts/self", {id: contact.created, alias: aliasField.input.value})
 
-                          if (res.status === 200) {
-                            window.alert("Kontakt erfolgreich entfernt.")
-                            this.render(event, input, parent)
-                            updateOverlay.remove()
-                            securityOverlay.remove()
-                          }
-
-                          if (res.status !== 200) {
-                            window.alert("Fehler.. Bitte wiederholen.")
-                            securityOverlay.remove()
-                          }
-                        })
-
-
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
                       }
-                    }
+
+                      if (res.status === 200) {
+                        window.alert("Alias erfolgreich gespeichert.")
+
+                        const res = await this.get("contacts/user/self")
+                        if (res.status !== 200) {
+                          this.convert("parent/info", parent)
+                          parent.innerHTML = "Keine Kontakte gefunden"
+                        }
+                        if (res.status === 200) {
+                          const contacts = JSON.parse(res.response)
+                          this.render("contacts/node/update-self", contacts, parent)
+                        }
+
+                        overlay.remove()
+                        updateOverlay.remove()
+                        securityOverlay.remove()
+                      }
+                    })
+
                   }
 
                 })
               }
-
             }
 
-          }
+            {
+              const button = this.create("button/left-right", buttons)
+              button.left.innerHTML = ".character"
+              button.right.innerHTML = "Erfahre mehr über deinen Kontakt"
+              button.onclick = () => {
+                this.overlay("popup", overlay => {
+                  this.create("header/info", overlay).innerHTML = contact.email
 
-          resolve()
+                  const funnel = this.create("div", overlay)
 
-        } catch (error) {
-          reject(error)
+                  const dateField = this.create("field/date", funnel)
+                  dateField.label.innerHTML = "Gebe das Geburtsdatum deines Kontakts ein"
+                  dateField.input.placeholder = "yyyy-mm-dd"
+                  this.add("outline-hover/node", dateField.input)
+                  let birthday
+                  if (contact.birthday) {
+                    const split = contact.birthday.split("T")
+                    dateField.input.value = split[0]
+                    birthday = split[0]
+                  }
+                  dateField.input.setAttribute("required", "true")
+                  this.verify("input/value", dateField.input)
+
+                  const submit = this.render("text/node/action-button", "Geburtsdatum jetzt speichern", funnel)
+                  this.add("outline-hover/node", submit)
+                  submit.onclick = async () => {
+                    await this.verify("input/value", dateField.input)
+
+                    const date = new Date(dateField.input.value)
+
+                    this.overlay("security", async securityOverlay => {
+                      const res = await this.register("birthday/contacts/self", {id: contact.created, birthday: date.toISOString()})
+
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
+                      }
+
+                      if (res.status === 200) {
+                        window.alert("Geburtsdatum erfolgreich gespeichert.")
+
+                        const res = await this.get("contacts/user/self")
+                        if (res.status !== 200) {
+                          this.convert("parent/info", parent)
+                          parent.innerHTML = "Keine Kontakte gefunden"
+                        }
+                        if (res.status === 200) {
+                          const contacts = JSON.parse(res.response)
+                          this.render("contacts/node/update-self", contacts, parent)
+                        }
+
+                        overlay.remove()
+                        updateOverlay.remove()
+                        securityOverlay.remove()
+                      }
+                    })
+
+                  }
+
+                  if (birthday) {
+                    const numerology = this.create("div/scrollable", overlay)
+
+                    if (contact.alias) {
+                      this.render("text/hr", `Numerologie von ${contact.alias}`, numerology)
+                    } else {
+                      this.render("text/hr", `Numerologie von ${contact.email}`, numerology)
+                    }
+
+                    const date = birthday.split("T")[0]
+                    this.render("text/p", `Lebensweg: ${this.convert("date/life-path-calc-text", date)} = ${this.convert("date/master", date)} = <span style="font-size: 34px;">${this.convert("date/life-path", date)}</span>`, numerology)
+                  }
+
+                })
+              }
+            }
+
+            {
+              const button = this.create("button/left-right", buttons)
+              button.left.innerHTML = ".delete"
+              button.right.innerHTML = "Kontakt entfernen"
+              button.onclick = () => {
+
+                const confirm = window.confirm("Möchtest du deinen Kontakt wirklich entfernen?")
+                if (confirm === true) {
+
+                  this.overlay("security", async securityOverlay => {
+                    const res = await this.delete("id/contacts/self", contact.created)
+
+                    if (res.status === 200) {
+                      window.alert("Kontakt erfolgreich entfernt.")
+                      contactButton.remove()
+                      updateOverlay.remove()
+                      securityOverlay.remove()
+                    }
+
+                    if (res.status !== 200) {
+                      window.alert("Fehler.. Bitte wiederholen.")
+                      securityOverlay.remove()
+                    }
+                  })
+
+
+                }
+              }
+            }
+
+          })
         }
-      })
+
+      }
+
+
     }
 
     if (event === "image-url/selector/self") {
@@ -22219,7 +22597,7 @@ await Helper.add("event/click-funnel")
         keysButton.left.innerHTML = `.${key}`
 
         keysButton.onclick = () => {
-          this.popup(overlay => {
+          this.overlay("popup", overlay => {
 
             const info = this.headerPicker("info", overlay)
             info.innerHTML = input.user.email
@@ -22235,7 +22613,7 @@ await Helper.add("event/click-funnel")
               button.onclick = () => {
 
 
-                this.popup(async overlay => {
+                this.overlay("popup", async overlay => {
 
                   const info = this.create("header/info", overlay)
                   info.innerHTML = input.user.email
@@ -22375,7 +22753,7 @@ await Helper.add("event/click-funnel")
               button.right.innerHTML = "Schlüssel Name ändern"
               button.onclick = () => {
 
-                this.popup(async keyOverlay => {
+                this.overlay("popup", async keyOverlay => {
 
                   const info = this.create("header/info", keyOverlay)
                   info.innerHTML = input.user.email
@@ -23986,7 +24364,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                     this.overlay("toolbox", overlay => {
                       this.headerPicker("removeOverlay", overlay)
 
-                      const button = this.buttonPicker("left/right", overlay)
+                      const button = this.create("button/left-right", overlay)
                       const icon = this.iconPicker("delete")
                       icon.style.width = "34px"
                       button.left.append(icon)
@@ -24265,7 +24643,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
       for (let i = 0; i < input.children.length; i++) {
         const option = input.children[i]
 
-        const button = this.buttonPicker("left/right", parent)
+        const button = this.create("button/left-right", parent)
         button.left.innerHTML = `Option ${i + 1}`
         button.right.innerHTML = option.value
 
@@ -24444,7 +24822,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
           for (let i = 0; i < roles.length; i++) {
             const role = roles[i]
 
-            const button = this.buttonPicker("left/right", content)
+            const button = this.create("button/left-right", content)
             button.left.innerHTML = role.name
             button.right.innerHTML = "Rolle"
 
@@ -24455,12 +24833,6 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
           return resolve(content)
 
-        }
-
-
-        if (res.status !== 200) {
-          this.redirect("session-expired")
-          return reject()
         }
 
       })
@@ -24670,7 +25042,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
       for (let i = 0; i < input.length; i++) {
         const expert = input[i]
 
-        const button = this.buttonPicker("left/right", parent)
+        const button = this.create("button/left-right", parent)
         button.left.innerHTML = expert
         button.addEventListener("click", () => window.location.assign(`/${expert}/`))
       }
@@ -24726,12 +25098,10 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
         itemHeader.style.borderTopRightRadius = "21px"
         itemHeader.style.borderTopLeftRadius = "21px"
         itemHeader.style.borderBottomLeftRadius = "21px"
-        // itemHeader.style.height = "89px"
 
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
           itemHeader.style.backgroundColor = this.colors.matte.charcoal
         } else {
-
           itemHeader.style.backgroundColor = this.colors.gray[1]
         }
 
@@ -24748,14 +25118,14 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
               const buttons = this.headerPicker("scrollable", overlay)
 
               {
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".toolbox"
                 button.right.innerHTML = "Bearbeite deine Werteinheit"
                 button.addEventListener("click", () => window.location.assign(value.path))
               }
 
               {
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".path"
                 button.right.innerHTML = "Pfad ändern"
 
@@ -24838,7 +25208,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
               }
 
               {
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".alias"
                 button.right.innerHTML = "Alias ändern"
 
@@ -24898,7 +25268,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
               }
 
               {
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".image"
                 button.right.innerHTML = "Bild ändern"
 
@@ -24919,7 +25289,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
 
               {
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".lang"
                 button.right.innerHTML = "Sprache ändern"
 
@@ -24970,7 +25340,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
 
               {
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".visibility"
                 button.right.innerHTML = "Sichtbarkeit der Werteinheit"
 
@@ -25113,7 +25483,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
               }
 
               {
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".delete"
                 button.right.innerHTML = "Werteinheit löschen"
 
@@ -25205,6 +25575,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
             itemState.append(stateIcon)
           }
         }
+
         itemState.style.borderTopLeftRadius = "21px"
         itemState.style.borderBottomLeftRadius = "21px"
 
@@ -25337,7 +25708,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
             const buttons = this.headerPicker("scrollable", overlay)
 
             {
-              const button = this.buttonPicker("left/right", buttons)
+              const button = this.create("button/left-right", buttons)
               button.left.innerHTML = ".create"
               button.right.innerHTML = "Neue Werteinheit erstellen"
               button.addEventListener("click", () => {
@@ -25424,37 +25795,47 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
             }
 
             {
-              const button = this.buttonPicker("left/right", buttons)
+              const button = this.create("button/left-right", buttons)
               button.left.innerHTML = ".values"
               button.right.innerHTML = "Meine Werteinheiten"
               button.addEventListener("click", () => {
 
                 this.overlay("toolbox", async overlay => {
 
-
                   this.headerPicker("removeOverlay", overlay)
                   const info = this.headerPicker("info", overlay)
                   info.innerHTML = platform.name
                   info.append(this.convert("text/span", ".values"))
 
+                  const searchField = this.create("field/text", overlay)
+                  searchField.label.innerHTML = "Suche nach Alias"
+                  searchField.input.placeholder = "Meine Werteinheiten"
+                  this.verify("input/value", searchField.input)
+                  this.add("outline-hover/node", searchField.input)
 
                   const units = this.headerPicker("loading", overlay)
+
                   const get = {}
                   get.url = "/get/platform-values/closed/"
                   get.platform = platform.name
                   const res = await this.request("closed/json", get)
-
-                  if (res.status !== 200) {
-                    window.location.assign("/")
-                  }
-
                   if (res.status === 200) {
                     const values = JSON.parse(res.response)
 
                     if (values.length === 0) {
                       this.convert("parent/info", units)
+                      searchField.remove()
                       units.innerHTML = `<span style="margin: 21px 34px;">Es wurden keine Werteinheiten gefunden.</span>`
                       throw new Error("platform values is empty")
+                    }
+
+                    searchField.input.oninput = (ev) => {
+                      const filtered = values.filter(it => it.alias.toLowerCase().includes(ev.target.value.toLowerCase()))
+                      const highlighted = filtered.map(it => {
+                        const highlightedAlias = it.alias.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
+                        return { ...it, alias: highlightedAlias }
+                      })
+                      this.render("platform-values/closed", highlighted, units)
                     }
 
                     this.render("platform-values/closed", values, units)
@@ -25466,7 +25847,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
             }
 
             {
-              const button = this.buttonPicker("left/right", buttons)
+              const button = this.create("button/left-right", buttons)
               button.left.innerHTML = ".roles"
               button.right.innerHTML = "Rollen definieren"
 
@@ -25477,7 +25858,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                   const info = this.headerPicker("info", overlay)
                   info.innerHTML = `${platform.name}.roles`
 
-                  const create = this.buttonPicker("left/right", overlay)
+                  const create = this.create("button/left-right", overlay)
                   create.left.innerHTML = ".create"
                   create.right.innerHTML = "Neue Rolle definieren"
                   create.addEventListener("click", () => {
@@ -25552,7 +25933,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
             }
 
             {
-              const button = this.buttonPicker("left/right", buttons)
+              const button = this.create("button/left-right", buttons)
               button.left.innerHTML = ".match-maker"
               button.right.innerHTML = "Match Maker definieren"
 
@@ -25564,7 +25945,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                   const info = this.headerPicker("info", overlay)
                   info.innerHTML = `.match-maker`
 
-                  const create = this.buttonPicker("left/right", overlay)
+                  const create = this.create("button/left-right", overlay)
                   create.left.innerHTML = ".create"
                   create.right.innerHTML = "Neuen Match Maker definieren"
                   create.addEventListener("click", () => {
@@ -25640,7 +26021,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
             }
 
             {
-              const button = this.buttonPicker("left/right", buttons)
+              const button = this.create("button/left-right", buttons)
               button.right.innerHTML = "Namen ändern"
               button.left.innerHTML = ".name"
               button.addEventListener("click", () => {
@@ -25705,7 +26086,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
             }
 
             {
-              const button = this.buttonPicker("left/right", buttons)
+              const button = this.create("button/left-right", buttons)
               button.right.innerHTML = "Bild ändern"
               button.left.innerHTML = ".image"
 
@@ -25726,7 +26107,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
             }
 
             {
-              const button = this.buttonPicker("left/right", buttons)
+              const button = this.create("button/left-right", buttons)
               button.right.innerHTML = "Sichtbarkeit der Plattform"
               button.left.innerHTML = ".visibility"
 
@@ -25800,7 +26181,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
             }
 
             {
-              const button = this.buttonPicker("left/right", buttons)
+              const button = this.create("button/left-right", buttons)
               button.right.innerHTML = "Plattform löschen"
               button.left.innerHTML = ".delete"
 
@@ -26029,7 +26410,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
             const fieldInput = field.querySelector(".field-input")
 
 
-            const button = this.buttonPicker("left/right", parent)
+            const button = this.create("button/left-right", parent)
             button.left.innerHTML = field.id
 
             button.right.append(this.convert("input/alias", fieldInput))
@@ -26105,7 +26486,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
           if (child.classList[i].startsWith("overlay")) continue childrenLoop
         }
 
-        const button = this.buttonPicker("left/right", parent)
+        const button = this.create("button/left-right", parent)
         const childrenButton = button
         button.left.append(this.convert("element/alias", child))
         button.right.innerHTML = "Element bearbeiten"
@@ -26134,7 +26515,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
               if (child.tagName !== "SCRIPT") {
 
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".children"
                 button.right.innerHTML = "Element Inhalt"
 
@@ -26164,7 +26545,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
               if (child.tagName === "DIV") {
 
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".creator"
                 button.right.innerHTML = "Bearbeite dein Element schnell und einfach"
                 button.addEventListener("click", () => {
@@ -29319,7 +29700,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 {
 
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".fields"
                   button.right.innerHTML = "Datenfelder anhängen"
                   button.addEventListener("click", () => {
@@ -29333,7 +29714,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                       info.append(this.convert("text/span", ".fields"))
 
                       {
-                        const button = this.buttonPicker("left/right", overlay)
+                        const button = this.create("button/left-right", overlay)
                         button.left.innerHTML = ".append"
                         button.right.innerHTML = "Neues Datenfeld erzeugen"
                         button.addEventListener("click", () => {
@@ -29425,7 +29806,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                 }
 
                 {
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".next-path"
                   button.right.innerHTML = "Nach Abschluss, zur Werteinheit"
                   button.addEventListener("click", () => {
@@ -29450,12 +29831,12 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                       this.verify("input/value", pathField.input)
                       pathField.input.addEventListener("input", (event) => {
 
-                        if (this.stringIsEmpty(event.target.value)) {
+                        if (this.verifyIs("text/empty", event.target.value)) {
                           this.setNotValidStyle(event.target)
                           child.removeAttribute("next-path")
                         }
 
-                        if (!this.stringIsEmpty(event.target.value)) {
+                        if (!this.verifyIs("text/empty", event.target.value)) {
                           this.setValidStyle(event.target)
                           pathField.label.textContent = `https://www.get-your.de${event.target.value}`
                           child.setAttribute("next-path", event.target.value)
@@ -29471,7 +29852,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 {
 
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".submit-field-funnel-event"
                   button.right.innerHTML = "Field Funnel Submit Skript anhängen"
                   button.addEventListener("click", () => {
@@ -29484,7 +29865,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 {
 
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".prefill-field-funnel-event"
                   button.right.innerHTML = "Fülle die Datenfelder mit den eigenen Nutzerdaten"
                   button.addEventListener("click", () => {
@@ -29497,7 +29878,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 {
 
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".on-info-click-event"
                   button.right.innerHTML = "Füge ein Info Klick Event hinzu"
                   button.addEventListener("click", () => {
@@ -29514,7 +29895,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 {
 
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".scripts"
                   button.right.innerHTML = "Nutze geprüfte HTML Skripte"
                   button.addEventListener("click", () => {
@@ -29538,7 +29919,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 {
 
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".match-maker"
                   button.right.innerHTML = "Match Maker Skripte anhängen"
                   button.onclick = () => {
@@ -29720,7 +30101,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 {
 
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".style"
                   button.right.innerHTML = "CSS Import"
                   button.addEventListener("click", () => {
@@ -29755,7 +30136,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                         const css = cssField.input.value
 
-                        if (this.stringIsEmpty(css)) {
+                        if (this.verifyIs("text/empty", css)) {
                           child.removeAttribute("style")
                         } else {
                           child.setAttribute("style", css)
@@ -29771,7 +30152,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 {
 
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".innerHTML"
                   button.right.innerHTML = "Body Inhalt ersetzen"
                   button.addEventListener("click", () => {
@@ -29821,7 +30202,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 {
 
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".feedback-button"
                   button.right.innerHTML = "Lass dir Feedback für deine Werteinheiten geben"
                   button.onclick = () => {
@@ -29834,7 +30215,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 {
 
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".back-button"
                   button.right.innerHTML = "Hänge eine Zurück Taste an"
                   button.onclick = () => {
@@ -30106,7 +30487,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 {
 
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".click-funnel"
                   button.right.innerHTML = "Klick Funnel anhängen"
                   button.addEventListener("click", () => {
@@ -30200,7 +30581,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 {
 
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".image"
                   button.right.innerHTML = "Neues Bild anhängen"
                   button.addEventListener("click", () => {
@@ -30293,7 +30674,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
               if (child.classList.contains("click-funnel")) {
 
                 {
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".questions"
                   button.right.innerHTML = "Klick Funnel bearbeiten"
                   button.addEventListener("click", () => {
@@ -30309,7 +30690,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                       }
 
                       {
-                        const button = this.buttonPicker("left/right", questionsOverlay)
+                        const button = this.create("button/left-right", questionsOverlay)
                         button.left.innerHTML = ".append"
                         button.right.innerHTML = "Neue Frage anhängen"
                         button.addEventListener("click", () => {
@@ -30392,7 +30773,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
 
                 {
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".next-path"
                   button.right.innerHTML = "Nach Abschluss, zur Werteinheit"
                   button.addEventListener("click", () => {
@@ -30417,12 +30798,12 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                       this.verify("input/value", pathField.input)
                       pathField.input.addEventListener("input", (event) => {
 
-                        if (this.stringIsEmpty(event.target.value)) {
+                        if (this.verifyIs("text/empty", event.target.value)) {
                           this.setNotValidStyle(event.target)
                           child.removeAttribute("next-path")
                         }
 
-                        if (!this.stringIsEmpty(event.target.value)) {
+                        if (!this.verifyIs("text/empty", event.target.value)) {
                           this.setValidStyle(event.target)
                           pathField.label.textContent = `https://www.get-your.de${event.target.value}`
                           child.setAttribute("next-path", event.target.value)
@@ -30438,7 +30819,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
 
                 {
-                  const button = this.buttonPicker("left/right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.innerHTML = ".reset"
                   button.right.innerHTML = "Klick Funnel zurücksetzen"
                   button.addEventListener("click", () => {
@@ -30463,7 +30844,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
               if (child.tagName === "TITLE") {
 
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
 
                 button.left.innerHTML = ".textContent"
                 button.right.innerHTML = "Textinhalt ersetzen"
@@ -30573,7 +30954,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
               }
 
               {
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".id"
                 button.right.innerHTML = "Element Id ändern"
                 button.addEventListener("click", async () => {
@@ -30636,7 +31017,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
               }
 
               {
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".class"
                 button.right.innerHTML = "Element Klassen definieren"
                 button.addEventListener("click", () => {
@@ -30672,7 +31053,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                       const value = classField.input.value
 
-                      if (this.stringIsEmpty(value)) {
+                      if (this.verifyIs("text/empty", value)) {
                         child.removeAttribute("class")
 
                         overlay.querySelectorAll(".element-alias").forEach(element => {
@@ -30703,7 +31084,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
               if (child.tagName === "HEAD") {
 
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".style"
                 button.right.innerHTML = "Design als Style Tag anhängen"
 
@@ -30761,7 +31142,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                 child.tagName !== "HEAD"
               ) {
 
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".style"
                 button.right.innerHTML = "CSS Import mit Vorschau bearbeiten"
                 button.addEventListener("click", () => {
@@ -30824,7 +31205,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
               if (child.tagName !== "BODY") {
 
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".innerHTML"
                 button.right.innerHTML = "Element Inhalt ändern"
                 button.addEventListener("click", () => {
@@ -30866,7 +31247,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
               if (child.tagName === "DIV") {
 
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".assign"
                 button.right.innerHTML = "Klick Weiterleitung definieren"
                 button.addEventListener("click", () => {
@@ -30904,7 +31285,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                       const path = pathField.input.value
 
-                      if (this.stringIsEmpty(path)) {
+                      if (this.verifyIs("text/empty", path)) {
                         child.removeAttribute("onclick")
                       } else {
                         child.setAttribute("onclick", `window.location.assign("${path}")`)
@@ -30926,7 +31307,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                 child.tagName !== "HEAD"
               ) {
 
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".copy"
                 button.right.innerHTML = "Element kopieren"
                 button.addEventListener("click", () => {
@@ -30941,7 +31322,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                 child.tagName !== "HEAD"
               ) {
 
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".paste"
                 button.right.innerHTML = "Kopiertes Element anhängen"
                 button.addEventListener("click", () => {
@@ -30960,7 +31341,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                     const counter = document.querySelectorAll(`[id*='${id}']`).length
 
                     let copyId
-                    if (!this.numberIsEmpty(counter)) {
+                    if (!this.verifyIs("number/empty", counter)) {
                       copyId = `${id}-${counter}`
                     }
 
@@ -30982,7 +31363,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                 child.tagName !== "HEAD"
               ) {
 
-                const button = this.buttonPicker("left/right", buttons)
+                const button = this.create("button/left-right", buttons)
                 button.left.innerHTML = ".remove"
                 button.right.innerHTML = "Element entfernen"
                 button.addEventListener("click", async () => {
@@ -31043,12 +31424,12 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
           let droppedId = child.id
 
-          if (this.stringIsEmpty(draggedId)) {
+          if (this.verifyIs("text/empty", draggedId)) {
             alert("Das ausgewählte Element hat keine Id. Wenn du es verschieben möchtest, dann vergebe dem Element eine Id.")
             throw new Error("dragged id is empty")
           }
 
-          if (this.stringIsEmpty(droppedId)) {
+          if (this.verifyIs("text/empty", droppedId)) {
             alert("Das zu tauschende Element hat keine Id. Wenn du es verschieben möchtest, dann vergebe dem Element eine Id.")
             throw new Error("dropped id is empty")
           }
@@ -31082,7 +31463,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
             if (child.classList.contains("answer-box")) {
               const answer = child.querySelector(".answer")
 
-              const button = this.buttonPicker("left/right", parent)
+              const button = this.create("button/left-right", parent)
               button.left.innerHTML = `Option ${i + 1}`
               button.right.textContent = answer.textContent
               button.addEventListener("click", () => {
@@ -31114,7 +31495,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                   })
 
-                  const selectedConditionButton = this.buttonPicker("left/right", answerFunnel)
+                  const selectedConditionButton = this.create("button/left-right", answerFunnel)
                   selectedConditionButton.left.innerHTML = ".onclick"
                   selectedConditionButton.right.innerHTML = "Klick Bedingung definieren"
                   selectedConditionButton.addEventListener("click", () => {
@@ -31255,7 +31636,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
           if (child.classList.contains("end-click-funnel-button")) continue
 
           if (child.classList.contains("click-field")) {
-            const button = this.buttonPicker("left/right", parent)
+            const button = this.create("button/left-right", parent)
             button.left.innerHTML = child.id
             button.right.innerHTML = "Frage bearbeiten"
             button.addEventListener("click", () => {
@@ -31312,7 +31693,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 })
 
-                const button = this.buttonPicker("left/right", questionsFunnel)
+                const button = this.create("button/left-right", questionsFunnel)
                 button.left.innerHTML = ".options"
                 button.right.innerHTML = "Antworten bearbeiten"
                 button.addEventListener("click", () => {
@@ -31330,7 +31711,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                     }
 
                     {
-                      const button = this.buttonPicker("left/right", answersOverlay)
+                      const button = this.create("button/left-right", answersOverlay)
                       button.left.innerHTML = ".append"
                       button.right.innerHTML = "Neue Antwortmöglichkeit anhängen"
                       button.addEventListener("click", () => {
@@ -31356,7 +31737,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                           this.verify("input/value", answerField.input)
                           answerField.input.addEventListener("input", () => this.verify("input/value", answerField.input))
 
-                          const selectedConditionButton = this.buttonPicker("left/right", answerFunnel)
+                          const selectedConditionButton = this.create("button/left-right", answerFunnel)
                           selectedConditionButton.left.innerHTML = ".onclick"
                           selectedConditionButton.right.innerHTML = "Klick Bedingung definieren"
                           selectedConditionButton.addEventListener("click", () => {
@@ -31504,7 +31885,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
       for (let i = 0; i < input.length; i++) {
         const element = input[i]
 
-        const button = this.buttonPicker("left/right")
+        const button = this.create("button/left-right")
         button.left.innerHTML = `Option: ${i + 1}`
 
         // const right = document.createElement("div")
@@ -31590,7 +31971,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
         if (input.type === "select") {
 
           {
-            const button = this.buttonPicker("left/right", parent)
+            const button = this.create("button/left-right", parent)
             button.left.innerHTML = ".options"
             button.right.innerHTML = "Antwortmöglichkeiten definieren"
             button.addEventListener("click", () => {
@@ -31606,7 +31987,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                 info.append(this.convert("text/span", ".options"))
 
                 {
-                  const button = this.buttonPicker("left/right", overlay)
+                  const button = this.create("button/left-right", overlay)
                   button.left.innerHTML = ".append"
                   button.right.innerHTML = "Neue Antwortmöglichkeit anhängen"
                   button.addEventListener("click", () => {
@@ -31654,7 +32035,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
       for (let i = 0; i < input.length; i++) {
         const element = input[i]
 
-        const button = this.buttonPicker("left/right")
+        const button = this.create("button/left-right")
         button.left.innerHTML = `Frage: ${i + 1}`
         button.right.innerHTML = element.id
 
@@ -31887,6 +32268,29 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
     }
 
+    if (event === "values/node/alias-path") {
+      this.convert("parent/scrollable", parent)
+      for (let i = 0; i < input.length; i++) {
+        const value = input[i]
+
+        const button = Helper.create("button/left-right", parent)
+        button.right.style.margin = ""
+        button.left.innerHTML = `<span style="font-size:13px;">${value.alias}</span><br/><span>${value.path}</span>`
+        button.onclick = () => window.open(value.path, "_blank")
+
+        const copy = Helper.create("icon/copy-path", button.right)
+        copy.style.width = "55px"
+        copy.style.margin = "0 13px 0 34px"
+        copy.onclick = (ev) => {
+          ev.stopPropagation()
+          navigator.clipboard.writeText(value.path)
+          .then(() => window.alert(`Der Pfad '${value.path}' wurde erfolgreich in deinen Zwischenspeicher kopiert.`))
+          .catch(() => window.alert("Fehler.. Bitte wiederholen."))
+        }
+      }
+      return parent
+    }
+
   }
 
   static remove(event, input) {
@@ -32058,22 +32462,28 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
       })
     }
 
-  }
-
-  static run(event, input) {
-
-    if (event === "text/js") {
-
-      return new Promise((resolve, reject) => {
-
+    if (event === "open-closed/json") {
+      return new Promise(async(resolve, reject) => {
         try {
-          eval(input)
-          resolve()
+
+          input.location = window.location.href
+          input.referer = document.referrer
+          input.localStorageEmail = window.localStorage.getItem("email")
+          input.localStorageId = window.localStorage.getItem("localStorageId")
+
+          const xhr = new XMLHttpRequest()
+          xhr.open("POST", input.url)
+          xhr.setRequestHeader("Accept", "application/json")
+          xhr.setRequestHeader("Content-Type", "application/json")
+          xhr.overrideMimeType("text/html")
+          xhr.withCredentials = true
+          xhr.onload = () => resolve(xhr)
+          xhr.send(JSON.stringify(input))
+
         } catch (error) {
           reject(error)
         }
       })
-
     }
 
   }
@@ -32568,12 +32978,6 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
           return resolve()
         }
 
-
-        if (res.status !== 200) {
-          this.redirect("session-expired")
-          return reject()
-        }
-
       })
     }
 
@@ -32602,12 +33006,6 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
           return resolve()
         }
 
-
-        if (res.status !== 200) {
-          this.redirect("session-expired")
-          return reject()
-        }
-
       })
     }
 
@@ -32634,7 +33032,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
           for (let i = 0; i < roles.length; i++) {
             const role = roles[i]
 
-            const button = this.buttonPicker("left/right", content)
+            const button = this.create("button/left-right", content)
             button.left.innerHTML = role.name
             button.right.innerHTML = "Rolle bearbeiten"
 
@@ -32661,12 +33059,6 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
           return resolve(content)
 
-        }
-
-
-        if (res.status !== 200) {
-          this.redirect("session-expired")
-          return reject()
         }
 
       })
@@ -33266,6 +33658,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
       return button
     }
+
   }
 
   static iconPicker(name) {
@@ -33603,238 +33996,6 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
   }
 
-  static overlay(event, callback) {
-
-    if (event === "html-creator") {
-
-      const overlay = document.createElement("div")
-      overlay.classList.add("overlay")
-
-      overlay.style.height = "34vh"
-      overlay.style.overscrollBehavior = "none"
-      overlay.style.width = "100%"
-      overlay.style.zIndex = "99999999999999"
-      overlay.style.position = "fixed"
-      overlay.style.bottom = "0"
-      overlay.style.left = "0"
-
-      overlay.style.background = this.colors.light.background
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        overlay.style.background = this.colors.dark.background
-      }
-
-      overlay.style.display = "flex"
-      overlay.style.flexDirection = "column"
-      overlay.style.opacity = 0
-
-      this.add("button/remove-overlay", overlay)
-
-      if (callback) callback(overlay)
-
-      document.body.append(overlay)
-
-      const animation = overlay.animate([
-        { opacity: 0, transform: 'translateY(13px)' },
-        { opacity: 1, transform: 'translateY(0)' },
-      ], {
-        duration: 233,
-        easing: 'ease-in-out',
-        fill: "forwards"
-      })
-
-      return overlay
-
-    }
-
-    if (event === "toolbox") {
-
-      const overlay = document.createElement("div")
-      overlay.classList.add("overlay")
-      overlay.style.height = "100%"
-      overlay.style.overscrollBehavior = "none"
-      overlay.style.width = "100%"
-      overlay.style.zIndex = "99999999999999"
-      overlay.style.position = "fixed"
-      overlay.style.top = "0"
-      overlay.style.left = "0"
-
-      overlay.style.background = this.colors.light.background
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        overlay.style.background = this.colors.dark.background
-      }
-
-      overlay.style.display = "flex"
-      overlay.style.flexDirection = "column"
-      overlay.style.opacity = 0
-
-      if (callback) callback(overlay)
-
-      document.body.append(overlay)
-
-      const animation = overlay.animate([
-        { opacity: 0, transform: 'translateY(13px)' },
-        { opacity: 1, transform: 'translateY(0)' },
-      ], {
-        duration: 233,
-        easing: 'ease-in-out',
-        fill: "forwards"
-      })
-
-      return overlay
-
-    }
-
-    if (event === "popup") {
-
-      const overlay = document.createElement("div")
-      overlay.classList.add("overlay")
-      overlay.style.height = "100%"
-      overlay.style.overscrollBehavior = "none"
-      overlay.style.width = "100%"
-      overlay.style.zIndex = "99999999999999"
-      overlay.style.position = "fixed"
-      overlay.style.top = "0"
-      overlay.style.left = "0"
-
-      overlay.style.background = this.colors.light.background
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        overlay.style.background = this.colors.dark.background
-      }
-
-      overlay.style.display = "flex"
-      overlay.style.flexDirection = "column"
-      overlay.style.opacity = 0
-
-      overlay.info = this.create("header/info", overlay)
-      this.add("button/remove-overlay", overlay)
-
-      if (callback) callback(overlay)
-
-      document.body.append(overlay)
-
-      const animation = overlay.animate([
-        { opacity: 0, transform: 'translateY(13px)' },
-        { opacity: 1, transform: 'translateY(0)' },
-      ], {
-        duration: 233,
-        easing: 'ease-in-out',
-        fill: "forwards"
-      })
-
-      return overlay
-
-    }
-
-    if (event === "info") {
-
-      const overlay = document.createElement("div")
-      overlay.classList.add("overlay")
-      overlay.style.height = "100%"
-      overlay.style.overscrollBehavior = "none"
-      overlay.style.width = "100%"
-      overlay.style.zIndex = "99999999999999"
-      overlay.style.position = "fixed"
-      overlay.style.top = "0"
-      overlay.style.left = "0"
-      overlay.style.background = this.colors.light.background
-      overlay.style.display = "flex"
-      overlay.style.flexDirection = "column"
-      overlay.style.opacity = 0
-
-      this.add("button/remove-overlay", overlay)
-
-      if (callback) callback(overlay)
-
-      document.body.append(overlay)
-
-      const animation = overlay.animate([
-        { opacity: 0, transform: 'translateY(13px)' },
-        { opacity: 1, transform: 'translateY(0)' },
-      ], {
-        duration: 344,
-        easing: 'ease-in-out',
-        fill: "forwards"
-      })
-
-      return overlay
-
-    }
-
-    if (event === "security") {
-      const overlay = document.createElement("div")
-      overlay.classList.add("overlay")
-      overlay.style.height = "100%"
-      overlay.style.overscrollBehavior = "none"
-      overlay.style.width = "100%"
-      overlay.style.zIndex = "99999999999999"
-      overlay.style.position = "fixed"
-      overlay.style.top = "0"
-      overlay.style.left = "0"
-      overlay.style.display = "flex"
-      overlay.style.flexDirection = "column"
-
-      this.create("info/loading", overlay)
-
-      overlay.style.background = this.colors.light.background
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        overlay.style.background = this.colors.dark.background
-      }
-
-      if (callback) callback(overlay)
-      document.body.append(overlay)
-      return overlay
-    }
-
-  }
-
-  static popup(callback) {
-    const overlay = document.createElement("div")
-    overlay.classList.add("overlay")
-
-    const removeOverlayButton = this.create("button/remove-overlay", overlay)
-    removeOverlayButton.onclick = () => {
-      document.body.style.overscrollBehavior = null
-      document.body.style.overflow = null
-      overlay.remove()
-    }
-
-    // mobile issues
-    overlay.style.height = "100%"
-    overlay.style.overscrollBehavior = "none"
-    document.body.style.overscrollBehavior = "none"
-    document.body.style.overflow = "hidden"
-
-    overlay.style.width = "100%"
-    overlay.style.zIndex = "99999999999999"
-    overlay.style.position = "fixed"
-    overlay.style.top = "0"
-    overlay.style.left = "0"
-
-    overlay.style.background = this.colors.light.background
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      overlay.style.background = this.colors.dark.background
-    }
-
-    overlay.style.display = "flex"
-    overlay.style.flexDirection = "column"
-    overlay.style.opacity = 0
-
-    if (callback) callback(overlay)
-
-    document.body.append(overlay)
-
-    const animation = overlay.animate([
-      { opacity: 0, transform: 'translateY(13px)' },
-      { opacity: 1, transform: 'translateY(0)' },
-    ], {
-      duration: 344,
-      easing: 'ease-in-out',
-      fill: "forwards"
-    })
-
-    return overlay
-  }
-
   static setNotValidStyle(element) {
 
     let color
@@ -33919,74 +34080,9 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
     return element
   }
 
-  static arrayIsEmpty(array) {
-    return typeof array !== "object" ||
-    array === undefined ||
-    array === null ||
-    array.length <= 0 ||
-    !Array.isArray(array)
-  }
-
-  static objectIsEmpty(object) {
-    return typeof object !== "object" ||
-    object === undefined ||
-    object === null ||
-    Object.getOwnPropertyNames(object).length <= 0
-  }
-
-  static emailIsEmpty(string) {
-    return typeof string !== "string" ||
-    string === undefined ||
-    string === null ||
-    string === "" ||
-    string === "null" ||
-    string.replace(/\s/g, "") === "" ||
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(string)
-  }
-
-  static tagIsEmpty(string) {
-    return typeof string !== "string" ||
-    string === undefined ||
-    string === null ||
-    string === "" ||
-    string === "null" ||
-    string.replace(/\s/g, "") === "" ||
-    !/^[a-z](?:-?[a-z]+)*$/.test(string)
-  }
-
-  static stringIsEmpty(string) {
-    return typeof string !== "string" ||
-    string === undefined ||
-    string === null ||
-    string === "" ||
-    string === "null" ||
-    string.replace(/\s/g, "") === ""
-  }
-
-  static numberIsEmpty(number) {
-    return number === undefined ||
-    number === null ||
-    Number.isNaN(number) ||
-    typeof number !== "number" ||
-    number === ""
-  }
-
-  static booleanIsEmpty(value) {
-    return value === undefined ||
-    value === null ||
-    typeof value !== "boolean"
-  }
-
-  static async digest(message) {
-    const data = new TextEncoder().encode(message)
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-    const hashArray = Array.from(new Uint8Array(hashBuffer))
-    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-    return hashHex
-  }
-
-  // event = input/algorithm
+  // promises only
   static verify(event, input) {
+    // event = input/algorithm
 
     if (event === "field-funnel") {
       return new Promise(async(resolve, reject) => {
@@ -34086,6 +34182,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
   }
 
+  // return boolean only
   static verifyIs(event, input) {
 
     if (event === "array") {
@@ -34093,6 +34190,14 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
         if (Array.isArray(input)) return true
       }
       return false
+    }
+
+    if (event === "array/empty") {
+      return typeof array !== "object" ||
+      array === undefined ||
+      array === null ||
+      array.length <= 0 ||
+      !Array.isArray(array)
     }
 
     if (event === "object") {
@@ -34321,6 +34426,14 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
       })
     }
 
+    if (event === "number/empty") {
+      return input === undefined ||
+      input === null ||
+      Number.isNaN(input) ||
+      typeof input !== "number" ||
+      input === ""
+    }
+
     if (event === "script-id/disabled") {
       if (!this.verifyIs("text/empty", input)) {
         const scripts = JSON.parse(window.localStorage.getItem("scripts")) || []
@@ -34334,6 +34447,10 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
         }
       }
       return false
+    }
+
+    if (event === "tag/empty") {
+      return this.verifyIs("text/empty", input) || !/^[a-z](?:-?[a-z]+)*$/.test(input)
     }
 
     if (event === "text/json") {
@@ -34795,7 +34912,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
           for (let i = 0; i < array.length; i++) {
             const email = array[i]
 
-            if (Helper.emailIsEmpty(email)) return false
+            if (Helper.verifyIs("email/empty", email)) return false
 
           }
           return true
@@ -34815,7 +34932,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
           for (let i = 0; i < array.length; i++) {
             const string = array[i]
 
-            if (Helper.stringIsEmpty(string)) return false
+            if (Helper.verifyIs("text/empty", string)) return false
 
           }
           return true
@@ -34864,7 +34981,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
           return false
         }
 
-        if (!this.stringIsEmpty(input.value)) return true
+        if (!this.verifyIs("text/empty", input.value)) return true
         return false
 
       }
@@ -35052,6 +35169,10 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
       return true
     }
 
+    if (event === "email/empty") {
+      return this.verifyIs("text/empty", input) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)
+    }
+
     if (event === "text/hex") {
       if (typeof input !== "string") return false
       if (/^[0-9A-Fa-f]+$/.test(input) === true) return true
@@ -35150,7 +35271,7 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
                 if (res.status === 200) {
 
-                  const id = await this.digest(JSON.stringify({email: email, verified: true}))
+                  const id = await this.convert("text/digest", JSON.stringify({email: email, verified: true}))
                   window.localStorage.setItem("localStorageId", id)
                   window.localStorage.setItem("email", email)
 

@@ -16,6 +16,10 @@
         padding-bottom: 144px;
         overscroll-behavior: none;
       }
+
+      div.button:hover {
+        outline: 3px solid #999;
+      }
     </style>
 
   </head>
@@ -37,7 +41,7 @@
 
         header.addEventListener("click", () => {
 
-          Helper.popup(async overlay => {
+          Helper.overlay("popup", async overlay => {
             Helper.headerPicker("removeOverlay", overlay)
             const info = Helper.headerPicker("info", overlay)
             info.append(document.location.pathname)
@@ -126,34 +130,29 @@
                 if (res.status === 200) {
                   const values = JSON.parse(res.response)
 
-                  Helper.convert("parent/scrollable", platformButtonsContainer)
-                  title.textContent = "Werteinheiten mit Schreibrechte"
+                  title.remove()
+                  platformButtonsContainer.remove()
 
-                  for (let i = 0; i < values.length; i++) {
-                    const value = values[i]
+                  const overlay = Helper.create("div/overlay", document.body)
 
-                    const button = Helper.create("button/left-right", platformButtonsContainer)
-                    button.right.style.margin = ""
-                    button.left.innerHTML = `<span style="font-size:13px;">${value.alias}</span><br/><span>${value.path}</span>`
+                  const searchField = Helper.create("field/text", overlay)
+                  searchField.label.innerHTML = "Suche nach Alias"
+                  searchField.input.placeholder = "Werteinheiten mit Schreibrechte"
+                  Helper.verify("input/value", searchField.input)
+                  Helper.add("outline-hover/node", searchField.input)
 
-                    const copy = Helper.create("icon/copy-path", button.right)
-                    copy.style.width = "55px"
-                    copy.style.margin = "0 13px 0 34px"
-                    copy.onclick = () => {
+                  const buttons = Helper.create("div/scrollable", overlay)
 
-                      navigator.clipboard.writeText(value.path)
-                      .then(() => window.alert(`Der Pfad '${value.path}' wurde erfolgreich in deinen Zwischenspeicher kopiert.`))
-                      .catch(() => window.alert("Fehler.. Bitte wiederholen."))
-
-                    }
-
-                    const toolbox = Helper.create("icon/tools", button.right)
-                    toolbox.style.width = "50px"
-                    toolbox.style.margin = "0 34px 0 13px"
-                    toolbox.onclick = () => window.open(value.path, "_blank")
-
+                  searchField.input.oninput = (ev) => {
+                    const filtered = values.filter(it => it.alias.toLowerCase().includes(ev.target.value.toLowerCase()))
+                    const highlighted = filtered.map(it => {
+                      const highlightedAlias = it.alias.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
+                      return { ...it, alias: highlightedAlias }
+                    })
+                    Helper.render("values/node/alias-path", highlighted, buttons)
                   }
 
+                  Helper.render("values/node/alias-path", values, buttons)
 
                 }
 

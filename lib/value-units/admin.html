@@ -15,6 +15,10 @@
         overscroll-behavior: none;
         font-family: sans-serif;
       }
+      
+      div.button:hover {
+        outline: 3px solid #999;
+      }
     </style>
 
   </head>
@@ -35,13 +39,13 @@
       const app = Helper.headerPicker("app", document.body)
       app.addEventListener("click", () => {
 
-        Helper.popup(async overlay => {
+        Helper.overlay("popup", async overlay => {
 
           const buttons = Helper.create("div/scrollable", overlay)
 
 
           {
-            const button = Helper.buttonPicker("left/right", buttons)
+            const button = Helper.create("button/left-right", buttons)
             button.left.innerHTML = ".start"
             button.right.innerHTML = "Zugangspunkte"
             button.addEventListener("click", () => window.open("/", "_blank"))
@@ -49,13 +53,13 @@
           }
 
           {
-            const button = Helper.buttonPicker("left/right", buttons)
+            const button = Helper.create("button/left-right", buttons)
             button.left.innerHTML = ".users"
             button.right.innerHTML = "Nutzer Liste"
 
             button.addEventListener("click", () => {
 
-              Helper.popup(async overlay => {
+              Helper.overlay("popup", async overlay => {
 
                 const info = Helper.headerPicker("info", overlay)
 
@@ -119,7 +123,7 @@
                     message.style.cursor = "pointer"
                     message.addEventListener("click", () => {
 
-                      Helper.popup(overlay => {
+                      Helper.overlay("popup", overlay => {
 
                         const info = Helper.headerPicker("info", overlay)
                         info.innerHTML = user.email
@@ -128,11 +132,11 @@
 
 
                         {
-                          const button = Helper.buttonPicker("left/right", buttons)
+                          const button = Helper.create("button/left-right", buttons)
                           button.left.innerHTML = ".verified"
                           button.right.innerHTML = "Nutzer aktivieren/deaktivieren"
                           button.addEventListener("click", () => {
-                            Helper.popup(overlay => {
+                            Helper.overlay("popup", overlay => {
                               Helper.headerPicker("removeOverlay", overlay)
                               const info = Helper.headerPicker("info", overlay)
                               info.innerHTML = user.email
@@ -186,11 +190,11 @@
                         }
 
                         {
-                          const button = Helper.buttonPicker("left/right", buttons)
+                          const button = Helper.create("button/left-right", buttons)
                           button.left.innerHTML = ".json"
                           button.right.innerHTML = "Nutzer Datenspiegel"
                           button.addEventListener("click", () => {
-                            Helper.popup(async overlay => {
+                            Helper.overlay("popup", async overlay => {
                               Helper.headerPicker("removeOverlay", overlay)
                               const info = Helper.headerPicker("info", overlay)
                               info.innerHTML = user.email
@@ -202,11 +206,11 @@
                         }
 
                         {
-                          const button = Helper.buttonPicker("left/right", buttons)
+                          const button = Helper.create("button/left-right", buttons)
                           button.right.innerHTML = "Einzelne Datenfelder des Nutzers"
                           button.left.innerHTML = ".keys"
                           button.addEventListener("click", () => {
-                            Helper.popup(async keysOverlay => {
+                            Helper.overlay("popup", async keysOverlay => {
 
                               const info = Helper.headerPicker("info", keysOverlay)
                               info.innerHTML = user.email
@@ -251,23 +255,23 @@
           }
 
           {
-            const button = Helper.buttonPicker("left/right", buttons)
+            const button = Helper.create("button/left-right", buttons)
             button.left.innerHTML = ".logs"
             button.right.innerHTML = "Logbuch"
             button.addEventListener("click", () => {
-              Helper.popup(overlay => {
+              Helper.overlay("popup", overlay => {
                 Helper.add("button/remove-overlay", overlay)
 
                 const content = Helper.create("div/scrollable", overlay)
 
                 {
-                  const button = Helper.buttonPicker("left/right", content)
+                  const button = Helper.create("button/left-right", content)
                   button.left.innerHTML = ".infos"
                   button.right.innerHTML = "Manuell gesetzter Echtzeit Logger"
 
                   button.addEventListener("click", () => {
 
-                    Helper.popup(async overlay => {
+                    Helper.overlay("popup", async overlay => {
                       Helper.add("button/remove-overlay", overlay)
 
                       await Helper.get("logs/info", overlay)
@@ -281,13 +285,13 @@
 
                 {
 
-                  const button = Helper.buttonPicker("left/right", content)
+                  const button = Helper.create("button/left-right", content)
                   button.left.innerHTML = ".errors"
                   button.right.innerHTML = "Fehler Liste"
 
                   button.addEventListener("click", () => {
 
-                    Helper.popup(async overlay => {
+                    Helper.overlay("popup", async overlay => {
                       Helper.add("button/remove-overlay", overlay)
 
                       await Helper.get("logs/error", overlay)
@@ -298,7 +302,7 @@
                 }
 
                 {
-                  const button = Helper.buttonPicker("left/right", content)
+                  const button = Helper.create("button/left-right", content)
                   button.left.innerHTML = ".empty"
                   button.right.innerHTML = "Logbuch leeren"
 
@@ -328,13 +332,13 @@
           }
 
           {
-            const button = Helper.buttonPicker("left/right", buttons)
+            const button = Helper.create("button/left-right", buttons)
             button.left.innerHTML = ".register-expert"
             button.right.innerHTML = "Neuen Experten registrieren"
 
             button.addEventListener("click", () => {
 
-              Helper.popup(async overlay => {
+              Helper.overlay("popup", async overlay => {
                 Helper.headerPicker("removeOverlay", overlay)
 
                 {

@@ -37,7 +37,7 @@
 
       app.addEventListener("click", () => {
 
-        Helper.popup(overlay => {
+        Helper.overlay("popup", overlay => {
           Helper.headerPicker("removeOverlay", overlay)
 
           Helper.create("nav/open", overlay)
