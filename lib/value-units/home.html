@@ -13,6 +13,10 @@
         margin: 0;
         overscroll-behavior: none;
       }
+      
+      div.button:hover {
+        outline: 3px solid #999;
+      }
     </style>
 
   </head>
@@ -29,7 +33,7 @@
 
       const openClosedButton = Helper.create("button/getyour", document.body)
       openClosedButton.onclick = () => {
-        Helper.popup(async overlay => {
+        Helper.overlay("popup", async overlay => {
           Helper.add("button/remove-overlay", overlay)
 
           const content = Helper.create("div/scrollable", overlay)
