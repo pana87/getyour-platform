@@ -5410,6 +5410,13 @@ await Helper.add("toolbox/onbody")
                   this.overlay("popup", async overlay => {
                     this.render("text/h1", "Meine Kontaktliste", overlay)
 
+                    const container = this.create("div", overlay)
+                    container.style.display = "flex"
+                    container.style.flexWrap = "wrap"
+                    container.style.margin = "21px 34px"
+                    this.render("text/link", "Importieren", container)
+                    this.render("text/link", "Exportieren", container)
+
                     const searchField = this.create("field/text", overlay)
                     searchField.label.innerHTML = "Suche nach E-Mail Adresse"
                     searchField.input.placeholder = "domain.de"
@@ -5427,8 +5434,9 @@ await Helper.add("toolbox/onbody")
                     if (res.status === 200) {
                       const contacts = JSON.parse(res.response)
 
+                      let filtered
                       searchField.input.oninput = (ev) => {
-                        const filtered = contacts.filter(it => it.email.toLowerCase().includes(ev.target.value.toLowerCase()))
+                        filtered = contacts.filter(it => it.email.toLowerCase().includes(ev.target.value.toLowerCase()))
                         const highlighted = filtered.map(it => {
                           const highlightedEmail = it.email.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
                           return { ...it, email: highlightedEmail }
@@ -17308,16 +17316,20 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "date/master") {
-      const digits = [...input.toString()].map(digit => parseInt(digit))
+      const digits = [...input.toString()].map(digit => parseInt(digit, 10)).filter(Number.isFinite)
 
-      let sum = 0
-      for (let i = 0; i < digits.length; i++) {
-        const digit = digits[i]
-        if (this.verifyIs("number/empty", digit)) continue
-        sum += digit
-      }
+       let sum = digits.reduce((acc, digit) => acc + digit, 0)
+       let prevSum = sum
 
-      return sum
+       while (![11, 22, 33].includes(sum)) {
+         prevSum = sum
+         sum = [...sum.toString()].map(digit => parseInt(digit, 10)).reduce((acc, digit) => acc + digit, 0)
+         if (![11, 22, 33].includes(sum) && ![0, 1, 4, 6, 7, 9].includes(sum)) {
+           break
+         }
+       }
+
+       return ![11, 22, 33].includes(sum) ? prevSum : sum
     }
 
     if (event === "date/life-path-calc-text") {
@@ -21337,6 +21349,24 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "notes/contacts/self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const register = {}
+          register.url = "/register/contacts/closed/"
+          register.type = "notes-self"
+          register.id = input.id
+          register.notes = input.notes
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "owner/user/self") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -21413,6 +21443,24 @@ await Helper.add("event/click-funnel")
           reject(error)
         }
 
+      })
+    }
+
+    if (event === "status/contacts/self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const register = {}
+          register.url = "/register/contacts/closed/"
+          register.type = "status-self"
+          register.id = input.id
+          register.status = input.status
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
       })
     }
 
@@ -22180,7 +22228,7 @@ await Helper.add("event/click-funnel")
       const buttonContainer = this.create("div", cart)
       buttonContainer.style.display = "flex"
       buttonContainer.style.justifyContent = "flex-end"
-      const button = this.render("button/action", "Zur Kasse gehen", buttonContainer)
+      const button = this.render("text/node/action-button", "Zur Kasse gehen", buttonContainer)
       button.style.width = "50vw"
       button.style.height = "55px"
       button.onclick = async () => {
@@ -22229,9 +22277,12 @@ await Helper.add("event/click-funnel")
                     aliasField.input.value = contact.alias
                   }
                   this.verify("input/value", aliasField.input)
+                  this.add("outline-hover/node", aliasField.input)
                   aliasField.input.oninput = () => this.verify("input/value", aliasField.input)
 
+
                   const submit = this.create("button/action", funnel)
+                  this.add("outline-hover/node", submit)
                   submit.innerHTML = "Alias jetzt speichern"
                   submit.onclick = async () => {
 
@@ -22339,7 +22390,132 @@ await Helper.add("event/click-funnel")
                     }
 
                     const date = birthday.split("T")[0]
-                    this.render("text/p", `Lebensweg: ${this.convert("date/life-path-calc-text", date)} = ${this.convert("date/master", date)} = <span style="font-size: 34px;">${this.convert("date/life-path", date)}</span>`, numerology)
+                    const master = this.convert("date/master", date)
+                    this.render("text/p", `Lebensweg: ${this.convert("date/life-path-calc-text", date)} = ${master.toString().split('').join(' + ')} = <span style="font-size: 34px;">${this.convert("date/life-path", date)}</span>`, numerology)
+                    if (master === 11 || master === 22 || master === 33) {
+                      this.render("text/p", `Masterzahl: <span style="font-size:34px;">${master}</span>`, numerology)
+                    }
+                  }
+
+                })
+              }
+            }
+
+            {
+              const button = this.create("button/left-right", buttons)
+              button.left.innerHTML = ".status"
+              button.right.innerHTML = "Gib deinem Kontakt einen Status"
+              button.onclick = () => {
+                this.overlay("popup", overlay => {
+                  this.create("header/info", overlay).innerHTML = contact.email
+
+                  const funnel = this.create("div/scrollable", overlay)
+
+                  const statusField = this.create("field/text", funnel)
+                  this.add("outline-hover/node", statusField.input)
+                  statusField.label.innerHTML = "Vergebe einen Status Wert"
+                  statusField.input.setAttribute("required", "true")
+                  if (contact.status !== undefined) {
+                    statusField.input.value = contact.status
+                  }
+                  this.verify("input/value", statusField.input)
+                  statusField.input.oninput = () => this.verify("input/value", statusField.input)
+
+                  const submit = this.create("button/action", funnel)
+                  this.add("outline-hover/node", submit)
+                  submit.innerHTML = "Status jetzt speichern"
+                  submit.onclick = async () => {
+
+                    await this.verify("input/value", statusField.input)
+
+                    this.overlay("security", async securityOverlay => {
+                      const res = await this.register("status/contacts/self", {id: contact.created, status: statusField.input.value})
+
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
+                      }
+
+                      if (res.status === 200) {
+                        window.alert("Status erfolgreich gespeichert.")
+
+                        const res = await this.get("contacts/user/self")
+                        if (res.status !== 200) {
+                          this.convert("parent/info", parent)
+                          parent.innerHTML = "Keine Kontakte gefunden"
+                        }
+                        if (res.status === 200) {
+                          const contacts = JSON.parse(res.response)
+                          this.render("contacts/node/update-self", contacts, parent)
+                        }
+
+                        overlay.remove()
+                        updateOverlay.remove()
+                        securityOverlay.remove()
+                      }
+                    })
+
+                  }
+
+                })
+              }
+            }
+
+            {
+              const button = this.create("button/left-right", buttons)
+              button.left.innerHTML = ".notes"
+              button.right.innerHTML = "Mache dir Notizen zu deinem Kontakt"
+              button.onclick = () => {
+                this.overlay("popup", overlay => {
+                  this.create("header/info", overlay).innerHTML = contact.email
+
+                  const funnel = this.create("div/scrollable", overlay)
+
+                  const notesField = this.create("field/textarea", funnel)
+                  this.add("outline-hover/node", notesField.input)
+                  notesField.label.innerHTML = "Notizen"
+                  notesField.input.setAttribute("required", "true")
+                  notesField.input.style.height = "55vh"
+                  if (contact.notes !== undefined) {
+                    notesField.input.value = contact.notes
+                  }
+                  this.verify("input/value", notesField.input)
+                  notesField.input.oninput = () => this.verify("input/value", notesField.input)
+
+                  const submit = this.create("button/action", funnel)
+                  this.add("outline-hover/node", submit)
+                  submit.innerHTML = "Notizen jetzt speichern"
+                  submit.onclick = async () => {
+
+                    await this.verify("input/value", notesField.input)
+
+                    this.overlay("security", async securityOverlay => {
+                      const res = await this.register("notes/contacts/self", {id: contact.created, notes: notesField.input.value})
+
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
+                      }
+
+                      if (res.status === 200) {
+                        window.alert("Notizen erfolgreich gespeichert.")
+
+                        const res = await this.get("contacts/user/self")
+                        if (res.status !== 200) {
+                          this.convert("parent/info", parent)
+                          parent.innerHTML = "Keine Kontakte gefunden"
+                        }
+                        if (res.status === 200) {
+                          const contacts = JSON.parse(res.response)
+                          this.render("contacts/node/update-self", contacts, parent)
+                        }
+
+                        overlay.remove()
+                        updateOverlay.remove()
+                        securityOverlay.remove()
+                      }
+                    })
+
                   }
 
                 })
