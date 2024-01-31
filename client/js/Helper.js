@@ -5414,8 +5414,8 @@ await Helper.add("toolbox/onbody")
                     container.style.display = "flex"
                     container.style.flexWrap = "wrap"
                     container.style.margin = "21px 34px"
-                    this.render("text/link", "Importieren", container)
-                    this.render("text/link", "Exportieren", container)
+                    const importButton = this.render("text/link", "Importieren", container)
+                    const exportButton = this.render("text/link", "Exportieren", container)
 
                     const searchField = this.create("field/text", overlay)
                     searchField.label.innerHTML = "Suche nach E-Mail Adresse"
@@ -5434,6 +5434,8 @@ await Helper.add("toolbox/onbody")
                     if (res.status === 200) {
                       const contacts = JSON.parse(res.response)
 
+
+
                       let filtered
                       searchField.input.oninput = (ev) => {
                         filtered = contacts.filter(it => it.email.toLowerCase().includes(ev.target.value.toLowerCase()))
@@ -5442,6 +5444,85 @@ await Helper.add("toolbox/onbody")
                           return { ...it, email: highlightedEmail }
                         })
                         this.render("contacts/node/update-self", highlighted, contactsDiv)
+                      }
+
+                      exportButton.onclick = () => {
+                        if (filtered) {
+                          this.convert("text/clipboard", JSON.stringify(filtered))
+                          .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
+                        } else {
+                          this.convert("text/clipboard", JSON.stringify(contacts))
+                          .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
+                        }
+                      }
+
+                      importButton.onclick = () => {
+                        this.overlay("popup", overlay => {
+                          const funnel = this.create("div/scrollable", overlay)
+
+                          const contactsField = this.create("field/textarea", funnel)
+                          contactsField.label.innerHTML = "Meine JavaScript Kontaktliste"
+                          contactsField.input.style.fontFamily = "monospace"
+                          contactsField.input.style.height = "55vh"
+                          contactsField.input.setAttribute("required", "true")
+                          contactsField.input.oninput = () => this.verify("input/value", contactsField.input)
+                          this.add("outline-hover/node", contactsField.input)
+                          this.verify("input/value", contactsField.input)
+                          contactsField.input.placeholder = `[
+  {
+    created: 1706575455693, // id, einzigartig
+    email: "neuer@kontakt.de", // id, einzigartig
+    alias: "Kontakt Name",  // optional
+    birthday: "1999-03-21", // optional
+    status: "kontakt status", // optional
+    notes: "Kontakt Notizen", // optional
+    phone: "+123456789", // optional
+  },
+
+  .
+  .
+
+]
+                          `
+
+                          const submit = this.render("text/node/action-button", "Kontakte jetzt importieren", funnel)
+                          submit.onclick = async () => {
+                            await this.verify("input/value", contactsField.input)
+
+                            const contacts = JSON.parse(contactsField.input.value)
+
+                            for (let i = 0; i < contacts.length; i++) {
+                              const contact = contacts[i]
+                              if (!contact.created || !contact.email) {
+                                this.setNotValidStyle(contactsField.input)
+                                window.alert("Deine Kontaktliste ist in einem ungültigen Format.")
+                                throw new Error("contact list is invalid")
+                              }
+                            }
+
+                            this.overlay("security", async securityOverlay => {
+                              const res = await this.register("contacts/user/js-list", contacts)
+                              if (res.status === 200) {
+                                window.alert("Deine Kontakte wurden erfolgreich importiert.")
+                                this.convert("parent/loading", contactsDiv)
+                                const res = await this.get("contacts/user/self")
+                                if (res.status !== 200) {
+                                  this.convert("parent/info", contactsDiv)
+                                  parent.innerHTML = "Keine Kontakte gefunden"
+                                }
+                                if (res.status === 200) {
+                                  const contacts = JSON.parse(res.response)
+                                  this.render("contacts/node/update-self", contacts, contactsDiv)
+                                  overlay.remove()
+                                  securityOverlay.remove()
+                                }
+                              }
+                            })
+
+
+                          }
+
+                        })
                       }
 
                       this.render("contacts/node/update-self", contacts, contactsDiv)
@@ -10074,6 +10155,17 @@ await Helper.add("toolbox/onbody")
       div.append(div.text)
 
       if (input) input.append(div)
+      return div
+    }
+
+    if (event === "div/image") {
+      const div = document.createElement("div")
+      div.className = "image"
+      div.style.width = "144px"
+      div.image = document.createElement("img")
+      div.image.src = input
+      div.image.style.width = "100%"
+      div.appendChild(div.image)
       return div
     }
 
@@ -17364,6 +17456,21 @@ await Helper.add("event/click-funnel")
       return navigator.clipboard.readText()
     }
 
+    if (event === "path/text") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const response = await fetch(input)
+          if (!response.ok) {
+            throw new Error(`Failed to fetch SVG: ${response.status} ${response.statusText}`)
+          }
+          const result = await response.text()
+          resolve(result)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "text/clipboard") {
       return navigator.clipboard.writeText(input)
     }
@@ -17643,6 +17750,12 @@ await Helper.add("event/click-funnel")
       span.textContent = input
 
       return span
+    }
+
+    if (event === "text/svg") {
+      const parser = new DOMParser()
+      const svgDoc = parser.parseFromString(input, 'image/svg+xml')
+      return svgDoc.documentElement
     }
 
     if (event === "text/capital-first-letter") {
@@ -21178,6 +21291,21 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "contacts/user/js-list") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/register/contacts/closed/"
+          register.type = "js-list-self"
+          register.contacts = input
+          const res = await this.request("closed/json", register)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "field-funnel/location/self") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -22254,6 +22382,61 @@ await Helper.add("event/click-funnel")
         if (contact.alias !== undefined) {
           contactButton.left.innerHTML = `<div>${contact.alias}</div><div style="font-size:13px;">${contact.email}</div>`
         }
+        contactButton.right.style.display = "flex"
+
+        if (contact.phone) {
+          // const icon = await render("icon/node/path", "/public/phone-out.svg", contactButton.right)
+          this.convert("path/text", "/public/phone-out.svg").then(text => {
+            const icon = this.create("div", contactButton.right)
+            icon.className = "icon"
+            icon.style.width = "34px"
+            icon.style.padding = "0 13px"
+            this.add("outline-hover/node", icon)
+            icon.onclick = () => {
+              window.location.href = `tel:${contact.phone}`
+            }
+
+            const svg = this.convert("text/svg", text)
+            svg.style.width = "100%"
+            for (let i = 0; i < svg.querySelectorAll("*").length; i++) {
+              const node = svg.querySelectorAll("*")[i]
+              if (node.hasAttribute("stroke")) {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                  node.setAttribute("stroke", this.colors.dark.text)
+                } else {
+                  node.setAttribute("stroke", this.colors.light.text)
+                }
+              }
+            }
+            icon.append(svg)
+          })
+        }
+
+        if (contact.email) {
+          this.convert("path/text", "/public/email-out.svg").then(text => {
+            const icon = this.create("div", contactButton.right)
+            icon.className = "icon"
+            icon.style.width = "34px"
+            icon.style.padding = "0 13px"
+            this.add("outline-hover/node", icon)
+            icon.onclick = (ev) => {
+              window.location.href = `mailto:${contact.email}`
+            }
+
+            const svg = this.convert("text/svg", text)
+            svg.style.width = "100%"
+
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              svg.style.fill = this.colors.dark.text
+            } else {
+              svg.style.fill = this.colors.light.text
+            }
+            icon.append(svg)
+          })
+        }
+
+
+
 
         contactButton.onclick = () => {
           this.overlay("popup", updateOverlay => {
@@ -22395,6 +22578,21 @@ await Helper.add("event/click-funnel")
                     if (master === 11 || master === 22 || master === 33) {
                       this.render("text/p", `Masterzahl: <span style="font-size:34px;">${master}</span>`, numerology)
                     }
+
+                    const dateNumbers = date.match(/\d/g).map(Number)
+                    dateNumbers.push(this.convert("date/life-path", date))
+                    master.toString().split("").forEach(digit => dateNumbers.push(parseInt(digit)))
+                    const missingNumbers = [];
+                    for (let i = 1; i <= 9; i++) {
+                      if (!dateNumbers.includes(i)) {
+                        missingNumbers.push(i);
+                      }
+                    }
+                    if (missingNumbers.length > 0) {
+                      this.render("text/p", `Fehlende Zahlen: <span style="font-size:34px;">${missingNumbers.join(", ")}</span>`, numerology)
+                    }
+
+
                   }
 
                 })
@@ -22474,7 +22672,6 @@ await Helper.add("event/click-funnel")
                   const notesField = this.create("field/textarea", funnel)
                   this.add("outline-hover/node", notesField.input)
                   notesField.label.innerHTML = "Notizen"
-                  notesField.input.setAttribute("required", "true")
                   notesField.input.style.height = "55vh"
                   if (contact.notes !== undefined) {
                     notesField.input.value = contact.notes
@@ -22760,6 +22957,12 @@ await Helper.add("event/click-funnel")
 
       })
 
+    }
+
+    if (event === "image/node/src") {
+      const image = this.create("div/image", input)
+      parent?.appendChild(image)
+      return image
     }
 
     if (event === "user-keys/update-buttons") {
@@ -23861,6 +24064,14 @@ await Helper.add("event/click-funnel")
 
 
 
+    }
+
+    if (event === "object/node/svg") {
+      const object = document.createElement("object")
+      object.type = "image/svg+xml"
+      object.data = input
+      parent?.appendChild(object)
+      return object
     }
 
     if (event === "id-map/field-funnel") {
