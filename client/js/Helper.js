@@ -482,7 +482,8 @@ export class Helper {
 
       const back = this.create("button/back")
       this.convert("node/dark-light", back)
-      const toolbox = this.headerPicker("app")
+      const toolbox = this.create("button/app")
+      this.render("icon/node/path", "/public/getyour-logo.svg", toolbox)
 
       toolbox.style.zIndex = "2"
 
@@ -844,7 +845,6 @@ export class Helper {
           const res = await this.get("trees/users/open", ["getyour.expert.platforms"])
           if (res.status === 200) {
             const users = JSON.parse(res.response)
-
             for (let i = 0; i < users.length; i++) {
               const user = users[i]
               if (user["getyour.expert.platforms"] !== undefined) {
@@ -865,8 +865,6 @@ export class Helper {
                 }
               }
             }
-
-
           }
 
           quantityInput.oninput = (ev) => {
@@ -1234,7 +1232,7 @@ export class Helper {
                   const file = fileImport.files[i]
 
                   // nginx file too large error
-                  // mit salih klären
+                  // mit salih klären todo
 
                   await new Promise(async(resolve, reject) => {
                     const formdata = new FormData()
@@ -5390,9 +5388,19 @@ await Helper.add("toolbox/onbody")
 
       button.onclick = () => {
         this.overlay("toolbox", async nextStepOverlay => {
+          this.render("text/bottom-left", ".network", nextStepOverlay)
           this.add("button/remove-overlay", nextStepOverlay)
           this.render("text/h1", "Nächste Schritte", nextStepOverlay)
-          this.render("text/bottom-left", ".network", nextStepOverlay)
+          const updateNext = this.render("text/link", "Aktualisieren", nextStepOverlay)
+          updateNext.style.justifyContent = "flex-start"
+          updateNext.style.width = "233px"
+          updateNext.style.margin = "0 34px"
+
+          const nextList = this.create("div/scrollable", nextStepOverlay)
+          this.render("contacts/node/next-list", nextList)
+          updateNext.onclick = async () => {
+            await this.render("contacts/node/next-list", nextList)
+          }
           const app = this.create("button/getyour", nextStepOverlay)
 
           app.onclick = () => {
@@ -5416,6 +5424,7 @@ await Helper.add("toolbox/onbody")
                     container.style.margin = "21px 34px"
                     const importButton = this.render("text/link", "Importieren", container)
                     const exportButton = this.render("text/link", "Exportieren", container)
+                    const sendTemplateButton = this.render("text/link", "Template senden", container)
 
                     const searchField = this.create("field/text", overlay)
                     searchField.label.innerHTML = "Suche nach E-Mail Adresse"
@@ -5521,6 +5530,42 @@ await Helper.add("toolbox/onbody")
 
 
                           }
+
+                        })
+                      }
+
+                      sendTemplateButton.onclick = () => {
+                        this.overlay("popup", async overlay => {
+                          this.render("text/h1", "Wähle ein Template", overlay)
+
+                          const searchField = this.create("field/text", overlay)
+                          searchField.label.innerHTML = "Suche nach Text in deinem Template"
+                          searchField.input.placeholder = "Mein Button"
+                          searchField.style.margin = "21px 34px"
+                          this.verify("input/value", searchField.input)
+                          this.add("outline-hover/node", searchField.input)
+
+
+                          const contactsDiv = this.create("div/scrollable", overlay)
+
+                          const res = await this.get("templates/getyour/self")
+                          if (res.status === 200) {
+                            const templates = JSON.parse(res.response)
+
+
+                            let filtered
+                            searchField.input.oninput = (ev) => {
+                              filtered = templates.filter(it => it.html.toLowerCase().includes(ev.target.value.toLowerCase()))
+                              const highlighted = filtered.map(it => {
+                                const highlightedHtml = it.html.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
+                                return { ...it, html: highlightedHtml }
+                              })
+                              this.render("templates/node/send-html", highlighted, contactsDiv)
+                            }
+
+                            this.render("templates/node/send-html", templates, contactsDiv)
+                          }
+
 
                         })
                       }
@@ -5641,71 +5686,10 @@ await Helper.add("toolbox/onbody")
                 }
               }
 
-              {
-                // get roles of verified seller
-                // wen darf der anlegen ??
-                // const button = this.create("button/left-right", buttons)
-                // button.left.innerHTML = ".role"
-                // button.right.innerHTML = "Rolle freischalten"
-
-                // get all platform.roles
-                // for closed member network function
-                // rollen freigabe
-                // select field
-                // onsubmit
-                // speichern in user[networker] = {}
-                // networker.roles = [{id,name}]
-
-                // get roles of verified seller
-                // wen darf der anlegen ??
-                const button = this.create("button/left-right", buttons)
-                button.left.innerHTML = ".promote"
-                button.right.innerHTML = "Erhalte Zugang zu unendlich vielen Möglichkeiten"
-                // button.right.innerHTML = "Welche Nutzer möchtest du anlegen"
-
-                // email versenden aber achtung !!! spam gefahr
-                // eine email an unverified
-                // wenn der user nicht verified mit dem einladungslink
-                // dann bleibt er unverified bis er sich über den einladungslink einloggt
-                // Anschließen kann er seinen Netzwerk Vater identifizieren
-                // und bestätigen
-                // immer wenn verified / unverfied sich ändert dann reputation vergeben
-                // und zwar an den initiator
-                // conversion erfolgreich/nicht erfolgreich
-                // conversion = user(a) -> user(b), user(b) -> user(a)
-                // wenn der kunde bestätigt, hast du von uns vertrauen verdient
-                // reputation mit gegenwert
-                // was ist dein gegenwert
-                // vertrauen ???
-                // interaktion ist der gegenwert ???
-                // wenn kunde bestätigt
-                // bestätigungs login
-                // aus unverified wird verified
-                // children.ack = true
-                // user hat verified children -> reputation hoch
-                // user hat unverifed children -> reputation runter
-                // interaktion beginnt mit negativem reputation
-                // wenn kunde bestätigt
-                // user erhält das negative + bonus
-                // email blockieren ??
-                // innerhalb der plattform ??
-                // solche erst gar nicht drauf lassen
-                // aber die app ist closed
-                // jeder tagged sich selber
-                // und jeder bekommt eine eigene view mit optionen
-                // für leute die sich selbst getaggt haben
-
-                // Sobald du für eine Rolle freigeschaltet wurdest,
-                // Kannst du mit dem schreiben beginnen.
-              }
-
-
             })
           }
 
-          // add list mit nächsten schritten
           // termin calendar app
-          // irgendwie muss nächster schritt definieren
 
         })
       }
@@ -14045,6 +14029,31 @@ await Helper.add("toolbox/onbody")
 
     }
 
+    if (event === "button/app") {
+      const button = this.create("div")
+      button.style.position = "fixed"
+      button.style.bottom = "0"
+      button.style.right = "0"
+      button.style.width = "34px"
+      button.style.height = "34px"
+      button.style.borderRadius = "50%"
+      button.style.margin = "34px"
+      button.style.padding = "21px"
+      button.style.zIndex = "1"
+      button.style.cursor = "pointer"
+      button.style.boxShadow = this.colors.light.boxShadow
+      button.style.border = this.colors.light.border
+      button.style.backgroundColor = this.colors.light.foreground
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        button.style.boxShadow = this.colors.dark.boxShadow
+        button.style.border = this.colors.dark.border
+        button.style.backgroundColor = this.colors.dark.foreground
+      }
+
+      input?.append(button)
+      return button
+    }
+
     if (event === "button/icon") {
 
       const button = this.create("div")
@@ -14067,7 +14076,7 @@ await Helper.add("toolbox/onbody")
         button.style.backgroundColor = this.colors.dark.foreground
       }
 
-      if (input !== undefined) input.append(button)
+      input?.append(button)
       return button
     }
 
@@ -17643,6 +17652,12 @@ await Helper.add("event/click-funnel")
       return doc.body.firstChild
     }
 
+    if (event === "text/doc") {
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(input, "text/html")
+      return doc
+    }
+
     if (event === "text/html") {
 
       const parser = new DOMParser()
@@ -18584,6 +18599,22 @@ await Helper.add("event/click-funnel")
         }
 
 
+      })
+    }
+
+    if (event === "id/templates/self") {
+
+      return new Promise(async (resolve, reject) => {
+        try {
+          const del = {}
+          del.url = "/delete/templates/closed/"
+          del.type = "id-self"
+          del.id = input
+          const res = await this.request("closed/json", del)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
       })
     }
 
@@ -20716,6 +20747,20 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "templates/getyour/self") {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const get = {}
+          get.url = "/get/templates/closed/"
+          get.type = "self"
+          const res = await this.request("closed/json", get)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "role-apps/closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -21215,6 +21260,22 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "alias/templates/self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/register/templates/closed/"
+          register.type = "alias-self"
+          register.id = input.id
+          register.alias = input.alias
+          const res = await this.request("closed/json", register)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "alias/platform-value/closed") {
       return new Promise(async (resolve, reject) => {
 
@@ -21370,6 +21431,24 @@ await Helper.add("event/click-funnel")
           register.type = "path-platform-expert"
           register.path = input.path
           register.platform = input.platform
+          const res = await this.request("closed/json", register)
+
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "phone/contacts/self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const register = {}
+          register.url = "/register/contacts/closed/"
+          register.type = "phone-self"
+          register.id = input.id
+          register.phone = input.phone
           const res = await this.request("closed/json", register)
 
           resolve(res)
@@ -21551,6 +21630,24 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "map/user/email-expert") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/register/user/closed/"
+          register.type = "email-expert"
+          register.email = input.email
+          register.map = input.map
+          register.path = input.path
+          register.id = input.id
+          const res = await this.request("closed/json", register)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "script/closed") {
 
       return new Promise(async (resolve, reject) => {
@@ -21719,6 +21816,37 @@ await Helper.add("event/click-funnel")
         }
 
 
+      })
+    }
+
+    if (event === "html/templates/self") {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/register/templates/closed/"
+          register.type = "html-self"
+          register.html = input
+          const res = await this.request("closed/json", register)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "website/contacts/self") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/register/contacts/closed/"
+          register.type = "website-self"
+          register.id = input.id
+          register.website = input.website
+          const res = await this.request("closed/json", register)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
       })
     }
 
@@ -22384,54 +22512,33 @@ await Helper.add("event/click-funnel")
         }
         contactButton.right.style.display = "flex"
 
-        if (contact.phone) {
-          // const icon = await render("icon/node/path", "/public/phone-out.svg", contactButton.right)
-          this.convert("path/text", "/public/phone-out.svg").then(text => {
-            const icon = this.create("div", contactButton.right)
-            icon.className = "icon"
-            icon.style.width = "34px"
-            icon.style.padding = "0 13px"
+        if (contact.website) {
+          this.render("icon/node/path", "/public/website.svg", contactButton.right).then(icon => {
             this.add("outline-hover/node", icon)
+            icon.style.padding = "0 13px"
+            icon.onclick = () => {
+              window.open(contact.website, "_blank")
+            }
+          })
+        }
+
+        if (contact.phone) {
+          this.render("icon/node/path", "/public/phone-out.svg", contactButton.right).then(icon => {
+            this.add("outline-hover/node", icon)
+            icon.style.padding = "0 13px"
             icon.onclick = () => {
               window.location.href = `tel:${contact.phone}`
             }
-
-            const svg = this.convert("text/svg", text)
-            svg.style.width = "100%"
-            for (let i = 0; i < svg.querySelectorAll("*").length; i++) {
-              const node = svg.querySelectorAll("*")[i]
-              if (node.hasAttribute("stroke")) {
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                  node.setAttribute("stroke", this.colors.dark.text)
-                } else {
-                  node.setAttribute("stroke", this.colors.light.text)
-                }
-              }
-            }
-            icon.append(svg)
           })
         }
 
         if (contact.email) {
-          this.convert("path/text", "/public/email-out.svg").then(text => {
-            const icon = this.create("div", contactButton.right)
-            icon.className = "icon"
-            icon.style.width = "34px"
-            icon.style.padding = "0 13px"
+          this.render("icon/node/path", "/public/email-out.svg", contactButton.right).then(icon => {
             this.add("outline-hover/node", icon)
-            icon.onclick = (ev) => {
+            icon.style.padding = "0 13px"
+            icon.onclick = () => {
               window.location.href = `mailto:${contact.email}`
             }
-
-            const svg = this.convert("text/svg", text)
-            svg.style.width = "100%"
-
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              svg.style.fill = this.colors.dark.text
-            } else {
-              svg.style.fill = this.colors.light.text
-            }
-            icon.append(svg)
           })
         }
 
@@ -22439,7 +22546,7 @@ await Helper.add("event/click-funnel")
 
 
         contactButton.onclick = () => {
-          this.overlay("popup", updateOverlay => {
+          this.overlay("popup", async updateOverlay => {
             this.create("header/info", updateOverlay).innerHTML = contact.email
             const buttons = this.create("div/scrollable", updateOverlay)
 
@@ -22708,6 +22815,66 @@ await Helper.add("event/click-funnel")
                         }
 
                         overlay.remove()
+                        securityOverlay.remove()
+                      }
+                    })
+
+                  }
+
+                })
+              }
+            }
+
+            {
+              const button = this.create("button/left-right", buttons)
+              button.left.innerHTML = ".phone"
+              button.right.innerHTML = "Gib die Telefon Nummer deines Kontakts ein"
+              button.onclick = () => {
+                this.overlay("popup", overlay => {
+                  this.create("header/info", overlay).innerHTML = contact.email
+
+                  const funnel = this.create("div/scrollable", overlay)
+
+                  const phoneField = this.create("field/text", funnel)
+                  phoneField.label.innerHTML = "Telefon Nummer"
+                  phoneField.input.setAttribute("required", "true")
+                  if (contact.phone !== undefined) {
+                    phoneField.input.value = contact.phone
+                  }
+                  this.verify("input/value", phoneField.input)
+                  this.add("outline-hover/node", phoneField.input)
+                  phoneField.input.oninput = () => this.verify("input/value", phoneField.input)
+
+
+                  const submit = this.create("button/action", funnel)
+                  this.add("outline-hover/node", submit)
+                  submit.innerHTML = "Nummer jetzt speichern"
+                  submit.onclick = async () => {
+
+                    await this.verify("input/value", phoneField.input)
+
+                    this.overlay("security", async securityOverlay => {
+                      const res = await this.register("phone/contacts/self", {id: contact.created, phone: phoneField.input.value})
+
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
+                      }
+
+                      if (res.status === 200) {
+                        window.alert("Telefon Nummer erfolgreich gespeichert.")
+
+                        const res = await this.get("contacts/user/self")
+                        if (res.status !== 200) {
+                          this.convert("parent/info", parent)
+                          parent.innerHTML = "Keine Kontakte gefunden"
+                        }
+                        if (res.status === 200) {
+                          const contacts = JSON.parse(res.response)
+                          this.render(event, contacts, parent)
+                        }
+
+                        overlay.remove()
                         updateOverlay.remove()
                         securityOverlay.remove()
                       }
@@ -22716,6 +22883,160 @@ await Helper.add("event/click-funnel")
                   }
 
                 })
+              }
+            }
+
+            {
+              const button = this.create("button/left-right", buttons)
+              button.left.innerHTML = ".website"
+              button.right.innerHTML = "Gib die Webseite deines Kontakts ein"
+              button.onclick = () => {
+                this.overlay("popup", overlay => {
+                  this.create("header/info", overlay).innerHTML = contact.email
+
+                  const funnel = this.create("div/scrollable", overlay)
+
+                  const websiteField = this.create("field/text", funnel)
+                  websiteField.label.innerHTML = "Webseite"
+                  websiteField.input.setAttribute("required", "true")
+                  if (contact.website !== undefined) {
+                    websiteField.input.value = contact.website
+                  }
+                  this.verify("input/value", websiteField.input)
+                  this.add("outline-hover/node", websiteField.input)
+                  websiteField.input.oninput = () => this.verify("input/value", websiteField.input)
+
+
+                  const submit = this.create("button/action", funnel)
+                  this.add("outline-hover/node", submit)
+                  submit.innerHTML = "Webseite jetzt speichern"
+                  submit.onclick = async () => {
+
+                    await this.verify("input/value", websiteField.input)
+
+                    this.overlay("security", async securityOverlay => {
+                      const res = await this.register("website/contacts/self", {id: contact.created, website: websiteField.input.value})
+
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
+                      }
+
+                      if (res.status === 200) {
+                        window.alert("Webseite erfolgreich gespeichert.")
+
+                        const res = await this.get("contacts/user/self")
+                        if (res.status !== 200) {
+                          this.convert("parent/info", parent)
+                          parent.innerHTML = "Keine Kontakte gefunden"
+                        }
+                        if (res.status === 200) {
+                          const contacts = JSON.parse(res.response)
+                          this.render("contacts/node/update-self", contacts, parent)
+                        }
+
+                        overlay.remove()
+                        updateOverlay.remove()
+                        securityOverlay.remove()
+                      }
+                    })
+
+                  }
+
+                })
+              }
+            }
+
+            {
+              const res = await this.verifyIs("user/expert")
+              if (res.status === 200) {
+                const button = this.create("button/left-right", buttons)
+                button.left.innerHTML = ".promote"
+                button.right.innerHTML = "Erhalte Zugang zu unendlich vielen Möglichkeiten"
+                button.onclick = () => {
+                  this.overlay("popup", async overlay => {
+
+                    if (contact.alias) {
+                      this.render("text/h1", `Promote ${contact.email}`, overlay)
+                    } else {
+                      this.render("text/h1", `Promote ${contact.email}`, overlay)
+                    }
+
+                    const funnel = this.create("div/scrollable", overlay)
+
+                    const pathField = this.create("field/select", funnel)
+                    const res = await this.get("trees/user/closed", ["getyour.expert.platforms"])
+                    if (res.status === 200) {
+                      const user = JSON.parse(res.response)
+
+                      if (user["getyour.expert.platforms"] !== undefined) {
+                        pathField.input.innerHTML = ""
+                        for (let i = 0; i < user["getyour.expert.platforms"].length; i++) {
+                          const platform = user["getyour.expert.platforms"][i]
+                          if (platform.values !== undefined) {
+                            for (let i = 0; i < platform.values.length; i++) {
+                              const value = platform.values[i]
+                              const option = document.createElement("option")
+                              option.text = this.convert("text/capital-first-letter", value.path)
+                              option.value = value.path
+                              pathField.input.append(option)
+                            }
+                          }
+                        }
+                      }
+                    }
+
+
+                    const funnelDiv = this.create("div/scrollable", funnel)
+                    pathField.input.oninput = async () => {
+                      funnelDiv.innerHTML = ""
+
+                      const text = await this.convert("path/text", pathField.input.value)
+                      const doc = this.convert("text/doc", text)
+
+                      const fieldFunnel = doc.querySelector(".field-funnel")
+                      if (fieldFunnel) {
+                        funnelDiv.append(fieldFunnel)
+                        const submit = fieldFunnel.querySelector(".submit-field-funnel-button")
+                        submit.onclick = async () => {
+
+                          const path = pathField.input.value
+
+                          await this.verify("field-funnel", fieldFunnel)
+
+                          const map = await this.convert("field-funnel/map", fieldFunnel)
+
+                          this.overlay("security", async securityOverlay => {
+
+                            const register = {}
+                            register.email = contact.email
+                            register.map = map
+                            register.path = path
+                            register.id = fieldFunnel.id
+                            const res = await this.register("map/user/email-expert", register)
+
+                            if (res.status === 200) {
+                              window.alert("Daten erfolgreich gespeichert.")
+                              this.remove("overlay", overlay)
+                              this.remove("overlay", securityOverlay)
+                            }
+
+                            if (res.status !== 200) {
+                              window.alert("Fehler.. Bitte wiederholen.")
+                              this.remove("overlay", securityOverlay)
+                            }
+
+                          })
+
+                        }
+                      }
+
+                    }
+
+
+
+                  })
+                }
               }
             }
 
@@ -22754,6 +23075,147 @@ await Helper.add("event/click-funnel")
 
       }
 
+
+    }
+
+    if (event === "contacts/node/next-list") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+
+          const res = await this.get("contacts/user/self")
+          if (res.status === 200) {
+            const contacts = JSON.parse(res.response)
+
+            parent.innerHTML = ""
+
+            for (let i = 0; i < contacts.length; i++) {
+              const contact = contacts[i]
+
+              if (contact.notes) {
+                const regex = /next:(\w+)(?:\+(\d+[dm]))?\(([^)]+)\)/g
+                let match
+
+                while ((match = regex.exec(contact.notes)) !== null) {
+                  const action = match[1]
+                  const duration = match[2] || ''
+                  const content = match[3]
+
+                  const button = this.create("button/left-right", parent)
+
+                  if (action === "tel") {
+                    let title
+                    if (contact.alias) {
+                      title = this.render("text/div", `${contact.alias} anrufen.`, button.left)
+                    } else {
+                      title = this.render("text/div", `${contact.email} anrufen.`, button.left)
+                    }
+
+                    if (contact.phone) {
+                      this.render("icon/node/path", "/public/phone-out.svg", button.right).then(icon => {
+                        icon.style.padding = "0 13px"
+                      })
+                      button.onclick = () => {
+                        window.location.href = `tel:${contact.phone}`
+                      }
+                    }
+
+                  }
+
+                  if (action === "email") {
+                    let title
+                    if (contact.alias) {
+                      title = this.render("text/div", `${contact.alias} schreiben.`, button.left)
+                    } else {
+                      title = this.render("text/div", `${contact.email} schreiben.`, button.left)
+                    }
+
+                    if (contact.email) {
+                      this.render("icon/node/path", "/public/email-out.svg", button.right).then(icon => {
+                        icon.style.padding = "0 13px"
+                      })
+                      button.onclick = () => {
+                        window.location.href = `mailto:${contact.email}`
+                      }
+                    }
+                  }
+
+                  const contentDiv = this.create("div")
+                  contentDiv.innerHTML = content
+                  contentDiv.style.fontSize = "13px"
+                  button.left.appendChild(contentDiv)
+
+
+                }
+              }
+            }
+            resolve(parent)
+          }
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+
+
+
+    }
+
+    if (event === "icon/node/path") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const text = await this.convert("path/text", input)
+
+          const icon = this.create("div")
+          icon.className = "icon"
+          icon.style.width = "34px"
+          const svg = this.convert("text/svg", text)
+          svg.style.width = "100%"
+
+          for (let i = 0; i < svg.querySelectorAll("*").length; i++) {
+            const node = svg.querySelectorAll("*")[i]
+            if (node.hasAttribute("stroke")) {
+              if (node.getAttribute("stroke").includes("#")) {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                  node.setAttribute("stroke", this.colors.dark.text)
+                } else {
+                  node.setAttribute("stroke", this.colors.light.text)
+                }
+              }
+            }
+          }
+
+          if (svg.hasAttribute("fill")) {
+            if (svg.getAttribute("fill").includes("#")) {
+              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                svg.style.fill = this.colors.dark.text
+              } else {
+                svg.style.fill = this.colors.light.text
+              }
+            }
+          }
+
+          if (svg.hasAttribute("stroke")) {
+            if (svg.getAttribute("stroke").includes("#")) {
+              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                svg.setAttribute("stroke", this.colors.dark.text)
+              } else {
+                svg.setAttribute("stroke", this.colors.light.text)
+              }
+            }
+          }
+
+          icon.append(svg)
+
+          parent?.append(icon)
+          resolve(icon)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
 
     }
 
@@ -25057,6 +25519,250 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
     }
 
+    if (event === "templates/node/selected-node") {
+      this.convert("parent/scrollable", parent)
+      for (let i = 0; i < input.templates.length; i++) {
+        const template = input.templates[i]
+
+        const templateButton = this.create("button/left-right", parent)
+        templateButton.left.innerHTML = template.html
+        templateButton.right.style.fontSize = "21px"
+        if (template.alias) templateButton.right.innerHTML = template.alias
+        templateButton.onclick = () => {
+          this.overlay("popup", overlay => {
+            if (template.alias) this.render("text/bottom-left", template.alias, overlay)
+
+            const buttons = this.create("div/scrollable", overlay)
+
+            {
+              const button = this.create("button/left-right", buttons)
+              button.left.innerHTML = ".append-to-selected"
+              button.right.innerHTML = "Hänge dein Template an das ausgewählte Element"
+              button.onclick = () => {
+                const parser = document.createElement("div")
+                parser.innerHTML = template.html
+                input.selectedNode.appendChild(parser.firstChild)
+                window.alert("Templete erfolgreich angehängt.")
+              }
+            }
+
+            {
+              const button = this.create("button/left-right", buttons)
+              button.left.innerHTML = ".alias"
+              button.right.innerHTML = "Gebe deinem Template einen alternativen Namen"
+              button.onclick = () => {
+                this.overlay("popup", overlay => {
+                  if (template.alias) this.create("header/info", overlay).innerHTML = template.alias
+
+                  const funnel = this.create("div/scrollable", overlay)
+
+                  const aliasField = this.create("field/text", funnel)
+                  aliasField.label.innerHTML = "Alternative Bezeichnung für deine Template"
+                  aliasField.input.setAttribute("required", "true")
+                  if (template.alias !== undefined) {
+                    aliasField.input.value = template.alias
+                  }
+                  this.verify("input/value", aliasField.input)
+                  this.add("outline-hover/node", aliasField.input)
+                  aliasField.input.oninput = () => this.verify("input/value", aliasField.input)
+
+
+                  const submit = this.create("button/action", funnel)
+                  this.add("outline-hover/node", submit)
+                  submit.innerHTML = "Alias jetzt speichern"
+                  submit.onclick = async () => {
+
+                    await this.verify("input/value", aliasField.input)
+
+                    this.overlay("security", async securityOverlay => {
+                      const res = await this.register("alias/templates/self", {id: template.created, alias: aliasField.input.value})
+
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
+                      }
+
+                      if (res.status === 200) {
+                        window.alert("Alias erfolgreich gespeichert.")
+
+                        const res = await this.get("templates/getyour/self")
+                        if (res.status !== 200) {
+                          this.convert("parent/info", parent)
+                          parent.innerHTML = "Keine Kontakte gefunden"
+                        }
+                        if (res.status === 200) {
+                          const templates = JSON.parse(res.response)
+                          this.render(event, {templates, selectedNode: input.selectedNode}, parent)
+                        }
+
+                        overlay.remove()
+                        securityOverlay.remove()
+                      }
+                    })
+
+                  }
+
+                })
+              }
+            }
+
+            {
+              const button = this.create("button/left-right", buttons)
+              button.left.innerHTML = ".delete"
+              button.right.innerHTML = "Template entfernen"
+              button.onclick = () => {
+
+                const confirm = window.confirm("Möchtest du dein Template wirklich entfernen?")
+                if (confirm === true) {
+
+                  this.overlay("security", async securityOverlay => {
+                    const res = await this.delete("id/templates/self", template.created)
+
+                    if (res.status === 200) {
+                      window.alert("Template erfolgreich entfernt.")
+                      templateButton.remove()
+                      overlay.remove()
+                      securityOverlay.remove()
+                    }
+
+                    if (res.status !== 200) {
+                      window.alert("Fehler.. Bitte wiederholen.")
+                      securityOverlay.remove()
+                    }
+                  })
+
+
+                }
+              }
+            }
+
+          })
+        }
+
+      }
+    }
+
+    if (event === "templates/node/send-html") {
+      this.convert("parent/scrollable", parent)
+      for (let i = 0; i < input.length; i++) {
+        const template = input[i]
+
+        const templateButton = this.create("button/left-right", parent)
+        templateButton.left.innerHTML = template.html
+        templateButton.right.style.fontSize = "21px"
+        templateButton.onclick = () => {
+          this.overlay("popup", async overlay => {
+
+            const searchField = this.create("field/text", overlay)
+            searchField.label.innerHTML = "Filter deine Kontakte nach E-Mail Adressen"
+            searchField.input.placeholder = "domain.de"
+            searchField.style.margin = "21px 34px"
+            this.verify("input/value", searchField.input)
+            this.add("outline-hover/node", searchField.input)
+
+            const selectField = this.create("field/select", overlay)
+            selectField.label.innerHTML = "An welche E-Mail Adressen möchtest du dein Template senden"
+            selectField.input.setAttribute("multiple", "true")
+            selectField.input.style.height = "34vh"
+            this.verify("input/value", selectField.input)
+            this.add("outline-hover/node", selectField.input)
+
+            const res = await this.get("contacts/user/self")
+            if (res.status !== 200) {
+              this.convert("parent/info", contactsDiv)
+              parent.innerHTML = "Keine Kontakte gefunden"
+            }
+            if (res.status === 200) {
+              const contacts = JSON.parse(res.response)
+
+              let filtered
+              searchField.input.oninput = (ev) => {
+                filtered = contacts.filter(it => it.email.toLowerCase().includes(ev.target.value.toLowerCase()))
+
+                let emails
+                if (filtered) {
+                  emails = filtered.map(it => it.email)
+                } else {
+                  emails = contacts.map(it => it.email)
+                }
+                selectField.input.add(emails)
+
+              }
+
+              selectField.input.add(contacts.map(it => it.email))
+
+              let selectedEmails
+              let sendTemplateButton
+              selectField.oninput = (ev) => {
+                selectedEmails = Array.from(ev.target.selectedOptions).map(option => option.value)
+
+                if (!sendTemplateButton) {
+                  sendTemplateButton = this.create("button/action", buttons)
+                  sendTemplateButton.className = "send-template-button"
+                  this.add("outline-hover/node", sendTemplateButton)
+                  sendTemplateButton.innerHTML = "Template senden"
+                  sendTemplateButton.style.width = "34vw"
+                  sendTemplateButton.onclick = () => {
+
+
+                    // this is not working
+                    // send emails server side
+
+
+                    console.log(selectedEmails);
+                    // prepare mailto string
+                    let mailto = "mailto:"
+
+                    for (let i = 0; i < selectedEmails.length; i++) {
+                      const email = selectedEmails[i]
+                      mailto += email
+
+                      if (i !== selectedEmails.length - 1) {
+                        mailto += ";"
+                      } else {
+                        mailto += "?"
+                      }
+
+                    }
+
+                    mailto += "body=" + template.html
+
+
+                    console.log(mailto);
+
+                    window.location.href = mailto
+
+                  }
+                }
+
+              }
+
+              const buttons = this.create("div", overlay)
+              buttons.style.display = "flex"
+              buttons.style.justifyContent = "space-between"
+              buttons.style.width = "100%"
+
+              const testButton = this.create("button/action", buttons)
+              this.add("outline-hover/node", testButton)
+              testButton.innerHTML = "Test senden"
+              testButton.style.background = this.colors.light.success
+              testButton.style.width = "34vw"
+
+              // TODO
+              // if (sendTemplateButton) {
+              //   sendTemplateButton.onclick = () => {
+              //     console.log(selectedEmails);
+              //   }
+              // }
+
+            }
+
+          })
+        }
+
+      }
+    }
+
     if (event === "text/bottom-left") {
 
       let bottomLeft = parent.querySelector(".bottom-left-text")
@@ -25141,6 +25847,17 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
 
       parent?.append(link)
       return link
+    }
+
+    if (event === "text/div") {
+      const div = this.create("div")
+      div.innerHTML = input
+      div.style.color = this.colors.light.text
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        div.style.color = this.colors.dark.text
+      }
+      parent?.append(div)
+      return div
     }
 
     if (event === "text/h3") {
@@ -30009,6 +30726,78 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                       }
 
 
+                    }
+
+                    const templatesButton = this.create("button/icon", optimizeWorkOptions)
+                    this.render("icon/node/path", "/public/square-brackets.svg", templatesButton).then(icon => {
+                      icon.style.width = "55px"
+                    })
+                    templatesButton.onclick = () => {
+                      this.overlay("popup", async overlay => {
+
+                        const searchField = this.create("field/text", overlay)
+                        searchField.label.innerHTML = "Suche nach Text in deinem Template"
+                        searchField.input.placeholder = "Mein Button"
+                        searchField.style.margin = "21px 34px"
+                        this.verify("input/value", searchField.input)
+                        this.add("outline-hover/node", searchField.input)
+
+                        if (selectedNode) {
+                          const registerTemplateButton = this.create("button/app", overlay)
+                          this.render("icon/node/path", "/public/add.svg", registerTemplateButton)
+                          registerTemplateButton.onclick = async () => {
+
+                            if (selectedNode.hasAttribute("contenteditable")) {
+                              selectedNode.removeAttribute("contenteditable")
+                            }
+                            if (selectedNode.hasAttribute("id")) {
+                              selectedNode.removeAttribute("id")
+                            }
+                            await this.remove("element/selected-node", selectedNode)
+
+                            const confirm = window.confirm("Möchtest du das ausgewählte Element als Template speichern?")
+                            if (confirm === true) {
+                              this.overlay("security", async securityOverlay => {
+                                const res = await this.register("html/templates/self", selectedNode.outerHTML)
+                                if (res.status === 200) {
+                                  window.alert("Template erfolgreich gespeichert.")
+                                  securityOverlay.remove()
+                                  overlay.remove()
+                                } else {
+                                  window.alert("Fehler.. Bitte wiederholen.")
+                                  securityOverlay.remove()
+                                }
+                              })
+                            }
+
+                          }
+                        }
+
+                        const content = this.create("info/loading", overlay)
+
+                        const res = await this.get("templates/getyour/self")
+                        if (res.status === 200) {
+                          const templates = JSON.parse(res.response)
+
+                          let filtered
+                          searchField.input.oninput = (ev) => {
+                            filtered = templates.filter(it => it.html.toLowerCase().includes(ev.target.value.toLowerCase()))
+                            const highlighted = filtered.map(it => {
+                              const highlightedHtml = it.html.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
+                              return { ...it, html: highlightedHtml }
+                            })
+                            this.render("templates/node/selected-node", {templates: highlighted, selectedNode}, content)
+                          }
+
+                          this.render("templates/node/selected-node", {templates, selectedNode}, content)
+                        }
+
+                        if (res.status !== 200) {
+                          this.convert("parent/info", content)
+                          content.innerHTML = "Keine Templates gefunden"
+                        }
+
+                      })
                     }
 
 
@@ -34964,26 +35753,31 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
     }
 
     if (event === "user/location-expert") {
-
       return new Promise(async(resolve, reject) => {
-
         try {
-
           const verify = {}
           verify.url = "/verify/user/closed/"
           verify.type = "location-expert"
           const res = await this.request("closed/json", verify)
-
           resolve(res)
-
-
         } catch (error) {
           reject(error)
         }
-
-
       })
+    }
 
+    if (event === "user/expert") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const verify = {}
+          verify.url = "/verify/user/closed/"
+          verify.type = "expert"
+          const res = await this.request("closed/json", verify)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
     }
 
     if (event === "user/closed") {

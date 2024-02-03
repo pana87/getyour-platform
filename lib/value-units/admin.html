@@ -15,7 +15,7 @@
         overscroll-behavior: none;
         font-family: sans-serif;
       }
-      
+
       div.button:hover {
         outline: 3px solid #999;
       }
@@ -36,7 +36,9 @@
 
       Helper.headerPicker("back", document.body)
 
-      const app = Helper.headerPicker("app", document.body)
+      const app = Helper.create("button/app", document.body)
+      Helper.render("icon/node/path", "/public/getyour-logo.svg", app)
+
       app.addEventListener("click", () => {
 
         Helper.overlay("popup", async overlay => {
