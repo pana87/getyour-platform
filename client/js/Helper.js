@@ -5426,6 +5426,121 @@ await Helper.add("toolbox/onbody")
                     const exportButton = this.render("text/link", "Exportieren", container)
                     const sendTemplateButton = this.render("text/link", "Template senden", container)
 
+                    exportButton.onclick = () => {
+                      if (filtered) {
+                        this.convert("text/clipboard", JSON.stringify(filtered))
+                        .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
+                      } else {
+                        this.convert("text/clipboard", JSON.stringify(contacts))
+                        .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
+                      }
+                    }
+
+                    importButton.onclick = () => {
+                      this.overlay("popup", overlay => {
+                        const funnel = this.create("div/scrollable", overlay)
+
+                        const contactsField = this.create("field/textarea", funnel)
+                        contactsField.label.innerHTML = "Meine JavaScript Kontaktliste"
+                        contactsField.input.style.fontFamily = "monospace"
+                        contactsField.input.style.height = "55vh"
+                        contactsField.input.setAttribute("required", "true")
+                        contactsField.input.oninput = () => this.verify("input/value", contactsField.input)
+                        this.add("outline-hover/node", contactsField.input)
+                        this.verify("input/value", contactsField.input)
+                        contactsField.input.placeholder = `[
+{
+  created: 1706575455693, // id, einzigartig
+  email: "neuer@kontakt.de", // id, einzigartig
+  alias: "Kontakt Name",  // optional
+  birthday: "1999-03-21", // optional
+  status: "kontakt status", // optional
+  notes: "Kontakt Notizen", // optional
+  phone: "+123456789", // optional
+},
+
+.
+.
+
+]
+                        `
+
+                        const submit = this.render("text/node/action-button", "Kontakte jetzt importieren", funnel)
+                        submit.onclick = async () => {
+                          await this.verify("input/value", contactsField.input)
+
+                          const contacts = JSON.parse(contactsField.input.value)
+
+                          for (let i = 0; i < contacts.length; i++) {
+                            const contact = contacts[i]
+                            if (!contact.created || !contact.email) {
+                              this.setNotValidStyle(contactsField.input)
+                              window.alert("Deine Kontaktliste ist in einem ungültigen Format.")
+                              throw new Error("contact list is invalid")
+                            }
+                          }
+
+                          this.overlay("security", async securityOverlay => {
+                            const res = await this.register("contacts/user/js-list", contacts)
+                            if (res.status === 200) {
+                              window.alert("Deine Kontakte wurden erfolgreich importiert.")
+                              this.convert("parent/loading", contactsDiv)
+                              const res = await this.get("contacts/user/self")
+                              if (res.status !== 200) {
+                                this.convert("parent/info", contactsDiv)
+                                parent.innerHTML = "Keine Kontakte gefunden"
+                              }
+                              if (res.status === 200) {
+                                const contacts = JSON.parse(res.response)
+                                this.render("contacts/node/update-self", contacts, contactsDiv)
+                                overlay.remove()
+                                securityOverlay.remove()
+                              }
+                            }
+                          })
+
+
+                        }
+
+                      })
+                    }
+
+                    sendTemplateButton.onclick = () => {
+                      this.overlay("popup", async overlay => {
+                        this.render("text/h1", "Wähle ein Template", overlay)
+
+                        const searchField = this.create("field/text", overlay)
+                        searchField.label.innerHTML = "Suche nach Text in deinem Template"
+                        searchField.input.placeholder = "Mein Button"
+                        searchField.style.margin = "21px 34px"
+                        this.verify("input/value", searchField.input)
+                        this.add("outline-hover/node", searchField.input)
+
+
+                        const contactsDiv = this.create("div/scrollable", overlay)
+
+                        const res = await this.get("templates/getyour/self")
+                        if (res.status === 200) {
+                          const templates = JSON.parse(res.response)
+
+
+                          let filtered
+                          searchField.input.oninput = (ev) => {
+                            filtered = templates.filter(it => it.html.toLowerCase().includes(ev.target.value.toLowerCase()))
+                            const highlighted = filtered.map(it => {
+                              const highlightedHtml = it.html.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
+                              return { ...it, html: highlightedHtml }
+                            })
+                            this.render("templates/node/send-html", highlighted, contactsDiv)
+                          }
+
+                          this.render("templates/node/send-html", templates, contactsDiv)
+                        }
+
+
+                      })
+                    }
+
                     const searchField = this.create("field/text", overlay)
                     searchField.label.innerHTML = "Suche nach E-Mail Adresse"
                     searchField.input.placeholder = "domain.de"
@@ -5453,121 +5568,6 @@ await Helper.add("toolbox/onbody")
                           return { ...it, email: highlightedEmail }
                         })
                         this.render("contacts/node/update-self", highlighted, contactsDiv)
-                      }
-
-                      exportButton.onclick = () => {
-                        if (filtered) {
-                          this.convert("text/clipboard", JSON.stringify(filtered))
-                          .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
-                        } else {
-                          this.convert("text/clipboard", JSON.stringify(contacts))
-                          .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
-                        }
-                      }
-
-                      importButton.onclick = () => {
-                        this.overlay("popup", overlay => {
-                          const funnel = this.create("div/scrollable", overlay)
-
-                          const contactsField = this.create("field/textarea", funnel)
-                          contactsField.label.innerHTML = "Meine JavaScript Kontaktliste"
-                          contactsField.input.style.fontFamily = "monospace"
-                          contactsField.input.style.height = "55vh"
-                          contactsField.input.setAttribute("required", "true")
-                          contactsField.input.oninput = () => this.verify("input/value", contactsField.input)
-                          this.add("outline-hover/node", contactsField.input)
-                          this.verify("input/value", contactsField.input)
-                          contactsField.input.placeholder = `[
-  {
-    created: 1706575455693, // id, einzigartig
-    email: "neuer@kontakt.de", // id, einzigartig
-    alias: "Kontakt Name",  // optional
-    birthday: "1999-03-21", // optional
-    status: "kontakt status", // optional
-    notes: "Kontakt Notizen", // optional
-    phone: "+123456789", // optional
-  },
-
-  .
-  .
-
-]
-                          `
-
-                          const submit = this.render("text/node/action-button", "Kontakte jetzt importieren", funnel)
-                          submit.onclick = async () => {
-                            await this.verify("input/value", contactsField.input)
-
-                            const contacts = JSON.parse(contactsField.input.value)
-
-                            for (let i = 0; i < contacts.length; i++) {
-                              const contact = contacts[i]
-                              if (!contact.created || !contact.email) {
-                                this.setNotValidStyle(contactsField.input)
-                                window.alert("Deine Kontaktliste ist in einem ungültigen Format.")
-                                throw new Error("contact list is invalid")
-                              }
-                            }
-
-                            this.overlay("security", async securityOverlay => {
-                              const res = await this.register("contacts/user/js-list", contacts)
-                              if (res.status === 200) {
-                                window.alert("Deine Kontakte wurden erfolgreich importiert.")
-                                this.convert("parent/loading", contactsDiv)
-                                const res = await this.get("contacts/user/self")
-                                if (res.status !== 200) {
-                                  this.convert("parent/info", contactsDiv)
-                                  parent.innerHTML = "Keine Kontakte gefunden"
-                                }
-                                if (res.status === 200) {
-                                  const contacts = JSON.parse(res.response)
-                                  this.render("contacts/node/update-self", contacts, contactsDiv)
-                                  overlay.remove()
-                                  securityOverlay.remove()
-                                }
-                              }
-                            })
-
-
-                          }
-
-                        })
-                      }
-
-                      sendTemplateButton.onclick = () => {
-                        this.overlay("popup", async overlay => {
-                          this.render("text/h1", "Wähle ein Template", overlay)
-
-                          const searchField = this.create("field/text", overlay)
-                          searchField.label.innerHTML = "Suche nach Text in deinem Template"
-                          searchField.input.placeholder = "Mein Button"
-                          searchField.style.margin = "21px 34px"
-                          this.verify("input/value", searchField.input)
-                          this.add("outline-hover/node", searchField.input)
-
-
-                          const contactsDiv = this.create("div/scrollable", overlay)
-
-                          const res = await this.get("templates/getyour/self")
-                          if (res.status === 200) {
-                            const templates = JSON.parse(res.response)
-
-
-                            let filtered
-                            searchField.input.oninput = (ev) => {
-                              filtered = templates.filter(it => it.html.toLowerCase().includes(ev.target.value.toLowerCase()))
-                              const highlighted = filtered.map(it => {
-                                const highlightedHtml = it.html.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
-                                return { ...it, html: highlightedHtml }
-                              })
-                              this.render("templates/node/send-html", highlighted, contactsDiv)
-                            }
-
-                            this.render("templates/node/send-html", templates, contactsDiv)
-                          }
-
-
-                        })
                       }
 
                       this.render("contacts/node/update-self", contacts, contactsDiv)
