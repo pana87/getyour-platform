@@ -589,7 +589,7 @@ app.post(`/:method/:type/:event/`,
   // jwt context
 
   // Request.verifyRole, ???
-
+  Request.send,
 
   Request.verify,
 
