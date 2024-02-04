@@ -15105,7 +15105,6 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-
       field.style.backgroundColor = this.colors.light.foreground
       field.style.border = this.colors.light.border
       field.style.boxShadow = this.colors.light.boxShadow
@@ -22964,26 +22963,66 @@ await Helper.add("event/click-funnel")
 
                     const funnel = this.create("div/scrollable", overlay)
 
-                    const pathField = this.create("field/select", funnel)
-                    const res = await this.get("trees/user/closed", ["getyour.expert.platforms"])
-                    if (res.status === 200) {
-                      const user = JSON.parse(res.response)
+                    const searchField = this.create("field/text", funnel)
+                    searchField.label.innerHTML = "Suche nach Text im Pfad"
+                    searchField.input.placeholder = "/experte/plattform/pfad"
+                    searchField.style.margin = "0 34px"
+                    this.verify("input/value", searchField.input)
+                    this.add("outline-hover/node", searchField.input)
 
-                      if (user["getyour.expert.platforms"] !== undefined) {
-                        pathField.input.innerHTML = ""
-                        for (let i = 0; i < user["getyour.expert.platforms"].length; i++) {
-                          const platform = user["getyour.expert.platforms"][i]
-                          if (platform.values !== undefined) {
-                            for (let i = 0; i < platform.values.length; i++) {
-                              const value = platform.values[i]
-                              const option = document.createElement("option")
-                              option.text = this.convert("text/capital-first-letter", value.path)
-                              option.value = value.path
-                              pathField.input.append(option)
+                    const pathField = this.create("field/select", funnel)
+                    pathField.label.innerHTML = "Wähle deinen passenden Funnel, aus Werteinheiten aller Experten"
+
+                    const res = await this.get("trees/users/open", ["getyour.expert.platforms"])
+                    if (res.status === 200) {
+                      const users = JSON.parse(res.response)
+
+                      pathField.input.innerHTML = ""
+                      for (let i = 0; i < users.length; i++) {
+                        const user = users[i]
+                        if (user["getyour.expert.platforms"] !== undefined) {
+                          for (let i = 0; i < user["getyour.expert.platforms"].length; i++) {
+                            const platform = user["getyour.expert.platforms"][i]
+                            if (platform.values !== undefined) {
+                              for (let i = 0; i < platform.values.length; i++) {
+                                const value = platform.values[i]
+                                const option = document.createElement("option")
+                                option.text = this.convert("text/capital-first-letter", value.path)
+                                option.value = value.path
+                                pathField.input.append(option)
+                              }
                             }
                           }
                         }
                       }
+
+                      searchField.input.oninput = (ev) => {
+                        const searchTerm = ev.target.value.toLowerCase()
+
+                        pathField.input.innerHTML = ""
+                        for (let i = 0; i < users.length; i++) {
+                          const user = users[i]
+                          if (user["getyour.expert.platforms"] !== undefined) {
+                            for (let i = 0; i < user["getyour.expert.platforms"].length; i++) {
+                              const platform = user["getyour.expert.platforms"][i]
+                              if (platform.values !== undefined) {
+                                for (let i = 0; i < platform.values.length; i++) {
+                                  const value = platform.values[i]
+                                  const option = document.createElement("option")
+                                  option.text = this.convert("text/capital-first-letter", value.path)
+                                  option.value = value.path
+                                  pathField.input.append(option)
+                                }
+                              }
+                            }
+                          }
+                        }
+
+                        const options = Array.from(pathField.input.options).map(it => it.value)
+                        const filtered = options.filter(it => it.toLowerCase().includes(searchTerm))
+                        pathField.input.add(filtered)
+                      }
+
                     }
 
 
@@ -25653,14 +25692,16 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
         templateButton.onclick = () => {
           this.overlay("popup", async overlay => {
 
-            const searchField = this.create("field/text", overlay)
+            const funnel = this.create("div/scrollable", overlay)
+
+            const searchField = this.create("field/text", funnel)
             searchField.label.innerHTML = "Filter deine Kontakte nach E-Mail Adressen"
             searchField.input.placeholder = "domain.de"
             searchField.style.margin = "21px 34px"
             this.verify("input/value", searchField.input)
             this.add("outline-hover/node", searchField.input)
 
-            const selectField = this.create("field/select", overlay)
+            const selectField = this.create("field/select", funnel)
             selectField.label.innerHTML = "An welche E-Mail Adressen möchtest du dein Template senden"
             selectField.input.setAttribute("multiple", "true")
             selectField.input.style.height = "34vh"
@@ -25688,7 +25729,6 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                 selectField.input.add(emails)
 
               }
-
               selectField.input.add(contacts.map(it => it.email))
 
               let selectedEmails
@@ -25702,58 +25742,113 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
                   this.add("outline-hover/node", sendTemplateButton)
                   sendTemplateButton.innerHTML = "Template senden"
                   sendTemplateButton.style.width = "34vw"
-                  sendTemplateButton.onclick = () => {
+                  sendTemplateButton.onclick = async () => {
 
+                    await this.verify("input/value", subjectField.input)
+                    const emails = Array.from(selectField.input.selectedOptions).map(option => option.value)
 
-                    // this is not working
-                    // send emails server side
+                    this.overlay("security", async securityOverlay => {
 
+                      try {
+                        securityOverlay.innerHTML = ""
+                        securityOverlay.style.display = "flex"
+                        securityOverlay.style.flexDirection = "column"
+                        securityOverlay.style.justifyContent = "center"
 
-                    console.log(selectedEmails);
-                    // prepare mailto string
-                    let mailto = "mailto:"
+                        const promises = []
+                        for (let i = 0; i < emails.length; i++) {
+                          const email = emails[i]
 
-                    for (let i = 0; i < selectedEmails.length; i++) {
-                      const email = selectedEmails[i]
-                      mailto += email
+                          const container = this.create("div", securityOverlay)
+                          container.style.display = "flex"
+                          container.style.margin = "21px 34px"
+                          container.style.fontSize = "21px"
+                          container.style.fontFamily = "sans-serif"
 
-                      if (i !== selectedEmails.length - 1) {
-                        mailto += ";"
-                      } else {
-                        mailto += "?"
+                          container.style.color = this.colors.light.text
+                          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                            container.style.color = this.colors.dark.text
+                          }
+
+                          const emailDiv = this.create("div", container)
+                          emailDiv.innerHTML = email
+
+                          const signDiv = this.create("div", container)
+                          signDiv.style.marginLeft = "34px"
+                          this.render("icon/node/path", "/public/loading.svg", signDiv)
+
+                          const send = {}
+                          send.template = template.html
+                          send.subject = subjectField.input.value
+                          send.email = email
+                          const promise = this.send("email/user/send-template", send)
+                          .then((res) => {
+                             if (res.status === 200) {
+                               signDiv.style.color = this.colors.dark.success
+                               signDiv.innerHTML = "Erfolgreich gesendet.."
+                             } else {
+                               signDiv.style.color = this.colors.dark.error
+                               signDiv.innerHTML = "Fehler beim Senden.."
+                             }
+                           })
+                           .catch((error) => {
+                             signDiv.style.color = this.colors.dark.error
+                             signDiv.innerHTML = "Fehler beim Senden.."
+                           })
+
+                          promises.push(promise)
+                        }
+
+                        await Promise.all(promises)
+                        this.add("button/remove-overlay", securityOverlay)
+
+                      } catch (error) {
+                        window.alert("sadf")
                       }
 
-                    }
-
-                    mailto += "body=" + template.html
-
-
-                    console.log(mailto);
-
-                    window.location.href = mailto
+                    })
 
                   }
                 }
 
               }
 
-              const buttons = this.create("div", overlay)
+              const subjectField = this.create("field/text", funnel)
+              subjectField.label.innerHTML = "Betreff"
+              subjectField.input.setAttribute("required", "true")
+              subjectField.style.margin = "21px 34px"
+              subjectField.input.oninput = () => this.verify("input/value", subjectField.input)
+              this.verify("input/value", subjectField.input)
+              this.add("outline-hover/node", subjectField.input)
+
+              const buttons = this.create("div", funnel)
               buttons.style.display = "flex"
               buttons.style.justifyContent = "space-between"
               buttons.style.width = "100%"
 
-              const testButton = this.create("button/action", buttons)
-              this.add("outline-hover/node", testButton)
-              testButton.innerHTML = "Test senden"
-              testButton.style.background = this.colors.light.success
-              testButton.style.width = "34vw"
+              const testTemplateButton = this.create("button/action", buttons)
+              this.add("outline-hover/node", testTemplateButton)
+              testTemplateButton.innerHTML = "Test senden"
+              testTemplateButton.style.background = this.colors.light.success
+              testTemplateButton.style.width = "34vw"
+              testTemplateButton.onclick = async () => {
 
-              // TODO
-              // if (sendTemplateButton) {
-              //   sendTemplateButton.onclick = () => {
-              //     console.log(selectedEmails);
-              //   }
-              // }
+                await this.verify("input/value", subjectField.input)
+
+                this.overlay("security", async securityOverlay => {
+                  securityOverlay.remove()
+
+                  const send = {}
+                  send.template = template.html
+                  send.subject = subjectField.input.value
+                  const res = await this.send("email/user/test-template", send)
+                  if (res.status === 200) {
+                    window.alert("Template erfolgreich gesendet.")
+                    securityOverlay.remove()
+                  }
+                })
+
+              }
 
             }
 
@@ -33660,6 +33755,50 @@ Helper.add("event/role-login", ${JSON.stringify(input)})
           reject(error)
         }
       })
+    }
+
+  }
+
+  static send(event, input) {
+    // event = thing/to/algo
+
+    if (event === "email/user/test-template") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const send = {}
+          send.url = "/send/email/closed/"
+          send.type = "test-template"
+          send.template = input.template
+          send.subject = input.subject
+          const res = await this.request("closed/json", send)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+
+    }
+
+    if (event === "email/user/send-template") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const send = {}
+          send.url = "/send/email/closed/"
+          send.type = "send-template"
+          send.template = input.template
+          send.subject = input.subject
+          send.email = input.email
+          const res = await this.request("closed/json", send)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+
     }
 
   }
