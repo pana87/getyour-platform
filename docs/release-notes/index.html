@@ -81,5 +81,11 @@
     <li>Uploads werden jetzt serverseitig überprüft</li>
   </ul>
 
+  <script type="module">
+    import {Helper} from "/js/Helper.js"
+    const back = Helper.create("button/back", document.body)
+    Helper.convert("node/dark-light", back)
+  </script>
+
 </body>
 </html>
