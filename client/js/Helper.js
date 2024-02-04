@@ -5523,7 +5523,6 @@ await Helper.add("toolbox/onbody")
                         if (res.status === 200) {
                           const templates = JSON.parse(res.response)
 
-
                           let filtered
                           searchField.input.oninput = (ev) => {
                             filtered = templates.filter(it => it.html.toLowerCase().includes(ev.target.value.toLowerCase()))
@@ -5536,7 +5535,6 @@ await Helper.add("toolbox/onbody")
 
                           this.render("templates/node/send-html", templates, contactsDiv)
                         }
-
 
                       })
                     }
@@ -5555,12 +5553,10 @@ await Helper.add("toolbox/onbody")
                       this.convert("parent/info", contactsDiv)
                       parent.innerHTML = "Keine Kontakte gefunden"
                     }
+                    let filtered
                     if (res.status === 200) {
                       const contacts = JSON.parse(res.response)
 
-
-
-                      let filtered
                       searchField.input.oninput = (ev) => {
                         filtered = contacts.filter(it => it.email.toLowerCase().includes(ev.target.value.toLowerCase()))
                         const highlighted = filtered.map(it => {
@@ -21629,6 +21625,24 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "map/location-list/email-expert") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const register = {}
+          register.url = "/register/location-list/closed/"
+          register.type = "email-expert"
+          register.email = input.email
+          register.map = input.map
+          register.path = input.path
+          register.id = input.id
+          const res = await this.request("closed/json", register)
+          resolve(res)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "map/user/email-expert") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -23052,11 +23066,10 @@ await Helper.add("event/click-funnel")
                             register.map = map
                             register.path = path
                             register.id = fieldFunnel.id
-                            const res = await this.register("map/user/email-expert", register)
+                            const res = await this.register("map/location-list/email-expert", register)
 
                             if (res.status === 200) {
                               window.alert("Daten erfolgreich gespeichert.")
-                              this.remove("overlay", overlay)
                               this.remove("overlay", securityOverlay)
                             }
 
