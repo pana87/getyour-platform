@@ -5426,16 +5426,6 @@ await Helper.add("toolbox/onbody")
                     const exportButton = this.render("text/link", "Exportieren", container)
                     const sendTemplateButton = this.render("text/link", "Template senden", container)
 
-                    exportButton.onclick = () => {
-                      if (filtered) {
-                        this.convert("text/clipboard", JSON.stringify(filtered))
-                        .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
-                      } else {
-                        this.convert("text/clipboard", JSON.stringify(contacts))
-                        .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
-                      }
-                    }
-
                     importButton.onclick = () => {
                       this.overlay("popup", overlay => {
                         const funnel = this.create("div/scrollable", overlay)
@@ -5556,6 +5546,16 @@ await Helper.add("toolbox/onbody")
                     let filtered
                     if (res.status === 200) {
                       const contacts = JSON.parse(res.response)
+
+                      exportButton.onclick = () => {
+                        if (filtered) {
+                          this.convert("text/clipboard", JSON.stringify(filtered))
+                          .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
+                        } else {
+                          this.convert("text/clipboard", JSON.stringify(contacts))
+                          .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
+                        }
+                      }
 
                       searchField.input.oninput = (ev) => {
                         filtered = contacts.filter(it => it.email.toLowerCase().includes(ev.target.value.toLowerCase()))
