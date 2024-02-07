@@ -35,43 +35,39 @@
 
       Helper.headerPicker("back", document.body)
 
-      {
+      const app = Helper.create("button/app", document.body)
+      Helper.render("icon/node/path", "/public/getyour-logo.svg", app)
+      app.addEventListener("click", () => {
 
-        const header = Helper.headerPicker("app", document.body)
+        Helper.overlay("popup", async overlay => {
+          Helper.headerPicker("removeOverlay", overlay)
+          const info = Helper.headerPicker("info", overlay)
+          info.append(document.location.pathname)
 
-        header.addEventListener("click", () => {
+          const content = Helper.headerPicker("loading", overlay)
 
-          Helper.overlay("popup", async overlay => {
-            Helper.headerPicker("removeOverlay", overlay)
-            const info = Helper.headerPicker("info", overlay)
-            info.append(document.location.pathname)
+          const ping = {}
+          ping.url = "/verify/expert/closed/"
+          const res = await Helper.request("location/json", ping)
 
-            const content = Helper.headerPicker("loading", overlay)
+          if (res.status === 200) {
 
-            const ping = {}
-            ping.url = "/verify/expert/closed/"
-            const res = await Helper.request("location/json", ping)
+            Helper.convert("parent/scrollable", content)
 
-            if (res.status === 200) {
+            Helper.add("button/start", content)
+            Helper.add("button/update-expert-name", content)
+            Helper.add("button/register-expert-platform", content)
+            Helper.add("button/delete-self", content)
 
-              Helper.convert("parent/scrollable", content)
+          }
 
-              Helper.add("button/start", content)
-              Helper.add("button/update-expert-name", content)
-              Helper.add("button/register-expert-platform", content)
-              Helper.add("button/delete-self", content)
-
-            }
-
-            if (res.status !== 200) {
-              Helper.convert("parent/navigation-open", content)
-            }
-
-          })
+          if (res.status !== 200) {
+            Helper.convert("parent/navigation-open", content)
+          }
 
         })
 
-      }
+      })
 
       const title = Helper.render("text/title", "Plattformen", document.body)
 
