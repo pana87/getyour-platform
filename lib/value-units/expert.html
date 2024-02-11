@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
-    <title>Getyour Experte</title>
+    <link rel="shortcut icon" href="/public/logo-getyour-red.svg">
+    <title>Experte</title>
 
     <style>
       body {
@@ -33,18 +33,18 @@
         document.body.style.background = Helper.colors.dark.background
       }
 
-      Helper.headerPicker("back", document.body)
+      Helper.create("button/back", document.body)
 
       const app = Helper.create("button/app", document.body)
-      Helper.render("icon/node/path", "/public/getyour-logo.svg", app)
+      Helper.render("icon/node/path", "/public/logo-getyour-red.svg", app)
       app.addEventListener("click", () => {
 
         Helper.overlay("popup", async overlay => {
-          Helper.headerPicker("removeOverlay", overlay)
-          const info = Helper.headerPicker("info", overlay)
+          Helper.add("button/remove-overlay", overlay)
+          const info = Helper.create("header/info", overlay)
           info.append(document.location.pathname)
 
-          const content = Helper.headerPicker("loading", overlay)
+          const content = Helper.create("info/loading", overlay)
 
           const ping = {}
           ping.url = "/verify/expert/closed/"
@@ -72,7 +72,7 @@
       const title = Helper.render("text/title", "Plattformen", document.body)
 
       {
-        const platformButtonsContainer = Helper.headerPicker("loading", document.body)
+        const platformButtonsContainer = Helper.create("info/loading", document.body)
 
         if (window.localStorage.getItem("localStorageId") === null) {
           if (window.localStorage.getItem("email") === null) {
