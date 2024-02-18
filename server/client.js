@@ -23,6 +23,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }))
 app.use(Helper.removeCookies)
 
 app.use((req, res, next) => {
+  res.setHeader('X-Frame-Options', 'DENY')
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.setHeader('Pragma', 'no-cache')
   res.setHeader('Expires', '0')

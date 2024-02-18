@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
-    <title>Startseite</title>
+    <link rel="shortcut icon" href="/public/logo-getyour-red.svg">
+    <title>Start</title>
 
     <style>
       body {
         margin: 0;
         overscroll-behavior: none;
       }
-      
+
       div.button:hover {
         outline: 3px solid #999;
       }
@@ -29,7 +29,7 @@
 
       Helper.convert("parent/dark", document.body)
 
-      Helper.headerPicker("back", document.body)
+      Helper.create("button/back", document.body)
 
       const openClosedButton = Helper.create("button/getyour", document.body)
       openClosedButton.onclick = () => {
@@ -79,7 +79,7 @@
       Helper.render("text/title", "Zugangspunkte", document.body)
 
       {
-        const buttons = Helper.headerPicker("loading", document.body)
+        const buttons = Helper.create("info/loading", document.body)
 
         const get = {}
         get.url = "/get/experts/open/"

@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="initial-scale=1, width=device-width" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <link rel="shortcut icon" href="/public/getyour-logo.svg" />
-    <title>Getyour Plattform Login</title>
+    <link rel="shortcut icon" href="/public/logo-getyour-red.svg">
+    <title>Login</title>
 
     <style>
       body {
@@ -33,13 +34,11 @@
       const backButton = Helper.create("button/back", document.body)
       Helper.convert("node/dark-light", backButton)
 
-      const app = Helper.headerPicker("app", document.body)
+      const app = Helper.create("button/getyour", document.body)
 
       app.addEventListener("click", () => {
 
         Helper.overlay("popup", overlay => {
-          Helper.headerPicker("removeOverlay", overlay)
-
           Helper.create("nav/open", overlay)
         })
 
