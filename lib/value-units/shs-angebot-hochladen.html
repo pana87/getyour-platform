@@ -64,7 +64,7 @@
     getOffer.email = await Request.email()
     getOffer.referer = document.referrer
     getOffer.localStorageId = await Request.localStorageId()
-    const res = await this.request("closed/json", getOffer)
+    const res = await this.request("json", getOffer)
 
     if (res.status !== 200) {
       window.location.assign("/felix/shs/hersteller-vergleich/")
@@ -185,10 +185,9 @@
         registerLead.email = await Request.email()
         registerLead.referer = document.referrer
         registerLead.localStorageId = await Request.localStorageId()
-        await this.request("location/json", registerLead)
+        await this.request("json", registerLead)
         alert("Ihre Anfrage wurde erfolgreich weitergeleitet.\n\nSobald Ihr neuer persönlicher Ansprechpartner Ihren Terminvorschlag bestätigt, erhalten Sie eine Benachrichtigung per E-Mail.")
         Helper.setDefaultCursor()
-        Helper.remove("overlay", )
       })
     })
 
@@ -335,14 +334,14 @@
             await Helper.verifyFileMimeTypes(input.files[i], allowedMimeTypes)
             .catch(error => {
               alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
-              Helper.setNotValidStyle(input)
+              Helper.add("style/node/not-valid", input)
               throw error
             })
 
             await Helper.verifyFileExtension(input.files[i], allowedExtensions)
             .catch(error => {
               alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
-              Helper.setNotValidStyle(input)
+              Helper.add("style/node/not-valid", input)
               throw error
             })
           }
@@ -355,58 +354,58 @@
             const dataUrlSize = Helper.convert("text/length", event.target.result)
             if (dataUrlSize > 5 * 1024 * 1024) {
               alert("PDF ist zu groß.")
-              Helper.setNotValidStyle(input)
+              Helper.add("style/node/not-valid", input)
               throw new Error("pdf too large")
             }
 
             const email = await Request.email()
-
-            await Request.withVerifiedEmail(email, async () => {
-              const registerOffer = {}
-              registerOffer.url = "/consumer/1/closed/"
-              registerOffer.method = "register"
-              registerOffer.type = "offer"
-              registerOffer.email = email
-              registerOffer.referer = document.referrer
-              registerOffer.localStorageId = await Request.localStorageId()
-              registerOffer.offer = offer
-              registerOffer.offer.value.file = {}
-              registerOffer.offer.value.file.name = `${offer.producer.name}-${Date.now()}.pdf`
-              registerOffer.offer.value.file.created = Date.now()
-              registerOffer.offer.value.file.type = input.files[0].type
-              registerOffer.offer.value.file.size = dataUrlSize
-              registerOffer.offer.value.file.dataURL = event.target.result
-              await this.request("location/json", registerOffer)
-
-              const getChecklist = {}
-              getChecklist.url = "/consumer/1/closed/"
-              getChecklist.method = "get"
-              getChecklist.type = "checklist"
-              getChecklist.urlId = urlId
-              getChecklist.email = email
-              getChecklist.referer = document.referrer
-              getChecklist.localStorageId = await Request.localStorageId()
-              const res = await this.request("closed/json", getChecklist)
-
-              const checklist = JSON.parse(res.response)
-
-              if (checklist.state === 1) {
-                checklist.state = checklist.state + 1
-              }
-
-              const registerChecklist = {}
-              registerChecklist.url = "/consumer/1/closed/"
-              registerChecklist.method = "register"
-              registerChecklist.type = "checklist"
-              registerChecklist.email = email
-              registerChecklist.referer = document.referrer
-              registerChecklist.localStorageId = await Request.localStorageId()
-              registerChecklist.checklist = checklist
-              await this.request("location/json", registerChecklist)
-
-              alert("Speichern erfolgreich..")
-              return window.location.assign(`/felix/shs/${urlId}/`)
-            })
+            //
+            // await Request.withVerifiedEmail(email, async () => {
+            //   const registerOffer = {}
+            //   registerOffer.url = "/consumer/1/closed/"
+            //   registerOffer.method = "register"
+            //   registerOffer.type = "offer"
+            //   registerOffer.email = email
+            //   registerOffer.referer = document.referrer
+            //   registerOffer.localStorageId = await Request.localStorageId()
+            //   registerOffer.offer = offer
+            //   registerOffer.offer.value.file = {}
+            //   registerOffer.offer.value.file.name = `${offer.producer.name}-${Date.now()}.pdf`
+            //   registerOffer.offer.value.file.created = Date.now()
+            //   registerOffer.offer.value.file.type = input.files[0].type
+            //   registerOffer.offer.value.file.size = dataUrlSize
+            //   registerOffer.offer.value.file.dataURL = event.target.result
+            //   await this.request("json", registerOffer)
+            //
+            //   const getChecklist = {}
+            //   getChecklist.url = "/consumer/1/closed/"
+            //   getChecklist.method = "get"
+            //   getChecklist.type = "checklist"
+            //   getChecklist.urlId = urlId
+            //   getChecklist.email = email
+            //   getChecklist.referer = document.referrer
+            //   getChecklist.localStorageId = await Request.localStorageId()
+            //   const res = await this.request("json", getChecklist)
+            //
+            //   const checklist = JSON.parse(res.response)
+            //
+            //   if (checklist.state === 1) {
+            //     checklist.state = checklist.state + 1
+            //   }
+            //
+            //   const registerChecklist = {}
+            //   registerChecklist.url = "/consumer/1/closed/"
+            //   registerChecklist.method = "register"
+            //   registerChecklist.type = "checklist"
+            //   registerChecklist.email = email
+            //   registerChecklist.referer = document.referrer
+            //   registerChecklist.localStorageId = await Request.localStorageId()
+            //   registerChecklist.checklist = checklist
+            //   await this.request("json", registerChecklist)
+            //
+            //   alert("Speichern erfolgreich..")
+            //   return window.location.assign(`/felix/shs/${urlId}/`)
+            // })
 
           }
           fileReader.readAsDataURL(input.files[0])
@@ -459,20 +458,20 @@
           await Helper.verifyFileMimeTypes(files[i], allowedMimeTypes)
           .catch(error => {
             alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
-            Helper.setNotValidStyle(event.target)
+            Helper.add("style/node/not-valid", event.target)
             throw error
           })
 
           await Helper.verifyFileExtension(files[i], allowedExtensions)
           .catch(error => {
             alert(`Erlaubte Dateiformate: ${allowedExtensions.join(", ")}`)
-            Helper.setNotValidStyle(event.target)
+            Helper.add("style/node/not-valid", event.target)
             throw error
           })
 
           if (files[i].size > 5 * 1024 * 1024) {
             alert("PDF ist zu groß.")
-            Helper.setNotValidStyle(event.target)
+            Helper.add("style/node/not-valid", event.target)
             throw new Error("pdf too large")
           }
 

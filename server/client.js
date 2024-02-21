@@ -1,6 +1,5 @@
 const express = require('express')
 const cookieParser = require('cookie-parser')
-const { clientLocation, docsLocation } = require('../config/ServerLocation.js')
 const {Helper} = require('../lib/Helper.js')
 const { Request } = require('../lib/Request.js')
 const { UserRole } = require('../lib/UserRole.js')
@@ -9,14 +8,16 @@ const jwt = require('jsonwebtoken')
 const nano = require("nano")(process.env.COUCHDB_LOCATION)
 const multer = require('multer')
 const storage = multer.memoryStorage()
-const upload = multer({ storage: storage })
+const upload = multer({storage})
+const path = require("node:path")
+const createExpressServer = Helper.createExpressServer()
 
-// Helper function for creating the server environment
 Helper.createDatabase("getyour")
 Helper.createUsers("getyour")
 Helper.createLogs("getyour")
 
-const app = express()
+const client = createExpressServer("client", process.env.CLIENT_PORT || "9999")
+const app = client.app
 app.use(cookieParser())
 app.use(express.json({limit: "50mb"}))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
@@ -30,10 +31,10 @@ app.use((req, res, next) => {
   next()
 })
 
-app.use("/docs/", express.static(docsLocation.absolutePath))
-app.use(express.static(clientLocation.absolutePath))
+app.use("/docs/", express.static(path.join(__dirname, "..", "docs")))
+app.use(express.static(path.join(__dirname, "..", "client")))
 
-app.get("/cookies/anzeigen/", async (req, res) => {
+app.get("/cookies/", async (req, res) => {
   try {
     return res.send(req.cookies)
 
@@ -388,7 +389,7 @@ async (req, res, next) => {
   return res.sendStatus(404)
 })
 
-app.post("/request/register/session/",
+app.post("/register/session/",
   Request.verifyLocation,
 async (req, res) => {
   try {
@@ -396,10 +397,8 @@ async (req, res) => {
     const doc = await nano.db.use("getyour").get("users")
     if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
     if (doc.users === undefined) throw new Error("users is undefined")
-
     for (let i = 0; i < doc.users.length; i++) {
       const user = doc.users[i]
-
       if (user.id === req.body.localStorageId) {
 
         if (Helper.objectIsEmpty(user)) throw new Error("user is empty")
@@ -463,7 +462,7 @@ async (req, res) => {
   return res.sendStatus(404)
 })
 
-app.post("/request/verify/pin/",
+app.post("/verify/pin/",
   Request.verifyLocation,
 async (req, res) => {
   try {
@@ -507,7 +506,7 @@ async (req, res) => {
 
 let randomPin
 const loginQueue = []
-app.post("/request/send/email/with/pin/",
+app.post("/send/email/with/pin/",
   Request.verifyLocation,
 async (req, res) => {
   try {
@@ -529,9 +528,7 @@ async (req, res) => {
       from: "<droid@get-your.de>",
       to: email,
       subject: "[getyour plattform] Deine PIN",
-      html: /*html*/`
-        <p>PIN: ${login.pin}</p>
-      `
+      html: `<p>PIN: ${login.pin}</p>`
     })
 
     loginQueue.push(login)
@@ -543,7 +540,6 @@ async (req, res) => {
   return res.sendStatus(404)
 })
 
-
 app.post(`/upload/:type/self/`,
 
   Request.verifyJwtToken,
@@ -553,31 +549,20 @@ app.post(`/upload/:type/self/`,
 
   Request.upload,
 
-
-
 async(req, res, next) => {
   return res.sendStatus(404)
 })
 
 app.post(`/:method/:type/:event/`,
 
-  // event defines context
-  // context = specific state of user
-
   // open context
+  Request.verifyLocation,
+  Request.verifyReferer,
+
+  Request.redirect,
   Request.verify,
   Request.get,
   Request.register,
-
-
-
-  Request.verifyReferer,
-  Request.verifyLocation,
-  // location context
-
-  Request.register,
-  Request.get,
-  Request.delete,
 
 async(req, res, next) => {
   return next()
@@ -585,52 +570,20 @@ async(req, res, next) => {
 
 app.post(`/:method/:type/:event/`,
 
-  Request.verifyJwtToken,
-  Request.verifySession,
-  // jwt context
-
-  // Request.verifyRole, ???
-  Request.send,
-
-  Request.verify,
-
-
-  // closed and verified doing duplicate things
-  Request.verifyClosed,
   // closed context
-
-  Request.update,
-  Request.register,
-  Request.delete,
-  Request.get,
-  Request.redirect,
-
-
-async(req, res) => {
-  return res.sendStatus(404)
-})
-
-app.post(`/:method/:type/:event/:role/`,
-
-  Request.verifyLocation,
-
-  // Request.verifyEvent,
-
   Request.verifyJwtToken,
-  Request.verifyVerified,
   Request.verifySession,
 
-  Request.verifyRole,
-
+  Request.redirect,
+  Request.verify,
   Request.get,
   Request.register,
-  Request.send,
-  Request.redirect,
-  Request.delete,
-  Request.verify,
+  Request.remove,
   Request.update,
+  Request.send,
+
 async(req, res) => {
   return res.sendStatus(404)
 })
 
-app.listen(clientLocation.port, () => console.log(`[getyour] client listening on ${clientLocation.origin}`))
+client.start()

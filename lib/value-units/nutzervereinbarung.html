@@ -15,6 +15,10 @@
       font-family: sans-serif;
       padding-bottom: 144px;
     }
+    .button:hover {
+      outline: 3px solid #999;
+      margin: 3px;
+    }
   </style>
 </head>
 <body>
@@ -27,17 +31,15 @@
       document.body.style.background = Helper.colors.dark.background
     }
 
-    const backButton = Helper.create("button/back", document.body)
+    const backButton = Helper.create("back-button", document.body)
     Helper.convert("node/dark-light", backButton)
 
     Helper.render("text/h1", "Nutzervereinbarung", document.body)
-
-
     {
       const button = Helper.create("button/left-right", document.body)
       button.left.innerHTML = /*html*/`
         <p>Vielen Dank, dass du die getyour plattform, ihre Produkte, Dienste und Funktionen nutzt (nachfolgend „Dienste“).</p>
-        <p>getyour plattform hat es sich zur Aufgabe gemacht Plattformentwickler mit Branchenexperten auf eine Art und Weise zu vernetzen, so dass der Nutzen für alle beteiligten aus der spezifischen Branche, im optimalen Fall, ständig wächst. Unsere Dienste spezialisieren sich dabei auf die Erstellung von Plattformen und ermöglichen es dir als Nutzer, höhere Marktanteile aus deiner Branche zu erzielen. <a href="/docs/release-notes/">Eine Liste mit allen unseren aktuellen Diensten findest du hier auf unseren Release Notes.</a></p>
+        <p>getyour plattform hat es sich zur Aufgabe gemacht Plattformentwickler mit Branchenexperten auf eine Art und Weise zu vernetzen, so dass der Nutzen für alle beteiligten aus der spezifischen Branche, im optimalen Fall, ständig wächst. Unsere Dienste spezialisieren sich dabei auf die Erstellung von Plattformen und ermöglichen es dir als Nutzer, höhere Marktanteile aus deiner Branche zu erzielen. <a class="button" href="/docs/release-notes/">Eine Liste mit allen unseren aktuellen Diensten findest du hier auf unseren Release Notes.</a></p>
         <p>Bitte lies dir diese Vereinbarung sorgfältig durch und vergewissere dich, dass du sie verstanden hast. Wenn du einen Teil dieser Vereinbarung nicht verstehst oder akzeptierst, solltest du die Dienste nicht nutzen.</p>
       `
     }
@@ -53,7 +55,7 @@
           70184 Stuttgart<br>
           Deutschland<br>
         </p>
-        <a href="mailto:datenschutz@get-your.de">datenschutz@get-your.de</a>
+        <a class="button" href="mailto:datenschutz@get-your.de">datenschutz@get-your.de</a>
         <p>Bei Fragen zum Datenschutz oder zu dieser Webseite, kontaktiere uns bitte unter der angegebenen E-Mail Adresse.</p>
         <p>Du schließt einen Vertrag mit getyour plattform ab (nachfolgend “getyour plattform”, “wir”, “uns”, “unser” oder “unsere”)</p>
       `
@@ -224,8 +226,8 @@
       const button = Helper.create("button/left-right", document.body)
       button.left.innerHTML = /*html*/`
         ${Helper.convert("text/h2", "Online Streitbeilegung").outerHTML}
-        <a href="https://ec.europa.eu/consumers/odr/" target="_blank" style="color: inherit;">Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit</a>
-        <p>Zur Teilnahme an einem Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle sind wir nicht verpflichtet und nicht bereit.</p>
+        <a class="button" href="https://ec.europa.eu/consumers/odr/" target="_blank" style="color: inherit;">Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit</a>
+        <p>Zur Teilnahme an einem Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle sind wir nicht verpflichtet.</p>
       `
     }
 

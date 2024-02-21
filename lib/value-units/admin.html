@@ -26,109 +26,77 @@
 
     <script type="module">
       import {Helper} from "/js/Helper.js"
-
-      document.body.style.background = Helper.colors.light.background
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.style.background = Helper.colors.dark.background
-      }
-
+      const createNode = Helper.fn("createNode")
+      Helper.convert("node/dark-light", document.body)
       Helper.render("text/title", "Admin", document.body)
-
-      const app = Helper.create("button/app", document.body)
+      Helper.create("back-button", document.body)
+      const app = Helper.create("button/bottom-right", document.body)
       Helper.render("icon/node/path", "/public/logo-getyour-red.svg", app)
-
       app.addEventListener("click", () => {
-
         Helper.overlay("popup", async overlay => {
-
           const buttons = Helper.create("div/scrollable", overlay)
-
-
           {
             const button = Helper.create("button/left-right", buttons)
-            button.left.innerHTML = ".start"
-            button.right.innerHTML = "Zugangspunkte"
+            button.left.textContent = ".start"
+            button.right.textContent = "Zugangspunkte"
             button.addEventListener("click", () => window.open("/", "_blank"))
-
           }
-
           {
             const button = Helper.create("button/left-right", buttons)
-            button.left.innerHTML = ".users"
-            button.right.innerHTML = "Nutzer Liste"
-
+            button.left.textContent = ".users"
+            button.right.textContent = "Nutzer Liste"
             button.addEventListener("click", () => {
-
-              Helper.overlay("popup", async overlay => {
-
-                const info = Helper.create("header/info", overlay)
-
-                const res = await Helper.get("list/user/admin-closed")
-
+              Helper.overlay("popup", async usersOverlay => {
+                const res = await Helper.request("/get/user/list-admin/")
                 if (res.status === 200) {
                   const users = JSON.parse(res.response)
-
-                  info.innerHTML = users.length
-
-                  const buttons = Helper.create("div/scrollable", overlay)
-
+                  usersOverlay.info.textContent = users.length
+                  const buttons = Helper.create("div/scrollable", usersOverlay)
+                  const icon = await Helper.render("icon/node/path", "/public/delete.svg")
+                  icon.style.width = "34px"
                   for (let i = 0; i < users.length; i++) {
                     const user = users[i]
-
                     const button = Helper.create("button/left-right", buttons)
-                    Helper.add("outline-hover/node", button)
-
-                    const icon = await Helper.render("icon/node/path", "/public/delete.svg", button.right)
-                    Helper.add("outline-hover/node", icon)
-                    icon.style.width = "34px"
-                    icon.addEventListener("click", async () => {
-
+                    button.right.appendChild(icon.cloneNode(true))
+                    Helper.add("outline-hover", button)
+                    Helper.add("outline-hover", button.right)
+                    button.right.onclick = async () => {
                       const confirm = window.confirm("Möchten Sie wirklich diesen Nutzer löschen?")
                       if (confirm === true) {
-
-                        const res = await Helper.delete("user/db/admin-closed", user.id)
-
-                        if (res.status === 200) button.remove()
-
+                        const res = await Helper.request("/remove/user/by-admin/", {id: user.id})
+                        if (res.status === 200) {
+                          window.alert("Nutzer wurde erfolgreich entfernt.")
+                          button.remove()
+                        }
                         if (res.status !== 200) window.alert("Fehler.. Bitte wiederholen.")
                       }
-
-
-                    })
-
+                    }
                     const message = document.createElement("div")
-                    Helper.add("outline-hover/node", message)
+                    Helper.add("outline-hover", message)
                     message.style.margin = "13px 34px"
-                    message.innerHTML = /*html*/`
-                      <div>Email: <b>${user.email}</b></div>
-                      <div>Verifiziert: <b>${user.verified}</b></div>
-                      <div>Anmeldeversuche: <b>${user.counter}</b></div>
-                    `
+                    const email = createNode("div", message, "Email: ")
+                    createNode("b", email, user.email)
+                    const verified = createNode("div", message, "Verifiziert: ")
+                    createNode("b", verified, user.verified)
+                    const counter = createNode("div", message, "Anmeldeversuche: ")
+                    createNode("b", counter, user.counter)
                     message.style.cursor = "pointer"
-                    message.addEventListener("click", () => {
-
-                      Helper.overlay("popup", overlay => {
-
-                        const info = Helper.create("header/info", overlay)
-                        info.innerHTML = user.email
-
-                        const buttons = Helper.create("div/scrollable", overlay)
-
-
+                    message.onclick = () => {
+                      Helper.overlay("popup", userOverlay => {
+                        userOverlay.info.textContent = user.email
+                        const buttons = Helper.create("div/scrollable", userOverlay)
                         {
                           const button = Helper.create("button/left-right", buttons)
-                          button.left.innerHTML = ".verified"
-                          button.right.innerHTML = "Nutzer aktivieren/deaktivieren"
+                          button.left.textContent = ".verified"
+                          button.right.textContent = "Nutzer aktivieren/deaktivieren"
                           button.addEventListener("click", () => {
-                            Helper.overlay("popup", overlay => {
-                              Helper.add("button/remove-overlay", overlay)
-                              const info = Helper.create("header/info", overlay)
-                              info.innerHTML = user.email
+                            Helper.overlay("popup", verifiedOverlay => {
+                              verifiedOverlay.info.textContent = user.email
 
-                              const funnel = Helper.create("div/scrollable", overlay)
+                              const funnel = Helper.create("div/scrollable", verifiedOverlay)
 
                               const verifiedField = Helper.create("field/select", funnel)
-                              verifiedField.label.innerHTML = "Soll dieser Nutzer, für alle Match Maker Algorithmen, sichtbar werden"
+                              verifiedField.label.textContent = "Soll dieser Nutzer, für alle Match Maker Algorithmen, sichtbar werden"
 
                               if (user.verified === true) {
                                 verifiedField.input.add(["true", "false"])
@@ -144,26 +112,19 @@
 
                                   const value = verifiedField.input.value
 
-                                  const register = {}
-                                  register.url = "/register/verified/verified/2/"
-                                  register.email = user.email
-                                  if (value === "true") {
-                                    register.verified = true
-                                  }
-                                  if (value === "false") {
-                                    register.verified = false
-                                  }
-
-                                  const res = await Helper.request("closed/json", register)
-
+                                  let verified
+                                  if (value === "true") verified = true
+                                  if (value === "false") verified = false
+                                  const res = await Helper.request("/register/user/verified/", {email: user.email, verified})
                                   if (res.status === 200) {
                                     window.alert("Daten erfolgreich gespeichert.")
-                                    window.location.reload()
-                                  }
-
-                                  if (res.status !== 200) {
+                                    usersOverlay.remove()
+                                    userOverlay.remove()
+                                    verifiedOverlay.remove()
+                                    securityOverlay.remove()
+                                  } else {
                                     window.alert("Fehler.. Bitte wiederholen.")
-                                    Helper.remove("overlay", securityOverlay)
+                                    securityOverlay.remove()
                                   }
 
                                 })
@@ -172,38 +133,36 @@
                             })
                           })
                         }
-
                         {
                           const button = Helper.create("button/left-right", buttons)
-                          button.left.innerHTML = ".json"
-                          button.right.innerHTML = "Nutzer Datenspiegel"
+                          button.left.textContent = ".json"
+                          button.right.textContent = "Nutzer Datenspiegel"
                           button.addEventListener("click", () => {
                             Helper.overlay("popup", async overlay => {
-                              Helper.add("button/remove-overlay", overlay)
-                              const info = Helper.create("header/info", overlay)
-                              info.innerHTML = user.email
-
-                              await Helper.render("/get/user-json/verified/2/", user.email, overlay)
-
+                              overlay.info.textContent = user.email
+                              const res = await Helper.request("/get/user/json-admin/", {email: user.email})
+                              if (res.status === 200) {
+                                const div = Helper.convert("json/div", res.response)
+                                div.classList.add("user-json")
+                                overlay.append(div)
+                              }
                             })
                           })
                         }
-
                         {
                           const button = Helper.create("button/left-right", buttons)
-                          button.right.innerHTML = "Einzelne Datenfelder des Nutzers"
-                          button.left.innerHTML = ".keys"
+                          button.right.textContent = "Einzelne Datenfelder des Nutzers"
+                          button.left.textContent = ".keys"
                           button.addEventListener("click", () => {
                             Helper.overlay("popup", async keysOverlay => {
 
                               const info = Helper.create("header/info", keysOverlay)
-                              info.innerHTML = user.email
+                              info.textContent = user.email
                               info.append(Helper.convert("text/span", `/keys`))
 
                               const content = Helper.create("info/loading", keysOverlay)
 
-                              const res = await Helper.get("keys/user/admin-closed", user.id)
-
+                              const res = await Helper.request("/get/user/keys-admin/", {id: user.id})
                               if (res.status === 200) {
                                 const keys = JSON.parse(res.response)
 
@@ -216,199 +175,172 @@
 
                               if (res.status !== 200) {
                                 Helper.convert("parent/info", content)
-                                content.innerHTML = "Keine Daten gefunden."
+                                content.textContent = "Keine Daten gefunden."
                               }
 
 
                             })
                           })
                         }
-
                       })
-                    })
-
+                    }
                     button.left.append(message)
                   }
-
                 }
-
               })
             })
-
           }
-
           {
             const button = Helper.create("button/left-right", buttons)
-            button.left.innerHTML = ".logs"
-            button.right.innerHTML = "Logbuch"
+            button.left.textContent = ".logs"
+            button.right.textContent = "Logbuch"
             button.addEventListener("click", () => {
               Helper.overlay("popup", overlay => {
-                Helper.add("button/remove-overlay", overlay)
-
                 const content = Helper.create("div/scrollable", overlay)
-
                 {
                   const button = Helper.create("button/left-right", content)
-                  button.left.innerHTML = ".infos"
-                  button.right.innerHTML = "Manuell gesetzter Echtzeit Logger"
-
+                  button.left.textContent = ".infos"
+                  button.right.textContent = "Manuell gesetzter Echtzeit Logger"
                   button.addEventListener("click", () => {
-
                     Helper.overlay("popup", async overlay => {
-                      Helper.add("button/remove-overlay", overlay)
-
-                      await Helper.get("logs/info", overlay)
-
-                    })
-
-                  })
-
-                }
-
-
-                {
-
-                  const button = Helper.create("button/left-right", content)
-                  button.left.innerHTML = ".errors"
-                  button.right.innerHTML = "Fehler Liste"
-
-                  button.addEventListener("click", () => {
-
-                    Helper.overlay("popup", async overlay => {
-                      Helper.add("button/remove-overlay", overlay)
-
-                      await Helper.get("logs/error", overlay)
-
+                      const content = Helper.create("info/loading", overlay)
+                      const res = await Helper.request("/get/logs/admin/", {type: "info"})
+                      if (res.status === 200) {
+                        const infos = JSON.parse(res.response)
+                        Helper.convert("parent/scrollable", content)
+                        for (let i = 0; i < infos.length; i++) {
+                          const info = infos[i]
+                          const button = Helper.create("button/left-right", content)
+                          if (typeof info.input === "object") {
+                            info.input = JSON.stringify(info.input, null, 2)
+                          }
+                          createNode("div", button.left, "Input:")
+                          createNode("div", button.left, info.input)
+                          createNode("div", button.left, `ist ein ${info.is}`)
+                          createNode("div", button.right, "Anfrage:")
+                          createNode("div", button.right, info.method)
+                          createNode("div", button.right, `an: ${info.endpoint}`)
+                          createNode("div", button.right, `von: ${info.location}`)
+                          createNode("div", button.right, `ursprung: ${info.referer}`)
+                        }
+                      } else {
+                        Helper.convert("parent/info", content)
+                        content.textContent = "Keine Infos gefunden"
+                      }
                     })
                   })
-
                 }
-
                 {
                   const button = Helper.create("button/left-right", content)
-                  button.left.innerHTML = ".empty"
-                  button.right.innerHTML = "Logbuch leeren"
-
+                  button.left.textContent = ".errors"
+                  button.right.textContent = "Fehler Liste"
+                  button.addEventListener("click", () => {
+                    Helper.overlay("popup", async overlay => {
+                      const content = Helper.create("info/loading", overlay)
+                      const res = await Helper.request("/get/logs/admin/", {type: "error"})
+                      if (res.status === 200) {
+                        const errors = JSON.parse(res.response)
+                        Helper.convert("parent/scrollable", content)
+                        for (let i = 0; i < errors.length; i++) {
+                          const error = errors[i]
+                          const button = Helper.create("button/left-right", content)
+                          button.addEventListener("click", () => {
+                            Helper.overlay("popup", overlay => {
+                              Helper.render("text/code", error.stack, overlay)
+                            })
+                          })
+                          createNode("div", button.left, "Fehler:")
+                          createNode("div", button.left, error.message)
+                          createNode("div", button.right, "Anfrage:")
+                          createNode("div", button.right, error.method)
+                          createNode("div", button.right, `an: ${error.endpoint}`)
+                          createNode("div", button.right, `von: ${error.location}`)
+                          createNode("div", button.right, `ursprung: ${error.referer}`)
+                        }
+                      } else {
+                        Helper.convert("parent/info", content)
+                        content.textContent = "Keine Fehler gefunden"
+                      }
+                    })
+                  })
+                }
+                {
+                  const button = Helper.create("button/left-right", content)
+                  button.left.textContent = ".empty"
+                  button.right.textContent = "Logbuch leeren"
                   button.addEventListener("click", async () => {
                     const confirm = window.confirm("Möchtest du wirklich die Logbücher leeren?")
-
                     if (confirm === true) {
-
-                      const res = await Helper.delete("logs/db/admin")
-
+                      const res = await Helper.request("/remove/logs/super-admin/")
                       if (res.status === 200) {
                         window.alert("Logbuch wurde erfolgreich geleert.")
-                      }
-
-                      if (res.status !== 200) {
+                      } else {
                         window.alert("Fehler.. Bitte wiederholen.")
                       }
                     }
                   })
                 }
-
-
-
               })
             })
-
           }
-
           {
             const button = Helper.create("button/left-right", buttons)
-            button.left.innerHTML = ".register-expert"
-            button.right.innerHTML = "Neuen Experten registrieren"
-
+            button.left.textContent = ".register-expert"
+            button.right.textContent = "Neuen Experten registrieren"
             button.addEventListener("click", () => {
-
               Helper.overlay("popup", async overlay => {
-                Helper.add("button/remove-overlay", overlay)
-
                 {
                   const funnel = Helper.create("div/scrollable", overlay)
-
-                  const nameField = Helper.create("field/text", funnel)
-                  nameField.label.innerHTML = "Name"
+                  const nameField = Helper.create("field/tag", funnel)
+                  nameField.label.textContent = "Name"
                   nameField.input.placeholder = "huansolo"
-                  nameField.input.accept = "text/tag"
-                  nameField.input.required = true
                   nameField.input.oninput = () => Helper.verify("input/value", nameField.input)
+                  Helper.add("outline-hover", nameField.input)
                   Helper.verify("input/value", nameField.input)
-
                   const emailField = Helper.create("field/email", funnel)
                   emailField.input.oninput = () => Helper.verify("input/value", emailField.input)
                   Helper.verify("input/value", emailField.input)
-
                   const button = Helper.create("button/action", funnel)
-                  button.innerHTML = "Experten jetzt registrieren"
+                  button.textContent = "Experten jetzt registrieren"
                   button.addEventListener("click", async () => {
-
                     await Helper.verify("input/value", nameField.input)
                     await Helper.verify("input/value", emailField.input)
-
                     const username = nameField.input.value
                     const email = emailField.input.value
-
                     {
-                      const verify = {}
-                      verify.url = "/verify/expert/closed/2/"
-                      verify.name = username
-                      const res = await Helper.request("closed/json", verify)
-
+                      const res = await Helper.request("/verify/expert/name-exist/", {name: username})
                       if (res.status === 200) {
                         alert("Experte existiert bereits.")
-                        Helper.setNotValidStyle(nameField.input)
+                        Helper.add("style/node/not-valid", nameField.input)
                         throw new Error("expert exist")
                       }
                     }
-
-
                     Helper.overlay("security", async securityOverlay => {
-
-                      const register = {}
-                      register.url = "/register/expert/closed/2/"
-                      register.name = username
-                      register.email = email
-                      const res = await Helper.request("closed/json", register)
-
+                      const res = await Helper.request("/register/expert/email-admin/", {name: username, email})
                       if (res.status === 200) {
-                        const send = {}
-                        send.url = "/send/email/closed/2/"
-                        send.email = email
-                        send.event = "invite/expert"
-                        const res = await Helper.request("closed/json", send)
-
+                        const res = await Helper.request("/send/email/invite-expert-admin/", {email})
                         if (res.status === 200) {
                           window.alert("Experte erfolgreich angemeldet.")
-                          Helper.remove("overlay", overlay)
-                          Helper.remove("overlay", securityOverlay)
+                          overlay.remove()
+                          securityOverlay.remove()
                         } else {
                           window.alert("Anmeldung nicht möglich. Mehr Infos in den Error Logs.")
-                          Helper.remove("overlay", overlay)
-                          Helper.remove("overlay", securityOverlay)
+                          overlay.remove()
+                          securityOverlay.remove()
                         }
-
-
                       } else {
                         alert("Anmeldung nicht möglich. Mehr Infos in den Error Logs.")
-                        Helper.remove("overlay", overlay)
-                        Helper.remove("overlay", securityOverlay)
+                        overlay.remove()
+                        securityOverlay.remove()
                       }
-
                     })
-
                   })
-
                 }
-
               })
             })
           }
-
-
         })
       })
-
     </script>
 
   </body>

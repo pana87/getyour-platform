@@ -127,7 +127,7 @@ export class CanvasField {
   }
 
   #setCanvas(field) {
-    field.innerHTML = ""
+    field.textContent = ""
     field.classList.add(this.name)
     field.style.position = "relative"
     field.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
