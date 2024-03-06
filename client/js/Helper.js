@@ -20818,8 +20818,9 @@ await Helper.add("event/click-funnel")
               const button = Helper.create("button/left-right", node)
               button.right.style.display = "flex"
               button.right.appendChild(iconClone)
-              this.createNode("span", button.left, value.alias)
-              this.createNode("span", button.left, value.path)
+              Helper.createNode("span", button.left, value.alias)
+              Helper.createNode("br", button.left)
+              Helper.createNode("span", button.left, value.path)
               button.onclick = () => window.open(value.path, "_blank")
               iconClone.onclick = (ev) => {
                 ev.stopPropagation()
