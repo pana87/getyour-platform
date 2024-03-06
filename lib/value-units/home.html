@@ -14,7 +14,7 @@
         overscroll-behavior: none;
       }
 
-      div.button:hover {
+      .button:hover {
         outline: 3px solid #999;
       }
     </style>
@@ -22,95 +22,58 @@
   </head>
   <body>
 
-
-
     <script type="module">
       import {Helper} from "/js/Helper.js"
-
       Helper.convert("parent/dark", document.body)
-
-      Helper.create("button/back", document.body)
-
+      const backButton = Helper.create("back-button", document.body)
       const openClosedButton = Helper.create("button/getyour", document.body)
       openClosedButton.onclick = () => {
         Helper.overlay("popup", async overlay => {
-          Helper.add("button/remove-overlay", overlay)
 
           const content = Helper.create("div/scrollable", overlay)
 
-          try {
+          const res = await Helper.request("/verify/user/closed/")
+          if (res.status === 200) {
+            Helper.render("text/hr", "closed apps", content)
 
-            const res = await Helper.verifyIs("user/closed")
+            const closedButtons = Helper.create("div/scrollable", content)
+            Helper.add("button/network", closedButtons)
 
+            Helper.add("button/assign-expert-home", closedButtons)
+
+            const res = await Helper.request("/verify/user/admin/")
             if (res.status === 200) {
-              Helper.render("text/hr", "closed apps", content)
-
-              const closedButtons = Helper.create("div/scrollable", content)
-              Helper.add("button/network", closedButtons)
-
-              Helper.add("button/assign-expert-home", closedButtons)
-
-              const res = await Helper.verifyIs("user/getyour-admin")
-              if (res.status === 200) {
-                const button = Helper.create("button/left-right", closedButtons)
-                button.left.innerHTML = ".admin"
-                button.right.innerHTML = "Der Bereich für Admins"
-                button.onclick = () => window.location.assign("/admin/")
-              }
-
+              const button = Helper.create("button/left-right", closedButtons)
+              button.left.innerHTML = ".admin"
+              button.right.innerHTML = "Der Bereich für Admins"
+              button.onclick = () => window.open("/admin/", "_blank")
             }
 
-            Helper.render("text/hr", "open apps", content)
-            Helper.create("nav/open", content)
-
-          } catch (error) {
-
-            Helper.render("text/hr", "open apps", content)
-            Helper.create("nav/open", content)
           }
 
-
-
+          Helper.render("text/hr", "open apps", content)
+          Helper.render("nav/open", content)
 
         })
       }
-
-
       Helper.render("text/title", "Zugangspunkte", document.body)
-
-      {
-        const buttons = Helper.create("info/loading", document.body)
-
-        const get = {}
-        get.url = "/get/experts/open/"
-        const res = await Helper.request("open/json", get)
-
-        if (res.status !== 200) {
-
-          Helper.convert("parent/info", buttons)
-
-          buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Zugänge für dich zur Verfügung stehen.</span>`
-          throw new Error("expert not found")
-
+      const buttons = Helper.create("info/loading", document.body)
+      const res = await Helper.request("/get/user/trees-open/", {trees: ["getyour.expert.name"]})
+      if (res.status === 200) {
+        const experts = JSON.parse(res.response)
+        Helper.convert("parent/scrollable", buttons)
+        for (let i = 0; i < experts.length; i++) {
+          const expert = experts[i]
+          const name = expert["getyour.expert.name"]
+          const button = Helper.create("button/left-right", buttons)
+          button.left.innerHTML = Helper.convert("text/capital-first-letter", name)
+          button.onclick = () => window.open(`/${name}/`, "_blank")
         }
-
-        if (res.status === 200) {
-          const experts = JSON.parse(res.response)
-
-          if (experts.length === 0) {
-
-            Helper.convert("parent/info", buttons)
-
-            buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Zugänge für dich zur Verfügung stehen.</span>`
-            throw new Error("expert not found")
-
-          }
-
-          Helper.render("experts/open", experts, buttons)
-
-        }
+      } else {
+        Helper.convert("parent/info", buttons)
+        buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Zugänge für dich zur Verfügung stehen.</span>`
+        throw new Error("expert not found")
       }
-
     </script>
 
   </body>

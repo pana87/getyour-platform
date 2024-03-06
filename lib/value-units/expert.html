@@ -17,7 +17,10 @@
         overscroll-behavior: none;
       }
 
-      div.button:hover {
+      .button:hover,
+      input:hover,
+      select:hover,
+      textarea:hover {
         outline: 3px solid #999;
       }
     </style>
@@ -28,208 +31,183 @@
     <script type="module">
       import {Helper} from "/js/Helper.js"
 
-      document.body.style.background = Helper.colors.light.background
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.style.background = Helper.colors.dark.background
-      }
-
-      Helper.create("button/back", document.body)
-
-      const app = Helper.create("button/app", document.body)
-      Helper.render("icon/node/path", "/public/logo-getyour-red.svg", app)
-      app.addEventListener("click", () => {
-
+      Helper.convert("node/dark-light", document.body)
+      Helper.create("back-button", document.body)
+      const app = Helper.create("button/getyour", document.body)
+      app.onclick = () => {
         Helper.overlay("popup", async overlay => {
-          Helper.add("button/remove-overlay", overlay)
-          const info = Helper.create("header/info", overlay)
-          info.append(document.location.pathname)
-
+          overlay.info.append(document.location.pathname)
           const content = Helper.create("info/loading", overlay)
-
-          const ping = {}
-          ping.url = "/verify/expert/closed/"
-          const res = await Helper.request("location/json", ping)
-
-          if (res.status === 200) {
-
+          const res1 = await Helper.request("/get/platform/values-location-writable/")
+          if (res1.status === 200) {
+            const values = JSON.parse(res1.response)
             Helper.convert("parent/scrollable", content)
-
-            Helper.add("button/start", content)
-            Helper.add("button/update-expert-name", content)
-            Helper.add("button/register-expert-platform", content)
-            Helper.add("button/delete-self", content)
-
+            const button = Helper.create("button/left-right", content)
+            button.left.textContent = ".html-values-writable"
+            button.right.textContent = "Hier findest du Werteinheiten, für die du Schreibrechte besitzt"
+            button.onclick = async () => Helper.render("html-values-writable", values)
           }
-
-          if (res.status !== 200) {
-            Helper.convert("parent/navigation-open", content)
-          }
-
-        })
-
-      })
-
-      const title = Helper.render("text/title", "Plattformen", document.body)
-
-      {
-        const platformButtonsContainer = Helper.create("info/loading", document.body)
-
-        if (window.localStorage.getItem("localStorageId") === null) {
-          if (window.localStorage.getItem("email") === null) {
-
-            const get = {}
-            get.url = "/get/platforms/location/"
-            const res = await Helper.request("location/json", get)
-
-            if (res.status !== 200) {
-
-              Helper.convert("parent/info", platformButtonsContainer)
-
-              platformButtonsContainer.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Plattformen für dich zur Verfügung stehen.</span>`
-              throw new Error("platform not found")
-
+          const res2 = await Helper.request("/verify/user/location-expert/")
+          if (res2.status === 200) {
+            Helper.convert("parent/scrollable", content)
+            Helper.create("start-button", content)
+            {
+              const button = Helper.create("button/left-right", content)
+              button.right.textContent = "Experten Name ändern"
+              button.left.textContent = ".expert.name"
+              button.addEventListener("click", () => {
+                Helper.overlay("popup", overlay => {
+                  const funnel = Helper.create("div/scrollable", overlay)
+                  const nameField = Helper.create("field/tag", funnel)
+                  nameField.input.value = window.location.pathname.split("/")[1]
+                  nameField.input.placeholder = "mein-neuer-experten-name"
+                  nameField.label.textContent = "Name"
+                  nameField.input.maxLength = "21"
+                  nameField.input.oninput = () => Helper.verify("input/value", nameField.input)
+                  Helper.verify("input/value", nameField.input)
+                  const button = Helper.create("button/action", funnel)
+                  button.textContent = "Name jetzt speichern"
+                  button.addEventListener("click", async () => {
+                    await Helper.verify("input/value", nameField.input)
+                    Helper.overlay("security", async securityOverlay => {
+                      const res = await Helper.request("/register/expert/name-self/", {name: nameField.input.value})
+                      if (res.status === 200) {
+                        window.alert("Name erfolgreich gespeichert.")
+                        window.location.assign(`/${nameField.input.value}/`)
+                      }
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
+                      }
+                    })
+                  })
+                })
+              })
             }
-
+            {
+              const button = Helper.create("button/left-right", content)
+              button.right.textContent = "Neue Plattform erstellen"
+              button.left.textContent = ".expert.platform"
+              button.addEventListener("click", () => {
+                Helper.overlay("popup", async overlay => {
+                  overlay.info.textContent = ".platform"
+                  const funnel = Helper.create("div/scrollable", overlay)
+                  const platformNameField = Helper.create("field/tag", funnel)
+                  platformNameField.label.textContent = "Plattform"
+                  platformNameField.input.maxLength = "21"
+                  platformNameField.input.placeholder = "meine-plattform"
+                  platformNameField.input.addEventListener("input", () => Helper.verify("input/value", platformNameField.input))
+                  Helper.verify("input/value", platformNameField.input)
+                  const button = Helper.create("button/action", funnel)
+                  button.textContent = "Plattform jetzt speichern"
+                  button.onclick = async () => {
+                    await Helper.verify("input/value", platformNameField.input)
+                    const platformName = platformNameField.input.value
+                    const res = await Helper.request("/verify/platform/exist/", {platform: platformName})
+                    if (res.status === 200) {
+                      window.alert("Plattform existiert bereits.")
+                      Helper.add("style/node/not-valid", platformNameField.input)
+                      throw new Error("platform exist")
+                    }
+                    Helper.overlay("security", async securityOverlay => {
+                      const res = await Helper.request("/register/platform/expert-self/", {platform: platformName})
+                      if (res.status === 200) {
+                        alert("Plattform erfolgreich gespeichert.")
+                        window.location.reload()
+                      } else {
+                        alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
+                      }
+                    })
+                  }
+                })
+              })
+            }
+            {
+              const button = Helper.create("button/left-right", content)
+              button.right.textContent = "Mein Konto entfernen"
+              button.left.textContent = ".remove"
+              button.addEventListener("click", () => {
+                const confirm = window.confirm("Du bist gerade dabei deine persönliche Datenbank zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden. Du wirst abgemeldet und musst dich erneut registrieren lassen.\n\nMöchtest du alle deine Daten wirklich löschen?")
+                if (confirm === true) {
+                  const prompt = window.prompt("Bitte bestätige deine E-Mail Adresse, um fortzufahren.")
+                  if (Helper.verifyIs("text/empty", prompt)) {
+                    alert("Fehler.. Bitte wiederholen.")
+                    throw new Error("not found")
+                  }
+                  Helper.overlay("security", async securityOverlay => {
+                    const res = await Helper.request("/verify/email/closed/", {email: prompt})
+                    if (res.status === 200) {
+                      const res = await Helper.request("/remove/user/self/", {email: prompt})
+                      if (res.status === 200) {
+                        alert("Daten erfolgreich gelöscht.")
+                        window.location.assign("/")
+                      } else {
+                        alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
+                      }
+                    } else {
+                      alert("Fehler.. Bitte wiederholen.")
+                      securityOverlay.remove()
+                    }
+                  })
+                }
+              })
+            }
+          } else {
+            if (res1.status !== 200) {
+              Helper.convert("element/reset", content)
+            }
+            Helper.render("nav/open", content)
+          }
+        })
+      }
+      const title = Helper.render("text/h1", "Plattformen", document.body)
+      const platformButtons = Helper.create("info/loading", document.body)
+      const res = await Helper.request("/verify/user/closed/")
+      if (res.status === 200) {
+        const res = await Helper.request("/verify/user/location-expert")
+        if (res.status === 200) {
+          const res = await Helper.request("/get/platform/list-location-expert/")
+          if (res.status === 200) {
+            const platforms = JSON.parse(res.response)
+            Helper.convert("parent/scrollable", platformButtons)
+            Helper.render("platforms/closed", platforms, platformButtons)
+          } else {
+            Helper.convert("parent/info", platformButtons)
+            platformButtons.textContent = "Schon bald werden hier Plattformen für dich zur Verfügung stehen"
+            throw new Error("platform not found")
+          }
+        } else {
+          const res = await Helper.request("/get/platform/values-location-writable/")
+          if (res.status === 200) {
+            const values = JSON.parse(res.response)
+            Helper.render("html-values-writable", values)
+          }
+          {
+            const res = await Helper.request("/get/platform/list-open/")
             if (res.status === 200) {
               const platforms = JSON.parse(res.response)
-
-              if (platforms.length === 0) {
-
-                Helper.convert("parent/info", platformButtonsContainer)
-
-                platformButtonsContainer.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Plattformen für dich zur Verfügung stehen.</span>`
-                throw new Error("platform not found")
-
-              }
-
-              Helper.convert("parent/scrollable", platformButtonsContainer)
-
-              Helper.render("platforms/location", platforms, platformButtonsContainer)
-
+              Helper.convert("parent/scrollable", platformButtons)
+              Helper.render("platforms/location", platforms, platformButtons)
+            } else {
+              Helper.convert("parent/info", platformButtons)
+              platformButtons.textContent = "Schon bald werden hier Plattformen für dich zur Verfügung stehen"
+              throw new Error("platform not found")
             }
-
           }
         }
-
-        if (window.localStorage.getItem("localStorageId") !== null) {
-          if (window.localStorage.getItem("email") !== null) {
-
-            {
-              const verify = {}
-              verify.url = "/verify/expert/closed/"
-              const res = await Helper.request("closed/json", verify)
-
-              if (res.status !== 200) {
-
-                const res = await Helper.get("platform-values/writability-closed")
-
-                if (res.status === 200) {
-                  const values = JSON.parse(res.response)
-
-                  title.remove()
-                  platformButtonsContainer.remove()
-
-                  const overlay = Helper.create("div/overlay", document.body)
-
-                  const searchField = Helper.create("field/text", overlay)
-                  searchField.label.innerHTML = "Suche nach Alias"
-                  searchField.input.placeholder = "Werteinheiten mit Schreibrechte"
-                  Helper.verify("input/value", searchField.input)
-                  Helper.add("outline-hover/node", searchField.input)
-
-                  const buttons = Helper.create("div/scrollable", overlay)
-
-                  searchField.input.oninput = (ev) => {
-                    const filtered = values.filter(it => it.alias.toLowerCase().includes(ev.target.value.toLowerCase()))
-                    const highlighted = filtered.map(it => {
-                      const highlightedAlias = it.alias.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
-                      return { ...it, alias: highlightedAlias }
-                    })
-                    Helper.render("values/node/alias-path", highlighted, buttons)
-                  }
-
-                  Helper.render("values/node/alias-path", values, buttons)
-
-                }
-
-                if (res.status !== 200) {
-
-                  const get = {}
-                  get.url = "/get/platforms/location/"
-                  const res = await Helper.request("location/json", get)
-
-                  if (res.status !== 200) {
-
-                    Helper.convert("parent/info", platformButtonsContainer)
-
-                    platformButtonsContainer.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Plattformen für dich zur Verfügung stehen.</span>`
-                    throw new Error("platform not found")
-
-                  }
-
-                  if (res.status === 200) {
-                    const platforms = JSON.parse(res.response)
-
-                    if (platforms.length === 0) {
-
-                      Helper.convert("parent/info", platformButtonsContainer)
-
-                      platformButtonsContainer.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Plattformen für dich zur Verfügung stehen.</span>`
-                      throw new Error("platform not found")
-
-                    }
-
-                    Helper.convert("parent/scrollable", platformButtonsContainer)
-
-                    Helper.render("platforms/location", platforms, platformButtonsContainer)
-
-                  }
-
-
-                }
-
-
-              }
-
-              if (res.status === 200) {
-
-                const get = {}
-                get.url = "/get/platforms/closed/"
-                const res = await Helper.request("closed/json", get)
-
-                if (res.status !== 200) {
-
-                  Helper.convert("parent/info", platformButtonsContainer)
-
-                  platformButtonsContainer.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Plattformen für dich zur Verfügung stehen.</span>`
-                  throw new Error("platform not found")
-
-                }
-
-                if (res.status === 200) {
-                  const platforms = JSON.parse(res.response)
-
-                  if (platforms.length === 0) {
-
-                    Helper.convert("parent/info", platformButtonsContainer)
-
-                    platformButtonsContainer.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Plattformen für dich zur Verfügung stehen.</span>`
-                    throw new Error("platform not found")
-
-                  }
-
-                  Helper.convert("parent/scrollable", platformButtonsContainer)
-                  Helper.render("platforms/closed", platforms, platformButtonsContainer)
-                }
-
-              }
-
-            }
-
-          }
+      } else {
+        const res = await Helper.request("/get/platform/list-open/")
+        if (res.status === 200) {
+          const platforms = JSON.parse(res.response)
+          Helper.convert("parent/scrollable", platformButtons)
+          Helper.render("platforms/location", platforms, platformButtons)
+        } else {
+          Helper.convert("parent/info", platformButtons)
+          platformButtons.textContent = "Schon bald werden hier Plattformen für dich zur Verfügung stehen"
+          throw new Error("platform not found")
         }
-
-
 
       }
 

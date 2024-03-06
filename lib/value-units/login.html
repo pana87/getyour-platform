@@ -4,10 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, width=device-width">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
     <link rel="shortcut icon" href="/public/logo-getyour-red.svg">
     <title>Login</title>
-
     <style>
       body {
         margin: 0;
@@ -16,60 +14,16 @@
         padding-bottom: 144px;
         overscroll-behavior: none;
       }
+      .button:hover,
+      input:hover {
+        outline: 3px solid #888;
+      }
     </style>
-
   </head>
   <body>
-
   <script type="module">
-    import {Helper} from "/js/Helper.js"
-
-    {
-
-      document.body.style.background = Helper.colors.light.background
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.style.background = Helper.colors.dark.background
-      }
-
-      const backButton = Helper.create("button/back", document.body)
-      Helper.convert("node/dark-light", backButton)
-
-      const app = Helper.create("button/getyour", document.body)
-
-      app.addEventListener("click", () => {
-
-        Helper.overlay("popup", overlay => {
-          Helper.create("nav/open", overlay)
-        })
-
-      })
-
-    }
-
-    Helper.render("text/h1", "Login", document.body)
-
-    Helper.create("login", document.body)
-
-    Helper.add("script/open-login", document.body)
-
-    const info = Helper.create("info/success", document.body)
-    info.style.fontSize = "21px"
-    info.innerHTML = `
-      <div>Unser Login Prozess ist intuitiv gestaltet und erfordert nur wenige Klicks. Sie müssen lediglich Ihre E-Mail Adresse eingeben, um sich einzuloggen. Wir möchten, dass Sie den Login Prozess als einfach und stressfrei erleben. <a href="mailto:datenschutz@get-your.de">Wenn Sie Probleme haben oder Hilfe benötigen, stehen wir Ihnen jederzeit zur Verfügung, um Ihnen schnell und effektiv weiter zu helfen.</a></div>
-      <div style="margin-top: 13px;">Die Plattform von getyour soll ein sicheres und vertrauenswürdiges Umfeld bieten, damit Sie sich auf Ihre Daten verlassen können.</div>
-    `
-
-    for (let i = 0; i < document.links.length; i++) {
-      const link = document.links[i]
-
-      link.style.color = Helper.colors.link.color
-      link.addEventListener("click", () => link.style.color = Helper.colors.link.active)
-
-    }
-
-
+import {Helper} from "/js/Helper.js"
+Helper.add("session-login", document.body)
   </script>
 </body>
-
-
 </html>

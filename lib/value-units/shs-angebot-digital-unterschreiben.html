@@ -42,7 +42,7 @@
     getOffer.email = await Request.email()
     getOffer.referer = document.referrer
     getOffer.localStorageId = await Request.localStorageId()
-    const res = await this.request("closed/json", getOffer)
+    const res = await this.request("json", getOffer)
 
     if (res.status !== 200) {
       window.location.assign("/felix/shs/hersteller-vergleich/")
@@ -101,64 +101,64 @@
       button.addEventListener("mouseover", () => button.style.backgroundColor = "#f19d08")
       button.addEventListener("mouseout", () => button.style.backgroundColor = "#f7aa20")
 
-      button.addEventListener("click", async() => {
-        if (signField.isEmpty === undefined) return alert("Sie müssen erst unterschreiben.")
-
-        const email = await Request.email()
-        await Request.withVerifiedEmail(email, async () => {
-
-          const registerOffer = {}
-          registerOffer.url = "/consumer/1/closed/"
-          registerOffer.method = "register"
-          registerOffer.type = "offer"
-          registerOffer.email = email
-          registerOffer.referer = document.referrer
-          registerOffer.localStorageId = await Request.localStorageId()
-          registerOffer.offer = offer
-          registerOffer.offer.value.eSign = {}
-          const canvas = document.querySelector(signField.inputSelector)
-          const file = await Helper.canvasToFile(canvas)
-          registerOffer.offer.value.eSign.name = `${offer.producer.name}-${Date.now()}.eSign`
-          registerOffer.offer.value.eSign.created = file.created
-          registerOffer.offer.value.eSign.type = file.type
-          registerOffer.offer.value.eSign.size = file.size
-          registerOffer.offer.value.eSign.dataURL = file.dataURL
-          await this.request("location/json", registerOffer)
-
-          const getChecklist = {}
-          getChecklist.url = "/consumer/1/closed/"
-          getChecklist.method = "get"
-          getChecklist.type = "checklist"
-          getChecklist.urlId = urlId
-          getChecklist.email = email
-          getChecklist.referer = document.referrer
-          getChecklist.localStorageId = await Request.localStorageId()
-          const res = await this.request("closed/json", getChecklist)
-
-          const checklist = JSON.parse(res.response)
-
-          if (checklist.state === 1) {
-            checklist.state = checklist.state + 1
-          }
-
-          const registerChecklist = {}
-          registerChecklist.url = "/consumer/1/closed/"
-          registerChecklist.method = "register"
-          registerChecklist.type = "checklist"
-          registerChecklist.email = email
-          registerChecklist.referer = document.referrer
-          registerChecklist.localStorageId = await Request.localStorageId()
-          registerChecklist.checklist = checklist
-          await this.request("location/json", registerChecklist)
-
-          alert("Speichern erfolgreich..")
-          return window.location.assign(`/felix/shs/${urlId}/`)
-
-        })
-
-
-
-      })
+      // button.addEventListener("click", async() => {
+      //   if (signField.isEmpty === undefined) return alert("Sie müssen erst unterschreiben.")
+      //
+      //   const email = await Request.email()
+      //   await Request.withVerifiedEmail(email, async () => {
+      //
+      //     const registerOffer = {}
+      //     registerOffer.url = "/consumer/1/closed/"
+      //     registerOffer.method = "register"
+      //     registerOffer.type = "offer"
+      //     registerOffer.email = email
+      //     registerOffer.referer = document.referrer
+      //     registerOffer.localStorageId = await Request.localStorageId()
+      //     registerOffer.offer = offer
+      //     registerOffer.offer.value.eSign = {}
+      //     const canvas = document.querySelector(signField.inputSelector)
+      //     const file = await Helper.canvasToFile(canvas)
+      //     registerOffer.offer.value.eSign.name = `${offer.producer.name}-${Date.now()}.eSign`
+      //     registerOffer.offer.value.eSign.created = file.created
+      //     registerOffer.offer.value.eSign.type = file.type
+      //     registerOffer.offer.value.eSign.size = file.size
+      //     registerOffer.offer.value.eSign.dataURL = file.dataURL
+      //     await this.request("json", registerOffer)
+      //
+      //     const getChecklist = {}
+      //     getChecklist.url = "/consumer/1/closed/"
+      //     getChecklist.method = "get"
+      //     getChecklist.type = "checklist"
+      //     getChecklist.urlId = urlId
+      //     getChecklist.email = email
+      //     getChecklist.referer = document.referrer
+      //     getChecklist.localStorageId = await Request.localStorageId()
+      //     const res = await this.request("json", getChecklist)
+      //
+      //     const checklist = JSON.parse(res.response)
+      //
+      //     if (checklist.state === 1) {
+      //       checklist.state = checklist.state + 1
+      //     }
+      //
+      //     const registerChecklist = {}
+      //     registerChecklist.url = "/consumer/1/closed/"
+      //     registerChecklist.method = "register"
+      //     registerChecklist.type = "checklist"
+      //     registerChecklist.email = email
+      //     registerChecklist.referer = document.referrer
+      //     registerChecklist.localStorageId = await Request.localStorageId()
+      //     registerChecklist.checklist = checklist
+      //     await this.request("json", registerChecklist)
+      //
+      //     alert("Speichern erfolgreich..")
+      //     return window.location.assign(`/felix/shs/${urlId}/`)
+      //
+      //   })
+      //
+      //
+      //
+      // })
     })
 
 
