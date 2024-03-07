@@ -9768,6 +9768,12 @@ await Helper.add("event/click-funnel")
       .forEach(child => input.appendChild(child))
     }
 
+    if (event === "number/k-M") {
+      if (input < 1000) return input.toString()
+      if (input >= 1000000) return (input / 1000000).toFixed(1) + 'M'
+      return (input / 1000).toFixed(1) + 'T'
+    }
+
   }
 
   static fn(event, input) {
@@ -17166,6 +17172,7 @@ await Helper.add("event/click-funnel")
           const pathOpenIcon = await this.convert("path/icon", "/public/eye-open.svg")
           const pathClosedIcon = await this.convert("path/icon", "/public/eye-crossed.svg")
           this.convert("parent/scrollable", parent)
+          const fragment = document.createDocumentFragment()
           for (let i = 0; i < input.length; i++) {
             const value = input[i]
             const item = document.createElement("div")
@@ -17184,7 +17191,7 @@ await Helper.add("event/click-funnel")
               itemHeader.style.backgroundColor = this.colors.gray[1]
             }
             itemHeader.style.cursor = "pointer"
-            itemHeader.addEventListener("click", async () => {
+            itemHeader.onclick = async () => {
 
               this.overlay("popup", buttonsOverlay => {
                 buttonsOverlay.info.textContent = value.path
@@ -17479,7 +17486,7 @@ await Helper.add("event/click-funnel")
                   }
                 }
               })
-            })
+            }
             const itemState = document.createElement("div")
             itemState.classList.add("item-state")
             itemState.style.display = "flex"
@@ -17529,13 +17536,11 @@ await Helper.add("event/click-funnel")
             {
               const alias = document.createElement("div")
               alias.textContent = `${value.alias}`
-              alias.classList.add("alias")
               alias.style.fontSize = "21px"
               itemTitle.append(alias)
             }
             {
               const path = document.createElement("div")
-              path.classList.add("path")
               path.textContent = `${value.path}`
               path.style.fontSize = "13px"
               itemTitle.append(path)
@@ -17583,10 +17588,26 @@ await Helper.add("event/click-funnel")
 
               }
             }
-            itemBody.append(buttons)
-            item.append(itemBody)
-            parent.append(item)
+            itemBody.appendChild(buttons)
+            if (value.requested) {
+              const requested = document.createElement("div")
+              requested.textContent = `Angefordert: ${this.convert("number/k-M", value.requested.length)} Mal`
+              requested.style.fontSize = "21px"
+              requested.style.color = this.colors.matte.orange
+              itemBody.append(requested)
+            }
+            if (value.writability) {
+              const writability = document.createElement("div")
+              writability.textContent = `Schreibrechte: ${value.writability.join(", ")}`
+              writability.style.fontSize = "21px"
+              writability.style.color = this.colors.matte.orange
+              itemBody.append(writability)
+            }
+            item.appendChild(itemBody)
+            fragment.appendChild(item)
           }
+          parent.appendChild(fragment)
+          resolve()
         } catch (error) {
           reject(error)
         }
@@ -17683,7 +17704,7 @@ await Helper.add("event/click-funnel")
             {
               const button = this.create("button/left-right", buttons)
               button.left.textContent = ".values"
-              button.right.textContent = "Meine Werteinheiten"
+              button.right.textContent = "Meine HTML Werteinheiten"
               button.onclick = () => {
                 this.overlay("popup", async overlay => {
                   overlay.info.textContent = `${platform.name}.values`
