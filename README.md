@@ -28,6 +28,9 @@ CLIENT_PORT=9999
 CLIENT_HOSTNAME=localhost
 CLIENT_PROTOCOL=http
 
+ADMINS=first.email@my-domain.de,second.email@my-domain.de,n.email@my-domain.de, ..
+DOMAIN=@my-domain.de
+
 ```
 
 ## Start

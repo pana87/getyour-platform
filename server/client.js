@@ -113,59 +113,50 @@ app.get("/:expert/", async (req, res, next) => {
   return res.sendStatus(404)
 })
 
+let lastTime
 app.get("/:expert/:platform/:path/",
 async(req, res, next) => {
   try {
-    const doc = await nano.db.use("getyour").get("users")
-    if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
-    if (doc.users === undefined) throw new Error("users is undefined")
+    if (lastTime > Date.now() - 3000) return res.sendStatus(404)
 
-    // is all open algo
-    for (let i = 0; i < doc.users.length; i++) {
-      const user = doc.users[i]
-      if (user["getyour"] !== undefined) {
+    if (lastTime === undefined || lastTime < Date.now() - 3000) {
 
-        if (user["getyour"].expert !== undefined) {
-
-          if (user["getyour"].expert.name === req.params.expert) {
-
-            if (user.verified === true) {
-
-              if (user["getyour"].expert.platforms !== undefined) {
-
-                for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
-                  const platform = user["getyour"].expert.platforms[i]
-                  if (platform.name === req.params.platform) {
-                    if (platform.visibility === "open") {
-
-
-                      if (platform.values !== undefined) {
-
-                        for (let i = 0; i < platform.values.length; i++) {
-                          const value = platform.values[i]
-                          if (value.path === `/${req.params.expert}/${req.params.platform}/${req.params.path}/`) {
-                            if (value.visibility === "open") {
-                              return res.send(value.html)
+      const doc = await Helper.get("doc/db", "users")
+      for (let i = 0; i < doc.users.length; i++) {
+        const user = doc.users[i]
+        if (user["getyour"] !== undefined) {
+          if (user["getyour"].expert !== undefined) {
+            if (user["getyour"].expert.name === req.params.expert) {
+              if (user.verified === true) {
+                if (user["getyour"].expert.platforms !== undefined) {
+                  for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
+                    const platform = user["getyour"].expert.platforms[i]
+                    if (platform.name === req.params.platform) {
+                      if (platform.visibility === "open") {
+                        if (platform.values !== undefined) {
+                          for (let i = 0; i < platform.values.length; i++) {
+                            const value = platform.values[i]
+                            if (value.path === req.originalUrl) {
+                              if (value.visibility === "open") {
+                                if (value.requested === undefined) value.requested = []
+                                value.requested.push({created: Date.now()})
+                                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
+                                lastTime = Date.now()
+                                return res.send(value.html)
+                              }
                             }
                           }
                         }
-
                       }
                     }
                   }
                 }
-
               }
-
             }
-
-
           }
-
         }
-
-
       }
+
     }
 
     return next()
@@ -178,211 +169,154 @@ async(req, res, next) => {
 app.get("/:expert/:platform/:path/",
   Request.verifyJwtToken,
   Request.verifySession,
-  // closed context
 async (req, res, next) => {
   try {
+    if (lastTime > Date.now() - 3000) return res.sendStatus(404)
 
-    const doc = await nano.db.use("getyour").get("users")
-    if (Helper.objectIsEmpty(doc)) throw new Error("doc is empty")
-    if (doc.users === undefined) throw new Error("users is undefined")
+    if (lastTime === undefined || lastTime < Date.now() - 3000) {
 
-    // is writable algo
-    for (let i = 0; i < doc.users.length; i++) {
-      const jwtUser = doc.users[i]
-      if (jwtUser.id === req.jwt.id) {
+      // is writable algo
+      const doc = await Helper.get("doc/db", "users")
+      for (let i = 0; i < doc.users.length; i++) {
+        const jwtUser = doc.users[i]
+        if (jwtUser.id === req.jwt.id) {
+          for (let i = 0; i < doc.users.length; i++) {
+            const user = doc.users[i]
+            if (user["getyour"] !== undefined) {
+              if (user["getyour"].expert !== undefined) {
+                if (user["getyour"].expert.name === req.params.expert) {
+                  if (user["getyour"].expert.platforms !== undefined) {
+                    for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
+                      const platform = user["getyour"].expert.platforms[i]
+                      if (platform.values !== undefined) {
+                        for (let i = 0; i < platform.values.length; i++) {
+                          const value = platform.values[i]
+                          if (value.path === req.originalUrl) {
+                            if (value.writability !== undefined) {
+                              for (let i = 0; i < value.writability.length; i++) {
+                                const authorized = value.writability[i]
+                                if (jwtUser.email === authorized) {
+                                  if (value.requested === undefined) value.requested = []
+                                  value.requested.push({created: Date.now()})
+                                  await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
+                                  lastTime = Date.now()
+                                  return res.send(value.html)
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
 
-        for (let i = 0; i < doc.users.length; i++) {
-          const user = doc.users[i]
-
+      // is expert algo
+      for (let i = 0; i < doc.users.length; i++) {
+        const user = doc.users[i]
+        if (user.id === req.jwt.id) {
           if (user["getyour"] !== undefined) {
             if (user["getyour"].expert !== undefined) {
               if (user["getyour"].expert.name === req.params.expert) {
                 if (user["getyour"].expert.platforms !== undefined) {
-
                   for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
                     const platform = user["getyour"].expert.platforms[i]
-
-                    if (platform.values !== undefined) {
-                      for (let i = 0; i < platform.values.length; i++) {
-                        const value = platform.values[i]
-                        if (value.path === `/${req.params.expert}/${req.params.platform}/${req.params.path}/`) {
-
-                          if (value.writability !== undefined) {
-                            for (let i = 0; i < value.writability.length; i++) {
-                              const authorized = value.writability[i]
-
-                              if (jwtUser.email === authorized) {
-                                return res.send(value.html)
-                              }
-
-                            }
+                    if (platform.name === req.params.platform) {
+                      if (platform.values !== undefined) {
+                        for (let i = 0; i < platform.values.length; i++) {
+                          const value = platform.values[i]
+                          if (value.path === req.originalUrl) {
+                            if (value.requested === undefined) value.requested = []
+                            value.requested.push({created: Date.now()})
+                            await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
+                            lastTime = Date.now()
+                            return res.send(value.html)
                           }
-
                         }
                       }
-
                     }
-
                   }
-
                 }
-
-
               }
-
             }
-
           }
-
         }
-
-
       }
-    }
 
-    // is expert algo
-    for (let i = 0; i < doc.users.length; i++) {
-      const user = doc.users[i]
-      if (user.id === req.jwt.id) {
-
+      // is visible algo
+      for (let i = 0; i < doc.users.length; i++) {
+        const user = doc.users[i]
         if (user["getyour"] !== undefined) {
           if (user["getyour"].expert !== undefined) {
-
             if (user["getyour"].expert.name === req.params.expert) {
-
               if (user["getyour"].expert.platforms !== undefined) {
-
                 for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
                   const platform = user["getyour"].expert.platforms[i]
                   if (platform.name === req.params.platform) {
-
-
-                    if (platform.values !== undefined) {
-
-                      for (let i = 0; i < platform.values.length; i++) {
-                        const value = platform.values[i]
-                        if (value.path === `/${req.params.expert}/${req.params.platform}/${req.params.path}/`) {
-                          return res.send(value.html)
-                        }
-                      }
-
-                    }
-                  }
-                }
-
-              }
-
-
-            }
-
-          }
-
-        }
-
-      }
-    }
-
-    // is visible algo
-    for (let i = 0; i < doc.users.length; i++) {
-      const user = doc.users[i]
-
-      if (user["getyour"] !== undefined) {
-        if (user["getyour"].expert !== undefined) {
-
-          if (user["getyour"].expert.name === req.params.expert) {
-
-            if (user["getyour"].expert.platforms !== undefined) {
-
-              for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
-                const platform = user["getyour"].expert.platforms[i]
-
-
-
-                if (platform.name === req.params.platform) {
-
-
-
-                  if (platform.visibility === "open") {
-                    if (platform.values !== undefined) {
-
-                      for (let i = 0; i < platform.values.length; i++) {
-                        const value = platform.values[i]
-                        if (value.path === `/${req.params.expert}/${req.params.platform}/${req.params.path}/`) {
-
-                          if (value.visibility === "closed") {
-
-                            if (value.authorized !== undefined) {
-
-                              for (let i = 0; i < value.authorized.length; i++) {
-                                const authorized = value.authorized[i]
-
-                                for (let i = 0; i < doc.users.length; i++) {
-                                  const user = doc.users[i]
-
-                                  if (user.id === req.jwt.id) {
-
-                                    if (user.email === authorized) {
-                                      return res.send(value.html)
-                                    }
-
-                                  }
-
-                                }
-                              }
-
-                            }
-
-                            if (value.roles !== undefined) {
-
-                              for (let i = 0; i < value.roles.length; i++) {
-                                const authorized = value.roles[i]
-
-                                for (let i = 0; i < doc.users.length; i++) {
-                                  const user = doc.users[i]
-
-                                  if (user.id === req.jwt.id) {
-
-                                    for (let i = 0; i < user.roles.length; i++) {
-                                      const role = user.roles[i]
-
-                                      if (role === authorized) {
+                    if (platform.visibility === "open") {
+                      if (platform.values !== undefined) {
+                        for (let i = 0; i < platform.values.length; i++) {
+                          const value = platform.values[i]
+                          if (value.path === req.originalUrl) {
+                            if (value.visibility === "closed") {
+                              if (value.authorized !== undefined) {
+                                for (let i = 0; i < value.authorized.length; i++) {
+                                  const authorized = value.authorized[i]
+                                  for (let i = 0; i < doc.users.length; i++) {
+                                    const user = doc.users[i]
+                                    if (user.id === req.jwt.id) {
+                                      if (user.email === authorized) {
+                                        if (value.requested === undefined) value.requested = []
+                                        value.requested.push({created: Date.now()})
+                                        await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
+                                        lastTime = Date.now()
                                         return res.send(value.html)
                                       }
                                     }
-
                                   }
-
                                 }
-
-
-
                               }
-
+                              if (value.roles !== undefined) {
+                                for (let i = 0; i < value.roles.length; i++) {
+                                  const authorized = value.roles[i]
+                                  for (let i = 0; i < doc.users.length; i++) {
+                                    const user = doc.users[i]
+                                    if (user.id === req.jwt.id) {
+                                      for (let i = 0; i < user.roles.length; i++) {
+                                        const role = user.roles[i]
+                                        if (role === authorized) {
+                                          if (value.requested === undefined) value.requested = []
+                                          value.requested.push({created: Date.now()})
+                                          await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
+                                          lastTime = Date.now()
+                                          return res.send(value.html)
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
                             }
                           }
-
                         }
                       }
-
                     }
                   }
-
-
-
-
                 }
               }
-
             }
           }
-
         }
       }
 
     }
 
     return res.redirect("/")
-
   } catch (error) {
     await Helper.logError(error, req)
   }
