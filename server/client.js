@@ -497,6 +497,7 @@ app.post(`/:method/:type/:event/`,
   Request.verify,
   Request.get,
   Request.register,
+  Request.remove,
 
 async(req, res, next) => {
   return next()

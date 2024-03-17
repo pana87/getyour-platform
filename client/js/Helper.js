@@ -266,39 +266,6 @@ export class Helper {
       return field
     }
 
-    if (event === "toolbox-scripts") {
-
-      return new Promise(async(resolve, reject) => {
-        try {
-          const content = this.create("info/loading", input)
-          const res = await this.request("/get/scripts/toolbox/")
-          if (res.status === 200) {
-            const scripts = JSON.parse(res.response)
-            this.convert("parent/scrollable", content)
-            this.render("scripts/toolbox", scripts, content)
-            resolve()
-          }
-          if (res.status !== 200) {
-            const res = await this.request("/get/scripts/writable/")
-            if (res.status === 200) {
-              const scripts = JSON.parse(res.response)
-              this.convert("parent/scrollable", content)
-              this.render("scripts/toolbox", scripts, content)
-              resolve()
-            }
-            if (res.status !== 200) {
-              this.convert("parent/info", content)
-              const span = this.createNode("span", content, "Keine Skripte gefunden.")
-              this.style(span, {margin: "21px 34px"})
-              reject(new Error("values not found"))
-            }
-          }
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-
     if (event === "observer/id-mutation") {
 
       const cache = {}
@@ -515,22 +482,6 @@ export class Helper {
 
           {
             const button = this.create("toolbox/left-right", buttons)
-            button.left.textContent = "document.designMode"
-            if (document.designMode === "on") {
-              const green = this.create("div/green-flag", button.right)
-              green.textContent = "on"
-            } else {
-              const red = this.create("div/red-flag", button.right)
-              red.textContent = "off"
-            }
-            button.onclick = () => {
-              this.convert("doc/design-mode")
-              overlay.remove()
-            }
-          }
-
-          {
-            const button = this.create("toolbox/left-right", buttons)
             button.left.textContent = "document.children"
             button.right.textContent = "Dokumenten Inhalt"
             button.addEventListener("click", () => {
@@ -606,6 +557,22 @@ export class Helper {
 
           {
             const button = this.create("toolbox/left-right", buttons)
+            button.left.textContent = "document.designMode"
+            if (document.designMode === "on") {
+              const green = this.create("div/green-flag", button.right)
+              green.textContent = "on"
+            } else {
+              const red = this.create("div/red-flag", button.right)
+              red.textContent = "off"
+            }
+            button.onclick = () => {
+              this.convert("doc/design-mode")
+              overlay.remove()
+            }
+          }
+
+          {
+            const button = this.create("toolbox/left-right", buttons)
             button.left.textContent = ".start"
             button.right.textContent = "Schnell zum Start zurück"
             button.addEventListener("click", async () => window.open("/", "_blank"))
@@ -659,42 +626,6 @@ export class Helper {
         const input = field.querySelector(".field-input")
         input.oninput = () => this.verify("input/value", input)
       })
-    }
-
-    if (event === "script/field-funnel-sign-support") {
-
-      return new Promise(async(resolve) => {
-
-        const text = /*html*/`
-          <script id="field-funnel-sign-support" type="module">
-            import {Helper} from "/js/Helper.js"
-
-            Helper.add("event/field-funnel-sign-support")
-          </script>
-        `
-
-        const script = this.convert("text/first-child", text)
-
-        const create = document.createElement("script")
-        create.id = script.id
-        create.type = script.type
-        create.textContent = script.textContent
-
-        if (document.body) {
-          document.querySelectorAll(`#${create.id}`).forEach(script => script.remove())
-
-          if (document.getElementById(create.id) === null) {
-            document.body.append(create)
-            return resolve(create)
-          }
-
-        } else {
-          await this.add("ms/timeout", 3000)
-          await this.add(event)
-        }
-
-      })
-
     }
 
     if (event === "ms/timeout") {
@@ -1053,20 +984,16 @@ export class Helper {
 
     }
 
-    if (event === "event/prefill-field-funnel") {
+    if (event === "prefill-field-funnel") {
 
       document.querySelectorAll(".field-funnel").forEach(async funnel => {
         const trees = await this.convert("field-funnel/trees", funnel)
-
         const res = await this.request("/get/user/trees-closed/", trees)
-
         if (res.status === 200) {
           const keys = JSON.parse(res.response)
-
           this.render("tree-map/field-funnel", keys, funnel)
         }
       })
-
     }
 
     if (event === "submit-field-funnel") {
@@ -1127,7 +1054,7 @@ export class Helper {
       })
     }
 
-    if (event === "event/field-funnel-sign-support") {
+    if (event === "field-funnel-sign-support") {
 
       document.querySelectorAll(".field-funnel").forEach(funnel => {
         this.verifyIs("field-funnel/valid", funnel)
@@ -1412,150 +1339,152 @@ export class Helper {
 
     if (event === "html-creator") {
 
-      const htmlCreatorButton = document.querySelector(".html-creator")
+      return new Promise(async(resolve, reject) => {
+        try {
+          const button = this.create("button/bottom-right", document.body)
+          button.classList.add(event)
+          const icon = await this.convert("path/icon", "/public/pencil-ruler.svg")
+          button.appendChild(icon)
+          this.add("outline-hover", button)
+          button.onclick = () => {
+            this.overlay(event, async overlay => {
+              const body = document.body
+              let selectedNode = body
+              body.onkeydown = (ev) => {
 
-      if (htmlCreatorButton !== null) {
-        this.add("outline-hover", htmlCreatorButton)
-        htmlCreatorButton.onclick = () => {
-          this.overlay("html-creator", async overlay => {
-
-            const body = document.body
-
-            let selectedNode = body
-
-            body.onkeydown = (ev) => {
-
-              if (ev.metaKey && ev.key === 'c') {
-                ev.preventDefault()
-                if (selectedNode) {
-                  this.convert("text/clipboard", selectedNode.outerHTML).then(() => window.alert("Dein HTML Element wurde erfolgreich in die Zwischenablage gespeichert."))
+                if (ev.metaKey && ev.key === 'c') {
+                  ev.preventDefault()
+                  if (selectedNode) {
+                    this.convert("text/clipboard", selectedNode.outerHTML).then(() => window.alert("Dein HTML Element wurde erfolgreich in die Zwischenablage gespeichert."))
+                  }
                 }
-              }
 
-              if (ev.metaKey && ev.key === 'v') {
-                ev.preventDefault()
-                if (selectedNode) {
-                  this.convert("clipboard/text").then(text => {
-                    const node = this.convert("text/html", text)
-                    selectedNode.append(node)
-                  })
+                if (ev.metaKey && ev.key === 'v') {
+                  ev.preventDefault()
+                  if (selectedNode) {
+                    this.convert("clipboard/text").then(text => {
+                      const node = this.convert("text/first-child", text)
+                      selectedNode.append(node)
+                    })
+                  }
                 }
-              }
 
-              let rememberSelectedNodes = []
-              if (ev.metaKey && ev.key === 'Backspace') {
-                ev.preventDefault()
-                if (selectedNode) {
-                  rememberSelectedNodes.push({ node: selectedNode, parent: selectedNode.parentElement, index: Array.from(selectedNode.parentElement.children).indexOf(selectedNode)})
-                  selectedNode.remove()
+                let rememberSelectedNodes = []
+                if (ev.metaKey && ev.key === 'Backspace') {
+                  ev.preventDefault()
+                  if (selectedNode) {
+                    rememberSelectedNodes.push({ node: selectedNode, parent: selectedNode.parentElement, index: Array.from(selectedNode.parentElement.children).indexOf(selectedNode)})
+                    selectedNode.remove()
+                  }
                 }
-              }
 
-              if (ev.metaKey && ev.key === 'z') {
-                ev.preventDefault()
-                if (selectedNode) {
-                  if (rememberSelectedNodes.length > 0) {
-                    const { node, parent, index } = rememberSelectedNodes.pop()
-                    const children = Array.from(parent.children)
-                    if (index >= 0 && index < children.length) {
-                      parent.insertBefore(node, children[index])
-                    } else {
-                      parent.appendChild(node)
+                if (ev.metaKey && ev.key === 'z') {
+                  ev.preventDefault()
+                  if (selectedNode) {
+                    if (rememberSelectedNodes.length > 0) {
+                      const { node, parent, index } = rememberSelectedNodes.pop()
+                      const children = Array.from(parent.children)
+                      if (index >= 0 && index < children.length) {
+                        parent.insertBefore(node, children[index])
+                      } else {
+                        parent.appendChild(node)
+                      }
                     }
+
+                  }
+                }
+
+              }
+
+              for (let i = 0; i < body.children.length; i++) {
+                const child = body.children[i]
+
+                if (child.classList.contains(event)) continue
+                if (child.classList.contains("overlay")) continue
+                if (this.verifyIs("class/closest-node", {node: child, class: "overlay"})) continue
+
+                this.add("event/dbltouch", {node: child, callback: async ev => {
+                  ev.preventDefault()
+                  ev.stopPropagation()
+                  await this.remove("element/selected-node", body)
+                  selectedNode = ev.target.parentElement
+                  this.add("element/selected-node", selectedNode)
+                }})
+
+                child.ondblclick = async (ev) => {
+                  ev.preventDefault()
+                  ev.stopPropagation()
+                  await this.remove("element/selected-node", body)
+                  selectedNode = ev.target.parentElement
+                  this.add("element/selected-node", selectedNode)
+                }
+
+                child.onclick = async (ev) => {
+                  ev.preventDefault()
+                  ev.stopPropagation()
+
+                  if (ev.target.hasAttribute("selected-node")) {
+                    await this.remove("element/selected-node", body)
+                    selectedNode = body
+                    this.add("element/selected-node", selectedNode)
+                  } else {
+                    await this.remove("element/selected-node", body)
+                    selectedNode = ev.target
+                    this.add("element/selected-node", selectedNode)
                   }
 
                 }
-              }
-
-            }
-
-            for (let i = 0; i < body.children.length; i++) {
-              const child = body.children[i]
-
-              if (child.classList.contains("html-creator")) continue
-              if (child.classList.contains("overlay")) continue
-              if (this.verifyIs("class/closest-node", {node: child, class: "overlay"})) continue
-
-              this.add("event/dbltouch", {node: child, callback: async ev => {
-                ev.preventDefault()
-                ev.stopPropagation()
-                await this.remove("element/selected-node", body)
-                selectedNode = ev.target.parentElement
-                this.add("element/selected-node", selectedNode)
-              }})
-
-              child.ondblclick = async (ev) => {
-                ev.preventDefault()
-                ev.stopPropagation()
-                await this.remove("element/selected-node", body)
-                selectedNode = ev.target.parentElement
-                this.add("element/selected-node", selectedNode)
-              }
-
-              child.onclick = async (ev) => {
-                ev.preventDefault()
-                ev.stopPropagation()
-
-                if (ev.target.hasAttribute("selected-node")) {
-                  await this.remove("element/selected-node", body)
-                  selectedNode = body
-                  this.add("element/selected-node", selectedNode)
-                } else {
-                  await this.remove("element/selected-node", body)
-                  selectedNode = ev.target
-                  this.add("element/selected-node", selectedNode)
-                }
 
               }
 
-            }
-
-            const observer = new MutationObserver((mutationsList) => {
-              mutationsList.forEach((mutation) => {
-                if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+              const observer = new MutationObserver((mutationsList) => {
+                mutationsList.forEach((mutation) => {
+                  if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
 
 
-                  for (var i = 0; i < mutation.addedNodes.length; i++) {
-                    const node = mutation.addedNodes[i]
+                    for (var i = 0; i < mutation.addedNodes.length; i++) {
+                      const node = mutation.addedNodes[i]
 
-                    if (node) {
-                      if (node.classList) {
-                        if (node.classList.contains("overlay")) continue
-                      }
-                    }
-
-                    if (this.verifyIs("class/closest-node", {node, class: "overlay"})) continue
-
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-
-                      this.add("event/dbltouch", {node: node, callback: async ev => {
-                        ev.preventDefault()
-                        ev.stopPropagation()
-                        await this.remove("element/selected-node", body)
-                        selectedNode = ev.target.parentElement
-                        this.add("element/selected-node", selectedNode)
-                      }})
-
-                      node.ondblclick = async (ev) => {
-                        ev.preventDefault()
-                        ev.stopPropagation()
-                        await this.remove("element/selected-node", body)
-                        selectedNode = ev.target.parentElement
-                        this.add("element/selected-node", selectedNode)
+                      if (node) {
+                        if (node.classList) {
+                          if (node.classList.contains("overlay")) continue
+                        }
                       }
 
-                      node.onclick = async (ev) => {
-                        ev.preventDefault()
-                        ev.stopPropagation()
+                      if (this.verifyIs("class/closest-node", {node, class: "overlay"})) continue
 
-                        if (ev.target.hasAttribute("selected-node")) {
+                      if (node.nodeType === Node.ELEMENT_NODE) {
+
+                        this.add("event/dbltouch", {node: node, callback: async ev => {
+                          ev.preventDefault()
+                          ev.stopPropagation()
                           await this.remove("element/selected-node", body)
-                          selectedNode = body
+                          selectedNode = ev.target.parentElement
                           this.add("element/selected-node", selectedNode)
-                        } else {
+                        }})
+
+                        node.ondblclick = async (ev) => {
+                          ev.preventDefault()
+                          ev.stopPropagation()
                           await this.remove("element/selected-node", body)
-                          selectedNode = ev.target
+                          selectedNode = ev.target.parentElement
                           this.add("element/selected-node", selectedNode)
+                        }
+
+                        node.onclick = async (ev) => {
+                          ev.preventDefault()
+                          ev.stopPropagation()
+
+                          if (ev.target.hasAttribute("selected-node")) {
+                            await this.remove("element/selected-node", body)
+                            selectedNode = body
+                            this.add("element/selected-node", selectedNode)
+                          } else {
+                            await this.remove("element/selected-node", body)
+                            selectedNode = ev.target
+                            this.add("element/selected-node", selectedNode)
+                          }
+
                         }
 
                       }
@@ -1563,437 +1492,217 @@ export class Helper {
                     }
 
                   }
-
-                }
+                })
               })
-            })
-            observer.observe(body, { childList: true, subtree: true })
+              observer.observe(body, { childList: true, subtree: true })
 
-            const buttons = this.fn("creator-buttons", {parent: content})
+              const buttons = this.fn("creator-buttons", {parent: overlay})
 
-            buttons.sourcesButton.onclick = () => buttons.openSourcesOverlay(selectedNode)
-            buttons.createFlexButton.onclick = () => buttons.createFlexWidthWithPrompt(selectedNode)
-            buttons.createGridButton.onclick = () => buttons.createGridMatrixWithPrompt(selectedNode)
-            buttons.rowContainerButton.onclick = () => buttons.createFlexRow(selectedNode)
-            buttons.columnContainerButton.onclick = () => buttons.createFlexColumn(selectedNode)
-            buttons.imageTextButton.onclick = () => buttons.createImageText(selectedNode)
-            buttons.keyValueButton.onclick = () => buttons.createKeyValue(selectedNode)
-            buttons.actionBtnButton.onclick = () => buttons.createActionButton(selectedNode)
-            buttons.horizontalHrButton.onclick = () => buttons.createHr(selectedNode)
-            buttons.simpleHeaderButton.onclick = () => buttons.createLeftImageHeader(selectedNode)
-            buttons.h1Button.onclick = () => buttons.createH1withPrompt(selectedNode)
-            buttons.h2Button.onclick = () => buttons.createH2withPrompt(selectedNode)
-            buttons.h3Button.onclick = () => buttons.createH3withPrompt(selectedNode)
-            buttons.pButton.onclick = () => buttons.createPwithPrompt(selectedNode)
-            buttons.imageButton.onclick = () => buttons.createImagePlaceholder(selectedNode)
-            buttons.tableHeaderButton.onclick = () => buttons.createTableWithMatrixPrompt(selectedNode)
-            buttons.pdfLinkButton.onclick = async () => await buttons.createPdfLinkWithPrompt(selectedNode)
-            buttons.aLinkButton.onclick = () => buttons.createAnchorWithPrompt(selectedNode)
-            buttons.spanButton.onclick = () => buttons.createSpanWithTextContent(selectedNode)
-            buttons.changeSiButton.onclick = () => buttons.createSpanWithSiPrompt(selectedNode)
-            buttons.addSpaceButton.onclick = () => buttons.createSpaceWithHeightPrompt(selectedNode)
-            buttons.arrowRightButton.onclick = () => buttons.createArrowRightWithColorPrompt(selectedNode)
-            buttons.divScrollableButton.onclick = () => buttons.createScrollableY(selectedNode)
-            buttons.packDivButton.onclick = () => buttons.createDivPackOuter(selectedNode)
-            buttons.textInputButton.onclick = () => buttons.createTextInput(selectedNode)
-            buttons.numberInputButton.onclick = () => buttons.createTelInput(selectedNode)
-            buttons.checkboxInputButton.onclick = () => buttons.createCheckboxInput(selectedNode)
-            buttons.passwordInputButton.onclick = () => buttons.createPasswordInput(selectedNode)
-            buttons.selectInputButton.onclick = () => buttons.createSelectInput(selectedNode)
-            buttons.growWidthButton.onclick = () => buttons.toggleStyle({key: "width", value: "100%", node: selectedNode})
-            buttons.maxWidthButton.onclick = () => buttons.setStyleWithPrompt({key: "maxWidth", node: selectedNode, message: "Gebe die maximale Breite deines Elements ein: (z.B., 900px)"})
-            buttons.minWidthButton.onclick = () => buttons.setStyleWithPrompt({key: "minWidth", node: selectedNode, message: "Gebe die minimale Breite deines Elements ein: (z.B., 300px)"})
-            buttons.exactWidthButton.onclick = () => buttons.setStyleWithPrompt({key: "width", node: selectedNode, message: "Gebe die exakte Breite deines Elements ein: (z.B., 350px)"})
-            buttons.increaseWidthButton.onclick = () => buttons.incrementStyle({key: "width", node: selectedNode, delta: 1})
-            buttons.decreaseWidthButton.onclick = () => buttons.decrementStyle({key: "width", node: selectedNode, delta: 1})
-            buttons.growHeightButton.onclick = () => buttons.toggleStyle({key: "height", value: "100%", node: selectedNode})
-            buttons.maxHeightButton.onclick = () => buttons.setStyleWithPrompt({key: "maxHeight", node: selectedNode, message: "Gebe die maximale Höhe deines Elements ein: (z.B., 89vh)"})
-            buttons.minHeightButton.onclick = () => buttons.setStyleWithPrompt({key: "minHeight", node: selectedNode, message: "Gebe die minimale Höhe deines Elements ein: (z.B., 21px)"})
-            buttons.exactHeightButton.onclick = () => buttons.setStyleWithPrompt({key: "height", node: selectedNode, message: "Gebe die exakte Höhe deines Elements ein: (z.B., 21vh)"})
-            buttons.increaseHeightButton.onclick = () => buttons.incrementStyle({key: "height", node: selectedNode, delta: 1})
-            buttons.decreaseHeightButton.onclick = () => buttons.decrementStyle({key: "height", node: selectedNode, delta: 1})
-            buttons.exactDisplayButton.onclick = () => buttons.setStyleWithPrompt({key: "display", node: selectedNode, message: "Gebe den exakten Display Wert ein: (z.B., flex)"})
-            buttons.displayBlockButton.onclick = () => buttons.toggleStyle({key: "display", value: "block", node: selectedNode})
-            buttons.displayInlineButton.onclick = () => buttons.toggleStyle({key: "display", value: "inline", node: selectedNode})
-            buttons.toggleDisplayGridButton.onclick = () => buttons.toggleStyle({key: "display", value: "grid", node: selectedNode})
-            buttons.toggleDisplayFlexButton.onclick = () => buttons.toggleStyle({key: "display", value: "flex", node: selectedNode})
-            buttons.toggleDisplayTableButton.onclick = () => buttons.toggleStyle({key: "display", value: "table", node: selectedNode})
-            buttons.gridMobileButton.onclick = () => buttons.toggleStyles({styles: {display: "grid", gridTemplateColumns: "1fr", gridGap: "21px"}, node: selectedNode})
-            buttons.gridFullDisplayButton.onclick = () => buttons.toggleNodeAndChildrenStyles({nodeStyle: {display: "grid", gridTemplateColumns: "1fr", gridGap: "21px"}, childrenStyle: {height: "89vh"}, node: selectedNode})
-            buttons.gridTwoColumnsButton.onclick = () => buttons.toggleNodeAndChildrenStyles({nodeStyle: {display: "grid", gridTemplateColumns: "1fr 1fr", gridGap: "21px"}, childrenStyle: {height: "89vh"}, node: selectedNode})
-            buttons.gridThreeColumnsButton.onclick = () => buttons.toggleNodeAndChildrenStyles({nodeStyle: {display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gridGap: "21px"}, childrenStyle: {height: "89vh"}, node: selectedNode})
-            buttons.gridFixedButton.onclick = () => buttons.fixedGridPrompt({node: selectedNode})
-            buttons.gridListRowsButton.onclick = () => buttons.toggleNodeAndChildrenStyles({nodeStyle: {display: "grid", gridTemplateColumns: "89px 1fr", gridTemplateRows: `repeat(auto-fit, 55px)`, gridGap: "21px"}, childrenStyle: {height: "55px"}, node: selectedNode})
-            buttons.gridSpanColumnButton.onclick = () => buttons.spanColumnWithPrompt(selectedNode)
-            buttons.gridSpanRowButton.onclick = () => buttons.spanRowWithPrompt(selectedNode)
-            buttons.exactGridGapButton.onclick = () => buttons.setStyleWithPrompt({key: "gap", node: selectedNode, message: "Gebe den exakten Abstand zwischen deinen Grid Elementen ein: (z.B., 13px)"})
-            buttons.gridAddColumnButton.onclick = () => buttons.addGridColumn(selectedNode)
-            buttons.gridRemoveColumnButton.onclick = () => buttons.removeGridColumn(selectedNode)
-            buttons.gridAddRowButton.onclick = () => buttons.addGridRow(selectedNode)
-            buttons.gridRemoveRowButton.onclick = () => buttons.removeGridRow(selectedNode)
-            buttons.alignColumnButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", flexDirection: "column", flexWrap: null}, node: selectedNode})
-            buttons.alignLeftButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", justifyContent: "flex-start"}, node: selectedNode})
-            buttons.alignCenterButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", justifyContent: "center"}, node: selectedNode})
-            buttons.alignRightButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", justifyContent: "flex-end"}, node: selectedNode})
-            buttons.alignRowButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", flexDirection: null, flexWrap: "wrap"}, node: selectedNode})
-            buttons.alignTopButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", alignItems: "flex-start"}, node: selectedNode})
-            buttons.alignVerticalButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", alignItems: "center"}, node: selectedNode})
-            buttons.alignBottomButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", alignItems: "flex-end"}, node: selectedNode})
-            buttons.flexButton.onclick = () => buttons.setStyleWithPrompt({key: "flex", node: selectedNode, message: "Gebe die Flex Matrix für dein Element ein: (z.B., 1 1 55px)"})
-            buttons.spaceBetweenButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", flexWrap: "wrap", justifyContent: "space-between"}, node: selectedNode})
-            buttons.spaceAroundButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", flexWrap: "wrap", justifyContent: "space-around"}, node: selectedNode})
-            buttons.toggleWrapButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", flexWrap: "wrap"}, node: selectedNode})
-            const onLayerClick = async layer => {
-              await this.remove("element/selected-node", preview)
-              selectedNode = layer
-              this.add("selected/node", layer)
-            }
-            buttons.layerButton.onclick = () => buttons.openLayerOverlay(onLayerClick, selectedNode)
-            buttons.positiveLayerButton.onclick = () => buttons.addLayerAbove(selectedNode)
-            buttons.negativeLayerButton.onclick = () => buttons.addLayerBelow(selectedNode)
-            buttons.exactLayerButton.onclick = async () => buttons.addLayerPrompt(selectedNode)
-            buttons.removeLayerButton.onclick = () => buttons.removeAllLayer(selectedNode)
-            buttons.positionAbsoluteButton.onclick = () => buttons.toggleStyle({key: "position", value: "absolute", node: selectedNode})
-            buttons.positionTopButton.onclick = () => buttons.setStyleWithPrompt({key: "top", node: selectedNode, message: "Geben den exakten Abstand nach oben ein: (z.B., 300px)"})
-            buttons.positionRightButton.onclick = () => buttons.setStyleWithPrompt({key: "right", node: selectedNode, message: "Geben den exakten Abstand nach rechts ein: (z.B., 300px)"})
-            buttons.positionBottomButton.onclick = () => buttons.setStyleWithPrompt({key: "bottom", node: selectedNode, message: "Geben den exakten Abstand nach unten ein: (z.B., 300px)"})
-            buttons.positionLeftButton.onclick = () => buttons.setStyleWithPrompt({key: "left", node: selectedNode, message: "Geben den exakten Abstand nach links ein: (z.B., 300px)"})
-            buttons.transformTranslateButton.onclick = () => buttons.translateWithPrompt(selectedNode)
-            buttons.transformTranslateXButton.onclick = () => buttons.translateXWithPrompt(selectedNode)
-            buttons.transformTranslateYButton.onclick = () => buttons.translateYWithPrompt(selectedNode)
-            buttons.zIndexButton.onclick = () => buttons.setStyleWithPrompt({key: "zIndex", node: selectedNode, message: "Gebe deinen Z-Index ein: (z.B., -1)"})
-            buttons.scaleButton.onclick = () => buttons.scaleWithPrompt(selectedNode)
-            buttons.rotateRightButton.onclick = () => buttons.rotateNode({degree: 90, node: selectedNode})
-            buttons.exactRotateRightButton.onclick = () => buttons.rotateNodeRightWithPrompt(selectedNode)
-            buttons.rotateLeftButton.onclick = () => buttons.rotateNode({degree: -90, node: selectedNode})
-            buttons.exactRotateLeftButton.onclick = () => buttons.rotateNodeLeftWithPrompt(selectedNode)
-            buttons.whiteSpaceNoWrapButton.onclick = () => buttons.toggleStyle({key: "whiteSpace", value: "nowrap", node: selectedNode})
-            buttons.fontFamilyButton.onclick = () => buttons.toggleStyle({key: "fontFamily", value: "sans-serif", node: selectedNode})
-            buttons.fontWeightNormalButton.onclick = () => buttons.toggleStyle({key: "fontWeight", value: "normal", node: selectedNode})
-            buttons.fontWeightButton.onclick = () => buttons.toggleStyle({key: "fontWeight", value: "bold", node: selectedNode})
-            buttons.fontStyleButton.onclick = () => buttons.toggleStyle({key: "fontStyle", value: "italic", node: selectedNode})
-            buttons.textDecorationButton.onclick = () => buttons.toggleStyle({key: "textDecoration", value: "underline", node: selectedNode})
-            buttons.fontSizeButton.onclick = () => buttons.setStyleWithPrompt({key: "fontSize", node: selectedNode, message: "Gebe deine Schriftgröße ein: (z.B., 34px)"})
-            buttons.fontColorButton.onclick = () => buttons.setStyleWithPrompt({key: "color", node: selectedNode, message: "Gebe deine Schriftfarbe ein: (z.B., (#888, grey, rgb(88, 88, 88), rgba(0, 0, 0, 0.5)))"})
-            buttons.fontColorButton.onclick = () => buttons.setStyleWithPrompt({key: "backgroundColor", node: selectedNode, message: "Gebe deine Hintergrundfarbe ein: (z.B., (#888, grey, rgb(88, 88, 88), rgba(0, 0, 0, 0.5)))"})
-            buttons.unorderedListButton.onclick = () => buttons.appendUnorderedListItem(selectedNode)
-            buttons.orderedListButton.onclick = () => buttons.appendOrderedListItem(selectedNode)
-            buttons.lineHeightButton.onclick = () => buttons.setStyleWithPrompt({key: "lineHeight", node: selectedNode, message: "Gebe die exakte Linien Höhe ein: (z.B., 1.8)"})
-            buttons.overflowYButton.onclick = () => buttons.toggleStyle({key: "overflowY", value: "auto", node: selectedNode})
-            buttons.overflowXButton.onclick = () => buttons.toggleStyle({key: "overflowX", value: "auto", node: selectedNode})
-            buttons.toggleDisplayNoneButton.onclick = () => buttons.toggleStyle({key: "display", value: "none", node: selectedNode})
-            buttons.toggleVisibilityHiddenButton.onclick = () => buttons.toggleStyle({key: "visibility", value: "hidden", node: selectedNode})
-            buttons.exactOpacityButton.onclick = () => buttons.addOpacityWithPrompt(selectedNode)
-            buttons.toggleMarginButton.onclick = () => buttons.toggleStyle({key: "margin", value: "21px 34px", node: selectedNode})
-            buttons.toggleMarginTopButton.onclick = () => buttons.toggleStyle({key: "marginTop", value: "21px", node: selectedNode})
-            buttons.toggleMarginRightButton.onclick = () => buttons.toggleStyle({key: "marginRight", value: "34px", node: selectedNode})
-            buttons.toggleMarginTopButton.onclick = () => buttons.toggleStyle({key: "marginBottom", value: "21px", node: selectedNode})
-            buttons.toggleMarginLeftButton.onclick = () => buttons.toggleStyle({key: "marginLeft", value: "34px", node: selectedNode})
-            buttons.exactMarginButton.onclick = () => buttons.setStyleWithPrompt({key: "margin", node: selectedNode, message: "Gebe den exakten Außenabstand ein: (z.B., 21px 34px 13px 144px)"})
-            buttons.exactMarginTopButton.onclick = () => buttons.setStyleWithPrompt({key: "marginTop", node: selectedNode, message: "Gebe den exakten Außenabstand nach oben ein: (z.B., 21px)"})
-            buttons.exactMarginRightButton.onclick = () => buttons.setStyleWithPrompt({key: "marginRight", node: selectedNode, message: "Gebe den exakten Außenabstand nach rechts ein: (z.B., 21px)"})
-            buttons.exactMarginBottomButton.onclick = () => buttons.setStyleWithPrompt({key: "marginRight", node: selectedNode, message: "Gebe den exakten Außenabstand nach unten ein: (z.B., 21px)"})
-            buttons.exactMarginLeftButton.onclick = () => buttons.setStyleWithPrompt({key: "marginLeft", node: selectedNode, message: "Gebe den exakten Außenabstand nach links ein: (z.B., 21px)"})
-            buttons.togglePaddingButton.onclick = () => buttons.toggleStyle({key: "padding", value: "21px 34px", node: selectedNode})
-            buttons.togglePaddingTopButton.onclick = () => buttons.toggleStyle({key: "paddingTop", value: "21px", node: selectedNode})
-            buttons.togglePaddingRightButton.onclick = () => buttons.toggleStyle({key: "paddingRight", value: "34px", node: selectedNode})
-            buttons.togglePaddingBottomButton.onclick = () => buttons.toggleStyle({key: "paddingBottom", value: "21px", node: selectedNode})
-            buttons.togglePaddingLeftButton.onclick = () => buttons.toggleStyle({key: "paddingLeft", value: "34px", node: selectedNode})
-            buttons.exactPaddingButton.onclick = () => buttons.setStyleWithPrompt({key: "padding", node: selectedNode, message: "Gebe den exakten Innenabstand ein: (z.B., 21px 34px 13px 144px)"})
-            buttons.exactPaddingTopButton.onclick = () => buttons.setStyleWithPrompt({key: "paddingTop", node: selectedNode, message: "Gebe den exakten Innenabstand nach oben ein: (z.B., 21px)"})
-            buttons.exactPaddingRightButton.onclick = () => buttons.setStyleWithPrompt({key: "paddingRight", node: selectedNode, message: "Gebe den exakten Innenabstand nach rechts ein: (z.B., 21px)"})
-            buttons.exactPaddingBottomButton.onclick = () => buttons.setStyleWithPrompt({key: "paddingRight", node: selectedNode, message: "Gebe den exakten Innenabstand nach unten ein: (z.B., 21px)"})
-            buttons.exactPaddingLeftButton.onclick = () => buttons.setStyleWithPrompt({key: "paddingLeft", node: selectedNode, message: "Gebe den exakten Innenabstand nach links ein: (z.B., 21px)"})
-            buttons.toggleBorderButton.onclick = () => buttons.toggleStyle({key: "border", value: "1px solid black", node: selectedNode})
-            buttons.toggleBorderTopButton.onclick = () => buttons.toggleStyle({key: "borderTop", value: "1px solid black", node: selectedNode})
-            buttons.toggleBorderRightButton.onclick = () => buttons.toggleStyle({key: "borderTop", value: "1px solid black", node: selectedNode})
-            buttons.toggleBorderBottomButton.onclick = () => buttons.toggleStyle({key: "borderBottom", value: "1px solid black", node: selectedNode})
-            buttons.toggleBorderLeftButton.onclick = () => buttons.toggleStyle({key: "borderLeft", value: "1px solid black", node: selectedNode})
-            buttons.exactBorderButton.onclick = () => buttons.setStyleWithPrompt({key: "border", node: selectedNode, message: "Gebe die exakten Grenzlinien ein: (z.B., 3px solid red)"})
-            buttons.exactBorderTopButton.onclick = () => buttons.setStyleWithPrompt({key: "borderTop", node: selectedNode, message: "Gebe die exakten Grenzlinien nach oben ein: (z.B., 3px solid red)"})
-            buttons.exactBorderRightButton.onclick = () => buttons.setStyleWithPrompt({key: "borderRight", node: selectedNode, message: "Gebe die exakten Grenzlinien nach rechts ein: (z.B., 3px solid red)"})
-            buttons.exactBorderBottomButton.onclick = () => buttons.setStyleWithPrompt({key: "borderBottom", node: selectedNode, message: "Gebe die exakten Grenzlinien nach unten ein: (z.B., 3px solid red)"})
-            buttons.exactBorderLeftButton.onclick = () => buttons.setStyleWithPrompt({key: "borderLeft", node: selectedNode, message: "Gebe die exakten Grenzlinien nach links ein: (z.B., 3px solid red)"})
-            buttons.toggleBorderRadiusButton.onclick = () => buttons.toggleStyle({key: "borderRadius", value: "3px", node: selectedNode})
-            buttons.toggleBorderTopLeftRadiusButton.onclick = () => buttons.toggleStyle({key: "borderTopLeftRadius", value: "3px", node: selectedNode})
-            buttons.toggleBorderTopRightRadiusButton.onclick = () => buttons.toggleStyle({key: "borderTopRightRadius", value: "3px", node: selectedNode})
-            buttons.toggleBorderBottomRightRadiusButton.onclick = () => buttons.toggleStyle({key: "borderBottomRightRadius", value: "3px", node: selectedNode})
-            buttons.toggleBorderBottomLeftRadiusButton.onclick = () => buttons.toggleStyle({key: "borderBottomLeftRadius", value: "3px", node: selectedNode})
-            buttons.exactBorderRadiusButton.onclick = () => buttons.setStyleWithPrompt({key: "borderRadius", node: selectedNode, message: "Gebe den exakten Radius, für alle Ecken, ein: (z.B. 13px)"})
-            buttons.exactBorderTopLeftRadiusButton.onclick = () => buttons.setStyleWithPrompt({key: "borderTopLeftRadius", node: selectedNode, message: "Gebe den exakten Radius, für die Ecke Oben-Links, ein: (z.B., 13px)"})
-            buttons.exactBorderTopRightRadiusButton.onclick = () => buttons.setStyleWithPrompt({key: "borderTopRightRadius", node: selectedNode, message: "Gebe den exakten Radius, für die Ecke Oben-Rechts, ein: (z.B., 13px)"})
-            buttons.exactBorderBottomLeftRadiusButton.onclick = () => buttons.setStyleWithPrompt({key: "borderBottomRightRadius", node: selectedNode, message: "Gebe den exakten Radius, für die Ecke Unten-Links, ein: (z.B., 13px)"})
-            buttons.exactBorderBottomRightRadiusButton.onclick = () => buttons.setStyleWithPrompt({key: "borderBottomLeftRadius", node: selectedNode, message: "Gebe den exakten Radius, für die Ecke Unten-Rechts, ein: (z.B., 13px)"})
-            buttons.toggleBorderNoneButton.onclick = () => buttons.toggleStyle({key: "border", value: "none", node: selectedNode})
-            buttons.boxButton.onclick = () => buttons.toggleStyles({styles: {margin: "21px 34px", padding: "8px", borderRadius: "3px", boxShadow: "rgba(0, 0, 0, 0.13) 0px 1px 3px"}, node: selectedNode})
-            buttons.exactBoxShadowButton.onclick = () => buttons.setStyleWithPrompt({key: "boxShadow", node: selectedNode, message: "Geben den exakten Schatten ein: (z.B., rgba(0, 0, 0, 0.13) 0px 1px 3px)"})
-            buttons.mediaQueriesOverviewButton.onclick = () => buttons.openMediaQueriesOverlay()
-            buttons.largeDeviceButton.onclick = () => buttons.addLargeStyle(selectedNode)
-            buttons.middleDeviceButton.onclick = () => buttons.addMiddleStyle(selectedNode)
-            buttons.smallDeviceButton.onclick = () => buttons.addSmallStyle(selectedNode)
-            buttons.printerDeviceButton.onclick = () => buttons.addPrinterStyle(selectedNode)
-
-            let rememberCuttedNodes = []
-            buttons.insertAfterButton.onclick =  () => buttons.insertAfter(selectedNode, rememberCuttedNodes)
-            buttons.insertBeforeButton.onclick =  () => buttons.insertBefore(selectedNode, rememberCuttedNodes)
-            buttons.insertLeftButton.onclick =  () => buttons.insertLeft(selectedNode, rememberCuttedNodes)
-            buttons.insertRightButton.onclick =  () => buttons.insertRight(selectedNode, rememberCuttedNodes)
-            buttons.cutOuterHtmlButton.onclick = () => {
-              if (selectedNode) {
-                rememberCuttedNodes.push({ node: selectedNode, parent: selectedNode.parentElement, index: this.convert("node/index", selectedNode)})
-                selectedNode.remove()
+              buttons.duckDuckGoButton.onclick = () => buttons.duckDuckGoButton.convertNode(selectedNode)
+              buttons.sourcesButton.onclick = () => buttons.openSourcesOverlay(selectedNode)
+              buttons.createFlexButton.onclick = () => buttons.createFlexWidthWithPrompt(selectedNode)
+              buttons.createGridButton.onclick = () => buttons.createGridMatrixWithPrompt(selectedNode)
+              buttons.rowContainerButton.onclick = () => buttons.createFlexRow(selectedNode)
+              buttons.columnContainerButton.onclick = () => buttons.createFlexColumn(selectedNode)
+              buttons.imageTextButton.onclick = () => buttons.createImageText(selectedNode)
+              buttons.keyValueButton.onclick = () => buttons.createKeyValue(selectedNode)
+              buttons.actionBtnButton.onclick = () => buttons.createActionButton(selectedNode)
+              buttons.horizontalHrButton.onclick = () => buttons.createHr(selectedNode)
+              buttons.simpleHeaderButton.onclick = () => buttons.createLeftImageHeader(selectedNode)
+              buttons.h1Button.onclick = () => buttons.createH1withPrompt(selectedNode)
+              buttons.h2Button.onclick = () => buttons.createH2withPrompt(selectedNode)
+              buttons.h3Button.onclick = () => buttons.createH3withPrompt(selectedNode)
+              buttons.pButton.onclick = () => buttons.createPwithPrompt(selectedNode)
+              buttons.imageButton.onclick = () => buttons.createImagePlaceholder(selectedNode)
+              buttons.tableHeaderButton.onclick = () => buttons.createTableWithMatrixPrompt(selectedNode)
+              buttons.pdfLinkButton.onclick = async () => await buttons.createPdfLinkWithPrompt(selectedNode)
+              buttons.aLinkButton.onclick = () => buttons.createAnchorWithPrompt(selectedNode)
+              buttons.spanButton.onclick = () => buttons.createSpanWithTextContent(selectedNode)
+              buttons.changeSiButton.onclick = () => buttons.createSpanWithSiPrompt(selectedNode)
+              buttons.addSpaceButton.onclick = () => buttons.createSpaceWithHeightPrompt(selectedNode)
+              buttons.arrowRightButton.onclick = () => buttons.createArrowRightWithColorPrompt(selectedNode)
+              buttons.divScrollableButton.onclick = () => buttons.createScrollableY(selectedNode)
+              buttons.packDivButton.onclick = () => buttons.createDivPackOuter(selectedNode)
+              buttons.textInputButton.onclick = () => buttons.createTextInput(selectedNode)
+              buttons.numberInputButton.onclick = () => buttons.createTelInput(selectedNode)
+              buttons.checkboxInputButton.onclick = () => buttons.createCheckboxInput(selectedNode)
+              buttons.passwordInputButton.onclick = () => buttons.createPasswordInput(selectedNode)
+              buttons.selectInputButton.onclick = () => buttons.createSelectInput(selectedNode)
+              buttons.growWidthButton.onclick = () => buttons.toggleStyle({key: "width", value: "100%", node: selectedNode})
+              buttons.maxWidthButton.onclick = () => buttons.setStyleWithPrompt({key: "maxWidth", node: selectedNode, message: "Gebe die maximale Breite deines Elements ein: (z.B., 900px)"})
+              buttons.minWidthButton.onclick = () => buttons.setStyleWithPrompt({key: "minWidth", node: selectedNode, message: "Gebe die minimale Breite deines Elements ein: (z.B., 300px)"})
+              buttons.exactWidthButton.onclick = () => buttons.setStyleWithPrompt({key: "width", node: selectedNode, message: "Gebe die exakte Breite deines Elements ein: (z.B., 350px)"})
+              buttons.increaseWidthButton.onclick = () => buttons.incrementStyle({key: "width", node: selectedNode, delta: 1})
+              buttons.decreaseWidthButton.onclick = () => buttons.decrementStyle({key: "width", node: selectedNode, delta: 1})
+              buttons.growHeightButton.onclick = () => buttons.toggleStyle({key: "height", value: "100%", node: selectedNode})
+              buttons.maxHeightButton.onclick = () => buttons.setStyleWithPrompt({key: "maxHeight", node: selectedNode, message: "Gebe die maximale Höhe deines Elements ein: (z.B., 89vh)"})
+              buttons.minHeightButton.onclick = () => buttons.setStyleWithPrompt({key: "minHeight", node: selectedNode, message: "Gebe die minimale Höhe deines Elements ein: (z.B., 21px)"})
+              buttons.exactHeightButton.onclick = () => buttons.setStyleWithPrompt({key: "height", node: selectedNode, message: "Gebe die exakte Höhe deines Elements ein: (z.B., 21vh)"})
+              buttons.increaseHeightButton.onclick = () => buttons.incrementStyle({key: "height", node: selectedNode, delta: 1})
+              buttons.decreaseHeightButton.onclick = () => buttons.decrementStyle({key: "height", node: selectedNode, delta: 1})
+              buttons.exactDisplayButton.onclick = () => buttons.setStyleWithPrompt({key: "display", node: selectedNode, message: "Gebe den exakten Display Wert ein: (z.B., flex)"})
+              buttons.displayBlockButton.onclick = () => buttons.toggleStyle({key: "display", value: "block", node: selectedNode})
+              buttons.displayInlineButton.onclick = () => buttons.toggleStyle({key: "display", value: "inline", node: selectedNode})
+              buttons.toggleDisplayGridButton.onclick = () => buttons.toggleStyle({key: "display", value: "grid", node: selectedNode})
+              buttons.toggleDisplayFlexButton.onclick = () => buttons.toggleStyle({key: "display", value: "flex", node: selectedNode})
+              buttons.toggleDisplayTableButton.onclick = () => buttons.toggleStyle({key: "display", value: "table", node: selectedNode})
+              buttons.gridMobileButton.onclick = () => buttons.toggleStyles({styles: {display: "grid", gridTemplateColumns: "1fr", gridGap: "21px"}, node: selectedNode})
+              buttons.gridFullDisplayButton.onclick = () => buttons.toggleNodeAndChildrenStyles({nodeStyle: {display: "grid", gridTemplateColumns: "1fr", gridGap: "21px"}, childrenStyle: {height: "89vh"}, node: selectedNode})
+              buttons.gridTwoColumnsButton.onclick = () => buttons.toggleNodeAndChildrenStyles({nodeStyle: {display: "grid", gridTemplateColumns: "1fr 1fr", gridGap: "21px"}, childrenStyle: {height: "89vh"}, node: selectedNode})
+              buttons.gridThreeColumnsButton.onclick = () => buttons.toggleNodeAndChildrenStyles({nodeStyle: {display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gridGap: "21px"}, childrenStyle: {height: "89vh"}, node: selectedNode})
+              buttons.gridFixedButton.onclick = () => buttons.fixedGridPrompt({node: selectedNode})
+              buttons.gridListRowsButton.onclick = () => buttons.toggleNodeAndChildrenStyles({nodeStyle: {display: "grid", gridTemplateColumns: "89px 1fr", gridTemplateRows: `repeat(auto-fit, 55px)`, gridGap: "21px"}, childrenStyle: {height: "55px"}, node: selectedNode})
+              buttons.gridSpanColumnButton.onclick = () => buttons.spanColumnWithPrompt(selectedNode)
+              buttons.gridSpanRowButton.onclick = () => buttons.spanRowWithPrompt(selectedNode)
+              buttons.exactGridGapButton.onclick = () => buttons.setStyleWithPrompt({key: "gap", node: selectedNode, message: "Gebe den exakten Abstand zwischen deinen Grid Elementen ein: (z.B., 13px)"})
+              buttons.gridAddColumnButton.onclick = () => buttons.addGridColumn(selectedNode)
+              buttons.gridRemoveColumnButton.onclick = () => buttons.removeGridColumn(selectedNode)
+              buttons.gridAddRowButton.onclick = () => buttons.addGridRow(selectedNode)
+              buttons.gridRemoveRowButton.onclick = () => buttons.removeGridRow(selectedNode)
+              buttons.alignColumnButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", flexDirection: "column", flexWrap: null}, node: selectedNode})
+              buttons.alignLeftButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", justifyContent: "flex-start"}, node: selectedNode})
+              buttons.alignCenterButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", justifyContent: "center"}, node: selectedNode})
+              buttons.alignRightButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", justifyContent: "flex-end"}, node: selectedNode})
+              buttons.alignRowButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", flexDirection: null, flexWrap: "wrap"}, node: selectedNode})
+              buttons.alignTopButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", alignItems: "flex-start"}, node: selectedNode})
+              buttons.alignVerticalButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", alignItems: "center"}, node: selectedNode})
+              buttons.alignBottomButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", alignItems: "flex-end"}, node: selectedNode})
+              buttons.flexButton.onclick = () => buttons.setStyleWithPrompt({key: "flex", node: selectedNode, message: "Gebe die Flex Matrix für dein Element ein: (z.B., 1 1 55px)"})
+              buttons.spaceBetweenButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", flexWrap: "wrap", justifyContent: "space-between"}, node: selectedNode})
+              buttons.spaceAroundButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", flexWrap: "wrap", justifyContent: "space-around"}, node: selectedNode})
+              buttons.toggleWrapButton.onclick = () => buttons.toggleStyles({styles: {display: "flex", flexWrap: "wrap"}, node: selectedNode})
+              const onLayerClick = async layer => {
+                await this.remove("element/selected-node", preview)
+                selectedNode = layer
+                this.add("selected/node", layer)
               }
-            }
-            buttons.copyOuterHtmlButton.onclick = () => buttons.addOuterHtmlToClipboard(selectedNode)
-            buttons.pasteOuterHtmlButton.onclick = () => buttons.appendClipboardToNode(selectedNode)
-            buttons.copyStyleButton.onclick = () => buttons.addStyleToClipboard(selectedNode)
-            buttons.pasteStyleButton.onclick = () => buttons.addClipboardToStyle(selectedNode)
-            buttons.removeStyleButton.onclick = () => buttons.toggleAttribute("style", selectedNode)
-            buttons.removeInnerButton.onclick = () => buttons.toggleTextContent(selectedNode)
-            buttons.removeInnerWithTextButton.onclick = () => buttons.replaceTextContentWithPrompt(selectedNode)
-            buttons.removeNodeButton.onclick = () => buttons.toggleNode(selectedNode)
-            buttons.idButton.onclick = () => buttons.setIdWithPrompt(selectedNode)
-            buttons.addClassButton.onclick = () => buttons.setClassWithPrompt(selectedNode)
-            buttons.setAttributeButton.onclick = () => buttons.setAttributeWithPrompt(selectedNode)
-            buttons.appendStyleButton.onclick = () => buttons.appendStyleWithPrompt(selectedNode)
-            buttons.fontSizeForEachChildButton.onclick = () => buttons.setChildrenStyleWithPrompt("fontSize", selectedNode, "Gebe die Schriftgrüße für alle Kind Elemente: (z.B., 21px)")
+              buttons.layerButton.onclick = () => buttons.openLayerOverlay(onLayerClick, selectedNode)
+              buttons.positiveLayerButton.onclick = () => buttons.addLayerAbove(selectedNode)
+              buttons.negativeLayerButton.onclick = () => buttons.addLayerBelow(selectedNode)
+              buttons.exactLayerButton.onclick = async () => buttons.addLayerPrompt(selectedNode)
+              buttons.removeLayerButton.onclick = () => buttons.removeAllLayer(selectedNode)
+              buttons.positionAbsoluteButton.onclick = () => buttons.toggleStyle({key: "position", value: "absolute", node: selectedNode})
+              buttons.positionTopButton.onclick = () => buttons.setStyleWithPrompt({key: "top", node: selectedNode, message: "Geben den exakten Abstand nach oben ein: (z.B., 300px)"})
+              buttons.positionRightButton.onclick = () => buttons.setStyleWithPrompt({key: "right", node: selectedNode, message: "Geben den exakten Abstand nach rechts ein: (z.B., 300px)"})
+              buttons.positionBottomButton.onclick = () => buttons.setStyleWithPrompt({key: "bottom", node: selectedNode, message: "Geben den exakten Abstand nach unten ein: (z.B., 300px)"})
+              buttons.positionLeftButton.onclick = () => buttons.setStyleWithPrompt({key: "left", node: selectedNode, message: "Geben den exakten Abstand nach links ein: (z.B., 300px)"})
+              buttons.transformTranslateButton.onclick = () => buttons.translateWithPrompt(selectedNode)
+              buttons.transformTranslateXButton.onclick = () => buttons.translateXWithPrompt(selectedNode)
+              buttons.transformTranslateYButton.onclick = () => buttons.translateYWithPrompt(selectedNode)
+              buttons.zIndexButton.onclick = () => buttons.setStyleWithPrompt({key: "zIndex", node: selectedNode, message: "Gebe deinen Z-Index ein: (z.B., -1)"})
+              buttons.scaleButton.onclick = () => buttons.scaleWithPrompt(selectedNode)
+              buttons.rotateRightButton.onclick = () => buttons.rotateNode({degree: 90, node: selectedNode})
+              buttons.exactRotateRightButton.onclick = () => buttons.rotateNodeRightWithPrompt(selectedNode)
+              buttons.rotateLeftButton.onclick = () => buttons.rotateNode({degree: -90, node: selectedNode})
+              buttons.exactRotateLeftButton.onclick = () => buttons.rotateNodeLeftWithPrompt(selectedNode)
+              buttons.whiteSpaceNoWrapButton.onclick = () => buttons.toggleStyle({key: "whiteSpace", value: "nowrap", node: selectedNode})
+              buttons.fontFamilyButton.onclick = () => buttons.toggleStyle({key: "fontFamily", value: "sans-serif", node: selectedNode})
+              buttons.fontWeightNormalButton.onclick = () => buttons.toggleStyle({key: "fontWeight", value: "normal", node: selectedNode})
+              buttons.fontWeightButton.onclick = () => buttons.toggleStyle({key: "fontWeight", value: "bold", node: selectedNode})
+              buttons.fontStyleButton.onclick = () => buttons.toggleStyle({key: "fontStyle", value: "italic", node: selectedNode})
+              buttons.textDecorationButton.onclick = () => buttons.toggleStyle({key: "textDecoration", value: "underline", node: selectedNode})
+              buttons.fontSizeButton.onclick = () => buttons.setStyleWithPrompt({key: "fontSize", node: selectedNode, message: "Gebe deine Schriftgröße ein: (z.B., 34px)"})
+              buttons.fontColorButton.onclick = () => buttons.setStyleWithPrompt({key: "color", node: selectedNode, message: "Gebe deine Schriftfarbe ein: (z.B., (#888, grey, rgb(88, 88, 88), rgba(0, 0, 0, 0.5)))"})
+              buttons.fontColorButton.onclick = () => buttons.setStyleWithPrompt({key: "backgroundColor", node: selectedNode, message: "Gebe deine Hintergrundfarbe ein: (z.B., (#888, grey, rgb(88, 88, 88), rgba(0, 0, 0, 0.5)))"})
+              buttons.unorderedListButton.onclick = () => buttons.appendUnorderedListItem(selectedNode)
+              buttons.orderedListButton.onclick = () => buttons.appendOrderedListItem(selectedNode)
+              buttons.lineHeightButton.onclick = () => buttons.setStyleWithPrompt({key: "lineHeight", node: selectedNode, message: "Gebe die exakte Linien Höhe ein: (z.B., 1.8)"})
+              buttons.overflowYButton.onclick = () => buttons.toggleStyle({key: "overflowY", value: "auto", node: selectedNode})
+              buttons.overflowXButton.onclick = () => buttons.toggleStyle({key: "overflowX", value: "auto", node: selectedNode})
+              buttons.toggleDisplayNoneButton.onclick = () => buttons.toggleStyle({key: "display", value: "none", node: selectedNode})
+              buttons.toggleVisibilityHiddenButton.onclick = () => buttons.toggleStyle({key: "visibility", value: "hidden", node: selectedNode})
+              buttons.exactOpacityButton.onclick = () => buttons.addOpacityWithPrompt(selectedNode)
+              buttons.toggleMarginButton.onclick = () => buttons.toggleStyle({key: "margin", value: "21px 34px", node: selectedNode})
+              buttons.toggleMarginTopButton.onclick = () => buttons.toggleStyle({key: "marginTop", value: "21px", node: selectedNode})
+              buttons.toggleMarginRightButton.onclick = () => buttons.toggleStyle({key: "marginRight", value: "34px", node: selectedNode})
+              buttons.toggleMarginTopButton.onclick = () => buttons.toggleStyle({key: "marginBottom", value: "21px", node: selectedNode})
+              buttons.toggleMarginLeftButton.onclick = () => buttons.toggleStyle({key: "marginLeft", value: "34px", node: selectedNode})
+              buttons.exactMarginButton.onclick = () => buttons.setStyleWithPrompt({key: "margin", node: selectedNode, message: "Gebe den exakten Außenabstand ein: (z.B., 21px 34px 13px 144px)"})
+              buttons.exactMarginTopButton.onclick = () => buttons.setStyleWithPrompt({key: "marginTop", node: selectedNode, message: "Gebe den exakten Außenabstand nach oben ein: (z.B., 21px)"})
+              buttons.exactMarginRightButton.onclick = () => buttons.setStyleWithPrompt({key: "marginRight", node: selectedNode, message: "Gebe den exakten Außenabstand nach rechts ein: (z.B., 21px)"})
+              buttons.exactMarginBottomButton.onclick = () => buttons.setStyleWithPrompt({key: "marginRight", node: selectedNode, message: "Gebe den exakten Außenabstand nach unten ein: (z.B., 21px)"})
+              buttons.exactMarginLeftButton.onclick = () => buttons.setStyleWithPrompt({key: "marginLeft", node: selectedNode, message: "Gebe den exakten Außenabstand nach links ein: (z.B., 21px)"})
+              buttons.togglePaddingButton.onclick = () => buttons.toggleStyle({key: "padding", value: "21px 34px", node: selectedNode})
+              buttons.togglePaddingTopButton.onclick = () => buttons.toggleStyle({key: "paddingTop", value: "21px", node: selectedNode})
+              buttons.togglePaddingRightButton.onclick = () => buttons.toggleStyle({key: "paddingRight", value: "34px", node: selectedNode})
+              buttons.togglePaddingBottomButton.onclick = () => buttons.toggleStyle({key: "paddingBottom", value: "21px", node: selectedNode})
+              buttons.togglePaddingLeftButton.onclick = () => buttons.toggleStyle({key: "paddingLeft", value: "34px", node: selectedNode})
+              buttons.exactPaddingButton.onclick = () => buttons.setStyleWithPrompt({key: "padding", node: selectedNode, message: "Gebe den exakten Innenabstand ein: (z.B., 21px 34px 13px 144px)"})
+              buttons.exactPaddingTopButton.onclick = () => buttons.setStyleWithPrompt({key: "paddingTop", node: selectedNode, message: "Gebe den exakten Innenabstand nach oben ein: (z.B., 21px)"})
+              buttons.exactPaddingRightButton.onclick = () => buttons.setStyleWithPrompt({key: "paddingRight", node: selectedNode, message: "Gebe den exakten Innenabstand nach rechts ein: (z.B., 21px)"})
+              buttons.exactPaddingBottomButton.onclick = () => buttons.setStyleWithPrompt({key: "paddingRight", node: selectedNode, message: "Gebe den exakten Innenabstand nach unten ein: (z.B., 21px)"})
+              buttons.exactPaddingLeftButton.onclick = () => buttons.setStyleWithPrompt({key: "paddingLeft", node: selectedNode, message: "Gebe den exakten Innenabstand nach links ein: (z.B., 21px)"})
+              buttons.toggleBorderButton.onclick = () => buttons.toggleStyle({key: "border", value: "1px solid black", node: selectedNode})
+              buttons.toggleBorderTopButton.onclick = () => buttons.toggleStyle({key: "borderTop", value: "1px solid black", node: selectedNode})
+              buttons.toggleBorderRightButton.onclick = () => buttons.toggleStyle({key: "borderTop", value: "1px solid black", node: selectedNode})
+              buttons.toggleBorderBottomButton.onclick = () => buttons.toggleStyle({key: "borderBottom", value: "1px solid black", node: selectedNode})
+              buttons.toggleBorderLeftButton.onclick = () => buttons.toggleStyle({key: "borderLeft", value: "1px solid black", node: selectedNode})
+              buttons.exactBorderButton.onclick = () => buttons.setStyleWithPrompt({key: "border", node: selectedNode, message: "Gebe die exakten Grenzlinien ein: (z.B., 3px solid red)"})
+              buttons.exactBorderTopButton.onclick = () => buttons.setStyleWithPrompt({key: "borderTop", node: selectedNode, message: "Gebe die exakten Grenzlinien nach oben ein: (z.B., 3px solid red)"})
+              buttons.exactBorderRightButton.onclick = () => buttons.setStyleWithPrompt({key: "borderRight", node: selectedNode, message: "Gebe die exakten Grenzlinien nach rechts ein: (z.B., 3px solid red)"})
+              buttons.exactBorderBottomButton.onclick = () => buttons.setStyleWithPrompt({key: "borderBottom", node: selectedNode, message: "Gebe die exakten Grenzlinien nach unten ein: (z.B., 3px solid red)"})
+              buttons.exactBorderLeftButton.onclick = () => buttons.setStyleWithPrompt({key: "borderLeft", node: selectedNode, message: "Gebe die exakten Grenzlinien nach links ein: (z.B., 3px solid red)"})
+              buttons.toggleBorderRadiusButton.onclick = () => buttons.toggleStyle({key: "borderRadius", value: "3px", node: selectedNode})
+              buttons.toggleBorderTopLeftRadiusButton.onclick = () => buttons.toggleStyle({key: "borderTopLeftRadius", value: "3px", node: selectedNode})
+              buttons.toggleBorderTopRightRadiusButton.onclick = () => buttons.toggleStyle({key: "borderTopRightRadius", value: "3px", node: selectedNode})
+              buttons.toggleBorderBottomRightRadiusButton.onclick = () => buttons.toggleStyle({key: "borderBottomRightRadius", value: "3px", node: selectedNode})
+              buttons.toggleBorderBottomLeftRadiusButton.onclick = () => buttons.toggleStyle({key: "borderBottomLeftRadius", value: "3px", node: selectedNode})
+              buttons.exactBorderRadiusButton.onclick = () => buttons.setStyleWithPrompt({key: "borderRadius", node: selectedNode, message: "Gebe den exakten Radius, für alle Ecken, ein: (z.B. 13px)"})
+              buttons.exactBorderTopLeftRadiusButton.onclick = () => buttons.setStyleWithPrompt({key: "borderTopLeftRadius", node: selectedNode, message: "Gebe den exakten Radius, für die Ecke Oben-Links, ein: (z.B., 13px)"})
+              buttons.exactBorderTopRightRadiusButton.onclick = () => buttons.setStyleWithPrompt({key: "borderTopRightRadius", node: selectedNode, message: "Gebe den exakten Radius, für die Ecke Oben-Rechts, ein: (z.B., 13px)"})
+              buttons.exactBorderBottomLeftRadiusButton.onclick = () => buttons.setStyleWithPrompt({key: "borderBottomRightRadius", node: selectedNode, message: "Gebe den exakten Radius, für die Ecke Unten-Links, ein: (z.B., 13px)"})
+              buttons.exactBorderBottomRightRadiusButton.onclick = () => buttons.setStyleWithPrompt({key: "borderBottomLeftRadius", node: selectedNode, message: "Gebe den exakten Radius, für die Ecke Unten-Rechts, ein: (z.B., 13px)"})
+              buttons.toggleBorderNoneButton.onclick = () => buttons.toggleStyle({key: "border", value: "none", node: selectedNode})
+              buttons.boxButton.onclick = () => buttons.toggleStyles({styles: {margin: "21px 34px", padding: "8px", borderRadius: "3px", boxShadow: "rgba(0, 0, 0, 0.13) 0px 1px 3px"}, node: selectedNode})
+              buttons.exactBoxShadowButton.onclick = () => buttons.setStyleWithPrompt({key: "boxShadow", node: selectedNode, message: "Geben den exakten Schatten ein: (z.B., rgba(0, 0, 0, 0.13) 0px 1px 3px)"})
+              buttons.mediaQueriesOverviewButton.onclick = () => buttons.openMediaQueriesOverlay()
+              buttons.largeDeviceButton.onclick = () => buttons.addLargeStyle(selectedNode)
+              buttons.middleDeviceButton.onclick = () => buttons.addMiddleStyle(selectedNode)
+              buttons.smallDeviceButton.onclick = () => buttons.addSmallStyle(selectedNode)
+              buttons.printerDeviceButton.onclick = () => buttons.addPrinterStyle(selectedNode)
 
-            // nur für div.creator
-            // buttons.templatesButton.onclick = () => buttons.openTemplatesOverlay(selectedNode)
-            // buttons.addScriptButton.onclick = () => buttons.openScriptsOverlay()
+              let rememberCuttedNodes = []
+              buttons.insertAfterButton.onclick =  () => buttons.insertAfter(selectedNode, rememberCuttedNodes)
+              buttons.insertBeforeButton.onclick =  () => buttons.insertBefore(selectedNode, rememberCuttedNodes)
+              buttons.insertLeftButton.onclick =  () => buttons.insertLeft(selectedNode, rememberCuttedNodes)
+              buttons.insertRightButton.onclick =  () => buttons.insertRight(selectedNode, rememberCuttedNodes)
+              buttons.cutOuterHtmlButton.onclick = () => {
+                if (selectedNode) {
+                  rememberCuttedNodes.push({ node: selectedNode, parent: selectedNode.parentElement, index: this.convert("node/index", selectedNode)})
+                  selectedNode.remove()
+                }
+              }
+              buttons.copyOuterHtmlButton.onclick = () => buttons.addOuterHtmlToClipboard(selectedNode)
+              buttons.pasteOuterHtmlButton.onclick = () => buttons.appendClipboardToNode(selectedNode)
+              buttons.copyStyleButton.onclick = () => buttons.addStyleToClipboard(selectedNode)
+              buttons.pasteStyleButton.onclick = () => buttons.addClipboardToStyle(selectedNode)
+              buttons.removeStyleButton.onclick = () => buttons.toggleAttribute("style", selectedNode)
+              buttons.removeInnerButton.onclick = () => buttons.toggleTextContent(selectedNode)
+              buttons.removeInnerWithTextButton.onclick = () => buttons.replaceTextContentWithPrompt(selectedNode)
+              buttons.removeNodeButton.onclick = () => buttons.toggleNode(selectedNode)
+              buttons.idButton.onclick = () => buttons.setIdWithPrompt(selectedNode)
+              buttons.addClassButton.onclick = () => buttons.setClassWithPrompt(selectedNode)
+              buttons.setAttributeButton.onclick = () => buttons.setAttributeWithPrompt(selectedNode)
+              buttons.appendStyleButton.onclick = () => buttons.appendStyleWithPrompt(selectedNode)
+              buttons.fontSizeForEachChildButton.onclick = () => buttons.setChildrenStyleWithPrompt("fontSize", selectedNode, "Gebe die Schriftgrüße für alle Kind Elemente: (z.B., 21px)")
 
-            const svgIconsFragment = await buttons.svgIcons.appendSvgIconsFragment(buttons.svgPickerOptions, (button) => {
-              selectedNode.appendChild(button.querySelector(".icon").cloneNode(true))
+              const svgIconsFragment = await buttons.svgIcons.appendSvgIconsFragment(buttons.svgPickerOptions, (button) => {
+                selectedNode.appendChild(button.querySelector(".icon").cloneNode(true))
+              })
+
             })
-
-          })
-        }
-      }
-
-
-    }
-
-    if (event === "event/html-feedback") {
-
-      const button = document.querySelector(".html-feedback-button")
-      this.convert("node/dark-light", button)
-
-
-      const counter = document.querySelector(".feedback-counter")
-      counter.textContent = "0"
-
-      this.request("/get/feedback/length-html-value/").then((res) => {
-        try {
-          const length = parseInt(res.response)
-          counter.textContent = length
+          }
+          resolve()
         } catch (error) {
-          console.error(error)
+          reject(error)
         }
       })
+    }
 
-      button.onclick = () => {
+    if (event === "html-feedback") {
 
-        this.overlay("toolbox", async overlay => {
-          const feedbackOverlay = overlay
-
-          this.removeOverlayButton(overlay)
-
-          const info = this.create("header/info", overlay)
-          info.append(this.convert("text/span", window.location.pathname))
-          info.append(this.convert("text/span", `.feedback`))
-
-          const content = this.create("div/scrollable", overlay)
-
-          const feedbackContainer = this.create("info/loading", content)
-          feedbackContainer.info.remove()
-
-          feedbackContainer.style.margin = "21px 34px"
-          feedbackContainer.style.overflowY = "auto"
-          feedbackContainer.style.overscrollBehavior = "none"
-          feedbackContainer.style.fontFamily = "monospace"
-          feedbackContainer.style.fontSize = "13px"
-          feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
-
-
-          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            feedbackContainer.style.color = this.colors.dark.text
-          } else {
-            feedbackContainer.style.color = this.colors.light.text
-          }
-
-          const res = await this.request("/get/feedback/html-value/")
-          if (res.status !== 200) {
-            const span = this.createNode("span", feedbackContainer, "Kein Feedback gefunden.")
-            this.style(span, {margin: "21px 34px"})
-          }
-
-          getFeedbackSuccess: if (res.status === 200) {
-            const feedback = JSON.parse(res.response)
-
-            if (feedback.length === 0) {
-              const span = this.createNode("span", feedbackContainer, "Kein Feedback gefunden.")
-              this.style(span, {margin: "21px 34px"})
-              break getFeedbackSuccess
-            }
-
-            this.convert("element/reset", feedbackContainer)
-            feedbackContainer.style.margin = "21px 34px"
-            feedbackContainer.style.overflowY = "auto"
-            feedbackContainer.style.overscrollBehavior = "none"
-            feedbackContainer.style.fontFamily = "monospace"
-            feedbackContainer.style.fontSize = "13px"
-            feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
-
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              feedbackContainer.style.color = this.colors.dark.text
-            } else {
-              feedbackContainer.style.color = this.colors.light.text
-            }
-
-            for (let i = 0; i < feedback.length; i++) {
-              const value = feedback[i]
-
-              const div = document.createElement("div")
-              div.style.display = "flex"
-              div.style.justifyContent = "space-between"
-              div.style.alignItems = "center"
-
-              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-
-                if (i % 2 === 0) {
-                  div.style.background = this.colors.light.foreground
-                  div.style.color = this.colors.light.text
-                } else {
-                  div.style.background = this.colors.dark.foreground
-                  div.style.color = this.colors.dark.text
-                }
-
-              } else {
-
-                if (i % 2 === 1) {
-                  div.style.background = this.colors.light.foreground
-                  div.style.color = this.colors.light.text
-                } else {
-                  div.style.background = this.colors.dark.foreground
-                  div.style.color = this.colors.dark.text
-                }
-
-              }
-
-              const left = document.createElement("span")
-              left.textContent = `${this.convert("millis/dd.mm.yyyy hh:mm", value.id)}`
-              div.append(left)
-
-              const nextToLeft = document.createElement("span")
-              nextToLeft.style.width = "100%"
-              nextToLeft.style.margin = "0 13px"
-              nextToLeft.textContent = value.content
-              div.append(nextToLeft)
-
-              const right = document.createElement("span")
-              right.style.padding = "13px"
-              right.textContent = value.importance
-              div.append(right)
-
-              feedbackContainer.append(div)
-
-              div.style.cursor = "pointer"
-              div.addEventListener("click", () => {
-
-                this.overlay("toolbox", overlay => {
-                  this.removeOverlayButton(overlay)
-
-                  const button = this.create("button/left-right", overlay)
-                  this.render("icon/node/path", "/public/bucket.svg", button.left).then(icon => {
-                    icon.style.width = "34px"
-                  })
-                  button.right.textContent = "Feedback löschen"
-
-                  button.addEventListener("click", async () => {
-                    const confirm = window.confirm("Möchtest du diesen Beitrag wirklich löschen?")
-
-                    if (confirm === true) {
-                      const res = await this.request("/remove/feedback/html-value/", {id: value.id})
-                      if (res.status === 200) {
-                        counter.textContent = parseInt(counter.textContent) - 1
-                        overlay.remove()
-                        feedbackOverlay.remove()
-                      } else {
-                        window.alert("Fehler.. Bitte wiederholen.")
-                        overlay.remove()
-                      }
-
-
-                    }
-
-                  })
-                })
-
-              })
-            }
-
-
-          }
-
-          const contentField = this.create("field/textarea", content)
-          contentField.label.textContent = "Feedback"
-          contentField.input.setAttribute("required", "true")
-          contentField.input.maxLength = "377"
-          contentField.input.style.fontSize = "13px"
-          contentField.input.placeholder = "Schreibe ein anonymes Feedback, wenn du möchtest.."
-
-          this.verify("input/value", contentField.input)
-          contentField.input.addEventListener("input", () => this.verify("input/value", contentField.input))
-
-
-          const importanceField = this.create("field/range", content)
-          importanceField.input.min = "0"
-          importanceField.input.max = "13"
-          importanceField.input.step = "1"
-          importanceField.input.value = "0"
-          importanceField.label.textContent = `Wichtigkeit - ${importanceField.input.value}`
-
-          this.verify("input/value", importanceField.input)
-
-          importanceField.input.addEventListener("input", (event) => {
-            this.verify("input/value", importanceField.input)
-            importanceField.label.textContent = `Wichtigkeit - ${event.target.value}`
-          })
-
-          const button = this.create("button/action", content)
-          button.textContent = "Feedback jetzt speichern"
-          button.addEventListener("click", async () => {
-
-            await this.verify("input/value", contentField.input)
-
-            this.overlay("toolbox", async securityOverlay => {
-
-              const register = {}
-              register.content = contentField.input.value
-              register.importance = importanceField.input.value
-              const res = await this.request("/register/feedback/html-value/", register)
-
-              if (res.status === 200) {
-                window.alert("Vielen Dank für dein Feedback.\n\nDein Feedback ist vollkommen anonym, dynamisch und hilft dabei diese Webseite, noch besser für dich, zu optimieren.")
-                securityOverlay.remove()
-                overlay.remove()
-                counter.textContent = parseInt(counter.textContent) + 1
-              } else {
-                window.alert("Fehler.. Bitte wiederholen.")
-                securityOverlay.remove()
-              }
-
-            })
-
-
-          })
-
-
-
-        })
-
-      }
-
+      const feedback = this.fn("feedback")
+      feedback.bodyButton()
     }
 
     if (event === "event/click-funnel") {
@@ -2180,6 +1889,16 @@ export class Helper {
       })
     }
 
+    if (event === "id-onbody") {
+      const node = document.getElementById(input.id)
+      if (!node) {
+        document.body.appendChild(input)
+        window.alert("Element wurde erfolgreich anhgehängt.")
+      } else {
+        window.alert("Element existiert bereits.")
+      }
+    }
+
     if (event === "role-login") {
 
       const submit = document.querySelector(".start-login-event")
@@ -2187,8 +1906,8 @@ export class Helper {
       const dsgvoInput = document.querySelector(".dsgvo-input")
       const emailField = emailInput.closest(".field")
       const dsgvoField = dsgvoInput.closest(".field")
-      this.convert("node/dark-light", emailField)
-      this.convert("node/dark-light", dsgvoField)
+      this.convert("dark-light", emailField)
+      this.convert("dark-light", dsgvoField)
       this.verify("input/value", emailInput)
       this.verify("input/value", dsgvoInput)
       this.add("input/value", emailInput)
@@ -2231,73 +1950,25 @@ export class Helper {
 
     }
 
-    if (event === "script/html-feedback") {
-
-      const script = this.create(event)
-
-      if (input !== undefined) {
-        document.querySelectorAll(`.${script.id}`).forEach(node => node.remove())
-        document.querySelectorAll(`#${script.id}`).forEach(node => node.remove())
-        input.append(script)
-      }
-
-      return script
-    }
-
     if (event === "script/toolbox-getter") {
 
       return new Promise(async(resolve) => {
-
-        const text = `
-          <script id="toolbox-getter" type="module">
-import {Helper} from "/js/Helper.js"
-
-await Helper.add("toolbox/onbody")
-          </script>
-        `
-
-        const script = this.convert("text/first-child", text)
-
-        const create = document.createElement("script")
-        create.id = script.id
-        create.type = script.type
-        create.textContent = script.textContent
-
+        const script = document.createElement("script")
+        script.id = "toolbox-getter"
+        script.type = "module"
+        script.textContent = 'import {Helper} from "/js/Helper.js"\nawait Helper.add("toolbox/onbody")'
         if (document.body) {
           document.querySelectorAll("#toolbox-getter").forEach(getter => getter.remove())
-          document.body.append(create)
-          resolve(create)
+          document.body.appendChild(script)
+          resolve(script)
         } else {
           await this.add("ms/timeout", 3000)
           await this.add("script/toolbox-getter")
         }
-
-      })
-
-    }
-
-    if (event === "script/always") {
-
-      return new Promise((resolve, reject) => {
-        try {
-          const html = this.convert("text/first-child", input.script)
-          if (html.tagName === "SCRIPT") {
-            const node = this.convert("js/script", html.textContent)
-            node.id = input.name
-            node.type = "module"
-            document.querySelectorAll(`#${node.id}`).forEach(element => element.remove())
-            if (document.getElementById(node.id) === null) {
-              document.body.append(node)
-            }
-          }
-          return resolve()
-        } catch (error) {
-          return reject(error)
-        }
       })
     }
 
-    if (event === "script/onbody") {
+    if (event === "script-onbody") {
       const exist = document.getElementById(input.id)
       if (exist) {
         exist.remove()
@@ -2307,21 +1978,13 @@ await Helper.add("toolbox/onbody")
       }
     }
 
-    if (event === "script/once") {
-
-      if (document.getElementById(input.id) === null) {
-        document.body.append(input)
-      }
-
-    }
-
     if (event === "session-login") {
 
-      this.convert("node/dark-light", input)
+      this.convert("dark-light", input)
       const backButton = this.create("back-button", input)
-      this.convert("node/dark-light", backButton)
+      this.convert("dark-light", backButton)
       const app = this.create("button/getyour", input)
-      this.convert("node/dark-light", app)
+      this.convert("dark-light", app)
       app.addEventListener("click", () => {
         this.overlay("popup", overlay => {
           const content = this.create("div/scrollable", overlay)
@@ -2340,8 +2003,7 @@ await Helper.add("toolbox/onbody")
       const funnel = this.create("field-funnel/login", input)
       for (let i = 0; i < document.links.length; i++) {
         const link = document.links[i]
-        link.style.color = this.colors.link.color
-        link.addEventListener("click", () => link.style.color = this.colors.link.active)
+        this.convert("link-colors", link)
       }
       const emailInput = funnel.querySelector(".email-input")
       const dsgvoInput = funnel.querySelector(".dsgvo-input")
@@ -2450,7 +2112,6 @@ await Helper.add("toolbox/onbody")
       const button = this.create("button/left-right")
       button.left.textContent = ".network"
       button.right.textContent = "Nutze die Macht deines Netzwerks"
-
       button.onclick = () => {
         this.overlay("popup", async nextStepOverlay => {
           this.render("text/bottom-left", ".network", nextStepOverlay)
@@ -2470,20 +2131,16 @@ await Helper.add("toolbox/onbody")
           app.onclick = () => {
             this.overlay("popup", async networkFunctionsOverlay => {
               this.render("text/bottom-left", ".network.functions", networkFunctionsOverlay)
-
               const buttons = this.create("div/scrollable", networkFunctionsOverlay)
-
               {
                 const button = this.create("button/left-right", buttons)
                 button.left.textContent = ".contacts"
                 button.right.textContent = "Meine Kontakte"
                 button.onclick = () => {
                   this.overlay("popup", async overlay => {
-
                     const searchField = this.create("field/text", overlay)
-                    const h2 = this.createNode("h2", searchField.label, "Meine Kontaktliste")
-                    h2.style.margin = "0"
-                    searchField.input.placeholder = "Suche nach E-Mail Adresse"
+                    searchField.label.textContent = "Filter nach E-Mail Adresse oder Notizen"
+                    searchField.input.placeholder = "text jetzt suchen.."
                     searchField.style.margin = "21px 34px 5px 34px"
                     this.verify("input/value", searchField.input)
                     this.add("outline-hover", searchField.input)
@@ -2546,17 +2203,9 @@ await Helper.add("toolbox/onbody")
                             if (res.status === 200) {
                               window.alert("Deine Kontakte wurden erfolgreich importiert.")
                               this.convert("parent/loading", contactsDiv)
-                              const res = await this.request("/get/contacts/self/")
-                              if (res.status !== 200) {
-                                this.convert("parent/info", contactsDiv)
-                                parent.textContent = "Keine Kontakte gefunden"
-                              }
-                              if (res.status === 200) {
-                                const contacts = JSON.parse(res.response)
-                                this.render("contacts/node/update-self", contacts, contactsDiv)
-                                overlay.remove()
-                                securityOverlay.remove()
-                              }
+                              await getAndRenderContacts(contactsDiv)
+                              overlay.remove()
+                              securityOverlay.remove()
                             }
                           })
 
@@ -2568,7 +2217,6 @@ await Helper.add("toolbox/onbody")
 
                     sendTemplateButton.onclick = () => {
                       this.overlay("popup", async overlay => {
-
                         const searchField = this.create("field/text", overlay)
                         const h2 = this.createNode("h2", searchField.label, "Wähle ein Template")
                         h2.style.margin = "0"
@@ -2576,33 +2224,625 @@ await Helper.add("toolbox/onbody")
                         searchField.style.margin = "21px 34px"
                         this.verify("input/value", searchField.input)
                         this.add("outline-hover", searchField.input)
-
                         const contactsDiv = this.create("div/scrollable", overlay)
-
                         const res = await this.request("/get/templates/closed/")
                         if (res.status === 200) {
                           const templates = JSON.parse(res.response)
-
                           let filtered
-                          searchField.input.oninput = (ev) => {
+                          searchField.input.oninput = async (ev) => {
                             filtered = templates.filter(it => it.html.toLowerCase().includes(ev.target.value.toLowerCase()))
                             const highlighted = filtered.map(it => {
                               const highlightedHtml = it.html.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
                               return { ...it, html: highlightedHtml }
                             })
-                            this.render("templates/node/send-html", highlighted, contactsDiv)
+                            await this.render("templates/node/send-html", highlighted, contactsDiv)
                           }
-
-                          this.render("templates/node/send-html", templates, contactsDiv)
+                          await this.render("templates/node/send-html", templates, contactsDiv)
                         } else {
                           this.convert("parent/info", contactsDiv)
                           contactsDiv.textContent = "Keine Templates gefunden"
                         }
+                      })
+                    }
+                    const contactsDiv = this.create("div/scrollable", overlay)
 
+                    async function getAndRenderContacts(parent) {
+                      const res = await Helper.request("/get/contacts/self/")
+                      if (res.status === 200) {
+                        const contacts = JSON.parse(res.response)
+                        renderContactButtons(contacts, parent)
+                      } else {
+                        Helper.convert("parent/info", parent)
+                        parent.textContent = "Keine Kontakte gefunden"
+                      }
+                    }
+
+                    function concatEmailAndNotes(array, key) {
+                      return array.map(it => {
+                        if (it.email && it.notes) {
+                          return { ...it, [key]: `${it.email},${it.notes}` }
+                        } else {
+                          return it
+                        }
                       })
                     }
 
-                    const contactsDiv = this.create("div/scrollable", overlay)
+                    const websiteIcon = await this.convert("path/icon", "/public/website.svg")
+                    const phoneIcon = await this.convert("path/icon", "/public/phone-out.svg")
+                    const emailIcon = await this.convert("path/icon", "/public/email-out.svg")
+                    function renderContactButtons(contacts, parent = null, query = "") {
+                      const fragment = document.createDocumentFragment()
+
+                      Helper.convert("parent/scrollable", parent)
+                      for (let i = 0; i < contacts.length; i++) {
+                        const contact = contacts[i]
+                        const contactButton = Helper.create("button/left-right", fragment)
+                        contactButton.left.style.width = "55%"
+
+                        let text = contact.email
+                        if (contact.text) text = contact.text
+                        if (query === "") text = contact.email
+
+                        while (contactButton.left.firstChild) {
+                          contactButton.left.removeChild(contactButton.left.firstChild)
+                        }
+
+                        Helper.convert("text/marked", {text, query, parent: contactButton.left})
+
+                        if (contact.alias !== undefined) {
+                          Helper.createNode("div", contactButton.left, contact.alias)
+                          const div = Helper.createNode("div", contactButton.left, contact.email)
+                          Helper.style(div, {fontSize: "13px"})
+                        }
+                        contactButton.right.style.display = "flex"
+                        if (contact.website) {
+                          const clone = websiteIcon.cloneNode(true)
+                          clone.style.padding = "5px"
+                          contactButton.right.appendChild(clone)
+                          Helper.add("outline-hover", clone)
+                          clone.onclick = () => {
+                            window.open(contact.website, "_blank")
+                          }
+                        }
+                        if (contact.phone) {
+                          const clone = phoneIcon.cloneNode(true)
+                          clone.style.padding = "5px"
+                          contactButton.right.appendChild(clone)
+                          Helper.add("outline-hover", clone)
+                          clone.onclick = () => {
+                            window.location.href = `tel:${contact.phone}`
+                          }
+                        }
+                        if (contact.email) {
+                          const clone = emailIcon.cloneNode(true)
+                          clone.style.padding = "5px"
+                          contactButton.right.appendChild(clone)
+                          Helper.add("outline-hover", clone)
+                          clone.onclick = () => {
+                            window.location.href = `mailto:${contact.email}`
+                          }
+                        }
+                        contactButton.onclick = () => {
+                          Helper.overlay("popup", async updateOverlay => {
+                            Helper.create("header/info", updateOverlay).textContent = contact.email
+                            const buttons = Helper.create("div/scrollable", updateOverlay)
+
+                            {
+                              const button = Helper.create("button/left-right", buttons)
+                              button.left.textContent = ".email"
+                              button.right.textContent = "Aktualisiere die E-Mail Adresse deines Kontakts"
+                              button.onclick = () => {
+                                Helper.overlay("popup", overlay => {
+                                  overlay.info.textContent = contact.email
+                                  const funnel = Helper.create("div/scrollable", overlay)
+
+                                  const emailField = Helper.create("field/text", funnel)
+                                  emailField.label.textContent = "E-Mail Adresse"
+                                  emailField.input.setAttribute("required", "true")
+                                  if (contact.email !== undefined) {
+                                    emailField.input.value = contact.email
+                                  }
+                                  Helper.verify("input/value", emailField.input)
+                                  Helper.add("outline-hover", emailField.input)
+                                  emailField.input.oninput = () => Helper.verify("input/value", emailField.input)
+
+                                  const submit = Helper.create("button/action", funnel)
+                                  Helper.add("outline-hover", submit)
+                                  submit.textContent = "E-Mail jetzt speichern"
+                                  submit.onclick = async () => {
+                                    await Helper.verify("input/value", emailField.input)
+
+                                    Helper.overlay("security", async securityOverlay => {
+                                      const res = await Helper.request("/register/contacts/email-update/", {id: contact.created, email: emailField.input.value})
+                                      if (res.status === 200) {
+                                        window.alert("E-Mail erfolgreich gespeichert.")
+                                        await getAndRenderContacts(parent)
+                                        overlay.remove()
+                                        updateOverlay.remove()
+                                        securityOverlay.remove()
+                                      } else {
+                                        window.alert("Fehler.. Bitte wiederholen.")
+                                        securityOverlay.remove()
+                                      }
+                                    })
+
+                                  }
+
+                                })
+                              }
+                            }
+
+                            {
+                              const button = Helper.create("button/left-right", buttons)
+                              button.left.textContent = ".alias"
+                              button.right.textContent = "Gib deinem Kontakt einen alternativen Namen"
+                              button.onclick = () => {
+                                Helper.overlay("popup", overlay => {
+                                  Helper.create("header/info", overlay).textContent = contact.email
+
+                                  const funnel = Helper.create("div/scrollable", overlay)
+
+                                  const aliasField = Helper.create("field/text", funnel)
+                                  aliasField.label.textContent = "Alternative Bezeichnung für deinen Kontakt"
+                                  aliasField.input.setAttribute("required", "true")
+                                  if (contact.alias !== undefined) {
+                                    aliasField.input.value = contact.alias
+                                  }
+                                  Helper.verify("input/value", aliasField.input)
+                                  Helper.add("outline-hover", aliasField.input)
+                                  aliasField.input.oninput = () => Helper.verify("input/value", aliasField.input)
+
+
+                                  const submit = Helper.create("button/action", funnel)
+                                  Helper.add("outline-hover", submit)
+                                  submit.textContent = "Alias jetzt speichern"
+                                  submit.onclick = async () => {
+
+                                    await Helper.verify("input/value", aliasField.input)
+
+                                    Helper.overlay("security", async securityOverlay => {
+                                      const res = await Helper.request("/register/contacts/alias-self/", {id: contact.created, alias: aliasField.input.value})
+                                      if (res.status === 200) {
+                                        window.alert("Alias erfolgreich gespeichert.")
+                                        await getAndRenderContacts(parent)
+                                        overlay.remove()
+                                        updateOverlay.remove()
+                                        securityOverlay.remove()
+                                      } else {
+                                        window.alert("Fehler.. Bitte wiederholen.")
+                                        securityOverlay.remove()
+                                      }
+                                    })
+
+                                  }
+
+                                })
+                              }
+                            }
+
+                            {
+                              const button = Helper.create("button/left-right", buttons)
+                              button.left.textContent = ".character"
+                              button.right.textContent = "Erfahre mehr über deinen Kontakt"
+                              button.onclick = () => {
+                                Helper.overlay("popup", overlay => {
+                                  Helper.create("header/info", overlay).textContent = contact.email
+                                  const funnel = Helper.create("div", overlay)
+
+                                  const dateField = Helper.create("field/date", funnel)
+                                  dateField.label.textContent = "Gebe das Geburtsdatum deines Kontakts ein"
+                                  dateField.input.placeholder = "yyyy-mm-dd"
+                                  Helper.add("outline-hover", dateField.input)
+                                  let birthday
+                                  if (contact.birthday) {
+                                    const split = contact.birthday.split("T")
+                                    dateField.input.value = split[0]
+                                    birthday = split[0]
+                                  }
+                                  dateField.input.setAttribute("required", "true")
+                                  Helper.verify("input/value", dateField.input)
+
+                                  const submit = Helper.render("text/node/action-button", "Geburtsdatum jetzt speichern", funnel)
+                                  Helper.add("outline-hover", submit)
+                                  submit.onclick = async () => {
+                                    await Helper.verify("input/value", dateField.input)
+
+                                    const date = new Date(dateField.input.value)
+
+                                    Helper.overlay("security", async securityOverlay => {
+                                      const res = await Helper.request("/register/contacts/birthday-self/", {id: contact.created, birthday: date.toISOString()})
+                                      if (res.status === 200) {
+                                        window.alert("Geburtsdatum erfolgreich gespeichert.")
+                                        await getAndRenderContacts(parent)
+                                        overlay.remove()
+                                        updateOverlay.remove()
+                                        securityOverlay.remove()
+                                      } else {
+                                        window.alert("Fehler.. Bitte wiederholen.")
+                                        securityOverlay.remove()
+                                      }
+                                    })
+
+                                  }
+
+                                  if (!Helper.verifyIs("text/empty", birthday)) {
+                                    const numerology = Helper.create("div/scrollable", overlay)
+
+                                    if (contact.alias) {
+                                      Helper.render("text/hr", `Numerologie von ${contact.alias}`, numerology)
+                                    } else {
+                                      Helper.render("text/hr", `Numerologie von ${contact.email}`, numerology)
+                                    }
+
+                                    const date = birthday.split("T")[0]
+                                    const master = Helper.convert("date/master", date)
+
+                                    highlightResult(`Lebensweg: ${Helper.convert("date/life-path-calc-text", date)} = ${master.toString().split('').join(' + ')} =`, Helper.convert("date/life-path", date), numerology)
+                                    function highlightResult(prefix, result, parent) {
+                                      const fragment = document.createDocumentFragment()
+                                      const div = document.createElement("div")
+                                      Helper.style(div, {fontSize: "21px", margin: "21px 34px", fontFamily: "sans-serif"})
+                                      Helper.convert("text/dark-light", div)
+                                      fragment.appendChild(div)
+                                      const span1 = document.createElement("span")
+                                      div.appendChild(span1)
+                                      span1.textContent = prefix
+                                      const span2 = document.createElement("span")
+                                      div.appendChild(span2)
+                                      span2.style.fontSize = "34px"
+                                      span2.style.marginLeft = "8px"
+                                      span2.textContent = result
+                                      parent?.appendChild(fragment)
+                                      return fragment
+                                    }
+                                    if (master === 11 || master === 22 || master === 33) {
+                                      highlightResult("Masterzahl:", master, numerology)
+                                    }
+                                    const dateNumbers = date.match(/\d/g).map(Number)
+                                    dateNumbers.push(Helper.convert("date/life-path", date))
+                                    master.toString().split("").forEach(digit => dateNumbers.push(parseInt(digit)))
+                                    const missingNumbers = [];
+                                    for (let i = 1; i <= 9; i++) {
+                                      if (!dateNumbers.includes(i)) {
+                                        missingNumbers.push(i);
+                                      }
+                                    }
+                                    if (missingNumbers.length > 0) {
+                                      highlightResult("Fehlende Zahlen:", missingNumbers.join(", "), numerology)
+                                    }
+                                  }
+
+                                })
+                              }
+                            }
+
+                            {
+                              const button = Helper.create("button/left-right", buttons)
+                              button.left.textContent = ".status"
+                              button.right.textContent = "Gib deinem Kontakt einen Status"
+                              button.onclick = () => {
+                                Helper.overlay("popup", overlay => {
+                                  Helper.create("header/info", overlay).textContent = contact.email
+
+                                  const funnel = Helper.create("div/scrollable", overlay)
+
+                                  const statusField = Helper.create("field/text", funnel)
+                                  Helper.add("outline-hover", statusField.input)
+                                  statusField.label.textContent = "Vergebe einen Status Wert"
+                                  statusField.input.setAttribute("required", "true")
+                                  if (contact.status !== undefined) {
+                                    statusField.input.value = contact.status
+                                  }
+                                  Helper.verify("input/value", statusField.input)
+                                  statusField.input.oninput = () => Helper.verify("input/value", statusField.input)
+
+                                  const submit = Helper.create("button/action", funnel)
+                                  Helper.add("outline-hover", submit)
+                                  submit.textContent = "Status jetzt speichern"
+                                  submit.onclick = async () => {
+
+                                    await Helper.verify("input/value", statusField.input)
+
+                                    Helper.overlay("security", async securityOverlay => {
+                                      const res = await Helper.request("/register/contacts/status-self/", {id: contact.created, status: statusField.input.value})
+                                      if (res.status === 200) {
+                                        window.alert("Status erfolgreich gespeichert.")
+                                        await getAndRenderContacts(parent)
+                                        overlay.remove()
+                                        updateOverlay.remove()
+                                        securityOverlay.remove()
+                                      } else {
+                                        window.alert("Fehler.. Bitte wiederholen.")
+                                        securityOverlay.remove()
+                                      }
+                                    })
+                                  }
+
+                                })
+                              }
+                            }
+
+                            {
+                              const button = Helper.create("button/left-right", buttons)
+                              button.left.textContent = ".notes"
+                              button.right.textContent = "Mache dir Notizen zu deinem Kontakt"
+                              button.onclick = () => {
+                                Helper.overlay("popup", overlay => {
+                                  overlay.info.textContent = contact.email
+
+                                  const funnel = Helper.create("div/scrollable", overlay)
+
+                                  const notesField = Helper.create("field/textarea", funnel)
+                                  Helper.add("outline-hover", notesField.input)
+                                  notesField.label.textContent = "Notizen"
+                                  notesField.input.style.height = "55vh"
+                                  if (contact.notes !== undefined) {
+                                    notesField.input.value = contact.notes
+                                  }
+                                  Helper.verify("input/value", notesField.input)
+                                  notesField.input.oninput = () => Helper.verify("input/value", notesField.input)
+
+                                  const submit = Helper.create("button/action", funnel)
+                                  Helper.add("outline-hover", submit)
+                                  submit.textContent = "Notizen jetzt speichern"
+                                  submit.onclick = async () => {
+
+                                    await Helper.verify("input/value", notesField.input)
+
+                                    Helper.overlay("security", async securityOverlay => {
+                                      const res = await Helper.request("/register/contacts/notes-self/", {id: contact.created, notes: notesField.input.value})
+
+                                      if (res.status === 200) {
+                                        window.alert("Notizen erfolgreich gespeichert.")
+                                        await getAndRenderContacts(parent)
+                                        overlay.remove()
+                                        updateOverlay.remove()
+                                        securityOverlay.remove()
+                                      } else {
+                                        window.alert("Fehler.. Bitte wiederholen.")
+                                        securityOverlay.remove()
+                                      }
+                                    })
+
+                                  }
+
+                                })
+                              }
+                            }
+
+                            {
+                              const button = Helper.create("button/left-right", buttons)
+                              button.left.textContent = ".phone"
+                              button.right.textContent = "Gib die Telefon Nummer deines Kontakts ein"
+                              button.onclick = () => {
+                                Helper.overlay("popup", overlay => {
+                                  Helper.create("header/info", overlay).textContent = contact.email
+
+                                  const funnel = Helper.create("div/scrollable", overlay)
+
+                                  const phoneField = Helper.create("field/tel", funnel)
+                                  phoneField.label.textContent = "Telefon Nummer"
+                                  phoneField.input.setAttribute("required", "true")
+                                  phoneField.input.setAttribute("accept", "text/tel")
+                                  if (contact.phone !== undefined) {
+                                    phoneField.input.value = contact.phone
+                                  }
+                                  Helper.verify("input/value", phoneField.input)
+                                  Helper.add("outline-hover", phoneField.input)
+                                  phoneField.input.oninput = () => Helper.verify("input/value", phoneField.input)
+
+
+                                  const submit = Helper.create("button/action", funnel)
+                                  Helper.add("outline-hover", submit)
+                                  submit.textContent = "Nummer jetzt speichern"
+                                  submit.onclick = async () => {
+
+                                    await Helper.verify("input/value", phoneField.input)
+
+                                    Helper.overlay("security", async securityOverlay => {
+                                      const res = await Helper.request("/register/contacts/phone-self/", {id: contact.created, phone: phoneField.input.value})
+
+                                      if (res.status !== 200) {
+                                        window.alert("Fehler.. Bitte wiederholen.")
+                                        securityOverlay.remove()
+                                      }
+
+                                      if (res.status === 200) {
+                                        window.alert("Telefon Nummer erfolgreich gespeichert.")
+
+                                        const res = await Helper.request("/get/contacts/self/")
+                                        if (res.status !== 200) {
+                                          Helper.convert("parent/info", parent)
+                                          parent.textContent = "Keine Kontakte gefunden"
+                                        }
+                                        if (res.status === 200) {
+                                          const contacts = JSON.parse(res.response)
+                                          Helper.render(event, contacts, parent)
+                                        }
+
+                                        overlay.remove()
+                                        updateOverlay.remove()
+                                        securityOverlay.remove()
+                                      }
+                                    })
+
+                                  }
+
+                                })
+                              }
+                            }
+
+                            {
+                              const button = Helper.create("button/left-right", buttons)
+                              button.left.textContent = ".website"
+                              button.right.textContent = "Gib die Webseite deines Kontakts ein"
+                              button.onclick = () => {
+                                Helper.overlay("popup", overlay => {
+                                  Helper.create("header/info", overlay).textContent = contact.email
+
+                                  const funnel = Helper.create("div/scrollable", overlay)
+
+                                  const websiteField = Helper.create("field/text", funnel)
+                                  websiteField.label.textContent = "Webseite"
+                                  websiteField.input.setAttribute("required", "true")
+                                  if (contact.website !== undefined) {
+                                    websiteField.input.value = contact.website
+                                  }
+                                  Helper.verify("input/value", websiteField.input)
+                                  Helper.add("outline-hover", websiteField.input)
+                                  websiteField.input.oninput = () => Helper.verify("input/value", websiteField.input)
+
+
+                                  const submit = Helper.create("button/action", funnel)
+                                  Helper.add("outline-hover", submit)
+                                  submit.textContent = "Webseite jetzt speichern"
+                                  submit.onclick = async () => {
+
+                                    await Helper.verify("input/value", websiteField.input)
+
+                                    Helper.overlay("security", async securityOverlay => {
+                                      const res = await Helper.request("/register/contacts/website-self/", {id: contact.created, website: websiteField.input.value})
+
+                                      if (res.status !== 200) {
+                                        window.alert("Fehler.. Bitte wiederholen.")
+                                        securityOverlay.remove()
+                                      }
+
+                                      if (res.status === 200) {
+                                        window.alert("Webseite erfolgreich gespeichert.")
+                                        await getAndRenderContacts(parent)
+                                        overlay.remove()
+                                        updateOverlay.remove()
+                                        securityOverlay.remove()
+                                      }
+                                    })
+
+                                  }
+
+                                })
+                              }
+                            }
+
+                            {
+                              const res = await Helper.request("/verify/user/expert/")
+                              if (res.status === 200) {
+                                const button = Helper.create("button/left-right", buttons)
+                                button.left.textContent = ".promote"
+                                button.right.textContent = "Erhalte Zugang zu unendlich vielen Möglichkeiten"
+                                button.onclick = () => {
+                                  Helper.overlay("popup", async overlay => {
+                                    if (contact.alias) {
+                                      Helper.render("text/h1", `Promote ${contact.email}`, overlay)
+                                    } else {
+                                      Helper.render("text/h1", `Promote ${contact.email}`, overlay)
+                                    }
+                                    const funnel = Helper.create("div/scrollable", overlay)
+                                    const searchField = Helper.create("field/text", funnel)
+                                    searchField.label.textContent = "Suche nach Text im Pfad"
+                                    searchField.input.placeholder = "/experte/plattform/pfad"
+                                    searchField.style.margin = "0 34px"
+                                    Helper.verify("input/value", searchField.input)
+                                    Helper.add("outline-hover", searchField.input)
+                                    const pathField = await Helper.create("field/open-expert-values-path-select", funnel)
+                                    const originalOptions = Array.from(pathField.input.options).map(option => option.cloneNode(true))
+                                    searchField.input.oninput = (ev) => {
+                                      const searchTerm = ev.target.value.toLowerCase()
+                                      const options = originalOptions.map(it => it.value)
+                                      const filtered = options.filter(it => it.toLowerCase().includes(searchTerm))
+                                      pathField.input.add(filtered)
+                                    }
+                                    pathField.input.style.height = "55vh"
+                                    pathField.input.setAttribute("multiple", "true")
+                                    for (let i = 0; i < pathField.input.options.length; i++) {
+                                      const option = pathField.input.options[i]
+                                      option.selected = false
+                                    }
+                                    pathField.input.oninput = async () => {
+                                      const fieldFunnel = await Helper.convert("path/field-funnel", pathField.input.value)
+                                      if (fieldFunnel.id) {
+                                        Helper.overlay("popup", async overlay => {
+                                          overlay.info.textContent = contact.email + "." + fieldFunnel.id
+                                          const create = Helper.create("button/left-right", overlay)
+                                          create.left.textContent = ".create"
+                                          create.right.textContent = Helper.convert("text/capital-first-letter", fieldFunnel.id) + " definieren"
+                                          create.onclick = () => {
+                                            Helper.overlay("popup", async overlay => {
+                                              Helper.create("header/info", overlay).textContent = contact.email + "." + fieldFunnel.id + ".create"
+                                              overlay.append(fieldFunnel)
+                                              Helper.verifyIs("field-funnel/valid", fieldFunnel)
+                                              Helper.add("outline-hover/field-funnel", fieldFunnel)
+                                              const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
+                                              if (submitButton) {
+                                                submitButton.textContent = `${Helper.convert("text/capital-first-letter", fieldFunnel.id)} jetzt speichern`
+                                                submitButton.onclick = async () => {
+                                                  const path = pathField.input.value
+                                                  await Helper.verify("field-funnel", fieldFunnel)
+                                                  const map = await Helper.convert("field-funnel/map", fieldFunnel)
+                                                  Helper.overlay("security", async securityOverlay => {
+                                                    const register = {}
+                                                    register.email = contact.email
+                                                    register.map = map
+                                                    register.path = path
+                                                    register.id = fieldFunnel.id
+                                                    const res = await Helper.request("/register/location/email-expert", register)
+                                                    if (res.status === 200) {
+                                                      window.alert("Daten erfolgreich gespeichert.")
+                                                      await Helper.render("location-list/node/email-expert", {tag: fieldFunnel.id, email: contact.email, path: pathField.input.value}, locationList)
+                                                      securityOverlay.remove()
+                                                    } else {
+                                                      window.alert("Fehler.. Bitte wiederholen.")
+                                                      securityOverlay.remove()
+                                                    }
+                                                  })
+                                                }
+                                              } else {
+                                                window.alert("Field Funnel besitzt keinen Button mit der Klasse 'submit-field-funnel-button'")
+                                              }
+                                            })
+                                          }
+                                          if (contact.alias) {
+                                            Helper.render("text/hr", Helper.convert("text/capital-first-letter", fieldFunnel.id) + " von " + contact.alias, overlay)
+                                          } else {
+                                            Helper.render("text/hr", Helper.convert("text/capital-first-letter", fieldFunnel.id) + " von " + contact.email, overlay)
+                                          }
+                                          const locationList = Helper.create("info/loading", overlay)
+                                          await Helper.render("location-list/node/email-expert", {tag: fieldFunnel.id, email: contact.email, path: pathField.input.value}, locationList)
+                                        })
+                                      }
+                                    }
+                                  })
+                                }
+                              }
+                            }
+                            {
+                              const button = Helper.create("button/left-right", buttons)
+                              button.left.textContent = ".delete"
+                              button.right.textContent = "Kontakt entfernen"
+                              button.onclick = () => {
+                                const confirm = window.confirm("Möchtest du deinen Kontakt wirklich entfernen?")
+                                if (confirm === true) {
+                                  Helper.overlay("security", async securityOverlay => {
+                                    const res = await Helper.request("/remove/contacts/id-self/", {id: contact.created})
+                                    if (res.status === 200) {
+                                      window.alert("Kontakt erfolgreich entfernt.")
+                                      contactButton.remove()
+                                      updateOverlay.remove()
+                                      securityOverlay.remove()
+                                    }
+                                    if (res.status !== 200) {
+                                      window.alert("Fehler.. Bitte wiederholen.")
+                                      securityOverlay.remove()
+                                    }
+                                  })
+                                }
+                              }
+                            }
+                          })
+                        }
+                      }
+
+                      parent?.appendChild(fragment)
+                    }
 
                     const res = await this.request("/get/contacts/self/")
                     let filtered
@@ -2620,20 +2860,19 @@ await Helper.add("toolbox/onbody")
                       }
 
                       searchField.input.oninput = (ev) => {
-                        filtered = contacts.filter(it => it.email.toLowerCase().includes(ev.target.value.toLowerCase()))
-                        const highlighted = filtered.map(it => {
-                          const highlightedEmail = it.email.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
-                          return { ...it, email: highlightedEmail }
+                        const prepared = concatEmailAndNotes(contacts, "text")
+                        filtered = prepared.filter(it => {
+                          const check = it.text ? it.text : it.email
+                          return check.toLowerCase().includes(ev.target.value.toLowerCase())
                         })
-                        this.render("contacts/node/update-self", highlighted, contactsDiv)
+                        renderContactButtons(filtered, contactsDiv, ev.target.value)
                       }
 
-                      this.render("contacts/node/update-self", contacts, contactsDiv)
+                      renderContactButtons(contacts, contactsDiv)
                     } else {
                       this.convert("parent/info", contactsDiv)
                       parent.textContent = "Keine Kontakte gefunden"
                     }
-
 
                     const addButton = this.create("button/add", overlay)
                     addButton.onclick = () => {
@@ -2656,25 +2895,12 @@ await Helper.add("toolbox/onbody")
 
                           this.overlay("security", async securityOverlay => {
                             const res = await this.request("/register/contacts/email-self/", {email: emailField.input.value})
-
                             if (res.status === 200) {
                               window.alert("Kontakt erfolgreich gespeichert.")
-
-                              const res = await this.request("/get/contacts/self/")
-                              if (res.status !== 200) {
-                                this.convert("parent/info", contactsDiv)
-                                parent.textContent = "Keine Kontakte gefunden"
-                              }
-                              if (res.status === 200) {
-                                const contacts = JSON.parse(res.response)
-                                this.render("contacts/node/update-self", contacts, contactsDiv)
-                              }
-
+                              await getAndRenderContacts(parent)
                               securityOverlay.remove()
                               overlay.remove()
-                            }
-
-                            if (res.status !== 200) {
+                            } else {
                               window.alert("Fehler.. Bitte wiederholen.")
                               securityOverlay.remove()
                             }
@@ -2688,77 +2914,297 @@ await Helper.add("toolbox/onbody")
                   })
                 }
               }
-
               {
-                // todo pager mit webrtc features
                 const button = this.create("button/left-right", buttons)
-                button.left.textContent = ".pager"
-                button.right.textContent = "Schreibe schnell, einfach und sicher deine Nachrichten"
+                button.left.textContent = ".calendar"
+                button.right.textContent = "Dein persönlicher Kalender"
+                button.onclick = () => {
+                  window.alert("Bald verfügbar..")
+                  // mond calender app
+                  // termin calendar app
+                }
+              }
+              {
+                const button = this.create("button/left-right", buttons)
+                button.left.textContent = ".groups"
+                button.right.textContent = "Schnell, einfach und sicher Kontakte gruppieren"
                 button.onclick = () => {
                   this.overlay("popup", async overlay => {
-                    const addButton = this.create("button/add", overlay)
-                    addButton.onclick = () => {
-                      this.overlay("popup", overlay => {
-                        this.render("text/h1", "Neuen Pager erstellen", overlay)
 
-                        const funnel = this.create("div/scrollable", overlay)
+                    async function renderInfo(prefix, path, postfix, parent) {
+                      const fragment = document.createDocumentFragment()
+                      const info = Helper.createNode("div", fragment)
+                      info.style.margin = "21px 34px"
+                      const span1 = Helper.createNode("span", info, prefix)
+                      const span2 = Helper.createNode("span", info)
+                      Helper.style(span2, {width: "34px", margin: "0 5px"})
+                      const icon = await Helper.convert("path/icon", path)
+                      Helper.style(icon, {display: "inline-block", width: "34px"})
+                      span2.appendChild(icon)
+                      Helper.createNode("span", info, postfix)
+                      parent?.appendChild(fragment)
+                      return fragment
+                    }
 
-                        // create select field instead and fill it with children contacts
-                        // not a selected field
-                        // a search field that checks the children emails
-                        const emailsField = this.create("field/emails", funnel)
-                        emailsField.label.textContent = "Welche E-Mail Adressen dürfen auf diesen Pager zugreifen?"
-                        this.verify("input/value", emailsField.input)
-                        emailsField.oninput = () => {
+                    async function defineNewGroup(overlay) {
+                      Helper.render("text/h1", "Neue Gruppe definieren", overlay)
+                      const funnel = Helper.create("div/scrollable", overlay)
+                      const emailSelect = Helper.create("email-select", funnel)
+                      const res = await Helper.request("/get/user/tree-closed/", {tree: "contacts"})
+                      if (res.status === 200) {
+                        const contacts = JSON.parse(res.response)
+                        emailSelect.renderEmails(contacts)
+                        emailSelect.filterEmailsOnSearch(contacts)
+                      }
+                      emailSelect.submit = Helper.create("toolbox/action", funnel)
+                      emailSelect.submit.textContent = "Gruppe jetzt speichern"
+                      return emailSelect
+                    }
 
-                          this.verify("input/value", emailsField.input)
-                          if (emailsField.input.value === "[]") {
-                            this.add("style/node/not-valid", emailsField.input)
+                    const addGroup = this.create("button/add", overlay)
+                    addGroup.onclick = () => {
+                      this.overlay("popup", async overlay => {
+                        const emailSelect = await defineNewGroup(overlay)
+                        emailSelect.submit.onclick = () => {
+                          const emails = emailSelect.selectedEmails()
+                          if (this.verifyIs("array/empty", emails)) {
+                            window.alert("Wähle mindestens eine E-Mail Adresse.")
+                            this.add("style/node/not-valid", emailSelect.field.input)
+                            return
                           }
+                          this.overlay("security", async securityOverlay => {
+                            const res = await this.request("/register/groups/self/", {emails})
+                            if (res.status === 200) {
+                              window.alert("Deine Gruppe wurde erfolgreich gespeichert.")
+                              await getAndRenderGroups(groupsContainer)
+                              securityOverlay.remove()
+                              overlay.remove()
+                            }
+                          })
                         }
-
                       })
                     }
 
-                    this.render("text/h1", "Meine Pager", overlay)
+                    this.render("text/h1", "Meine Gruppen", overlay)
 
-                    const pagerList = this.create("info/loading", overlay)
+                    const searchField = this.create("field/text", overlay)
+                    searchField.label.textContent = "Filter nach E-Mail Adresse oder Alias"
+                    searchField.input.placeholder = "..@domain.de.."
+                    searchField.style.margin = "0 34px"
+                    this.add("outline-hover", searchField.input)
+                    this.verify("input/value", searchField.input)
 
-                    const res = await this.request("/get/pager/closed/")
-                    if (res.status === 200) {
-                      const pager = JSON.parse(res.response)
-                      console.log(pager);
+                    const groupsContainer = this.create("info/loading", overlay)
+                    await getAndRenderGroups(groupsContainer)
 
-                      this.convert("parent/scrollable", pagerList)
+                    function renderGroupEmails(group, parent) {
+                      const fragment = document.createDocumentFragment()
+                      for (let i = 0; i < group.emails.length; i++) {
+                        const email = group.emails[i]
+                        const div = Helper.create("div", fragment)
+                        div.textContent = email
+                        fragment.appendChild(div)
+                      }
+                      parent?.appendChild(fragment)
+                      return fragment
+                    }
+
+                    function filterGroupsByEmail(array, parent) {
+                      searchField.input.oninput = (ev) => {
+                        const filtered = array.filter(it => {
+                          const lowercase = ev.target.value.toLowerCase()
+                          if (it.emails && it.emails.length > 0) {
+                            return it.emails.some(email => email.includes(lowercase)) || (it.alias && it.alias.toLowerCase().includes(lowercase))
+                          } else {
+                            if (it.alias && it.alias.toLowerCase().includes(lowercase)) {
+                              return true
+                            }
+                            return false
+                          }
+                        })
+                        renderGroupButtons(filtered, parent, ev.target.value)
+                      }
+                    }
+
+                    function markQueryInNode(node, query) {
+                      if (node.children.length > 0) {
+                        for (let i = 0; i < node.children.length; i++) {
+                          const child = node.children[i]
+                          markQueryInNode(child, query)
+                        }
+                      } else {
+                        Helper.convert("node/marked", {node, query})
+                      }
 
                     }
 
-                    if (res.status !== 200) {
-                      this.convert("parent/info", pagerList)
-                      const pagerInfo = this.createNode("div", pagerList)
-                      pagerInfo.style.margin = "21px 34px"
-                      const span1 = this.createNode("span", pagerInfo, "Deine E-Mail Adresse wurde in keinem Pager gefunden. Erstelle einen neuen Pager in dem du auf")
-                      const span2 = this.createNode("span", pagerInfo)
-                      this.style(span2, {width: "34px", margin: "0 5px"})
-                      const icon = await this.convert("path/icon", "/public/add.svg")
-                      this.style(icon, {display: "inline-block", width: "34px"})
-                      span2.appendChild(icon)
-                      this.createNode("span", pagerInfo, "klickst.")
+                    function renderGroupButtons(groups, parent, query = "") {
+                      const fragment = document.createDocumentFragment()
+
+                      Helper.convert("parent/scrollable", parent)
+                      for (let i = 0; i < groups.length; i++) {
+                        const group = groups[i]
+
+                        const groupButton = Helper.create("toolbox/left-right", fragment)
+                        if (Helper.verifyIs("text/empty", query)) {
+                          if (!Helper.verifyIs("text/empty", group.alias)) {
+                            Helper.createNode("span", groupButton.left, `${group.alias}`)
+                          } else {
+                            renderGroupEmails(group, groupButton.left)
+                          }
+                        } else {
+                          if (!Helper.verifyIs("text/empty", group.alias)) {
+                            Helper.createNode("span", groupButton.left, `${group.alias}:`)
+                            renderGroupEmails(group, groupButton.left)
+                          } else {
+                            renderGroupEmails(group, groupButton.left)
+                          }
+                        }
+                        markQueryInNode(groupButton.left, query)
+                        groupButton.onclick = () => {
+                          Helper.overlay("popup", buttonsOverlay => {
+                            renderGroupEmails(group, buttonsOverlay.info)
+                            const buttons = Helper.create("div/scrollable", buttonsOverlay)
+                            {
+                              const button = Helper.create("toolbox/left-right", buttons)
+                              button.left.textContent = ".alias"
+                              button.right.textContent = "Gebe deiner Gruppe einen alternativen Namen"
+                              button.onclick = () => {
+                                Helper.overlay("popup", overlay => {
+                                  overlay.info.textContent = group.alias ? `${group.alias}.alias` : ".alias"
+                                  const funnel = Helper.create("div/scrollable", overlay)
+                                  const aliasField = Helper.create("field/text", funnel)
+                                  aliasField.label.textContent = "Alternative Bezeichnung für deine Gruppe"
+                                  aliasField.input.placeholder = "Family, Friends, Work.."
+                                  aliasField.input.setAttribute("required", "true")
+                                  if (group.alias !== undefined) {
+                                    aliasField.input.value = group.alias
+                                  }
+                                  Helper.verify("input/value", aliasField.input)
+                                  Helper.add("outline-hover", aliasField.input)
+                                  aliasField.input.oninput = () => Helper.verify("input/value", aliasField.input)
+                                  const submit = Helper.create("button/action", funnel)
+                                  Helper.add("outline-hover", submit)
+                                  submit.textContent = "Alias jetzt speichern"
+                                  submit.onclick = async () => {
+                                    await Helper.verify("input/value", aliasField.input)
+                                    Helper.overlay("security", async securityOverlay => {
+                                      const res = await Helper.request("/register/groups/alias/", {id: group.created, alias: aliasField.input.value})
+                                      if (res.status === 200) {
+                                        window.alert("Alias erfolgreich gespeichert.")
+                                        await getAndRenderGroups(groupsContainer)
+                                        overlay.remove()
+                                        buttonsOverlay.remove()
+                                        securityOverlay.remove()
+                                      } else {
+                                        window.alert("Fehler.. Bitte wiederholen.")
+                                        securityOverlay.remove()
+                                      }
+                                    })
+                                  }
+                                })
+                              }
+                            }
+                            {
+                              const button = Helper.create("toolbox/left-right", buttons)
+                              button.left.textContent = ".emails"
+                              button.right.textContent = "Aktualisiere die Mitglieder deiner Gruppe"
+                              button.onclick = () => {
+                                Helper.overlay("popup", async overlay => {
+                                  const emailSelect = await defineNewGroup(overlay, (emails) => Helper.request("/register/groups/emails-self/", {id: group.created, emails}))
+                                  for (let i = 0; i < emailSelect.field.input.options.length; i++) {
+                                    const option = emailSelect.field.input.options[i]
+                                    if (group.emails.includes(option.value)) {
+                                      option.selected = true
+                                    }
+                                  }
+                                  emailSelect.submit.onclick = () => {
+                                    const emails = emailSelect.selectedEmails()
+                                    if (Helper.verifyIs("array/empty", emails)) {
+                                      window.alert("Wähle mindestens eine E-Mail Adresse.")
+                                      Helper.add("style/node/not-valid", emailSelect.field.input)
+                                      return
+                                    }
+                                    Helper.overlay("security", async securityOverlay => {
+                                      const res = await Helper.request("/register/groups/emails-self/", {id: group.created, emails})
+                                      if (res.status === 200) {
+                                        window.alert("Deine Gruppe wurde erfolgreich gespeichert.")
+                                        await getAndRenderGroups(groupsContainer)
+                                        overlay.remove()
+                                        buttonsOverlay.remove()
+                                        securityOverlay.remove()
+                                      }
+                                    })
+                                  }
+                                })
+                              }
+                            }
+                            // render a button only when
+                            // the jwt user is in the contacts emails
+                            // onclick create signaling server
+                            // connect browser with webrtc
+                            // the create walkie talkie app
+                            {
+                              const button = Helper.create("toolbox/left-right", buttons)
+                              button.left.textContent = ".remove"
+                              button.right.textContent = "Gruppe entfernen"
+                              button.onclick = () => {
+
+                                const confirm = window.confirm("Möchtest du deine Gruppe wirklich entfernen?")
+                                if (confirm === true) {
+                                  Helper.overlay("security", async securityOverlay => {
+                                    const res = await Helper.request("/remove/groups/id-self/", {id: group.created})
+                                    if (res.status === 200) {
+                                      window.alert("Gruppe erfolgreich entfernt.")
+                                      groupButton.remove()
+                                      buttonsOverlay.remove()
+                                      securityOverlay.remove()
+                                    } else {
+                                      window.alert("Fehler.. Bitte wiederholen.")
+                                      securityOverlay.remove()
+                                    }
+                                  })
+                                }
+                              }
+                            }
+
+                            // todo webrtc features
+
+
+
+
+                            console.log(group);
+                          })
+
+                        }
+
+                      }
+                      parent?.appendChild(fragment)
+                      return fragment
+                    }
+
+                    async function getAndRenderGroups(parent) {
+                      const res = await Helper.request("/get/groups/self/")
+                      if (res.status === 200) {
+                        const groups = JSON.parse(res.response)
+                        renderGroupButtons(groups, parent)
+                        filterGroupsByEmail(groups, parent)
+                      } else {
+                        Helper.convert("parent/info", parent)
+                        renderInfo("Deine E-Mail Adresse wurde in keiner Gruppe gefunden. Erstelle eine neue Gruppe in dem du auf", "/public/add.svg", "klickst.", parent)
+                      }
                     }
 
                   })
                 }
               }
-
             })
           }
 
-          // termin calendar app
 
         })
       }
-
-      if (input) input.append(button)
+      input?.appendChild(button)
       return button
     }
 
@@ -3185,6 +3631,52 @@ await Helper.add("toolbox/onbody")
 
     // no events, only creation
     // event = thing/algo
+
+
+    if (event === "email-select") {
+
+      function renderEmails(array, select) {
+        const fragment = document.createDocumentFragment()
+        field.input.textContent = ""
+        for (let i = 0; i < array.length; i++) {
+          const it = array[i]
+          if (it.email !== undefined) {
+            const option = document.createElement("option")
+            option.text = it.email
+            option.value = it.email
+            fragment.appendChild(option)
+          }
+        }
+        field.input.appendChild(fragment)
+      }
+
+      const searchField = this.create("field/text", input)
+      searchField.label.textContent = "Suche nach E-Mail Adresse"
+      searchField.input.placeholder = "Filter nach Text.."
+      searchField.style.margin = "21px 34px 5px 34px"
+      this.verify("input/value", searchField.input)
+      this.add("outline-hover", searchField.input)
+
+      function filterEmailsOnSearch(array) {
+        searchField.input.oninput = (ev) => {
+          const filtered = array.filter(it => it.email.toLowerCase().includes(ev.target.value.toLowerCase()))
+          renderEmails(filtered, field.input)
+        }
+      }
+
+      function selectedEmails() {
+        return Array.from(field.input.selectedOptions).map(it => it.value)
+      }
+
+      const field = this.create("field/select", input)
+      field.label.textContent = "E-Mails auswählen"
+      field.input.setAttribute("multiple", "true")
+      field.input.style.height = "34vh"
+      this.add("outline-hover", field.input)
+      this.verify("input/value", field.input)
+      field.input.oninput = () => this.verify("input/value", field.input)
+      return {field, renderEmails, filterEmailsOnSearch, selectedEmails}
+    }
 
     if (event === "overlay/security") {
       const overlay = document.createElement("div")
@@ -4647,16 +5139,8 @@ await Helper.add("toolbox/onbody")
       return div
     }
 
-    // if (event === "div") {
-    //   const div = document.createElement("div")
-    //   if (input.text) div.textContent = input.text
-    //   input?.parent?.appendChild(div)
-    //   return div
-    // }
-
     if (event === "div") {
       const div = document.createElement("div")
-      // if (input.text) div.textContent = input.text
       input?.appendChild(div)
       return div
     }
@@ -4872,7 +5356,7 @@ await Helper.add("toolbox/onbody")
       button.style.padding = "21px"
       button.style.zIndex = "1"
       button.style.cursor = "pointer"
-      this.convert("node/dark-light", button)
+      this.convert("dark-light", button)
       input?.append(button)
       return button
     }
@@ -5009,6 +5493,7 @@ await Helper.add("toolbox/onbody")
       button.classList.add("back")
       this.render("icon/node/path", "/public/arrow-back.svg", button)
       button.setAttribute("onclick", "window.goBack()")
+      this.add("outline-hover", button)
       input?.appendChild(button)
       return button
     }
@@ -5105,49 +5590,58 @@ await Helper.add("toolbox/onbody")
       return button
     }
 
-    if (event === "button/branch") {
+    if (event === "counter") {
+      input.counter = document.createElement("div")
+      input.appendChild(input.counter)
+      input.counter.classList.add("counter")
+      input.counter.style.position = "absolute"
+      input.counter.style.display = "flex"
+      input.counter.style.justifyContent = "center"
+      input.counter.style.alignItems = "center"
+      input.counter.style.top = "-8px"
+      input.counter.style.right = "-5px"
+      input.counter.style.fontFamily = "monospace"
+      input.counter.style.fontSize = "21px"
+      input.counter.style.borderRadius = "50%"
+      input.counter.style.padding = "3px 5px"
+      input.counter.textContent = "0"
+      this.convert("dark-light", input.counter)
+      return input
+    }
 
-      const button = document.createElement("div")
-      button.style.cursor = "pointer"
-      button.style.position = "relative"
-      this.render("icon/node/path", "/public/branch.svg", button).then(icon => {
-        icon.style.width = "55px"
+    if (event === "icon/branch") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const icon = await this.convert("path/icon", "/public/branch.svg")
+          icon.style.width = "55px"
+          const svg = icon.firstChild
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            svg.children[0].setAttribute("fill", this.colors.dark.text)
+            svg.children[1].setAttribute("fill", this.colors.light.text)
+          } else {
+            svg.children[0].setAttribute("fill", this.colors.light.text)
+            svg.children[1].setAttribute("fill", this.colors.dark.text)
+          }
+          input?.appendChild(icon)
+          resolve(icon)
+        } catch (error) {
+          reject(error)
+        }
       })
-      button.counter = document.createElement("div")
-      button.counter.style.position = "absolute"
-      button.counter.style.top = "0"
-      button.counter.style.right = "0"
-      button.counter.style.fontFamily = "monospace"
-      button.counter.style.fontSize = "13px"
-      button.counter.style.borderRadius = "50%"
-      button.counter.style.padding = "3px 5px"
-      button.counter.textContent = "0"
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        button.counter.style.color = this.colors.dark.text
-        button.counter.style.background = this.colors.dark.foreground
-      } else {
-        button.counter.style.color = this.colors.light.text
-        button.counter.style.background = this.colors.light.foreground
-      }
-      button.append(button.counter)
-      input?.append(button)
-      return button
-
     }
 
     if (event === "button/html-feedback") {
 
-      const button = this.create("button/branch")
-      button.classList.add("html-feedback-button")
-      button.counter.classList.add("feedback-counter")
-
+      const button = document.createElement("div")
+      input?.appendChild(button)
+      button.classList.add("button")
       button.style.position = "fixed"
       button.style.bottom = "0"
       button.style.right = "0"
       button.style.display = "flex"
       button.style.justifyContent = "center"
       button.style.alignItems = "center"
-
       button.style.boxShadow = this.colors.light.boxShadow
       button.style.border = this.colors.light.border
       button.style.backgroundColor = this.colors.light.foreground
@@ -5156,16 +5650,14 @@ await Helper.add("toolbox/onbody")
         button.style.border = this.colors.dark.border
         button.style.boxShadow = this.colors.dark.boxShadow
       }
-
       button.style.borderRadius = "50%"
       button.style.margin = "34px"
       button.style.padding = "8px"
       button.style.zIndex = "1"
       button.style.cursor = "pointer"
-
-      input?.append(button)
+      this.create("icon/branch", button)
+      this.create("counter", button)
       return button
-
     }
 
     if (event === "button/remove-overlay") {
@@ -5178,7 +5670,7 @@ await Helper.add("toolbox/onbody")
             const clone = button.cloneNode(true)
             clone.appendChild(icon.cloneNode(true))
             this.add("outline-hover", clone)
-            this.convert("node/dark-light", clone)
+            this.convert("dark-light", clone)
             clone.onclick = () => node?.remove()
             node?.appendChild(clone)
             return clone
@@ -5255,7 +5747,7 @@ Helper.add("onclick/selector/contact-location-expert", ".contact-location-expert
       const text = `
         <script id="dark-light-body" type="module">
 import {Helper} from "/js/Helper.js"
-Helper.convert("node/dark-light", document.body)
+Helper.convert("dark-light", document.body)
         </script>
       `
 
@@ -5267,27 +5759,6 @@ Helper.convert("node/dark-light", document.body)
       create.textContent = script.textContent
 
       input?.append(create)
-      return create
-
-    }
-
-    if (event === "script/html-feedback") {
-
-      const text = `
-        <script id="html-feedback" type="module">
-import {Helper} from "/js/Helper.js"
-
-Helper.add("event/html-feedback")
-        </script>
-      `
-
-      const script = this.convert("text/first-child", text)
-
-      const create = document.createElement("script")
-      create.id = script.id
-      create.type = script.type
-      create.textContent = script.textContent
-
       return create
 
     }
@@ -5592,58 +6063,6 @@ ${input.js}
       return create
     }
 
-    if (event === "script/submit-field-funnel-event") {
-
-      const text = `
-        <script id="submit-field-funnel-event" type="module">
-import {Helper} from "/js/Helper.js"
-
-await Helper.add("event/submit-field-funnel")
-        </script>
-      `
-
-      const script = this.convert("text/first-child", text)
-
-      const create = document.createElement("script")
-      create.id = script.id
-      create.type = script.type
-      create.textContent = script.textContent
-
-      if (input !== undefined) {
-        if (input.querySelector(`#${create.id}`) === null) {
-          input.append(create)
-        }
-      }
-
-      return create
-    }
-
-    if (event === "script/prefill-field-funnel-event") {
-
-      const text = `
-        <script id="prefill-field-funnel-event" type="module">
-import {Helper} from "/js/Helper.js"
-
-await Helper.add("event/prefill-field-funnel")
-        </script>
-      `
-
-      const script = this.convert("text/first-child", text)
-
-      const create = document.createElement("script")
-      create.id = script.id
-      create.type = script.type
-      create.textContent = script.textContent
-
-      if (input !== undefined) {
-        if (input.querySelector(`#${create.id}`) === null) {
-          input.append(create)
-        }
-      }
-
-      return create
-    }
-
     if (event === "script/click-funnel-event") {
 
       const text = `
@@ -5679,7 +6098,6 @@ await Helper.add("event/click-funnel")
       this.add("outline-hover", button)
       input?.appendChild(button)
       return button
-
     }
 
     if (event === "toolbox/bottom-right") {
@@ -5687,7 +6105,7 @@ await Helper.add("event/click-funnel")
       const button = this.create("button/bottom-right")
       button.removeAttribute("class")
       this.add("outline-hover", button)
-      this.convert("node/dark-light", button)
+      this.convert("dark-light", button)
       input?.appendChild(button)
       return button
     }
@@ -5699,7 +6117,7 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/arrow-back.svg", button)
       button.setAttribute("onclick", "window.goBack()")
       this.add("outline-hover", button)
-      this.convert("node/dark-light", button)
+      this.convert("dark-light", button)
       input?.appendChild(button)
       return button
     }
@@ -5710,7 +6128,7 @@ await Helper.add("event/click-funnel")
       button.removeAttribute("class")
       this.render("icon/node/path", "/public/logo-getyour-red.svg", button)
       this.add("outline-hover", button)
-      this.convert("node/dark-light", button)
+      this.convert("dark-light", button)
       input?.appendChild(button)
       return button
     }
@@ -5720,7 +6138,7 @@ await Helper.add("event/click-funnel")
       const button = this.create("button/icon")
       button.removeAttribute("class")
       this.add("outline-hover", button)
-      this.convert("node/dark-light", button)
+      this.convert("dark-light", button)
       input?.appendChild(button)
       return button
     }
@@ -5730,7 +6148,7 @@ await Helper.add("event/click-funnel")
       const button = this.create("button/left-right")
       button.removeAttribute("class")
       this.add("outline-hover", button)
-      this.convert("node/dark-light", button)
+      this.convert("dark-light", button)
       input?.appendChild(button)
       return button
 
@@ -5746,12 +6164,42 @@ await Helper.add("event/click-funnel")
           resolve((node) => {
             const clone = button.cloneNode(true)
             clone.appendChild(icon.cloneNode(true))
-            this.convert("node/dark-light", clone)
+            this.convert("dark-light", clone)
             this.add("outline-hover", clone)
             clone.onclick = () => this.add("register-html")
             node?.appendChild(clone)
             return clone
           })
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "field/closed-contacts-email-select") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const field = this.create("field/select", input)
+          field.label.textContent = "Gebe einer Liste von E-Mails aus deinen Kontakten, Schreibrechte"
+          const defaultOption = document.createElement("option")
+          defaultOption.text = "Bitte warten.."
+          field.input.appendChild(defaultOption)
+          const res = await this.request("/get/user/tree-closed/", {tree: "contacts"})
+          if (res.status === 200) {
+            const contacts = JSON.parse(res.response)
+            field.input.textContent = ""
+            for (let i = 0; i < contacts.length; i++) {
+              const contact = contacts[i]
+              if (contact.email !== undefined) {
+                const option = document.createElement("option")
+                option.text = contact.email
+                option.value = contact.email
+                field.input.appendChild(option)
+              }
+            }
+            resolve(field)
+          }
         } catch (error) {
           reject(error)
         }
@@ -5970,7 +6418,7 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      this.convert("node/dark-light", field)
+      this.convert("dark-light", field)
 
       input?.append(field)
       return field
@@ -6120,10 +6568,12 @@ await Helper.add("event/click-funnel")
       const label = this.createNode("div", field.label)
       this.createNode("span", label, "Ich habe die")
       const a1 = this.createNode("a", label, "Nutzervereinbarungen")
+      a1.style.margin = "0 5px"
       a1.className = "button"
       a1.href = "/nutzervereinbarung/"
       this.createNode("span", label, "und die")
       const a2 = this.createNode("a", label, "Datenschutz Richtlinien")
+      a2.style.margin = "0 5px"
       a2.className = "button"
       a2.href = "/datenschutz/"
       this.createNode("span", label, "gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.")
@@ -6228,7 +6678,7 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      this.convert("node/dark-light", field)
+      this.convert("dark-light", field)
 
       input?.append(field)
       return field
@@ -6265,7 +6715,7 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      this.convert("node/dark-light", field)
+      this.convert("dark-light", field)
 
       input?.append(field)
       return field
@@ -6302,7 +6752,7 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      this.convert("node/dark-light", field)
+      this.convert("dark-light", field)
 
       input?.append(field)
       return field
@@ -6339,7 +6789,7 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      this.convert("node/dark-light", field)
+      this.convert("dark-light", field)
 
       if (input !== undefined) input.append(field)
       return field
@@ -6376,7 +6826,7 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      this.convert("node/dark-light", field)
+      this.convert("dark-light", field)
 
       input?.append(field)
       return field
@@ -6413,7 +6863,7 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      this.convert("node/dark-light", field)
+      this.convert("dark-light", field)
 
       input?.append(field)
       return field
@@ -6450,7 +6900,7 @@ await Helper.add("event/click-funnel")
       field.input.style.fontSize = "21px"
       field.append(field.input)
 
-      this.convert("node/dark-light", field)
+      this.convert("dark-light", field)
 
       input?.append(field)
       return field
@@ -6508,7 +6958,7 @@ await Helper.add("event/click-funnel")
       field.input.setAttribute("required", "true")
       field.input.setAttribute("accept", "text/email")
 
-      this.convert("node/dark-light", field)
+      this.convert("dark-light", field)
 
       input?.append(field)
       return field
@@ -8083,10 +8533,9 @@ await Helper.add("event/click-funnel")
       labelContainer.childNodes.forEach(child => child.style.cursor = "pointer")
       labelContainer.onclick = () => {
 
-        this.overlay("info", overlay => {
+        this.overlay("info", async overlay => {
           const content = this.create("div/scrollable", overlay)
-          // todo purify
-          content.innerHTML = input.getAttribute("on-info-click")
+          content.innerHTML = await Helper.convert("text/purified", input.getAttribute("on-info-click"))
         })
       }
     }
@@ -8414,7 +8863,7 @@ await Helper.add("event/click-funnel")
             map.type = input.type
             map.size = input.size
             map.modified = Date.now()
-            map.html = this.convert("text/sanatized-html", fileReader.result)
+            map.html = this.convert("text/sanitized-html", fileReader.result)
 
             return resolve(map)
           }
@@ -8448,7 +8897,7 @@ await Helper.add("event/click-funnel")
             map.type = input.type
             map.size = input.size
             map.modified = Date.now()
-            map.svg = this.convert("text/sanatized-html", fileReader.result)
+            map.svg = this.convert("text/sanitized-html", fileReader.result)
 
             return resolve(map)
           }
@@ -8592,7 +9041,7 @@ await Helper.add("event/click-funnel")
           icon.style.justifyContent = "center"
           icon.style.alignItems = "center"
           icon.style.width = "34px"
-          const svg = this.convert("text/first-child", text)
+          const svg = await this.convert("text/first-child", text)
           svg.setAttribute("width", "100%")
           for (let i = 0; i < svg.querySelectorAll("*").length; i++) {
             const node = svg.querySelectorAll("*")[i]
@@ -8660,6 +9109,14 @@ await Helper.add("event/click-funnel")
       return navigator.clipboard.writeText(input)
     }
 
+    if (event === "text/dark-light") {
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        input.style.color = this.colors.dark.text
+      } else {
+        input.style.color = this.colors.light.text
+      }
+    }
+
     if (event === "text/digest") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -8683,6 +9140,24 @@ await Helper.add("event/click-funnel")
           reject(error)
         }
       })
+    }
+
+    if (event === "text/marked") {
+
+      const fragment = document.createDocumentFragment()
+      input.text.split(new RegExp(`(${input.query})`, 'gi')).forEach(part => {
+        const span = document.createElement('span')
+        if (part.toLowerCase() === input.query.toLowerCase()) {
+          span.style.background = this.colors.matte.orange
+        }
+        span.appendChild(document.createTextNode(part))
+        fragment.appendChild(span)
+      })
+      if (input.parent) {
+        input.parent.textContent = ""
+        input.parent.appendChild(fragment)
+      }
+      return fragment
     }
 
     if (event === "text/number") {
@@ -8711,22 +9186,32 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "text/first-child") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const parser = document.createElement("div")
+          parser.innerHTML = await Helper.convert("text/purified", input)
+          resolve(parser.children[0])
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "text/fragment") {
+      const fragment = document.createDocumentFragment()
       const parser = document.createElement("div")
-      // todo purify
       parser.innerHTML = input
-      return parser.children[0]
+      fragment.appendChild(parser.firstChild)
+      return fragment
     }
 
     if (event === "text/purified") {
 
       return new Promise(async(resolve, reject) => {
         try {
-          const res = await fetch("https://cdn.jsdelivr.net/npm/dompurify@2/dist/purify.min.js")
-          console.log(await res.text());
-          // const he = await import('https://cdn.jsdelivr.net/npm/he@latest/dist/he.min.js')
-          // const {default: DOMPurify} = await import('https://cdn.jsdelivr.net/npm/dompurify@2/dist/purify.min.js')
-          // resolve(DOMPurify.sanitize(input))
-          // const purified = he.encode(input)
+          await import("/js/purify.min.js")
+          const purified = DOMPurify.sanitize(input)
           resolve(purified)
         } catch (error) {
           reject(error)
@@ -8734,10 +9219,15 @@ await Helper.add("event/click-funnel")
       })
     }
 
-    if (event === "text/sanatized") {
+    if (event === "text/sanitized") {
       const parser = document.createElement("div")
       parser.textContent = input
       return parser.innerHTML
+    }
+
+    if (event === "text/script") {
+      const fragment = this.convert("text/fragment", input)
+      return fragment.querySelector("script")
     }
 
     if (event === "js/script") {
@@ -8773,7 +9263,7 @@ await Helper.add("event/click-funnel")
       return encodeURIComponent(input)
     }
 
-    if (event === "text/sanatized-html") {
+    if (event === "text/sanitized-html") {
       // events
       input = input.replace(/on\w+="[^"]*"/gi, "")
 
@@ -9203,8 +9693,26 @@ await Helper.add("event/click-funnel")
     if (event === "selector/dark-light") {
       const node = document.querySelector(input)
       if (node) {
-        this.convert("node/dark-light", node)
+        this.convert("dark-light", node)
       }
+    }
+
+    if (event === "style/info") {
+
+      input.removeAttribute("style")
+      input.textContent = ""
+      input.style.margin = "21px 34px"
+      input.style.display = "flex"
+      input.style.justifyContent = "center"
+      input.style.alignItems = "center"
+      input.style.fontFamily = "sans-serif"
+      input.style.fontSize = "21px"
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        input.style.color = this.colors.dark.text
+      } else {
+        input.style.color = this.colors.light.text
+      }
+      return input
     }
 
     if (event === "element/button-right") {
@@ -9533,12 +10041,14 @@ await Helper.add("event/click-funnel")
       input.remove()
     }
 
-    if (event === "node/dark-light") {
+    if (event === "dark-light") {
 
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         input.style.color = this.colors.dark.text
+        input.style.background = this.colors.dark.foreground
       } else {
         input.style.color = this.colors.light.text
+        input.style.background = this.colors.light.foreground
       }
 
       if (input.classList.contains("button")) {
@@ -9670,6 +10180,11 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "link-colors") {
+      input.style.color = this.colors.link.color
+      input.addEventListener("click", () => input.style.color = this.colors.link.active)
+    }
+
     if (event === "node/dark-light-toggle") {
 
       const textColor = window.getComputedStyle(input).color
@@ -9706,6 +10221,24 @@ await Helper.add("event/click-funnel")
 
     if (event === "node/index") {
       return Array.from(input.parentElement.children).indexOf(input)
+    }
+
+    if (event === "node/marked") {
+
+      const fragment = document.createDocumentFragment()
+      if (input.node) {
+        input.node.textContent.split(new RegExp(`(${input.query})`, 'gi')).forEach(part => {
+          const span = document.createElement('span')
+          if (part.toLowerCase() === input.query.toLowerCase()) {
+            span.style.background = this.colors.matte.orange
+          }
+          span.appendChild(document.createTextNode(part))
+          fragment.appendChild(span)
+        })
+        input.node.textContent = ""
+        input.node.appendChild(fragment)
+      }
+      return fragment
     }
 
     if (event === "node/max-z-index") {
@@ -10040,7 +10573,7 @@ await Helper.add("event/click-funnel")
 
       return (node) => {
         this.convert("clipboard/text").then(text => {
-          const html = this.convert("text/html", text)
+          const html = this.convert("text/first-child", text)
           node.appendChild(html)
         })
       }
@@ -10105,55 +10638,29 @@ await Helper.add("event/click-funnel")
 
     if (event === "creator-buttons") {
 
-      const navigation = this.create("div/flex-row", input.parent)
-      this.add("outline-hover", navigation)
-      const valueUnitsLink = this.render("text/link", "Werteinheiten", navigation)
-      valueUnitsLink.onclick = () => valueUnitsTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const templatesLink = this.render("text/link", "Vorlagen", navigation)
-      templatesLink.onclick = () => templatesTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const inputLink = this.render("text/link", "Eingabe Felder", navigation)
-      inputLink.onclick = () => inputTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const widthLink = this.render("text/link", "Breite", navigation)
-      widthLink.onclick = () => widthTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const heightLink = this.render("text/link", "Höhe", navigation)
-      heightLink.onclick = () => heightTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const displayLink = this.render("text/link", "Display", navigation)
-      displayLink.onclick = () => displayTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const gridLink = this.render("text/link", "Grid", navigation)
-      gridLink.onclick = () => gridTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const flexLink = this.render("text/link", "Flex", navigation)
-      flexLink.onclick = () => flexTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const layerLink = this.render("text/link", "Layer", navigation)
-      layerLink.onclick = () => layerTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const transformationLink = this.render("text/link", "Transformation", navigation)
-      transformationLink.onclick = () => transformationTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const editTextLink = this.render("text/link", "Textverarbeitung", navigation)
-      editTextLink.onclick = () => editTextTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const visibilityLink = this.render("text/link", "Sichtbarkeit", navigation)
-      visibilityLink.onclick = () => visibilityTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const spacingLink = this.render("text/link", "Abstände", navigation)
-      spacingLink.onclick = () => spacingTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const borderLink = this.render("text/link", "Grenzlinien", navigation)
-      borderLink.onclick = () => borderTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const mediaQueriesLink = this.render("text/link", "Media Queries", navigation)
-      mediaQueriesLink.onclick = () => mediaQueriesTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const optimizeWorkLink = this.render("text/link", "Korrekturen", navigation)
-      optimizeWorkLink.onclick = () => optimizeWorkTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const converterLink = this.render("text/link", "Konverter", navigation)
-      converterLink.onclick = () => converterTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const forEachChildLink = this.render("text/link", "Für jedes Element", navigation)
-      forEachChildLink.onclick = () => forEachChildTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const pickColorLink = this.render("text/link", "Farben", navigation)
-      pickColorLink.onclick = () => pickColorTitle.scrollIntoView({ behavior: "smooth", block: "start" })
-      const pickSvgLink = this.render("text/link", "SVG", navigation)
-      pickSvgLink.onclick = () => pickSvgTitle.scrollIntoView({ behavior: "smooth", block: "start" })
+      function toggleDisplayFlexNone(node) {
+        if (node.style.display === "none") {
+          node.style.display = "flex"
+          return
+        }
+        if (node.style.display === "flex") {
+          node.style.display = "none"
+          return
+        }
+      }
 
       const optionsContainer = this.create("div/scrollable", input.parent)
       optionsContainer.style.marginTop = "21px"
       optionsContainer.style.height = `${window.innerHeight * 0.4}px`
 
       const valueUnitsTitle = this.render("text/hr", "Meine Werteinheiten", optionsContainer)
+      valueUnitsTitle.style.cursor = "pointer"
+      this.add("outline-hover", valueUnitsTitle)
+      valueUnitsTitle.onclick = () => toggleDisplayFlexNone(valueUnitsOptions)
+
       const valueUnitsOptions = this.create("div/flex-row", optionsContainer)
+      valueUnitsOptions.style.display = "none"
+      this.add("outline-hover", valueUnitsOptions)
       const sourcesButton = this.create("toolbox/icon", valueUnitsOptions)
       this.render("icon/node/path", "/public/doc-clip.svg", sourcesButton)
       const addScriptButton = this.create("toolbox/icon", valueUnitsOptions)
@@ -10170,7 +10677,12 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/doc-video.svg", videosButton)
 
       const templatesTitle = this.render("text/hr", "Anwendungen für Vorlagen einsetzen", optionsContainer)
+      templatesTitle.style.cursor = "pointer"
+      this.add("outline-hover", templatesTitle)
+      templatesTitle.onclick = () => toggleDisplayFlexNone(templateOptions)
       const templateOptions = this.create("div/flex-row", optionsContainer)
+      templateOptions.style.display = "none"
+      this.add("outline-hover", templateOptions)
       const createFlexButton = this.create("toolbox/icon", templateOptions)
       this.render("icon/node/path", "/public/bars-two.svg", createFlexButton)
       const wrapButton = this.create("toolbox/icon", templateOptions)
@@ -10221,7 +10733,12 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/arrow-compress-window.svg", packDivButton)
 
       const inputTitle = this.render("text/hr", "Anwendungen für Eingabe Felder einsetzen", optionsContainer)
+      inputTitle.style.cursor = "pointer"
+      this.add("outline-hover", inputTitle)
+      inputTitle.onclick = () => toggleDisplayFlexNone(inputOptions)
       const inputOptions = this.create("div/flex-row", optionsContainer)
+      inputOptions.style.display = "none"
+      this.add("outline-hover", inputOptions)
       const textInputButton = this.create("toolbox/icon", inputOptions)
       this.render("icon/node/path", "/public/input-text.svg", textInputButton)
       const numberInputButton = this.create("toolbox/icon", inputOptions)
@@ -10234,7 +10751,12 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/input-select.svg", selectInputButton)
 
       const widthTitle = this.render("text/hr", "Anwendungen für die Breite", optionsContainer)
+      widthTitle.style.cursor = "pointer"
+      this.add("outline-hover", widthTitle)
+      widthTitle.onclick = () => toggleDisplayFlexNone(widthOptions)
       const widthOptions = this.create("div/flex-row", optionsContainer)
+      widthOptions.style.display = "none"
+      this.add("outline-hover", widthOptions)
       const growWidthButton = this.create("toolbox/icon", widthOptions)
       this.render("icon/node/path", "/public/lines-100-x.svg", growWidthButton)
       const maxWidthButton = this.create("toolbox/icon", widthOptions)
@@ -10249,7 +10771,12 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/w-down.svg", decreaseWidthButton)
 
       const heightTitle = this.render("text/hr", "Anwendungen für die Höhe", optionsContainer)
+      heightTitle.style.cursor = "pointer"
+      this.add("outline-hover", heightTitle)
+      heightTitle.onclick = () => toggleDisplayFlexNone(heightOptions)
       const heightOptions = this.create("div/flex-row", optionsContainer)
+      heightOptions.style.display = "none"
+      this.add("outline-hover", heightOptions)
       const growHeightButton = this.create("toolbox/icon", heightOptions)
       this.render("icon/node/path", "/public/lines-100-y.svg", growHeightButton)
       const maxHeightButton = this.create("toolbox/icon", heightOptions)
@@ -10264,7 +10791,12 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/H-down.svg", decreaseHeightButton)
 
       const displayTitle = this.render("text/hr", "Anwendungen für Display Elemente", optionsContainer)
+      displayTitle.style.cursor = "pointer"
+      this.add("outline-hover", displayTitle)
+      displayTitle.onclick = () => toggleDisplayFlexNone(displayOptions)
       const displayOptions = this.create("div/flex-row", optionsContainer)
+      displayOptions.style.display = "none"
+      this.add("outline-hover", displayOptions)
       const exactDisplayButton = this.create("toolbox/icon", displayOptions)
       this.render("icon/node/path", "/public/window-layout-1.svg", exactDisplayButton)
       const displayBlockButton = this.create("toolbox/icon", displayOptions)
@@ -10279,7 +10811,12 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/window-layout-5.svg", toggleDisplayTableButton)
 
       const gridTitle = this.render("text/hr", "Anwendungen für Grid Elemente", optionsContainer)
+      gridTitle.style.cursor = "pointer"
+      this.add("outline-hover", gridTitle)
+      gridTitle.onclick = () => toggleDisplayFlexNone(gridOptions)
       const gridOptions = this.create("div/flex-row", optionsContainer)
+      gridOptions.style.display = "none"
+      this.add("outline-hover", gridOptions)
       const gridMobileButton = this.create("toolbox/icon", gridOptions)
       this.render("icon/node/path", "/public/window-layout-6.svg", gridMobileButton)
       const gridFullDisplayButton = this.create("toolbox/icon", gridOptions)
@@ -10308,7 +10845,12 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/dots-plus-line-top.svg", gridRemoveRowButton)
 
       const flexTitle = this.render("text/hr", "Anwendungen für Flex Elemente", optionsContainer)
+      flexTitle.style.cursor = "pointer"
+      this.add("outline-hover", flexTitle)
+      flexTitle.onclick = () => toggleDisplayFlexNone(flexOptions)
       const flexOptions = this.create("div/flex-row", optionsContainer)
+      flexOptions.style.display = "none"
+      this.add("outline-hover", flexOptions)
       const alignColumnButton = this.create("toolbox/icon", flexOptions)
       this.render("icon/node/path", "/public/bars-y-between-lines.svg", alignColumnButton)
       const alignLeftButton = this.create("toolbox/icon", flexOptions)
@@ -10335,7 +10877,12 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/lines-x-with-arrow.svg", toggleWrapButton)
 
       const layerTitle = this.render("text/hr", "Anwendungen für die Layer Elemente", optionsContainer)
+      layerTitle.style.cursor = "pointer"
+      this.add("outline-hover", layerTitle)
+      layerTitle.onclick = () => toggleDisplayFlexNone(layerOptions)
       const layerOptions = this.create("div/flex-row", optionsContainer)
+      layerOptions.style.display = "none"
+      this.add("outline-hover", layerOptions)
       const layerButton = this.create("toolbox/icon", layerOptions)
       this.render("icon/node/path", "/public/layer.svg", layerButton)
       const positiveLayerButton = this.create("toolbox/icon", layerOptions)
@@ -10358,7 +10905,12 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/arrow-right-lines-left.svg", positionLeftButton)
 
       const transformationTitle = this.render("text/hr", "Anwendungen für die Transformation", optionsContainer)
+      transformationTitle.style.cursor = "pointer"
+      this.add("outline-hover", transformationTitle)
+      transformationTitle.onclick = () => toggleDisplayFlexNone(transformationOptions)
       const transformationOptions = this.create("div/flex-row", optionsContainer)
+      transformationOptions.style.display = "none"
+      this.add("outline-hover", transformationOptions)
       const transformTranslateButton = this.create("toolbox/icon", transformationOptions)
       this.render("icon/node/path", "/public/window-plus-x-y.svg", transformTranslateButton)
       const transformTranslateXButton = this.create("toolbox/icon", transformationOptions)
@@ -10383,7 +10935,12 @@ await Helper.add("event/click-funnel")
       })
 
       const editTextTitle = this.render("text/hr", "Anwendungen für die Textverarbeitung", optionsContainer)
+      editTextTitle.style.cursor = "pointer"
+      this.add("outline-hover", editTextTitle)
+      editTextTitle.onclick = () => toggleDisplayFlexNone(textManipulationOptions)
       const textManipulationOptions = this.create("div/flex-row", optionsContainer)
+      textManipulationOptions.style.display = "none"
+      this.add("outline-hover", textManipulationOptions)
       const whiteSpaceNoWrapButton = this.create("toolbox/icon", textManipulationOptions)
       this.render("icon/node/path", "/public/lines-broken-left.svg", whiteSpaceNoWrapButton)
       const fontFamilyButton = this.create("toolbox/icon", textManipulationOptions)
@@ -10410,7 +10967,12 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/arrow-top-down-3-lines.svg", lineHeightButton)
 
       const visibilityTitle = this.render("text/hr", "Anwendungen für die Sichtbarkeit", optionsContainer)
+      visibilityTitle.style.cursor = "pointer"
+      this.add("outline-hover", visibilityTitle)
+      visibilityTitle.onclick = () => toggleDisplayFlexNone(visibilityOptions)
       const visibilityOptions = this.create("div/flex-row", optionsContainer)
+      visibilityOptions.style.display = "none"
+      this.add("outline-hover", visibilityOptions)
       const overflowYButton = this.create("toolbox/icon", visibilityOptions)
       this.render("icon/node/path", "/public/arrow-top-down-with-hand.svg", overflowYButton)
       const overflowXButton = this.create("toolbox/icon", visibilityOptions)
@@ -10423,7 +10985,12 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/drop-half-full.svg", exactOpacityButton)
 
       const spacingTitle = this.render("text/hr", "Anwendungen für die Abstände", optionsContainer)
+      spacingTitle.style.cursor = "pointer"
+      this.add("outline-hover", spacingTitle)
+      spacingTitle.onclick = () => toggleDisplayFlexNone(spacingOptions)
       const spacingOptions = this.create("div/flex-row", optionsContainer)
+      spacingOptions.style.display = "none"
+      this.add("outline-hover", spacingOptions)
       const toggleMarginButton = this.create("toolbox/icon", spacingOptions)
       this.render("icon/node/path", "/public/margin.svg", toggleMarginButton)
       const toggleMarginTopButton = this.create("toolbox/icon", spacingOptions)
@@ -10466,7 +11033,12 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/padding-x-left.svg", exactPaddingLeftButton)
 
       const borderTitle = this.render("text/hr", "Anwendungen für die Grenzlinien", optionsContainer)
+      borderTitle.style.cursor = "pointer"
+      this.add("outline-hover", borderTitle)
+      borderTitle.onclick = () => toggleDisplayFlexNone(borderOptions)
       const borderOptions = this.create("div/flex-row", optionsContainer)
+      borderOptions.style.display = "none"
+      this.add("outline-hover", borderOptions)
       const toggleBorderButton = this.create("toolbox/icon", borderOptions)
       this.render("icon/node/path", "/public/border.svg", toggleBorderButton)
       const toggleBorderTopButton = this.create("toolbox/icon", borderOptions)
@@ -10515,7 +11087,12 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/lines-shadow.svg", exactBoxShadowButton)
 
       const mediaQueriesTitle = this.render("text/hr", "Anwendungen für Media Queries", optionsContainer)
+      mediaQueriesTitle.style.cursor = "pointer"
+      this.add("outline-hover", mediaQueriesTitle)
+      mediaQueriesTitle.onclick = () => toggleDisplayFlexNone(mediaQueriesOptions)
       const mediaQueriesOptions = this.create("div/flex-row", optionsContainer)
+      mediaQueriesOptions.style.display = "none"
+      this.add("outline-hover", mediaQueriesOptions)
       const mediaQueriesOverviewButton = this.create("toolbox/icon", mediaQueriesOptions)
       this.render("icon/node/path", "/public/desktop-and-tablet.svg", mediaQueriesOverviewButton)
       const largeDeviceButton = this.create("toolbox/icon", mediaQueriesOptions)
@@ -10528,7 +11105,12 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/printer.svg", printerDeviceButton)
 
       const optimizeWorkTitle = this.render("text/hr", "Anwendungen für schnelle Korrekturen", optionsContainer)
+      optimizeWorkTitle.style.cursor = "pointer"
+      this.add("outline-hover", optimizeWorkTitle)
+      optimizeWorkTitle.onclick = () => toggleDisplayFlexNone(optimizeWorkOptions)
       const optimizeWorkOptions = this.create("div/flex-row", optionsContainer)
+      optimizeWorkOptions.style.display = "none"
+      this.add("outline-hover", optimizeWorkOptions)
       const insertAfterButton = this.create("toolbox/icon", optimizeWorkOptions)
       this.render("icon/node/path", "/public/arrow-under-bar.svg", insertAfterButton)
       const insertBeforeButton = this.create("toolbox/icon", optimizeWorkOptions)
@@ -10567,19 +11149,37 @@ await Helper.add("event/click-funnel")
       this.render("icon/node/path", "/public/doc-css.svg", appendStyleButton)
 
       const converterTitle = this.render("text/hr", "Anwendungen für Konverter", optionsContainer)
+      converterTitle.style.cursor = "pointer"
+      this.add("outline-hover", converterTitle)
+      converterTitle.onclick = () => toggleDisplayFlexNone(converterOptions)
       const converterOptions = this.create("div/flex-row", optionsContainer)
+      converterOptions.style.display = "none"
+      this.add("outline-hover", converterOptions)
       const textConverterButton = this.create("toolbox/icon", converterOptions)
       this.render("icon/node/path", "/public/focus-text.svg", textConverterButton)
-      textConverterButton.onclick = () => this.handle("onclick", {onclick: "overlay-text-converter"})
+      textConverterButton.onclick = () => this.fn("overlay-text-converter")
+      const duckDuckGoButton = this.create("toolbox/icon", converterOptions)
+      this.render("icon/node/path", "/public/logo-duck-duck-go.svg", duckDuckGoButton)
+      duckDuckGoButton.convertNode = this.fn("convertTextContentToDuckDuckGoLink")
 
       const forEachChildTitle = this.render("text/hr", "Anwendungen für jedes Kind Element", optionsContainer)
+      forEachChildTitle.style.cursor = "pointer"
+      this.add("outline-hover", forEachChildTitle)
+      forEachChildTitle.onclick = () => toggleDisplayFlexNone(forEachChildrenOptions)
       const forEachChildrenOptions = this.create("div/flex-row", optionsContainer)
+      forEachChildrenOptions.style.display = "none"
+      this.add("outline-hover", forEachChildrenOptions)
       const fontSizeForEachChildButton = this.create("toolbox/icon", forEachChildrenOptions)
       this.render("icon/node/path", "/public/T-small-big.svg", fontSizeForEachChildButton)
 
       const pickColorTitle = this.render("text/hr", "Anwendungen für Code und Farben wählen", optionsContainer)
+      pickColorTitle.style.cursor = "pointer"
+      this.add("outline-hover", pickColorTitle)
+      pickColorTitle.onclick = () => toggleDisplayFlexNone(colorPickerOptions)
       const colorPickerOptions = this.create("div/flex-row", optionsContainer)
-      this.style(colorPickerOptions, {height: "144px", overflow: "auto"})
+      colorPickerOptions.style.display = "none"
+      this.add("outline-hover", colorPickerOptions)
+      this.style(colorPickerOptions, {height: "377px", overflow: "auto"})
       for (const [key, value] of Object.entries(this.colors)) {
         if (typeof value === "string") {
           if (!this.verifyIs("text/empty", value)) {
@@ -10613,11 +11213,16 @@ await Helper.add("event/click-funnel")
       }
 
       const pickSvgTitle = this.render("text/hr", "Anwendungen für SVG einsetzen", optionsContainer)
+      pickSvgTitle.style.cursor = "pointer"
+      this.add("outline-hover", pickSvgTitle)
+      pickSvgTitle.onclick = () => toggleDisplayFlexNone(svgPickerOptions)
       const svgPickerOptions = this.create("div/flex-row", optionsContainer)
+      svgPickerOptions.style.display = "none"
+      this.add("outline-hover", svgPickerOptions)
       svgPickerOptions.style.paddingBottom = "144px"
       const svgIcons = this.fn("appendAllSvgIcons")
 
-      const buttons = {svgIcons, templateOptions, inputOptions, widthOptions, heightOptions, displayOptions, gridOptions, flexOptions, layerOptions, transformationOptions, textManipulationOptions, visibilityOptions, spacingOptions, borderOptions, mediaQueriesOptions, optimizeWorkOptions, converterOptions, forEachChildrenOptions, colorPickerOptions, svgPickerOptions, createFlexButton, wrapButton, createGridButton, rowContainerButton, columnContainerButton, imageTextButton, keyValueButton, actionBtnButton, horizontalHrButton, simpleHeaderButton, h1Button, h2Button, h3Button, pButton, imageButton, tableHeaderButton, pdfLinkButton, aLinkButton, spanButton, changeSiButton, addSpaceButton, arrowRightButton, divScrollableButton, packDivButton, textInputButton, numberInputButton, checkboxInputButton, passwordInputButton, selectInputButton, growWidthButton, maxWidthButton, minWidthButton, exactWidthButton, increaseWidthButton, decreaseWidthButton, growHeightButton, maxHeightButton, minHeightButton, exactHeightButton, increaseHeightButton, decreaseHeightButton, exactDisplayButton, displayBlockButton, displayInlineButton, toggleDisplayGridButton, toggleDisplayFlexButton, toggleDisplayTableButton, gridMobileButton, gridFullDisplayButton, gridTwoColumnsButton, gridThreeColumnsButton, gridFixedButton, gridListRowsButton, gridSpanColumnButton, gridSpanRowButton, exactGridGapButton, gridAddColumnButton, gridRemoveColumnButton, gridAddRowButton, gridRemoveRowButton, alignColumnButton, alignLeftButton, alignCenterButton, alignRightButton, alignRowButton, alignTopButton, alignVerticalButton, alignBottomButton, flexButton, spaceBetweenButton, spaceAroundButton, toggleWrapButton, layerButton, positiveLayerButton, negativeLayerButton, exactLayerButton, removeLayerButton, positionAbsoluteButton, positionTopButton, positionRightButton, positionBottomButton, positionLeftButton, transformTranslateButton, transformTranslateXButton, transformTranslateYButton, zIndexButton, scaleButton, rotateRightButton, exactRotateRightButton, rotateLeftButton, exactRotateLeftButton, whiteSpaceNoWrapButton, fontFamilyButton, fontWeightNormalButton, fontWeightButton, fontStyleButton, textDecorationButton, fontSizeButton, fontColorButton, backgroundColorButton, unorderedListButton, orderedListButton, lineHeightButton, sourcesButton, overflowYButton, overflowXButton, toggleDisplayNoneButton, toggleVisibilityHiddenButton, exactOpacityButton, toggleMarginButton, toggleMarginTopButton, toggleMarginRightButton, toggleMarginBottomButton, toggleMarginLeftButton, exactMarginButton, exactMarginTopButton, exactMarginRightButton, exactMarginBottomButton, exactMarginLeftButton, togglePaddingButton, togglePaddingTopButton, togglePaddingRightButton, togglePaddingBottomButton, togglePaddingLeftButton, exactPaddingButton, exactPaddingTopButton, exactPaddingRightButton, exactPaddingBottomButton, exactPaddingLeftButton, toggleBorderButton, toggleBorderTopButton, toggleBorderRightButton, toggleBorderBottomButton, toggleBorderLeftButton, exactBorderButton, exactBorderTopButton, exactBorderRightButton, exactBorderBottomButton, exactBorderLeftButton, toggleBorderRadiusButton, toggleBorderTopLeftRadiusButton, toggleBorderTopRightRadiusButton, toggleBorderBottomRightRadiusButton, toggleBorderBottomLeftRadiusButton, exactBorderRadiusButton, exactBorderTopLeftRadiusButton, exactBorderTopRightRadiusButton, exactBorderBottomRightRadiusButton, exactBorderBottomLeftRadiusButton, toggleBorderNoneButton, boxButton, exactBoxShadowButton, mediaQueriesOverviewButton, largeDeviceButton, middleDeviceButton, smallDeviceButton, printerDeviceButton, insertAfterButton, insertBeforeButton, insertLeftButton, insertRightButton, cutOuterHtmlButton, copyOuterHtmlButton, pasteOuterHtmlButton, copyStyleButton, pasteStyleButton, removeStyleButton, removeInnerButton, removeInnerWithTextButton, removeNodeButton, idButton, addClassButton, setAttributeButton, addScriptButton, appendStyleButton, templatesButton, fontSizeForEachChildButton, textConverterButton}
+      const buttons = {duckDuckGoButton, svgIcons, templateOptions, inputOptions, widthOptions, heightOptions, displayOptions, gridOptions, flexOptions, layerOptions, transformationOptions, textManipulationOptions, visibilityOptions, spacingOptions, borderOptions, mediaQueriesOptions, optimizeWorkOptions, converterOptions, forEachChildrenOptions, colorPickerOptions, svgPickerOptions, createFlexButton, wrapButton, createGridButton, rowContainerButton, columnContainerButton, imageTextButton, keyValueButton, actionBtnButton, horizontalHrButton, simpleHeaderButton, h1Button, h2Button, h3Button, pButton, imageButton, tableHeaderButton, pdfLinkButton, aLinkButton, spanButton, changeSiButton, addSpaceButton, arrowRightButton, divScrollableButton, packDivButton, textInputButton, numberInputButton, checkboxInputButton, passwordInputButton, selectInputButton, growWidthButton, maxWidthButton, minWidthButton, exactWidthButton, increaseWidthButton, decreaseWidthButton, growHeightButton, maxHeightButton, minHeightButton, exactHeightButton, increaseHeightButton, decreaseHeightButton, exactDisplayButton, displayBlockButton, displayInlineButton, toggleDisplayGridButton, toggleDisplayFlexButton, toggleDisplayTableButton, gridMobileButton, gridFullDisplayButton, gridTwoColumnsButton, gridThreeColumnsButton, gridFixedButton, gridListRowsButton, gridSpanColumnButton, gridSpanRowButton, exactGridGapButton, gridAddColumnButton, gridRemoveColumnButton, gridAddRowButton, gridRemoveRowButton, alignColumnButton, alignLeftButton, alignCenterButton, alignRightButton, alignRowButton, alignTopButton, alignVerticalButton, alignBottomButton, flexButton, spaceBetweenButton, spaceAroundButton, toggleWrapButton, layerButton, positiveLayerButton, negativeLayerButton, exactLayerButton, removeLayerButton, positionAbsoluteButton, positionTopButton, positionRightButton, positionBottomButton, positionLeftButton, transformTranslateButton, transformTranslateXButton, transformTranslateYButton, zIndexButton, scaleButton, rotateRightButton, exactRotateRightButton, rotateLeftButton, exactRotateLeftButton, whiteSpaceNoWrapButton, fontFamilyButton, fontWeightNormalButton, fontWeightButton, fontStyleButton, textDecorationButton, fontSizeButton, fontColorButton, backgroundColorButton, unorderedListButton, orderedListButton, lineHeightButton, sourcesButton, overflowYButton, overflowXButton, toggleDisplayNoneButton, toggleVisibilityHiddenButton, exactOpacityButton, toggleMarginButton, toggleMarginTopButton, toggleMarginRightButton, toggleMarginBottomButton, toggleMarginLeftButton, exactMarginButton, exactMarginTopButton, exactMarginRightButton, exactMarginBottomButton, exactMarginLeftButton, togglePaddingButton, togglePaddingTopButton, togglePaddingRightButton, togglePaddingBottomButton, togglePaddingLeftButton, exactPaddingButton, exactPaddingTopButton, exactPaddingRightButton, exactPaddingBottomButton, exactPaddingLeftButton, toggleBorderButton, toggleBorderTopButton, toggleBorderRightButton, toggleBorderBottomButton, toggleBorderLeftButton, exactBorderButton, exactBorderTopButton, exactBorderRightButton, exactBorderBottomButton, exactBorderLeftButton, toggleBorderRadiusButton, toggleBorderTopLeftRadiusButton, toggleBorderTopRightRadiusButton, toggleBorderBottomRightRadiusButton, toggleBorderBottomLeftRadiusButton, exactBorderRadiusButton, exactBorderTopLeftRadiusButton, exactBorderTopRightRadiusButton, exactBorderBottomRightRadiusButton, exactBorderBottomLeftRadiusButton, toggleBorderNoneButton, boxButton, exactBoxShadowButton, mediaQueriesOverviewButton, largeDeviceButton, middleDeviceButton, smallDeviceButton, printerDeviceButton, insertAfterButton, insertBeforeButton, insertLeftButton, insertRightButton, cutOuterHtmlButton, copyOuterHtmlButton, pasteOuterHtmlButton, copyStyleButton, pasteStyleButton, removeStyleButton, removeInnerButton, removeInnerWithTextButton, removeNodeButton, idButton, addClassButton, setAttributeButton, addScriptButton, appendStyleButton, templatesButton, fontSizeForEachChildButton, textConverterButton}
 
       buttons.toggleStyle = this.fn("toggleStyle")
       buttons.toggleStyles = this.fn("toggleStyles")
@@ -10725,6 +11330,270 @@ await Helper.add("event/click-funnel")
       }
     }
 
+    if (event === "debounce") {
+
+      let lastExecutionTime = 0
+      let isBlocked = false
+      return async (fn, millis) => {
+        if (isBlocked) return
+        const currentTime = Date.now()
+        const timeSinceLastExecution = currentTime - lastExecutionTime
+        if (timeSinceLastExecution >= millis) {
+          try {
+            fn()
+          } catch (error) {
+            console.error(error)
+          } finally {
+            lastExecutionTime = Date.now()
+            isBlocked = true
+            setTimeout(() => {
+                isBlocked = false
+            }, millis)
+          }
+        }
+      }
+    }
+
+    if (event === "feedback") {
+
+      function updateButtonCounter(button) {
+        if (parseInt(button.counter.textContent) > 0) {
+          button.counter.style.background = "green"
+        } else {
+          Helper.convert("dark-light", button.counter)
+        }
+      }
+
+      async function icon() {
+        const icon = await Helper.create("icon/branch")
+        return icon
+      }
+
+      function renderFeedback(type, feedback, container, button, overlay, script) {
+
+        Helper.convert("parent/scrollable", container)
+        container.style.margin = "21px 34px"
+        container.style.overscrollBehavior = "none"
+        container.style.fontFamily = "monospace"
+        container.style.fontSize = "21px"
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          container.style.color = Helper.colors.dark.text
+        } else {
+          container.style.color = Helper.colors.light.text
+        }
+
+        for (let i = 0; i < feedback.length; i++) {
+          const it = feedback[i]
+
+          const div = document.createElement("div")
+          Helper.add("outline-hover", div)
+          div.style.display = "flex"
+          div.style.justifyContent = "space-between"
+          div.style.alignItems = "center"
+
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            if (i % 2 === 0) {
+              div.style.background = Helper.colors.light.foreground
+              div.style.color = Helper.colors.light.text
+            } else {
+              div.style.background = Helper.colors.dark.foreground
+              div.style.color = Helper.colors.dark.text
+            }
+          } else {
+            if (i % 2 === 1) {
+              div.style.background = Helper.colors.light.foreground
+              div.style.color = Helper.colors.light.text
+            } else {
+              div.style.background = Helper.colors.dark.foreground
+              div.style.color = Helper.colors.dark.text
+            }
+          }
+
+          const left = document.createElement("span")
+          left.textContent = `${Helper.convert("millis/dd.mm.yyyy hh:mm", it.created)}`
+          div.appendChild(left)
+
+          const nextToLeft = document.createElement("span")
+          nextToLeft.style.width = "100%"
+          nextToLeft.style.padding = "8px"
+          nextToLeft.textContent = it.text
+          div.appendChild(nextToLeft)
+
+          const right = document.createElement("span")
+          right.style.padding = "13px"
+          right.textContent = it.importance
+          div.appendChild(right)
+
+          container.appendChild(div)
+
+          div.style.cursor = "pointer"
+          div.onclick = () => {
+            Helper.overlay("popup", updateFeedbackOverlay => {
+              const removeButton = Helper.create("button/left-right", updateFeedbackOverlay)
+              Helper.add("outline-hover", removeButton)
+              Helper.render("icon/node/path", "/public/bucket.svg", removeButton.left).then(icon => {
+                icon.style.width = "34px"
+              })
+              removeButton.right.textContent = "Feedback entfernen"
+              removeButton.onclick = async () => {
+                const confirm = window.confirm("Möchtest du diesen Beitrag wirklich entfernen?")
+                if (confirm === true) {
+
+                  let res
+                  if (type === "html-value") {
+                    res = await Helper.request(`/remove/feedback/${type}/`, {id: it.created})
+                  }
+                  if (type === "script") {
+                    res = await Helper.request(`/remove/feedback/${type}/`, {scriptId: script.created, feedbackId: it.created})
+                  }
+
+                  if (res && res.status === 200) {
+                    window.alert("Dieser Beitrag wurde erfolgreich entfernt.")
+                    button.counter.textContent = parseInt(button.counter.textContent) - 1
+                    div.remove()
+                    updateFeedbackOverlay.remove()
+                    overlay.remove()
+                    updateButtonCounter(button)
+                  } else {
+                    window.alert("Fehler.. Bitte wiederholen.")
+                    updateFeedbackOverlay.remove()
+                  }
+                }
+              }
+            })
+          }
+        }
+
+      }
+
+      function createFeedbackFields(node) {
+        const fields = {}
+        fields.textField = Helper.create("field/textarea", node)
+        fields.textField.label.textContent = "Feedback"
+        fields.textField.input.setAttribute("required", "true")
+        fields.textField.input.maxLength = "377"
+        fields.textField.input.style.fontSize = "13px"
+        fields.textField.input.placeholder = "Schreibe ein anonymes Feedback, wenn du möchtest.."
+        Helper.verify("input/value", fields.textField.input)
+        Helper.add("outline-hover", fields.textField.input)
+        fields.textField.input.addEventListener("input", () => Helper.verify("input/value", fields.textField.input))
+        fields.importanceField = Helper.create("field/range", node)
+        fields.importanceField.input.min = "0"
+        fields.importanceField.input.max = "13"
+        fields.importanceField.input.step = "1"
+        fields.importanceField.input.value = "0"
+        fields.importanceField.label.textContent = `Wichtigkeit - ${fields.importanceField.input.value}`
+        fields.importanceField.input.style.cursor = "pointer"
+        Helper.add("outline-hover", fields.importanceField.input)
+        Helper.verify("input/value", fields.importanceField.input)
+        fields.importanceField.input.addEventListener("input", (event) => {
+          Helper.verify("input/value", fields.importanceField.input)
+          fields.importanceField.label.textContent = `Wichtigkeit - ${event.target.value}`
+        })
+        fields.submit = Helper.create("toolbox/action", node)
+        fields.submit.textContent = "Feedback jetzt speichern"
+        return fields
+      }
+
+      function bodyButton() {
+        const button = Helper.create("button/html-feedback", document.body)
+        Helper.convert("dark-light", button)
+        Helper.add("outline-hover", button)
+        button.counter.textContent = "0"
+        Helper.request("/get/feedback/length-html-value/").then((res) => {
+          if (res.status === 200) {
+            button.counter.textContent = res.response
+            updateButtonCounter(button)
+          }
+        })
+        button.onclick = () => openLocationOverlay(button)
+      }
+
+      async function initScriptCounter(id, button) {
+        const res = await Helper.request("/get/feedback/length-script/", {id})
+        if (res.status === 200) {
+          button.counter.textContent = res.response
+          updateButtonCounter(button)
+        }
+      }
+
+      async function getLocationFeedback(container, button, overlay) {
+        const res = await Helper.request(`/get/feedback/html-value/`)
+        if (res && res.status === 200) {
+          const feedback = JSON.parse(res.response)
+          renderFeedback("html-value", feedback, container, button, overlay)
+        } else {
+          Helper.convert("style/info", container)
+          container.textContent = "Kein Feedback gefunden"
+          Helper.style(container, {margin: "21px 34px"})
+        }
+      }
+
+      function openLocationOverlay(button) {
+        Helper.overlay("popup", async overlay => {
+          overlay.info.textContent = `html.feedback`
+          const funnel = Helper.create("div/scrollable", overlay)
+          const fields = createFeedbackFields(funnel)
+          fields.submit.onclick = async () => {
+            await Helper.verify("field-funnel", funnel)
+            Helper.overlay("security", async securityOverlay => {
+              const res = await Helper.request(`/register/feedback/html-value/`, {text: fields.textField.input.value, importance: fields.importanceField.input.value})
+              if (res.status === 200) {
+                window.alert("Vielen Dank für dein Feedback.\n\nDein Feedback ist vollkommen anonym, dynamisch und hilft dabei diese Webseite, noch besser für dich, zu optimieren.")
+                securityOverlay.remove()
+                overlay.remove()
+                button.counter.textContent = parseInt(button.counter.textContent) + 1
+                await getLocationFeedback(feedbackContainer, button, overlay)
+                updateButtonCounter(button)
+              } else {
+                window.alert("Fehler.. Bitte wiederholen.")
+                securityOverlay.remove()
+              }
+            })
+          }
+          const feedbackContainer = Helper.create("info/loading", funnel)
+          await getLocationFeedback(feedbackContainer, button, overlay)
+        })
+      }
+
+      function openScriptOverlay(button, script) {
+
+        Helper.overlay("popup", async overlay => {
+          overlay.info.textContent = `${script.name}.feedback`
+          const funnel = Helper.create("div/scrollable", overlay)
+          const fields = createFeedbackFields(funnel)
+          fields.submit.onclick = async () => {
+            await Helper.verify("field-funnel", funnel)
+            Helper.overlay("security", async securityOverlay => {
+              const res = await Helper.request("/register/feedback/script/", {id: script.created, text: fields.textField.input.value, importance: fields.importanceField.input.value})
+              if (res.status === 200) {
+                window.alert("Vielen Dank für dein Feedback.\n\nDein Feedback ist vollkommen anonym, dynamisch und hilft dabei dieses Skript, noch besser für dich, zu optimieren.")
+                securityOverlay.remove()
+                overlay.remove()
+                button.counter.textContent = parseInt(button.counter.textContent) + 1
+                updateButtonCounter(button)
+              } else {
+                window.alert("Fehler.. Bitte wiederholen.")
+                securityOverlay.remove()
+              }
+            })
+          }
+          const feedbackContainer = Helper.create("info/loading", funnel)
+          const res = await Helper.request("/get/feedback/script/", {id: script.created})
+          if (res && res.status === 200) {
+            const feedback = JSON.parse(res.response)
+            renderFeedback("script", feedback, feedbackContainer, button, overlay, script)
+          } else {
+            Helper.convert("style/info", feedbackContainer)
+            feedbackContainer.textContent = "Kein Feedback gefunden"
+            Helper.style(feedbackContainer, {margin: "21px 34px"})
+          }
+        })
+      }
+
+      return {open, icon, openScriptOverlay, bodyButton, initScriptCounter}
+    }
+
     if (event === "incrementStyle") {
 
       return ({key, node, delta}) => {
@@ -10750,7 +11619,7 @@ await Helper.add("event/click-funnel")
             selectedNode.after(node)
           } else {
             this.convert("clipboard/text").then(text => {
-              const node = this.convert("text/html", text)
+              const node = this.convert("text/first-child", text)
               selectedNode.after(node)
             })
           }
@@ -10767,7 +11636,7 @@ await Helper.add("event/click-funnel")
             selectedNode.before(node)
           } else {
             this.convert("clipboard/text").then(text => {
-              const node = this.convert("text/html", text)
+              const node = this.convert("text/first-child", text)
               selectedNode.before(node)
             })
           }
@@ -10788,7 +11657,7 @@ await Helper.add("event/click-funnel")
             }
           } else {
             this.convert("clipboard/text").then(text => {
-              const node = this.convert("text/html", text)
+              const node = this.convert("text/first-child", text)
               if (selectedNode.firstChild) {
                 selectedNode.insertBefore(node, selectedNode.firstChild)
               } else {
@@ -10809,7 +11678,7 @@ await Helper.add("event/click-funnel")
             selectedNode.appendChild(node)
           } else {
             this.convert("clipboard/text").then(text => {
-              const node = this.convert("text/html", text)
+              const node = this.convert("text/first-child", text)
               selectedNode.appendChild(node)
             })
           }
@@ -11083,10 +11952,12 @@ await Helper.add("event/click-funnel")
               nameField.label.textContent = "Skript Identifikation (text/tag)"
               nameField.input.placeholder = "mein-skript"
               this.verify("input/value", nameField.input)
+              this.add("outline-hover", nameField.input)
               nameField.input.oninput = () => this.verify("input/value", nameField.input)
               const scriptField = this.create("field/script", funnel)
               scriptField.input.style.height = "100vh"
               this.verify("input/value", scriptField.input)
+              this.add("outline-hover", scriptField.input)
               scriptField.input.oninput = () => this.verify("input/value", scriptField.input)
               const button = this.create("toolbox/action", funnel)
               button.textContent = "Skript jetzt speichern"
@@ -11143,7 +12014,7 @@ await Helper.add("event/click-funnel")
                     this.verify("input/value", filterTitleField.input)
                     this.add("outline-hover", filterTitleField.input)
                     const buttons = this.create("info/loading", overlay)
-                    this.convert("text/sources", ev.target.value).then(sources => {
+                    this.convert("text/sources", ev.target.value).then(async sources => {
                       if (sources.length === 0) {
                         window.alert("Es wurden keine Quellen gefunden.")
                         this.add("style/node/not-valid", searchField.input)
@@ -11153,12 +12024,12 @@ await Helper.add("event/click-funnel")
                       } else {
                         h1.textContent = `Es wurden ${sources.length} Quellen gefunden`
                       }
-                      function renderButtons(array, node, query = "", key = "title", max = 8) {
+                      async function renderButtons(array, node, query = "", key = "title", max = 8) {
                         const filtered = array?.filter(item => item[key]?.toLowerCase().includes(query))
                         Helper.convert("parent/scrollable", node)
                         for (let i = 0; i < Math.min(filtered.length, max); i++) {
                           const source = filtered[i]
-                          const button = renderSourceButton(source, node, query)
+                          const button = await renderSourceButton(source, node, query)
                           button.onclick = () => {
                             Helper.render("source/field-funnel", source, funnel)
                             Helper.verify("field-funnel", funnel)
@@ -11166,10 +12037,10 @@ await Helper.add("event/click-funnel")
                           }
                         }
                       }
-                      filterTitleField.input.oninput = (ev) => {
-                        renderButtons(sources, buttons, ev.target.value)
+                      filterTitleField.input.oninput = async (ev) => {
+                        await renderButtons(sources, buttons, ev.target.value)
                       }
-                      renderButtons(sources, buttons)
+                      await renderButtons(sources, buttons)
                     })
                   })
                 }
@@ -11196,7 +12067,7 @@ await Helper.add("event/click-funnel")
           }
           this.render("text/hr", "Meine Quellen", sourcesOverlay)
           const sourceList = this.create("info/loading", sourcesOverlay)
-          function renderSourceButton(source, node, query = "") {
+          async function renderSourceButton(source, node, query = "") {
 
             const button = Helper.create("toolbox/left-right", node)
             button.left.style.flex = "1 1 0"
@@ -11221,10 +12092,10 @@ await Helper.add("event/click-funnel")
 
               if (greaterThanWidth) {
                 const markedText = `${title} .. ${date}`.replace(new RegExp(query, 'i'), match => `<mark>${match}</mark>`)
-                node.innerHTML = markedText // todo purify
+                node.innerHTML = await Helper.convert("text/purified", markedText)
               } else {
                 const markedText = text.replace(new RegExp(query, 'i'), match => `<mark>${match}</mark>`)
-                node.innerHTML = markedText // todo purify
+                node.innerHTML = await Helper.convert("text/purified", markedText)
               }
 
             }
@@ -11266,7 +12137,7 @@ await Helper.add("event/click-funnel")
               Helper.convert("parent/scrollable", node)
               for (let i = 0; i < sources.length; i++) {
                 const source = sources[i]
-                const button = renderSourceButton(source, node)
+                const button = await renderSourceButton(source, node)
                 button.onclick = () => {
                   Helper.overlay("popup", overlay => {
                     overlay.info.textContent = source.title
@@ -11396,7 +12267,7 @@ await Helper.add("event/click-funnel")
           if (res.status === 200) {
             const templates = JSON.parse(res.response)
             let filtered
-            searchField.input.oninput = (ev) => {
+            searchField.input.oninput = async (ev) => {
               const query = ev.target.value
               if (!this.verifyIs("text/empty", query)) {
                 filtered = templates.filter(it => it.html.toLowerCase().includes(query.toLowerCase()))
@@ -11404,30 +12275,30 @@ await Helper.add("event/click-funnel")
                   const highlightedHtml = it.html.replace(new RegExp(query, 'ig'), `<mark>${query}</mark>`)
                   return { ...it, html: highlightedHtml }
                 })
-                renderTemplateFeatureButtons(highlighted, node, content)
+                await renderTemplateFeatureButtons(highlighted, node, content)
               } else {
-                renderTemplateFeatureButtons(templates, node, content)
+                await renderTemplateFeatureButtons(templates, node, content)
               }
             }
-            renderTemplateFeatureButtons(templates, node, content)
+            await renderTemplateFeatureButtons(templates, node, content)
 
             async function renderTemplateClosed(selectedNode, container) {
               const res = await Helper.request("/get/templates/closed/")
               if (res.status === 200) {
                 const templates = JSON.parse(res.response)
-                renderTemplateFeatureButtons(templates, selectedNode, container)
+                await renderTemplateFeatureButtons(templates, selectedNode, container)
               } else {
                 Helper.convert("parent/info", container)
                 container.textContent = "Keine Templates gefunden"
               }
             }
 
-            function renderTemplateFeatureButtons(templates, selectedNode, container, max = 5) {
+            async function renderTemplateFeatureButtons(templates, selectedNode, container, max = 5) {
               Helper.convert("parent/scrollable", container)
               for (let i = 0; i < Math.min(templates.length, max); i++) {
                 const template = templates[i]
                 const templateButton = Helper.create("toolbox/left-right", container)
-                templateButton.left.innerHTML = template.html // todo purify
+                templateButton.left.innerHTML = await Helper.convert("text/purified", template.html)
                 templateButton.left.style.height = "34vh"
                 templateButton.left.style.overflow = "auto"
                 templateButton.right.style.fontSize = "21px"
@@ -11440,9 +12311,9 @@ await Helper.add("event/click-funnel")
                       const button = Helper.create("toolbox/left-right", buttons)
                       button.left.textContent = ".append-to-selected-node"
                       button.right.textContent = "Hänge dein Template an das ausgewählte Element"
-                      button.onclick = () => {
+                      button.onclick = async () => {
                         const parser = document.createElement("div")
-                        parser.innerHTML = template.html // todo purify
+                        parser.innerHTML = await Helper.convert("text/purified", template.html)
                         selectedNode.appendChild(parser.firstChild)
                         window.alert("Templete erfolgreich angehängt.")
                         buttonsOverlay.remove()
@@ -11526,9 +12397,9 @@ await Helper.add("event/click-funnel")
 
     if (event === "replaceInnerHtmlWithPrompt") {
 
-      return (node) => {
+      return async (node) => {
         const prompt = window.prompt("Ersetze den Inhalt deines Elements mit folgendem HTML: (z.B., Hallo HTML)")
-        node.innerHTML = prompt // todo purify
+        node.innerHTML = await Helper.convert("text/purified", prompt)
       }
     }
 
@@ -11634,12 +12505,11 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "toggleInnerHtml") {
-      // todo purify
       let cache
-      return (node) => {
+      return async (node) => {
         if (this.verifyIs("text/empty", node.innerHTML)) {
           if (cache) {
-            node.innerHTML = cache
+            node.innerHTML = await Helper.convert("text/purified", cache)
           } else {
             node.innerHTML = ""
           }
@@ -12347,6 +13217,23 @@ await Helper.add("event/click-funnel")
       }
     }
 
+    if (event === "convertTextContentToDuckDuckGoLink") {
+      return (node) => {
+        const duckDuckGoUrl = "https://duckduckgo.com/?q="
+        const textContent = node.textContent
+        const encoded = encodeURIComponent(textContent)
+        const searchUrl = duckDuckGoUrl + encoded
+        const link = document.createElement("a")
+        link.href = searchUrl
+        link.target = "_blank"
+        link.textContent = `DuckDuckGo-Suche für ' ${textContent} ' öffnen.`
+        Helper.style(link, {fontFamily: "sans-serif"})
+        Helper.convert("link-colors", link)
+        node.textContent = ""
+        node.appendChild(link)
+      }
+    }
+
     if (event === "overlay-text-converter") {
       this.overlay("popup", overlay => {
         this.render("text/h1", "Text Konverter Funktionen", overlay)
@@ -12705,7 +13592,7 @@ await Helper.add("event/click-funnel")
         const info = infoField.input.value
 
         const script = this.create("script", {id: "on-info-click", js: 'Helper.add("on-info-click")'})
-        this.add("script/onbody", script)
+        this.add("script-onbody", script)
 
         if (this.verifyIs("text/empty", info)) return input.removeAttribute("on-info-click")
 
@@ -12812,7 +13699,7 @@ await Helper.add("event/click-funnel")
               if (!this.verifyIs("text/empty", info)) {
                 field.setAttribute("on-info-click", info)
                 const script = this.create("script", {id: "on-info-click", js: 'Helper.add("on-info-click")'})
-                this.add("script/onbody", script)
+                this.add("script-onbody", script)
               }
 
               input.querySelector(".submit-field-funnel-button").before(field)
@@ -12982,35 +13869,18 @@ await Helper.add("event/click-funnel")
       overlay.style.position = "fixed"
       overlay.style.bottom = "0"
       overlay.style.left = "0"
-
       overlay.style.background = this.colors.light.background
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         overlay.style.background = this.colors.dark.background
       }
-
       overlay.style.display = "flex"
       overlay.style.flexDirection = "column"
       overlay.style.opacity = 0
-
       this.removeOverlayButton(overlay)
-
       if (callback) callback(overlay)
-
       document.body.append(overlay)
-
       this.animate("fade-up", overlay)
-
-      // const animation = overlay.animate([
-      //   { opacity: 0, transform: 'translateY(13px)' },
-      //   { opacity: 1, transform: 'translateY(0)' },
-      // ], {
-      //   duration: 233,
-      //   easing: 'ease-in-out',
-      //   fill: "forwards"
-      // })
-
       return overlay
-
     }
 
     if (event === "toolbox") {
@@ -13739,581 +14609,6 @@ await Helper.add("event/click-funnel")
 
     }
 
-    if (event === "contacts/node/update-self") {
-
-      new Promise(async(resolve, reject) => {
-        try {
-          const websiteIcon = await this.convert("path/icon", "/public/website.svg")
-          const phoneIcon = await this.convert("path/icon", "/public/phone-out.svg")
-          const emailIcon = await this.convert("path/icon", "/public/email-out.svg")
-          resolve({websiteIcon, phoneIcon, emailIcon})
-        } catch (error) {
-          reject(error)
-        }
-      }).then(({websiteIcon, phoneIcon, emailIcon}) => {
-        this.convert("parent/scrollable", parent)
-        for (let i = 0; i < input.length; i++) {
-          const contact = input[i]
-
-          const contactButton = this.create("button/left-right", parent)
-          contactButton.left.textContent = contact.email
-          if (contact.alias !== undefined) {
-            this.createNode("div", contactButton.left, contact.alias)
-            const div = this.createNode("div", contactButton.left, contact.email)
-            this.style(div, {fontSize: "13px"})
-          }
-          contactButton.right.style.display = "flex"
-
-          if (contact.website) {
-            const clone = websiteIcon.cloneNode(true)
-            clone.style.padding = "5px"
-            contactButton.right.appendChild(clone)
-            this.add("outline-hover", clone)
-            clone.onclick = () => {
-              window.open(contact.website, "_blank")
-            }
-          }
-
-          if (contact.phone) {
-            const clone = phoneIcon.cloneNode(true)
-            clone.style.padding = "5px"
-            contactButton.right.appendChild(clone)
-            this.add("outline-hover", clone)
-            clone.onclick = () => {
-              window.location.href = `tel:${contact.phone}`
-            }
-          }
-
-          if (contact.email) {
-            const clone = emailIcon.cloneNode(true)
-            clone.style.padding = "5px"
-            contactButton.right.appendChild(clone)
-            this.add("outline-hover", clone)
-            clone.onclick = () => {
-              window.location.href = `mailto:${contact.email}`
-            }
-          }
-
-          contactButton.onclick = () => {
-            this.overlay("popup", async updateOverlay => {
-              this.create("header/info", updateOverlay).textContent = contact.email
-              const buttons = this.create("div/scrollable", updateOverlay)
-
-              {
-                const button = this.create("button/left-right", buttons)
-                button.left.textContent = ".alias"
-                button.right.textContent = "Gib deinem Kontakt einen alternativen Namen"
-                button.onclick = () => {
-                  this.overlay("popup", overlay => {
-                    this.create("header/info", overlay).textContent = contact.email
-
-                    const funnel = this.create("div/scrollable", overlay)
-
-                    const aliasField = this.create("field/text", funnel)
-                    aliasField.label.textContent = "Alternative Bezeichnung für deinen Kontakt"
-                    aliasField.input.setAttribute("required", "true")
-                    if (contact.alias !== undefined) {
-                      aliasField.input.value = contact.alias
-                    }
-                    this.verify("input/value", aliasField.input)
-                    this.add("outline-hover", aliasField.input)
-                    aliasField.input.oninput = () => this.verify("input/value", aliasField.input)
-
-
-                    const submit = this.create("button/action", funnel)
-                    this.add("outline-hover", submit)
-                    submit.textContent = "Alias jetzt speichern"
-                    submit.onclick = async () => {
-
-                      await this.verify("input/value", aliasField.input)
-
-                      this.overlay("security", async securityOverlay => {
-                        const res = await this.request("/register/contacts/alias-self/", {id: contact.created, alias: aliasField.input.value})
-
-                        if (res.status !== 200) {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          securityOverlay.remove()
-                        }
-
-                        if (res.status === 200) {
-                          window.alert("Alias erfolgreich gespeichert.")
-
-                          const res = await this.request("/get/contacts/self/")
-                          if (res.status !== 200) {
-                            this.convert("parent/info", parent)
-                            parent.textContent = "Keine Kontakte gefunden"
-                          }
-                          if (res.status === 200) {
-                            const contacts = JSON.parse(res.response)
-                            this.render("contacts/node/update-self", contacts, parent)
-                          }
-
-                          overlay.remove()
-                          updateOverlay.remove()
-                          securityOverlay.remove()
-                        }
-                      })
-
-                    }
-
-                  })
-                }
-              }
-
-              {
-                const button = this.create("button/left-right", buttons)
-                button.left.textContent = ".character"
-                button.right.textContent = "Erfahre mehr über deinen Kontakt"
-                button.onclick = () => {
-                  this.overlay("popup", overlay => {
-                    this.create("header/info", overlay).textContent = contact.email
-                    const funnel = this.create("div", overlay)
-
-                    const dateField = this.create("field/date", funnel)
-                    dateField.label.textContent = "Gebe das Geburtsdatum deines Kontakts ein"
-                    dateField.input.placeholder = "yyyy-mm-dd"
-                    this.add("outline-hover", dateField.input)
-                    let birthday
-                    if (contact.birthday) {
-                      const split = contact.birthday.split("T")
-                      dateField.input.value = split[0]
-                      birthday = split[0]
-                    }
-                    dateField.input.setAttribute("required", "true")
-                    this.verify("input/value", dateField.input)
-
-                    const submit = this.render("text/node/action-button", "Geburtsdatum jetzt speichern", funnel)
-                    this.add("outline-hover", submit)
-                    submit.onclick = async () => {
-                      await this.verify("input/value", dateField.input)
-
-                      const date = new Date(dateField.input.value)
-
-                      this.overlay("security", async securityOverlay => {
-                        const res = await this.request("/register/contacts/birthday-self/", {id: contact.created, birthday: date.toISOString()})
-
-                        if (res.status !== 200) {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          securityOverlay.remove()
-                        }
-
-                        if (res.status === 200) {
-                          window.alert("Geburtsdatum erfolgreich gespeichert.")
-
-                          const res = await this.request("/get/contacts/self/")
-                          if (res.status !== 200) {
-                            this.convert("parent/info", parent)
-                            parent.textContent = "Keine Kontakte gefunden"
-                          }
-                          if (res.status === 200) {
-                            const contacts = JSON.parse(res.response)
-                            this.render("contacts/node/update-self", contacts, parent)
-                          }
-
-                          overlay.remove()
-                          updateOverlay.remove()
-                          securityOverlay.remove()
-                        }
-                      })
-
-                    }
-
-                    if (!this.verifyIs("text/empty", birthday)) {
-                      const numerology = this.create("div/scrollable", overlay)
-
-                      if (contact.alias) {
-                        this.render("text/hr", `Numerologie von ${contact.alias}`, numerology)
-                      } else {
-                        this.render("text/hr", `Numerologie von ${contact.email}`, numerology)
-                      }
-
-                      const date = birthday.split("T")[0]
-                      const master = this.convert("date/master", date)
-                      this.render("text/p", `Lebensweg: ${this.convert("date/life-path-calc-text", date)} = ${master.toString().split('').join(' + ')} = <span style="font-size: 34px;">${this.convert("date/life-path", date)}</span>`, numerology)
-                      if (master === 11 || master === 22 || master === 33) {
-                        this.render("text/p", `Masterzahl: <span style="font-size:34px;">${master}</span>`, numerology)
-                      }
-                      const dateNumbers = date.match(/\d/g).map(Number)
-                      dateNumbers.push(this.convert("date/life-path", date))
-                      master.toString().split("").forEach(digit => dateNumbers.push(parseInt(digit)))
-                      const missingNumbers = [];
-                      for (let i = 1; i <= 9; i++) {
-                        if (!dateNumbers.includes(i)) {
-                          missingNumbers.push(i);
-                        }
-                      }
-                      if (missingNumbers.length > 0) {
-                        this.render("text/p", `Fehlende Zahlen: <span style="font-size:34px;">${missingNumbers.join(", ")}</span>`, numerology)
-                      }
-                    }
-
-                  })
-                }
-              }
-
-              {
-                const button = this.create("button/left-right", buttons)
-                button.left.textContent = ".status"
-                button.right.textContent = "Gib deinem Kontakt einen Status"
-                button.onclick = () => {
-                  this.overlay("popup", overlay => {
-                    this.create("header/info", overlay).textContent = contact.email
-
-                    const funnel = this.create("div/scrollable", overlay)
-
-                    const statusField = this.create("field/text", funnel)
-                    this.add("outline-hover", statusField.input)
-                    statusField.label.textContent = "Vergebe einen Status Wert"
-                    statusField.input.setAttribute("required", "true")
-                    if (contact.status !== undefined) {
-                      statusField.input.value = contact.status
-                    }
-                    this.verify("input/value", statusField.input)
-                    statusField.input.oninput = () => this.verify("input/value", statusField.input)
-
-                    const submit = this.create("button/action", funnel)
-                    this.add("outline-hover", submit)
-                    submit.textContent = "Status jetzt speichern"
-                    submit.onclick = async () => {
-
-                      await this.verify("input/value", statusField.input)
-
-                      this.overlay("security", async securityOverlay => {
-                        const res = await this.request("/register/contacts/status-self/", {id: contact.created, status: statusField.input.value})
-
-                        if (res.status !== 200) {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          securityOverlay.remove()
-                        }
-
-                        if (res.status === 200) {
-                          window.alert("Status erfolgreich gespeichert.")
-
-                          const res = await this.request("/get/contacts/self/")
-                          if (res.status !== 200) {
-                            this.convert("parent/info", parent)
-                            parent.textContent = "Keine Kontakte gefunden"
-                          }
-                          if (res.status === 200) {
-                            const contacts = JSON.parse(res.response)
-                            this.render("contacts/node/update-self", contacts, parent)
-                          }
-
-                          overlay.remove()
-                          updateOverlay.remove()
-                          securityOverlay.remove()
-                        }
-                      })
-
-                    }
-
-                  })
-                }
-              }
-
-              {
-                const button = this.create("button/left-right", buttons)
-                button.left.textContent = ".notes"
-                button.right.textContent = "Mache dir Notizen zu deinem Kontakt"
-                button.onclick = () => {
-                  this.overlay("popup", overlay => {
-                    overlay.info.textContent = contact.email
-
-                    const funnel = this.create("div/scrollable", overlay)
-
-                    const notesField = this.create("field/textarea", funnel)
-                    this.add("outline-hover", notesField.input)
-                    notesField.label.textContent = "Notizen"
-                    notesField.input.style.height = "55vh"
-                    if (contact.notes !== undefined) {
-                      notesField.input.value = contact.notes
-                    }
-                    this.verify("input/value", notesField.input)
-                    notesField.input.oninput = () => this.verify("input/value", notesField.input)
-
-                    const submit = this.create("button/action", funnel)
-                    this.add("outline-hover", submit)
-                    submit.textContent = "Notizen jetzt speichern"
-                    submit.onclick = async () => {
-
-                      await this.verify("input/value", notesField.input)
-
-                      this.overlay("security", async securityOverlay => {
-                        const res = await this.request("/register/contacts/notes-self/", {id: contact.created, notes: notesField.input.value})
-
-                        if (res.status !== 200) {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          securityOverlay.remove()
-                        }
-
-                        if (res.status === 200) {
-                          window.alert("Notizen erfolgreich gespeichert.")
-
-                          const res = await this.request("/get/contacts/self/")
-                          if (res.status !== 200) {
-                            this.convert("parent/info", parent)
-                            parent.textContent = "Keine Kontakte gefunden"
-                          }
-                          if (res.status === 200) {
-                            const contacts = JSON.parse(res.response)
-                            this.render("contacts/node/update-self", contacts, parent)
-                          }
-
-                          overlay.remove()
-                          updateOverlay.remove()
-                          securityOverlay.remove()
-                        }
-                      })
-
-                    }
-
-                  })
-                }
-              }
-
-              {
-                const button = this.create("button/left-right", buttons)
-                button.left.textContent = ".phone"
-                button.right.textContent = "Gib die Telefon Nummer deines Kontakts ein"
-                button.onclick = () => {
-                  this.overlay("popup", overlay => {
-                    this.create("header/info", overlay).textContent = contact.email
-
-                    const funnel = this.create("div/scrollable", overlay)
-
-                    const phoneField = this.create("field/tel", funnel)
-                    phoneField.label.textContent = "Telefon Nummer"
-                    phoneField.input.setAttribute("required", "true")
-                    phoneField.input.setAttribute("accept", "text/tel")
-                    if (contact.phone !== undefined) {
-                      phoneField.input.value = contact.phone
-                    }
-                    this.verify("input/value", phoneField.input)
-                    this.add("outline-hover", phoneField.input)
-                    phoneField.input.oninput = () => this.verify("input/value", phoneField.input)
-
-
-                    const submit = this.create("button/action", funnel)
-                    this.add("outline-hover", submit)
-                    submit.textContent = "Nummer jetzt speichern"
-                    submit.onclick = async () => {
-
-                      await this.verify("input/value", phoneField.input)
-
-                      this.overlay("security", async securityOverlay => {
-                        const res = await this.request("/register/contacts/phone-self/", {id: contact.created, phone: phoneField.input.value})
-
-                        if (res.status !== 200) {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          securityOverlay.remove()
-                        }
-
-                        if (res.status === 200) {
-                          window.alert("Telefon Nummer erfolgreich gespeichert.")
-
-                          const res = await this.request("/get/contacts/self/")
-                          if (res.status !== 200) {
-                            this.convert("parent/info", parent)
-                            parent.textContent = "Keine Kontakte gefunden"
-                          }
-                          if (res.status === 200) {
-                            const contacts = JSON.parse(res.response)
-                            this.render(event, contacts, parent)
-                          }
-
-                          overlay.remove()
-                          updateOverlay.remove()
-                          securityOverlay.remove()
-                        }
-                      })
-
-                    }
-
-                  })
-                }
-              }
-
-              {
-                const button = this.create("button/left-right", buttons)
-                button.left.textContent = ".website"
-                button.right.textContent = "Gib die Webseite deines Kontakts ein"
-                button.onclick = () => {
-                  this.overlay("popup", overlay => {
-                    this.create("header/info", overlay).textContent = contact.email
-
-                    const funnel = this.create("div/scrollable", overlay)
-
-                    const websiteField = this.create("field/text", funnel)
-                    websiteField.label.textContent = "Webseite"
-                    websiteField.input.setAttribute("required", "true")
-                    if (contact.website !== undefined) {
-                      websiteField.input.value = contact.website
-                    }
-                    this.verify("input/value", websiteField.input)
-                    this.add("outline-hover", websiteField.input)
-                    websiteField.input.oninput = () => this.verify("input/value", websiteField.input)
-
-
-                    const submit = this.create("button/action", funnel)
-                    this.add("outline-hover", submit)
-                    submit.textContent = "Webseite jetzt speichern"
-                    submit.onclick = async () => {
-
-                      await this.verify("input/value", websiteField.input)
-
-                      this.overlay("security", async securityOverlay => {
-                        const res = await this.request("/register/contacts/website-self/", {id: contact.created, website: websiteField.input.value})
-
-                        if (res.status !== 200) {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          securityOverlay.remove()
-                        }
-
-                        if (res.status === 200) {
-                          window.alert("Webseite erfolgreich gespeichert.")
-
-                          const res = await this.request("/get/contacts/self/")
-                          if (res.status !== 200) {
-                            this.convert("parent/info", parent)
-                            parent.textContent = "Keine Kontakte gefunden"
-                          }
-                          if (res.status === 200) {
-                            const contacts = JSON.parse(res.response)
-                            this.render("contacts/node/update-self", contacts, parent)
-                          }
-
-                          overlay.remove()
-                          updateOverlay.remove()
-                          securityOverlay.remove()
-                        }
-                      })
-
-                    }
-
-                  })
-                }
-              }
-
-              {
-                const res = await this.request("/verify/user/expert/")
-                if (res.status === 200) {
-                  const button = this.create("button/left-right", buttons)
-                  button.left.textContent = ".promote"
-                  button.right.textContent = "Erhalte Zugang zu unendlich vielen Möglichkeiten"
-                  button.onclick = () => {
-                    this.overlay("popup", async overlay => {
-                      if (contact.alias) {
-                        this.render("text/h1", `Promote ${contact.email}`, overlay)
-                      } else {
-                        this.render("text/h1", `Promote ${contact.email}`, overlay)
-                      }
-                      const funnel = this.create("div/scrollable", overlay)
-                      const searchField = this.create("field/text", funnel)
-                      searchField.label.textContent = "Suche nach Text im Pfad"
-                      searchField.input.placeholder = "/experte/plattform/pfad"
-                      searchField.style.margin = "0 34px"
-                      this.verify("input/value", searchField.input)
-                      this.add("outline-hover", searchField.input)
-                      const pathField = await this.create("field/open-expert-values-path-select", funnel)
-                      const originalOptions = Array.from(pathField.input.options).map(option => option.cloneNode(true))
-                      searchField.input.oninput = (ev) => {
-                        const searchTerm = ev.target.value.toLowerCase()
-                        const options = originalOptions.map(it => it.value)
-                        const filtered = options.filter(it => it.toLowerCase().includes(searchTerm))
-                        pathField.input.add(filtered)
-                      }
-                      pathField.input.style.height = "55vh"
-                      pathField.input.setAttribute("multiple", "true")
-                      for (let i = 0; i < pathField.input.options.length; i++) {
-                        const option = pathField.input.options[i]
-                        option.selected = false
-                      }
-                      pathField.input.oninput = async () => {
-                        const fieldFunnel = await this.convert("path/field-funnel", pathField.input.value)
-                        if (fieldFunnel.id) {
-                          this.overlay("popup", async overlay => {
-                            overlay.info.textContent = contact.email + "." + fieldFunnel.id
-                            const create = this.create("button/left-right", overlay)
-                            create.left.textContent = ".create"
-                            create.right.textContent = this.convert("text/capital-first-letter", fieldFunnel.id) + " definieren"
-                            create.onclick = () => {
-                              this.overlay("popup", async overlay => {
-                                this.create("header/info", overlay).textContent = contact.email + "." + fieldFunnel.id + ".create"
-                                overlay.append(fieldFunnel)
-                                this.verifyIs("field-funnel/valid", fieldFunnel)
-                                this.add("outline-hover/field-funnel", fieldFunnel)
-                                const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
-                                if (submitButton) {
-                                  submitButton.textContent = `${this.convert("text/capital-first-letter", fieldFunnel.id)} jetzt speichern`
-                                  submitButton.onclick = async () => {
-                                    const path = pathField.input.value
-                                    await this.verify("field-funnel", fieldFunnel)
-                                    const map = await this.convert("field-funnel/map", fieldFunnel)
-                                    this.overlay("security", async securityOverlay => {
-                                      const register = {}
-                                      register.email = contact.email
-                                      register.map = map
-                                      register.path = path
-                                      register.id = fieldFunnel.id
-                                      const res = await this.request("/register/location/email-expert", register)
-                                      if (res.status === 200) {
-                                        window.alert("Daten erfolgreich gespeichert.")
-                                        await this.render("location-list/node/email-expert", {tag: fieldFunnel.id, email: contact.email, path: pathField.input.value}, locationList)
-                                        securityOverlay.remove()
-                                      } else {
-                                        window.alert("Fehler.. Bitte wiederholen.")
-                                        securityOverlay.remove()
-                                      }
-                                    })
-                                  }
-                                } else {
-                                  window.alert("Field Funnel besitzt keinen Button mit der Klasse 'submit-field-funnel-button'")
-                                }
-                              })
-                            }
-                            if (contact.alias) {
-                              this.render("text/hr", this.convert("text/capital-first-letter", fieldFunnel.id) + " von " + contact.alias, overlay)
-                            } else {
-                              this.render("text/hr", this.convert("text/capital-first-letter", fieldFunnel.id) + " von " + contact.email, overlay)
-                            }
-                            const locationList = this.create("info/loading", overlay)
-                            await this.render("location-list/node/email-expert", {tag: fieldFunnel.id, email: contact.email, path: pathField.input.value}, locationList)
-                          })
-                        }
-                      }
-                    })
-                  }
-                }
-              }
-              {
-                const button = this.create("button/left-right", buttons)
-                button.left.textContent = ".delete"
-                button.right.textContent = "Kontakt entfernen"
-                button.onclick = () => {
-                  const confirm = window.confirm("Möchtest du deinen Kontakt wirklich entfernen?")
-                  if (confirm === true) {
-                    this.overlay("security", async securityOverlay => {
-                      const res = await this.request("/remove/contacts/id-self/", {id: contact.created})
-                      if (res.status === 200) {
-                        window.alert("Kontakt erfolgreich entfernt.")
-                        contactButton.remove()
-                        updateOverlay.remove()
-                        securityOverlay.remove()
-                      }
-                      if (res.status !== 200) {
-                        window.alert("Fehler.. Bitte wiederholen.")
-                        securityOverlay.remove()
-                      }
-                    })
-                  }
-                }
-              }
-            })
-          }
-        }
-      })
-    }
-
     if (event === "contacts/node/next-list") {
       if (arguments.length === 2) {
         parent = input
@@ -14431,7 +14726,7 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "image-url/selector/self") {
-      // todo purify
+
       return new Promise(async(resolve, reject) => {
         try {
           const parentNode = document.querySelector(parent)
@@ -14448,8 +14743,8 @@ await Helper.add("event/click-funnel")
             image.src = res.response
             image.style.width = "300px"
             image.style.margin = "34px"
-            parentNode.onclick = () => {
-              parentNode.innerHTML = oldHtml
+            parentNode.onclick = async () => {
+              parentNode.innerHTML = await Helper.convert("text/purified", oldHtml)
               parentNode.onclick = null
               const urlInput = parentNode.querySelector(".field-input")
               urlInput.oninput = () => this.verify("input/value", urlInput)
@@ -14997,7 +15292,7 @@ await Helper.add("event/click-funnel")
           button.onclick = () => {
             this.create("field-funnel/login", child)
             const script = this.create("script", {id: "role-login", js: `Helper.add("role-login", {"id":${role.created},"name":"${role.name}"})`})
-            this.add("script/onbody", script)
+            this.add("script-onbody", script)
             window.alert("Zugang wurde erfolgreich angehängt.")
           }
         }
@@ -15160,7 +15455,7 @@ await Helper.add("event/click-funnel")
 
                       const onloadScript = this.create("script/match-maker-onload", map)
 
-                      await this.render("script/onbody", onloadScript)
+                      this.add("script-onbody", onloadScript)
 
                     }
 
@@ -15175,7 +15470,7 @@ await Helper.add("event/click-funnel")
 
                       const onclickScript = this.create("script/match-maker-onclick", map)
 
-                      await this.render("script/onbody", onclickScript)
+                      this.add("script-onbody", onclickScript)
 
                     }
 
@@ -15188,7 +15483,7 @@ await Helper.add("event/click-funnel")
 
                       const showScript = this.create("script/match-maker-show", map)
 
-                      await this.render("script/onbody", showScript)
+                      this.add("script-onbody", showScript)
 
                     }
 
@@ -15200,7 +15495,7 @@ await Helper.add("event/click-funnel")
 
                       const removeScript = this.create("script/match-maker-remove", map)
 
-                      await this.render("script/onbody", removeScript)
+                      this.add("script-onbody", removeScript)
 
                     }
 
@@ -15215,7 +15510,7 @@ await Helper.add("event/click-funnel")
 
                       const getterScript = this.create("script/match-maker-get-list", map)
 
-                      await this.render("script/onbody", getterScript)
+                      this.add("script-onbody", getterScript)
 
                     }
 
@@ -15237,7 +15532,7 @@ await Helper.add("event/click-funnel")
 
                       const getterScript = this.create("script/match-maker-get-keys", map)
 
-                      await this.render("script/onbody", getterScript)
+                      this.add("script-onbody", getterScript)
 
                     }
 
@@ -15259,7 +15554,7 @@ await Helper.add("event/click-funnel")
 
                       const getterScript = this.create("script/match-maker-get-users", map)
 
-                      await this.render("script/onbody", getterScript)
+                      this.add("script-onbody", getterScript)
 
                     }
 
@@ -16006,7 +16301,7 @@ await Helper.add("event/click-funnel")
       }
     }
 
-    if (event === "script/onbody") {
+    if (event === "script-onbody") {
 
       return new Promise(async resolve => {
 
@@ -16215,354 +16510,75 @@ await Helper.add("event/click-funnel")
       })
     }
 
-    if (event === "scripts/toolbox") {
-      for (let i = 0; i < input.length; i++) {
-        const script = input[i]
+    if (event === "toolbox-scripts") {
 
-        const item = document.createElement("div")
-        item.style.margin = "34px"
-
-        const itemHeader = document.createElement("div")
-        itemHeader.style.display = "flex"
-        itemHeader.style.borderTopRightRadius = "21px"
-        itemHeader.style.borderTopLeftRadius = "21px"
-        itemHeader.style.borderBottomLeftRadius = "21px"
-        itemHeader.style.fontFamily = "sans-serif"
-
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          itemHeader.style.backgroundColor = this.colors.matte.charcoal
-          itemHeader.style.color = this.colors.dark.text
-
-        } else {
-          itemHeader.style.color = this.colors.light.text
-          itemHeader.style.backgroundColor = this.colors.gray[1]
-        }
-
-        const itemState = document.createElement("div")
-        itemState.classList.add("item-state")
-        itemState.style.display = "flex"
-        itemState.style.justifyContent = "center"
-        itemState.style.alignItems = "center"
-        itemState.style.width = "89px"
-        itemState.style.height = "89px"
-        itemState.style.fontSize = "34px"
-
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          itemState.style.backgroundColor = this.colors.dark.foreground
-        } else {
-          itemState.style.backgroundColor = this.colors.light.foreground
-        }
-
-        if (document.getElementById(script.name) !== null) {
-          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            itemState.style.backgroundColor = this.colors.dark.success
-          } else {
-            itemState.style.backgroundColor = this.colors.light.success
-          }
-        }
-
-        itemState.style.borderTopLeftRadius = "21px"
-        itemState.style.borderBottomLeftRadius = "21px"
-
-        const itemTitle = document.createElement("div")
-        itemTitle.style.alignSelf = "center"
-        itemTitle.style.marginLeft = "13px"
-
-        {
-          const name = document.createElement("div")
-          name.textContent = script.name
-          name.style.fontSize = "21px"
-          itemTitle.append(name)
-        }
-
-        itemHeader.append(itemState, itemTitle)
-        item.append(itemHeader)
-
-
-        const itemBody = document.createElement("div")
-        itemBody.classList.add("item-body")
-        itemBody.style.marginLeft = "8%"
-
-
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          itemBody.style.backgroundColor = this.colors.matte.slate
-          itemBody.style.boxShadow = `0 1px ${this.colors.gray[4]}`
-        } else {
-          itemBody.style.boxShadow = `0 1px ${this.colors.gray[2]}`
-          itemBody.style.backgroundColor = this.colors.gray[0]
-        }
-
-        itemBody.style.borderBottomRightRadius = "21px"
-        itemBody.style.borderBottomLeftRadius = "21px"
-        itemBody.style.padding = "21px"
-        itemBody.style.display = "flex"
-        itemBody.style.flexDirection = "column"
-
-        const buttons = document.createElement("div")
-        buttons.style.display = "flex"
-        buttons.style.alignItems = "center"
-        buttons.style.justifyContent = "space-around"
-
-
-        {
-          const button = this.create("div", buttons)
-          this.render("icon/node/path", "/public/arrow-repeat-1.svg", button)
-          button.style.width = "55px"
-          button.style.cursor = "pointer"
-          button.addEventListener("click", async () => {
-
-            await this.add("script/always", script)
-
-            const removalScript = document.createElement("script")
-            removalScript.id = "script-to-remove"
-            removalScript.textContent = `
-              document.getElementById("${script.name}").remove();
-              document.getElementById("${removalScript.id}").remove();
-            `
-            document.body.appendChild(removalScript)
-            itemState.style.backgroundColor = this.colors.matte.black
-
-
-          })
-        }
-
-        {
-          const button = this.create("div", buttons)
-          this.render("icon/node/path", "/public/arrow-repeat.svg", button)
-          button.style.width = "55px"
-          button.style.cursor = "pointer"
-          button.addEventListener("click", async () => {
-
-
-            if (document.getElementById(script.name) === null) {
-              await this.add("script/always", script)
-            } else {
-              window.alert("Skript existiert bereits.")
-            }
-
+      return new Promise(async(resolve, reject) => {
+        try {
+          const executeOnceIcon = await this.convert("path/icon", "/public/arrow-repeat-1.svg")
+          executeOnceIcon.style.width = "55px"
+          const executeAlwaysIcon = await this.convert("path/icon", "/public/arrow-repeat.svg")
+          executeAlwaysIcon.style.width = "55px"
+          const feedback = this.fn("feedback")
+          const feedbackIcon = await feedback.icon()
+          const fragment = document.createDocumentFragment()
+          this.convert("parent/scrollable", parent)
+          for (let i = 0; i < input.length; i++) {
+            const script = input[i]
+            const scriptButton = this.create("toolbox/left-right", fragment)
+            scriptButton.left.textContent = script.name
             if (document.getElementById(script.name) !== null) {
-              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                itemState.style.backgroundColor = this.colors.dark.success
-              } else {
-                itemState.style.backgroundColor = this.colors.light.success
+              scriptButton.style.border = `3px solid ${Helper.colors.matte.orange}`
+            }
+            const buttons = document.createElement("div")
+            scriptButton.right.appendChild(buttons)
+            buttons.style.display = "flex"
+            buttons.style.alignItems = "center"
+            buttons.style.justifyContent = "space-around"
+            {
+              const button = executeOnceIcon.cloneNode(true)
+              buttons.appendChild(button)
+              this.add("outline-hover", button)
+              button.onclick = () => {
+                const executer = document.createElement("script")
+                const clone = this.convert("text/script", script.html)
+                executer.id = script.name
+                executer.type = "module"
+                executer.textContent = clone.textContent
+                document.body.appendChild(executer)
+                setTimeout(() => executer.remove(), 34)
               }
             }
-
-          })
-        }
-
-        {
-          const button = this.create("button/branch", buttons)
-          button.counter.textContent = script.feedbackLength
-          button.onclick = () => {
-
-            this.overlay("toolbox", async overlay => {
-              const feedbackOverlay = overlay
-
-              this.removeOverlayButton(overlay)
-
-              const info = this.create("header/info", overlay)
-
-              info.append(this.convert("element/alias", document.body))
-              info.append(this.convert("text/span", `.${script.name}.feedback`))
-
-              const content = this.create("div/scrollable", overlay)
-
-              const feedbackContainer = this.create("info/loading", content)
-              feedbackContainer.info.remove()
-
-              feedbackContainer.style.margin = "21px 34px"
-              feedbackContainer.style.overflowY = "auto"
-              feedbackContainer.style.overscrollBehavior = "none"
-              feedbackContainer.style.fontFamily = "monospace"
-              feedbackContainer.style.fontSize = "13px"
-              feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
-
-
-              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                feedbackContainer.style.color = this.colors.dark.text
-              } else {
-                feedbackContainer.style.color = this.colors.light.text
-              }
-
-              const res = await this.request("/get/feedback/script/", {id: script.id})
-              if (res.status !== 200) {
-                feedbackContainer.textContent = `Kein Feedback gefunden`
-              }
-
-              getFeedbackSuccess: if (res.status === 200) {
-                const feedback = JSON.parse(res.response)
-
-                this.convert("element/reset", feedbackContainer)
-                feedbackContainer.style.margin = "21px 34px"
-                feedbackContainer.style.overflowY = "auto"
-                feedbackContainer.style.overscrollBehavior = "none"
-                feedbackContainer.style.fontFamily = "monospace"
-                feedbackContainer.style.fontSize = "13px"
-                feedbackContainer.style.height = `${window.innerHeight * 0.4}px`
-
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                  feedbackContainer.style.color = this.colors.dark.text
-                } else {
-                  feedbackContainer.style.color = this.colors.light.text
+            {
+              const button = executeAlwaysIcon.cloneNode(true)
+              buttons.appendChild(button)
+              this.add("outline-hover", button)
+              button.onclick = async () => {
+                if (document.getElementById(script.name) !== null) {
+                  window.alert("Skript existiert bereits.")
+                  return
                 }
-
-
-                for (let i = 0; i < feedback.length; i++) {
-                  const value = feedback[i]
-
-                  const div = document.createElement("div")
-                  div.style.display = "flex"
-                  div.style.justifyContent = "space-between"
-                  div.style.alignItems = "center"
-
-                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-
-                    if (i % 2 === 0) {
-                      div.style.background = this.colors.light.foreground
-                      div.style.color = this.colors.light.text
-                    } else {
-                      div.style.background = this.colors.dark.foreground
-                      div.style.color = this.colors.dark.text
-                    }
-
-                  } else {
-
-                    if (i % 2 === 1) {
-                      div.style.background = this.colors.light.foreground
-                      div.style.color = this.colors.light.text
-                    } else {
-                      div.style.background = this.colors.dark.foreground
-                      div.style.color = this.colors.dark.text
-                    }
-
-                  }
-
-                  const left = document.createElement("span")
-                  left.textContent = `${this.convert("millis/dd.mm.yyyy hh:mm", value.id)}`
-                  div.append(left)
-
-                  const nextToLeft = document.createElement("span")
-                  nextToLeft.style.width = "100%"
-                  nextToLeft.style.margin = "0 13px"
-                  nextToLeft.textContent = value.content
-                  div.append(nextToLeft)
-
-                  const right = document.createElement("span")
-                  right.style.padding = "13px"
-                  right.textContent = value.importance
-                  div.append(right)
-
-                  feedbackContainer.append(div)
-
-                  div.style.cursor = "pointer"
-                  div.addEventListener("click", () => {
-
-                    this.overlay("toolbox", overlay => {
-                      this.removeOverlayButton(overlay)
-
-                      const button = this.create("button/left-right", overlay)
-                      this.render("icon/node/path", "/public/bucket.svg", button.left).then(icon => {
-                        icon.style.width = "34px"
-                      })
-                      button.right.textContent = "Feedback löschen"
-
-                      button.addEventListener("click", async () => {
-                        const confirm = window.confirm("Möchtest du diesen Beitrag wirklich löschen?")
-
-                        if (confirm === true) {
-                          const del = {}
-                          del.scriptId = script.id
-                          del.feedbackId = value.id
-                          const res = await this.request("/remove/feedback/script/", del)
-                          if (res.status === 200) {
-                            button.counter.textContent = parseInt(button.counter.textContent) - 1
-                            overlay.remove()
-                            feedbackOverlay.remove()
-                          } else {
-                            window.alert("Fehler.. Bitte wiederholen.")
-                            overlay.remove()
-                          }
-
-
-                        }
-
-                      })
-                    })
-
-                  })
-                }
-
-
+                const clone = this.convert("text/script", script.html)
+                const executer = this.create("script", {id: script.name, js: clone.textContent})
+                document.body.appendChild(executer)
+                updateBorder(scriptButton)
+                scriptButton.style.border = `3px solid ${Helper.colors.matte.orange}`
               }
-
-              const contentField = this.create("field/textarea", content)
-              contentField.label.textContent = "Feedback"
-              contentField.input.setAttribute("required", "true")
-              contentField.input.maxLength = "377"
-              contentField.input.style.fontSize = "13px"
-              contentField.input.placeholder = "Schreibe ein Feedback an unsere Web-Entwickler"
-
-              this.verify("input/value", contentField.input)
-              contentField.input.addEventListener("input", () => this.verify("input/value", contentField.input))
-
-
-              const importanceField = this.create("field/range", content)
-              importanceField.input.min = "0"
-              importanceField.input.max = "13"
-              importanceField.input.step = "1"
-              importanceField.input.value = "0"
-              importanceField.label.textContent = `Wichtigkeit - ${importanceField.input.value}`
-
-              this.verify("input/value", importanceField.input)
-
-              importanceField.input.addEventListener("input", (event) => {
-                this.verify("input/value", importanceField.input)
-                importanceField.label.textContent = `Wichtigkeit - ${event.target.value}`
-              })
-
-              const submit = this.create("button/action", content)
-              submit.textContent = "Feedback jetzt speichern"
-              submit.addEventListener("click", async () => {
-
-                await this.verify("input/value", contentField.input)
-
-                this.overlay("security", async securityOverlay => {
-
-                  const register = {}
-                  register.id = script.id
-                  register.importance = importanceField.input.value
-                  register.content = contentField.input.value
-                  const res = await this.request("/register/feedback/script/", register)
-
-                  if (res.status === 200) {
-                    window.alert("Vielen Dank für dein Feedback.\n\nDein Feedback ist vollkommen anonym, dynamisch und hilft dabei dieses Skript, noch besser für dich, zu optimieren.")
-                    securityOverlay.remove()
-                    overlay.remove()
-                    button.counter.textContent = parseInt(button.counter.textContent) + 1
-                  } else {
-                    window.alert("Fehler.. Bitte wiederholen.")
-                    securityOverlay.remove()
-                  }
-
-                })
-
-              })
-
-
-
-            })
-
+            }
+            {
+              const button = feedbackIcon.cloneNode(true)
+              button.style.position = "relative"
+              Helper.create("counter", button)
+              feedback.initScriptCounter(script.created, button)
+              buttons.appendChild(button)
+              this.add("outline-hover", button)
+              button.onclick = () => feedback.openScriptOverlay(button, script)
+            }
           }
+          parent.appendChild(fragment)
+        } catch (error) {
+          reject(error)
         }
-
-
-        itemBody.append(buttons)
-        item.append(itemBody)
-        parent.append(item)
-      }
-
-
+      })
     }
 
     if (event === "select/options") {
@@ -16610,166 +16626,146 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "templates/node/send-html") {
-      this.convert("parent/scrollable", parent)
-      for (let i = 0; i < input.length; i++) {
-        const template = input[i]
 
-        const templateButton = this.create("button/left-right", parent)
-        templateButton.left.innerHTML = template.html // todo purify
-        templateButton.right.style.fontSize = "21px"
-        templateButton.onclick = () => {
-          this.overlay("popup", async overlay => {
-
-            const funnel = this.create("div/scrollable", overlay)
-
-            const searchField = this.create("field/text", funnel)
-            searchField.label.textContent = "Filter deine Kontakte nach E-Mail Adressen"
-            searchField.input.placeholder = "domain.de"
-            searchField.style.margin = "21px 34px"
-            this.verify("input/value", searchField.input)
-            this.add("outline-hover", searchField.input)
-
-            const selectField = this.create("field/select", funnel)
-            selectField.label.textContent = "An welche E-Mail Adressen möchtest du dein Template senden"
-            selectField.input.setAttribute("multiple", "true")
-            selectField.input.style.height = "34vh"
-            this.verify("input/value", selectField.input)
-            this.add("outline-hover", selectField.input)
-
-            const res = await this.request("/get/contacts/self/")
-            if (res.status !== 200) {
-              this.convert("parent/info", contactsDiv)
-              parent.textContent = "Keine Kontakte gefunden"
-            }
-            if (res.status === 200) {
-              const contacts = JSON.parse(res.response)
-
-              let filtered
-              searchField.input.oninput = (ev) => {
-                filtered = contacts.filter(it => it.email.toLowerCase().includes(ev.target.value.toLowerCase()))
-
-                let emails
-                if (filtered) {
-                  emails = filtered.map(it => it.email)
-                } else {
-                  emails = contacts.map(it => it.email)
+      return new Promise(async(resolve, reject) => {
+        try {
+          this.convert("parent/scrollable", parent)
+          for (let i = 0; i < input.length; i++) {
+            const template = input[i]
+            const templateButton = this.create("button/left-right", parent)
+            templateButton.left.innerHTML = await Helper.convert("text/purified", template.html)
+            templateButton.right.style.fontSize = "21px"
+            templateButton.onclick = () => {
+              this.overlay("popup", async overlay => {
+                const funnel = this.create("div/scrollable", overlay)
+                const searchField = this.create("field/text", funnel)
+                searchField.label.textContent = "Filter deine Kontakte nach E-Mail Adressen"
+                searchField.input.placeholder = "domain.de"
+                searchField.style.margin = "21px 34px"
+                this.verify("input/value", searchField.input)
+                this.add("outline-hover", searchField.input)
+                const selectField = this.create("field/select", funnel)
+                selectField.label.textContent = "An welche E-Mail Adressen möchtest du dein Template senden"
+                selectField.input.setAttribute("multiple", "true")
+                selectField.input.style.height = "34vh"
+                this.verify("input/value", selectField.input)
+                this.add("outline-hover", selectField.input)
+                const res = await this.request("/get/contacts/self/")
+                if (res.status !== 200) {
+                  this.convert("parent/info", contactsDiv)
+                  parent.textContent = "Keine Kontakte gefunden"
                 }
-                selectField.input.add(emails)
-
-              }
-              selectField.input.add(contacts.map(it => it.email))
-
-              let selectedEmails
-              let sendTemplateButton
-              selectField.oninput = (ev) => {
-                selectedEmails = Array.from(ev.target.selectedOptions).map(option => option.value)
-
-                if (!sendTemplateButton) {
-                  sendTemplateButton = this.create("button/action", buttons)
-                  sendTemplateButton.className = "send-template-button"
-                  this.add("outline-hover", sendTemplateButton)
-                  sendTemplateButton.textContent = "Template senden"
-                  sendTemplateButton.style.width = "34vw"
-                  sendTemplateButton.onclick = async () => {
-
-                    await this.verify("input/value", subjectField.input)
-                    const emails = Array.from(selectField.input.selectedOptions).map(option => option.value)
-
-                    this.overlay("security", async securityOverlay => {
-
-                      try {
-                        securityOverlay.textContent = ""
-                        securityOverlay.style.display = "flex"
-                        securityOverlay.style.flexDirection = "column"
-                        securityOverlay.style.justifyContent = "center"
-
-                        const promises = []
-                        for (let i = 0; i < emails.length; i++) {
-                          const email = emails[i]
-
-                          const container = this.create("div", securityOverlay)
-                          container.style.display = "flex"
-                          container.style.margin = "21px 34px"
-                          container.style.fontSize = "21px"
-                          container.style.fontFamily = "sans-serif"
-
-                          container.style.color = this.colors.light.text
-                          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                            container.style.color = this.colors.dark.text
+                if (res.status === 200) {
+                  const contacts = JSON.parse(res.response)
+                  let filtered
+                  searchField.input.oninput = (ev) => {
+                    filtered = contacts.filter(it => it.email.toLowerCase().includes(ev.target.value.toLowerCase()))
+                    let emails
+                    if (filtered) {
+                      emails = filtered.map(it => it.email)
+                    } else {
+                      emails = contacts.map(it => it.email)
+                    }
+                    selectField.input.add(emails)
+                  }
+                  selectField.input.add(contacts.map(it => it.email))
+                  let selectedEmails
+                  let sendTemplateButton
+                  selectField.oninput = (ev) => {
+                    selectedEmails = Array.from(ev.target.selectedOptions).map(option => option.value)
+                    if (!sendTemplateButton) {
+                      sendTemplateButton = this.create("button/action", buttons)
+                      sendTemplateButton.className = "send-template-button"
+                      this.add("outline-hover", sendTemplateButton)
+                      sendTemplateButton.textContent = "Template senden"
+                      sendTemplateButton.style.width = "34vw"
+                      sendTemplateButton.onclick = async () => {
+                        await this.verify("input/value", subjectField.input)
+                        const emails = Array.from(selectField.input.selectedOptions).map(option => option.value)
+                        this.overlay("security", async securityOverlay => {
+                          try {
+                            securityOverlay.textContent = ""
+                            securityOverlay.style.display = "flex"
+                            securityOverlay.style.flexDirection = "column"
+                            securityOverlay.style.justifyContent = "center"
+                            const promises = []
+                            for (let i = 0; i < emails.length; i++) {
+                              const email = emails[i]
+                              const container = this.create("div", securityOverlay)
+                              container.style.display = "flex"
+                              container.style.margin = "21px 34px"
+                              container.style.fontSize = "21px"
+                              container.style.fontFamily = "sans-serif"
+                              container.style.color = this.colors.light.text
+                              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                container.style.color = this.colors.dark.text
+                              }
+                              const emailDiv = this.create("div", container)
+                              emailDiv.textContent = email
+                              const signDiv = this.create("div", container)
+                              signDiv.style.marginLeft = "34px"
+                              this.render("icon/node/path", "/public/loading.svg", signDiv)
+                              const promise = this.request("/send/email/send-template/", {email, template: template.html, subject: subjectField.input.value})
+                              .then((res) => {
+                                if (res.status === 200) {
+                                  signDiv.style.color = this.colors.dark.success
+                                  signDiv.textContent = "Erfolgreich gesendet.."
+                                } else {
+                                  signDiv.style.color = this.colors.dark.error
+                                  signDiv.textContent = "Fehler beim Senden.."
+                                }
+                              })
+                              .catch((error) => {
+                                signDiv.style.color = this.colors.dark.error
+                                signDiv.textContent = "Fehler beim Senden.."
+                              })
+                              promises.push(promise)
+                            }
+                            await Promise.all(promises)
+                            this.removeOverlayButton(securityOverlay)
+                          } catch (error) {
+                            window.alert("sadf")
                           }
-
-                          const emailDiv = this.create("div", container)
-                          emailDiv.textContent = email
-
-                          const signDiv = this.create("div", container)
-                          signDiv.style.marginLeft = "34px"
-                          this.render("icon/node/path", "/public/loading.svg", signDiv)
-
-                          const promise = this.request("/send/email/send-template/", {email, template: template.html, subject: subjectField.input.value})
-                          .then((res) => {
-                             if (res.status === 200) {
-                               signDiv.style.color = this.colors.dark.success
-                               signDiv.textContent = "Erfolgreich gesendet.."
-                             } else {
-                               signDiv.style.color = this.colors.dark.error
-                               signDiv.textContent = "Fehler beim Senden.."
-                             }
-                           })
-                           .catch((error) => {
-                             signDiv.style.color = this.colors.dark.error
-                             signDiv.textContent = "Fehler beim Senden.."
-                           })
-
-                          promises.push(promise)
-                        }
-
-                        await Promise.all(promises)
-                        this.removeOverlayButton(securityOverlay)
-
-                      } catch (error) {
-                        window.alert("sadf")
+                        })
                       }
-
+                    }
+                  }
+                  const subjectField = this.create("field/text", funnel)
+                  subjectField.label.textContent = "Betreff"
+                  subjectField.input.setAttribute("required", "true")
+                  subjectField.style.margin = "21px 34px"
+                  subjectField.input.oninput = () => this.verify("input/value", subjectField.input)
+                  this.verify("input/value", subjectField.input)
+                  this.add("outline-hover", subjectField.input)
+                  const buttons = this.create("div", funnel)
+                  buttons.style.display = "flex"
+                  buttons.style.justifyContent = "space-between"
+                  buttons.style.width = "100%"
+                  const testTemplateButton = this.create("button/action", buttons)
+                  this.add("outline-hover", testTemplateButton)
+                  testTemplateButton.textContent = "Test senden"
+                  testTemplateButton.style.background = this.colors.light.success
+                  testTemplateButton.style.width = "34vw"
+                  testTemplateButton.onclick = async () => {
+                    await this.verify("input/value", subjectField.input)
+                    this.overlay("security", async securityOverlay => {
+                      securityOverlay.remove()
+                      const res = await this.request("/send/email/test-template/", {template: template.html, subject: subjectField.input.value})
+                      if (res.status === 200) {
+                        window.alert("Template erfolgreich gesendet.")
+                        securityOverlay.remove()
+                      }
                     })
-
                   }
                 }
-
-              }
-
-              const subjectField = this.create("field/text", funnel)
-              subjectField.label.textContent = "Betreff"
-              subjectField.input.setAttribute("required", "true")
-              subjectField.style.margin = "21px 34px"
-              subjectField.input.oninput = () => this.verify("input/value", subjectField.input)
-              this.verify("input/value", subjectField.input)
-              this.add("outline-hover", subjectField.input)
-
-              const buttons = this.create("div", funnel)
-              buttons.style.display = "flex"
-              buttons.style.justifyContent = "space-between"
-              buttons.style.width = "100%"
-
-              const testTemplateButton = this.create("button/action", buttons)
-              this.add("outline-hover", testTemplateButton)
-              testTemplateButton.textContent = "Test senden"
-              testTemplateButton.style.background = this.colors.light.success
-              testTemplateButton.style.width = "34vw"
-              testTemplateButton.onclick = async () => {
-                await this.verify("input/value", subjectField.input)
-                this.overlay("security", async securityOverlay => {
-                  securityOverlay.remove()
-                  const res = await this.request("/send/email/test-template/", {template: template.html, subject: subjectField.input.value})
-                  if (res.status === 200) {
-                    window.alert("Template erfolgreich gesendet.")
-                    securityOverlay.remove()
-                  }
-                })
-              }
+              })
             }
-          })
+          }
+
+        } catch (error) {
+          reject(error)
         }
-      }
+      })
     }
 
     if (event === "text/bottom-left") {
@@ -16897,7 +16893,7 @@ await Helper.add("event/click-funnel")
       const hr = document.createElement("hr")
       container.append(hr)
       text.style.fontFamily = "sans-serif"
-      text.style.fontSize = "13px"
+      text.style.fontSize = "21px"
       text.style.margin = "0 34px"
       hr.style.margin = "0 21px"
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -17402,26 +17398,37 @@ await Helper.add("event/click-funnel")
                       this.overlay("popup", async overlay => {
                         overlay.info.textContent = `.${value.path}.writability`
                         const funnel = this.create("div/scrollable", overlay)
-                        const textAreaField = this.create("field/emails", funnel)
-                        textAreaField.label.textContent = "Gebe eine Liste mit E-Mail Adressen an und erlaube diesen Nutzern, an deiner Werteinheit mitzuarbeiten"
-                        this.verify("input/value", textAreaField.input)
-                        textAreaField.input.oninput = async () => this.verify("input/value", textAreaField.input)
-                        const res = await this.request("/get/platform/value-writability-location-expert/", {path: value.path})
-                        if (res.status === 200) {
-                          textAreaField.input.value = res.response
-                          this.verify("input/value", textAreaField.input)
+                        const searchField = this.create("field/text", funnel)
+                        searchField.label.textContent = "Suche nach E-Mail Adressen"
+                        searchField.input.placeholder = "get-your.de"
+                        searchField.style.margin = "21px 34px"
+                        this.verify("input/value", searchField.input)
+                        this.add("outline-hover", searchField.input)
+                        const emailsField = await this.create("field/closed-contacts-email-select", funnel)
+                        const originalOptions = Array.from(emailsField.input.options).map(option => option.cloneNode(true))
+                        searchField.input.oninput = (ev) => {
+                          const searchTerm = ev.target.value.toLowerCase()
+                          const options = originalOptions.map(it => it.value)
+                          const filtered = options.filter(it => it.toLowerCase().includes(searchTerm))
+                          emailsField.input.add(filtered)
+                        }
+                        emailsField.input.style.height = "21vh"
+                        emailsField.input.setAttribute("multiple", "true")
+                        for (let i = 0; i < emailsField.input.options.length; i++) {
+                          const option = emailsField.input.options[i]
+                          option.selected = false
                         }
                         const submit = this.create("button/action", funnel)
                         submit.textContent = "Schreibrechte jetzt vergeben"
                         let clickCounter = 0
                         submit.onclick = () => {
                           try {
-                            const array = JSON.parse(textAreaField.input.value)
+                            const array = Array.from(emailsField.input.selectedOptions).map(it => it.value)
                             for (let i = 0; i < array.length; i++) {
                               const item = array[i]
                               if (!this.verifyIs("text/email", item)) throw new Error("not an email")
                             }
-                            this.add("style/node/valid", textAreaField.input)
+                            this.add("style/node/valid", emailsField.input)
                             this.overlay("security", async securityOverlay => {
                               const res = await this.request("/register/platform/value-writability-location-expert/", {path: value.path, writability: array})
                               if (res.status === 200) {
@@ -17437,7 +17444,7 @@ await Helper.add("event/click-funnel")
                               }
                             })
                           } catch (error) {
-                            this.add("style/node/not-valid", textAreaField.input)
+                            this.add("style/node/not-valid", emailsField.input)
                             if (clickCounter === 3) {
                               window.alert("Deine E-Mail Liste ist ungültig.")
                               clickCounter = 0
@@ -18171,7 +18178,7 @@ await Helper.add("event/click-funnel")
                       infoField.input.oninput = () => {
                         field.setAttribute("on-info-click", infoField.input.value)
                         const script = this.create("script", {id: "on-info-click", js: 'Helper.add("on-info-click")'})
-                        this.add("script/onbody", script)
+                        this.add("script-onbody", script)
                       }
                     })
                   }
@@ -18346,7 +18353,7 @@ await Helper.add("event/click-funnel")
               if (child.tagName === "DIV") {
 
                 const button = this.create("toolbox/left-right", buttons)
-                button.left.textContent = ".creator"
+                button.left.textContent = ".div-creator"
                 button.right.textContent = "Bearbeite dein Element schnell und einfach"
                 button.onclick = () => {
 
@@ -18398,7 +18405,7 @@ await Helper.add("event/click-funnel")
                         ev.preventDefault()
                         if (selectedNode) {
                           this.convert("clipboard/text").then(text => {
-                            const node = this.convert("text/html", text)
+                            const node = this.convert("text/first-child", text)
                             selectedNode.append(node)
                           })
                         }
@@ -18536,6 +18543,7 @@ await Helper.add("event/click-funnel")
 
                     const buttons = this.fn("creator-buttons", {parent: content})
 
+                    buttons.duckDuckGoButton.onclick = () => buttons.duckDuckGoButton.convertNode(selectedNode)
                     buttons.sourcesButton.onclick = () => buttons.openSourcesOverlay(selectedNode)
                     buttons.createFlexButton.onclick = () => buttons.createFlexWidthWithPrompt(selectedNode)
                     buttons.createGridButton.onclick = () => buttons.createGridMatrixWithPrompt(selectedNode)
@@ -18715,15 +18723,13 @@ await Helper.add("event/click-funnel")
                     buttons.pasteStyleButton.onclick = () => buttons.addClipboardToStyle(selectedNode)
                     buttons.removeStyleButton.onclick = () => buttons.toggleAttribute("style", selectedNode)
                     buttons.removeInnerButton.onclick = () => buttons.toggleInnerHtml(selectedNode)
-                    buttons.removeInnerWithTextButton.onclick = () => buttons.replaceInnerHtmlWithPrompt(selectedNode)
+                    buttons.removeInnerWithTextButton.onclick = async () => await buttons.replaceInnerHtmlWithPrompt(selectedNode)
                     buttons.removeNodeButton.onclick = () => buttons.toggleNode(selectedNode)
                     buttons.idButton.onclick = () => buttons.setIdWithPrompt(selectedNode)
                     buttons.addClassButton.onclick = () => buttons.setClassWithPrompt(selectedNode)
                     buttons.setAttributeButton.onclick = () => buttons.setAttributeWithPrompt(selectedNode)
                     buttons.appendStyleButton.onclick = () => buttons.appendStyleWithPrompt(selectedNode)
                     buttons.fontSizeForEachChildButton.onclick = () => buttons.setChildrenStyleWithPrompt("fontSize", selectedNode, "Gebe die Schriftgrüße für alle Kind Elemente: (z.B., 21px)")
-
-                    // nur für div.creator
                     buttons.templatesButton.onclick = () => buttons.openTemplatesOverlay(selectedNode)
                     buttons.addScriptButton.onclick = () => buttons.openScriptsOverlay()
 
@@ -18740,19 +18746,32 @@ await Helper.add("event/click-funnel")
               if (child.tagName === "BODY") {
 
                 {
-
                   const button = this.create("toolbox/left-right", buttons)
                   button.left.textContent = ".scripts"
                   button.right.textContent = "Nutze geprüfte HTML Skripte"
-                  button.addEventListener("click", () => {
+                  button.onclick = () => {
 
                     this.overlay("toolbox", async overlay => {
-                      overlay.info.append(this.convert("text/span", ".scripts"))
-                      await this.add("toolbox-scripts", overlay)
+                      overlay.info.textContent = ".scripts"
+                      const content = this.create("info/loading", overlay)
+                      const res = await this.request("/get/scripts/toolbox/")
+                      if (res.status === 200) {
+                        const scripts = JSON.parse(res.response)
+                        await this.render("toolbox-scripts", scripts, content)
+                      } else {
+                        const res = await this.request("/get/scripts/writable/")
+                        if (res.status === 200) {
+                          const scripts = JSON.parse(res.response)
+                          await this.render("toolbox-scripts", scripts, content)
+                        } else {
+                          this.convert("parent/info", content)
+                          content.textContent = "Keine Skripte gefunden"
+                          this.style(content, {margin: "21px 34px"})
+                        }
+                      }
                     })
 
-                  })
-
+                  }
                 }
 
                 {
@@ -18862,50 +18881,25 @@ await Helper.add("event/click-funnel")
                   button.left.textContent = ".script"
                   button.right.textContent = "JavaScript anhängen"
                   button.onclick = () => {
-
                     this.overlay("toolbox", overlay => {
-
                       const funnel = this.create("div/scrollable", overlay)
-
-                      const nameField = this.create("field/name", funnel)
-                      nameField.label.textContent = "Identifikationsname (text/tag)"
-                      nameField.input.placeholder = "mein-neues-skript"
-                      nameField.input.oninput = () => this.verify("input/value", nameField.input)
-
+                      const nameField = this.create("field/id", funnel)
                       const jsField = this.create("field/js", funnel)
                       jsField.label.textContent = "JavaScript Browser Funktionen + Plattform Helper Funktionen"
                       jsField.input.oninput = () => this.verify("input/value", jsField.input)
-
                       this.verifyIs("field-funnel/valid", funnel)
-
                       const submit = this.create("button/action", funnel)
                       submit.textContent = "Skript jetzt anhängen"
                       submit.onclick = async () => {
-
                         await this.verify("field-funnel", funnel)
-
-                        const map = {}
-                        map.id = nameField.input.value
-                        map.js = jsField.input.value
-
-                        const script = this.create("script/empty-helper", map)
-
-                        if (document.querySelectorAll(`#${script.id}`).length === 0) {
-                          document.body.append(script)
-                          window.alert("Skript wurde erfolgreich anhgehängt.")
-                        } else {
+                        const script = this.create("script", {id: nameField.input.value, js: jsField.input.value})
+                        if (!this.verifyIs("id/unique", script.id)) {
                           this.add("style/node/not-valid", nameField.input)
-                          window.alert("Id existiert bereits.")
                         }
-
+                        this.add("id-onbody", script)
                       }
-
                     })
-
-
-
                   }
-
                 }
 
                 {
@@ -18978,7 +18972,7 @@ await Helper.add("event/click-funnel")
                   const button = this.create("toolbox/left-right", buttons)
                   button.left.textContent = ".innerHTML"
                   button.right.textContent = "Body Inhalt ersetzen"
-                  button.onclick = () => {
+                  button.onclick = async () => {
                     this.overlay("toolbox", overlay => {
                       overlay.info.append(this.convert("element/alias", document.body))
                       overlay.info.append(this.convert("text/span", ".innerHTML"))
@@ -18995,7 +18989,7 @@ await Helper.add("event/click-funnel")
                       submit.textContent = "Inhalte jetzt ersetzen"
                       submit.onclick = async () => {
                         await this.verify("input/value", htmlField.input)
-                        child.innerHTML = htmlField.input.value // todo purify
+                        child.innerHTML = await Helper.convert("text/purified", htmlField.input.value)
                         await this.remove("toolbox", child)
                         await this.add("script/toolbox-getter")
                         overlay.remove()
@@ -19005,11 +18999,11 @@ await Helper.add("event/click-funnel")
                 }
                 {
                   const button = this.create("toolbox/left-right", buttons)
-                  button.left.textContent = ".feedback-button"
+                  button.left.textContent = ".html-feedback"
                   button.right.textContent = "Lass dir Feedback für deine Werteinheiten geben"
                   button.onclick = () => {
-                    this.add("script/html-feedback", document.body)
-                    this.create("button/html-feedback", child)
+                    const script = this.create("script", {id: "html-feedback", js: 'Helper.add("html-feedback")'})
+                    this.add("script-onbody", script)
                     window.alert("Feedback Taste wurde erfolgreich angehängt.")
                   }
 
@@ -19020,11 +19014,8 @@ await Helper.add("event/click-funnel")
                   button.left.textContent = ".back-button"
                   button.right.textContent = "Hänge eine Zurück Taste an"
                   button.onclick = () => {
-                    const script = document.createElement("script")
-                    script.id = "back-button"
-                    script.type = "module"
-                    script.textContent = 'import {Helper} from "/js/Helper.js"\nHelper.create("back-button", document.body)'
-                    document.getElementById(script.id) ?? document.body.appendChild(script)
+                    const script = this.create("script", {id: "back-button", js: 'Helper.create("back-button", document.body)'})
+                    this.add("script-onbody", script)
                     window.alert("Zurück Taste wurde erfolgreich angehängt.")
                   }
                 }
@@ -19051,12 +19042,8 @@ await Helper.add("event/click-funnel")
                   button.left.textContent = ".html-creator"
                   button.right.textContent = "Erlaube Nutzer deine Werteinheit zu bearbeiten"
                   button.onclick = async () => {
-                    const script = this.create("script", {id: "html-creator", js: `Helper.add("html-creator")`})
-                    this.add("script/onbody", script)
-                    const button = this.create("button/bottom-right", child)
-                    button.classList.add("html-creator")
-                    const icon = await this.convert("path/icon", "/public/pencil-ruler.svg")
-                    button.appendChild(icon)
+                    const script = this.create("script", {id: "html-creator", js: `await Helper.add("html-creator")`})
+                    this.add("script-onbody", script)
                     window.alert("HTML Creator wurde erfolgreich angehängt.")
                   }
                 }
@@ -19085,7 +19072,7 @@ await Helper.add("event/click-funnel")
 
                         const script = this.create("script/open-popup-list-mirror-event", map)
 
-                        await this.render("script/onbody", script)
+                        this.add("script-onbody", script)
 
                         const button = this.create("button/image-text", document.body)
                         button.text.textContent = this.convert("text/capital-first-letter", map.tag)
@@ -19107,35 +19094,62 @@ await Helper.add("event/click-funnel")
                   button.onclick = () => {
                     this.overlay("toolbox", overlay => {
                       const funnel = this.create("div/scrollable", overlay)
-                      const idField = this.create("field/tag", funnel)
-                      idField.label.textContent = "Vordefiniertes Design mit einer Id finden"
-                      idField.input.placeholder = "meine-element"
-                      this.add("outline-hover", idField.input)
-                      this.verify("input/value", idField.input)
-                      idField.input.oninput = () => this.verify("input/value", idField.input)
-                      const treesField = this.create("field/trees", funnel)
-                      treesField.label.textContent = "Liste mit Datenstrukturen eingeben"
-                      treesField.input.placeholder = `[\n  "getyour.expert.name",\n  "platform.company.name",\n  "email"\n]`
-                      treesField.input.style.height = "144px"
-                      this.add("outline-hover", treesField.input)
-                      this.verify("input/value", treesField.input)
-                      treesField.input.oninput = () => this.verify("input/value", treesField.input)
-                      const submit = this.create("toolbox/action", funnel)
-                      submit.textContent = "Skript jetzt anhängen"
-                      submit.onclick = async () => {
+                      createIdTreesFunnel(funnel)
+                      funnel.submit.onclick = async () => {
                         await this.verify("field-funnel", funnel)
-                        const script = this.create("script", {id: idField.input.value, js: `await Helper.render("users-trees-open", ${treesField.input.value}, ".${idField.input.value}")`})
-                        if (document.querySelectorAll(`#${script.id}`).length === 0) {
-                          document.body.append(script)
-                          window.alert("Skript wurde erfolgreich angehängt.")
-                        } else {
-                          window.alert("Id existiert bereits.")
-                          this.add("style/node/not-valid", idField.input)
+                        const script = this.create("script", {id: funnel.idField.input.value, js: `await Helper.render("users-trees-open", ${funnel.treesField.input.value}, ".${funnel.idField.input.value}")`})
+                        if (!this.verifyIs("id/unique", script.id)) {
+                          this.add("style/node/not-valid", funnel.idField.input)
                         }
+                        this.add("id-onbody", script)
                       }
                     })
                   }
                 }
+
+                function createIdTreesFunnel(node) {
+                  const fragment = document.createDocumentFragment()
+                  node.idField = Helper.create("field/tag", fragment)
+                  node.idField.label.textContent = "Vordefiniertes Design mit einer Id finden"
+                  node.idField.input.placeholder = "meine-element"
+                  Helper.add("outline-hover", node.idField.input)
+                  Helper.verify("input/value", node.idField.input)
+                  node.idField.input.oninput = () => Helper.verify("input/value", node.idField.input)
+                  node.treesField = Helper.create("field/trees", fragment)
+                  node.treesField.label.textContent = "Liste mit Datenstrukturen eingeben"
+                  node.treesField.input.placeholder = `[\n  "getyour.expert.name",\n  "platform.company.name",\n  "email"\n]`
+                  node.treesField.input.style.height = "144px"
+                  Helper.add("outline-hover", node.treesField.input)
+                  Helper.verify("input/value", node.treesField.input)
+                  node.treesField.input.oninput = () => Helper.verify("input/value", node.treesField.input)
+                  node.submit = Helper.create("toolbox/action", fragment)
+                  node.submit.textContent = "Skript jetzt anhängen"
+                  node?.appendChild(fragment)
+                  return node
+                }
+
+
+                {
+                  const button = this.create("toolbox/left-right", buttons)
+                  button.left.textContent = ".user-trees-closed"
+                  button.right.textContent = "Hol dir Datensätze vom Nutzer"
+                  button.onclick = () => {
+                    this.overlay("toolbox", overlay => {
+                      overlay.info.textContent = "script.user-trees-closed"
+                      const funnel = this.create("div/scrollable", overlay)
+                      createIdTreesFunnel(funnel)
+                      funnel.submit.onclick = async () => {
+                        await this.verify("field-funnel", funnel)
+                        const script = this.create("script", {id: funnel.idField.input.value, js: `await Helper.render("user-trees-closed", ${funnel.treesField.input.value}, ".${funnel.idField.input.value}")`})
+                        if (!this.verifyIs("id/unique", script.id)) {
+                          this.add("style/node/not-valid", funnel.idField.input)
+                        }
+                        this.add("id-onbody", script)
+                      }
+                    })
+                  }
+                }
+
               }
 
               if (child.tagName === "SCRIPT") {
@@ -19396,8 +19410,8 @@ await Helper.add("event/click-funnel")
                     htmlField.input.value = child.innerHTML
                     this.add("outline-hover", htmlField.input)
                     this.verify("input/value", htmlField.input)
-                    htmlField.input.oninput = () => {
-                      child.innerHTML = htmlField.input.value // todo purify
+                    htmlField.input.oninput = async () => {
+                      child.innerHTML = await Helper.convert("text/purified", htmlField.input.value)
                     }
                   })
                 }
@@ -19968,42 +19982,47 @@ await Helper.add("event/click-funnel")
                 }
 
                 {
-
                   const button = this.create("toolbox/left-right", buttons)
-                  button.left.textContent = ".submit-field-funnel-event"
+                  button.left.textContent = ".submit-field-funnel"
                   button.right.textContent = "Field Funnel Submit Skript anhängen"
-                  button.addEventListener("click", () => {
-                    document.querySelectorAll(`#submit-field-funnel-event`).forEach(script => script.remove())
-                    this.create("script/submit-field-funnel-event", document.body)
+                  button.onclick = () => {
+                    const script = this.create("script", {id: "submit-field-funnel", js: 'Helper.add("submit-field-funnel")'})
+                    this.add("script-onbody", script)
                     window.alert("Skript wurde erfolgreich angehängt.")
-                  })
-
+                  }
                 }
 
                 {
-
                   const button = this.create("toolbox/left-right", buttons)
-                  button.left.textContent = ".prefill-field-funnel-event"
+                  button.left.textContent = ".prefill-field-funnel"
                   button.right.textContent = "Fülle die Datenfelder mit den eigenen Nutzerdaten"
-                  button.addEventListener("click", () => {
-                    document.querySelectorAll(`#prefill-field-funnel-event`).forEach(script => script.remove())
-                    this.create("script/prefill-field-funnel-event", document.body)
+                  button.onclick = () => {
+                    const script = this.create("script", {id: "prefill-field-funnel", js: `Helper.add("prefill-field-funnel")`})
+                    this.add("script-onbody", script)
                     window.alert("Skript wurde erfolgreich angehängt.")
-                  })
-
+                  }
                 }
 
                 {
-
                   const button = this.create("toolbox/left-right", buttons)
-                  button.left.textContent = ".on-info-click-event"
-                  button.right.textContent = "Füge ein Info Klick Event hinzu"
-                  button.addEventListener("click", () => {
-                    document.querySelectorAll(`#on-info-click-event`).forEach(script => script.remove())
-                    this.create("script/on-info-click-event", document.body)
+                  button.left.textContent = ".on-info-click"
+                  button.right.textContent = "Dieses Skript sucht und öffnet deine Tags im Field Funnel"
+                  button.onclick = () => {
+                    const script = this.create("script", {id: "on-info-click", js: 'Helper.add("on-info-click")'})
+                    this.add("script-onbody", script)
                     window.alert("Skript wurde erfolgreich angehängt.")
-                  })
+                  }
+                }
 
+                {
+                  const button = this.create("toolbox/left-right", buttons)
+                  button.left.textContent = ".field-funnel-sign-support"
+                  button.right.textContent = "Unterstütze deine Nutzer bei der Eingabe mit Symbole und Farben"
+                  button.onclick = () => {
+                    const script = this.create("script", {id: "field-funnel-sign-support", js: 'Helper.add("field-funnel-sign-support")'})
+                    this.add("script-onbody", script)
+                    window.alert("Skript wurde erfolgreich angehängt.")
+                  }
                 }
 
               }
@@ -20996,6 +21015,45 @@ await Helper.add("event/click-funnel")
       }
     }
 
+    if (event === "user-trees-closed") {
+
+      function renderUserInNode(user, node) {
+        for (let i = 0; i < Object.keys(user).length; i++) {
+          const key = Object.keys(user)[i]
+          if (node.classList.contains(key)) {
+            if (node.tagName === "IMG") {
+              node.src = user[key]
+              continue
+            }
+            node.textContent = user[key]
+          }
+        }
+      }
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const res = await this.request("/get/user/trees-closed/", {trees: input})
+          if (res.status === 200) {
+            const user = JSON.parse(res.response)
+            const nodes = document.querySelectorAll(parent)
+            if (nodes) {
+              for (let i = 0; i < nodes.length; i++) {
+                const node = nodes[i]
+                renderUserInNode(user, node)
+                for (let i = 0; i < node.querySelector("*").length; i++) {
+                  const child = node.querySelector("*")[i]
+                  renderUserInNode(user, child)
+                }
+              }
+            }
+          }
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "user-trees-open") {
 
       return new Promise(async(resolve, reject) => {
@@ -21027,11 +21085,13 @@ await Helper.add("event/click-funnel")
             const parentNode = document.querySelector(parent)
             if (parentNode) {
               const childNode = parentNode.querySelector(".user")
+              const fragment = document.createDocumentFragment()
               for (let i = 0; i < users.length; i++) {
                 const user = users[i]
                 const userNode = this.render("object-node", user, childNode.cloneNode(true))
-                parentNode.appendChild(userNode)
+                fragment.appendChild(userNode)
               }
+              parentNode.appendChild(fragment)
               childNode.style.display = "none"
             }
           }
@@ -21377,11 +21437,7 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "array/empty") {
-      return typeof array !== "object" ||
-      array === undefined ||
-      array === null ||
-      array.length <= 0 ||
-      !Array.isArray(array)
+      return !Array.isArray(input) || input.length === 0
     }
 
     if (event === "object") {
@@ -21610,6 +21666,15 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "key/object-array") {
+      for (const object of input.array) {
+        if (object.hasOwnProperty(input.key)) {
+          return true
+        }
+      }
+      return false
+    }
+
     if (event === "number/empty") {
       return input === undefined ||
       input === null ||
@@ -21698,6 +21763,15 @@ await Helper.add("event/click-funnel")
         return false
       }
 
+    }
+
+    if (event === "text/script") {
+      try {
+        const fragment = this.convert("text/fragment", input)
+        const script = fragment.querySelector("script")
+        return script !== null && script.tagName === "SCRIPT"
+      } catch {}
+      return false
     }
 
     if (event === "text/tree") {
@@ -22039,9 +22113,7 @@ await Helper.add("event/click-funnel")
       }
 
       if (input.getAttribute("accept") === "text/script") {
-        const script = this.convert("text/first-child", input.value)
-        if (script === undefined) return false
-        if (script.tagName === "SCRIPT") return true
+        if (this.verifyIs("text/script", input.value)) return true
         return false
       }
 
@@ -22280,14 +22352,26 @@ await Helper.add("event/click-funnel")
 
 }
 
+
 Helper.registerHtmlButton = await Helper.create("toolbox/register-html")
 Helper.removeOverlayButton = await Helper.create("button/remove-overlay")
 Helper.createNode = Helper.fn("createNode")
 
+let lastPage = document.referrer
 window.goBack = () => {
-  const currentLocation = window.location.href
-  window.history.back()
-  if (window.location.href === currentLocation) {
+  if (window.history.length === 1) {
     window.close()
+    return
   }
+  if (Helper.verifyIs("text/empty", document.referrer)) {
+    window.history.back()
+  }
+  if (lastPage === window.location.href) {
+    window.close()
+    return
+  }
+  window.history.back()
+  setTimeout(() => {
+    window.close()
+  }, 34)
 }
