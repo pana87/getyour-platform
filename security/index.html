@@ -5,47 +5,222 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
     <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src https://*; child-src 'none';" /> -->
   </head>
-  <body style="margin: 0; background: #ffffff">
+  <body>
+
+    <script type="module">
+      import {Helper} from "/js/Helper.js"
+
+      {
+        const button = Helper.create("button/left-right", document.body)
+        button.left.textContent = "Push Message"
+        button.onclick = async () => {
+          console.log("lets go");
+
+          function openNotificationSettings() {
+            const userAgent = navigator.userAgent.toLowerCase()
+            let query
+            if (userAgent.includes('chrome')) {
+              query = "Chrome Benachrichtungen ändern"
+            } else if (userAgent.includes('firefox')) {
+              query = "Firefox Benachrichtungen ändern"
+            } else if (userAgent.includes('edge')) {
+              query = "Edge Benachrichtungen ändern"
+            } else if (userAgent.includes('safari')) {
+              query = "Safari Benachrichtungen ändern"
+            } else {
+              query = "Benachrichtungen ändern"
+            }
+            window.open(`https://duckduckgo.com/?q=${encodeURIComponent(query)}`, '_blank');
+          }
 
 
-    <script>
-      const options = {
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0
-      };
+            try {
+              if (!("Notification" in window)) {
+                throw new Error("Browser does not support notifications")
+              }
+              const permission = await Notification.requestPermission()
+              if (permission === "denied") {
+                const confirm = window.confirm("Du hast Benachrichtigungen in deinem Browser abgelehnt. Damit du diese Funktion nutzen kannst, musst die die Einstellungen in deinem Browser ändern.\n\nMöchtest du die Einstellungen deines Browsers öffnen?")
+                if (confirm === true) {
+                  openNotificationSettings()
+                }
+              }
 
-      function success(pos) {
-        const crd = pos.coords;
+              if (permission === "granted") {
 
-        if (confirm("Deine Ortung wird nur für die Berechnung der Distanz zum nächsten Techniker benötigt. Es werden keine Daten gespeichert.\n\nMöchtest du fortfahre?")) {
-          console.log('Your current position is:');
-          console.log(`Latitude : ${crd.latitude}`);
-          console.log(`Longitude: ${crd.longitude}`);
-          console.log(`More or less ${crd.accuracy} meters.`);
+                // openWalkieTalkieOverlay here
 
-          // calculate distance
-          // 1. find all technicians and get a list of their lat lon
-          // 2. calc distance
-          // 3. get the 3 smallest distances
+                // dont use service worker here
+                // only send notification when user is in app
+                // only send notification onclick with debounce of 3 minutes
 
-        } else {
-          alert("Wir brauchen die Position, um den passenden Techniker für dich zu finden.")
-          window.location.reload()
+
+
+
+
+
+                // const img = document.createElement("img")
+                // img.src = "/public/logo-getyour-red.svg"
+                // push notifications with webrtc
+                const notification = new Notification("In-App Nachricht von email asdfasdf sadf asdf asdf@asdf", {body: "text nachricht", icon: "/favicon.ico"})
+                console.log(notification);
+                notification.onclick = () => {
+                  // openWalkieTalkieOverlay here
+                  // check again if permission is granted
+                  if (permission === "granted") {
+                    Helper.overlay("popup", overlay => {
+
+                    })
+                  }
+                  notification.close()
+                }
+
+                // on notification click
+                // openWalkieTalkieOverlay again
+              }
+
+
+            } catch (error) {
+
+            }
+
+          }
+      }
+
+      {
+        const button = Helper.create("button/left-right", document.body)
+        button.left.textContent = "Walkie Talkie"
+        button.onclick = async () => {
+          console.log("lets go");
+
+          function openNotificationSettings() {
+            const userAgent = navigator.userAgent.toLowerCase()
+            let query
+            if (userAgent.includes('chrome')) {
+              query = "Chrome Benachrichtungen ändern"
+            } else if (userAgent.includes('firefox')) {
+              query = "Firefox Benachrichtungen ändern"
+            } else if (userAgent.includes('edge')) {
+              query = "Edge Benachrichtungen ändern"
+            } else if (userAgent.includes('safari')) {
+              query = "Safari Benachrichtungen ändern"
+            } else {
+              query = "Benachrichtungen ändern"
+            }
+            window.open(`https://duckduckgo.com/?q=${encodeURIComponent(query)}`, '_blank');
+            }
+
+
+            try {
+              if (!("Notification" in window)) {
+                throw new Error("Browser does not support notifications")
+              }
+              const permission = await Notification.requestPermission()
+              if (permission === "denied") {
+                const confirm = window.confirm("Du hast Benachrichtigungen in deinem Browser abgelehnt. Damit du diese Funktion nutzen kannst, musst die die Einstellungen in deinem Browser ändern.\n\nMöchtest du die Einstellungen deines Browsers öffnen?")
+                if (confirm === true) {
+                  openNotificationSettings()
+                }
+              }
+
+              if (permission === "granted") {
+
+                // openWalkieTalkieOverlay here
+
+                // dont use service worker here
+                // only send notification when user is in app
+                // only send notification onclick with debounce of 3 minutes
+
+
+
+
+
+
+
+                // push notifications with webrtc
+                const notification = new Notification("Walkie Talkie", {body: "Das ist BODY", icon: "/public/logo-getyour-red.svg"})
+                console.log(notification);
+                notification.onclick = () => {
+                  // openWalkieTalkieOverlay here
+                  // check again if permission is granted
+                  if (permission === "granted") {
+                    Helper.overlay("popup", overlay => {
+
+                    })
+                  }
+                  notification.close()
+                }
+
+                // on notification click
+                // openWalkieTalkieOverlay again
+              }
+
+
+            } catch (error) {
+
+            }
+
+          }
+      }
+
+      {
+        const button = Helper.create("button/left-right", document.body)
+        button.left.textContent = "Lat/Lon"
+        button.onclick = () => {
+          const options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          };
+
+          function success(pos) {
+            const crd = pos.coords;
+
+            if (confirm("Deine Ortung wird nur für die Berechnung der Distanz zum nächsten Techniker benötigt. Es werden keine Daten gespeichert.\n\nMöchtest du fortfahre?")) {
+              console.log('Your current position is:');
+              console.log(`Latitude : ${crd.latitude}`);
+              console.log(`Longitude: ${crd.longitude}`);
+              console.log(`More or less ${crd.accuracy} meters.`);
+
+              // calculate distance
+              // 1. find all technicians and get a list of their lat lon
+              // 2. calc distance
+              // 3. get the 3 smallest distances
+
+            } else {
+              alert("Wir brauchen die Position, um den passenden Techniker für dich zu finden.")
+              window.location.reload()
+            }
+
+
+          }
+
+          function error(err) {
+            console.warn(`ERROR(${err.code}): ${err.message}`);
+            alert("Du musst die Ortungsdienst für den Browser in deinen Einstellungen erlauben.")
+          }
+
+          navigator.geolocation.getCurrentPosition(success, error, options);
         }
-
-
       }
 
-      function error(err) {
-        console.warn(`ERROR(${err.code}): ${err.message}`);
-        alert("Du musst die Ortungsdienst für den Browser in deinen Einstellungen erlauben.")
+      {
+        const button = Helper.create("button/left-right", document.body)
+        button.left.textContent = "Service Worker"
+        button.onclick = async () => {
+
+          try {
+            const registration = await navigator.serviceWorker.register('/js/service-worker.js');
+            console.log('Service Worker registered:', registration);
+          } catch (error) {
+            console.error('Service Worker registration failed:', error);
+          }
+
+        }
       }
 
-      navigator.geolocation.getCurrentPosition(success, error, options);
     </script>
-  
-  <script type="module" src="./index.js"></script>
+
 </body>
 
 </html>

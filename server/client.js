@@ -10,6 +10,8 @@ const multer = require('multer')
 const storage = multer.memoryStorage()
 const upload = multer({storage})
 const path = require("node:path")
+const http = require("node:http")
+const {startWebRtcSignaling} = require("./webrtc-signaling.js")
 const createExpressServer = Helper.createExpressServer()
 
 Helper.createDatabase("getyour")
@@ -18,6 +20,11 @@ Helper.createLogs("getyour")
 
 const client = createExpressServer("client", process.env.CLIENT_PORT || "9999")
 const app = client.app
+
+// todo websocket for webrtc
+// const server = http.createServer(app)
+// startWebRtcSignaling(server)
+
 app.use(cookieParser())
 app.use(express.json({limit: "50mb"}))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
