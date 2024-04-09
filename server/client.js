@@ -182,8 +182,8 @@ async (req, res, next) => {
 
     if (lastTime === undefined || lastTime < Date.now() - 3000) {
 
-      // is writable algo
       const doc = await Helper.get("doc/db", "users")
+      // is writable algo
       for (let i = 0; i < doc.users.length; i++) {
         const jwtUser = doc.users[i]
         if (jwtUser.id === req.jwt.id) {
