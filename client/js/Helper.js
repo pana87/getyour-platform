@@ -986,12 +986,18 @@ export class Helper {
 
     if (event === "prefill-field-funnel") {
 
-      document.querySelectorAll(".field-funnel").forEach(async funnel => {
-        const trees = await this.convert("field-funnel/trees", funnel)
-        const res = await this.request("/get/user/trees-closed/", trees)
-        if (res.status === 200) {
-          const keys = JSON.parse(res.response)
-          this.render("tree-map/field-funnel", keys, funnel)
+      return new Promise(async(resolve, reject) => {
+        try {
+          for (let i = 0; i < document.querySelectorAll(".field-funnel").length; i++) {
+            const funnel = document.querySelectorAll(".field-funnel")[i]
+            const res = await this.request("/get/user/location-list-closed/", {platform: window.location.pathname.split("/")[2], id: funnel.id})
+            if (res.status === 200) {
+              const map = JSON.parse(res.response)
+              this.render("map/field-funnel", map, funnel)
+            }
+          }
+        } catch (error) {
+          reject(error)
         }
       })
     }
@@ -1498,8 +1504,11 @@ export class Helper {
 
               const buttons = this.fn("creator-buttons", {parent: overlay})
 
-              buttons.duckDuckGoButton.onclick = () => buttons.duckDuckGoButton.convertNode(selectedNode)
+              buttons.imageTextAndActionButton.onclick = () => buttons.createImageTextAndActionBox(selectedNode)
+              buttons.backgroundImageWithTitlesButton.onclick = () => buttons.createBackgroundImageWithTitles(selectedNode)
+              buttons.duckDuckGoButton.onclick = () => buttons.convertTextContentToDuckDuckGoLink(selectedNode)
               buttons.sourcesButton.onclick = () => buttons.openSourcesOverlay(selectedNode)
+              buttons.imagesButton.onclick = () => buttons.openImagesOverlay(selectedNode)
               buttons.createFlexButton.onclick = () => buttons.createFlexWidthWithPrompt(selectedNode)
               buttons.createGridButton.onclick = () => buttons.createGridMatrixWithPrompt(selectedNode)
               buttons.rowContainerButton.onclick = () => buttons.createFlexRow(selectedNode)
@@ -1516,13 +1525,16 @@ export class Helper {
               buttons.imageButton.onclick = () => buttons.createImagePlaceholder(selectedNode)
               buttons.tableHeaderButton.onclick = () => buttons.createTableWithMatrixPrompt(selectedNode)
               buttons.pdfLinkButton.onclick = async () => await buttons.createPdfLinkWithPrompt(selectedNode)
+              buttons.wrapLinkButton.onclick = async () => await buttons.wrapAnchorWithPrompt(selectedNode)
               buttons.aLinkButton.onclick = () => buttons.createAnchorWithPrompt(selectedNode)
+              buttons.locationAssignButton.onclick = () => buttons.addLocationAssign(selectedNode)
+              buttons.windowOpenBlankButton.onclick = () => buttons.addWindowOpenBlank(selectedNode)
               buttons.spanButton.onclick = () => buttons.createSpanWithTextContent(selectedNode)
               buttons.changeSiButton.onclick = () => buttons.createSpanWithSiPrompt(selectedNode)
               buttons.addSpaceButton.onclick = () => buttons.createSpaceWithHeightPrompt(selectedNode)
               buttons.arrowRightButton.onclick = () => buttons.createArrowRightWithColorPrompt(selectedNode)
               buttons.divScrollableButton.onclick = () => buttons.createScrollableY(selectedNode)
-              buttons.packDivButton.onclick = () => buttons.createDivPackOuter(selectedNode)
+              buttons.packDivButton.onclick = async () => await buttons.createDivPackOuter(selectedNode)
               buttons.textInputButton.onclick = () => buttons.createTextInput(selectedNode)
               buttons.numberInputButton.onclick = () => buttons.createTelInput(selectedNode)
               buttons.checkboxInputButton.onclick = () => buttons.createCheckboxInput(selectedNode)
@@ -2272,7 +2284,6 @@ export class Helper {
                     const emailIcon = await this.convert("path/icon", "/public/email-out.svg")
                     function renderContactButtons(contacts, parent, query = "") {
                       const fragment = document.createDocumentFragment()
-                      // console.log(parent);
                       Helper.convert("parent/scrollable", parent)
                       for (let i = 0; i < contacts.length; i++) {
                         const contact = contacts[i]
@@ -2425,6 +2436,9 @@ export class Helper {
                               button.left.textContent = ".character"
                               button.right.textContent = "Erfahre mehr über deinen Kontakt"
                               button.onclick = () => {
+                                // create fn functions and reuse it here
+                                // but first create the platform dynamically and look how you can reuse this
+                                // maybe in toolbox
                                 Helper.overlay("popup", overlay => {
                                   Helper.create("header/info", overlay).textContent = contact.email
                                   const funnel = Helper.create("div", overlay)
@@ -6221,7 +6235,7 @@ export class Helper {
         button.style.border = this.colors.dark.border
         button.style.backgroundColor = this.colors.dark.foreground
       }
-      input?.append(button)
+      input?.appendChild(button)
       return button
 
     }
@@ -6318,11 +6332,9 @@ export class Helper {
     if (event === "button/add") {
 
       const button = this.create("button/bottom-right")
-      button.classList.add("add")
       this.render("icon/node/path", "/public/add.svg", button)
       input?.append(button)
       return button
-
     }
 
     if (event === "back-button") {
@@ -6934,6 +6946,16 @@ await Helper.add("event/click-funnel")
       const button = this.create("button/action")
       button.removeAttribute("class")
       this.add("outline-hover", button)
+      input?.appendChild(button)
+      return button
+    }
+
+    if (event === "toolbox/add") {
+
+      const button = this.create("button/add")
+      button.removeAttribute("class")
+      this.add("outline-hover", button)
+      this.convert("dark-light", button)
       input?.appendChild(button)
       return button
     }
@@ -8161,7 +8183,7 @@ await Helper.add("event/click-funnel")
       header.info.style.color = this.colors.light.error
       header.info.style.fontSize = "21px"
       header.info.style.fontFamily = "sans-serif"
-      input?.append(header)
+      input?.appendChild(header)
       return header
 
     }
@@ -8216,6 +8238,7 @@ await Helper.add("event/click-funnel")
   }
 
   static colors = {
+    white: "#FFF",
     matte: {
       green: '#00C853',
       lightGray: '#EAEAEA',
@@ -9829,45 +9852,49 @@ await Helper.add("event/click-funnel")
           icon.style.width = "34px"
           const svg = await this.convert("text/first-child", text)
           svg.setAttribute("width", "100%")
-          for (let i = 0; i < svg.querySelectorAll("*").length; i++) {
-            const node = svg.querySelectorAll("*")[i]
-            if (node.hasAttribute("fill")) {
-              if (node.getAttribute("fill").includes("#000")) {
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                  node.setAttribute("fill", this.colors.dark.text)
-                } else {
-                  node.setAttribute("fill", this.colors.light.text)
-                }
-              }
-            }
-            if (node.hasAttribute("stroke")) {
-              if (node.getAttribute("stroke").includes("#000")) {
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                  node.setAttribute("stroke", this.colors.dark.text)
-                } else {
-                  node.setAttribute("stroke", this.colors.light.text)
-                }
-              }
-            }
-          }
-          if (svg.hasAttribute("fill")) {
-            if (svg.getAttribute("fill").includes("#000")) {
-              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                svg.setAttribute("fill", this.colors.dark.text)
-              } else {
-                svg.setAttribute("fill", this.colors.light.text)
-              }
-            }
-          }
-          if (svg.hasAttribute("stroke")) {
-            if (svg.getAttribute("stroke").includes("#000")) {
-              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                svg.setAttribute("stroke", this.colors.dark.text)
-              } else {
-                svg.setAttribute("stroke", this.colors.light.text)
-              }
-            }
-          }
+          this.convert("svg/dark-light", svg)
+          //
+          // for (let i = 0; i < svg.querySelectorAll("*").length; i++) {
+          //   const node = svg.querySelectorAll("*")[i]
+          //   if (node.hasAttribute("fill")) {
+          //     if (node.getAttribute("fill").includes("#000")) {
+          //       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          //         node.setAttribute("fill", this.colors.dark.text)
+          //       } else {
+          //         node.setAttribute("fill", this.colors.light.text)
+          //       }
+          //     }
+          //   }
+          //   if (node.hasAttribute("stroke")) {
+          //     if (node.getAttribute("stroke").includes("#000")) {
+          //       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          //         node.setAttribute("stroke", this.colors.dark.text)
+          //       } else {
+          //         node.setAttribute("stroke", this.colors.light.text)
+          //       }
+          //     }
+          //   }
+          // }
+          // if (svg.hasAttribute("fill")) {
+          //   if (svg.getAttribute("fill").includes("#000")) {
+          //     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          //       svg.setAttribute("fill", this.colors.dark.text)
+          //     } else {
+          //       svg.setAttribute("fill", this.colors.light.text)
+          //     }
+          //   }
+          // }
+          // if (svg.hasAttribute("stroke")) {
+          //   if (svg.getAttribute("stroke").includes("#000")) {
+          //     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          //       svg.setAttribute("stroke", this.colors.dark.text)
+          //     } else {
+          //       svg.setAttribute("stroke", this.colors.light.text)
+          //     }
+          //   }
+          // }
+          //
+          //
           icon.append(svg)
           resolve(icon)
         } catch (error) {
@@ -10966,6 +10993,50 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "svg/dark-light") {
+
+      for (let i = 0; i < input.querySelectorAll("*").length; i++) {
+        const node = input.querySelectorAll("*")[i]
+        if (node.hasAttribute("fill")) {
+          if (node.getAttribute("fill").includes("#000")) {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              node.setAttribute("fill", this.colors.dark.text)
+            } else {
+              node.setAttribute("fill", this.colors.light.text)
+            }
+          }
+        }
+        if (node.hasAttribute("stroke")) {
+          if (node.getAttribute("stroke").includes("#000")) {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              node.setAttribute("stroke", this.colors.dark.text)
+            } else {
+              node.setAttribute("stroke", this.colors.light.text)
+            }
+          }
+        }
+      }
+      if (input.hasAttribute("fill")) {
+        if (input.getAttribute("fill").includes("#000")) {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            input.setAttribute("fill", this.colors.dark.text)
+          } else {
+            input.setAttribute("fill", this.colors.light.text)
+          }
+        }
+      }
+      if (input.hasAttribute("stroke")) {
+        if (input.getAttribute("stroke").includes("#000")) {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            input.setAttribute("stroke", this.colors.dark.text)
+          } else {
+            input.setAttribute("stroke", this.colors.light.text)
+          }
+        }
+      }
+      return input
+    }
+
     if (event === "link-colors") {
       input.style.color = this.colors.link.color
       input.addEventListener("click", () => input.style.color = this.colors.link.active)
@@ -11069,12 +11140,11 @@ await Helper.add("event/click-funnel")
 
       if (!(input instanceof Element)) throw new Error("not an element")
       const tagName = input.tagName.toLowerCase()
-      const id = input.id ? `#${input.id}` : ''
-      const classes = input.className
-      ? `.${input.className.split(' ').join('.')}`
+      const id = input.getAttribute("id") ? `#${input.id}` : ''
+      const classes = input.getAttribute("class")
+      ? `.${input.getAttribute("class").split(' ').join('.')}`
       : ''
       return `${tagName}${id}${classes}`
-
     }
 
     if (event === "node/sort-children-by-z-index") {
@@ -11095,6 +11165,24 @@ await Helper.add("event/click-funnel")
 
   }
 
+  static async dynamicImport(url, callback) {
+    const scriptLoaded = new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.onload = resolve
+      script.onerror = reject
+      document.head.appendChild(script)
+    })
+    try {
+      await scriptLoaded
+      if (typeof callback === "function") await callback()
+      const scriptToRemove = document.querySelector(`script[src="${url}"]`)
+      if (scriptToRemove) document.head.removeChild(scriptToRemove)
+    } catch (error) {
+      window.alert(`Fehler beim Laden oder Ausführen des Skripts:\n\n${error}`)
+    }
+  }
+
   static fn(event, input) {
 
     if (event === "addLargeStyle") {
@@ -11113,6 +11201,19 @@ await Helper.add("event/click-funnel")
           largeStyle = document.querySelector("style[id='large-device']")
           const selector = this.convert("node/selector", node)
           largeStyle.append(`\n@media only screen and ${query} {${selector}{${prompt} !important;}}`)
+        }
+      }
+    }
+
+    if (event === "addLocationAssign") {
+
+      return (node) => {
+        const prompt = window.prompt("Gebe die Quell-Url deiner Weiterleitung ein:")
+        if (!this.verifyIs("text/empty", prompt)) {
+          node.style.cursor = "pointer"
+          node.setAttribute("onmouseover", "this.style.outline='3px solid #888'")
+          node.setAttribute("onmouseout", "this.style.outline=null")
+          node.setAttribute("onclick", `window.location.assign("${prompt}")`)
         }
       }
     }
@@ -11305,6 +11406,19 @@ await Helper.add("event/click-funnel")
       }
     }
 
+    if (event === "addWindowOpenBlank") {
+
+      return (node) => {
+        const prompt = window.prompt("Gebe die Quell-Url deines neuen Tabs ein:")
+        if (!this.verifyIs("text/empty", prompt)) {
+          node.style.cursor = "pointer"
+          node.setAttribute("onmouseover", "this.style.outline='3px solid #888'")
+          node.setAttribute("onmouseout", "this.style.outline=null")
+          node.setAttribute("onclick", `window.open("${prompt}", "_blank")`)
+        }
+      }
+    }
+
     if (event === "appendAllSvgIcons") {
 
       async function appendSvgIconsFragment(node, callback, start = 0, end = 8) {
@@ -11424,6 +11538,8 @@ await Helper.add("event/click-funnel")
 
     if (event === "creator-buttons") {
 
+      const it = {}
+
       function toggleDisplayFlexNone(node) {
         if (node.style.display === "none") {
           node.style.display = "flex"
@@ -11435,666 +11551,799 @@ await Helper.add("event/click-funnel")
         }
       }
 
-      const optionsContainer = this.create("div/scrollable", input.parent)
-      optionsContainer.style.marginTop = "21px"
-      optionsContainer.style.height = `${window.innerHeight * 0.4}px`
+      it.toggleStyle = this.fn("toggleStyle")
+      it.toggleStyles = this.fn("toggleStyles")
+      it.toggleNodeAndChildrenStyles = this.fn("toggleNodeAndChildrenStyles")
+      it.setStyleWithPrompt = this.fn("setStyleWithPrompt")
+      it.incrementStyle = this.fn("incrementStyle")
+      it.decrementStyle = this.fn("decrementStyle")
+      it.fixedGridPrompt = this.fn("fixedGridPrompt")
+      it.rotateNode = this.fn("rotateNode")
+      it.appendUnorderedListItem = this.fn("appendUnorderedListItem")
+      it.appendOrderedListItem = this.fn("appendOrderedListItem")
+      it.toggleAttribute = this.fn("toggleAttribute")
+      it.toggleInnerHtml = this.fn("toggleInnerHtml")
+      it.toggleTextContent = this.fn("toggleTextContent")
+      it.toggleNode = this.fn("toggleNode")
+      it.setChildrenStyleWithPrompt = this.fn("setChildrenStyleWithPrompt")
 
-      const valueUnitsTitle = this.render("text/hr", "Meine Werteinheiten", optionsContainer)
-      valueUnitsTitle.style.cursor = "pointer"
-      this.add("outline-hover", valueUnitsTitle)
-      valueUnitsTitle.onclick = () => toggleDisplayFlexNone(valueUnitsOptions)
+      it.optionsContainer = this.create("div/scrollable", input.parent)
+      it.optionsContainer.style.marginTop = "21px"
+      it.optionsContainer.style.height = `${window.innerHeight * 0.4}px`
 
-      const valueUnitsOptions = this.create("div/flex-row", optionsContainer)
-      valueUnitsOptions.style.display = "none"
-      this.add("outline-hover", valueUnitsOptions)
-      const sourcesButton = this.create("toolbox/icon", valueUnitsOptions)
-      this.render("icon/node/path", "/public/doc-clip.svg", sourcesButton)
-      const addScriptButton = this.create("toolbox/icon", valueUnitsOptions)
-      this.render("icon/node/path", "/public/doc-js.svg", addScriptButton)
-      const templatesButton = this.create("toolbox/icon", valueUnitsOptions)
-      this.render("icon/node/path", "/public/doc-html.svg", templatesButton)
-      const pdfsButton = this.create("toolbox/icon", valueUnitsOptions)
-      this.render("icon/node/path", "/public/doc-pdf.svg", pdfsButton)
-      const imagesButton = this.create("toolbox/icon", valueUnitsOptions)
-      this.render("icon/node/path", "/public/doc-image.svg", imagesButton)
-      const audiosButton = this.create("toolbox/icon", valueUnitsOptions)
-      this.render("icon/node/path", "/public/doc-audio.svg", audiosButton)
-      const videosButton = this.create("toolbox/icon", valueUnitsOptions)
-      this.render("icon/node/path", "/public/doc-video.svg", videosButton)
+      it.quickContentTitle = this.render("text/hr", "Anwendungen für schnellen Inhalt", it.optionsContainer)
+      this.add("outline-hover", it.quickContentTitle)
+      it.quickContentOptions = this.create("div/flex-row", it.optionsContainer)
+      it.quickContentTitle.onclick = () => toggleDisplayFlexNone(it.quickContentOptions)
+      it.quickContentOptions.style.display = "none"
 
-      const templatesTitle = this.render("text/hr", "Anwendungen für Vorlagen einsetzen", optionsContainer)
-      templatesTitle.style.cursor = "pointer"
-      this.add("outline-hover", templatesTitle)
-      templatesTitle.onclick = () => toggleDisplayFlexNone(templateOptions)
-      const templateOptions = this.create("div/flex-row", optionsContainer)
-      templateOptions.style.display = "none"
-      this.add("outline-hover", templateOptions)
-      const createFlexButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/bars-two.svg", createFlexButton)
-      const wrapButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/arrow-wrap.svg", wrapButton)
-      const createGridButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/grid-pencil.svg", createGridButton)
-      const rowContainerButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/window-half-y.svg", rowContainerButton)
-      const columnContainerButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/window-half-x.svg", columnContainerButton)
-      const imageTextButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/display-text.svg", imageTextButton)
-      const keyValueButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/lines-two-columns.svg", keyValueButton)
-      const actionBtnButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/button.svg", actionBtnButton)
-      const horizontalHrButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/window-half-x-overline.svg", horizontalHrButton)
-      const simpleHeaderButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/window-header-top-1.svg", simpleHeaderButton)
-      const h1Button = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/H1.svg", h1Button)
-      const h2Button = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/H2.svg", h2Button)
-      const h3Button = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/H3.svg", h3Button)
-      const pButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/paragraph.svg", pButton)
-      const imageButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/image.svg", imageButton)
-      const tableHeaderButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/table-header-top.svg", tableHeaderButton)
-      const pdfLinkButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/download-pdf.svg", pdfLinkButton)
-      const aLinkButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/chain.svg", aLinkButton)
-      const spanButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/window-span-x.svg", spanButton)
-      const changeSiButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/change-si.svg", changeSiButton)
-      const addSpaceButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/arrow-down-two-lines.svg", addSpaceButton)
-      const arrowRightButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/arrow-right.svg", arrowRightButton)
-      const divScrollableButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/arrow-top-bottom.svg", divScrollableButton)
-      const packDivButton = this.create("toolbox/icon", templateOptions)
-      this.render("icon/node/path", "/public/arrow-compress-window.svg", packDivButton)
+      it.sourcesButton = this.render("text/link", "Meine Quellen", it.quickContentOptions)
+      it.openSourcesOverlay = this.fn("openSourcesOverlay")
+      it.scriptsButton = this.render("text/link", "Meine Skripte", it.quickContentOptions)
+      it.openScriptsOverlay = this.fn("openScriptsOverlay")
+      it.templatesButton = this.render("text/link", "Meine Templates", it.quickContentOptions)
+      it.openTemplatesOverlay = this.fn("openTemplatesOverlay")
+      it.pdfsButton = this.render("text/link", "Meine PDFs", it.quickContentOptions)
+      it.imagesButton = this.render("text/link", "Meine Bilder", it.quickContentOptions)
+      it.openImagesOverlay = this.fn("openImagesOverlay")
+      it.audiosButton = this.render("text/link", "Meine Audios", it.quickContentOptions)
+      it.videosButton = this.render("text/link", "Meine Videos", it.quickContentOptions)
 
-      const inputTitle = this.render("text/hr", "Anwendungen für Eingabe Felder einsetzen", optionsContainer)
-      inputTitle.style.cursor = "pointer"
-      this.add("outline-hover", inputTitle)
-      inputTitle.onclick = () => toggleDisplayFlexNone(inputOptions)
-      const inputOptions = this.create("div/flex-row", optionsContainer)
-      inputOptions.style.display = "none"
-      this.add("outline-hover", inputOptions)
-      const textInputButton = this.create("toolbox/icon", inputOptions)
-      this.render("icon/node/path", "/public/input-text.svg", textInputButton)
-      const numberInputButton = this.create("toolbox/icon", inputOptions)
-      this.render("icon/node/path", "/public/input-number.svg", numberInputButton)
-      const checkboxInputButton = this.create("toolbox/icon", inputOptions)
-      this.render("icon/node/path", "/public/input-checkbox.svg", checkboxInputButton)
-      const passwordInputButton = this.create("toolbox/icon", inputOptions)
-      this.render("icon/node/path", "/public/input-password.svg", passwordInputButton)
-      const selectInputButton = this.create("toolbox/icon", inputOptions)
-      this.render("icon/node/path", "/public/input-select.svg", selectInputButton)
+      it.templatesTitle = this.render("text/hr", "Anwendungen für einfache Vorlagen", it.optionsContainer)
+      this.add("outline-hover", it.templatesTitle)
+      it.templatesTitle.onclick = () => toggleDisplayFlexNone(it.templateOptions)
+      it.templateOptions = this.create("div/flex-row", it.optionsContainer)
+      it.templateOptions.style.display = "none"
 
-      const widthTitle = this.render("text/hr", "Anwendungen für die Breite", optionsContainer)
-      widthTitle.style.cursor = "pointer"
-      this.add("outline-hover", widthTitle)
-      widthTitle.onclick = () => toggleDisplayFlexNone(widthOptions)
-      const widthOptions = this.create("div/flex-row", optionsContainer)
-      widthOptions.style.display = "none"
-      this.add("outline-hover", widthOptions)
-      const growWidthButton = this.create("toolbox/icon", widthOptions)
-      this.render("icon/node/path", "/public/lines-100-x.svg", growWidthButton)
-      const maxWidthButton = this.create("toolbox/icon", widthOptions)
-      this.render("icon/node/path", "/public/arrow-left-right-with-lines.svg", maxWidthButton)
-      const minWidthButton = this.create("toolbox/icon", widthOptions)
-      this.render("icon/node/path", "/public/window-with-arrow-left-right.svg", minWidthButton)
-      const exactWidthButton = this.create("toolbox/icon", widthOptions)
-      this.render("icon/node/path", "/public/arrow-point-x.svg", exactWidthButton)
-      const increaseWidthButton = this.create("toolbox/icon", widthOptions)
-      this.render("icon/node/path", "/public/w-up.svg", increaseWidthButton)
-      const decreaseWidthButton = this.create("toolbox/icon", widthOptions)
-      this.render("icon/node/path", "/public/w-down.svg", decreaseWidthButton)
+      it.imageTextAndActionButton = this.render("text/link", "Bild-Text-Action Box", it.templateOptions)
+      it.createImageTextAndActionBox = this.fn("createImageTextAndActionBox")
+      it.backgroundImageWithTitlesButton = this.render("text/link", "Hintergrund Bild mit Titel", it.templateOptions)
+      it.createBackgroundImageWithTitles = this.fn("createBackgroundImageWithTitles")
+      it.createFlexButton = this.render("text/link", "Flex Elemente erstellen", it.templateOptions)
+      it.createFlexWidthWithPrompt = this.fn("createFlexWidthWithPrompt")
+      it.createGridButton = this.render("text/link", "Grid Matrix erstellen", it.templateOptions)
+      it.createGridMatrixWithPrompt = this.fn("createGridMatrixWithPrompt")
+      it.rowContainerButton = this.render("text/link", "Div als Flex Zeile", it.templateOptions)
+      it.createFlexRow = this.fn("createFlexRow")
+      it.columnContainerButton = this.render("text/link", "Div als Flex Spalte", it.templateOptions)
+      it.createFlexColumn = this.fn("createFlexColumn")
+      it.imageTextButton = this.render("text/link", "Bild mit Unterschrift", it.templateOptions)
+      it.createImageText = this.fn("createImageText")
+      it.keyValueButton = this.render("text/link", "Schlüsselpaar erstellen", it.templateOptions)
+      it.createKeyValue = this.fn("createKeyValue")
+      it.actionBtnButton = this.render("text/link", "Action Button erstellen", it.templateOptions)
+      it.createActionButton = this.fn("createActionButton")
+      it.horizontalHrButton = this.render("text/link", "Horizontale Trennlinie", it.templateOptions)
+      it.createHr = this.fn("createHr")
+      it.simpleHeaderButton = this.render("text/link", "Kopfzeile mit Bild Links", it.templateOptions)
+      it.createLeftImageHeader = this.fn("createLeftImageHeader")
+      it.h1Button = this.render("text/link", "Überschrift 1", it.templateOptions)
+      it.createH1withPrompt = this.fn("createH1withPrompt")
+      it.h2Button = this.render("text/link", "Überschrift 2", it.templateOptions)
+      it.createH2withPrompt = this.fn("createH2withPrompt")
+      it.h3Button = this.render("text/link", "Überschrift 3", it.templateOptions)
+      it.createH3withPrompt = this.fn("createH3withPrompt")
+      it.pButton = this.render("text/link", "Paragraph erstellen", it.templateOptions)
+      it.createPwithPrompt = this.fn("createPwithPrompt")
+      it.imageButton = this.render("text/link", "Bild erstellen", it.templateOptions)
+      it.createImagePlaceholder = this.fn("createImagePlaceholder")
+      it.tableHeaderButton = this.render("text/link", "Tabellen Überschriften erstellen", it.templateOptions)
+      it.createTableWithMatrixPrompt = this.fn("createTableWithMatrixPrompt")
+      it.pdfLinkButton = this.render("text/link", "PDF Link erstellen", it.templateOptions)
+      it.createPdfLinkWithPrompt = this.fn("createPdfLinkWithPrompt")
+      it.aLinkButton = this.render("text/link", "Link erstellen", it.templateOptions)
+      it.createAnchorWithPrompt = this.fn("createAnchorWithPrompt")
+      it.wrapLinkButton = this.render("text/link", "Als Link einpacken", it.templateOptions)
+      it.wrapAnchorWithPrompt = this.fn("wrapAnchorWithPrompt")
+      it.locationAssignButton = this.render("text/link", "Weiterleitung einfügen", it.templateOptions)
+      it.addLocationAssign = this.fn("addLocationAssign")
+      it.windowOpenBlankButton = this.render("text/link", "Weiterleitung mit neuem Tab", it.templateOptions)
+      it.addWindowOpenBlank = this.fn("addWindowOpenBlank")
+      it.spanButton = this.render("text/link", "Text Inhalt als Span", it.templateOptions)
+      it.createSpanWithTextContent = this.fn("createSpanWithTextContent")
+      it.changeSiButton = this.render("text/link", "SI Einheit als Span", it.templateOptions)
+      it.createSpanWithSiPrompt = this.fn("createSpanWithSiPrompt")
+      it.addSpaceButton = this.render("text/link", "Abstand erstellen", it.templateOptions)
+      it.createSpaceWithHeightPrompt = this.fn("createSpaceWithHeightPrompt")
+      it.arrowRightButton = this.render("text/link", "Pfeil nach Rechts mit Farbe", it.templateOptions)
+      it.createArrowRightWithColorPrompt = this.fn("createArrowRightWithColorPrompt")
+      it.divScrollableButton = this.render("text/link", "Div Scrollbar in Y Richtung", it.templateOptions)
+      it.createScrollableY = this.fn("createScrollableY")
+      it.packDivButton = this.render("text/link", "Inhalt als Div einpacken", it.templateOptions)
+      it.createDivPackOuter = this.fn("createDivPackOuter")
 
-      const heightTitle = this.render("text/hr", "Anwendungen für die Höhe", optionsContainer)
-      heightTitle.style.cursor = "pointer"
-      this.add("outline-hover", heightTitle)
-      heightTitle.onclick = () => toggleDisplayFlexNone(heightOptions)
-      const heightOptions = this.create("div/flex-row", optionsContainer)
-      heightOptions.style.display = "none"
-      this.add("outline-hover", heightOptions)
-      const growHeightButton = this.create("toolbox/icon", heightOptions)
-      this.render("icon/node/path", "/public/lines-100-y.svg", growHeightButton)
-      const maxHeightButton = this.create("toolbox/icon", heightOptions)
-      this.render("icon/node/path", "/public/arrow-top-down-with-lines.svg", maxHeightButton)
-      const minHeightButton = this.create("toolbox/icon", heightOptions)
-      this.render("icon/node/path", "/public/window-with-arrow-top-down.svg", minHeightButton)
-      const exactHeightButton = this.create("toolbox/icon", heightOptions)
-      this.render("icon/node/path", "/public/arrow-point-y.svg", exactHeightButton)
-      const increaseHeightButton = this.create("toolbox/icon", heightOptions)
-      this.render("icon/node/path", "/public/H-up.svg", increaseHeightButton)
-      const decreaseHeightButton = this.create("toolbox/icon", heightOptions)
-      this.render("icon/node/path", "/public/H-down.svg", decreaseHeightButton)
+      it.inputTitle = this.render("text/hr", "Anwendungen für Eingabe Felder einsetzen", it.optionsContainer)
+      this.add("outline-hover", it.inputTitle)
+      it.inputTitle.onclick = () => toggleDisplayFlexNone(it.inputOptions)
+      it.inputOptions = this.create("div/flex-row", it.optionsContainer)
+      it.inputOptions.style.display = "none"
 
-      const displayTitle = this.render("text/hr", "Anwendungen für Display Elemente", optionsContainer)
-      displayTitle.style.cursor = "pointer"
-      this.add("outline-hover", displayTitle)
-      displayTitle.onclick = () => toggleDisplayFlexNone(displayOptions)
-      const displayOptions = this.create("div/flex-row", optionsContainer)
-      displayOptions.style.display = "none"
-      this.add("outline-hover", displayOptions)
-      const exactDisplayButton = this.create("toolbox/icon", displayOptions)
-      this.render("icon/node/path", "/public/window-layout-1.svg", exactDisplayButton)
-      const displayBlockButton = this.create("toolbox/icon", displayOptions)
-      this.render("icon/node/path", "/public/window-header-top-2.svg", displayBlockButton)
-      const displayInlineButton = this.create("toolbox/icon", displayOptions)
-      this.render("icon/node/path", "/public/window-layout-2.svg", displayInlineButton)
-      const toggleDisplayGridButton = this.create("toolbox/icon", displayOptions)
-      this.render("icon/node/path", "/public/window-layout-3.svg", toggleDisplayGridButton)
-      const toggleDisplayFlexButton = this.create("toolbox/icon", displayOptions)
-      this.render("icon/node/path", "/public/window-layout-4.svg", toggleDisplayFlexButton)
-      const toggleDisplayTableButton = this.create("toolbox/icon", displayOptions)
-      this.render("icon/node/path", "/public/window-layout-5.svg", toggleDisplayTableButton)
+      it.textInputButton = this.render("text/link", "Texteingabe erstellen", it.inputOptions)
+      it.createTextInput = this.fn("createTextInput")
+      it.numberInputButton = this.render("text/link", "Nummereingabe erstellen", it.inputOptions)
+      it.createTelInput = this.fn("createTelInput")
+      it.checkboxInputButton = this.render("text/link", "Checkbox erstellen", it.inputOptions)
+      it.createCheckboxInput = this.fn("createCheckboxInput")
+      it.passwordInputButton = this.render("text/link", "Passworteingabe erstellen", it.inputOptions)
+      it.createPasswordInput = this.fn("createPasswordInput")
+      it.selectInputButton = this.render("text/link", "Auswahleingabe erstellen", it.inputOptions)
+      it.createSelectInput = this.fn("createSelectInput")
 
-      const gridTitle = this.render("text/hr", "Anwendungen für Grid Elemente", optionsContainer)
-      gridTitle.style.cursor = "pointer"
-      this.add("outline-hover", gridTitle)
-      gridTitle.onclick = () => toggleDisplayFlexNone(gridOptions)
-      const gridOptions = this.create("div/flex-row", optionsContainer)
-      gridOptions.style.display = "none"
-      this.add("outline-hover", gridOptions)
-      const gridMobileButton = this.create("toolbox/icon", gridOptions)
-      this.render("icon/node/path", "/public/window-layout-6.svg", gridMobileButton)
-      const gridFullDisplayButton = this.create("toolbox/icon", gridOptions)
-      this.render("icon/node/path", "/public/window-layout-7.svg", gridFullDisplayButton)
-      const gridTwoColumnsButton = this.create("toolbox/icon", gridOptions)
-      this.render("icon/node/path", "/public/window-layout-8.svg", gridTwoColumnsButton)
-      const gridThreeColumnsButton = this.create("toolbox/icon", gridOptions)
-      this.render("icon/node/path", "/public/window-layout-9.svg", gridThreeColumnsButton)
-      const gridFixedButton = this.create("toolbox/icon", gridOptions)
-      this.render("icon/node/path", "/public/window-layout-10.svg", gridFixedButton)
-      const gridListRowsButton = this.create("toolbox/icon", gridOptions)
-      this.render("icon/node/path", "/public/window-layout-11.svg", gridListRowsButton)
-      const gridSpanColumnButton = this.create("toolbox/icon", gridOptions)
-      this.render("icon/node/path", "/public/window-span-x.svg", gridSpanColumnButton)
-      const gridSpanRowButton = this.create("toolbox/icon", gridOptions)
-      this.render("icon/node/path", "/public/window-span-y.svg", gridSpanRowButton)
-      const exactGridGapButton = this.create("toolbox/icon", gridOptions)
-      this.render("icon/node/path", "/public/window-layout-12.svg", exactGridGapButton)
-      const gridAddColumnButton = this.create("toolbox/icon", gridOptions)
-      this.render("icon/node/path", "/public/dots-plus-line-right.svg", gridAddColumnButton)
-      const gridRemoveColumnButton = this.create("toolbox/icon", gridOptions)
-      this.render("icon/node/path", "/public/dots-plus-line-left.svg", gridRemoveColumnButton)
-      const gridAddRowButton = this.create("toolbox/icon", gridOptions)
-      this.render("icon/node/path", "/public/dots-plus-line-bottom.svg", gridAddRowButton)
-      const gridRemoveRowButton = this.create("toolbox/icon", gridOptions)
-      this.render("icon/node/path", "/public/dots-plus-line-top.svg", gridRemoveRowButton)
+      it.widthTitle = this.render("text/hr", "Anwendungen für die Breite", it.optionsContainer)
+      this.add("outline-hover", it.widthTitle)
+      it.widthTitle.onclick = () => toggleDisplayFlexNone(it.widthOptions)
+      it.widthOptions = this.create("div/flex-row", it.optionsContainer)
+      it.widthOptions.style.display = "none"
 
-      const flexTitle = this.render("text/hr", "Anwendungen für Flex Elemente", optionsContainer)
-      flexTitle.style.cursor = "pointer"
-      this.add("outline-hover", flexTitle)
-      flexTitle.onclick = () => toggleDisplayFlexNone(flexOptions)
-      const flexOptions = this.create("div/flex-row", optionsContainer)
-      flexOptions.style.display = "none"
-      this.add("outline-hover", flexOptions)
-      const alignColumnButton = this.create("toolbox/icon", flexOptions)
-      this.render("icon/node/path", "/public/bars-y-between-lines.svg", alignColumnButton)
-      const alignLeftButton = this.create("toolbox/icon", flexOptions)
-      this.render("icon/node/path", "/public/bars-x-line-left.svg", alignLeftButton)
-      const alignCenterButton = this.create("toolbox/icon", flexOptions)
-      this.render("icon/node/path", "/public/bars-x-line-middle.svg", alignCenterButton)
-      const alignRightButton = this.create("toolbox/icon", flexOptions)
-      this.render("icon/node/path", "/public/bars-x-line-right.svg", alignRightButton)
-      const alignRowButton = this.create("toolbox/icon", flexOptions)
-      this.render("icon/node/path", "/public/bars-x-between-lines.svg", alignRowButton)
-      const alignTopButton = this.create("toolbox/icon", flexOptions)
-      this.render("icon/node/path", "/public/bars-y-line-top.svg", alignTopButton)
-      const alignVerticalButton = this.create("toolbox/icon", flexOptions)
-      this.render("icon/node/path", "/public/bars-y-line-middle.svg", alignVerticalButton)
-      const alignBottomButton = this.create("toolbox/icon", flexOptions)
-      this.render("icon/node/path", "/public/bars-y-line-bottom.svg", alignBottomButton)
-      const flexButton = this.create("toolbox/icon", flexOptions)
-      this.render("icon/node/path", "/public/arrow-left-right-lines-between.svg", flexButton)
-      const spaceBetweenButton = this.create("toolbox/icon", flexOptions)
-      this.render("icon/node/path", "/public/bars-x-space-between.svg", spaceBetweenButton)
-      const spaceAroundButton = this.create("toolbox/icon", flexOptions)
-      this.render("icon/node/path", "/public/bars-x-space-around.svg", spaceAroundButton)
-      const toggleWrapButton = this.create("toolbox/icon", flexOptions)
-      this.render("icon/node/path", "/public/lines-x-with-arrow.svg", toggleWrapButton)
+      it.growWidthButton = this.render("text/link", "100% Breite umschalten", it.widthOptions)
+      it.maxWidthButton = this.render("text/link", "Maximale Breite", it.widthOptions)
+      it.minWidthButton = this.render("text/link", "Minimale Breite", it.widthOptions)
+      it.exactWidthButton = this.render("text/link", "Exakte Breite", it.widthOptions)
+      it.increaseWidthButton = this.render("text/link", "Breite +1", it.widthOptions)
+      it.decreaseWidthButton = this.render("text/link", "Breite -1", it.widthOptions)
 
-      const layerTitle = this.render("text/hr", "Anwendungen für die Layer Elemente", optionsContainer)
-      layerTitle.style.cursor = "pointer"
-      this.add("outline-hover", layerTitle)
-      layerTitle.onclick = () => toggleDisplayFlexNone(layerOptions)
-      const layerOptions = this.create("div/flex-row", optionsContainer)
-      layerOptions.style.display = "none"
-      this.add("outline-hover", layerOptions)
-      const layerButton = this.create("toolbox/icon", layerOptions)
-      this.render("icon/node/path", "/public/layer.svg", layerButton)
-      const positiveLayerButton = this.create("toolbox/icon", layerOptions)
-      this.render("icon/node/path", "/public/layer-plus.svg", positiveLayerButton)
-      const negativeLayerButton = this.create("toolbox/icon", layerOptions)
-      this.render("icon/node/path", "/public/layer-minus.svg", negativeLayerButton)
-      const exactLayerButton = this.create("toolbox/icon", layerOptions)
-      this.render("icon/node/path", "/public/layer-pencil.svg", exactLayerButton)
-      const removeLayerButton = this.create("toolbox/icon", layerOptions)
-      this.render("icon/node/path", "/public/layer-x.svg", removeLayerButton)
-      const positionAbsoluteButton = this.create("toolbox/icon", layerOptions)
-      this.render("icon/node/path", "/public/window-with-top-left-arrow-inside.svg", positionAbsoluteButton)
-      const positionTopButton = this.create("toolbox/icon", layerOptions)
-      this.render("icon/node/path", "/public/arrow-down-lines-top.svg", positionTopButton)
-      const positionRightButton = this.create("toolbox/icon", layerOptions)
-      this.render("icon/node/path", "/public/arrow-left-lines-right.svg", positionRightButton)
-      const positionBottomButton = this.create("toolbox/icon", layerOptions)
-      this.render("icon/node/path", "/public/arrow-top-lines-bottom.svg", positionBottomButton)
-      const positionLeftButton = this.create("toolbox/icon", layerOptions)
-      this.render("icon/node/path", "/public/arrow-right-lines-left.svg", positionLeftButton)
+      it.heightTitle = this.render("text/hr", "Anwendungen für die Höhe", it.optionsContainer)
+      this.add("outline-hover", it.heightTitle)
+      it.heightTitle.onclick = () => toggleDisplayFlexNone(it.heightOptions)
+      it.heightOptions = this.create("div/flex-row", it.optionsContainer)
+      it.heightOptions.style.display = "none"
 
-      const transformationTitle = this.render("text/hr", "Anwendungen für die Transformation", optionsContainer)
-      transformationTitle.style.cursor = "pointer"
-      this.add("outline-hover", transformationTitle)
-      transformationTitle.onclick = () => toggleDisplayFlexNone(transformationOptions)
-      const transformationOptions = this.create("div/flex-row", optionsContainer)
-      transformationOptions.style.display = "none"
-      this.add("outline-hover", transformationOptions)
-      const transformTranslateButton = this.create("toolbox/icon", transformationOptions)
-      this.render("icon/node/path", "/public/window-plus-x-y.svg", transformTranslateButton)
-      const transformTranslateXButton = this.create("toolbox/icon", transformationOptions)
-      this.render("icon/node/path", "/public/arrow-x-point-y-z.svg", transformTranslateXButton)
-      const transformTranslateYButton = this.create("toolbox/icon", transformationOptions)
-      this.render("icon/node/path", "/public/arrow-y-point-x-z.svg", transformTranslateYButton)
-      const zIndexButton = this.create("toolbox/icon", transformationOptions)
-      this.render("icon/node/path", "/public/arrow-z-point-x-y.svg", zIndexButton)
-      const scaleButton = this.create("toolbox/icon", transformationOptions)
-      this.render("icon/node/path", "/public/window-scale.svg", scaleButton)
-      const rotateRightButton = this.create("toolbox/icon", transformationOptions)
-      this.render("icon/node/path", "/public/arrow-rotate-right.svg", rotateRightButton)
-      const exactRotateRightButton = this.create("toolbox/icon", transformationOptions)
-      this.render("icon/node/path", "/public/arrow-rotate-right-x.svg", exactRotateRightButton)
-      const rotateLeftButton = this.create("toolbox/icon", transformationOptions)
-      this.render("icon/node/path", "/public/arrow-rotate-right.svg", rotateLeftButton).then(icon => {
-        icon.style.transform = "rotateY(180deg)"
+      it.growHeightButton = this.render("text/link", "100% Höhe umschalten", it.heightOptions)
+      it.maxHeightButton = this.render("text/link", "Maximale Höhe", it.heightOptions)
+      it.minHeightButton = this.render("text/link", "Minimale Höhe", it.heightOptions)
+      it.exactHeightButton = this.render("text/link", "Exakte Höhe", it.heightOptions)
+      it.increaseHeightButton = this.render("text/link", "Höhe +1", it.heightOptions)
+      it.decreaseHeightButton = this.render("text/link", "Höhe -1", it.heightOptions)
+
+      it.displayTitle = this.render("text/hr", "Anwendungen für Display Elemente", it.optionsContainer)
+      this.add("outline-hover", it.displayTitle)
+      it.displayTitle.onclick = () => toggleDisplayFlexNone(it.displayOptions)
+      it.displayOptions = this.create("div/flex-row", it.optionsContainer)
+      it.displayOptions.style.display = "none"
+
+      it.exactDisplayButton = this.render("text/link", "Display Prompt", it.displayOptions)
+      it.displayBlockButton = this.render("text/link", "Display Block umschalten", it.displayOptions)
+      it.displayInlineButton = this.render("text/link", "Display Inline umschalten", it.displayOptions)
+      it.toggleDisplayGridButton = this.render("text/link", "Display Grid umschalten", it.displayOptions)
+      it.toggleDisplayFlexButton = this.render("text/link", "Display Flex umschalten", it.displayOptions)
+      it.toggleDisplayTableButton = this.render("text/link", "Display Table umschalten", it.displayOptions)
+
+      it.gridTitle = this.render("text/hr", "Anwendungen für Grid Elemente", it.optionsContainer)
+      this.add("outline-hover", it.gridTitle)
+      it.gridTitle.onclick = () => toggleDisplayFlexNone(it.gridOptions)
+      it.gridOptions = this.create("div/flex-row", it.optionsContainer)
+      it.gridOptions.style.display = "none"
+
+      it.gridMobileButton = this.render("text/link", "Grid für Mobile Geräte", it.gridOptions)
+      it.gridFullDisplayButton = this.render("text/link", "Grid Volle Breite", it.gridOptions)
+      it.gridTwoColumnsButton = this.render("text/link", "Grid mit 2 Spalten", it.gridOptions)
+      it.gridThreeColumnsButton = this.render("text/link", "Grid mit 3 Spalten", it.gridOptions)
+      it.gridFixedButton = this.render("text/link", "Grid Dimension", it.gridOptions)
+      it.gridListRowsButton = this.render("text/link", "Grid Liste", it.gridOptions)
+      it.gridSpanColumnButton = this.render("text/link", "Grid Element in Spalten Richtung spannen", it.gridOptions)
+      it.spanColumnWithPrompt = this.fn("spanColumnWithPrompt")
+      it.gridSpanRowButton = this.render("text/link", "Grid Element in Zeilen Richtung spannen", it.gridOptions)
+      it.spanRowWithPrompt = this.fn("spanRowWithPrompt")
+      it.exactGridGapButton = this.render("text/link", "Exakter Grid Abstand", it.gridOptions)
+      it.gridAddColumnButton = this.render("text/link", "Spalte hinzufügen", it.gridOptions)
+      it.addGridColumn = this.fn("addGridColumn")
+      it.gridRemoveColumnButton = this.render("text/link", "Spalte entfernen", it.gridOptions)
+      it.removeGridColumn = this.fn("removeGridColumn")
+      it.gridAddRowButton = this.render("text/link", "Zeile hinzufügen", it.gridOptions)
+      it.addGridRow = this.fn("addGridRow")
+      it.gridRemoveRowButton = this.render("text/link", "Zeile entfernen", it.gridOptions)
+      it.removeGridRow = this.fn("removeGridRow")
+
+      it.flexTitle = this.render("text/hr", "Anwendungen für Flex Elemente", it.optionsContainer)
+      this.add("outline-hover", it.flexTitle)
+      it.flexTitle.onclick = () => toggleDisplayFlexNone(it.flexOptions)
+      it.flexOptions = this.create("div/flex-row", it.optionsContainer)
+      it.flexOptions.style.display = "none"
+
+      it.alignColumnButton = this.render("text/link", "Flex Spalte", it.flexOptions)
+      it.alignLeftButton = this.render("text/link", "Links anordnen ", it.flexOptions)
+      it.alignCenterButton = this.render("text/link", "Zentriert anordnen", it.flexOptions)
+      it.alignRightButton = this.render("text/link", "Rechts anordnen", it.flexOptions)
+      it.alignRowButton = this.render("text/link", "Flex Zeile", it.flexOptions)
+      it.alignTopButton = this.render("text/link", "Oben anordnen", it.flexOptions)
+      it.alignVerticalButton = this.render("text/link", "Mittig anordnen", it.flexOptions)
+      it.alignBottomButton = this.render("text/link", "Unten anordnen", it.flexOptions)
+      it.flexButton = this.render("text/link", "Flex Element erstellen", it.flexOptions)
+      it.spaceBetweenButton = this.render("text/link", "Flex Abstand Zwischen", it.flexOptions)
+      it.spaceAroundButton = this.render("text/link", "Flex Abstand Herum", it.flexOptions)
+      it.toggleWrapButton = this.render("text/link", "Flex Wrap umschalten", it.flexOptions)
+
+      it.layerTitle = this.render("text/hr", "Anwendungen für die Layer Elemente", it.optionsContainer)
+      this.add("outline-hover", it.layerTitle)
+      it.layerTitle.onclick = () => toggleDisplayFlexNone(it.layerOptions)
+      it.layerOptions = this.create("div/flex-row", it.optionsContainer)
+      it.layerOptions.style.display = "none"
+
+      it.layerButton = this.render("text/link", "Layer Verwaltung öffnen", it.layerOptions)
+      it.openLayerOverlay = this.fn("openLayerOverlay")
+      it.positiveLayerButton = this.render("text/link", "Layer darüber hinzufügen", it.layerOptions)
+      it.addLayerAbove = this.fn("addLayerAbove")
+      it.negativeLayerButton = this.render("text/link", "Layer darunter hinzufügen", it.layerOptions)
+      it.addLayerBelow = this.fn("addLayerBelow")
+      it.exactLayerButton = this.render("text/link", "Layer mit exaktem Index", it.layerOptions)
+      it.addLayerPrompt = this.fn("addLayerPrompt")
+      it.removeLayerButton = this.render("text/link", "Alle Layer entfernen", it.layerOptions)
+      it.removeAllLayer = this.fn("removeAllLayer")
+      it.positionAbsoluteButton = this.render("text/link", "Position Absolut umschalten", it.layerOptions)
+      it.positionTopButton = this.render("text/link", "Position Oben", it.layerOptions)
+      it.positionRightButton = this.render("text/link", "Position Rechts", it.layerOptions)
+      it.positionBottomButton = this.render("text/link", "Position Unten", it.layerOptions)
+      it.positionLeftButton = this.render("text/link", "Position Links", it.layerOptions)
+
+      it.transformationTitle = this.render("text/hr", "Anwendungen für die Transformation", it.optionsContainer)
+      this.add("outline-hover", it.transformationTitle)
+      it.transformationTitle.onclick = () => toggleDisplayFlexNone(it.transformationOptions)
+      it.transformationOptions = this.create("div/flex-row", it.optionsContainer)
+      it.transformationOptions.style.display = "none"
+
+      it.transformTranslateButton = this.render("text/link", "Exakt versetzen", it.transformationOptions)
+      it.translateWithPrompt = this.fn("translateWithPrompt")
+      it.transformTranslateXButton = this.render("text/link", "Nach X versetzen", it.transformationOptions)
+      it.translateXWithPrompt = this.fn("translateXWithPrompt")
+      it.transformTranslateYButton = this.render("text/link", "Nach Y versetzen", it.transformationOptions)
+      it.translateYWithPrompt = this.fn("translateYWithPrompt")
+      it.zIndexButton = this.render("text/link", "Z-Index anpassen", it.transformationOptions)
+      it.scaleButton = this.render("text/link", "", it.transformationOptions)
+      it.scaleWithPrompt = this.fn("scaleWithPrompt")
+      it.rotateRightButton = this.render("text/link", "90° nach Rechts drehen", it.transformationOptions)
+      it.rotateNodeRightWithPrompt = this.fn("rotateNodeRightWithPrompt")
+      it.exactRotateRightButton = this.render("text/link", "Exakt nach Rechts drehen", it.transformationOptions)
+      it.rotateLeftButton = this.render("text/link", "90° nach Links drehen", it.transformationOptions)
+      it.rotateNodeLeftWithPrompt = this.fn("rotateNodeLeftWithPrompt")
+      it.exactRotateLeftButton = this.render("text/link", "Exakt nach Links drehen", it.transformationOptions)
+
+      it.editTextTitle = this.render("text/hr", "Anwendungen für die Textverarbeitung", it.optionsContainer)
+      this.add("outline-hover", it.editTextTitle)
+      it.editTextTitle.onclick = () => toggleDisplayFlexNone(it.textManipulationOptions)
+      it.textManipulationOptions = this.create("div/flex-row", it.optionsContainer)
+      it.textManipulationOptions.style.display = "none"
+
+      it.whiteSpaceNoWrapButton = this.render("text/link", "Leerzeichen nicht umbrechen", it.textManipulationOptions)
+      it.fontFamilyButton = this.render("text/link", "Schriftart", it.textManipulationOptions)
+      it.fontWeightNormalButton = this.render("text/link", "Schriftbreite Normal umschalten", it.textManipulationOptions)
+      it.fontWeightButton = this.render("text/link", "Exakte Schriftbreite", it.textManipulationOptions)
+      it.fontStyleButton = this.render("text/link", "Schriftstil", it.textManipulationOptions)
+      it.textDecorationButton = this.render("text/link", "Textdekoration", it.textManipulationOptions)
+      it.fontSizeButton = this.render("text/link", "Schriftgröße", it.textManipulationOptions)
+      it.fontColorButton = this.render("text/link", "Schriftfarbe", it.textManipulationOptions)
+      it.backgroundColorButton = this.render("text/link", "Hintergrundfarbe", it.textManipulationOptions)
+      it.unorderedListButton = this.render("text/link", "Ungeordnete Liste erstellen", it.textManipulationOptions)
+      it.orderedListButton = this.render("text/link", "Geordnete Liste erstellen", it.textManipulationOptions)
+      it.lineHeightButton = this.render("text/link", "Zeilenhöhe", it.textManipulationOptions)
+
+      it.visibilityTitle = this.render("text/hr", "Anwendungen für die Sichtbarkeit", it.optionsContainer)
+      this.add("outline-hover", it.visibilityTitle)
+      it.visibilityTitle.onclick = () => toggleDisplayFlexNone(it.visibilityOptions)
+      it.visibilityOptions = this.create("div/flex-row", it.optionsContainer)
+      it.visibilityOptions.style.display = "none"
+
+      it.overflowYButton = this.render("text/link", "Überlauf Y", it.visibilityOptions)
+      it.overflowXButton = this.render("text/link", "Überlauf X", it.visibilityOptions)
+      it.toggleDisplayNoneButton = this.render("text/link", "Display None umschalten", it.visibilityOptions)
+      it.toggleVisibilityHiddenButton = this.render("text/link", "Sichtbarkeit umschalten", it.visibilityOptions)
+      it.exactOpacityButton = this.render("text/link", "Deckkraft in Prozent definieren", it.visibilityOptions)
+      it.addOpacityWithPrompt = this.fn("addOpacityWithPrompt")
+
+      it.spacingTitle = this.render("text/hr", "Anwendungen für die Abstände", it.optionsContainer)
+      this.add("outline-hover", it.spacingTitle)
+      it.spacingTitle.onclick = () => toggleDisplayFlexNone(it.spacingOptions)
+      it.spacingOptions = this.create("div/flex-row", it.optionsContainer)
+      it.spacingOptions.style.display = "none"
+
+      it.toggleMarginButton = this.render("text/link", "Außenabstand umschalten", it.spacingOptions)
+      it.toggleMarginTopButton = this.render("text/link", "Außenabstand Oben umschalten", it.spacingOptions)
+      it.toggleMarginRightButton = this.render("text/link", "Außenabstand Rechts umschalten", it.spacingOptions)
+      it.toggleMarginBottomButton = this.render("text/link", "Außenabstand Unten umschalten", it.spacingOptions)
+      it.toggleMarginLeftButton = this.render("text/link", "Außenabstand Links umschalten", it.spacingOptions)
+      it.exactMarginButton = this.render("text/link", "Exakter Außenabstand", it.spacingOptions)
+      it.exactMarginTopButton = this.render("text/link", "Exakter Außenabstand Oben", it.spacingOptions)
+      it.exactMarginRightButton = this.render("text/link", "Exakter Außenabstand Rechts", it.spacingOptions)
+      it.exactMarginBottomButton = this.render("text/link", "Exakter Außenabstand Unten", it.spacingOptions)
+      it.exactMarginLeftButton = this.render("text/link", "Exakter Außenabstand Links", it.spacingOptions)
+      it.togglePaddingButton = this.render("text/link", "Innenabstand umschalten", it.spacingOptions)
+      it.togglePaddingTopButton = this.render("text/link", "Innenabstand umschalten Oben", it.spacingOptions)
+      it.togglePaddingRightButton = this.render("text/link", "Innenabstand umschalten Rechts", it.spacingOptions)
+      it.togglePaddingBottomButton = this.render("text/link", "Innenabstand umschalten Unten", it.spacingOptions)
+      it.togglePaddingLeftButton = this.render("text/link", "Innenabstand umschalten Links", it.spacingOptions)
+      it.exactPaddingButton = this.render("text/link", "Exakter Innenabstand", it.spacingOptions)
+      it.exactPaddingTopButton = this.render("text/link", "Exakter Innenabstand Oben", it.spacingOptions)
+      it.exactPaddingRightButton = this.render("text/link", "Exakter Innenabstand Rechts", it.spacingOptions)
+      it.exactPaddingBottomButton = this.render("text/link", "Exakter Innenabstand Unten", it.spacingOptions)
+      it.exactPaddingLeftButton = this.render("text/link", "Exakter Innenabstand Links", it.spacingOptions)
+
+      it.borderTitle = this.render("text/hr", "Anwendungen für die Grenzlinien", it.optionsContainer)
+      this.add("outline-hover", it.borderTitle)
+      it.borderTitle.onclick = () => toggleDisplayFlexNone(it.borderOptions)
+      it.borderOptions = this.create("div/flex-row", it.optionsContainer)
+      it.borderOptions.style.display = "none"
+
+      it.toggleBorderButton = this.render("text/link", "Grenzlinien umschalten", it.borderOptions)
+      it.toggleBorderTopButton = this.render("text/link", "Grenzlinie Oben umschalten", it.borderOptions)
+      it.toggleBorderRightButton = this.render("text/link", "Grenzlinie Rechts umschalten", it.borderOptions)
+      it.toggleBorderBottomButton = this.render("text/link", "Grenzlinie Unten umschalten", it.borderOptions)
+      it.toggleBorderLeftButton = this.render("text/link", "Grenzlinie Links umschalten", it.borderOptions)
+      it.exactBorderButton = this.render("text/link", "Exakte Grenzlinien", it.borderOptions)
+      it.exactBorderTopButton = this.render("text/link", "Exakte Grenzlinien Oben", it.borderOptions)
+      it.exactBorderRightButton = this.render("text/link", "Exakte Grenzlinien Rechts", it.borderOptions)
+      it.exactBorderBottomButton = this.render("text/link", "Exakte Grenzlinien Unten", it.borderOptions)
+      it.exactBorderLeftButton = this.render("text/link", "Exakte Grenzlinien Links", it.borderOptions)
+      it.toggleBorderRadiusButton = this.render("text/link", "Grenzradius umschalten", it.borderOptions)
+      it.toggleBorderTopLeftRadiusButton = this.render("text/link", "Grenzradius Oben-Links umschalten", it.borderOptions)
+      it.toggleBorderTopRightRadiusButton = this.render("text/link", "Grenzradius Oben-Rechts umschalten", it.borderOptions)
+      it.toggleBorderBottomRightRadiusButton = this.render("text/link", "Grenzradius Unten-Rechts umschalten", it.borderOptions)
+      it.toggleBorderBottomLeftRadiusButton = this.render("text/link", "Grenzradius Unten-Links umschalten", it.borderOptions)
+      it.exactBorderRadiusButton = this.render("text/link", "Exakter Grenzradius", it.borderOptions)
+      it.exactBorderTopLeftRadiusButton = this.render("text/link", "Exakter Grenzradius Oben-Links", it.borderOptions)
+      it.exactBorderTopRightRadiusButton = this.render("text/link", "Exakter Grenzradius Oben-Rechts", it.borderOptions)
+      it.exactBorderBottomRightRadiusButton = this.render("text/link", "Exakter Grenzradius Unten-Rechts", it.borderOptions)
+      it.exactBorderBottomLeftRadiusButton = this.render("text/link", "Exakter Grenzradius Unten-Links", it.borderOptions)
+      it.toggleBorderNoneButton = this.render("text/link", "Grenzradius None umschalten", it.borderOptions)
+      it.boxButton = this.render("text/link", "Box umschalten", it.borderOptions)
+      it.exactBoxShadowButton = this.render("text/link", "Exakter Box Schatten", it.borderOptions)
+
+      it.mediaQueriesTitle = this.render("text/hr", "Anwendungen für Media Queries", it.optionsContainer)
+      this.add("outline-hover", it.mediaQueriesTitle)
+      it.mediaQueriesTitle.onclick = () => toggleDisplayFlexNone(it.mediaQueriesOptions)
+      it.mediaQueriesOptions = this.create("div/flex-row", it.optionsContainer)
+      it.mediaQueriesOptions.style.display = "none"
+
+      it.mediaQueriesOverviewButton = this.render("text/link", "Medien Abfragen öffnen", it.mediaQueriesOptions)
+      it.openMediaQueriesOverlay = this.fn("openMediaQueriesOverlay")
+      it.largeDeviceButton = this.render("text/link", "Style für große Geräte", it.mediaQueriesOptions)
+      it.addLargeStyle = this.fn("addLargeStyle")
+      it.middleDeviceButton = this.render("text/link", "Style für mittlere Geräte", it.mediaQueriesOptions)
+      it.addMiddleStyle = this.fn("addMiddleStyle")
+      it.smallDeviceButton = this.render("text/link", "Style für kleine Geräte", it.mediaQueriesOptions)
+      it.addSmallStyle = this.fn("addSmallStyle")
+      it.printerDeviceButton = this.render("text/link", "Style für Druck Geräte", it.mediaQueriesOptions)
+      it.addPrinterStyle = this.fn("addPrinterStyle")
+
+      it.optimizeWorkTitle = this.render("text/hr", "Anwendungen für schnelle Korrekturen", it.optionsContainer)
+      this.add("outline-hover", it.optimizeWorkTitle)
+      it.optimizeWorkTitle.onclick = () => toggleDisplayFlexNone(it.optimizeWorkOptions)
+      it.optimizeWorkOptions = this.create("div/flex-row", it.optionsContainer)
+      it.optimizeWorkOptions.style.display = "none"
+
+      it.insertAfterButton = this.render("text/link", "Danach einfügen", it.optimizeWorkOptions)
+      it.insertAfter = this.fn("insertAfter")
+      it.insertBeforeButton = this.render("text/link", "Davor einfügen", it.optimizeWorkOptions)
+      it.insertBefore = this.fn("insertBefore")
+      it.insertLeftButton = this.render("text/link", "Links einfügen", it.optimizeWorkOptions)
+      it.insertLeft = this.fn("insertLeft")
+      it.insertRightButton = this.render("text/link", "Rechts einfügen", it.optimizeWorkOptions)
+      it.insertRight = this.fn("insertRight")
+      it.cutOuterHtmlButton = this.render("text/link", "HTML ausschneiden", it.optimizeWorkOptions)
+      it.addOuterHtmlToClipboard = this.fn("addOuterHtmlToClipboard")
+      it.copyOuterHtmlButton = this.render("text/link", "HTML kopieren", it.optimizeWorkOptions)
+      it.appendClipboardToNode = this.fn("appendClipboardToNode")
+      it.pasteOuterHtmlButton = this.render("text/link", "HTML einfügen", it.optimizeWorkOptions)
+      it.appendStyleButton = this.render("text/link", "Style anhängen", it.optimizeWorkOptions)
+      it.appendStyleWithPrompt = this.fn("appendStyleWithPrompt")
+      it.copyStyleButton = this.render("text/link", "Style kopieren", it.optimizeWorkOptions)
+      it.addStyleToClipboard = this.fn("addStyleToClipboard")
+      it.pasteStyleButton = this.render("text/link", "Style einfügen", it.optimizeWorkOptions)
+      it.addClipboardToStyle = this.fn("addClipboardToStyle")
+      it.removeStyleButton = this.render("text/link", "Style entfernen", it.optimizeWorkOptions)
+      it.removeInnerButton = this.render("text/link", "Inhalt entfernen", it.optimizeWorkOptions)
+      it.replaceInnerHtmlWithPrompt = this.fn("replaceInnerHtmlWithPrompt")
+      it.removeInnerWithTextButton = this.render("text/link", "Inhalt ersetzen", it.optimizeWorkOptions)
+      it.replaceTextContentWithPrompt = this.fn("replaceTextContentWithPrompt")
+      it.removeNodeButton = this.render("text/link", "Element entfernen", it.optimizeWorkOptions)
+      it.idButton = this.render("text/link", "Id definieren", it.optimizeWorkOptions)
+      it.setIdWithPrompt = this.fn("setIdWithPrompt")
+      it.addClassButton = this.render("text/link", "Klasse definieren", it.optimizeWorkOptions)
+      it.setClassWithPrompt = this.fn("setClassWithPrompt")
+      it.setAttributeButton = this.render("text/link", "Attribut setzen", it.optimizeWorkOptions)
+      it.setAttributeWithPrompt = this.fn("setAttributeWithPrompt")
+
+      it.converterTitle = this.render("text/hr", "Anwendungen für Konverter", it.optionsContainer)
+      this.add("outline-hover", it.converterTitle)
+      it.converterTitle.onclick = () => toggleDisplayFlexNone(it.converterOptions)
+      it.converterOptions = this.create("div/flex-row", it.optionsContainer)
+      it.converterOptions.style.display = "none"
+
+      it.textConverterButton = this.render("text/link", "Text konvertieren", it.converterOptions)
+      it.textConverterButton.onclick = () => this.fn("overlay-text-converter")
+      it.duckDuckGoButton = this.render("text/link", "DuckDuckGo Link erstellen", it.converterOptions)
+      it.convertTextContentToDuckDuckGoLink = this.fn("convertTextContentToDuckDuckGoLink")
+
+      it.forEachChildTitle = this.render("text/hr", "Anwendungen für jedes Kind Element", it.optionsContainer)
+      this.add("outline-hover", it.forEachChildTitle)
+      it.forEachChildTitle.onclick = () => toggleDisplayFlexNone(it.forEachChildrenOptions)
+      it.forEachChildrenOptions = this.create("div/flex-row", it.optionsContainer)
+      it.forEachChildrenOptions.style.display = "none"
+
+      it.fontSizeForEachChildButton = this.render("text/link", "Schriftgröße definieren", it.forEachChildrenOptions)
+
+      it.pickColorTitle = this.render("text/hr", "Anwendungen für Code und Farben wählen", it.optionsContainer)
+      this.add("outline-hover", it.pickColorTitle)
+      it.pickColorTitle.onclick = () => toggleDisplayFlexNone(it.colorPickerOptions)
+      it.colorPickerOptions = this.create("div/flex-row", it.optionsContainer)
+      it.colorPickerOptions.style.display = "none"
+      this.style(it.colorPickerOptions, {height: "377px", overflow: "auto"})
+      this.fn("renderColors")(it.colorPickerOptions, (value) => {
+        this.convert("text/clipboard", value).then(() => {
+          window.alert("Der Hex-Code deiner Farbe wurde erfolgreich in die Zwischenablage gespeichert.")
+        })
       })
-      const exactRotateLeftButton = this.create("toolbox/icon", transformationOptions)
-      this.render("icon/node/path", "/public/arrow-rotate-right-x.svg", exactRotateLeftButton).then(icon => {
-        icon.style.transform = "rotateY(180deg)"
-      })
 
-      const editTextTitle = this.render("text/hr", "Anwendungen für die Textverarbeitung", optionsContainer)
-      editTextTitle.style.cursor = "pointer"
-      this.add("outline-hover", editTextTitle)
-      editTextTitle.onclick = () => toggleDisplayFlexNone(textManipulationOptions)
-      const textManipulationOptions = this.create("div/flex-row", optionsContainer)
-      textManipulationOptions.style.display = "none"
-      this.add("outline-hover", textManipulationOptions)
-      const whiteSpaceNoWrapButton = this.create("toolbox/icon", textManipulationOptions)
-      this.render("icon/node/path", "/public/lines-broken-left.svg", whiteSpaceNoWrapButton)
-      const fontFamilyButton = this.create("toolbox/icon", textManipulationOptions)
-      this.render("icon/node/path", "/public/T-sans-serif.svg", fontFamilyButton)
-      const fontWeightNormalButton = this.create("toolbox/icon", textManipulationOptions)
-      this.render("icon/node/path", "/public/window-with-N.svg", fontWeightNormalButton)
-      const fontWeightButton = this.create("toolbox/icon", textManipulationOptions)
-      this.render("icon/node/path", "/public/B.svg", fontWeightButton)
-      const fontStyleButton = this.create("toolbox/icon", textManipulationOptions)
-      this.render("icon/node/path", "/public/I.svg", fontStyleButton)
-      const textDecorationButton = this.create("toolbox/icon", textManipulationOptions)
-      this.render("icon/node/path", "/public/underline-U.svg", textDecorationButton)
-      const fontSizeButton = this.create("toolbox/icon", textManipulationOptions)
-      this.render("icon/node/path", "/public/T-small-big.svg", fontSizeButton)
-      const fontColorButton = this.create("toolbox/icon", textManipulationOptions)
-      this.render("icon/node/path", "/public/underline-A.svg", fontColorButton)
-      const backgroundColorButton = this.create("toolbox/icon", textManipulationOptions)
-      this.render("icon/node/path", "/public/window-can-drop.svg", backgroundColorButton)
-      const unorderedListButton = this.create("toolbox/icon", textManipulationOptions)
-      this.render("icon/node/path", "/public/dots-3-lines.svg", unorderedListButton)
-      const orderedListButton = this.create("toolbox/icon", textManipulationOptions)
-      this.render("icon/node/path", "/public/lines-with-numbers.svg", orderedListButton)
-      const lineHeightButton = this.create("toolbox/icon", textManipulationOptions)
-      this.render("icon/node/path", "/public/arrow-top-down-3-lines.svg", lineHeightButton)
+      it.pickSvgTitle = this.render("text/hr", "Anwendungen für SVG einsetzen", it.optionsContainer)
+      this.add("outline-hover", it.pickSvgTitle)
+      it.pickSvgTitle.onclick = () => toggleDisplayFlexNone(it.svgPickerOptions)
+      it.svgPickerOptions = this.create("div/flex-row", it.optionsContainer)
+      it.svgPickerOptions.style.display = "none"
+      it.svgPickerOptions.style.paddingBottom = "144px"
+      it.svgIcons = this.fn("appendAllSvgIcons")
 
-      const visibilityTitle = this.render("text/hr", "Anwendungen für die Sichtbarkeit", optionsContainer)
-      visibilityTitle.style.cursor = "pointer"
-      this.add("outline-hover", visibilityTitle)
-      visibilityTitle.onclick = () => toggleDisplayFlexNone(visibilityOptions)
-      const visibilityOptions = this.create("div/flex-row", optionsContainer)
-      visibilityOptions.style.display = "none"
-      this.add("outline-hover", visibilityOptions)
-      const overflowYButton = this.create("toolbox/icon", visibilityOptions)
-      this.render("icon/node/path", "/public/arrow-top-down-with-hand.svg", overflowYButton)
-      const overflowXButton = this.create("toolbox/icon", visibilityOptions)
-      this.render("icon/node/path", "/public/arrow-left-right-with-hand.svg", overflowXButton)
-      const toggleDisplayNoneButton = this.create("toolbox/icon", visibilityOptions)
-      this.render("icon/node/path", "/public/row-disappear.svg", toggleDisplayNoneButton)
-      const toggleVisibilityHiddenButton = this.create("toolbox/icon", visibilityOptions)
-      this.render("icon/node/path", "/public/eye-open.svg", toggleVisibilityHiddenButton)
-      const exactOpacityButton = this.create("toolbox/icon", visibilityOptions)
-      this.render("icon/node/path", "/public/drop-half-full.svg", exactOpacityButton)
+      return it
+    }
 
-      const spacingTitle = this.render("text/hr", "Anwendungen für die Abstände", optionsContainer)
-      spacingTitle.style.cursor = "pointer"
-      this.add("outline-hover", spacingTitle)
-      spacingTitle.onclick = () => toggleDisplayFlexNone(spacingOptions)
-      const spacingOptions = this.create("div/flex-row", optionsContainer)
-      spacingOptions.style.display = "none"
-      this.add("outline-hover", spacingOptions)
-      const toggleMarginButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/margin.svg", toggleMarginButton)
-      const toggleMarginTopButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/margin-top.svg", toggleMarginTopButton)
-      const toggleMarginRightButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/margin-right.svg", toggleMarginRightButton)
-      const toggleMarginBottomButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/margin-bottom.svg", toggleMarginBottomButton)
-      const toggleMarginLeftButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/margin-left.svg", toggleMarginLeftButton)
-      const exactMarginButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/margin-x.svg", exactMarginButton)
-      const exactMarginTopButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/margin-x-top.svg", exactMarginTopButton)
-      const exactMarginRightButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/margin-x-right.svg", exactMarginRightButton)
-      const exactMarginBottomButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/margin-x-bottom.svg", exactMarginBottomButton)
-      const exactMarginLeftButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/margin-x-left.svg", exactMarginLeftButton)
-      const togglePaddingButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/padding.svg", togglePaddingButton)
-      const togglePaddingTopButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/padding-top.svg", togglePaddingTopButton)
-      const togglePaddingRightButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/padding-right.svg", togglePaddingRightButton)
-      const togglePaddingBottomButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/padding-bottom.svg", togglePaddingBottomButton)
-      const togglePaddingLeftButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/padding-left.svg", togglePaddingLeftButton)
-      const exactPaddingButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/padding-x.svg", exactPaddingButton)
-      const exactPaddingTopButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/padding-x-top.svg", exactPaddingTopButton)
-      const exactPaddingRightButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/padding-x-right.svg", exactPaddingRightButton)
-      const exactPaddingBottomButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/padding-x-bottom.svg", exactPaddingBottomButton)
-      const exactPaddingLeftButton = this.create("toolbox/icon", spacingOptions)
-      this.render("icon/node/path", "/public/padding-x-left.svg", exactPaddingLeftButton)
+    if (event === "createAnchorWithPrompt") {
 
-      const borderTitle = this.render("text/hr", "Anwendungen für die Grenzlinien", optionsContainer)
-      borderTitle.style.cursor = "pointer"
-      this.add("outline-hover", borderTitle)
-      borderTitle.onclick = () => toggleDisplayFlexNone(borderOptions)
-      const borderOptions = this.create("div/flex-row", optionsContainer)
-      borderOptions.style.display = "none"
-      this.add("outline-hover", borderOptions)
-      const toggleBorderButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/border.svg", toggleBorderButton)
-      const toggleBorderTopButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/border-top.svg", toggleBorderTopButton)
-      const toggleBorderRightButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/border-right.svg", toggleBorderRightButton)
-      const toggleBorderBottomButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/border-bottom.svg", toggleBorderBottomButton)
-      const toggleBorderLeftButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/border-left.svg", toggleBorderLeftButton)
-      const exactBorderButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/border-point.svg", exactBorderButton)
-      const exactBorderTopButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/dots-line-top.svg", exactBorderTopButton)
-      const exactBorderRightButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/dots-line-right.svg", exactBorderRightButton)
-      const exactBorderBottomButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/dots-line-bottom.svg", exactBorderBottomButton)
-      const exactBorderLeftButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/dots-line-left.svg", exactBorderLeftButton)
-      const toggleBorderRadiusButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/window-rounded.svg", toggleBorderRadiusButton)
-      const toggleBorderTopLeftRadiusButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/dots-top-left-rounded.svg", toggleBorderTopLeftRadiusButton)
-      const toggleBorderTopRightRadiusButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/dots-top-right-rounded.svg", toggleBorderTopRightRadiusButton)
-      const toggleBorderBottomRightRadiusButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/dots-bottom-right-rounded.svg", toggleBorderBottomRightRadiusButton)
-      const toggleBorderBottomLeftRadiusButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/dots-bottom-left-rounded.svg", toggleBorderBottomLeftRadiusButton)
-      const exactBorderRadiusButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/window-rounded-with-point.svg", exactBorderRadiusButton)
-      const exactBorderTopLeftRadiusButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/dots-top-left-rounded-point.svg", exactBorderTopLeftRadiusButton)
-      const exactBorderTopRightRadiusButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/dots-top-right-rounded-point.svg", exactBorderTopRightRadiusButton)
-      const exactBorderBottomRightRadiusButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/dots-bottom-right-rounded-point.svg", exactBorderBottomRightRadiusButton)
-      const exactBorderBottomLeftRadiusButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/dots-bottom-left-rounded-point.svg", exactBorderBottomLeftRadiusButton)
-      const toggleBorderNoneButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/wall-minus.svg", toggleBorderNoneButton)
-      const boxButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/box.svg", boxButton)
-      const exactBoxShadowButton = this.create("toolbox/icon", borderOptions)
-      this.render("icon/node/path", "/public/lines-shadow.svg", exactBoxShadowButton)
+      return (node) => {
+        const prompt = window.prompt("Gebe die Quell-Url deines Links ein:")
+        if (!this.verifyIs("text/empty", prompt)) {
+          const a = document.createElement("a")
+          a.textContent = "(z.B., Startseite)"
+          a.style.margin = "21px 34px"
+          a.style.cursor = "pointer"
+          a.href = prompt
+          node.appendChild(a)
+        }
+      }
+    }
 
-      const mediaQueriesTitle = this.render("text/hr", "Anwendungen für Media Queries", optionsContainer)
-      mediaQueriesTitle.style.cursor = "pointer"
-      this.add("outline-hover", mediaQueriesTitle)
-      mediaQueriesTitle.onclick = () => toggleDisplayFlexNone(mediaQueriesOptions)
-      const mediaQueriesOptions = this.create("div/flex-row", optionsContainer)
-      mediaQueriesOptions.style.display = "none"
-      this.add("outline-hover", mediaQueriesOptions)
-      const mediaQueriesOverviewButton = this.create("toolbox/icon", mediaQueriesOptions)
-      this.render("icon/node/path", "/public/desktop-and-tablet.svg", mediaQueriesOverviewButton)
-      const largeDeviceButton = this.create("toolbox/icon", mediaQueriesOptions)
-      this.render("icon/node/path", "/public/desktop.svg", largeDeviceButton)
-      const middleDeviceButton = this.create("toolbox/icon", mediaQueriesOptions)
-      this.render("icon/node/path", "/public/tablet.svg", middleDeviceButton)
-      const smallDeviceButton = this.create("toolbox/icon", mediaQueriesOptions)
-      this.render("icon/node/path", "/public/mobile.svg", smallDeviceButton)
-      const printerDeviceButton = this.create("toolbox/icon", mediaQueriesOptions)
-      this.render("icon/node/path", "/public/printer.svg", printerDeviceButton)
+    if (event === "createPdfLinkWithPrompt") {
 
-      const optimizeWorkTitle = this.render("text/hr", "Anwendungen für schnelle Korrekturen", optionsContainer)
-      optimizeWorkTitle.style.cursor = "pointer"
-      this.add("outline-hover", optimizeWorkTitle)
-      optimizeWorkTitle.onclick = () => toggleDisplayFlexNone(optimizeWorkOptions)
-      const optimizeWorkOptions = this.create("div/flex-row", optionsContainer)
-      optimizeWorkOptions.style.display = "none"
-      this.add("outline-hover", optimizeWorkOptions)
-      const insertAfterButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/arrow-under-bar.svg", insertAfterButton)
-      const insertBeforeButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/arrow-over-bar.svg", insertBeforeButton)
-      const insertLeftButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/arrow-before-bar.svg", insertLeftButton)
-      const insertRightButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/arrow-after-bar.svg", insertRightButton)
-      const cutOuterHtmlButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/scissor.svg", cutOuterHtmlButton)
-      const copyOuterHtmlButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/window-behind-window.svg", copyOuterHtmlButton)
-      const pasteOuterHtmlButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/window-pencil.svg", pasteOuterHtmlButton)
-      const copyStyleButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/brush.svg", copyStyleButton)
-      const pasteStyleButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/mobile-swing.svg", pasteStyleButton)
-      const removeStyleButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/rubber.svg", removeStyleButton)
-      const removeInnerButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/window-x-right.svg", removeInnerButton)
-      const removeInnerWithTextButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/underline-T-with-x.svg", removeInnerWithTextButton)
-      const removeNodeButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/image-blocked.svg", removeNodeButton)
-      const idButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.style(idButton, {fontFamily: "monospace", fontSize: "34px"})
-      idButton.textContent = "id"
-      const addClassButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.style(addClassButton, {fontFamily: "monospace", fontSize: "34px"})
-      addClassButton.textContent = "cl"
-      const setAttributeButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/flag-plus.svg", setAttributeButton)
-      const appendStyleButton = this.create("toolbox/icon", optimizeWorkOptions)
-      this.render("icon/node/path", "/public/doc-css.svg", appendStyleButton)
+      return async (node) => {
+        const prompt = window.prompt("Gebe die Quell-Url deiner PDF ein:")
+        if (!this.verifyIs("text/empty", prompt)) {
+          const a = document.createElement("a")
+          input.node.appendChild(a)
+          a.classList.add("pdf-link")
+          a.href = prompt
+          a.style.margin = "21px 34px"
+          a.style.display = "flex"
+          a.style.alignItems = "center"
+          a.style.cursor = "pointer"
+          const icon = await this.render("icon/node/path", "/public/pdf-doc.svg", a)
+          icon.firstChild.style.fill = this.colors.light.error
+          icon.style.width = "34px"
+          const text = this.create("p", a)
+          text.textContent = "(z.B., produkt.pdf)"
+        }
+      }
+    }
 
-      const converterTitle = this.render("text/hr", "Anwendungen für Konverter", optionsContainer)
-      converterTitle.style.cursor = "pointer"
-      this.add("outline-hover", converterTitle)
-      converterTitle.onclick = () => toggleDisplayFlexNone(converterOptions)
-      const converterOptions = this.create("div/flex-row", optionsContainer)
-      converterOptions.style.display = "none"
-      this.add("outline-hover", converterOptions)
-      const textConverterButton = this.create("toolbox/icon", converterOptions)
-      this.render("icon/node/path", "/public/focus-text.svg", textConverterButton)
-      textConverterButton.onclick = () => this.fn("overlay-text-converter")
-      const duckDuckGoButton = this.create("toolbox/icon", converterOptions)
-      this.render("icon/node/path", "/public/logo-duck-duck-go.svg", duckDuckGoButton)
-      duckDuckGoButton.convertNode = this.fn("convertTextContentToDuckDuckGoLink")
+    if (event === "createActionButton") {
 
-      const forEachChildTitle = this.render("text/hr", "Anwendungen für jedes Kind Element", optionsContainer)
-      forEachChildTitle.style.cursor = "pointer"
-      this.add("outline-hover", forEachChildTitle)
-      forEachChildTitle.onclick = () => toggleDisplayFlexNone(forEachChildrenOptions)
-      const forEachChildrenOptions = this.create("div/flex-row", optionsContainer)
-      forEachChildrenOptions.style.display = "none"
-      this.add("outline-hover", forEachChildrenOptions)
-      const fontSizeForEachChildButton = this.create("toolbox/icon", forEachChildrenOptions)
-      this.render("icon/node/path", "/public/T-small-big.svg", fontSizeForEachChildButton)
+      return (node) => {
+        const button = this.create("button/action", node)
+        button.classList.add("button")
+        button.textContent = "(z.B., Daten jetzt speichern)"
+      }
+    }
 
-      const pickColorTitle = this.render("text/hr", "Anwendungen für Code und Farben wählen", optionsContainer)
-      pickColorTitle.style.cursor = "pointer"
-      this.add("outline-hover", pickColorTitle)
-      pickColorTitle.onclick = () => toggleDisplayFlexNone(colorPickerOptions)
-      const colorPickerOptions = this.create("div/flex-row", optionsContainer)
-      colorPickerOptions.style.display = "none"
-      this.add("outline-hover", colorPickerOptions)
-      this.style(colorPickerOptions, {height: "377px", overflow: "auto"})
-      for (const [key, value] of Object.entries(this.colors)) {
-        if (typeof value === "string") {
-          if (!this.verifyIs("text/empty", value)) {
-            const color = this.create("button/key-value-color", {key, value})
-            this.add("outline-hover", color)
-            color.onclick = () => {
-              this.convert("text/clipboard", value).then(() => {
-                window.alert("Der Hex-Code deiner Farbe wurde erfolgreich in die Zwischenablage gespeichert.")
-              })
+    if (event === "createArrowRightWithColorPrompt") {
+
+      return (node) => {
+        const prompt = window.prompt("Gebe die Farbe deines Pfeils ein:")
+        if (!this.verifyIs("text/empty", prompt)) {
+          const arrow = document.createElement("div")
+          arrow.style.display = "flex"
+          arrow.style.justifyContent = "center"
+          arrow.style.alignItems = "center"
+          arrow.style.width = "100%"
+          arrow.style.height = "34px"
+          node.appendChild(arrow)
+          const line = document.createElement("div")
+          line.style.height = "3px"
+          line.style.backgroundColor = prompt
+          line.style.width = "100%"
+          arrow.appendChild(line)
+          const symbol = document.createElement("span")
+          symbol.style.display = "flex"
+          symbol.style.justifyContent = "center"
+          symbol.style.alignItems = "center"
+          symbol.style.fontSize = "21px"
+          symbol.style.color = prompt
+          symbol.textContent = "➤"
+          arrow.appendChild(symbol)
+        }
+      }
+    }
+
+    if (event === "createBackgroundImageWithTitles") {
+
+      return (node) => {
+        const prompt = window.prompt("Gebe die URL deines Hintergrund Bildes ein:")
+        if (!this.verifyIs("text/empty", prompt)) {
+          const backgroundDiv = document.createElement("div")
+          node.appendChild(backgroundDiv)
+          this.style(backgroundDiv, {marginBottom: "55px", height: "100vh", width: "100%", backgroundImage: `url(${prompt})`, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", display: "flex", justifyContent: "center", alignItems: "center"})
+          const titleContainer = document.createElement("div")
+          backgroundDiv.appendChild(titleContainer)
+          this.style(titleContainer, {overflow: "auto", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", padding: "21px", lineHeight: "1.5"})
+          const h1 = document.createElement("h1")
+          titleContainer.appendChild(h1)
+          this.style(h1, {textTransform: "uppercase", fontSize: "34px", color: "white", fontFamily: "sans-serif", margin: "0 0 21px 0", letterSpacing: "3px"})
+          const h2 = document.createElement("h2")
+          titleContainer.appendChild(h2)
+          this.style(h2, {textAlign: "center", fontSize: "89px", color: "white", fontFamily: "sans-serif", margin: "0 0 21px 0"})
+          h1.textContent = "HAUPTTITEL"
+          h2.textContent = "UNTERTITEL"
+        }
+      }
+    }
+
+    if (event === "createImageTextAndActionBox") {
+
+      return (node) => {
+        const prompt = window.prompt("Gebe die URL deines Bildes ein:")
+        const container = document.createElement("div")
+        node.appendChild(container)
+        this.style(container, {minHeight: "100vh", width: "100%", display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap"})
+        const image = document.createElement("div")
+        container.appendChild(image)
+        this.style(image, {width: "100%", maxWidth: "610px", display: "flex", justifyContent: "center", alignItems: "center"})
+        const img = document.createElement("img")
+        if (!this.verifyIs("text/empty", prompt)) {
+          img.src = prompt
+        } else {
+          img.src = "/public/image.svg"
+        }
+        img.style.width = "100%"
+        image.appendChild(img)
+        const text = document.createElement("div")
+        container.appendChild(text)
+        this.style(text, {display: "flex", flexDirection: "column", fontFamily: "sans-serif", margin: "21px 34px", maxWidth: "610px"})
+        const h4 = document.createElement("h4")
+        text.appendChild(h4)
+        this.style(h4, {fontSize: "21px", color: "#0EA35B", textTransform: "uppercase", margin: "0 0 21px 0"})
+        h4.textContent = "Content Titel"
+        const h3 = document.createElement("h3")
+        text.appendChild(h3)
+        this.style(h3, {fontSize: "55px", color: "#22395D", margin: "0 0 21px 0"})
+        h3.textContent = "Content Beschreibung"
+        const content = document.createElement("div")
+        text.appendChild(content)
+        this.style(content, {fontSize: "21px", color: "#818491", lineHeight: "1.5"})
+        content.textContent = this.lorem(144)
+        const action = document.createElement("div")
+        text.appendChild(action)
+        action.textContent = "Action Button"
+        this.style(action, {cursor: "pointer", alignSelf: "center", width: "233px", margin: "55px 34px", padding: "13px 21px", color: "white", fontSize: "21px", backgroundColor: "#006F3A", borderRadius: "13px", textAlign: "center"})
+        node.appendChild(container)
+      }
+    }
+
+    if (event === "createFlexRow") {
+
+      return (node) => {
+        node.style.display = "flex"
+        node.style.flexDirection = null
+        node.style.flexWrap = "wrap"
+        const div = document.createElement("div")
+        div.style.margin = "21px 34px"
+        div.textContent = "div"
+        node.appendChild(div)
+      }
+
+    }
+
+    if (event === "createFlexColumn") {
+
+      return (node) => {
+        node.style.display = "flex"
+        node.style.flexDirection = "column"
+        node.style.flexWrap = null
+        const div = document.createElement("div")
+        div.style.margin = "21px 34px"
+        div.textContent = "div"
+        node.appendChild(div)
+      }
+
+    }
+
+    if (event === "create/div/flex-matrix-prompt/node") {
+
+      const prompt = window.prompt("Gebe deine Zeilenmatrix ein: (z.B, 1 2 2)")
+      const regex = /^([1-9] )*[1-9]$/
+      if (regex.test(prompt)) {
+        const rows = prompt.split(" ")
+        const wrapContainer = document.createElement("div")
+        wrapContainer.classList.add("flex-container")
+        wrapContainer.style.display = "flex"
+        wrapContainer.style.flexWrap = "wrap"
+        wrapContainer.style.margin = "21px 34px"
+        for (var i = 0; i < rows.length; i++) {
+          const row = rows[i]
+          const rowNumber = parseInt(row)
+          if (rowNumber >= 1 && rowNumber <= 9) {
+            const rowDiv = document.createElement("div")
+            rowDiv.classList.add(`row-${i + 1}`)
+            rowDiv.style.width = "300px"
+            rowDiv.style.display = "flex"
+            rowDiv.style.flexWrap = "wrap"
+            wrapContainer.append(rowDiv)
+            for (let i = 0; i < rowNumber; i++) {
+              const rowPart = document.createElement("div")
+              rowPart.classList.add("row-part")
+              rowPart.textContent = `(z.B., flex-item-${i + 1})`
+              rowPart.style.width = `${100 / rowNumber}%`
+              rowDiv.append(rowPart)
             }
-            colorPickerOptions.append(color)
           }
         }
-        if (typeof value === "object") {
-          this.render("text/hr", key, colorPickerOptions)
-          for (const [key, val] of Object.entries(value)) {
-            if (typeof val === "string") {
-              if (!this.verifyIs("text/empty", val)) {
-                const color = this.create("button/key-value-color", {key, value: val})
-                this.add("outline-hover", color)
-                color.onclick = () => {
-                  this.convert("text/clipboard", val).then(() => {
-                    window.alert("Code wurde erfolgreich in die Zwischenablage gespeichert.")
-                  })
-                }
-                colorPickerOptions.append(color)
-              }
-            }
-          }
+        input.node.appendChild(wrapContainer)
+        if (wrapContainer.children.length === 0) {
+          wrapContainer.remove()
         }
       }
 
-      const pickSvgTitle = this.render("text/hr", "Anwendungen für SVG einsetzen", optionsContainer)
-      pickSvgTitle.style.cursor = "pointer"
-      this.add("outline-hover", pickSvgTitle)
-      pickSvgTitle.onclick = () => toggleDisplayFlexNone(svgPickerOptions)
-      const svgPickerOptions = this.create("div/flex-row", optionsContainer)
-      svgPickerOptions.style.display = "none"
-      this.add("outline-hover", svgPickerOptions)
-      svgPickerOptions.style.paddingBottom = "144px"
-      const svgIcons = this.fn("appendAllSvgIcons")
+    }
 
-      const buttons = {duckDuckGoButton, svgIcons, templateOptions, inputOptions, widthOptions, heightOptions, displayOptions, gridOptions, flexOptions, layerOptions, transformationOptions, textManipulationOptions, visibilityOptions, spacingOptions, borderOptions, mediaQueriesOptions, optimizeWorkOptions, converterOptions, forEachChildrenOptions, colorPickerOptions, svgPickerOptions, createFlexButton, wrapButton, createGridButton, rowContainerButton, columnContainerButton, imageTextButton, keyValueButton, actionBtnButton, horizontalHrButton, simpleHeaderButton, h1Button, h2Button, h3Button, pButton, imageButton, tableHeaderButton, pdfLinkButton, aLinkButton, spanButton, changeSiButton, addSpaceButton, arrowRightButton, divScrollableButton, packDivButton, textInputButton, numberInputButton, checkboxInputButton, passwordInputButton, selectInputButton, growWidthButton, maxWidthButton, minWidthButton, exactWidthButton, increaseWidthButton, decreaseWidthButton, growHeightButton, maxHeightButton, minHeightButton, exactHeightButton, increaseHeightButton, decreaseHeightButton, exactDisplayButton, displayBlockButton, displayInlineButton, toggleDisplayGridButton, toggleDisplayFlexButton, toggleDisplayTableButton, gridMobileButton, gridFullDisplayButton, gridTwoColumnsButton, gridThreeColumnsButton, gridFixedButton, gridListRowsButton, gridSpanColumnButton, gridSpanRowButton, exactGridGapButton, gridAddColumnButton, gridRemoveColumnButton, gridAddRowButton, gridRemoveRowButton, alignColumnButton, alignLeftButton, alignCenterButton, alignRightButton, alignRowButton, alignTopButton, alignVerticalButton, alignBottomButton, flexButton, spaceBetweenButton, spaceAroundButton, toggleWrapButton, layerButton, positiveLayerButton, negativeLayerButton, exactLayerButton, removeLayerButton, positionAbsoluteButton, positionTopButton, positionRightButton, positionBottomButton, positionLeftButton, transformTranslateButton, transformTranslateXButton, transformTranslateYButton, zIndexButton, scaleButton, rotateRightButton, exactRotateRightButton, rotateLeftButton, exactRotateLeftButton, whiteSpaceNoWrapButton, fontFamilyButton, fontWeightNormalButton, fontWeightButton, fontStyleButton, textDecorationButton, fontSizeButton, fontColorButton, backgroundColorButton, unorderedListButton, orderedListButton, lineHeightButton, sourcesButton, overflowYButton, overflowXButton, toggleDisplayNoneButton, toggleVisibilityHiddenButton, exactOpacityButton, toggleMarginButton, toggleMarginTopButton, toggleMarginRightButton, toggleMarginBottomButton, toggleMarginLeftButton, exactMarginButton, exactMarginTopButton, exactMarginRightButton, exactMarginBottomButton, exactMarginLeftButton, togglePaddingButton, togglePaddingTopButton, togglePaddingRightButton, togglePaddingBottomButton, togglePaddingLeftButton, exactPaddingButton, exactPaddingTopButton, exactPaddingRightButton, exactPaddingBottomButton, exactPaddingLeftButton, toggleBorderButton, toggleBorderTopButton, toggleBorderRightButton, toggleBorderBottomButton, toggleBorderLeftButton, exactBorderButton, exactBorderTopButton, exactBorderRightButton, exactBorderBottomButton, exactBorderLeftButton, toggleBorderRadiusButton, toggleBorderTopLeftRadiusButton, toggleBorderTopRightRadiusButton, toggleBorderBottomRightRadiusButton, toggleBorderBottomLeftRadiusButton, exactBorderRadiusButton, exactBorderTopLeftRadiusButton, exactBorderTopRightRadiusButton, exactBorderBottomRightRadiusButton, exactBorderBottomLeftRadiusButton, toggleBorderNoneButton, boxButton, exactBoxShadowButton, mediaQueriesOverviewButton, largeDeviceButton, middleDeviceButton, smallDeviceButton, printerDeviceButton, insertAfterButton, insertBeforeButton, insertLeftButton, insertRightButton, cutOuterHtmlButton, copyOuterHtmlButton, pasteOuterHtmlButton, copyStyleButton, pasteStyleButton, removeStyleButton, removeInnerButton, removeInnerWithTextButton, removeNodeButton, idButton, addClassButton, setAttributeButton, addScriptButton, appendStyleButton, templatesButton, fontSizeForEachChildButton, textConverterButton}
+    if (event === "createFlexWidthWithPrompt") {
 
-      buttons.toggleStyle = this.fn("toggleStyle")
-      buttons.toggleStyles = this.fn("toggleStyles")
-      buttons.toggleNodeAndChildrenStyles = this.fn("toggleNodeAndChildrenStyles")
-      buttons.setStyleWithPrompt = this.fn("setStyleWithPrompt")
-      buttons.incrementStyle = this.fn("incrementStyle")
-      buttons.decrementStyle = this.fn("decrementStyle")
-      buttons.fixedGridPrompt = this.fn("fixedGridPrompt")
-      buttons.rotateNode = this.fn("rotateNode")
-      buttons.appendUnorderedListItem = this.fn("appendUnorderedListItem")
-      buttons.appendOrderedListItem = this.fn("appendOrderedListItem")
-      buttons.toggleAttribute = this.fn("toggleAttribute")
-      buttons.toggleInnerHtml = this.fn("toggleInnerHtml")
-      buttons.toggleTextContent = this.fn("toggleTextContent")
-      buttons.toggleNode = this.fn("toggleNode")
-      buttons.setChildrenStyleWithPrompt = this.fn("setChildrenStyleWithPrompt")
-      buttons.openLayerOverlay = this.fn("openLayerOverlay")
-      buttons.createFlexWidthWithPrompt = this.fn("createFlexWidthWithPrompt")
-      buttons.createGridMatrixWithPrompt = this.fn("createGridMatrixWithPrompt")
-      buttons.createFlexRow = this.fn("createFlexRow")
-      buttons.createFlexColumn = this.fn("createFlexColumn")
-      buttons.createImageText = this.fn("createImageText")
-      buttons.createKeyValue = this.fn("createKeyValue")
-      buttons.createActionButton = this.fn("createActionButton")
-      buttons.createHr = this.fn("createHr")
-      buttons.createLeftImageHeader = this.fn("createLeftImageHeader")
-      buttons.createH1withPrompt = this.fn("createH1withPrompt")
-      buttons.createH2withPrompt = this.fn("createH2withPrompt")
-      buttons.createH3withPrompt = this.fn("createH3withPrompt")
-      buttons.createPwithPrompt = this.fn("createPwithPrompt")
-      buttons.createImagePlaceholder = this.fn("createImagePlaceholder")
-      buttons.createTableWithMatrixPrompt = this.fn("createTableWithMatrixPrompt")
-      buttons.createPdfLinkWithPrompt = this.fn("createPdfLinkWithPrompt")
-      buttons.createAnchorWithPrompt = this.fn("createAnchorWithPrompt")
-      buttons.createSpanWithTextContent = this.fn("createSpanWithTextContent")
-      buttons.createSpanWithSiPrompt = this.fn("createSpanWithSiPrompt")
-      buttons.createSpaceWithHeightPrompt = this.fn("createSpaceWithHeightPrompt")
-      buttons.createArrowRightWithColorPrompt = this.fn("createArrowRightWithColorPrompt")
-      buttons.createScrollableY = this.fn("createScrollableY")
-      buttons.createDivPackOuter = this.fn("createDivPackOuter")
-      buttons.createTextInput = this.fn("createTextInput")
-      buttons.createTelInput = this.fn("createTelInput")
-      buttons.createCheckboxInput = this.fn("createCheckboxInput")
-      buttons.createPasswordInput = this.fn("createPasswordInput")
-      buttons.createSelectInput = this.fn("createSelectInput")
-      buttons.spanColumnWithPrompt = this.fn("spanColumnWithPrompt")
-      buttons.spanRowWithPrompt = this.fn("spanRowWithPrompt")
-      buttons.addGridColumn = this.fn("addGridColumn")
-      buttons.removeGridColumn = this.fn("removeGridColumn")
-      buttons.addGridRow = this.fn("addGridRow")
-      buttons.removeGridRow = this.fn("removeGridRow")
-      buttons.addLayerAbove = this.fn("addLayerAbove")
-      buttons.addLayerBelow = this.fn("addLayerBelow")
-      buttons.addLayerPrompt = this.fn("addLayerPrompt")
-      buttons.removeAllLayer = this.fn("removeAllLayer")
-      buttons.translateWithPrompt = this.fn("translateWithPrompt")
-      buttons.translateXWithPrompt = this.fn("translateXWithPrompt")
-      buttons.translateYWithPrompt = this.fn("translateYWithPrompt")
-      buttons.scaleWithPrompt = this.fn("scaleWithPrompt")
-      buttons.rotateNodeRightWithPrompt = this.fn("rotateNodeRightWithPrompt")
-      buttons.rotateNodeLeftWithPrompt = this.fn("rotateNodeLeftWithPrompt")
-      buttons.addOpacityWithPrompt = this.fn("addOpacityWithPrompt")
-      buttons.openMediaQueriesOverlay = this.fn("openMediaQueriesOverlay")
-      buttons.addLargeStyle = this.fn("addLargeStyle")
-      buttons.addMiddleStyle = this.fn("addMiddleStyle")
-      buttons.addSmallStyle = this.fn("addSmallStyle")
-      buttons.addPrinterStyle = this.fn("addPrinterStyle")
-      buttons.insertAfter = this.fn("insertAfter")
-      buttons.insertBefore = this.fn("insertBefore")
-      buttons.insertLeft = this.fn("insertLeft")
-      buttons.insertRight = this.fn("insertRight")
-      buttons.addOuterHtmlToClipboard = this.fn("addOuterHtmlToClipboard")
-      buttons.appendClipboardToNode = this.fn("appendClipboardToNode")
-      buttons.addStyleToClipboard = this.fn("addStyleToClipboard")
-      buttons.addClipboardToStyle = this.fn("addClipboardToStyle")
-      buttons.replaceInnerHtmlWithPrompt = this.fn("replaceInnerHtmlWithPrompt")
-      buttons.replaceTextContentWithPrompt = this.fn("replaceTextContentWithPrompt")
-      buttons.setIdWithPrompt = this.fn("setIdWithPrompt")
-      buttons.setClassWithPrompt = this.fn("setClassWithPrompt")
-      buttons.setAttributeWithPrompt = this.fn("setAttributeWithPrompt")
-      buttons.openScriptsOverlay = this.fn("openScriptsOverlay")
-      buttons.appendStyleWithPrompt = this.fn("appendStyleWithPrompt")
-      buttons.openTemplatesOverlay = this.fn("openTemplatesOverlay")
-      buttons.openSourcesOverlay = this.fn("openSourcesOverlay")
+      return (node) => {
+        const prompt = window.prompt("Gebe die Breite deiner Flex Elemente ein: (z.B., 20% 300px 20vw)")
+        if (!this.verifyIs("text/empty", prompt)) {
+          const widths = prompt.split(" ")
+          const flexContainer = document.createElement("div")
+          flexContainer.classList.add("flex-container")
+          flexContainer.style.display = "flex"
+          flexContainer.style.margin = "21px 34px"
+          flexContainer.style.flexWrap = "wrap"
+          for (var i = 0; i < widths.length; i++) {
+            const width = widths[i]
+            const flexItem = document.createElement("div")
+            flexItem.classList.add("flex-item")
+            flexItem.textContent = `(z.B., flex-item-${i + 1})`
+            flexItem.style.flex = `1 1 ${width}`
+            flexContainer.appendChild(flexItem)
+          }
+          node.appendChild(flexContainer)
+        }
+      }
 
-      return buttons
+    }
+
+    if (event === "createGridMatrixWithPrompt") {
+
+      return (node) => {
+        const prompt = window.prompt("Gebe die Matrix deiner Grid Elemente ein: (z.B., 2 3 3)")
+        if (!this.verifyIs("text/empty", prompt)) {
+          const columnsPerRow = prompt.split(" ").map(Number)
+          const gridContainer = document.createElement("div")
+          gridContainer.classList.add("grid-container")
+          gridContainer.style.display = "grid"
+          gridContainer.style.margin = "21px 34px"
+          columnsPerRow.forEach(columns => {
+            const gridRow = document.createElement("div")
+            gridRow.classList.add("grid-row")
+            gridRow.style.display = "grid"
+            gridRow.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`
+            for (let i = 0; i < columns; i++) {
+              const gridItem = document.createElement("div")
+              gridItem.classList.add("grid-item")
+              gridItem.textContent = `(z.B., grid-item-${i + 1})`
+              gridRow.appendChild(gridItem)
+            }
+            gridContainer.appendChild(gridRow)
+          })
+          node.appendChild(gridContainer)
+        }
+      }
+
+    }
+
+    if (event === "createHr") {
+
+      return (node) => {
+        const div = document.createElement("div")
+        div.classList.add("hr")
+        div.style.border = "0.5px solid black"
+        node.appendChild(div)
+      }
+    }
+
+    if (event === "createImageText") {
+
+      return (node) => this.create("div/image-text", node)
+    }
+
+    if (event === "createKeyValue") {
+
+      return (node) => this.create("div/key-value", node)
+    }
+
+    if (event === "createSafeDivPackOuter") {
+
+      return (node) => {
+        const div = this.create("div")
+        div.setAttribute("style", node.getAttribute("style"))
+        div.textContent = node.textContent
+        node.parentElement.insertBefore(div, node)
+        node.remove()
+      }
+    }
+
+    if (event === "createDivPackOuter") {
+
+      return async (node) => {
+        const div = this.create("div")
+        div.innerHTML = await this.convert("text/purified", node.outerHTML)
+        node.replaceWith(div)
+        return div
+      }
+    }
+
+    if (event === "createScrollableY") {
+
+      return node => this.create("div/scrollable", node)
+    }
+
+    if (event === "createSpaceWithHeightPrompt") {
+
+      return (node) => {
+        const prompt = window.prompt("Gebe den Abstand deines Leerraums, in px, ein: (z.B., 350)")
+        if (!this.verifyIs("text/empty", prompt)) {
+          const space = document.createElement("div")
+          space.classList.add("space")
+          space.style.width = "100%"
+          space.style.height = `${prompt}px`
+          node.appendChild(space)
+        }
+      }
+    }
+
+    if (event === "createH1withPrompt") {
+
+      return (node) => {
+        const prompt = window.prompt("Gebe den HTML Inhalt deiner Überschrift ein:")
+        if (!this.verifyIs("text/empty", prompt)) {
+          const h1 = this.create("h1")
+          h1.textContent = prompt
+          node.appendChild(h1)
+        }
+      }
+    }
+
+    if (event === "createH2withPrompt") {
+
+      return (node) => {
+        const prompt = window.prompt("Gebe den HTML Inhalt deiner Überschrift ein:")
+        if (!this.verifyIs("text/empty", prompt)) {
+          const h2 = this.create("h2")
+          h2.textContent = prompt
+          node.appendChild(h2)
+        }
+      }
+    }
+
+    if (event === "createH3withPrompt") {
+
+      return (node) => {
+        const prompt = window.prompt("Gebe den HTML Inhalt deiner Überschrift ein:")
+        if (!this.verifyIs("text/empty", prompt)) {
+          const h3 = this.create("h3")
+          h3.textContent = prompt
+          node.appendChild(h3)
+        }
+      }
+    }
+
+    if (event === "createLeftImageHeader") {
+
+      return (node) => {
+        const header = this.create("header/left", node)
+        header.left.style.width = "34px"
+      }
     }
 
     if (event === "createNode") {
@@ -12113,6 +12362,135 @@ await Helper.add("event/click-funnel")
         const node = document.createTextNode(text)
         parent.appendChild(node)
         return node
+      }
+    }
+
+    if (event === "createImagePlaceholder") {
+
+      return (node) => {
+        const image = document.createElement("img")
+        image.src = "/public/image.svg"
+        image.style.width = "100%"
+        node.appendChild(image)
+      }
+    }
+
+    if (event === "createCheckboxInput") {
+
+      return node => this.create("input/checkbox", node)
+    }
+
+    if (event === "createPasswordInput") {
+
+      return node => this.create("input/password", node)
+    }
+
+    if (event === "createSelectInput") {
+
+      return node => this.create("input/select", node)
+    }
+
+    if (event === "createTelInput") {
+
+      return node => this.create("input/tel", node)
+    }
+
+    if (event === "createTextInput") {
+
+      return node => this.create("input/text", node)
+    }
+
+    if (event === "createPwithPrompt") {
+
+      return (node) => {
+        const prompt = window.prompt("Gebe den HTML Inhalt deines Paragraphen ein:")
+        const p = this.create("p", node)
+        p.textContent = prompt
+        return p
+      }
+    }
+
+    if (event === "createSpanWithTextContent") {
+
+      return (node) => {
+        Array.from(node.childNodes).forEach(it => {
+          if (it.nodeType === Node.TEXT_NODE) {
+            const span = document.createElement("span")
+            span.textContent = it.textContent
+            input.node.replaceChild(span, it)
+          }
+        })
+      }
+    }
+
+    if (event === "createSpanWithSiPrompt") {
+
+      return (node) => {
+        const prompt = window.prompt("Gebe deine SI-Einheit ein:")
+        const si = document.createElement("span")
+        si.classList.add("si")
+        si.textContent = node.textContent
+        if (prompt === "kWh" || prompt.startsWith("ct")) si.textContent = "0"
+        if (
+          prompt === "€" ||
+          prompt.startsWith("EURO") ||
+          prompt.startsWith("Euro") ||
+          prompt === "%"
+        ) si.textContent = "0,00"
+        const unit = document.createElement("span")
+        unit.classList.add("unit")
+        unit.textContent = prompt
+        unit.style.margin = "0 5px"
+        node.textContent = ""
+        node.appendChild(si)
+        node.appendChild(unit)
+      }
+    }
+
+    if (event === "createTableWithMatrixPrompt") {
+
+      return (node) => {
+        const prompt = window.prompt("Trenne Spalten mit Leerzeichen und bistimme die Breite deiner Tabelle von 1-9: (z.B., 4 1 1 4 (= 10))")
+        if (!this.verifyIs("text/empty", prompt)) {
+          const columns = prompt.split(" ")
+          const table = document.createElement("table")
+          table.style.width = "100%"
+          table.row = document.createElement("tr")
+          table.row.style.display = "flex"
+          table.row.style.width = "100%"
+          for (let i = 0; i < columns.length; i++) {
+            const width = columns[i]
+            const number = parseInt(width)
+            if (number >= 1 && number <= 9) {
+              table.header = document.createElement("th")
+              table.header.textContent = `(z.B., th-${i + 1})`
+              table.header.style.flex = `1 1 ${number * 10}%`
+              table.row.appendChild(table.header)
+            }
+          }
+          table.appendChild(table.row)
+          node.appendChild(table)
+          if (table.row.children.length === 0) {
+            table.remove()
+          }
+        }
+      }
+    }
+
+    if (event === "convertTextContentToDuckDuckGoLink") {
+      return (node) => {
+        const duckDuckGoUrl = "https://duckduckgo.com/?q="
+        const textContent = node.textContent
+        const encoded = encodeURIComponent(textContent)
+        const searchUrl = duckDuckGoUrl + encoded
+        const link = document.createElement("a")
+        link.href = searchUrl
+        link.target = "_blank"
+        link.textContent = `DuckDuckGo-Suche für ' ${textContent} ' öffnen.`
+        Helper.style(link, {fontFamily: "sans-serif"})
+        Helper.convert("link-colors", link)
+        node.textContent = ""
+        node.appendChild(link)
       }
     }
 
@@ -12486,6 +12864,121 @@ await Helper.add("event/click-funnel")
         }
       }
 
+    }
+
+    if (event === "openImagesOverlay") {
+
+      return (node) => {
+        this.overlay("popup", async imagesOverlay => {
+          const addButton = this.create("toolbox/add", imagesOverlay)
+          addButton.onclick = () => {
+            this.overlay("popup", async takeImageOverlay => {
+              const content = this.create("div", takeImageOverlay)
+              content.style.display = "flex"
+              content.style.justifyContent = "center"
+              const video = document.createElement("video")
+              video.style.width = "100%"
+              video.style.maxHeight = "55vh"
+              video.setAttribute("autoplay", "true")
+              content.appendChild(video)
+
+              function stopCamera() {
+                const stream = video.srcObject
+                const tracks = stream.getTracks()
+                tracks.forEach(track => track.stop())
+              }
+
+              async function startCamera() {
+                try {
+                  const stream = await navigator.mediaDevices.getUserMedia({video: true})
+                  video.srcObject = stream
+                } catch (error) {
+                  window.alert(`Fehler beim Zugriff auf die Kamera:\n\n${error}`)
+                  takeImageOverlay.remove()
+                  stopCamera()
+                }
+              }
+              await startCamera()
+              takeImageOverlay.removeOverlayButton.addEventListener("click", stopCamera)
+
+              const takeImageButton = this.create("toolbox/bottom-right", content)
+              this.render("icon/node/path", "/public/disk-floppy.svg", takeImageButton)
+              takeImageButton.onclick = () => {
+                const canvas = captureCanvas()
+                this.overlay("popup", async imageButtonsOverlay => {
+                  async function convertCanvasToText(canvas) {
+                    try {
+                      const prompt = window.prompt("Gebe die Sprachen ein: (z.B., deu, eng, ..) - Drücke einfach Enter für Deutsch")
+                      let worker
+                      if (!Helper.verifyIs("text/empty", prompt)) {
+                        worker = await Tesseract.createWorker(prompt)
+                      } else {
+                        worker = await Tesseract.createWorker("deu")
+                      }
+                      const res = await worker.recognize(canvas)
+                      await worker.terminate()
+                      return res.data.text
+                    } catch (error) {
+                      window.alert(`Fehler bei der Texterkennung:\n\n${error}`)
+                    }
+                  }
+                  const buttons = this.create("div", imageButtonsOverlay)
+                  {
+                    const button = this.create("toolbox/left-right", buttons)
+                    button.right.textContent = "Speicher das Bild auf deinem Gerät"
+                    button.left.textContent = ".save"
+                    button.onclick = () => {
+                      const prompt = window.prompt("Gebe deinem Bild einen Namen:")
+                      let filename
+                      if (!Helper.verifyIs("text/empty", prompt)) {
+                        filename = prompt
+                      } else {
+                        const values = new Uint8Array(8)
+                        window.crypto.getRandomValues(values)
+                        filename = Array.from(values, byte => ('0' + byte.toString(16)).slice(-2)).join('')
+                      }
+                      const dataUrl = canvas.toDataURL('image/jpeg')
+                      const link = document.createElement('a')
+                      link.href = dataUrl
+                      link.download = `${filename}.jpg`
+                      link.click()
+                      imageButtonsOverlay.remove()
+                      takeImageOverlay.remove()
+                      imagesOverlay.remove()
+                    }
+                  }
+                  {
+                    const button = this.create("toolbox/left-right", buttons)
+                    button.right.textContent = "Exportiere Text aus deinem Bild in dein ausgewähltes Element"
+                    button.left.textContent = ".tesseract-ocr"
+                    button.onclick = async () => {
+                      await this.dynamicImport("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js", async() => {
+                        const text = await convertCanvasToText(canvas)
+                        const purified = await this.convert("text/purified", text)
+                        node.append(purified)
+                        imageButtonsOverlay.remove()
+                        takeImageOverlay.remove()
+                        imagesOverlay.remove()
+                      })
+                    }
+                  }
+                })
+                stopCamera()
+              }
+
+              function captureCanvas() {
+                const canvas = document.createElement("canvas")
+                canvas.width = video.videoWidth
+                canvas.height = video.videoHeight
+                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height)
+                return canvas
+              }
+
+            })
+          }
+
+        })
+      }
     }
 
     if (event === "openLayerOverlay") {
@@ -13272,6 +13765,35 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "svg") {
+
+      const it = {}
+
+      it.icons = async (node, callback) => {
+        Helper.create("info/loading", node)
+        const fragment = document.createDocumentFragment()
+        const res = await Helper.request("/get/svg/list-open/")
+        if (res.status === 200) {
+          const list = JSON.parse(res.response)
+          for (let i = 0; i < list.length; i++) {
+            const svgName = list[i]
+            const button = Helper.create("toolbox/icon", fragment)
+            const text = await Helper.convert("path/text", `/public/${svgName}`)
+            const svgFragment = Helper.convert("text/fragment", text)
+            Helper.convert("svg/dark-light", svgFragment.firstChild)
+            svgFragment.firstChild.setAttribute("width", "100%")
+            if (typeof callback === "function") callback(button, svgFragment.firstChild)
+            button.appendChild(svgFragment.firstChild)
+          }
+          node.textContent = ""
+          node?.appendChild(fragment)
+          return fragment
+        }
+      }
+
+      return it
+    }
+
     if (event === "toggleAttribute") {
 
       let cache
@@ -13461,6 +13983,35 @@ await Helper.add("event/click-funnel")
       }
     }
 
+    if (event === "renderColors") {
+
+      return (node, callback) => {
+        for (const [key, value] of Object.entries(Helper.colors)) {
+          if (typeof value === "string") {
+            if (!Helper.verifyIs("text/empty", value)) {
+              const button = Helper.create("button/key-value-color", {key, value})
+              Helper.add("outline-hover", button)
+              button.onclick = () => callback(value)
+              node.appendChild(button)
+            }
+          }
+          if (typeof value === "object") {
+            Helper.render("text/hr", key, node)
+            for (const [key, val] of Object.entries(value)) {
+              if (typeof val === "string") {
+                if (!Helper.verifyIs("text/empty", val)) {
+                  const button = Helper.create("button/key-value-color", {key, value: val})
+                  Helper.add("outline-hover", button)
+                  button.onclick = () => callback(val)
+                  node.appendChild(button)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
     if (event === "rotateNode") {
 
       let rotationDegree = 0
@@ -13592,434 +14143,6 @@ await Helper.add("event/click-funnel")
       }
     }
 
-    if (event === "createAnchorWithPrompt") {
-
-      return (node) => {
-        const prompt = window.prompt("Gebe die Quell-Url deines Links ein:")
-        if (!this.verifyIs("text/empty", prompt)) {
-          const a = document.createElement("a")
-          a.textContent = "(z.B., Startseite)"
-          a.style.margin = "21px 34px"
-          a.style.cursor = "pointer"
-          a.href = prompt
-          node.appendChild(a)
-        }
-      }
-    }
-
-    if (event === "createPdfLinkWithPrompt") {
-
-      return async (node) => {
-        const prompt = window.prompt("Gebe die Quell-Url deiner PDF ein:")
-        if (!this.verifyIs("text/empty", prompt)) {
-          const a = document.createElement("a")
-          input.node.appendChild(a)
-          a.classList.add("pdf-link")
-          a.href = prompt
-          a.style.margin = "21px 34px"
-          a.style.display = "flex"
-          a.style.alignItems = "center"
-          a.style.cursor = "pointer"
-          const icon = await this.render("icon/node/path", "/public/pdf-doc.svg", a)
-          icon.firstChild.style.fill = this.colors.light.error
-          icon.style.width = "34px"
-          const text = this.create("p", a)
-          text.textContent = "(z.B., produkt.pdf)"
-        }
-      }
-    }
-
-    if (event === "createActionButton") {
-
-      return (node) => {
-        const button = this.create("button/action", node)
-        button.classList.add("button")
-        button.textContent = "(z.B., Daten jetzt speichern)"
-      }
-    }
-
-    if (event === "createArrowRightWithColorPrompt") {
-
-      return (node) => {
-        const prompt = window.prompt("Gebe die Farbe deines Pfeils ein:")
-        if (!this.verifyIs("text/empty", prompt)) {
-          const arrow = document.createElement("div")
-          arrow.style.display = "flex"
-          arrow.style.justifyContent = "center"
-          arrow.style.alignItems = "center"
-          arrow.style.width = "100%"
-          arrow.style.height = "34px"
-          node.appendChild(arrow)
-          const line = document.createElement("div")
-          line.style.height = "3px"
-          line.style.backgroundColor = prompt
-          line.style.width = "100%"
-          arrow.appendChild(line)
-          const symbol = document.createElement("span")
-          symbol.style.display = "flex"
-          symbol.style.justifyContent = "center"
-          symbol.style.alignItems = "center"
-          symbol.style.fontSize = "21px"
-          symbol.style.color = prompt
-          symbol.textContent = "➤"
-          arrow.appendChild(symbol)
-        }
-      }
-    }
-
-    if (event === "createFlexRow") {
-
-      return (node) => {
-        node.style.display = "flex"
-        node.style.flexDirection = null
-        node.style.flexWrap = "wrap"
-        const div = document.createElement("div")
-        div.style.margin = "21px 34px"
-        div.textContent = "div"
-        node.appendChild(div)
-      }
-
-    }
-
-    if (event === "createFlexColumn") {
-
-      return (node) => {
-        node.style.display = "flex"
-        node.style.flexDirection = "column"
-        node.style.flexWrap = null
-        const div = document.createElement("div")
-        div.style.margin = "21px 34px"
-        div.textContent = "div"
-        node.appendChild(div)
-      }
-
-    }
-
-    if (event === "create/div/flex-matrix-prompt/node") {
-
-      const prompt = window.prompt("Gebe deine Zeilenmatrix ein: (z.B, 1 2 2)")
-      const regex = /^([1-9] )*[1-9]$/
-      if (regex.test(prompt)) {
-        const rows = prompt.split(" ")
-        const wrapContainer = document.createElement("div")
-        wrapContainer.classList.add("flex-container")
-        wrapContainer.style.display = "flex"
-        wrapContainer.style.flexWrap = "wrap"
-        wrapContainer.style.margin = "21px 34px"
-        for (var i = 0; i < rows.length; i++) {
-          const row = rows[i]
-          const rowNumber = parseInt(row)
-          if (rowNumber >= 1 && rowNumber <= 9) {
-            const rowDiv = document.createElement("div")
-            rowDiv.classList.add(`row-${i + 1}`)
-            rowDiv.style.width = "300px"
-            rowDiv.style.display = "flex"
-            rowDiv.style.flexWrap = "wrap"
-            wrapContainer.append(rowDiv)
-            for (let i = 0; i < rowNumber; i++) {
-              const rowPart = document.createElement("div")
-              rowPart.classList.add("row-part")
-              rowPart.textContent = `(z.B., flex-item-${i + 1})`
-              rowPart.style.width = `${100 / rowNumber}%`
-              rowDiv.append(rowPart)
-            }
-          }
-        }
-        input.node.appendChild(wrapContainer)
-        if (wrapContainer.children.length === 0) {
-          wrapContainer.remove()
-        }
-      }
-
-    }
-
-    if (event === "createFlexWidthWithPrompt") {
-
-      return (node) => {
-        const prompt = window.prompt("Gebe die Breite deiner Flex Elemente ein: (z.B., 20% 300px 20vw)")
-        if (!this.verifyIs("text/empty", prompt)) {
-          const widths = prompt.split(" ")
-          const flexContainer = document.createElement("div")
-          flexContainer.classList.add("flex-container")
-          flexContainer.style.display = "flex"
-          flexContainer.style.margin = "21px 34px"
-          flexContainer.style.flexWrap = "wrap"
-          for (var i = 0; i < widths.length; i++) {
-            const width = widths[i]
-            const flexItem = document.createElement("div")
-            flexItem.classList.add("flex-item")
-            flexItem.textContent = `(z.B., flex-item-${i + 1})`
-            flexItem.style.flex = `1 1 ${width}`
-            flexContainer.appendChild(flexItem)
-          }
-          node.appendChild(flexContainer)
-        }
-      }
-
-    }
-
-    if (event === "createGridMatrixWithPrompt") {
-
-      return (node) => {
-        const prompt = window.prompt("Gebe die Matrix deiner Grid Elemente ein: (z.B., 2 3 3)")
-        if (!this.verifyIs("text/empty", prompt)) {
-          const columnsPerRow = prompt.split(" ").map(Number)
-          const gridContainer = document.createElement("div")
-          gridContainer.classList.add("grid-container")
-          gridContainer.style.display = "grid"
-          gridContainer.style.margin = "21px 34px"
-          columnsPerRow.forEach(columns => {
-            const gridRow = document.createElement("div")
-            gridRow.classList.add("grid-row")
-            gridRow.style.display = "grid"
-            gridRow.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`
-            for (let i = 0; i < columns; i++) {
-              const gridItem = document.createElement("div")
-              gridItem.classList.add("grid-item")
-              gridItem.textContent = `(z.B., grid-item-${i + 1})`
-              gridRow.appendChild(gridItem)
-            }
-            gridContainer.appendChild(gridRow)
-          })
-          node.appendChild(gridContainer)
-        }
-      }
-
-    }
-
-    if (event === "createHr") {
-
-      return (node) => {
-        const div = document.createElement("div")
-        div.classList.add("hr")
-        div.style.border = "0.5px solid black"
-        node.appendChild(div)
-      }
-    }
-
-    if (event === "createImageText") {
-
-      return (node) => this.create("div/image-text", node)
-    }
-
-    if (event === "createKeyValue") {
-
-      return (node) => this.create("div/key-value", node)
-    }
-
-    if (event === "createSafeDivPackOuter") {
-
-      return (node) => {
-        const div = this.create("div")
-        div.setAttribute("style", node.getAttribute("style"))
-        div.textContent = node.textContent
-        node.parentElement.insertBefore(div, node)
-        node.remove()
-      }
-    }
-
-    if (event === "createDivPackOuter") {
-
-      return (node) => {
-        const div = this.create("div")
-        div.textContent = node.outerHTML
-        node.parentElement.insertBefore(div, node)
-        node.remove()
-      }
-    }
-
-    if (event === "createScrollableY") {
-
-      return node => this.create("div/scrollable", node)
-    }
-
-    if (event === "createSpaceWithHeightPrompt") {
-
-      return (node) => {
-        const prompt = window.prompt("Gebe den Abstand deines Leerraums, in px, ein: (z.B., 350)")
-        if (!this.verifyIs("text/empty", prompt)) {
-          const space = document.createElement("div")
-          space.classList.add("space")
-          space.style.width = "100%"
-          space.style.height = `${prompt}px`
-          node.appendChild(space)
-        }
-      }
-    }
-
-    if (event === "createH1withPrompt") {
-
-      return (node) => {
-        const prompt = window.prompt("Gebe den HTML Inhalt deiner Überschrift ein:")
-        if (!this.verifyIs("text/empty", prompt)) {
-          const h1 = this.create("h1")
-          h1.textContent = prompt
-          node.appendChild(h1)
-        }
-      }
-    }
-
-    if (event === "createH2withPrompt") {
-
-      return (node) => {
-        const prompt = window.prompt("Gebe den HTML Inhalt deiner Überschrift ein:")
-        if (!this.verifyIs("text/empty", prompt)) {
-          const h2 = this.create("h2")
-          h2.textContent = prompt
-          node.appendChild(h2)
-        }
-      }
-    }
-
-    if (event === "createH3withPrompt") {
-
-      return (node) => {
-        const prompt = window.prompt("Gebe den HTML Inhalt deiner Überschrift ein:")
-        if (!this.verifyIs("text/empty", prompt)) {
-          const h3 = this.create("h3")
-          h3.textContent = prompt
-          node.appendChild(h3)
-        }
-      }
-    }
-
-    if (event === "createLeftImageHeader") {
-
-      return (node) => {
-        const header = this.create("header/left", node)
-        header.left.style.width = "34px"
-      }
-    }
-
-    if (event === "createImagePlaceholder") {
-
-      return (node) => {
-        const image = document.createElement("img")
-        image.src = "/public/image.svg"
-        image.style.width = "100%"
-        node.appendChild(image)
-      }
-    }
-
-    if (event === "createCheckboxInput") {
-
-      return node => this.create("input/checkbox", node)
-    }
-
-    if (event === "createPasswordInput") {
-
-      return node => this.create("input/password", node)
-    }
-
-    if (event === "createSelectInput") {
-
-      return node => this.create("input/select", node)
-    }
-
-    if (event === "createTelInput") {
-
-      return node => this.create("input/tel", node)
-    }
-
-    if (event === "createTextInput") {
-
-      return node => this.create("input/text", node)
-    }
-
-    if (event === "createPwithPrompt") {
-
-      return (node) => {
-        const prompt = window.prompt("Gebe den HTML Inhalt deines Paragraphen ein:")
-        const p = this.create("p", node)
-        p.textContent = prompt
-        return p
-      }
-    }
-
-    if (event === "createSpanWithTextContent") {
-
-      return (node) => {
-        Array.from(node.childNodes).forEach(it => {
-          if (it.nodeType === Node.TEXT_NODE) {
-            const span = document.createElement("span")
-            span.textContent = it.textContent
-            input.node.replaceChild(span, it)
-          }
-        })
-      }
-    }
-
-    if (event === "createSpanWithSiPrompt") {
-
-      return (node) => {
-        const prompt = window.prompt("Gebe deine SI-Einheit ein:")
-        const si = document.createElement("span")
-        si.classList.add("si")
-        si.textContent = node.textContent
-        if (prompt === "kWh" || prompt.startsWith("ct")) si.textContent = "0"
-        if (
-          prompt === "€" ||
-          prompt.startsWith("EURO") ||
-          prompt.startsWith("Euro") ||
-          prompt === "%"
-        ) si.textContent = "0,00"
-        const unit = document.createElement("span")
-        unit.classList.add("unit")
-        unit.textContent = prompt
-        unit.style.margin = "0 5px"
-        node.textContent = ""
-        node.appendChild(si)
-        node.appendChild(unit)
-      }
-    }
-
-    if (event === "createTableWithMatrixPrompt") {
-
-      return (node) => {
-        const prompt = window.prompt("Trenne Spalten mit Leerzeichen und bistimme die Breite deiner Tabelle von 1-9: (z.B., 4 1 1 4 (= 10))")
-        if (!this.verifyIs("text/empty", prompt)) {
-          const columns = prompt.split(" ")
-          const table = document.createElement("table")
-          table.style.width = "100%"
-          table.row = document.createElement("tr")
-          table.row.style.display = "flex"
-          table.row.style.width = "100%"
-          for (let i = 0; i < columns.length; i++) {
-            const width = columns[i]
-            const number = parseInt(width)
-            if (number >= 1 && number <= 9) {
-              table.header = document.createElement("th")
-              table.header.textContent = `(z.B., th-${i + 1})`
-              table.header.style.flex = `1 1 ${number * 10}%`
-              table.row.appendChild(table.header)
-            }
-          }
-          table.appendChild(table.row)
-          node.appendChild(table)
-          if (table.row.children.length === 0) {
-            table.remove()
-          }
-        }
-      }
-    }
-
-    if (event === "convertTextContentToDuckDuckGoLink") {
-      return (node) => {
-        const duckDuckGoUrl = "https://duckduckgo.com/?q="
-        const textContent = node.textContent
-        const encoded = encodeURIComponent(textContent)
-        const searchUrl = duckDuckGoUrl + encoded
-        const link = document.createElement("a")
-        link.href = searchUrl
-        link.target = "_blank"
-        link.textContent = `DuckDuckGo-Suche für ' ${textContent} ' öffnen.`
-        Helper.style(link, {fontFamily: "sans-serif"})
-        Helper.convert("link-colors", link)
-        node.textContent = ""
-        node.appendChild(link)
-      }
-    }
-
     if (event === "overlay-text-converter") {
       this.overlay("popup", overlay => {
         this.render("text/h1", "Text Konverter Funktionen", overlay)
@@ -14036,15 +14159,16 @@ await Helper.add("event/click-funnel")
 
           Zum Beispiel:
           {
-            svgPickerOptions,
-            createFlexButton,
-            wrapButton,
-            ...
+            text1,
+            text2,
+            .
+            .
+            textN
           }
 
           Klicken Sie auf 'Text jetzt konvertieren', um:
 
-          {svgPickerOptions, createFlexButton, wrapButton, ...}
+          {text1, text2, .., textN}
 
           zu erhalten`
           const convert = this.create("button/action", field)
@@ -14083,14 +14207,15 @@ await Helper.add("event/click-funnel")
 
           Zum Beispiel:
 
-          svgPickerOptions,
-          createFlexButton,
-          wrapButton,
-          ...
+          text1,
+          text2,
+          .
+          .
+          textN
 
           Klicken Sie auf 'Text jetzt konvertieren', um:
 
-          svgPickerOptions, createFlexButton, wrapButton, ...
+          text1, text2, .., textN
 
           zu erhalten`
           const convert = this.create("button/action", field)
@@ -14117,6 +14242,21 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "wrapAnchorWithPrompt") {
+
+      return async (node) => {
+        const prompt = window.prompt("Gebe die Quell-Url deines Links ein:")
+        if (!this.verifyIs("text/empty", prompt)) {
+          const a = document.createElement("a")
+          a.style.textDecoration = "none"
+          a.href = prompt
+          node.style.cursor = "pointer"
+          a.innerHTML = await this.convert("text/purified", node.outerHTML)
+          node.replaceWith(a)
+          return a
+        }
+      }
+    }
 
   }
 
@@ -14640,6 +14780,25 @@ await Helper.add("event/click-funnel")
       })
     }
 
+  }
+
+  static lorem(length) {
+    const words = [
+      "Lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit",
+      "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore",
+      "magna", "aliqua", "Ut", "enim", "ad", "minim", "veniam", "quis", "nostrud",
+      "exercitation", "ullamco", "laboris", "nisi", "ut", "aliquip", "ex", "ea", "commodo",
+      "consequat", "Duis", "aute", "irure", "dolor", "in", "reprehenderit", "in", "voluptate",
+      "velit", "esse", "cillum", "dolore", "eu", "fugiat", "nulla", "pariatur", "Excepteur",
+      "sint", "occaecat", "cupidatat", "non", "proident", "sunt", "in", "culpa", "qui",
+      "officia", "deserunt", "mollit", "anim", "id", "est", "laborum"
+    ]
+    let text = ""
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * words.length)
+      text += words[randomIndex] + " "
+    }
+    return text.trim()
   }
 
   static overlay(event, callback) {
@@ -16931,31 +17090,35 @@ await Helper.add("event/click-funnel")
     if (event === "tree-map/field-funnel") {
 
       return new Promise(async(resolve, reject) => {
-
         try {
-
           Object.entries(input).forEach(([key, value]) => {
             const fieldId = key.split(".")[2]
             parent.querySelectorAll(`#${fieldId}`).forEach(async field => {
-
               const input = field.querySelector(".field-input")
-
               this.render("value/input", value, input)
-
             })
-
           })
-
           this.verifyIs("field-funnel/valid", parent)
-
           resolve()
-
         } catch (error) {
           reject(error)
         }
-
       })
 
+    }
+
+    if (event === "map/field-funnel") {
+
+      Object.entries(input).forEach(([key, value]) => {
+        for (let i = 0; i < parent.querySelectorAll("*").length; i++) {
+          const field = parent.querySelectorAll("*")[i]
+          if (field.id === key) {
+            const input = field.querySelector(".field-input")
+            input.value = value
+          }
+        }
+      })
+      this.verifyIs("field-funnel/valid", parent)
     }
 
     if (event === "map/div") {
@@ -17590,20 +17753,13 @@ await Helper.add("event/click-funnel")
       link.style.display = "flex"
       link.style.justifyContent = "center"
       link.style.alignItems = "center"
-      link.style.cursor = "pointer"
       link.style.color = this.colors.light.text
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         link.style.color = this.colors.dark.text
       }
-      link.onmouseover = () => {
-        link.style.outline = "3px solid #999"
-      }
-      link.onmouseout = () => {
-        link.style.outline = null
-      }
-      parent?.append(link)
+      this.add("outline-hover", link)
+      parent?.appendChild(link)
       return link
-
     }
 
     if (event === "text/div") {
@@ -17734,167 +17890,6 @@ await Helper.add("event/click-funnel")
 
       parent?.append(container)
       return container
-    }
-
-    if (event === "visibility/platform-value-closed") {
-
-      this.convert("parent/scrollable", parent)
-
-      const visibilityField = this.create("field/select", parent)
-      visibilityField.label.textContent = "Sichtbarkeit"
-      this.verify("input/value", visibilityField.input)
-      visibilityField.input.addEventListener("input", () => {
-        const value = visibilityField.input.value
-        input.visibility = value
-        this.render(event, input, parent)
-      })
-
-      if (input.visibility === "open") {
-        visibilityField.input.add(["open", "closed"])
-
-        const button = this.create("button/action", parent)
-        button.textContent = "Sichtbarkeit jetzt ändern"
-        button.addEventListener("click", async () => {
-
-          const visibility = visibilityField.input.value
-
-          this.overlay("security", async securityOverlay => {
-
-            const res = await this.request("/register/platform/value-visibility-location-expert/", {path: input.path, visibility})
-            if (res.status === 200) {
-              window.alert("Sichtbarkeit erfolgreich geändert.")
-              parent.parentElement.previousSibling.previousSibling.remove()
-              parent.parentElement.previousSibling.remove()
-              parent.parentElement.remove()
-              securityOverlay.remove()
-            } else {
-              window.alert("Fehler.. Bitte wiederholen.")
-              securityOverlay.remove()
-            }
-
-          })
-
-        })
-
-      }
-
-      if (input.visibility === "closed") {
-
-        visibilityField.input.add(["closed", "open"])
-
-        const rolesField = this.create("field/select", parent)
-        rolesField.label.textContent = "Nutzer mit diesen Rollen dürfen mit deiner Werteinheit interagieren"
-        rolesField.input.multiple = true
-
-        const array = []
-
-        if (input.roles !== undefined) {
-          if (input.roles.available !== undefined) {
-
-            for (let i = 0; i < input.roles.available.length; i++) {
-              const role = input.roles.available[i]
-              array.push(role.name)
-            }
-
-          }
-        }
-
-
-        rolesField.input.add(array)
-
-        this.verify("input/value", rolesField.input)
-
-        const selected = []
-        for (let i = 0; i < input.roles.selected.length; i++) {
-          const roleId = input.roles.selected[i]
-
-          if (input.roles !== undefined) {
-            if (input.roles.available !== undefined) {
-              for (let i = 0; i < input.roles.available.length; i++) {
-                const role = input.roles.available[i]
-
-                if (role.id === roleId) {
-                  selected.push(role.name)
-                }
-
-              }
-            }
-          }
-
-
-        }
-
-        for (let i = 0; i < selected.length; i++) {
-          const value = selected[i]
-
-          for (let i = 0; i < rolesField.input.options.length; i++) {
-            const option = rolesField.input.options[i]
-
-            if (option.value === value) {
-              option.selected = true
-            }
-
-          }
-
-        }
-
-        const authorizedField = this.create("field/emails", parent)
-        authorizedField.label.textContent = "Nutzer mit diesen E-Mail Adressen dürfen mit deiner Werteinheit interagieren"
-        authorizedField.input.value = JSON.stringify(input.authorized)
-        this.verify("input/value", authorizedField.input)
-        authorizedField.input.addEventListener("input", () => this.verify("input/value", authorizedField.input))
-
-        const button = this.create("button/action", parent)
-        button.textContent = "Sichtbarkeit jetzt ändern"
-        button.addEventListener("click", async () => {
-
-          await this.verify("field-funnel", parent)
-
-          const visibility = visibilityField.input.value
-
-          const roles = []
-          for (let i = 0; i < rolesField.input.options.length; i++) {
-            const option = rolesField.input.options[i]
-
-            if (option.selected === true) {
-              if (input.roles !== undefined) {
-                if (input.roles.available !== undefined) {
-                  for (let i = 0; i < input.roles.available.length; i++) {
-                    const role = input.roles.available[i]
-                    if (role.name === option.value) {
-                      roles.push(role.id)
-                    }
-                  }
-                }
-              }
-            }
-
-
-          }
-
-          const authorized = JSON.parse(authorizedField.input.value)
-
-          this.overlay("security", async securityOverlay => {
-
-            const res = await this.request("/register/platform/value-visibility-location-expert/", {visibility, roles, authorized, path: input.path})
-            if (res.status === 200) {
-              window.alert("Sichtbarkeit erfolgreich geändert.")
-              parent.parentElement.previousSibling.previousSibling.remove()
-              parent.parentElement.previousSibling.remove()
-              parent.parentElement.remove()
-              securityOverlay.remove()
-
-            } else {
-              window.alert("Fehler.. Bitte wiederholen.")
-              securityOverlay.remove()
-            }
-
-          })
-
-
-        })
-      }
-
     }
 
     if (event === "text/p") {
@@ -18154,13 +18149,127 @@ await Helper.add("event/click-funnel")
                     button.right.textContent = "Sichtbarkeit der Werteinheit"
                     button.onclick = () => {
                       this.overlay("popup", async overlay => {
-                        overlay.info.textContent = ".visibility"
-                        const funnel = this.create("div/scrollable", overlay)
+                        overlay.info.textContent = `${value.path}.visibility`
+                        const funnel = this.create("info/loading", overlay)
                         const res = await this.request("/get/platform/value-visibility-location-expert/", {path: value.path})
                         if (res.status === 200) {
                           const map = JSON.parse(res.response)
                           map.path = value.path
-                          this.render("visibility/platform-value-closed", map, funnel)
+                          renderVisibilityFunnel(map, funnel)
+                          function renderVisibilityFunnel(input, parent) {
+                            Helper.convert("parent/scrollable", parent)
+                            const openClosedField = Helper.create("field/select", parent)
+                            openClosedField.label.textContent = "Sichtbarkeit"
+                            Helper.verify("input/value", openClosedField.input)
+                            openClosedField.input.oninput = () => {
+                              const value = openClosedField.input.value
+                              input.visibility = value
+                              renderVisibilityFunnel(input, parent)
+                            }
+                            if (input.visibility === "open") {
+                              openClosedField.input.add(["open", "closed"])
+                              const button = Helper.create("button/action", parent)
+                              button.textContent = "Sichtbarkeit jetzt ändern"
+                              button.onclick = async () => {
+                                const visibility = openClosedField.input.value
+                                Helper.overlay("security", async securityOverlay => {
+                                  const res = await Helper.request("/register/platform/value-visibility-location-expert/", {path: input.path, visibility})
+                                  if (res.status === 200) {
+                                    window.alert("Sichtbarkeit erfolgreich geändert.")
+                                    parent.parentElement.previousSibling.previousSibling.remove()
+                                    parent.parentElement.previousSibling.remove()
+                                    parent.parentElement.remove()
+                                    securityOverlay.remove()
+                                  } else {
+                                    window.alert("Fehler.. Bitte wiederholen.")
+                                    securityOverlay.remove()
+                                  }
+                                })
+                              }
+                            }
+
+                            if (input.visibility === "closed") {
+                              openClosedField.input.add(["closed", "open"])
+                              const rolesField = Helper.create("field/select", parent)
+                              rolesField.label.textContent = "Nutzer mit diesen Rollen dürfen mit deiner Werteinheit interagieren"
+                              rolesField.input.multiple = true
+                              const array = []
+                              if (input.roles !== undefined) {
+                                if (input.roles.available !== undefined) {
+                                  for (let i = 0; i < input.roles.available.length; i++) {
+                                    const role = input.roles.available[i]
+                                    array.push(role.name)
+                                  }
+                                }
+                              }
+                              rolesField.input.add(array)
+                              Helper.verify("input/value", rolesField.input)
+                              const selected = []
+                              for (let i = 0; i < input.roles.selected.length; i++) {
+                                const roleId = input.roles.selected[i]
+                                if (input.roles !== undefined) {
+                                  if (input.roles.available !== undefined) {
+                                    for (let i = 0; i < input.roles.available.length; i++) {
+                                      const role = input.roles.available[i]
+                                      if (role.created === roleId) {
+                                        selected.push(role.name)
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                              for (let i = 0; i < selected.length; i++) {
+                                const value = selected[i]
+                                for (let i = 0; i < rolesField.input.options.length; i++) {
+                                  const option = rolesField.input.options[i]
+                                  if (option.value === value) {
+                                    option.selected = true
+                                  }
+                                }
+                              }
+                              const authorizedField = Helper.create("field/emails", parent)
+                              authorizedField.label.textContent = "Nutzer mit diesen E-Mail Adressen dürfen mit deiner Werteinheit interagieren"
+                              authorizedField.input.value = JSON.stringify(input.authorized)
+                              Helper.verify("input/value", authorizedField.input)
+                              authorizedField.input.addEventListener("input", () => Helper.verify("input/value", authorizedField.input))
+                              const button = Helper.create("button/action", parent)
+                              button.textContent = "Sichtbarkeit jetzt ändern"
+                              button.addEventListener("click", async () => {
+                                await Helper.verify("field-funnel", parent)
+                                const visibility = openClosedField.input.value
+                                const roles = []
+                                for (let i = 0; i < rolesField.input.options.length; i++) {
+                                  const option = rolesField.input.options[i]
+                                  if (option.selected === true) {
+                                    if (input.roles !== undefined) {
+                                      if (input.roles.available !== undefined) {
+                                        for (let i = 0; i < input.roles.available.length; i++) {
+                                          const role = input.roles.available[i]
+                                          if (role.name === option.value) {
+                                            roles.push(role.created)
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                                const authorized = JSON.parse(authorizedField.input.value)
+                                Helper.overlay("security", async securityOverlay => {
+                                  const res = await Helper.request("/register/platform/value-visibility-location-expert/", {visibility, roles, authorized, path: input.path})
+                                  if (res.status === 200) {
+                                    window.alert("Sichtbarkeit erfolgreich geändert.")
+                                    parent.parentElement.previousSibling.previousSibling.remove()
+                                    parent.parentElement.previousSibling.remove()
+                                    parent.parentElement.remove()
+                                    securityOverlay.remove()
+                                  } else {
+                                    window.alert("Fehler.. Bitte wiederholen.")
+                                    securityOverlay.remove()
+                                  }
+                                })
+                              })
+                            }
+                          }
                         }
                       })
                     }
@@ -18192,9 +18301,11 @@ await Helper.add("event/click-funnel")
                         for (let i = 0; i < emailsField.input.options.length; i++) {
                           const option = emailsField.input.options[i]
                           option.selected = false
-                          for (let i = 0; i < value.writability.length; i++) {
-                            const writableEmail = value.writability[i]
-                            if (option.value === writableEmail) option.selected = true
+                          if (value.writability) {
+                            for (let i = 0; i < value.writability.length; i++) {
+                              const writableEmail = value.writability[i]
+                              if (option.value === writableEmail) option.selected = true
+                            }
                           }
                         }
                         const submit = this.create("button/action", funnel)
@@ -18321,7 +18432,7 @@ await Helper.add("event/click-funnel")
             }
             {
               const alias = document.createElement("div")
-              alias.textContent = `${value.alias}`
+              alias.innerHTML = await this.convert("text/purified", value.alias)
               alias.style.fontSize = "21px"
               itemTitle.append(alias)
             }
@@ -18833,12 +18944,6 @@ await Helper.add("event/click-funnel")
                           const name = funnel.nameField.input.value
                           const home = funnel.homeField.input.value
                           const apps = JSON.parse(funnel.appsField.input.value)
-                          const res = await this.request("/verify/platform/role-name/", {platform: input, name})
-                          if (res.status === 200) {
-                            window.alert("Diese Rolle existiert bereits.")
-                            this.add("style/node/not-valid", funnel.nameField.input)
-                            throw new Error("name exist")
-                          }
                           this.overlay("security", async securityOverlay => {
                             const res = await this.request("/update/platform/role-expert/", {id: role.created, platform: input, name, apps, home})
                             if (res.status === 200) {
@@ -19075,7 +19180,7 @@ await Helper.add("event/click-funnel")
       }
 
       childrenLoop: for (let i = 0; i < input.children.length; i++) {
-        const child = input.children[i]
+        let child = input.children[i]
 
         if (child.id === "toolbox") continue
         if (child.id === "toolbox-getter") continue
@@ -19087,7 +19192,6 @@ await Helper.add("event/click-funnel")
         }
 
         const childrenButton = this.create("toolbox/left-right", parent)
-        // const childrenButton = button
         childrenButton.left.append(this.convert("element/alias", child))
         childrenButton.right.textContent = "Element bearbeiten"
 
@@ -19129,6 +19233,70 @@ await Helper.add("event/click-funnel")
 
               }
 
+              if (child.closest("svg") !== null) {
+
+                {
+                  const button = this.create("toolbox/left-right", buttons)
+                  button.left.textContent = ".animateTransform"
+                  button.right.textContent = "Animiere dein SVG Element"
+                  button.onclick = () => {
+                    this.overlay("toolbox", animateSvgOverlay => {
+                      animateSvgOverlay.info.textContent = this.convert("node/selector", child)
+                      const buttons = this.create("div/scrollable", animateSvgOverlay)
+                      {
+                        const button = this.create("toolbox/left-right", buttons)
+                        button.left.textContent = ".up-and-down"
+                        button.right.textContent = "Bewegt dein SVG Element hoch und runter"
+                        button.onclick = () => {
+                          const animateTransform = document.createElementNS('http://www.w3.org/2000/svg', 'animateTransform')
+                          animateTransform.setAttribute('attributeName', 'transform')
+                          animateTransform.setAttribute('attributeType', 'XML')
+                          animateTransform.setAttribute('type', 'translate')
+                          animateTransform.setAttribute('values', '0 0; 0 8; 0 0')
+                          animateTransform.setAttribute('dur', '2s')
+                          animateTransform.setAttribute('repeatCount', 'indefinite')
+                          animateTransform.setAttribute('calcMode', 'spline')
+                          animateTransform.setAttribute('keySplines', '0.5 0 0.5 1; 0.5 0 0.5 1')
+                          child.appendChild(animateTransform)
+                          window.alert("Animation wurde erfolgreich angehängt.")
+                          this.remove("overlays")
+                        }
+                      }
+                    })
+                  }
+                }
+
+                {
+                  const button = this.create("toolbox/left-right", buttons)
+                  button.left.textContent = ".fixed-bottom-center"
+                  button.right.textContent = "Positioniere dein SVG fixiert-unten-mittig"
+                  button.onclick = () => {
+                    this.style(child, {position: "fixed", bottom: "0", left: "50%", transform: "translateX(-50%)"})
+                    window.alert("Dein SVG wurde erfolgreich positioniert.")
+                  }
+                }
+
+                {
+                  const button = this.create("toolbox/left-right", buttons)
+                  button.left.textContent = ".fill"
+                  button.right.textContent = "Passe die Farbe deine SVG Elements an"
+                  button.onclick = () => {
+                    this.overlay("toolbox", colorsOverlay => {
+                      colorsOverlay.info.textContent = ".fill.colors"
+                      const container = this.create("div/flex-row", colorsOverlay)
+                      container.style.overflow = "auto"
+                      container.style.paddingBottom = "144px"
+                      this.fn("renderColors")(container, (value) => {
+                        child.setAttribute("fill", value)
+                        window.alert(`Das 'fill'-Attribut wurde erfolgreich im ${child.tagName.toUpperCase()} gesetzt.`)
+                        this.remove("overlays")
+                      })
+                    })
+                  }
+                }
+
+              }
+
               if (child.tagName === "DIV") {
 
                 const button = this.create("toolbox/left-right", buttons)
@@ -19138,9 +19306,9 @@ await Helper.add("event/click-funnel")
 
                   this.overlay("toolbox", async overlay => {
                     overlay.registerHtmlButton.onclick = async () => {
-                      await this.remove("element/selected-node", preview)
-                      clone.removeAttribute("contenteditable")
-                      child.replaceWith(clone.cloneNode(true))
+                      this.remove("contenteditable", clone)
+                      this.remove("selected-node", clone)
+                      child.replaceWith(clone)
                       this.add("register-html")
                     }
 
@@ -19163,12 +19331,11 @@ await Helper.add("event/click-funnel")
                       preview.style.backgroundColor = backgroundColor
                     }
 
-                    const clone = child.cloneNode(true)
+                    let clone = child.cloneNode(true)
                     clone.setAttribute("contenteditable", "true")
                     preview.append(clone)
 
                     let selectedNode = clone
-
 
                     preview.addEventListener("keydown", ev => {
                       if (ev.metaKey && ev.key === 'c') {
@@ -19322,8 +19489,13 @@ await Helper.add("event/click-funnel")
 
                     const buttons = this.fn("creator-buttons", {parent: content})
 
-                    buttons.duckDuckGoButton.onclick = () => buttons.duckDuckGoButton.convertNode(selectedNode)
+                    buttons.imageTextAndActionButton.onclick = () => buttons.createImageTextAndActionBox(selectedNode)
+                    buttons.backgroundImageWithTitlesButton.onclick = () => buttons.createBackgroundImageWithTitles(selectedNode)
+                    buttons.duckDuckGoButton.onclick = () => buttons.convertTextContentToDuckDuckGoLink(selectedNode)
                     buttons.sourcesButton.onclick = () => buttons.openSourcesOverlay(selectedNode)
+                    buttons.templatesButton.onclick = () => buttons.openTemplatesOverlay(selectedNode)
+                    buttons.scriptsButton.onclick = () => buttons.openScriptsOverlay()
+                    buttons.imagesButton.onclick = () => buttons.openImagesOverlay(selectedNode)
                     buttons.createFlexButton.onclick = () => buttons.createFlexWidthWithPrompt(selectedNode)
                     buttons.createGridButton.onclick = () => buttons.createGridMatrixWithPrompt(selectedNode)
                     buttons.rowContainerButton.onclick = () => buttons.createFlexRow(selectedNode)
@@ -19340,13 +19512,22 @@ await Helper.add("event/click-funnel")
                     buttons.imageButton.onclick = () => buttons.createImagePlaceholder(selectedNode)
                     buttons.tableHeaderButton.onclick = () => buttons.createTableWithMatrixPrompt(selectedNode)
                     buttons.pdfLinkButton.onclick = async () => await buttons.createPdfLinkWithPrompt(selectedNode)
+                    buttons.wrapLinkButton.onclick = async () => {
+                      const link = await buttons.wrapAnchorWithPrompt(selectedNode)
+                      clone = link
+                    }
                     buttons.aLinkButton.onclick = () => buttons.createAnchorWithPrompt(selectedNode)
+                    buttons.locationAssignButton.onclick = () => buttons.addLocationAssign(selectedNode)
+                    buttons.windowOpenBlankButton.onclick = () => buttons.addWindowOpenBlank(selectedNode)
                     buttons.spanButton.onclick = () => buttons.createSpanWithTextContent(selectedNode)
                     buttons.changeSiButton.onclick = () => buttons.createSpanWithSiPrompt(selectedNode)
                     buttons.addSpaceButton.onclick = () => buttons.createSpaceWithHeightPrompt(selectedNode)
                     buttons.arrowRightButton.onclick = () => buttons.createArrowRightWithColorPrompt(selectedNode)
                     buttons.divScrollableButton.onclick = () => buttons.createScrollableY(selectedNode)
-                    buttons.packDivButton.onclick = () => buttons.createDivPackOuter(selectedNode)
+                    buttons.packDivButton.onclick = async () => {
+                      const div = await buttons.createDivPackOuter(selectedNode)
+                      clone = div
+                    }
                     buttons.textInputButton.onclick = () => buttons.createTextInput(selectedNode)
                     buttons.numberInputButton.onclick = () => buttons.createTelInput(selectedNode)
                     buttons.checkboxInputButton.onclick = () => buttons.createCheckboxInput(selectedNode)
@@ -19509,8 +19690,6 @@ await Helper.add("event/click-funnel")
                     buttons.setAttributeButton.onclick = () => buttons.setAttributeWithPrompt(selectedNode)
                     buttons.appendStyleButton.onclick = () => buttons.appendStyleWithPrompt(selectedNode)
                     buttons.fontSizeForEachChildButton.onclick = () => buttons.setChildrenStyleWithPrompt("fontSize", selectedNode, "Gebe die Schriftgrüße für alle Kind Elemente: (z.B., 21px)")
-                    buttons.templatesButton.onclick = () => buttons.openTemplatesOverlay(selectedNode)
-                    buttons.addScriptButton.onclick = () => buttons.openScriptsOverlay()
 
                     const svgIconsFragment = await buttons.svgIcons.appendSvgIconsFragment(buttons.svgPickerOptions, (button) => {
                       selectedNode.appendChild(button.querySelector(".icon").cloneNode(true))
@@ -20131,6 +20310,22 @@ await Helper.add("event/click-funnel")
                 }
               }
 
+              {
+                const button = this.create("toolbox/left-right", buttons)
+                button.left.textContent = ".setAttribute"
+                button.right.textContent = "Neues Attribut setzen"
+                button.onclick = () => {
+                  const attribute = window.prompt("Gebe dein neues Attribut ein: (z.B., width)")
+                  if (!this.verifyIs("text/empty", attribute)) {
+                    const value = window.prompt("Gebe den Wert ein: (z.B., 100%)")
+                    if (!this.verifyIs("text/empty", value)) {
+                      child.setAttribute(attribute, value)
+                      window.alert(`"Dein neues Attribut wurde erfolgreich im ${child.tagName} gesetzt`)
+                    }
+                  }
+                }
+              }
+
               if (!["SCRIPT", "BODY", "HEAD"].includes(child.tagName)) {
 
                 const button = this.create("toolbox/left-right", buttons)
@@ -20296,6 +20491,37 @@ await Helper.add("event/click-funnel")
                   button.onclick = () => {
                     this.convert("node/dark-light-toggle", child)
                     window.alert("Dark Light Modus erfolgreich umgeschaltet.")
+                  }
+                }
+                {
+                  const button = this.create("toolbox/left-right", buttons)
+                  button.left.textContent = ".svg"
+                  button.right.textContent = "Bringe deine Kreativität zum Ausdruck"
+                  button.onclick = () => {
+                    const svg = this.fn("svg")
+                    this.overlay("toolbox", svgOptionsOverlay => {
+                      svgOptionsOverlay.info.textContent = ".svg.options"
+                      const buttons = this.create("div", svgOptionsOverlay)
+                      {
+                        const button = this.create("toolbox/left-right", buttons)
+                        button.left.textContent = ".icons"
+                        button.right.textContent = "Füge vorgefertigte Icons deinem Element hinzu"
+                        button.onclick = () => {
+                          this.overlay("toolbox", async svgIconsOverlay => {
+                            svgIconsOverlay.info.textContent = ".svg.icons"
+                            const container = this.create("div/flex-row", svgIconsOverlay)
+                            container.style.overflow = "auto"
+                            await svg.icons(container, (iconButton, svgIcon) => {
+                              iconButton.onclick = () => {
+                                child.appendChild(svgIcon.cloneNode(true))
+                                window.alert(`SVG wurde erfolgreich im ${child.tagName} angehängt.`)
+                                this.remove("overlays")
+                              }
+                            })
+                          })
+                        }
+                      }
+                    })
                   }
                 }
 
@@ -20490,19 +20716,14 @@ await Helper.add("event/click-funnel")
 
 
                 {
-
                   const button = this.create("toolbox/left-right", buttons)
-                  button.left.textContent = ".div-scrollable"
-                  button.right.textContent = "Scrollbares DIV-Element anhängen"
-                  button.addEventListener("click", () => {
-                    try {
-                      this.create("div/scrollable", child)
-                      window.alert("Element erfolgreich angehängt.")
-                    } catch (error) {
-                      window.alert("Fehler.. Bitte wiederholen.")
-                    }
-                  })
-
+                  button.left.textContent = ".div"
+                  button.right.textContent = "DIV-Element anhängen"
+                  button.onclick = () => {
+                    const div = document.createElement("div")
+                    document.body.appendChild(div)
+                    window.alert("DIV Element wurde erfolgreich angehängt.")
+                  }
                 }
 
               }
@@ -20776,7 +20997,7 @@ await Helper.add("event/click-funnel")
                   button.left.textContent = ".prefill-field-funnel"
                   button.right.textContent = "Fülle die Datenfelder mit den eigenen Nutzerdaten"
                   button.onclick = () => {
-                    const script = this.create("script", {id: "prefill-field-funnel", js: `Helper.add("prefill-field-funnel")`})
+                    const script = this.create("script", {id: "prefill-field-funnel", js: `await Helper.add("prefill-field-funnel")`})
                     this.add("script-onbody", script)
                     window.alert("Skript wurde erfolgreich angehängt.")
                   }
@@ -21954,6 +22175,26 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "contenteditable") {
+
+      input.removeAttribute("contenteditable")
+      for (let i = 0; i < input.querySelectorAll("*").length; i++) {
+        const child = input.querySelectorAll("*")[i]
+        child.removeAttribute("contenteditable")
+      }
+    }
+
+    if (event === "selected-node") {
+
+      input.style.outline = null
+      input.removeAttribute("selected-node")
+      for (let i = 0; i < input.querySelectorAll("*").length; i++) {
+        const child = input.querySelectorAll("*")[i]
+        child.style.outline = null
+        child.removeAttribute("selected-node")
+      }
+    }
+
     if (event === "event-listener") {
       Array.from(document.querySelectorAll('*')).forEach(element => element.replaceWith(element.cloneNode(true)));
     }
@@ -22019,15 +22260,44 @@ await Helper.add("event/click-funnel")
 
   static style(node, input) {
     if (node) {
+      if (input.letterSpacing) node.style.letterSpacing = input.letterSpacing
+      if (input.lineHeight) node.style.lineHeight = input.lineHeight
+      if (input.position) node.style.position = input.position
+      if (input.backgroundColor) node.style.backgroundColor = input.backgroundColor
+      if (input.backgroundRepeat) node.style.backgroundRepeat = input.backgroundRepeat
+      if (input.backgroundPosition) node.style.backgroundPosition = input.backgroundPosition
+      if (input.backgroundSize) node.style.backgroundSize = input.backgroundSize
+      if (input.backgroundImage) node.style.backgroundImage = input.backgroundImage
+      if (input.background) node.style.background = input.background
+      if (input.fontWeight) node.style.fontWeight = input.fontWeight
       if (input.fontFamily) node.style.fontFamily = input.fontFamily
       if (input.fontSize) node.style.fontSize = input.fontSize
       if (input.height) node.style.height = input.height
+      if (input.minHeight) node.style.minHeight = input.minHeight
       if (input.width) node.style.width = input.width
+      if (input.maxWidth) node.style.maxWidth = input.maxWidth
       if (input.overflow) node.style.overflow = input.overflow
       if (input.margin) node.style.margin = input.margin
+      if (input.marginTop) node.style.marginTop = input.marginTop
+      if (input.marginBottom) node.style.marginBottom = input.marginBottom
       if (input.marginLeft) node.style.marginLeft = input.marginLeft
+      if (input.padding) node.style.padding = input.padding
       if (input.color) node.style.color = input.color
+      if (input.cursor) node.style.cursor = input.cursor
       if (input.display) node.style.display = input.display
+      if (input.justifyContent) node.style.justifyContent = input.justifyContent
+      if (input.alignItems) node.style.alignItems = input.alignItems
+      if (input.flexDirection) node.style.flexDirection = input.flexDirection
+      if (input.bottom) node.style.bottom = input.bottom
+      if (input.left) node.style.left = input.left
+      if (input.textShadow) node.style.textShadow = input.textShadow
+      if (input.transform) node.style.transform = input.transform
+      if (input.flexWrap) node.style.flexWrap = input.flexWrap
+      if (input.flex) node.style.flex = input.flex
+      if (input.textTransform) node.style.textTransform = input.textTransform
+      if (input.textAlign) node.style.textAlign = input.textAlign
+      if (input.borderRadius) node.style.borderRadius = input.borderRadius
+      if (input.alignSelf) node.style.alignSelf = input.alignSelf
     }
   }
 
