@@ -101,6 +101,140 @@ export class Helper {
 
     }
 
+    if (event === "numerology") {
+
+      const birthdateField = document.querySelector("#birthdate")
+      this.convert("dark-light", birthdateField)
+      const birthdateInput = birthdateField.querySelector(".field-input")
+      this.add("outline-hover", birthdateInput)
+      const birthnameField = document.querySelector("#birthname")
+      this.convert("dark-light", birthnameField)
+      const birthnameLabelContainer = birthnameField.querySelector(".field-label-container")
+      this.add("outline-hover", birthnameLabelContainer)
+      birthnameLabelContainer.onclick = () => {
+        this.overlay("info", overlay => {
+          const content = this.create("div/scrollable", overlay)
+          this.style(content, {fontSize: "21px", fontFamily: "sans-serif", margin: "21px 34px", lineHeight: "1.5"})
+          content.textContent = "Die Genauigkeit deines Geburtsnamens hängt davon ab, ob die Zeichen exakt denen auf deiner Geburtsurkunde entsprechen. Es ist daher wichtig, die korrekten Zeichen zu verwenden. Beachte bitte, dass die Verwendung von veränderten Namen oder Zeichen, durch Heirat oder andere Umstände, die Genauigkeit der Berechnung beeinträchtigen kann. Im Moment werden folgende Zeichen, für die Berechnung des Geburtsnamens, unterstützt:"
+          const ul = document.createElement("ul")
+          content.appendChild(ul)
+          const languages = ["Lateinisch", "Griechisch", "Russisch"]
+          for (let i = 0; i < languages.length; i++) {
+            const language = languages[i]
+            const li = document.createElement("li")
+            li.textContent = language
+            ul.appendChild(li)
+          }
+        })
+      }
+
+      const birthnameInput = birthnameField.querySelector(".field-input")
+      this.add("outline-hover", birthnameInput)
+
+      this.request("/verify/user/closed/").then(async res => {
+        if (res.status === 200) {
+          const birthnameTree = "numerologie.birthname"
+          const birthdateTree = "numerologie.birthdate"
+          res = await this.request("/get/user/trees-closed/", {trees: [birthnameTree, birthdateTree]})
+          if (res.status === 200) {
+            const data = JSON.parse(res.response)
+            birthnameInput.value = data[birthnameTree]
+            birthdateInput.value = data[birthdateTree].split("T")[0]
+          }
+        } else {
+          const toLogin = this.render("text/link", "Möchtest du die Geheimnisse deiner Numerologie mit anderen wahren Suchenden teilen?")
+          this.style(toLogin, {margin: "21px 34px", textAlign: "center", lineHeight: "1.5", letterSpacing: "2px"})
+          toLogin.onclick = () => window.location.assign("/entwicklung/numerologie/login/")
+          this.convert("node/dark-light-toggle", toLogin)
+          submit.after(toLogin)
+        }
+      })
+
+      const submit = document.querySelector(".submit-numerology")
+      this.add("outline-hover", submit)
+      submit.onclick = () => {
+
+        const birthdateField = document.querySelector("#birthdate")
+        const birthdateInput = birthdateField.querySelector(".field-input")
+        const birthdateValue = birthdateInput.value
+        const birthnameField = document.querySelector("#birthname")
+        const birthnameInput = birthnameField.querySelector(".field-input")
+        const birthnameValue = birthnameInput.value
+
+        const numerology = this.fn("numerology")
+
+        if (this.verifyIs("text/empty", birthdateValue)) {
+          window.alert("Du hast vergessen dein Geburtsdatum einzugeben.")
+          this.add("style/node/not-valid", birthdateInput)
+          return
+        } else {
+          this.add("style/node/valid", birthdateInput)
+        }
+
+        if (this.verifyIs("text/empty", birthnameValue)) {
+          window.alert("Du hast vergessen deinen Geburtsnamen einzugeben.")
+          this.add("style/node/not-valid", birthnameInput)
+          return
+        } else {
+          this.add("style/node/valid", birthnameInput)
+        }
+
+        this.overlay("popup", async numerologyOverlay => {
+          const date = new Date(birthdateValue)
+          const content = this.create("div/scrollable", numerologyOverlay)
+          this.render("text/h1", `Numerologie von ${birthnameValue}`, content)
+          numerology.renderAge(date, content)
+          numerology.renderLifePath(date, content)
+          numerology.renderMaster(date, content)
+          numerology.renderBirthDayEnergy(date, content)
+          numerology.renderPrevailingEnergies(date, content)
+          numerology.renderRecedingEnergies(date, content)
+          numerology.renderTones(date, content)
+          numerology.renderFirstCycle(date, content)
+          numerology.renderFirstKeyTone(date, content)
+          numerology.renderSecondCycle(date, content)
+          numerology.renderSecondKeyTone(date, content)
+          numerology.renderThirdCycle(date, content)
+          numerology.renderThirdKeyTone(date, content)
+          numerology.renderFourthCycle(date, content)
+          numerology.renderFourthKeyTone(date, content)
+          numerology.renderBirthNameEnergies(birthnameValue, content)
+          numerology.renderDeterminationEnergy(birthnameValue, content)
+          numerology.renderHeartsDesire(birthnameValue, content)
+          numerology.renderPersona(birthnameValue, content)
+          numerology.renderDoubleLetterEnergies(birthnameValue, content)
+          numerology.renderPhysicalLevel(birthnameValue, content)
+          numerology.renderEmotionalLevel(birthnameValue, content)
+          numerology.renderMentalLevel(birthnameValue, content)
+          numerology.renderIntuitiveLevel(birthnameValue, content)
+
+          const res = await this.request("/verify/user/closed/")
+          if (res.status === 200) {
+            const toSave = this.render("text/link", "Möchtest du deine Daten speichern?", numerologyOverlay)
+            this.style(toSave, {padding: "13px 89px", margin: "21px 34px", textAlign: "center", lineHeight: "1.5", letterSpacing: "2px"})
+            toSave.onclick = () => {
+              this.overlay("security", async securityOverlay => {
+                const res = await this.request("/register/location/map-self/", {map: {birthname: birthnameValue, birthdate: new Date(birthdateValue).toISOString()}})
+                if (res.status === 200) {
+                  window.alert("Deine Daten wurden erfolgreich gespeichert.")
+                } else {
+                  window.alert("Fehler.. Bitte wiederholen.")
+                }
+                securityOverlay.remove()
+              })
+            }
+          } else {
+            const toLogin = this.render("text/link", "Möchtest du die Geheimnisse deiner Numerologie mit anderen wahren Suchenden teilen?", numerologyOverlay)
+            this.style(toLogin, {padding: "13px 89px", margin: "21px 34px", textAlign: "center", lineHeight: "1.5", letterSpacing: "2px"})
+            toLogin.onclick = () => window.location.assign("/entwicklung/numerologie/login/")
+          }
+
+        })
+
+      }
+
+    }
+
     if (event === "oninput/verify-positive-integer") {
 
       input.addEventListener("input", () => {
@@ -884,9 +1018,9 @@ export class Helper {
 
     }
 
-    if (event === "event/location-list-funnel") {
+    if (event === "location-list-funnel") {
 
-      const button = document.getElementById(`${input.tag}-mirror-button`)
+      const button = document.getElementById(`${input.tag}-location-list-button`)
 
       if (button !== null) {
         button.onclick = () => {
@@ -941,7 +1075,7 @@ export class Helper {
                         }
                         if (res.status !== 200) {
                           this.convert("parent/info", locationList)
-                          locationList.textContent = `Keine ${this.comvert("text/capital-first-letter", input.tag)} gefunden`
+                          locationList.textContent = `Keine ${this.convert("text/capital-first-letter", input.tag)} gefunden`
                         }
                         securityOverlay.remove()
                       }
@@ -2436,9 +2570,8 @@ export class Helper {
                               button.left.textContent = ".character"
                               button.right.textContent = "Erfahre mehr über deinen Kontakt"
                               button.onclick = () => {
-                                // create fn functions and reuse it here
-                                // but first create the platform dynamically and look how you can reuse this
-                                // maybe in toolbox
+                                const numerology = Helper.fn("numerology")
+
                                 Helper.overlay("popup", overlay => {
                                   Helper.create("header/info", overlay).textContent = contact.email
                                   const funnel = Helper.create("div", overlay)
@@ -2480,673 +2613,42 @@ export class Helper {
                                   }
 
                                   if (!Helper.verifyIs("text/empty", birthday)) {
-                                    const numerology = Helper.create("div/scrollable", overlay)
+                                    const content = Helper.create("div/scrollable", overlay)
 
                                     if (contact.alias) {
-                                      Helper.render("text/hr", `Numerologie von ${contact.alias}`, numerology)
+                                      Helper.render("text/hr", `Numerologie von ${contact.alias}`, content)
                                     } else {
-                                      Helper.render("text/hr", `Numerologie von ${contact.email}`, numerology)
+                                      Helper.render("text/hr", `Numerologie von ${contact.email}`, content)
                                     }
 
-                                    function splitYear(year) {
-                                      const yearString = year.toString()
-                                      const firstPart = yearString.substring(0, 2)
-                                      const secondPart = yearString.substring(2)
-                                      return [firstPart, secondPart]
-                                    }
+                                    const date = new Date(birthday)
 
-                                    function dateToLifePath(date) {
-                                      const digits = [...date.toString()].map(digit => parseInt(digit))
-                                      let sum = 0
-                                      for (let i = 0; i < digits.length; i++) {
-                                        const digit = digits[i]
-                                        if (Helper.verifyIs("number/empty", digit)) continue
-                                        sum += digit
-                                      }
-                                      while (sum > 9) {
-                                        sum = [...sum.toString()].reduce((acc, digit) => acc + parseInt(digit), 0)
-                                      }
-                                      return sum
-                                    }
-
-                                    function dateToMaster(date) {
-                                      const digits = [...date.toString()].map(digit => parseInt(digit, 10)).filter(Number.isFinite)
-                                      let sum = digits.reduce((acc, digit) => acc + digit, 0)
-                                      let prevSum = sum
-                                      const seenSums = new Set()
-                                      while (![11, 22, 33].includes(sum) && ![0, 1, 4, 6, 7, 9].includes(sum) && !seenSums.has(sum)) {
-                                        seenSums.add(sum)
-                                        prevSum = sum
-                                        sum = [...sum.toString()].map(digit => parseInt(digit, 10)).reduce((acc, digit) => acc + digit, 0)
-                                        if (![11, 22, 33].includes(sum) && ![0, 1, 4, 6, 7, 9].includes(sum)) {
-                                          break
-                                        }
-                                      }
-                                      return ![11, 22, 33].includes(sum) ? prevSum : sum
-                                    }
-
-                                    const date = birthday.split("T")[0]
-                                    const dateObj = new Date(birthday)
-                                    const day = dateObj.getDate()
-                                    const sumDay = reduceToSingleDigit(day)
-                                    const month = dateObj.getMonth() + 1
-                                    const sumMonth = reduceToSingleDigit(month)
-                                    const year = dateObj.getFullYear()
-                                    const [yearFirstPart, yearSecondPart] = splitYear(year)
-                                    const sumYearFirstPart = reduceToSingleDigit(Number(yearFirstPart))
-                                    const sumYearSecondPart = reduceToSingleDigit(Number(yearSecondPart))
-                                    const master = dateToMaster(date)
-                                    const lifePathNumber = dateToLifePath(date)
-
-                                    function renderDiv(node) {
-                                      const div = document.createElement("div")
-                                      Helper.style(div, {margin: "21px 34px", fontFamily: "sans-serif"})
-                                      node.appendChild(div)
-                                      return div
-                                    }
-
-                                    function renderTitleSpan(text, node) {
-                                      const span = document.createElement("span")
-                                      span.textContent = text
-                                      span.style.fontSize = "21px"
-                                      Helper.convert("text/dark-light", span)
-                                      node.appendChild(span)
-                                      return span
-                                    }
-
-                                    function renderLifePathCalculation(date) {
-                                      const digits = [...date.toString()].map(digit => parseInt(digit))
-                                      let text
-                                      for (let i = 0; i < digits.length; i++) {
-                                        const digit = digits[i]
-                                        if (Helper.verifyIs("number/empty", digit)) continue
-                                        if (text === undefined) {
-                                          text = digit
-                                        } else {
-                                          text = text + " + " + digit
-                                        }
-                                      }
-                                      return text
-                                    }
-
-                                    function renderEqualsSign(node) {
-                                      const equalsSign = renderTitleSpan("=", node)
-                                      equalsSign.style.margin = "0 5px"
-                                      return equalsSign
-                                    }
-
-                                    function renderHighlightedSpan(text, node) {
-                                      const span = document.createElement("span")
-                                      span.style.fontSize = "34px"
-                                      span.style.margin = "0 8px"
-                                      span.textContent = text
-                                      Helper.convert("text/dark-light", span)
-                                      node.appendChild(span)
-                                      return span
-                                    }
-
-                                    function openLifePath(lifePath) {
-                                      const url = `/entwicklung/numerologie/geburtsenergie-${numbersAsText[lifePath - 1]}/`
-                                      window.open(url, "_blank")
-                                    }
-
-                                    function renderTitle(title, node) {
-                                      const titleNode = renderTitleSpan(`${title}:`, node)
-                                      Helper.add("outline-hover", titleNode)
-                                      const tag = title.toLowerCase().replaceAll(" ", "-").replaceAll("ü", "ue").replaceAll("ö", "oe").replaceAll("ä", "ae").replaceAll("1.", "ersten").replaceAll("2.", "zweiten").replaceAll("3.", "dritten").replaceAll("4.", "vierten")
-                                      titleNode.onclick = () => window.open(`/entwicklung/numerologie/${tag}/`, "_blank")
-                                      return titleNode
-                                    }
-
-                                    function calculateAge(date) {
-                                      const currentDate = new Date()
-                                      let age = currentDate.getFullYear() - date.getFullYear()
-                                      const currentMonth = currentDate.getMonth()
-                                      const birthMonth = date.getMonth()
-                                      if (currentMonth < birthMonth || (currentMonth === birthMonth && currentDate.getDate() < date.getDate())) {
-                                        age--
-                                      }
-                                      return age
-                                    }
-
-                                    const age = calculateAge(dateObj)
-                                    const ageDiv = renderDiv(numerology)
-                                    renderTitleSpan("Alter:", ageDiv)
-                                    renderHighlightedSpan(age, ageDiv)
-
-                                    const lifePathDiv = renderDiv(numerology)
-                                    renderTitle("Geburtsenergie", lifePathDiv)
-                                    const lifePathCalc = renderTitleSpan(renderLifePathCalculation(date), lifePathDiv)
-                                    lifePathCalc.style.margin = "0 5px"
-                                    renderEqualsSign(lifePathDiv)
-                                    const masterCalc = renderTitleSpan(master.toString().split('').join(' + '), lifePathDiv)
-                                    masterCalc.style.margin = "0 5px"
-                                    renderEqualsSign(lifePathDiv)
-                                    const lifePathResult = renderHighlightedSpan(lifePathNumber, lifePathDiv)
-                                    Helper.add("outline-hover", lifePathResult)
-                                    lifePathResult.onclick = () => openLifePath(lifePathResult.textContent)
-
-                                    if (master === 11 || master === 22 || master === 33) {
-                                      const masterDiv = renderDiv(numerology)
-                                      renderTitle("Masterenergie", masterDiv)
-                                      const masterResult = renderHighlightedSpan(master, masterDiv)
-                                      Helper.add("outline-hover", masterResult)
-                                      masterResult.onclick = () => {
-                                        if (master === 11) window.open("/entwicklung/numerologie/masterenergie-elf", "_blank")
-                                        if (master === 22) window.open("/entwicklung/numerologie/masterenergie-zwei-und-zwanzig", "_blank")
-                                        if (master === 33) window.open("/entwicklung/numerologie/masterenergie-drei-und-dreisig", "_blank")
-                                      }
-                                    }
-
-                                    const dateNumbers = date.match(/\d/g).map(Number)
-                                    dateNumbers.push(lifePathNumber)
-                                    dateNumbers.push(sumDay)
-                                    dateNumbers.push(sumMonth)
-                                    dateNumbers.push(sumYearFirstPart)
-                                    dateNumbers.push(sumYearSecondPart)
-
-                                    const sumDayAndMonth = reduceToSingleDigit(sumDay + sumMonth)
-                                    dateNumbers.push(sumDayAndMonth)
-                                    const sumYear = reduceToSingleDigit(sumYearFirstPart + sumYearSecondPart)
-                                    dateNumbers.push(sumYear)
-
-                                    function occurrencesAsString(array, note) {
-                                      const occurrences = countOccurrences(array)
-                                      let result = ''
-                                      for (const number in occurrences) {
-                                        if (number === "0") continue
-                                        if (occurrences[number] >= note) {
-                                          result += `${occurrences[number]}x${number}, `
-                                        }
-                                      }
-                                      result = result.slice(0, -2)
-                                      return result
-                                    }
-
-                                    function countOccurrences(array) {
-                                      const occurrences = {}
-                                      array.forEach(number => {
-                                        occurrences[number] = (occurrences[number] || 0) + 1
-                                      })
-                                      return occurrences
-                                    }
-
-                                    function reduceToSingleDigit(number) {
-                                      let result = number
-                                      while (result >= 10) {
-                                        result = sumDigits(result)
-                                      }
-                                      return result
-                                    }
-
-                                    function sumDigits(number) {
-                                      const digits = getDigits(number)
-                                      const sum = digits.reduce((accumulator, currentValue) => accumulator + currentValue, 0)
-                                      return sum
-                                    }
-
-                                    function getDigits(number) {
-                                      const numberString = Math.abs(number).toString()
-                                      return Array.from(numberString, Number)
-                                    }
-
-                                    function openBirthdayEnergy(energy) {
-                                      const url = `/entwicklung/numerologie/geburtstagsenergie-${numbersAsText[energy - 1]}/`
-                                      window.open(url, "_blank")
-                                    }
-
-                                    const birthdayEnergyNumber = reduceToSingleDigit(sumDigits(day) + day)
-                                    const birthdayEnergyDiv = renderDiv(numerology)
-                                    renderTitle("Geburtstagsenergie", birthdayEnergyDiv)
-                                    const birthdayEnergyResult = renderHighlightedSpan(birthdayEnergyNumber, birthdayEnergyDiv)
-                                    Helper.add("outline-hover", birthdayEnergyResult)
-                                    birthdayEnergyResult.onclick = () => openBirthdayEnergy(birthdayEnergyResult.textContent)
-
-                                    function openPrevailingEnergy(energy) {
-                                      const url = `/entwicklung/numerologie/vorherschende-energie-${numbersAsText[energy - 1]}/`
-                                      window.open(url, "_blank")
-                                    }
-
-                                    function renderPrevailingEnergies(data, node) {
-                                      const fragment = document.createDocumentFragment()
-                                      const keys = Object.keys(data)
-                                      for (let i = 0; i < keys.length; i++) {
-                                        const key = keys[i]
-                                        if (key === "0") continue
-                                        if (data[key] >= 2) {
-                                          const div = document.createElement("div")
-                                          div.style.display = "inline-block"
-                                          div.style.margin = "0 5px"
-                                          Helper.convert("text/dark-light", div)
-                                          Helper.add("outline-hover", div)
-                                          div.onclick = () => openPrevailingEnergy(key)
-                                          fragment.appendChild(div)
-                                          const span1 = document.createElement("span")
-                                          span1.textContent = `${data[key]}x`
-                                          span1.style.fontSize = "21px"
-                                          div.appendChild(span1)
-                                          const span2 = document.createElement("span")
-                                          span2.textContent = `${key},`
-                                          span2.style.fontSize = "34px"
-                                          div.appendChild(span2)
-                                        }
-                                      }
-                                      node.appendChild(fragment)
-                                      return node
-                                    }
-
-                                    const pervailingEnergyDiv = renderDiv(numerology)
-                                    renderTitle("Vorherschende Energien", pervailingEnergyDiv)
-                                    renderPrevailingEnergies(countOccurrences(dateNumbers), pervailingEnergyDiv)
-
-                                    function openRecedingEnergy(energy) {
-                                      const url = `/entwicklung/numerologie/zuruecktretende-energie-${numbersAsText[energy - 1]}/`
-                                      window.open(url, "_blank")
-                                    }
-
-                                    function renderRecedingEnergy(array, node) {
-                                      const fragment = document.createDocumentFragment()
-                                      for (let i = 0; i < array.length; i++) {
-                                        const number = array[i]
-                                        const div = document.createElement("div")
-                                        div.textContent = `${number}${i === array.length - 1 ? "" : ","}`
-                                        div.style.display = "inline-block"
-                                        div.style.margin = "0 5px"
-                                        div.style.fontSize = "34px"
-                                        Helper.convert("text/dark-light", div)
-                                        Helper.add("outline-hover", div)
-                                        div.onclick = () => openRecedingEnergy(number)
-                                        fragment.appendChild(div)
-                                      }
-                                      node.appendChild(fragment)
-                                      return node
-                                    }
-
-                                    const missingNumbers = [];
-                                    for (let i = 1; i <= 9; i++) {
-                                      if (!dateNumbers.includes(i)) {
-                                        missingNumbers.push(i)
-                                      }
-                                    }
-                                    if (missingNumbers.length > 0) {
-                                      const recedingEnergyDiv = renderDiv(numerology)
-                                      renderTitle("Zurücktretende Energien", recedingEnergyDiv)
-                                      renderRecedingEnergy(missingNumbers, recedingEnergyDiv)
-                                    }
-
-                                    const numbersAsText = ['eins', 'zwei', 'drei', 'vier', 'fuenf', 'sechs', 'sieben', 'acht', 'neun']
-                                    function openTones(tone, occurency) {
-                                      const occurencies = ['ein-mal', 'zwei-mal', 'drei-mal', 'vier-mal', 'fuenf-mal', 'sechs-mal', 'sieben-mal', 'acht-mal', 'neun-mal']
-                                      const url = `/entwicklung/numerologie/tonarten-${occurencies[occurency - 1]}-${numbersAsText[tone - 1]}/`
-                                      window.open(url, "_blank")
-                                    }
-
-                                    function renderTones(array, node) {
-                                      const data = countOccurrences(array)
-                                      const fragment = document.createDocumentFragment()
-                                      const keys = Object.keys(data)
-                                      for (let i = 0; i < keys.length; i++) {
-                                        const key = keys[i]
-                                        if (key === "0") continue
-                                        if (data[key] >= 1) {
-                                          const div = document.createElement("div")
-                                          div.style.display = "inline-block"
-                                          div.style.margin = "0 5px"
-                                          Helper.convert("text/dark-light", div)
-                                          Helper.add("outline-hover", div)
-                                          div.onclick = () => openTones(key, data[key])
-                                          fragment.appendChild(div)
-                                          const span1 = document.createElement("span")
-                                          span1.textContent = `${data[key]}x`
-                                          span1.style.fontSize = "21px"
-                                          div.appendChild(span1)
-                                          const span2 = document.createElement("span")
-                                          span2.textContent = `${key},`
-                                          span2.style.fontSize = "34px"
-                                          div.appendChild(span2)
-                                        }
-                                      }
-                                      node.appendChild(fragment)
-                                      return node
-                                    }
-
-                                    const tonesDiv = renderDiv(numerology)
-                                    renderTitle("Tonarten", tonesDiv)
-                                    renderTones(dateNumbers, tonesDiv)
-
-
-
-                                    const firstCycleDiv = renderDiv(numerology)
-                                    renderTitle("Dauer des 1. Zyklus", firstCycleDiv)
-                                    const firstCycle = 36 - lifePathNumber
-                                    const firstCycleResult = renderHighlightedSpan(`0 - ${firstCycle}`, firstCycleDiv)
-                                    Helper.add("outline-hover", firstCycleResult)
-                                    firstCycleResult.onclick = () => window.open("/entwicklung/numerologie/erster-zyklus/", "_blank")
-
-                                    function openTone(tone) {
-                                      const url = `/entwicklung/numerologie/grundton-${numbersAsText[tone - 1]}/`
-                                      window.open(url, "_blank")
-                                    }
-
-                                    const firstKeyTone = sumDayAndMonth
-                                    const firstKeyToneDiv = renderDiv(numerology)
-                                    renderTitle("Grundton zum 1. Zyklus", firstKeyToneDiv)
-                                    const firstKeyToneResult = renderHighlightedSpan(firstKeyTone, firstKeyToneDiv)
-                                    Helper.add("outline-hover", firstKeyToneResult)
-                                    firstKeyToneResult.onclick = () => openTone(firstKeyTone)
-
-                                    const secondCycle = firstCycle + 1 + 9
-                                    const secondCycleDiv = renderDiv(numerology)
-                                    renderTitle("Dauer des 2. Zyklus", secondCycleDiv)
-                                    const secondCycleResult = renderHighlightedSpan(`${firstCycle + 1} - ${secondCycle}`, secondCycleDiv)
-                                    Helper.add("outline-hover", secondCycleResult)
-                                    secondCycleResult.onclick = () => window.open("/entwicklung/numerologie/zweiter-zyklus/", "_blank")
-
-                                    const secondKeyTone = reduceToSingleDigit(sumDay + sumYear)
-                                    const secondKeyToneDiv = renderDiv(numerology)
-                                    renderTitle("Grundton zum 2. Zyklus", secondKeyToneDiv)
-                                    const secondKeyToneResult = renderHighlightedSpan(secondKeyTone, secondKeyToneDiv)
-                                    Helper.add("outline-hover", secondKeyToneResult)
-                                    secondKeyToneResult.onclick = () => openTone(secondKeyTone)
-
-                                    const thirdCycle = secondCycle + 1 + 9
-                                    const thirdCycleDiv = renderDiv(numerology)
-                                    renderTitle("Dauer des 3. Zyklus", thirdCycleDiv)
-                                    const thirdCycleResult = renderHighlightedSpan(`${secondCycle + 1} - ${thirdCycle}`, thirdCycleDiv)
-                                    Helper.add("outline-hover", thirdCycleResult)
-                                    thirdCycleResult.onclick = () => window.open("/entwicklung/numerologie/dritter-zyklus/", "_blank")
-
-                                    const thirdKeyTone = reduceToSingleDigit(firstKeyTone + secondKeyTone)
-                                    const thirdKeyToneDiv = renderDiv(numerology)
-                                    renderTitle("Grundton zum 3. Zyklus", thirdKeyToneDiv)
-                                    const thirdKeyToneResult = renderHighlightedSpan(thirdKeyTone, thirdKeyToneDiv)
-                                    Helper.add("outline-hover", thirdKeyToneResult)
-                                    thirdKeyToneResult.onclick = () => openTone(thirdKeyTone)
-
-                                    const fourthCycle = thirdCycle + 1 + 9
-                                    const fourthCycleDiv = renderDiv(numerology)
-                                    renderTitle("Dauer des 4. Zyklus", fourthCycleDiv)
-                                    const fourthCycleResult = renderHighlightedSpan(`${thirdCycle + 1} - ${fourthCycle}`, fourthCycleDiv)
-                                    Helper.add("outline-hover", fourthCycleResult)
-                                    fourthCycleResult.onclick = () => window.open("/entwicklung/numerologie/vierter-zyklus/", "_blank")
-
-                                    const fourthKeyTone = reduceToSingleDigit(sumMonth + sumYear)
-                                    const fourthKeyToneDiv = renderDiv(numerology)
-                                    renderTitle("Grundton zum 4. Zyklus", fourthKeyToneDiv)
-                                    const fourthKeyToneResult = renderHighlightedSpan(fourthKeyTone, fourthKeyToneDiv)
-                                    Helper.add("outline-hover", fourthKeyToneResult)
-                                    fourthKeyToneResult.onclick = () => openTone(fourthKeyTone)
-
-                                    const alphabetMap = {
-                                      'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5,
-                                      'f': 6, 'g': 7, 'h': 8, 'i': 9, 'j': 1,
-                                      'k': 2, 'l': 3, 'm': 4, 'n': 5, 'o': 6,
-                                      'p': 7, 'q': 8, 'r': 9, 's': 1, 't': 2,
-                                      'u': 3, 'v': 4, 'w': 5, 'x': 6, 'y': 7,
-                                      'z': 8
-                                    }
-                                    const consonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z']
-                                    const vowels = ['a', 'e', 'i', 'o', 'u', 'y']
-
-                                    function reduceStringToSingleDigit(str) {
-                                      let sum = 0
-                                      for (let i = 0; i < str.length; i++) {
-                                        const char = str[i].toLowerCase()
-                                        if (alphabetMap.hasOwnProperty(char)) {
-                                          sum += alphabetMap[char]
-                                        }
-                                      }
-                                      while (sum >= 10) {
-                                        const digits = String(sum).split("").map(Number)
-                                        sum = digits.reduce((acc, val) => acc + val, 0)
-                                      }
-                                      return sum
-                                    }
-
-                                    function reduceVowelsToSingleDigit(str) {
-                                      let sum = 0
-                                      for (let i = 0; i < str.length; i++) {
-                                        if (vowels.includes(str[i].toLowerCase())) {
-                                          sum += alphabetMap[str[i].toLowerCase()] || 0
-                                        }
-                                      }
-                                      while (sum >= 10) {
-                                        const digits = String(sum).split("").map(Number)
-                                        sum = digits.reduce((acc, val) => acc + val, 0)
-                                      }
-                                      return sum
-                                    }
-
-                                    function reduceConsonantsToSingleDigit(str) {
-                                      let sum = 0
-                                      for (let i = 0; i < str.length; i++) {
-                                        if (consonants.includes(str[i].toLowerCase())) {
-                                          sum += alphabetMap[str[i].toLowerCase()] || 0
-                                        }
-                                      }
-                                      while (sum >= 10) {
-                                        const digits = String(sum).split("").map(Number)
-                                        sum = digits.reduce((acc, val) => acc + val, 0)
-                                      }
-                                      return sum
-                                    }
+                                    numerology.renderAge(date, content)
+                                    numerology.renderLifePath(date, content)
+                                    numerology.renderMaster(date, content)
+                                    numerology.renderBirthDayEnergy(date, content)
+                                    numerology.renderPrevailingEnergies(date, content)
+                                    numerology.renderRecedingEnergies(date, content)
+                                    numerology.renderTones(date, content)
+                                    numerology.renderFirstCycle(date, content)
+                                    numerology.renderFirstKeyTone(date, content)
+                                    numerology.renderSecondCycle(date, content)
+                                    numerology.renderSecondKeyTone(date, content)
+                                    numerology.renderThirdCycle(date, content)
+                                    numerology.renderThirdKeyTone(date, content)
+                                    numerology.renderFourthCycle(date, content)
+                                    numerology.renderFourthKeyTone(date, content)
 
                                     if (contact.alias) {
-                                      const splitAlias = contact.alias.split(" ")
-                                      const birthNameSums = []
-                                      for (let i = 0; i < splitAlias.length; i++) {
-                                        const alias = splitAlias[i]
-                                        let sum = 0
-                                        for (let i = 0; i < alias.length; i++) {
-                                          const char = alias[i]
-                                          sum += alphabetMap[char.toLowerCase()] || 0
-                                        }
-                                        birthNameSums.push(sum)
-                                      }
-
-                                      function openBirthNameEnergy(energy) {
-                                        const url = `/entwicklung/numerologie/geburtsname-${numbersAsText[energy - 1]}/`
-                                        window.open(url, "_blank")
-                                      }
-
-                                      function renderBirthNameEnergy(array, node) {
-                                        const fragment = document.createDocumentFragment()
-                                        for (let i = 0; i < array.length; i++) {
-                                          const number = array[i]
-                                          const div = document.createElement("div")
-                                          div.textContent = `${number}${i === array.length - 1 ? "" : ","}`
-                                          div.style.display = "inline-block"
-                                          div.style.margin = "0 5px"
-                                          div.style.fontSize = "34px"
-                                          Helper.convert("text/dark-light", div)
-                                          Helper.add("outline-hover", div)
-                                          div.onclick = () => openBirthNameEnergy(number)
-                                          fragment.appendChild(div)
-                                        }
-                                        node.appendChild(fragment)
-                                        return node
-                                      }
-
-                                      const birthNameNumbers = birthNameSums.map(it => reduceToSingleDigit(it))
-                                      const birthNameDiv = renderDiv(numerology)
-                                      renderTitle("Geburtsname", birthNameDiv)
-                                      renderBirthNameEnergy(birthNameNumbers, birthNameDiv)
-
-                                      function openDetermination(energy) {
-                                        const url = `/entwicklung/numerologie/bestimmung-${numbersAsText[energy - 1]}/`
-                                        window.open(url, "_blank")
-                                      }
-
-                                      const determinationNumber = reduceStringToSingleDigit(contact.alias)
-                                      const determinationDiv = renderDiv(numerology)
-                                      renderTitle("Bestimmung", determinationDiv)
-                                      const determinationResult = renderHighlightedSpan(determinationNumber, determinationDiv)
-                                      Helper.add("outline-hover", determinationResult)
-                                      determinationResult.onclick = () => openDetermination(determinationNumber)
-
-                                      function openHeartsDesire(energy) {
-                                        const url = `/entwicklung/numerologie/herzenswunsch-${numbersAsText[energy - 1]}/`
-                                        window.open(url, "_blank")
-                                      }
-
-                                      const heartsDesire = reduceVowelsToSingleDigit(contact.alias)
-                                      const heartsDesireDiv = renderDiv(numerology)
-                                      renderTitle("Herzenswunsch", heartsDesireDiv)
-                                      const heartsDesireResult = renderHighlightedSpan(heartsDesire, heartsDesireDiv)
-                                      Helper.add("outline-hover", heartsDesireResult)
-                                      heartsDesireResult.onclick = () => openHeartsDesire(heartsDesire)
-
-                                      function openPersona(energy) {
-                                        const url = `/entwicklung/numerologie/persona-${numbersAsText[energy - 1]}/`
-                                        window.open(url, "_blank")
-                                      }
-
-                                      const persona = reduceConsonantsToSingleDigit(contact.alias)
-                                      const personaDiv = renderDiv(numerology)
-                                      renderTitle("Persona", personaDiv)
-                                      const personaResult = renderHighlightedSpan(persona, personaDiv)
-                                      Helper.add("outline-hover", personaResult)
-                                      personaResult.onclick = () => openPersona(persona)
-
-                                      function findDoubleLetters(str) {
-                                        const result = []
-                                        for (let i = 1; i < str.length; i++) {
-                                          const currentChar = str[i].toLowerCase()
-                                          const previousChar = str[i - 1].toLowerCase()
-                                          if (currentChar === previousChar) {
-                                            result.push(alphabetMap[currentChar])
-                                          }
-                                        }
-                                        return result
-                                      }
-
-                                      function openDoubleLetters(energy) {
-                                        const url = `/entwicklung/numerologie/doppelte-buchstaben-${numbersAsText[energy - 1]}/`
-                                        window.open(url, "_blank")
-                                      }
-
-                                      function renderDoubleLetters(array, node) {
-                                        const fragment = document.createDocumentFragment()
-                                        for (let i = 0; i < array.length; i++) {
-                                          const number = array[i]
-                                          const div = document.createElement("div")
-                                          div.textContent = `${number}${i === array.length - 1 ? "" : ","}`
-                                          div.style.display = "inline-block"
-                                          div.style.margin = "0 5px"
-                                          div.style.fontSize = "34px"
-                                          Helper.convert("text/dark-light", div)
-                                          Helper.add("outline-hover", div)
-                                          div.onclick = () => openDoubleLetters(number)
-                                          fragment.appendChild(div)
-                                        }
-                                        node.appendChild(fragment)
-                                        return node
-                                      }
-
-                                      const doubleLetters = findDoubleLetters(contact.alias)
-                                      if (doubleLetters.length > 0) {
-                                        const doubleLettersDiv = renderDiv(numerology)
-                                        renderTitle("Doppelte Buchstaben", doubleLettersDiv)
-                                        renderDoubleLetters(doubleLetters, doubleLettersDiv)
-                                      }
-
-                                      function countFourAndFive(str) {
-                                        let count = 0
-                                        for (let i = 0; i < str.length; i++) {
-                                          const char = str[i].toLowerCase()
-                                          const value = alphabetMap[char]
-                                          if (value === 4 || value === 5) {
-                                            count++
-                                          }
-                                        }
-                                        return count
-                                      }
-
-                                      function countTwoThreeAndSix(str) {
-                                        let count = 0
-                                        for (let i = 0; i < str.length; i++) {
-                                          const char = str[i].toLowerCase()
-                                          const value = alphabetMap[char]
-                                          if (value === 2 || value === 3 || value === 6) {
-                                            count++
-                                          }
-                                        }
-                                        return count
-                                      }
-
-                                      function countOneAndEight(str) {
-                                        let count = 0
-                                        for (let i = 0; i < str.length; i++) {
-                                          const char = str[i].toLowerCase()
-                                          const value = alphabetMap[char]
-                                          if (value === 1 || value === 8) {
-                                            count++
-                                          }
-                                        }
-                                        return count
-                                      }
-
-                                      function countSevenAndNine(str) {
-                                        let count = 0
-                                        for (let i = 0; i < str.length; i++) {
-                                          const char = str[i].toLowerCase()
-                                          const value = alphabetMap[char]
-                                          if (value === 7 || value === 9) {
-                                            count++
-                                          }
-                                        }
-                                        return count
-                                      }
-
-                                      function openPhysicalLevel(energy) {
-                                        const url = `/entwicklung/numerologie/koerperliche-ebene-${numbersAsText[energy - 1]}/`
-                                        window.open(url, "_blank")
-                                      }
-
-                                      function openEmotionalLevel(energy) {
-                                        const url = `/entwicklung/numerologie/emotionale-ebene-${numbersAsText[energy - 1]}/`
-                                        window.open(url, "_blank")
-                                      }
-
-                                      function openMentalLevel(energy) {
-                                        const url = `/entwicklung/numerologie/mental-ebene-${numbersAsText[energy - 1]}/`
-                                        window.open(url, "_blank")
-                                      }
-
-                                      function openIntuitiveLevel(energy) {
-                                        const url = `/entwicklung/numerologie/intuitive-ebene-${numbersAsText[energy - 1]}/`
-                                        window.open(url, "_blank")
-                                      }
-
-                                      const physicalLevel = countFourAndFive(contact.alias)
-                                      const physicalLevelDiv = renderDiv(numerology)
-                                      renderTitle("Körperliche Ebene", physicalLevelDiv)
-                                      const physicalLevelResult = renderHighlightedSpan(physicalLevel, physicalLevelDiv)
-                                      Helper.add("outline-hover", physicalLevelResult)
-                                      physicalLevelResult.onclick = () => openPhysicalLevel(physicalLevel)
-
-                                      const emotionalLevel = countTwoThreeAndSix(contact.alias)
-                                      const emotionalLevelDiv = renderDiv(numerology)
-                                      renderTitle("Emotionale Ebene", emotionalLevelDiv)
-                                      const emotionalLevelResult = renderHighlightedSpan(emotionalLevel, emotionalLevelDiv)
-                                      Helper.add("outline-hover", emotionalLevelResult)
-                                      emotionalLevelResult.onclick = () => openEmotionalLevel(emotionalLevel)
-
-                                      const mentalLevel = countOneAndEight(contact.alias)
-                                      const mentalLevelDiv = renderDiv(numerology)
-                                      renderTitle("Mentale Ebene", mentalLevelDiv)
-                                      const mentalLevelResult = renderHighlightedSpan(mentalLevel, mentalLevelDiv)
-                                      Helper.add("outline-hover", mentalLevelResult)
-                                      mentalLevelResult.onclick = () => openMentalLevel(mentalLevel)
-
-                                      const intuitiveLevel = countSevenAndNine(contact.alias)
-                                      const intuitiveLevelDiv = renderDiv(numerology)
-                                      renderTitle("Intuitive Ebene", intuitiveLevelDiv)
-                                      const intuitiveLevelResult = renderHighlightedSpan(intuitiveLevel, intuitiveLevelDiv)
-                                      Helper.add("outline-hover", intuitiveLevelResult)
-                                      intuitiveLevelResult.onclick = () => openIntuitiveLevel(intuitiveLevel)
-
-
+                                      numerology.renderBirthNameEnergies(contact.alias, content)
+                                      numerology.renderDeterminationEnergy(contact.alias, content)
+                                      numerology.renderHeartsDesire(contact.alias, content)
+                                      numerology.renderPersona(contact.alias, content)
+                                      numerology.renderDoubleLetterEnergies(contact.alias, content)
+                                      numerology.renderPhysicalLevel(contact.alias, content)
+                                      numerology.renderEmotionalLevel(contact.alias, content)
+                                      numerology.renderMentalLevel(contact.alias, content)
+                                      numerology.renderIntuitiveLevel(contact.alias, content)
                                     }
 
                                   }
@@ -4277,6 +3779,10 @@ export class Helper {
 
     if (event === "outline-hover") {
       input.style.cursor = "pointer"
+      for (let i = 0; i < input.querySelectorAll("*").length; i++) {
+        const child = input.querySelectorAll("*")[i]
+        child.style.cursor = "pointer"
+      }
       input.addEventListener("mouseover", () => {
         input.style.outline = "3px solid #999"
       })
@@ -6633,30 +6139,6 @@ await Helper.add("event/soundbox")
       if (input !== undefined) input.append(create)
       return create
 
-    }
-
-    if (event === "script/open-popup-list-mirror-event") {
-
-      const scriptText = `
-        <script id="${input.tag}-list-mirror-event" type="module">
-import {Helper} from "/js/Helper.js"
-
-const map = {}
-map.tag = '${input.tag}'
-map.path = \`${input.path}\`
-
-await Helper.add("event/location-list-funnel", map)
-        </script>
-      `
-
-      const script = this.convert("text/first-child", scriptText)
-
-      const create = document.createElement("script")
-      create.id = script.id
-      create.type = script.type
-      create.textContent = script.textContent
-
-      return create
     }
 
     if (event === "script/empty-helper") {
@@ -11044,17 +10526,14 @@ await Helper.add("event/click-funnel")
 
     if (event === "node/dark-light-toggle") {
 
-      const textColor = window.getComputedStyle(input).color
+      const textColor = this.convert("node/text-color", input)
       const luminance = this.convert("rgb/luminance", textColor)
 
       if (luminance > 0.5) {
-        // text color ist sehr hell
-
         if (input.classList.contains("field")) {
           input.style.backgroundColor = this.colors.light.foreground
           input.style.border = this.colors.light.border
           input.style.boxShadow = this.colors.light.boxShadow
-          input.style.color = this.colors.light.text
           input.querySelector(".field-label").style.color = this.colors.light.text
           input.querySelector(".field-input").style.backgroundColor = this.colors.light.background
           input.querySelector(".field-input").style.color = this.colors.light.text
@@ -11069,9 +10548,9 @@ await Helper.add("event/click-funnel")
           }
         }
 
+        input.style.color = this.colors.light.text
       } else {
-        // text ist sehr dunkel
-
+        input.style.color = this.colors.dark.text
       }
 
     }
@@ -11155,6 +10634,11 @@ await Helper.add("event/click-funnel")
         return zIndexB - zIndexA
       })
       .forEach(child => input.appendChild(child))
+    }
+
+    if (event === "node/text-color") {
+
+      return input.style.color
     }
 
     if (event === "number/k-M") {
@@ -12864,6 +12348,804 @@ await Helper.add("event/click-funnel")
         }
       }
 
+    }
+
+    if (event === "numerology") {
+
+      const it = {}
+
+      const numbersAsText = ['eins', 'zwei', 'drei', 'vier', 'fuenf', 'sechs', 'sieben', 'acht', 'neun']
+      const occurencies = ['ein-mal', 'zwei-mal', 'drei-mal', 'vier-mal', 'fuenf-mal', 'sechs-mal', 'sieben-mal', 'acht-mal', 'neun-mal']
+
+      const latinAlphabet = {
+        'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5,
+        'f': 6, 'g': 7, 'h': 8, 'i': 9, 'j': 1,
+        'k': 2, 'l': 3, 'm': 4, 'n': 5, 'o': 6,
+        'p': 7, 'q': 8, 'r': 9, 's': 1, 't': 2,
+        'u': 3, 'v': 4, 'w': 5, 'x': 6, 'y': 7,
+        'z': 8
+      }
+
+      const greekAlphabet = {
+        'α': 1, 'β': 2, 'γ': 3, 'δ': 4, 'ε': 5,
+        'ζ': 6, 'η': 7, 'θ': 8, 'ι': 9, 'κ': 1,
+        'λ': 2, 'μ': 3, 'ν': 4, 'ξ': 5, 'ο': 6,
+        'π': 7, 'ρ': 8, 'σ': 9, 'τ': 1, 'υ': 2,
+        'φ': 3, 'χ': 4, 'ψ': 5, 'ω': 6
+      }
+
+      const russianAlphabet = {
+        'а': 1, 'б': 2, 'в': 3, 'г': 4, 'д': 5,
+        'е': 6, 'ё': 7, 'ж': 8, 'з': 9, 'и': 1,
+        'й': 2, 'к': 3, 'л': 4, 'м': 5, 'н': 6,
+        'о': 7, 'п': 8, 'р': 9, 'с': 1, 'т': 2,
+        'у': 3, 'ф': 4, 'х': 5, 'ц': 6, 'ч': 7,
+        'ш': 8, 'щ': 9, 'ъ': 1, 'ы': 2, 'ь': 3,
+        'э': 4, 'ю': 5, 'я': 6
+      }
+
+      const alphabetMap = {
+        ...latinAlphabet,
+        ...greekAlphabet,
+        ...russianAlphabet
+      }
+
+      const latinConsonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z']
+
+      const greekConsonants = ['β', 'γ', 'δ', 'ζ', 'θ', 'κ', 'λ', 'μ', 'ν', 'ξ', 'π', 'ρ', 'σ', 'τ', 'φ', 'χ', 'ψ']
+
+      const russianConsonants = ['б', 'в', 'г', 'д', 'ж', 'з', 'й', 'к', 'л', 'м', 'н', 'п', 'р', 'с', 'т', 'ф', 'х', 'ц', 'ч', 'ш', 'щ']
+
+      const consonants = [
+        ...latinConsonants,
+        ...greekConsonants,
+        ...russianConsonants
+      ]
+
+      const latinVowels = ['a', 'e', 'i', 'o', 'u', 'y']
+
+      const greekVowels = ['α', 'ε', 'η', 'ι', 'ο', 'υ', 'ω']
+
+      const russianVowels = ['а', 'е', 'ё', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я']
+
+      const vowels = [
+        ...latinVowels,
+        ...greekVowels,
+        ...russianVowels
+      ]
+
+      function calculateAge(date) {
+        const currentDate = new Date()
+        let age = currentDate.getFullYear() - date.getFullYear()
+        const currentMonth = currentDate.getMonth()
+        const birthMonth = date.getMonth()
+        if (currentMonth < birthMonth || (currentMonth === birthMonth && currentDate.getDate() < date.getDate())) {
+          age--
+        }
+        return age
+      }
+
+      function renderDiv(node) {
+        const div = document.createElement("div")
+        Helper.style(div, {margin: "21px 34px", fontFamily: "sans-serif"})
+        node.appendChild(div)
+        return div
+      }
+
+      function renderTitleSpan(text, node) {
+        const span = document.createElement("span")
+        span.textContent = text
+        span.style.fontSize = "21px"
+        Helper.convert("text/dark-light", span)
+        node.appendChild(span)
+        return span
+      }
+
+      function renderHighlightedSpan(text, node) {
+        const span = document.createElement("span")
+        span.style.fontSize = "34px"
+        span.style.margin = "0 8px"
+        span.textContent = text
+        Helper.convert("text/dark-light", span)
+        node.appendChild(span)
+        return span
+      }
+
+      function renderTitle(title, node) {
+        const titleNode = renderTitleSpan(`${title}:`, node)
+        Helper.add("outline-hover", titleNode)
+        const tag = title.toLowerCase().replaceAll(" ", "-").replaceAll("ü", "ue").replaceAll("ö", "oe").replaceAll("ä", "ae").replaceAll("1.", "ersten").replaceAll("2.", "zweiten").replaceAll("3.", "dritten").replaceAll("4.", "vierten")
+        titleNode.onclick = () => window.open(`/entwicklung/numerologie/${tag}/`, "_blank")
+        return titleNode
+      }
+
+      function dateToIsoSplit(date) {
+        const isoDate = date.toISOString()
+        return isoDate.split("T")[0]
+      }
+
+      function renderLifePathCalculation(date) {
+        date = dateToIsoSplit(date)
+        const digits = [...date.toString()].map(digit => parseInt(digit))
+        let text
+        for (let i = 0; i < digits.length; i++) {
+          const digit = digits[i]
+          if (Helper.verifyIs("number/empty", digit)) continue
+          if (text === undefined) {
+            text = digit
+          } else {
+            text = text + " + " + digit
+          }
+        }
+        return text
+      }
+
+      function dateToMaster(date) {
+        date = dateToIsoSplit(date)
+        const digits = [...date.toString()].map(digit => parseInt(digit, 10)).filter(Number.isFinite)
+        let sum = digits.reduce((acc, digit) => acc + digit, 0)
+        let prevSum = sum
+        const seenSums = new Set()
+        while (![11, 22, 33].includes(sum) && ![0, 1, 4, 6, 7, 9].includes(sum) && !seenSums.has(sum)) {
+          seenSums.add(sum)
+          prevSum = sum
+          sum = [...sum.toString()].map(digit => parseInt(digit, 10)).reduce((acc, digit) => acc + digit, 0)
+          if (![11, 22, 33].includes(sum) && ![0, 1, 4, 6, 7, 9].includes(sum)) {
+            break
+          }
+        }
+        return ![11, 22, 33].includes(sum) ? prevSum : sum
+      }
+
+      function renderEqualsSign(node) {
+        const equalsSign = renderTitleSpan("=", node)
+        equalsSign.style.margin = "0 5px"
+        return equalsSign
+      }
+
+      function dateToLifePath(date) {
+        date = dateToIsoSplit(date)
+        const digits = [...date.toString()].map(digit => parseInt(digit))
+        let sum = 0
+        for (let i = 0; i < digits.length; i++) {
+          const digit = digits[i]
+          if (Helper.verifyIs("number/empty", digit)) continue
+          sum += digit
+        }
+        while (sum > 9) {
+          sum = [...sum.toString()].reduce((acc, digit) => acc + parseInt(digit), 0)
+        }
+        return sum
+      }
+
+      function openLifePath(lifePath) {
+        const url = `/entwicklung/numerologie/geburtsenergie-${numbersAsText[lifePath - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      function getDigits(number) {
+        const numberString = Math.abs(number).toString()
+        return Array.from(numberString, Number)
+      }
+
+      function sumDigits(number) {
+        const digits = getDigits(number)
+        const sum = digits.reduce((accumulator, currentValue) => accumulator + currentValue, 0)
+        return sum
+      }
+
+      function reduceToSingleDigit(number) {
+        let result = number
+        while (result >= 10) {
+          result = sumDigits(result)
+        }
+        return result
+      }
+
+      function openBirthdayEnergy(energy) {
+        const url = `/entwicklung/numerologie/geburtstagsenergie-${numbersAsText[energy - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      function createPrevailingEnergies(data, node) {
+        const fragment = document.createDocumentFragment()
+        const keys = Object.keys(data)
+        for (let i = 0; i < keys.length; i++) {
+          const key = keys[i]
+          if (key === "0") continue
+          if (data[key] >= 2) {
+            const div = document.createElement("div")
+            div.style.display = "inline-block"
+            div.style.margin = "0 5px"
+            Helper.convert("text/dark-light", div)
+            Helper.add("outline-hover", div)
+            div.onclick = () => openPrevailingEnergy(key)
+            fragment.appendChild(div)
+            const span1 = document.createElement("span")
+            span1.textContent = `${data[key]}x`
+            span1.style.fontSize = "21px"
+            div.appendChild(span1)
+            const span2 = document.createElement("span")
+            span2.textContent = `${key},`
+            span2.style.fontSize = "34px"
+            div.appendChild(span2)
+          }
+        }
+        node.appendChild(fragment)
+        return node
+      }
+
+      function openPrevailingEnergy(energy) {
+        const url = `/entwicklung/numerologie/vorherschende-energie-${numbersAsText[energy - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      function countOccurrences(array) {
+        const occurrences = {}
+        array.forEach(number => {
+          occurrences[number] = (occurrences[number] || 0) + 1
+        })
+        return occurrences
+      }
+
+      function splitYear(year) {
+        const yearString = year.toString()
+        const firstPart = yearString.substring(0, 2)
+        const secondPart = yearString.substring(2)
+        return [firstPart, secondPart]
+      }
+
+      function fillDateNumbers(date) {
+        const isoDateSplit = dateToIsoSplit(date)
+        const dateNumbers = isoDateSplit.match(/\d/g).map(Number)
+        const lifePathNumber = dateToLifePath(date)
+        dateNumbers.push(lifePathNumber)
+        const day = date.getDate()
+        const sumDay = reduceToSingleDigit(day)
+        dateNumbers.push(sumDay)
+        const month = date.getMonth() + 1
+        const sumMonth = reduceToSingleDigit(month)
+        dateNumbers.push(sumMonth)
+        const year = date.getFullYear()
+        const [yearFirstPart, yearSecondPart] = splitYear(year)
+        const sumYearFirstPart = reduceToSingleDigit(Number(yearFirstPart))
+        const sumYearSecondPart = reduceToSingleDigit(Number(yearSecondPart))
+        dateNumbers.push(sumYearFirstPart)
+        dateNumbers.push(sumYearSecondPart)
+        const sumDayAndMonth = reduceToSingleDigit(sumDay + sumMonth)
+        dateNumbers.push(sumDayAndMonth)
+        const sumYear = reduceToSingleDigit(sumYearFirstPart + sumYearSecondPart)
+        dateNumbers.push(sumYear)
+        return dateNumbers
+      }
+
+      function openRecedingEnergy(energy) {
+        const url = `/entwicklung/numerologie/zuruecktretende-energie-${numbersAsText[energy - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      function createRecedingEnergy(array, node) {
+        const fragment = document.createDocumentFragment()
+        for (let i = 0; i < array.length; i++) {
+          const number = array[i]
+          const div = document.createElement("div")
+          div.textContent = `${number}${i === array.length - 1 ? "" : ","}`
+          div.style.display = "inline-block"
+          div.style.margin = "0 5px"
+          div.style.fontSize = "34px"
+          Helper.convert("text/dark-light", div)
+          Helper.add("outline-hover", div)
+          div.onclick = () => openRecedingEnergy(number)
+          fragment.appendChild(div)
+        }
+        node.appendChild(fragment)
+        return node
+      }
+
+      function openTones(tone, occurency) {
+        const url = `/entwicklung/numerologie/tonarten-${occurencies[occurency - 1]}-${numbersAsText[tone - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      function createTones(array, node) {
+        const data = countOccurrences(array)
+        const fragment = document.createDocumentFragment()
+        const keys = Object.keys(data)
+        for (let i = 0; i < keys.length; i++) {
+          const key = keys[i]
+          if (key === "0") continue
+          if (data[key] >= 1) {
+            const div = document.createElement("div")
+            div.style.display = "inline-block"
+            div.style.margin = "0 5px"
+            Helper.convert("text/dark-light", div)
+            Helper.add("outline-hover", div)
+            div.onclick = () => openTones(key, data[key])
+            fragment.appendChild(div)
+            const span1 = document.createElement("span")
+            span1.textContent = `${data[key]}x`
+            span1.style.fontSize = "21px"
+            div.appendChild(span1)
+            const span2 = document.createElement("span")
+            span2.textContent = `${key},`
+            span2.style.fontSize = "34px"
+            div.appendChild(span2)
+          }
+        }
+        node.appendChild(fragment)
+        return node
+      }
+
+      function openTone(tone) {
+        const url = `/entwicklung/numerologie/grundton-${numbersAsText[tone - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      function openBirthNameEnergy(energy) {
+        const url = `/entwicklung/numerologie/geburtsname-${numbersAsText[energy - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      function renderBirthNameEnergy(array, node) {
+        const fragment = document.createDocumentFragment()
+        for (let i = 0; i < array.length; i++) {
+          const number = array[i]
+          const div = document.createElement("div")
+          div.textContent = `${number}${i === array.length - 1 ? "" : ","}`
+          div.style.display = "inline-block"
+          div.style.margin = "0 5px"
+          div.style.fontSize = "34px"
+          Helper.convert("text/dark-light", div)
+          Helper.add("outline-hover", div)
+          div.onclick = () => openBirthNameEnergy(number)
+          fragment.appendChild(div)
+        }
+        node.appendChild(fragment)
+        return node
+      }
+
+      function openDetermination(energy) {
+        const url = `/entwicklung/numerologie/bestimmung-${numbersAsText[energy - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      function reduceStringToSingleDigit(str) {
+        let sum = 0
+        for (let i = 0; i < str.length; i++) {
+          const char = str[i].toLowerCase()
+          if (alphabetMap.hasOwnProperty(char)) {
+            sum += alphabetMap[char]
+          }
+        }
+        while (sum >= 10) {
+          const digits = String(sum).split("").map(Number)
+          sum = digits.reduce((acc, val) => acc + val, 0)
+        }
+        return sum
+      }
+
+      function reduceVowelsToSingleDigit(str) {
+        let sum = 0
+        for (let i = 0; i < str.length; i++) {
+          if (vowels.includes(str[i].toLowerCase())) {
+            sum += alphabetMap[str[i].toLowerCase()] || 0
+          }
+        }
+        while (sum >= 10) {
+          const digits = String(sum).split("").map(Number)
+          sum = digits.reduce((acc, val) => acc + val, 0)
+        }
+        return sum
+      }
+
+      function reduceConsonantsToSingleDigit(str) {
+        let sum = 0
+        for (let i = 0; i < str.length; i++) {
+          if (consonants.includes(str[i].toLowerCase())) {
+            sum += alphabetMap[str[i].toLowerCase()] || 0
+          }
+        }
+        while (sum >= 10) {
+          const digits = String(sum).split("").map(Number)
+          sum = digits.reduce((acc, val) => acc + val, 0)
+        }
+        return sum
+      }
+
+      function openHeartsDesire(energy) {
+        const url = `/entwicklung/numerologie/herzenswunsch-${numbersAsText[energy - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      function openPersona(energy) {
+        const url = `/entwicklung/numerologie/persona-${numbersAsText[energy - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      function findDoubleLetters(str) {
+        const result = []
+        for (let i = 1; i < str.length; i++) {
+          const currentChar = str[i].toLowerCase()
+          const previousChar = str[i - 1].toLowerCase()
+          if (currentChar === previousChar) {
+            result.push(alphabetMap[currentChar])
+          }
+        }
+        return result
+      }
+
+      function openDoubleLetters(energy) {
+        const url = `/entwicklung/numerologie/doppelte-buchstaben-${numbersAsText[energy - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      function renderDoubleLetters(array, node) {
+        const fragment = document.createDocumentFragment()
+        for (let i = 0; i < array.length; i++) {
+          const number = array[i]
+          const div = document.createElement("div")
+          div.textContent = `${number}${i === array.length - 1 ? "" : ","}`
+          div.style.display = "inline-block"
+          div.style.margin = "0 5px"
+          div.style.fontSize = "34px"
+          Helper.convert("text/dark-light", div)
+          Helper.add("outline-hover", div)
+          div.onclick = () => openDoubleLetters(number)
+          fragment.appendChild(div)
+        }
+        node.appendChild(fragment)
+        return node
+      }
+
+      function countFourAndFive(str) {
+        let count = 0
+        for (let i = 0; i < str.length; i++) {
+          const char = str[i].toLowerCase()
+          const value = alphabetMap[char]
+          if (value === 4 || value === 5) {
+            count++
+          }
+        }
+        return count
+      }
+
+      function countTwoThreeAndSix(str) {
+        let count = 0
+        for (let i = 0; i < str.length; i++) {
+          const char = str[i].toLowerCase()
+          const value = alphabetMap[char]
+          if (value === 2 || value === 3 || value === 6) {
+            count++
+          }
+        }
+        return count
+      }
+
+      function countOneAndEight(str) {
+        let count = 0
+        for (let i = 0; i < str.length; i++) {
+          const char = str[i].toLowerCase()
+          const value = alphabetMap[char]
+          if (value === 1 || value === 8) {
+            count++
+          }
+        }
+        return count
+      }
+
+      function countSevenAndNine(str) {
+        let count = 0
+        for (let i = 0; i < str.length; i++) {
+          const char = str[i].toLowerCase()
+          const value = alphabetMap[char]
+          if (value === 7 || value === 9) {
+            count++
+          }
+        }
+        return count
+      }
+
+      function openPhysicalLevel(energy) {
+        const url = `/entwicklung/numerologie/koerperliche-ebene-${numbersAsText[energy - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      function openEmotionalLevel(energy) {
+        const url = `/entwicklung/numerologie/emotionale-ebene-${numbersAsText[energy - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      function openMentalLevel(energy) {
+        const url = `/entwicklung/numerologie/mental-ebene-${numbersAsText[energy - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      function openIntuitiveLevel(energy) {
+        const url = `/entwicklung/numerologie/intuitive-ebene-${numbersAsText[energy - 1]}/`
+        window.open(url, "_blank")
+      }
+
+      it.renderAge = (date, node) => {
+        const age = calculateAge(date)
+        const ageDiv = renderDiv(node)
+        renderTitleSpan("Alter:", ageDiv)
+        renderHighlightedSpan(age, ageDiv)
+      }
+
+      it.renderLifePath = (date, node) => {
+        const lifePathDiv = renderDiv(node)
+        renderTitle("Geburtsenergie", lifePathDiv)
+        const lifePathCalc = renderTitleSpan(renderLifePathCalculation(date), lifePathDiv)
+        lifePathCalc.style.margin = "0 5px"
+        renderEqualsSign(lifePathDiv)
+        const master = dateToMaster(date)
+        const masterCalc = renderTitleSpan(master.toString().split('').join(' + '), lifePathDiv)
+        masterCalc.style.margin = "0 5px"
+        renderEqualsSign(lifePathDiv)
+        const lifePathNumber = dateToLifePath(date)
+        const lifePathResult = renderHighlightedSpan(lifePathNumber, lifePathDiv)
+        Helper.add("outline-hover", lifePathResult)
+        lifePathResult.onclick = () => openLifePath(lifePathResult.textContent)
+      }
+
+      it.renderMaster = (date, node) => {
+        const master = dateToMaster(date)
+        if (master === 11 || master === 22 || master === 33) {
+          const masterDiv = renderDiv(node)
+          renderTitle("Masterenergie", masterDiv)
+          const masterResult = renderHighlightedSpan(master, masterDiv)
+          Helper.add("outline-hover", masterResult)
+          masterResult.onclick = () => {
+            if (master === 11) window.open("/entwicklung/numerologie/masterenergie-elf", "_blank")
+            if (master === 22) window.open("/entwicklung/numerologie/masterenergie-zwei-und-zwanzig", "_blank")
+            if (master === 33) window.open("/entwicklung/numerologie/masterenergie-drei-und-dreisig", "_blank")
+          }
+        }
+      }
+
+      it.renderBirthDayEnergy = (date, node) => {
+        const day = date.getDate()
+        const birthdayEnergyNumber = reduceToSingleDigit(day)
+        const birthdayEnergyDiv = renderDiv(node)
+        renderTitle("Geburtstagsenergie", birthdayEnergyDiv)
+        const birthdayEnergyResult = renderHighlightedSpan(birthdayEnergyNumber, birthdayEnergyDiv)
+        Helper.add("outline-hover", birthdayEnergyResult)
+        birthdayEnergyResult.onclick = () => openBirthdayEnergy(birthdayEnergyNumber)
+      }
+
+      it.renderPrevailingEnergies = (date, node) => {
+        const pervailingEnergyDiv = renderDiv(node)
+        renderTitle("Vorherschende Energien", pervailingEnergyDiv)
+        const dateNumbers = fillDateNumbers(date)
+        createPrevailingEnergies(countOccurrences(dateNumbers), pervailingEnergyDiv)
+      }
+
+      it.renderRecedingEnergies = (date, node) => {
+        const missingNumbers = []
+        const dateNumbers = fillDateNumbers(date)
+        for (let i = 1; i <= 9; i++) {
+          if (!dateNumbers.includes(i)) {
+            missingNumbers.push(i)
+          }
+        }
+        if (missingNumbers.length > 0) {
+          const recedingEnergyDiv = renderDiv(node)
+          renderTitle("Zurücktretende Energien", recedingEnergyDiv)
+          createRecedingEnergy(missingNumbers, recedingEnergyDiv)
+        }
+      }
+
+      it.renderTones = (date, node) => {
+        const tonesDiv = renderDiv(node)
+        renderTitle("Tonarten", tonesDiv)
+        const dateNumbers = fillDateNumbers(date)
+        createTones(dateNumbers, tonesDiv)
+      }
+
+      it.renderFirstCycle = (date, node) => {
+        const firstCycleDiv = renderDiv(node)
+        renderTitle("Dauer des 1. Zyklus", firstCycleDiv)
+        const lifePathNumber = dateToLifePath(date)
+        const firstCycle = 36 - lifePathNumber
+        const firstCycleResult = renderHighlightedSpan(`0 - ${firstCycle}`, firstCycleDiv)
+        Helper.add("outline-hover", firstCycleResult)
+        firstCycleResult.onclick = () => window.open("/entwicklung/numerologie/erster-zyklus/", "_blank")
+      }
+
+      it.renderFirstKeyTone = (date, node) => {
+        const day = date.getDate()
+        const sumDay = reduceToSingleDigit(day)
+        const month = date.getMonth() + 1
+        const sumMonth = reduceToSingleDigit(month)
+        const sumDayAndMonth = reduceToSingleDigit(sumDay + sumMonth)
+        const firstKeyTone = sumDayAndMonth
+        const firstKeyToneDiv = renderDiv(node)
+        renderTitle("Grundton zum 1. Zyklus", firstKeyToneDiv)
+        const firstKeyToneResult = renderHighlightedSpan(firstKeyTone, firstKeyToneDiv)
+        Helper.add("outline-hover", firstKeyToneResult)
+        firstKeyToneResult.onclick = () => openTone(firstKeyTone)
+      }
+
+      it.renderSecondCycle = (date, node) => {
+        const lifePathNumber = dateToLifePath(date)
+        const firstCycle = 36 - lifePathNumber
+        const secondCycle = firstCycle + 1 + 9
+        const secondCycleDiv = renderDiv(node)
+        renderTitle("Dauer des 2. Zyklus", secondCycleDiv)
+        const secondCycleResult = renderHighlightedSpan(`${firstCycle + 1} - ${secondCycle}`, secondCycleDiv)
+        Helper.add("outline-hover", secondCycleResult)
+        secondCycleResult.onclick = () => window.open("/entwicklung/numerologie/zweiter-zyklus/", "_blank")
+      }
+
+      it.renderSecondKeyTone = (date, node) => {
+        const day = date.getDate()
+        const sumDay = reduceToSingleDigit(day)
+        const year = date.getFullYear()
+        const [yearFirstPart, yearSecondPart] = splitYear(year)
+        const sumYearFirstPart = reduceToSingleDigit(Number(yearFirstPart))
+        const sumYearSecondPart = reduceToSingleDigit(Number(yearSecondPart))
+        const sumYear = reduceToSingleDigit(sumYearFirstPart + sumYearSecondPart)
+        const secondKeyTone = reduceToSingleDigit(sumDay + sumYear)
+        const secondKeyToneDiv = renderDiv(node)
+        renderTitle("Grundton zum 2. Zyklus", secondKeyToneDiv)
+        const secondKeyToneResult = renderHighlightedSpan(secondKeyTone, secondKeyToneDiv)
+        Helper.add("outline-hover", secondKeyToneResult)
+        secondKeyToneResult.onclick = () => openTone(secondKeyTone)
+      }
+
+      it.renderThirdCycle = (date, node) => {
+        const lifePathNumber = dateToLifePath(date)
+        const firstCycle = 36 - lifePathNumber
+        const secondCycle = firstCycle + 1 + 9
+        const thirdCycle = secondCycle + 1 + 9
+        const thirdCycleDiv = renderDiv(node)
+        renderTitle("Dauer des 3. Zyklus", thirdCycleDiv)
+        const thirdCycleResult = renderHighlightedSpan(`${secondCycle + 1} - ${thirdCycle}`, thirdCycleDiv)
+        Helper.add("outline-hover", thirdCycleResult)
+        thirdCycleResult.onclick = () => window.open("/entwicklung/numerologie/dritter-zyklus/", "_blank")
+      }
+
+      it.renderThirdKeyTone = (date, node) => {
+        const day = date.getDate()
+        const sumDay = reduceToSingleDigit(day)
+        const month = date.getMonth() + 1
+        const sumMonth = reduceToSingleDigit(month)
+        const sumDayAndMonth = reduceToSingleDigit(sumDay + sumMonth)
+        const firstKeyTone = sumDayAndMonth
+        const year = date.getFullYear()
+        const [yearFirstPart, yearSecondPart] = splitYear(year)
+        const sumYearFirstPart = reduceToSingleDigit(Number(yearFirstPart))
+        const sumYearSecondPart = reduceToSingleDigit(Number(yearSecondPart))
+        const sumYear = reduceToSingleDigit(sumYearFirstPart + sumYearSecondPart)
+        const secondKeyTone = reduceToSingleDigit(sumDay + sumYear)
+        const thirdKeyTone = reduceToSingleDigit(firstKeyTone + secondKeyTone)
+        const thirdKeyToneDiv = renderDiv(node)
+        renderTitle("Grundton zum 3. Zyklus", thirdKeyToneDiv)
+        const thirdKeyToneResult = renderHighlightedSpan(thirdKeyTone, thirdKeyToneDiv)
+        Helper.add("outline-hover", thirdKeyToneResult)
+        thirdKeyToneResult.onclick = () => openTone(thirdKeyTone)
+      }
+
+      it.renderFourthCycle = (date, node) => {
+        const lifePathNumber = dateToLifePath(date)
+        const firstCycle = 36 - lifePathNumber
+        const secondCycle = firstCycle + 1 + 9
+        const thirdCycle = secondCycle + 1 + 9
+        const fourthCycle = thirdCycle + 1 + 9
+        const fourthCycleDiv = renderDiv(node)
+        renderTitle("Dauer des 4. Zyklus", fourthCycleDiv)
+        const fourthCycleResult = renderHighlightedSpan(`${thirdCycle + 1} - ${fourthCycle}`, fourthCycleDiv)
+        Helper.add("outline-hover", fourthCycleResult)
+        fourthCycleResult.onclick = () => window.open("/entwicklung/numerologie/vierter-zyklus/", "_blank")
+      }
+
+      it.renderFourthKeyTone = (date, node) => {
+        const month = date.getMonth() + 1
+        const sumMonth = reduceToSingleDigit(month)
+        const year = date.getFullYear()
+        const [yearFirstPart, yearSecondPart] = splitYear(year)
+        const sumYearFirstPart = reduceToSingleDigit(Number(yearFirstPart))
+        const sumYearSecondPart = reduceToSingleDigit(Number(yearSecondPart))
+        const sumYear = reduceToSingleDigit(sumYearFirstPart + sumYearSecondPart)
+        const fourthKeyTone = reduceToSingleDigit(sumMonth + sumYear)
+        const fourthKeyToneDiv = renderDiv(node)
+        renderTitle("Grundton zum 4. Zyklus", fourthKeyToneDiv)
+        const fourthKeyToneResult = renderHighlightedSpan(fourthKeyTone, fourthKeyToneDiv)
+        Helper.add("outline-hover", fourthKeyToneResult)
+        fourthKeyToneResult.onclick = () => openTone(fourthKeyTone)
+      }
+
+      it.renderBirthNameEnergies = (string, node) => {
+        const splitAlias = string.split(" ")
+        const birthNameSums = []
+        for (let i = 0; i < splitAlias.length; i++) {
+          const alias = splitAlias[i]
+          let sum = 0
+          for (let i = 0; i < alias.length; i++) {
+            const char = alias[i]
+            sum += alphabetMap[char.toLowerCase()] || 0
+          }
+          birthNameSums.push(sum)
+        }
+        const birthNameNumbers = birthNameSums.map(it => reduceToSingleDigit(it))
+        const birthNameDiv = renderDiv(node)
+        renderTitle("Geburtsname", birthNameDiv)
+        renderBirthNameEnergy(birthNameNumbers, birthNameDiv)
+      }
+
+      it.renderDeterminationEnergy = (string, node) => {
+        const determinationNumber = reduceStringToSingleDigit(string)
+        const determinationDiv = renderDiv(node)
+        renderTitle("Bestimmung", determinationDiv)
+        const determinationResult = renderHighlightedSpan(determinationNumber, determinationDiv)
+        Helper.add("outline-hover", determinationResult)
+        determinationResult.onclick = () => openDetermination(determinationNumber)
+      }
+
+      it.renderHeartsDesire = (string, node) => {
+        const heartsDesire = reduceVowelsToSingleDigit(string)
+        const heartsDesireDiv = renderDiv(node)
+        renderTitle("Herzenswunsch", heartsDesireDiv)
+        const heartsDesireResult = renderHighlightedSpan(heartsDesire, heartsDesireDiv)
+        Helper.add("outline-hover", heartsDesireResult)
+        heartsDesireResult.onclick = () => openHeartsDesire(heartsDesire)
+      }
+
+      it.renderPersona = (string, node) => {
+        const persona = reduceConsonantsToSingleDigit(string)
+        const personaDiv = renderDiv(node)
+        renderTitle("Persona", personaDiv)
+        const personaResult = renderHighlightedSpan(persona, personaDiv)
+        Helper.add("outline-hover", personaResult)
+        personaResult.onclick = () => openPersona(persona)
+      }
+
+      it.renderDoubleLetterEnergies = (string, node) => {
+        const doubleLetters = findDoubleLetters(string)
+        if (doubleLetters.length > 0) {
+          const doubleLettersDiv = renderDiv(node)
+          renderTitle("Doppelte Buchstaben", doubleLettersDiv)
+          renderDoubleLetters(doubleLetters, doubleLettersDiv)
+        }
+      }
+
+      it.renderPhysicalLevel = (string, node) => {
+        const physicalLevel = countFourAndFive(string)
+        const physicalLevelDiv = renderDiv(node)
+        renderTitle("Körperliche Ebene", physicalLevelDiv)
+        const physicalLevelResult = renderHighlightedSpan(physicalLevel, physicalLevelDiv)
+        Helper.add("outline-hover", physicalLevelResult)
+        physicalLevelResult.onclick = () => openPhysicalLevel(physicalLevel)
+      }
+
+      it.renderEmotionalLevel = (string, node) => {
+        const emotionalLevel = countTwoThreeAndSix(string)
+        const emotionalLevelDiv = renderDiv(node)
+        renderTitle("Emotionale Ebene", emotionalLevelDiv)
+        const emotionalLevelResult = renderHighlightedSpan(emotionalLevel, emotionalLevelDiv)
+        Helper.add("outline-hover", emotionalLevelResult)
+        emotionalLevelResult.onclick = () => openEmotionalLevel(emotionalLevel)
+      }
+
+      it.renderMentalLevel = (string, node) => {
+        const mentalLevel = countOneAndEight(string)
+        const mentalLevelDiv = renderDiv(node)
+        renderTitle("Mentale Ebene", mentalLevelDiv)
+        const mentalLevelResult = renderHighlightedSpan(mentalLevel, mentalLevelDiv)
+        Helper.add("outline-hover", mentalLevelResult)
+        mentalLevelResult.onclick = () => openMentalLevel(mentalLevel)
+      }
+
+      it.renderIntuitiveLevel = (string, node) => {
+        const intuitiveLevel = countSevenAndNine(string)
+        const intuitiveLevelDiv = renderDiv(node)
+        renderTitle("Intuitive Ebene", intuitiveLevelDiv)
+        const intuitiveLevelResult = renderHighlightedSpan(intuitiveLevel, intuitiveLevelDiv)
+        Helper.add("outline-hover", intuitiveLevelResult)
+        intuitiveLevelResult.onclick = () => openIntuitiveLevel(intuitiveLevel)
+      }
+
+      return it
     }
 
     if (event === "openImagesOverlay") {
@@ -18812,7 +19094,6 @@ await Helper.add("event/click-funnel")
                 })
               }
             }
-
             {
               const button = this.create("button/left-right", buttons)
               button.right.textContent = "Sichtbarkeit der Plattform"
@@ -18977,6 +19258,9 @@ await Helper.add("event/click-funnel")
                 })
               }
             }
+          } else {
+            this.convert("parent/info", parent)
+            parent.textContent = "Keine Rollen gefunden"
           }
           resolve()
         } catch (error) {
@@ -20011,38 +20295,23 @@ await Helper.add("event/click-funnel")
                   button.left.textContent = ".location-list-funnel-button"
                   button.right.textContent = "Definiere Listen, mit der sich deine Nutzer selber markieren können"
                   button.onclick = () => {
-
                     this.overlay("toolbox", async overlay => {
-
                       const funnel = this.create("div/scrollable", overlay)
-
                       const pathField = await this.create("field/open-expert-values-path-select", funnel)
-
                       const submitButton = this.create("button/action", funnel)
                       submitButton.textContent = "Button jetzt anhängen"
                       submitButton.onclick = async () => {
-
                         const fieldFunnel = await this.convert("path/field-funnel", pathField.input.value)
-
-                        const map = {}
-                        map.tag = fieldFunnel.id
-                        map.path = pathField.input.value
-
-                        const script = this.create("script/open-popup-list-mirror-event", map)
-
+                        const script = this.create("script", {id: `${fieldFunnel.id}-location-list`, js: `await Helper.add("location-list-funnel", {tag: "${fieldFunnel.id}", path: "${pathField.input.value}"})`})
                         this.add("script-onbody", script)
-
                         const button = this.create("button/image-text", document.body)
-                        button.text.textContent = this.convert("text/capital-first-letter", map.tag)
-                        button.id = `${map.tag}-mirror-button`
-                        overlay.remove()
+                        button.text.textContent = this.convert("text/capital-first-letter", fieldFunnel.id)
+                        button.id = `${fieldFunnel.id}-location-list-button`
+                        this.remove("overlays")
                         window.alert("Location List Funnel Button wurde erfolgreich angehängt.")
                       }
-
                     })
-
                   }
-
                 }
 
                 {
