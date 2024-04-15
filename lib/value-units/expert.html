@@ -31,6 +31,8 @@
     <script type="module">
       import {Helper} from "/js/Helper.js"
 
+      document.querySelector("title").textContent = Helper.convert("text/capital-first-letter", window.location.pathname.split("/")[1])
+
       Helper.convert("dark-light", document.body)
       Helper.create("back-button", document.body)
       const app = Helper.create("button/getyour", document.body)
