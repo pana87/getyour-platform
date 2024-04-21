@@ -12576,7 +12576,7 @@ await Helper.add("event/click-funnel")
       }
 
       function openPrevailingEnergy(energy) {
-        const url = `/entwicklung/numerologie/vorherschende-energie-${numbersAsText[energy - 1]}/`
+        const url = `/entwicklung/numerologie/vorherrschende-energie-${numbersAsText[energy - 1]}/`
         window.open(url, "_blank")
       }
 
@@ -12896,9 +12896,9 @@ await Helper.add("event/click-funnel")
           const masterResult = renderHighlightedSpan(master, masterDiv)
           Helper.add("outline-hover", masterResult)
           masterResult.onclick = () => {
-            if (master === 11) window.open("/entwicklung/numerologie/masterenergie-elf", "_blank")
-            if (master === 22) window.open("/entwicklung/numerologie/masterenergie-zwei-und-zwanzig", "_blank")
-            if (master === 33) window.open("/entwicklung/numerologie/masterenergie-drei-und-dreisig", "_blank")
+            if (master === 11) window.open("/entwicklung/numerologie/masterenergie-elf/", "_blank")
+            if (master === 22) window.open("/entwicklung/numerologie/masterenergie-zwei-und-zwanzig/", "_blank")
+            if (master === 33) window.open("/entwicklung/numerologie/masterenergie-drei-und-dreisig/", "_blank")
           }
         }
       }
@@ -12915,7 +12915,7 @@ await Helper.add("event/click-funnel")
 
       it.renderPrevailingEnergies = (date, node) => {
         const pervailingEnergyDiv = renderDiv(node)
-        renderTitle("Vorherschende Energien", pervailingEnergyDiv)
+        renderTitle("Vorherrschende Energien", pervailingEnergyDiv)
         const dateNumbers = fillDateNumbers(date)
         createPrevailingEnergies(countOccurrences(dateNumbers), pervailingEnergyDiv)
       }
