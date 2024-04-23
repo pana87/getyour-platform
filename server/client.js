@@ -178,7 +178,11 @@ async(req, res, next) => {
 
 
 
-    // console.log(doc._id);
+    // bis hier hin kommt er ohne fehler
+
+
+
+
     for (let i = 0; i < doc.users.length; i++) {
       const user = doc.users[i]
       if (user["getyour"] !== undefined) {
@@ -191,14 +195,43 @@ async(req, res, next) => {
                   if (platform.name === req.params.platform) {
                     if (platform.visibility === "open") {
                       if (platform.values !== undefined) {
+                        let counter = 0
                         for (let i = 0; i < platform.values.length; i++) {
                           const value = platform.values[i]
                           if (value.path === req.originalUrl) {
                             if (value.visibility === "open") {
                               if (value.requested === undefined) value.requested = []
                               value.requested.push({created: Date.now()})
+
+
+
+
+
+                              // hier geht er wieder in nano
+                              counter++
+                              await Helper.log(`Schleifen counter vor insert ${counter}`, req, res, next)
+
+                              await Helper.log(`Beginne mit insert Funktion um requested upzudaten.. _rev davor: ${doc._rev}`, req, res, next)
+
+
+
                               await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
-                              return res.send(value.html)
+
+                              await Helper.log(`Insert Funktion wurde erfolgreich abgeschlossen.. _rev danach: ${doc._rev}`, req, res, next)
+
+
+                              // insert ist das problem ???
+                              // wenn ich requested updaten möchte ???
+
+
+
+
+
+
+                              res.send(value.html)
+
+                              await Helper.log(`value.html wurde erfolgreich gesendet`, req, res, next)
+                              return
                             }
                           }
                         }
@@ -212,6 +245,9 @@ async(req, res, next) => {
         }
       }
     }
+
+
+    // soweit kommt er noch nicht
 
 
     await Helper.log("Endpunkt ist nicht open.. Starte Funktion: next()", req, res, next);
