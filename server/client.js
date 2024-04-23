@@ -176,62 +176,114 @@ async(req, res, next) => {
     // await Helper.log(doc._id, req, res, next)
 
 
+    // middleware functions for doc
+    const result = await registerPlatformValueRequested(doc, req)
+    await Helper.log(`registerPlatformValueRequested result: ${JSON.stringify(result)}`, req, res, next);
+    if (result.status === 200) {
+      return res.send(result.html)
+    } else {
+      // requested konnte nicht geupdated werden
+      // das ist nur wenn open
+      const html = getPlatformValueHtml(doc, req)
+      await Helper.log(`getPlatformValueHtml result: ${html}`, req, res, next);
+
+      if (!Helper.verifyIs("text/empty", html)) return res.send(html)
+    }
+
+
+    async function registerPlatformValueRequested(doc, req) {
+
+      for (let i = 0; i < doc.users.length; i++) {
+        const user = doc.users[i]
+        if (user["getyour"] !== undefined) {
+          if (user["getyour"].expert !== undefined) {
+            if (user["getyour"].expert.name === req.params.expert) {
+              if (user.verified === true) {
+                if (user["getyour"].expert.platforms !== undefined) {
+                  for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
+                    const platform = user["getyour"].expert.platforms[i]
+                    if (platform.name === req.params.platform) {
+                      if (platform.visibility === "open") {
+                        if (platform.values !== undefined) {
+                          let counter = 0
+                          for (let i = 0; i < platform.values.length; i++) {
+                            const value = platform.values[i]
+                            if (value.path === req.originalUrl) {
+                              if (value.visibility === "open") {
+                                if (value.requested === undefined) value.requested = []
+                                value.requested.push({created: Date.now()})
+
+
+
+
+
+                                // hier geht er wieder in nano
+                                counter++
+                                await Helper.log(`Schleifen counter vor insert ${counter}`, req, res, next)
+
+                                await Helper.log(`Beginne mit insert Funktion um requested upzudaten.. _rev davor: ${doc._rev}`, req, res, next)
+
+
+                                // insert in try catch
+                                try {
+                                  await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
+                                  await Helper.log(`Insert Funktion wurde erfolgreich abgeschlossen.. _rev danach: ${doc._rev}`, req, res, next)
+                                  return { status: 200, html: value.html }
+                                } catch (error) {
+                                  return { status: 500, error }
+                                }
+
+
+
+
+
+
+
+
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+    }
+    // getPlatformValuePath(doc, platformName, valuePath)
+
+
 
 
     // bis hier hin kommt er ohne fehler
 
 
 
-
-    for (let i = 0; i < doc.users.length; i++) {
-      const user = doc.users[i]
-      if (user["getyour"] !== undefined) {
-        if (user["getyour"].expert !== undefined) {
-          if (user["getyour"].expert.name === req.params.expert) {
-            if (user.verified === true) {
-              if (user["getyour"].expert.platforms !== undefined) {
-                for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
-                  const platform = user["getyour"].expert.platforms[i]
-                  if (platform.name === req.params.platform) {
-                    if (platform.visibility === "open") {
-                      if (platform.values !== undefined) {
-                        let counter = 0
-                        for (let i = 0; i < platform.values.length; i++) {
-                          const value = platform.values[i]
-                          if (value.path === req.originalUrl) {
-                            if (value.visibility === "open") {
-                              if (value.requested === undefined) value.requested = []
-                              value.requested.push({created: Date.now()})
-
-
-
-
-
-                              // hier geht er wieder in nano
-                              counter++
-                              await Helper.log(`Schleifen counter vor insert ${counter}`, req, res, next)
-
-                              await Helper.log(`Beginne mit insert Funktion um requested upzudaten.. _rev davor: ${doc._rev}`, req, res, next)
-
-
-
-                              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
-
-                              await Helper.log(`Insert Funktion wurde erfolgreich abgeschlossen.. _rev danach: ${doc._rev}`, req, res, next)
-
-
-                              // insert ist das problem ???
-                              // wenn ich requested updaten möchte ???
-
-
-
-
-
-
-                              res.send(value.html)
-
-                              await Helper.log(`value.html wurde erfolgreich gesendet`, req, res, next)
-                              return
+    function getPlatformValueHtml(doc, req) {
+      for (let i = 0; i < doc.users.length; i++) {
+        const user = doc.users[i]
+        if (user["getyour"] !== undefined) {
+          if (user["getyour"].expert !== undefined) {
+            if (user["getyour"].expert.name === req.params.expert) {
+              if (user.verified === true) {
+                if (user["getyour"].expert.platforms !== undefined) {
+                  for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
+                    const platform = user["getyour"].expert.platforms[i]
+                    if (platform.name === req.params.platform) {
+                      if (platform.visibility === "open") {
+                        if (platform.values !== undefined) {
+                          let counter = 0
+                          for (let i = 0; i < platform.values.length; i++) {
+                            const value = platform.values[i]
+                            if (value.path === req.originalUrl) {
+                              if (value.visibility === "open") {
+                                return value.html
+                              }
                             }
                           }
                         }
@@ -245,7 +297,6 @@ async(req, res, next) => {
         }
       }
     }
-
 
     // soweit kommt er noch nicht
 
