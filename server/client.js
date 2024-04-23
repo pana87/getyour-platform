@@ -21,18 +21,6 @@ Helper.createLogs("getyour")
 const client = createExpressServer("client", process.env.CLIENT_PORT || "9999")
 const app = client.app
 
-// todo websocket for webrtc
-// const server = http.createServer(app)
-// startWebRtcSignaling(server)
-// app.use(async (req, res, next) => {
-//   try {
-//     await next();
-//   } catch (error) {
-//     console.error("Unerwarteter Fehler aufgetreten:", error);
-//     res.status(500).send("Ein interner Serverfehler ist aufgetreten");
-//   }
-// })
-
 app.use(cookieParser())
 app.use(express.json({limit: "50mb"}))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
@@ -128,14 +116,8 @@ app.get("/:expert/", async (req, res, next) => {
   return res.sendStatus(404)
 })
 
-let counter = 0
 app.get("/:expert/:platform/:path/",
 async(req, res, next) => {
-
-
-  // in der get kann ich kein insert machen ???
-  // nano error
-
 
   function getPlatformValueHtml(doc, req) {
     for (let i = 0; i < doc.users.length; i++) {
@@ -171,131 +153,17 @@ async(req, res, next) => {
     }
   }
 
-
-  // async function registerPlatformValueRequested(doc, req) {
-  //
-  //   for (let i = 0; i < doc.users.length; i++) {
-  //     const user = doc.users[i]
-  //     if (user["getyour"] !== undefined) {
-  //       if (user["getyour"].expert !== undefined) {
-  //         if (user["getyour"].expert.name === req.params.expert) {
-  //           if (user.verified === true) {
-  //             if (user["getyour"].expert.platforms !== undefined) {
-  //               for (let i = 0; i < user["getyour"].expert.platforms.length; i++) {
-  //                 const platform = user["getyour"].expert.platforms[i]
-  //                 if (platform.name === req.params.platform) {
-  //                   if (platform.visibility === "open") {
-  //                     if (platform.values !== undefined) {
-  //                       let counter = 0
-  //                       for (let i = 0; i < platform.values.length; i++) {
-  //                         const value = platform.values[i]
-  //                         if (value.path === req.originalUrl) {
-  //                           if (value.visibility === "open") {
-  //                             if (value.requested === undefined) value.requested = []
-  //                             value.requested.push({created: Date.now()})
-  //
-  //
-  //
-  //
-  //
-  //                             // hier geht er wieder in nano
-  //                             counter++
-  //                             await Helper.log(`Schleifen counter vor insert ${counter}`, req, res, next)
-  //
-  //                             await Helper.log(`Beginne mit insert Funktion um requested upzudaten.. _rev davor: ${doc._rev}`, req, res, next)
-  //
-  //
-  //                             // insert in try catch
-  //                             try {
-  //                               await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
-  //                               await Helper.log(`Insert Funktion wurde erfolgreich abgeschlossen.. _rev danach: ${doc._rev}`, req, res, next)
-  //                               return { status: 200, html: value.html }
-  //                             } catch (error) {
-  //                               return { status: 500, error }
-  //                             }
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //                           }
-  //                         }
-  //                       }
-  //                     }
-  //                   }
-  //                 }
-  //               }
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  //
-  // }
-  // getPlatformValuePath(doc, platformName, valuePath)
-
-
-
-  // middleware functions for doc
-  // const result = await registerPlatformValueRequested(doc, req)
-  // await Helper.log(`registerPlatformValueRequested result: ${JSON.stringify(result)}`, req, res, next);
-  // if (result.status === 200) {
-  //   return res.send(result.html)
-  // } else {
-  //   // requested konnte nicht geupdated werden
-  //   // das ist nur wenn open
-  //   const html = getPlatformValueHtml(doc, req)
-  //   await Helper.log(`getPlatformValueHtml result: ${html}`, req, res, next);
-  //
-  //   if (!Helper.verifyIs("text/empty", html)) return res.send(html)
-  // }
-
-
-
-
-
   try {
 
-
-    counter++;
-    await Helper.log(`${req.originalUrl} Endpunkt wurde ${counter} mal aufgerufen.`, req, res, next)
-
-    await Helper.log("Starte Datenbankoperation 1", req, res, next);
-    const db = nano.db.use("getyour");
-    const doc = await db.get("users");
-    if (!doc) throw new Error("Dokument 'users' wurde nicht gefunden.");
-    // await Helper.log("Dokument erfolgreich abgerufen", doc, req, res, next);
-    await Helper.log(doc._rev, req, res, next);
-    // try {
-      // } catch (error) {
-        //     await Helper.error("Fehler aufgetreten:", error, req, res, next);
-        // }
-    await Helper.log("Datenbankoperation abgeschlossen", req, res, next);
-
+    const doc = await nano.db.use("getyour").get("users")
 
     const html = getPlatformValueHtml(doc, req)
-    await Helper.log(`getPlatformValueHtml result: ${html}`, req, res, next);
 
-    if (!Helper.verifyIs("text/empty", html)) return res.send(html)
-
-    // if (!res.headersSent) {
-    // }
-    // console.log(counter);
-
-    await Helper.log("Endpunkt ist nicht open.. Starte Funktion: next()", req, res, next);
-
-
-
-    // anstatt next alles in ein endpunkt
-    // und if schleifen definieren wann es weiter gehen muss
-    // wenn keine bedingung erfüllt ist dann nichts machen
-    // extra logger bauen wie logError
-    counter = 0
-    return next()
+    if (!Helper.verifyIs("text/empty", html)) {
+      return res.send(html)
+    } else {
+      return next()
+    }
 
   } catch (error) {
     await Helper.logError(error, req)
@@ -308,23 +176,10 @@ app.get("/:expert/:platform/:path/",
   Request.verifySession,
 async (req, res, next) => {
   try {
-    await Helper.log("Beginne mit closed Endpunkt..", req, res, next);
 
-    // console.log("hi");
-    await Helper.log("Starte Datenbankoperation 2", req, res, next);
-    const db = nano.db.use("getyour");
-    const doc = await db.get("users");
-    if (!doc) throw new Error("Dokument 'users' wurde nicht gefunden.");
-    // await Helper.log("Dokument erfolgreich abgerufen", doc, req, res, next);
-    await Helper.log(doc._rev, req, res, next);
-    // try {
-    // } catch (error) {
-    //     await Helper.error("Fehler aufgetreten:", error, req, res, next);
-    // }
-    await Helper.log("Datenbankoperation abgeschlossen", req, res, next);
+    const doc = await nano.db.use("getyour").get("users")
 
-
-
+    // is writable algo
     for (let i = 0; i < doc.users.length; i++) {
       const jwtUser = doc.users[i]
       if (jwtUser.id === req.jwt.id) {
@@ -344,10 +199,6 @@ async (req, res, next) => {
                             for (let i = 0; i < value.writability.length; i++) {
                               const authorized = value.writability[i]
                               if (jwtUser.email === authorized) {
-                                // nano error
-                                // if (value.requested === undefined) value.requested = []
-                                // value.requested.push({created: Date.now()})
-                                // await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
                                 return res.send(value.html)
                               }
                             }
@@ -379,10 +230,6 @@ async (req, res, next) => {
                       for (let i = 0; i < platform.values.length; i++) {
                         const value = platform.values[i]
                         if (value.path === req.originalUrl) {
-                          // nano error
-                          // if (value.requested === undefined) value.requested = []
-                          // value.requested.push({created: Date.now()})
-                          // await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
                           return res.send(value.html)
                         }
                       }
@@ -419,10 +266,6 @@ async (req, res, next) => {
                                   const user = doc.users[i]
                                   if (user.id === req.jwt.id) {
                                     if (user.email === authorized) {
-                                      // nano error
-                                      // if (value.requested === undefined) value.requested = []
-                                      // value.requested.push({created: Date.now()})
-                                      // await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, users: doc.users })
                                       return res.send(value.html)
                                     }
                                   }
@@ -462,17 +305,7 @@ async (req, res, next) => {
       }
     }
 
-
-    await Helper.log("Keinen passenden User gefunden.. Leite weiter zur Startseite", req, res, next);
-
-
     return res.redirect("/")
-
-    // if (!res.headersSent) {
-    //   // const doc = await nano.db.use("getyour").get("users")
-    //
-    //   // is writable algo
-    // }
 
   } catch (error) {
     await Helper.logError(error, req)
