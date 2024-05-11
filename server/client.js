@@ -10,8 +10,7 @@ const multer = require('multer')
 const storage = multer.memoryStorage()
 const upload = multer({storage})
 const path = require("node:path")
-const http = require("node:http")
-const {startWebRtcSignaling} = require("./webrtc-signaling.js")
+const {startWebRtc} = require("./webrtc.js")
 const createExpressServer = Helper.createExpressServer()
 
 Helper.createDatabase("getyour")
@@ -512,3 +511,4 @@ async(req, res) => {
 })
 
 client.start()
+startWebRtc(app)

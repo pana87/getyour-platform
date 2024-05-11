@@ -36,7 +36,11 @@
             Helper.render("text/hr", "closed apps", content)
 
             const closedButtons = Helper.create("div/scrollable", content)
-            Helper.add("button/network", closedButtons)
+            Helper.add("next-steps", closedButtons)
+
+            Helper.add("contacts", closedButtons)
+            Helper.add("calendar", closedButtons)
+            Helper.add("groups", closedButtons)
 
             Helper.add("button/assign-expert-home", closedButtons)
 

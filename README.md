@@ -28,6 +28,9 @@ CLIENT_PORT=9999
 CLIENT_HOSTNAME=localhost
 CLIENT_PROTOCOL=http
 
+PATH_TO_CERTIFICATE=./security/cert.pem
+PATH_TO_PRIVATE_KEY=./security/key.pem
+
 ADMINS=first.email@my-domain.de,second.email@my-domain.de,n.email@my-domain.de, ..
 DOMAIN=@my-domain.de
 
