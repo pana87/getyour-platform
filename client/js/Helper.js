@@ -16,6 +16,1585 @@ export class Helper {
 
     }
 
+    if (event === "calendar") {
+
+      const button = this.create("button/left-right", input)
+      button.left.textContent = ".calendar"
+      button.right.textContent = "Dein persönlicher Kalender"
+      button.onclick = () => {
+        window.alert("Bald verfügbar..")
+        // mond calender app
+        // termin calendar app
+      }
+    }
+
+    if (event === "contacts") {
+
+      const button = this.create("button/left-right", input)
+      button.left.textContent = ".contacts"
+      button.right.textContent = "Deine Kontakte"
+      button.onclick = () => {
+        this.overlay("popup", async overlay => {
+          overlay.info.textContent = ".contacts"
+
+          const searchField = this.create("input/text", overlay)
+          searchField.input.placeholder = "Filter nach E-Mail Adresse oder Notizen.."
+
+          const content = this.create("div/scrollable", overlay)
+
+          const container = this.create("div/flex-row", content)
+          container.style.justifyContent = "flex-start"
+          const importButton = this.render("text/link", "Importieren", container)
+          const exportButton = this.render("text/link", "Exportieren", container)
+
+          importButton.onclick = () => {
+            this.overlay("popup", overlay => {
+              const funnel = this.create("div/scrollable", overlay)
+
+              const contactsField = this.create("field/textarea", funnel)
+              contactsField.label.textContent = "Meine JavaScript Kontaktliste"
+              contactsField.input.style.fontFamily = "monospace"
+              contactsField.input.style.height = "55vh"
+              contactsField.input.setAttribute("required", "true")
+              contactsField.input.oninput = () => this.verify("input/value", contactsField.input)
+              this.add("outline-hover", contactsField.input)
+              this.verify("input/value", contactsField.input)
+              contactsField.input.placeholder = `[
+                {
+                  created: 1706575455693, // id, einzigartig
+                  email: "neuer@kontakt.de", // id, einzigartig
+                  alias: "Kontakt Name",  // optional
+                  birthday: "1999-03-21", // optional
+                  status: "kontakt status", // optional
+                  notes: "Kontakt Notizen", // optional
+                  phone: "+123456789", // optional
+                  website: "https://www.kontakt-webseite.de/" // optional
+                },
+
+                .
+                .
+
+              ]
+              `
+
+              const submit = this.render("text/node/action-button", "Kontakte jetzt importieren", funnel)
+              submit.onclick = async () => {
+                await this.verify("input/value", contactsField.input)
+
+                const contacts = JSON.parse(contactsField.input.value)
+
+                for (let i = 0; i < contacts.length; i++) {
+                  const contact = contacts[i]
+                  if (!contact.created || !contact.email) {
+                    this.add("style/node/not-valid", contactsField.input)
+                    window.alert("Deine Kontaktliste ist in einem ungültigen Format.")
+                    throw new Error("contact list not valid")
+                  }
+                }
+
+                this.overlay("security", async securityOverlay => {
+                  const res = await this.request("/register/contacts/js-list-self/", {contacts})
+                  if (res.status === 200) {
+                    window.alert("Deine Kontakte wurden erfolgreich importiert.")
+                    this.convert("parent/loading", contactsDiv)
+                    await getAndRenderContacts(contactsDiv)
+                    overlay.remove()
+                    securityOverlay.remove()
+                  }
+                })
+
+
+              }
+
+            })
+          }
+
+          const contactsDiv = this.create("div/scrollable", content)
+
+          async function getAndRenderContacts(parent) {
+            const res = await Helper.request("/get/contacts/self/")
+            if (res.status === 200) {
+              const contacts = JSON.parse(res.response)
+              renderContactButtons(contacts, parent)
+            } else {
+              Helper.convert("parent/info", parent)
+              parent.textContent = "Keine Kontakte gefunden"
+            }
+          }
+
+          function concatEmailAndNotes(array, key) {
+            return array.map(it => {
+              if (it.email && it.notes) {
+                return { ...it, [key]: `${it.email},${it.notes}` }
+              } else {
+                return it
+              }
+            })
+          }
+
+          const websiteIcon = await this.convert("path/icon", "/public/website.svg")
+          const phoneIcon = await this.convert("path/icon", "/public/phone-out.svg")
+          const emailIcon = await this.convert("path/icon", "/public/email-out.svg")
+          function renderContactButtons(contacts, parent, query = "") {
+            const fragment = document.createDocumentFragment()
+            Helper.convert("parent/scrollable", parent)
+            for (let i = 0; i < contacts.length; i++) {
+              const contact = contacts[i]
+              const contactButton = Helper.create("button/left-right", fragment)
+              contactButton.left.style.width = "55%"
+
+              let text = contact.email
+              if (contact.text) text = contact.text
+              if (query === "") text = contact.email
+
+              while (contactButton.left.firstChild) {
+                contactButton.left.removeChild(contactButton.left.firstChild)
+              }
+
+              Helper.convert("text/marked", {text, query, parent: contactButton.left})
+
+              if (contact.alias !== undefined) {
+                Helper.createNode("div", contactButton.left, contact.alias)
+                const div = Helper.createNode("div", contactButton.left, contact.email)
+                Helper.style(div, {fontSize: "13px"})
+              }
+              contactButton.right.style.display = "flex"
+              if (contact.website) {
+                const clone = websiteIcon.cloneNode(true)
+                clone.style.padding = "5px"
+                contactButton.right.appendChild(clone)
+                Helper.add("outline-hover", clone)
+                clone.onclick = () => {
+                  window.open(contact.website, "_blank")
+                }
+              }
+              if (contact.phone) {
+                const clone = phoneIcon.cloneNode(true)
+                clone.style.padding = "5px"
+                contactButton.right.appendChild(clone)
+                Helper.add("outline-hover", clone)
+                clone.onclick = () => {
+                  window.location.href = `tel:${contact.phone}`
+                }
+              }
+              if (contact.email) {
+                const clone = emailIcon.cloneNode(true)
+                clone.style.padding = "5px"
+                contactButton.right.appendChild(clone)
+                Helper.add("outline-hover", clone)
+                clone.onclick = () => {
+                  window.location.href = `mailto:${contact.email}`
+                }
+              }
+              contactButton.onclick = () => {
+                Helper.overlay("popup", async updateOverlay => {
+                  Helper.create("header/info", updateOverlay).textContent = contact.email
+                  const buttons = Helper.create("div/scrollable", updateOverlay)
+
+                  {
+                    const button = Helper.create("button/left-right", buttons)
+                    button.left.textContent = ".email"
+                    button.right.textContent = "Aktualisiere die E-Mail Adresse deines Kontakts"
+                    button.onclick = () => {
+                      Helper.overlay("popup", overlay => {
+                        overlay.info.textContent = contact.email
+                        const funnel = Helper.create("div/scrollable", overlay)
+
+                        const emailField = Helper.create("field/text", funnel)
+                        emailField.label.textContent = "E-Mail Adresse"
+                        emailField.input.setAttribute("required", "true")
+                        if (contact.email !== undefined) {
+                          emailField.input.value = contact.email
+                        }
+                        Helper.verify("input/value", emailField.input)
+                        Helper.add("outline-hover", emailField.input)
+                        emailField.input.oninput = () => Helper.verify("input/value", emailField.input)
+
+                        const submit = Helper.create("button/action", funnel)
+                        Helper.add("outline-hover", submit)
+                        submit.textContent = "E-Mail jetzt speichern"
+                        submit.onclick = async () => {
+                          await Helper.verify("input/value", emailField.input)
+
+                          Helper.overlay("security", async securityOverlay => {
+                            const res = await Helper.request("/register/contacts/email-update/", {id: contact.created, email: emailField.input.value})
+                            if (res.status === 200) {
+                              window.alert("E-Mail erfolgreich gespeichert.")
+                              await getAndRenderContacts(parent)
+                              overlay.remove()
+                              updateOverlay.remove()
+                              securityOverlay.remove()
+                            } else {
+                              window.alert("Fehler.. Bitte wiederholen.")
+                              securityOverlay.remove()
+                            }
+                          })
+
+                        }
+
+                      })
+                    }
+                  }
+
+                  {
+                    const button = Helper.create("button/left-right", buttons)
+                    button.left.textContent = ".alias"
+                    button.right.textContent = "Gib deinem Kontakt einen alternativen Namen"
+                    button.onclick = () => {
+                      Helper.overlay("popup", overlay => {
+                        Helper.create("header/info", overlay).textContent = contact.email
+
+                        const funnel = Helper.create("div/scrollable", overlay)
+
+                        const aliasField = Helper.create("field/text", funnel)
+                        aliasField.label.textContent = "Alternative Bezeichnung für deinen Kontakt"
+                        aliasField.input.setAttribute("required", "true")
+                        if (contact.alias !== undefined) {
+                          aliasField.input.value = contact.alias
+                        }
+                        Helper.verify("input/value", aliasField.input)
+                        Helper.add("outline-hover", aliasField.input)
+                        aliasField.input.oninput = () => Helper.verify("input/value", aliasField.input)
+
+
+                        const submit = Helper.create("button/action", funnel)
+                        Helper.add("outline-hover", submit)
+                        submit.textContent = "Alias jetzt speichern"
+                        submit.onclick = async () => {
+
+                          await Helper.verify("input/value", aliasField.input)
+
+                          Helper.overlay("security", async securityOverlay => {
+                            const res = await Helper.request("/register/contacts/alias-self/", {id: contact.created, alias: aliasField.input.value})
+                            if (res.status === 200) {
+                              window.alert("Alias erfolgreich gespeichert.")
+                              await getAndRenderContacts(parent)
+                              overlay.remove()
+                              updateOverlay.remove()
+                              securityOverlay.remove()
+                            } else {
+                              window.alert("Fehler.. Bitte wiederholen.")
+                              securityOverlay.remove()
+                            }
+                          })
+
+                        }
+
+                      })
+                    }
+                  }
+
+                  {
+                    const button = Helper.create("button/left-right", buttons)
+                    button.left.textContent = ".character"
+                    button.right.textContent = "Erfahre mehr über deinen Kontakt"
+                    button.onclick = () => {
+                      const numerology = Helper.fn("numerology")
+
+                      Helper.overlay("popup", overlay => {
+                        Helper.create("header/info", overlay).textContent = contact.email
+                        const funnel = Helper.create("div", overlay)
+
+                        const dateField = Helper.create("field/date", funnel)
+                        dateField.label.textContent = "Gebe das Geburtsdatum deines Kontakts ein"
+                        dateField.input.placeholder = "yyyy-mm-dd"
+                        Helper.add("outline-hover", dateField.input)
+                        let birthday
+                        if (contact.birthday) {
+                          const split = contact.birthday.split("T")
+                          dateField.input.value = split[0]
+                          birthday = split[0]
+                        }
+                        dateField.input.setAttribute("required", "true")
+                        Helper.verify("input/value", dateField.input)
+
+                        const submit = Helper.render("text/node/action-button", "Geburtsdatum jetzt speichern", funnel)
+                        Helper.add("outline-hover", submit)
+                        submit.onclick = async () => {
+                          await Helper.verify("input/value", dateField.input)
+
+                          const date = new Date(dateField.input.value)
+
+                          Helper.overlay("security", async securityOverlay => {
+                            const res = await Helper.request("/register/contacts/birthday-self/", {id: contact.created, birthday: date.toISOString()})
+                            if (res.status === 200) {
+                              window.alert("Geburtsdatum erfolgreich gespeichert.")
+                              await getAndRenderContacts(parent)
+                              overlay.remove()
+                              updateOverlay.remove()
+                              securityOverlay.remove()
+                            } else {
+                              window.alert("Fehler.. Bitte wiederholen.")
+                              securityOverlay.remove()
+                            }
+                          })
+
+                        }
+
+                        if (!Helper.verifyIs("text/empty", birthday)) {
+                          const content = Helper.create("div/scrollable", overlay)
+
+                          if (contact.alias) {
+                            Helper.render("text/hr", `Numerologie von ${contact.alias}`, content)
+                          } else {
+                            Helper.render("text/hr", `Numerologie von ${contact.email}`, content)
+                          }
+
+                          const date = new Date(birthday)
+
+                          numerology.renderAge(date, content)
+                          numerology.renderLifePath(date, content)
+                          numerology.renderMaster(date, content)
+                          numerology.renderBirthDayEnergy(date, content)
+                          numerology.renderPrevailingEnergies(date, content)
+                          numerology.renderRecedingEnergies(date, content)
+                          numerology.renderTones(date, content)
+                          numerology.renderFirstCycle(date, content)
+                          numerology.renderFirstKeyTone(date, content)
+                          numerology.renderSecondCycle(date, content)
+                          numerology.renderSecondKeyTone(date, content)
+                          numerology.renderThirdCycle(date, content)
+                          numerology.renderThirdKeyTone(date, content)
+                          numerology.renderFourthCycle(date, content)
+                          numerology.renderFourthKeyTone(date, content)
+
+                          if (contact.alias) {
+                            numerology.renderBirthNameEnergies(contact.alias, content)
+                            numerology.renderDeterminationEnergy(contact.alias, content)
+                            numerology.renderHeartsDesire(contact.alias, content)
+                            numerology.renderPersona(contact.alias, content)
+                            numerology.renderDoubleLetterEnergies(contact.alias, content)
+                            numerology.renderPhysicalLevel(contact.alias, content)
+                            numerology.renderEmotionalLevel(contact.alias, content)
+                            numerology.renderMentalLevel(contact.alias, content)
+                            numerology.renderIntuitiveLevel(contact.alias, content)
+                          }
+
+                        }
+
+                      })
+                    }
+                  }
+
+                  {
+                    const button = Helper.create("button/left-right", buttons)
+                    button.left.textContent = ".status"
+                    button.right.textContent = "Gib deinem Kontakt einen Status"
+                    button.onclick = () => {
+                      Helper.overlay("popup", overlay => {
+                        Helper.create("header/info", overlay).textContent = contact.email
+
+                        const funnel = Helper.create("div/scrollable", overlay)
+
+                        const statusField = Helper.create("field/text", funnel)
+                        Helper.add("outline-hover", statusField.input)
+                        statusField.label.textContent = "Vergebe einen Status Wert"
+                        statusField.input.setAttribute("required", "true")
+                        if (contact.status !== undefined) {
+                          statusField.input.value = contact.status
+                        }
+                        Helper.verify("input/value", statusField.input)
+                        statusField.input.oninput = () => Helper.verify("input/value", statusField.input)
+
+                        const submit = Helper.create("button/action", funnel)
+                        Helper.add("outline-hover", submit)
+                        submit.textContent = "Status jetzt speichern"
+                        submit.onclick = async () => {
+
+                          await Helper.verify("input/value", statusField.input)
+
+                          Helper.overlay("security", async securityOverlay => {
+                            const res = await Helper.request("/register/contacts/status-self/", {id: contact.created, status: statusField.input.value})
+                            if (res.status === 200) {
+                              window.alert("Status erfolgreich gespeichert.")
+                              await getAndRenderContacts(parent)
+                              overlay.remove()
+                              updateOverlay.remove()
+                              securityOverlay.remove()
+                            } else {
+                              window.alert("Fehler.. Bitte wiederholen.")
+                              securityOverlay.remove()
+                            }
+                          })
+                        }
+
+                      })
+                    }
+                  }
+
+                  {
+                    const button = Helper.create("button/left-right", buttons)
+                    button.left.textContent = ".notes"
+                    button.right.textContent = "Mache dir Notizen zu deinem Kontakt"
+                    button.onclick = () => {
+                      Helper.overlay("popup", overlay => {
+                        overlay.info.textContent = contact.email
+
+                        const funnel = Helper.create("div/scrollable", overlay)
+
+                        const notesField = Helper.create("field/textarea", funnel)
+                        Helper.add("outline-hover", notesField.input)
+                        notesField.label.textContent = "Notizen"
+                        notesField.input.style.height = "55vh"
+                        if (contact.notes !== undefined) {
+                          notesField.input.value = contact.notes
+                        }
+                        Helper.verify("input/value", notesField.input)
+                        notesField.input.oninput = () => Helper.verify("input/value", notesField.input)
+
+                        const submit = Helper.create("button/action", funnel)
+                        Helper.add("outline-hover", submit)
+                        submit.textContent = "Notizen jetzt speichern"
+                        submit.onclick = async () => {
+
+                          await Helper.verify("input/value", notesField.input)
+
+                          Helper.overlay("security", async securityOverlay => {
+                            const res = await Helper.request("/register/contacts/notes-self/", {id: contact.created, notes: notesField.input.value})
+
+                            if (res.status === 200) {
+                              window.alert("Notizen erfolgreich gespeichert.")
+                              await getAndRenderContacts(parent)
+                              overlay.remove()
+                              updateOverlay.remove()
+                              securityOverlay.remove()
+                            } else {
+                              window.alert("Fehler.. Bitte wiederholen.")
+                              securityOverlay.remove()
+                            }
+                          })
+
+                        }
+
+                      })
+                    }
+                  }
+
+                  {
+                    const button = Helper.create("button/left-right", buttons)
+                    button.left.textContent = ".phone"
+                    button.right.textContent = "Gib die Telefon Nummer deines Kontakts ein"
+                    button.onclick = () => {
+                      Helper.overlay("popup", overlay => {
+                        Helper.create("header/info", overlay).textContent = contact.email
+
+                        const funnel = Helper.create("div/scrollable", overlay)
+
+                        const phoneField = Helper.create("field/tel", funnel)
+                        phoneField.label.textContent = "Telefon Nummer"
+                        phoneField.input.setAttribute("required", "true")
+                        phoneField.input.setAttribute("accept", "text/tel")
+                        if (contact.phone !== undefined) {
+                          phoneField.input.value = contact.phone
+                        }
+                        Helper.verify("input/value", phoneField.input)
+                        Helper.add("outline-hover", phoneField.input)
+                        phoneField.input.oninput = () => Helper.verify("input/value", phoneField.input)
+
+
+                        const submit = Helper.create("button/action", funnel)
+                        Helper.add("outline-hover", submit)
+                        submit.textContent = "Nummer jetzt speichern"
+                        submit.onclick = async () => {
+
+                          await Helper.verify("input/value", phoneField.input)
+
+                          Helper.overlay("security", async securityOverlay => {
+                            const res = await Helper.request("/register/contacts/phone-self/", {id: contact.created, phone: phoneField.input.value})
+
+                            if (res.status !== 200) {
+                              window.alert("Fehler.. Bitte wiederholen.")
+                              securityOverlay.remove()
+                            }
+
+                            if (res.status === 200) {
+                              window.alert("Telefon Nummer erfolgreich gespeichert.")
+
+                              const res = await Helper.request("/get/contacts/self/")
+                              if (res.status !== 200) {
+                                Helper.convert("parent/info", parent)
+                                parent.textContent = "Keine Kontakte gefunden"
+                              }
+                              if (res.status === 200) {
+                                const contacts = JSON.parse(res.response)
+                                Helper.render(event, contacts, parent)
+                              }
+
+                              overlay.remove()
+                              updateOverlay.remove()
+                              securityOverlay.remove()
+                            }
+                          })
+
+                        }
+
+                      })
+                    }
+                  }
+
+                  {
+                    const button = Helper.create("button/left-right", buttons)
+                    button.left.textContent = ".website"
+                    button.right.textContent = "Gib die Webseite deines Kontakts ein"
+                    button.onclick = () => {
+                      Helper.overlay("popup", overlay => {
+                        Helper.create("header/info", overlay).textContent = contact.email
+
+                        const funnel = Helper.create("div/scrollable", overlay)
+
+                        const websiteField = Helper.create("field/text", funnel)
+                        websiteField.label.textContent = "Webseite"
+                        websiteField.input.setAttribute("required", "true")
+                        if (contact.website !== undefined) {
+                          websiteField.input.value = contact.website
+                        }
+                        Helper.verify("input/value", websiteField.input)
+                        Helper.add("outline-hover", websiteField.input)
+                        websiteField.input.oninput = () => Helper.verify("input/value", websiteField.input)
+
+
+                        const submit = Helper.create("button/action", funnel)
+                        Helper.add("outline-hover", submit)
+                        submit.textContent = "Webseite jetzt speichern"
+                        submit.onclick = async () => {
+
+                          await Helper.verify("input/value", websiteField.input)
+
+                          Helper.overlay("security", async securityOverlay => {
+                            const res = await Helper.request("/register/contacts/website-self/", {id: contact.created, website: websiteField.input.value})
+
+                            if (res.status !== 200) {
+                              window.alert("Fehler.. Bitte wiederholen.")
+                              securityOverlay.remove()
+                            }
+
+                            if (res.status === 200) {
+                              window.alert("Webseite erfolgreich gespeichert.")
+                              await getAndRenderContacts(parent)
+                              overlay.remove()
+                              updateOverlay.remove()
+                              securityOverlay.remove()
+                            }
+                          })
+
+                        }
+
+                      })
+                    }
+                  }
+
+                  {
+                    const res = await Helper.request("/verify/user/expert/")
+                    if (res.status === 200) {
+                      const button = Helper.create("button/left-right", buttons)
+                      button.left.textContent = ".promote"
+                      button.right.textContent = "Erhalte Zugang zu unendlich vielen Möglichkeiten"
+                      button.onclick = () => {
+                        Helper.overlay("popup", async overlay => {
+                          if (contact.alias) {
+                            Helper.render("text/h1", `Promote ${contact.email}`, overlay)
+                          } else {
+                            Helper.render("text/h1", `Promote ${contact.email}`, overlay)
+                          }
+                          const funnel = Helper.create("div/scrollable", overlay)
+                          const searchField = Helper.create("field/text", funnel)
+                          searchField.label.textContent = "Suche nach Text im Pfad"
+                          searchField.input.placeholder = "/experte/plattform/pfad"
+                          searchField.style.margin = "0 34px"
+                          Helper.verify("input/value", searchField.input)
+                          Helper.add("outline-hover", searchField.input)
+                          const pathField = await Helper.create("field/open-expert-values-path-select", funnel)
+                          const originalOptions = Array.from(pathField.input.options).map(option => option.cloneNode(true))
+                          searchField.input.oninput = (ev) => {
+                            const searchTerm = ev.target.value.toLowerCase()
+                            const options = originalOptions.map(it => it.value)
+                            const filtered = options.filter(it => it.toLowerCase().includes(searchTerm))
+                            pathField.input.add(filtered)
+                          }
+                          pathField.input.style.height = "55vh"
+                          pathField.input.setAttribute("multiple", "true")
+                          for (let i = 0; i < pathField.input.options.length; i++) {
+                            const option = pathField.input.options[i]
+                            option.selected = false
+                          }
+                          pathField.input.oninput = async () => {
+                            const fieldFunnel = await Helper.convert("path/field-funnel", pathField.input.value)
+                            if (fieldFunnel.id) {
+                              Helper.overlay("popup", async overlay => {
+                                overlay.info.textContent = contact.email + "." + fieldFunnel.id
+                                const create = Helper.create("button/left-right", overlay)
+                                create.left.textContent = ".create"
+                                create.right.textContent = Helper.convert("text/capital-first-letter", fieldFunnel.id) + " definieren"
+                                create.onclick = () => {
+                                  Helper.overlay("popup", async overlay => {
+                                    Helper.create("header/info", overlay).textContent = contact.email + "." + fieldFunnel.id + ".create"
+                                    overlay.append(fieldFunnel)
+                                    Helper.verifyIs("field-funnel/valid", fieldFunnel)
+                                    Helper.add("outline-hover/field-funnel", fieldFunnel)
+                                    const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
+                                    if (submitButton) {
+                                      submitButton.textContent = `${Helper.convert("text/capital-first-letter", fieldFunnel.id)} jetzt speichern`
+                                      submitButton.onclick = async () => {
+                                        const path = pathField.input.value
+                                        await Helper.verify("field-funnel", fieldFunnel)
+                                        const map = await Helper.convert("field-funnel/map", fieldFunnel)
+                                        Helper.overlay("security", async securityOverlay => {
+                                          const register = {}
+                                          register.email = contact.email
+                                          register.map = map
+                                          register.path = path
+                                          register.id = fieldFunnel.id
+                                          const res = await Helper.request("/register/location/email-expert", register)
+                                          if (res.status === 200) {
+                                            window.alert("Daten erfolgreich gespeichert.")
+                                            await Helper.render("location-list/node/email-expert", {tag: fieldFunnel.id, email: contact.email, path: pathField.input.value}, locationList)
+                                            securityOverlay.remove()
+                                          } else {
+                                            window.alert("Fehler.. Bitte wiederholen.")
+                                            securityOverlay.remove()
+                                          }
+                                        })
+                                      }
+                                    } else {
+                                      window.alert("Field Funnel besitzt keinen Button mit der Klasse 'submit-field-funnel-button'")
+                                    }
+                                  })
+                                }
+                                if (contact.alias) {
+                                  Helper.render("text/hr", Helper.convert("text/capital-first-letter", fieldFunnel.id) + " von " + contact.alias, overlay)
+                                } else {
+                                  Helper.render("text/hr", Helper.convert("text/capital-first-letter", fieldFunnel.id) + " von " + contact.email, overlay)
+                                }
+                                const locationList = Helper.create("info/loading", overlay)
+                                await Helper.render("location-list/node/email-expert", {tag: fieldFunnel.id, email: contact.email, path: pathField.input.value}, locationList)
+                              })
+                            }
+                          }
+                        })
+                      }
+                    }
+                  }
+                  {
+                    const button = Helper.create("button/left-right", buttons)
+                    button.left.textContent = ".delete"
+                    button.right.textContent = "Kontakt entfernen"
+                    button.onclick = () => {
+                      const confirm = window.confirm("Möchtest du deinen Kontakt wirklich entfernen?")
+                      if (confirm === true) {
+                        Helper.overlay("security", async securityOverlay => {
+                          const res = await Helper.request("/remove/contacts/id-self/", {id: contact.created})
+                          if (res.status === 200) {
+                            window.alert("Kontakt erfolgreich entfernt.")
+                            contactButton.remove()
+                            updateOverlay.remove()
+                            securityOverlay.remove()
+                          }
+                          if (res.status !== 200) {
+                            window.alert("Fehler.. Bitte wiederholen.")
+                            securityOverlay.remove()
+                          }
+                        })
+                      }
+                    }
+                  }
+                })
+              }
+            }
+
+            parent?.appendChild(fragment)
+          }
+
+          const res = await this.request("/get/contacts/self/")
+          let filtered
+          if (res.status === 200) {
+            const contacts = JSON.parse(res.response)
+
+            exportButton.onclick = () => {
+              if (filtered) {
+                this.convert("text/clipboard", JSON.stringify(filtered))
+                .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
+              } else {
+                this.convert("text/clipboard", JSON.stringify(contacts))
+                .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
+              }
+            }
+
+            searchField.input.oninput = (ev) => {
+              const prepared = concatEmailAndNotes(contacts, "text")
+              filtered = prepared.filter(it => {
+                const check = it.text ? it.text : it.email
+                return check.toLowerCase().includes(ev.target.value.toLowerCase())
+              })
+              renderContactButtons(filtered, contactsDiv, ev.target.value)
+            }
+
+            renderContactButtons(contacts, contactsDiv)
+          } else {
+            this.convert("parent/info", contactsDiv)
+            parent.textContent = "Keine Kontakte gefunden"
+          }
+
+          const addButton = this.create("button/add", content)
+          addButton.onclick = () => {
+
+            this.overlay("popup", overlay => {
+              this.render("text/h1", "Neuen Kontakt erstellen", overlay)
+
+              const funnel = this.create("div/scrollable", overlay)
+
+              const emailField = this.create("field/email", funnel)
+              emailField.label.textContent = "Welche E-Mail Adresse möchtest du zu deiner Kontaktliste hinzufügen"
+              emailField.input.placeholder = "neue@email.de"
+              this.verify("input/value", emailField.input)
+              emailField.input.oninput = () => this.verify("input/value", emailField.input)
+
+              const submit = this.create("button/action", funnel)
+              submit.textContent = "Kontakt jetzt speichern"
+              submit.onclick = async () => {
+                await this.verify("input/value", emailField.input)
+
+                this.overlay("security", async securityOverlay => {
+                  const res = await this.request("/register/contacts/email-self/", {email: emailField.input.value})
+                  if (res.status === 200) {
+                    window.alert("Kontakt erfolgreich gespeichert.")
+                    await getAndRenderContacts(contactsDiv)
+                    securityOverlay.remove()
+                    overlay.remove()
+                  } else {
+                    window.alert("Fehler.. Bitte wiederholen.")
+                    securityOverlay.remove()
+                  }
+                })
+
+              }
+
+            })
+          }
+
+        })
+      }
+    }
+
+    if (event === "groups") {
+
+      const button = this.create("button/left-right", input)
+      button.left.textContent = ".groups"
+      button.right.textContent = "Schnell, einfach und sicher Kontakte gruppieren"
+      button.onclick = () => {
+        this.overlay("popup", async overlay => {
+          overlay.info.textContent = ".groups"
+
+          async function renderInfo(prefix, path, postfix, parent) {
+            const fragment = document.createDocumentFragment()
+            const info = Helper.createNode("div", fragment)
+            info.style.margin = "21px 34px"
+            const span1 = Helper.createNode("span", info, prefix)
+            const span2 = Helper.createNode("span", info)
+            Helper.style(span2, {width: "34px", margin: "0 5px"})
+            const icon = await Helper.convert("path/icon", path)
+            Helper.style(icon, {display: "inline-block", width: "34px"})
+            span2.appendChild(icon)
+            Helper.createNode("span", info, postfix)
+            parent?.appendChild(fragment)
+            return fragment
+          }
+
+          async function defineNewGroup(overlay) {
+            Helper.render("text/h1", "Neue Gruppe definieren", overlay)
+            const funnel = Helper.create("div/scrollable", overlay)
+            const emailSelect = Helper.create("email-select", funnel)
+            const res = await Helper.request("/get/user/tree-closed/", {tree: "contacts"})
+            if (res.status === 200) {
+              const contacts = JSON.parse(res.response)
+              emailSelect.renderEmails(contacts)
+              emailSelect.filterEmailsOnSearch(contacts)
+            }
+            emailSelect.submit = Helper.create("toolbox/action", funnel)
+            emailSelect.submit.textContent = "Gruppe jetzt speichern"
+            return emailSelect
+          }
+
+          const addGroup = this.create("button/add", overlay)
+          addGroup.onclick = () => {
+            this.overlay("popup", async overlay => {
+              const emailSelect = await defineNewGroup(overlay)
+              emailSelect.submit.onclick = () => {
+                const emails = emailSelect.selectedEmails()
+                if (this.verifyIs("array/empty", emails)) {
+                  window.alert("Wähle mindestens eine E-Mail Adresse.")
+                  this.add("style/node/not-valid", emailSelect.field.input)
+                  return
+                }
+                this.overlay("security", async securityOverlay => {
+                  const res = await this.request("/register/groups/self/", {emails})
+                  if (res.status === 200) {
+                    window.alert("Deine Gruppe wurde erfolgreich gespeichert.")
+                    await getAndRenderGroups(groupsContainer)
+                    securityOverlay.remove()
+                    overlay.remove()
+                  }
+                })
+              }
+            })
+          }
+
+          const searchField = this.create("input/text", overlay)
+          searchField.input.placeholder = "Filter nach E-Mail Adresse oder Alias"
+
+          const groupsContainer = this.create("info/loading", overlay)
+          await getAndRenderGroups(groupsContainer)
+
+          function renderGroupEmails(group, parent) {
+            const fragment = document.createDocumentFragment()
+            for (let i = 0; i < group.emails.length; i++) {
+              const email = group.emails[i]
+              const div = Helper.create("div", fragment)
+              div.textContent = email
+              fragment.appendChild(div)
+            }
+            parent?.appendChild(fragment)
+            return fragment
+          }
+
+          function filterGroupsByEmail(array, parent) {
+            searchField.input.oninput = (ev) => {
+              const filtered = array.filter(it => {
+                const lowercase = ev.target.value.toLowerCase()
+                if (it.emails && it.emails.length > 0) {
+                  return it.emails.some(email => email.includes(lowercase)) || (it.alias && it.alias.toLowerCase().includes(lowercase))
+                } else {
+                  if (it.alias && it.alias.toLowerCase().includes(lowercase)) {
+                    return true
+                  }
+                  return false
+                }
+              })
+              renderGroupButtons(filtered, parent, ev.target.value)
+            }
+          }
+
+          function markQueryInNode(node, query) {
+            if (node.children.length > 0) {
+              for (let i = 0; i < node.children.length; i++) {
+                const child = node.children[i]
+                markQueryInNode(child, query)
+              }
+            } else {
+              Helper.convert("node/marked", {node, query})
+            }
+
+          }
+
+          function renderGroupButtons(groups, parent, query = "") {
+            const fragment = document.createDocumentFragment()
+
+            Helper.convert("parent/scrollable", parent)
+            for (let i = 0; i < groups.length; i++) {
+              const group = groups[i]
+
+              const groupButton = Helper.create("toolbox/left-right", fragment)
+              if (Helper.verifyIs("text/empty", query)) {
+                if (!Helper.verifyIs("text/empty", group.alias)) {
+                  Helper.createNode("span", groupButton.left, `${group.alias}`)
+                } else {
+                  renderGroupEmails(group, groupButton.left)
+                }
+              } else {
+                if (!Helper.verifyIs("text/empty", group.alias)) {
+                  Helper.createNode("span", groupButton.left, `${group.alias}:`)
+                  renderGroupEmails(group, groupButton.left)
+                } else {
+                  renderGroupEmails(group, groupButton.left)
+                }
+              }
+              markQueryInNode(groupButton.left, query)
+              groupButton.onclick = () => {
+                Helper.overlay("popup", buttonsOverlay => {
+                  buttonsOverlay.info.textContent = group.emails.join(", ")
+
+                  const buttons = Helper.create("div/scrollable", buttonsOverlay)
+                  {
+                    const button = Helper.create("toolbox/left-right", buttons)
+                    button.left.textContent = ".alias"
+                    button.right.textContent = "Gebe deiner Gruppe einen alternativen Namen"
+                    button.onclick = () => {
+                      Helper.overlay("popup", overlay => {
+                        overlay.info.textContent = group.emails.join(", ")
+                        // overlay.info.textContent = group.alias ? `${group.alias}.alias` : ".alias"
+                        const funnel = Helper.create("div/scrollable", overlay)
+                        const aliasField = Helper.create("field/text", funnel)
+                        aliasField.label.textContent = "Alternative Bezeichnung für deine Gruppe"
+                        aliasField.input.placeholder = "Family, Friends, Work.."
+                        aliasField.input.setAttribute("required", "true")
+                        if (group.alias !== undefined) {
+                          aliasField.input.value = group.alias
+                        }
+                        Helper.verify("input/value", aliasField.input)
+                        Helper.add("outline-hover", aliasField.input)
+                        aliasField.input.oninput = () => Helper.verify("input/value", aliasField.input)
+                        const submit = Helper.create("button/action", funnel)
+                        Helper.add("outline-hover", submit)
+                        submit.textContent = "Alias jetzt speichern"
+                        submit.onclick = async () => {
+                          await Helper.verify("input/value", aliasField.input)
+                          Helper.overlay("security", async securityOverlay => {
+                            const res = await Helper.request("/register/groups/alias/", {id: group.created, alias: aliasField.input.value})
+                            if (res.status === 200) {
+                              window.alert("Alias erfolgreich gespeichert.")
+                              await getAndRenderGroups(groupsContainer)
+                              overlay.remove()
+                              buttonsOverlay.remove()
+                              securityOverlay.remove()
+                            } else {
+                              window.alert("Fehler.. Bitte wiederholen.")
+                              securityOverlay.remove()
+                            }
+                          })
+                        }
+                      })
+                    }
+                  }
+                  {
+                    const button = Helper.create("toolbox/left-right", buttons)
+                    button.left.textContent = ".emails"
+                    button.right.textContent = "Aktualisiere die Mitglieder deiner Gruppe"
+                    button.onclick = () => {
+                      Helper.overlay("popup", async overlay => {
+                        const emailSelect = await defineNewGroup(overlay, (emails) => Helper.request("/register/groups/emails-self/", {id: group.created, emails}))
+                        for (let i = 0; i < emailSelect.field.input.options.length; i++) {
+                          const option = emailSelect.field.input.options[i]
+                          if (group.emails.includes(option.value)) {
+                            option.selected = true
+                          }
+                        }
+                        emailSelect.submit.onclick = () => {
+                          const emails = emailSelect.selectedEmails()
+                          if (Helper.verifyIs("array/empty", emails)) {
+                            window.alert("Wähle mindestens eine E-Mail Adresse.")
+                            Helper.add("style/node/not-valid", emailSelect.field.input)
+                            return
+                          }
+                          Helper.overlay("security", async securityOverlay => {
+                            const res = await Helper.request("/register/groups/emails-self/", {id: group.created, emails})
+                            if (res.status === 200) {
+                              window.alert("Deine Gruppe wurde erfolgreich gespeichert.")
+                              await getAndRenderGroups(groupsContainer)
+                              overlay.remove()
+                              buttonsOverlay.remove()
+                              securityOverlay.remove()
+                            }
+                          })
+                        }
+                      })
+                    }
+                  }
+                  {
+                    const button = Helper.create("button/left-right", buttons)
+                    button.left.textContent = ".send-template"
+                    button.right.textContent = "Sende ein HTML Template an deine Gruppe"
+                    button.onclick = () => {
+
+                      async function renderTemplates(templates, node, callback) {
+                        Helper.convert("parent/scrollable", node)
+                        for (let i = 0; i < templates.length; i++) {
+                          const template = templates[i]
+                          const templateButton = Helper.create("button/left-right", node)
+                          templateButton.left.innerHTML = await Helper.convert("text/purified", template.html)
+                          templateButton.right.style.fontSize = "21px"
+                          templateButton.onclick = () => callback(template)
+                        }
+                      }
+
+                      function openSendTemplateOverlay(template, emails) {
+
+                        Helper.overlay("popup", async overlay => {
+                          overlay.info.textContent = emails.join(", ")
+                          const funnel = Helper.create("div/scrollable", overlay)
+
+                          const subjectField = Helper.create("field/text", funnel)
+                          subjectField.label.textContent = "Betreff"
+                          subjectField.input.setAttribute("required", "true")
+                          subjectField.style.margin = "21px 34px"
+                          subjectField.input.oninput = () => Helper.verify("input/value", subjectField.input)
+                          Helper.verify("input/value", subjectField.input)
+                          const buttons = Helper.create("div/flex-row", funnel)
+                          const testTemplateButton = Helper.create("button/action", buttons)
+                          testTemplateButton.textContent = "Test senden"
+                          testTemplateButton.style.background = Helper.colors.light.success
+                          testTemplateButton.style.width = "233px"
+                          testTemplateButton.onclick = async () => {
+                            await Helper.verify("input/value", subjectField.input)
+                            Helper.overlay("security", async securityOverlay => {
+                              securityOverlay.remove()
+                              const res = await Helper.request("/send/email/test-template/", {template: template.html, subject: subjectField.input.value})
+                              if (res.status === 200) {
+                                window.alert("Template erfolgreich gesendet.")
+                                securityOverlay.remove()
+                              }
+                            })
+                          }
+                          const sendTemplateButton = Helper.create("button/action", buttons)
+                          sendTemplateButton.textContent = "Template senden"
+                          sendTemplateButton.style.width = "233px"
+                          sendTemplateButton.onclick = async () => {
+                            await Helper.verify("input/value", subjectField.input)
+                            Helper.overlay("security", async securityOverlay => {
+                              try {
+                                securityOverlay.textContent = ""
+                                securityOverlay.style.display = "flex"
+                                securityOverlay.style.flexDirection = "column"
+                                securityOverlay.style.justifyContent = "center"
+                                const promises = []
+                                for (let i = 0; i < emails.length; i++) {
+                                  const email = emails[i]
+                                  const container = Helper.create("div", securityOverlay)
+                                  container.style.display = "flex"
+                                  container.style.margin = "21px 34px"
+                                  container.style.fontSize = "21px"
+                                  container.style.fontFamily = "sans-serif"
+                                  container.style.color = Helper.colors.light.text
+                                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                    container.style.color = Helper.colors.dark.text
+                                  }
+                                  const emailDiv = Helper.create("div", container)
+                                  emailDiv.textContent = email
+                                  const signDiv = Helper.create("div", container)
+                                  signDiv.style.marginLeft = "34px"
+                                  Helper.render("icon/node/path", "/public/loading.svg", signDiv)
+                                  const promise = Helper.request("/send/email/send-template/", {email, template: template.html, subject: subjectField.input.value})
+                                  .then((res) => {
+                                    if (res.status === 200) {
+                                      signDiv.style.color = Helper.colors.dark.success
+                                      signDiv.textContent = "Erfolgreich gesendet.."
+                                    } else {
+                                      signDiv.style.color = Helper.colors.dark.error
+                                      signDiv.textContent = "Fehler beim Senden.."
+                                    }
+                                  })
+                                  .catch((error) => {
+                                    signDiv.style.color = Helper.colors.dark.error
+                                    signDiv.textContent = "Fehler beim Senden.."
+                                  })
+                                  promises.push(promise)
+                                }
+                                await Promise.all(promises)
+                                Helper.removeOverlayButton(securityOverlay)
+                              } catch (error) {
+                                window.alert("sadf")
+                              }
+                            })
+                          }
+
+                        })
+
+                      }
+
+
+                      Helper.overlay("popup", async overlay => {
+                        overlay.info.textContent = group.emails.join(", ")
+                        const searchField = Helper.create("input/text", overlay)
+                        searchField.input.placeholder = "Suche nach Text in deinem Template"
+                        searchField.style.margin = "21px 34px"
+                        Helper.verify("input/value", searchField.input)
+                        Helper.add("outline-hover", searchField.input)
+                        const contactsDiv = Helper.create("div/scrollable", overlay)
+                        const res = await Helper.request("/get/templates/closed/")
+                        if (res.status === 200) {
+                          const templates = JSON.parse(res.response)
+                          let filtered
+                          searchField.input.oninput = async (ev) => {
+                            filtered = templates.filter(it => it.html.toLowerCase().includes(ev.target.value.toLowerCase()))
+                            const highlighted = filtered.map(it => {
+                              const highlightedHtml = it.html.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
+                              return { ...it, html: highlightedHtml }
+                            })
+                            await renderTemplates(highlighted, contactsDiv, (template) => openSendTemplateOverlay(template, group.emails))
+                          }
+                          await renderTemplates(templates, contactsDiv, (template) => openSendTemplateOverlay(template, group.emails))
+                        } else {
+                          Helper.convert("parent/info", contactsDiv)
+                          contactsDiv.textContent = "Keine Templates gefunden"
+                        }
+                      })
+                    }
+                  }
+
+                  {
+
+                    const button = Helper.create("button/left-right", buttons)
+                    button.left.textContent = ".web-call"
+                    button.right.textContent = "Verbinde dich per Videochat mit deiner Gruppe"
+                    button.onclick = () => {
+
+                      if (group.emails.length > 5) {
+                        window.alert("Es dürfen maximal 5 Nutzer an einem Webcall teilnehmen.")
+                        return
+                      }
+
+                      const confirm = window.confirm("Wenn du dem Webcall beitrittst, wirst du direkt als online angezeigt.\n\nMöchtest du diesem Webcall beitreten?")
+                      if (confirm !== true) return
+                      Helper.overlay("popup", async overlay => {
+                        overlay.info.textContent = ".web-call"
+                        const content = Helper.create("info/loading", overlay)
+                        let res = await Helper.request("/verify/user/jwt-in-emails/", {emails: group.emails})
+                        if (res.status !== 200) {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                          overlay.remove()
+                          return
+                        }
+
+                        res = await Helper.request("/get/user/tree-closed/", {tree: "email"})
+                        if (res.status !== 200) {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                          overlay.remove()
+                          return
+                        }
+
+                        Helper.convert("parent/scrollable", content)
+
+                        const localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true})
+                        const userEmail = res.response
+                        const peerConnections = {}
+
+                        overlay.removeOverlayButton.addEventListener("click", () => {
+                          stopLocalStream(localStream)
+                          send("stop")
+                          socket.close()
+                        })
+
+                        function escapeCSSId(id) {
+                          return id.replace(/\./g, "-").replace(/@/g, "-")
+                        }
+
+                        const container = document.createElement("div")
+                        Helper.style(container, {margin: "21px 34px", display: "flex", flexWrap: "wrap", justifyContent: "space-around", alignItems: "center"})
+                        content.appendChild(container)
+                        const fragment = document.createDocumentFragment()
+
+                        function updateStatus(node) {
+                          const video = node.querySelector("video")
+                          const status = node.querySelector(".status")
+                          if (video.srcObject) {
+                            status.textContent = "on"
+                            status.style.backgroundColor = "green"
+                          } else {
+                            status.textContent = "off"
+                            status.style.backgroundColor = "red"
+                          }
+                        }
+
+                        function createUserBox(email, node) {
+
+                          const userBox = document.createElement("div")
+                          Helper.style(userBox, {fontSize: "21px", fontFamily: "sans-serif", position: "relative", borderRadius: "13px", margin: "8px", padding: "8px", minWidth: "55px"})
+                          Helper.convert("dark-light", userBox)
+                          userBox.className = "user"
+
+                          userBox.video = document.createElement("video")
+                          userBox.video.id = escapeCSSId(email)
+                          userBox.video.autoplay = true
+                          userBox.video.controls = true
+                          userBox.video.style.width = "100%"
+                          userBox.appendChild(userBox.video)
+
+                          userBox.info = document.createElement("div")
+                          Helper.style(userBox.info, {display: "flex", justifyContent: "space-between", alignItems: "center"})
+                          userBox.appendChild(userBox.info)
+
+                          userBox.email = document.createElement("div")
+                          userBox.email.className = "email"
+                          userBox.email.textContent = email
+                          Helper.style(userBox.email, {whiteSpace: "nowrap", overflow: "auto"})
+                          userBox.info.appendChild(userBox.email)
+
+                          userBox.status = document.createElement("div")
+                          userBox.status.className = "status"
+                          Helper.style(userBox.status, {display: "flex", justifyContent: "center", alignItems: "center", width: "34px", height: "34px", borderRadius: "50%"})
+                          userBox.info.appendChild(userBox.status)
+                          updateStatus(userBox)
+
+                          node?.appendChild(userBox)
+                          return userBox
+                        }
+
+                        const localUserBox = createUserBox(userEmail, fragment)
+                        localUserBox.video.srcObject = localStream
+                        updateStatus(localUserBox)
+
+                        for (let i = 0; i < group.emails.length; i++) {
+                          const email = group.emails[i]
+                          if (email === userEmail) continue
+                          createUserBox(email, fragment)
+                        }
+                        container.appendChild(fragment)
+
+                        function stopLocalStream(stream) {
+                          stream.getTracks().forEach(track => track.stop())
+                        }
+
+                        const socket = new WebSocket(`wss://${window.location.hostname}:9998`)
+
+                        function send(type, data = {}) {
+                          socket.send(JSON.stringify({type, emails: group.emails, ...data}))
+                        }
+
+                        socket.onopen = async ev => {
+                          console.log('WebRTC is connected.')
+                          setTimeout(() => send("start"), 610)
+                        }
+
+                        function createPeerConnection(email) {
+                          const peerConnection = new RTCPeerConnection({iceServers: [{urls: "stun:stun.l.google.com:19302"}]})
+                          peerConnection.onicecandidate = ev => {
+                            if (ev.candidate) send("iceCandidate", {candidate: ev.candidate})
+                          }
+                          peerConnection.ontrack = ev => {
+                            const [remoteStream] = ev.streams
+                            const videoTag = document.querySelector(`video#${escapeCSSId(email)}`)
+                            if (videoTag) {
+                              videoTag.srcObject = remoteStream
+                              updateStatus(videoTag.parentElement)
+                            }
+                          }
+                          localStream.getTracks().forEach(track => {
+                            peerConnection.addTrack(track, localStream)
+                          })
+                          return peerConnection
+                        }
+
+                        function closePeerConnection(email) {
+                          if (peerConnections[email]) {
+                            peerConnections[email].close()
+                            delete peerConnections[email]
+                            const video = document.querySelector(`video#${escapeCSSId(email)}`)
+                            video.srcObject = null
+                            const status = video.parentElement.querySelector(".status")
+                            status.textContent = "off"
+                            status.style.backgroundColor = "red"
+                          }
+                        }
+
+                        socket.onmessage = async ev => {
+
+                          const data = JSON.parse(ev.data)
+
+                          if (data.type === "start") {
+                            if (!peerConnections[data.from]) peerConnections[data.from] = createPeerConnection(data.from)
+                            const offer = await peerConnections[data.from].createOffer()
+                            await peerConnections[data.from].setLocalDescription(offer)
+                            send("offer", {offer, from: data.from})
+                          }
+
+                          if (data.type === "offer") {
+                            if (!peerConnections[data.from]) peerConnections[data.from] = createPeerConnection(data.from)
+                            peerConnections[data.from].setRemoteDescription(new RTCSessionDescription(data.offer))
+                            const answer = await peerConnections[data.from].createAnswer()
+                            await peerConnections[data.from].setLocalDescription(answer)
+                            send("answer", {answer})
+                          }
+
+                          if (data.type === "answer") {
+                            await peerConnections[data.from].setRemoteDescription(new RTCSessionDescription(data.answer))
+                          }
+
+                          if (data.type === "iceCandidate") {
+                            peerConnections[data.from].addIceCandidate(new RTCIceCandidate(data.candidate))
+                          }
+
+                          if (data.type === "stop") {
+                            closePeerConnection(data.from)
+                          }
+
+                        }
+
+                        socket.onerror = (error) => {
+                          console.error('WebSocket error:', error)
+                          socket.close()
+                        }
+
+                        socket.onclose = (event) => {
+                          console.log('WebSocket closed.')
+                        }
+
+                      })
+
+                    }
+
+                  }
+
+                  {
+                    const button = Helper.create("button/left-right", buttons)
+                    button.left.textContent = ".web-chat"
+                    button.right.textContent = "Schreibe deiner Gruppe Nachrichten"
+                    button.onclick = async () => {
+
+                      // test in secdev
+                      // then add it here
+                      // const walkieTalkie = this.fn("walkie-talkie")
+                      // walkieTalkie.openOverlay()
+                      // walkieTalkie.thing()
+
+
+
+
+
+                      // try {
+                        //   if (!("Notification" in window)) {
+                          //     throw new Error("Browser does not support notifications")
+                          //   }
+                          //   const permission = await Notification.requestPermission()
+                          //   console.log(permission);
+                          //   if (permission === "denied") {
+                            //     // permission = await Notification.requestPermission()
+                            //     window.confirm("Du hast Benachrichtigungen in deinem Browser abgelehnt. Damit du diese Funktion nutzen kannst, musst die die Einstellungen in deinem Browser ändern.\n\nMöchtest du die Einstellungen deines Browsers öffnen?")
+                            //     // if (confirm === true) {
+                              //     //   window.open("about:preferences#notifications", "_blank")
+                              //     // }
+                              //   }
+                              //
+                              //   if (permission === "granted") {
+                                //     new Notification("Walkie Talkie", {body: "Das ist BODY", icon: "/public/logo-getyour-red.svg"})
+                                //   }
+                                //
+                                //
+                                // } catch (error) {
+                                  //
+                                  // }
+
+                                  //
+                                  //
+                                  //
+                                  //
+                                  //
+                                  // if ("Notification" in window) {
+                                    //   if (Notification.permission === "granted") {
+                                      //     console.log("Notifications are already allowed");
+                                      //   } else if (Notification.permission !== "denied") {
+                                        //     Notification.requestPermission().then(permission => {
+                                          //       if (permission === "granted") {
+                                            //         console.log("Notifications permission granted");
+                                            //
+                                            //         // open overlay here
+                                            //         Helper.overlay("popup", async overlay => {
+                                              //
+                                              //
+                                              //
+                                              //           // webrtc logic
+                                              //           try {
+                                                //             const hostname = window.location.hostname || "localhost"
+                                                //             const ws = new WebSocket(`ws://${hostname}:9998`)
+                                                  //
+                                                  //               function send(message) {
+                                                    //                 ws.send(JSON.stringify(message))
+                                                    //               }
+                                                    //
+                                                    //               overlay.removeOverlayButton.addEventListener("click", () => ws.close())
+                                                    //
+                                                    //               ws.onopen = () => {
+                                                      //                 console.log('WebSocket connection established')
+                                                      //                 // send({ type: 'getOnlineUsers' })
+                                                      //               }
+                                                      //
+                                                      //               ws.onmessage = (ev) => {
+                                                        //                 const message = JSON.parse(ev.data)
+                                                        //                 console.log(message)
+                                                        //               }
+                                                        //
+                                                        //               // Event handler for WebSocket errors
+                                                        //               ws.onerror = (error) => {
+                                                          //                 throw error
+                                                          //               }
+                                                          //
+                                                          //               // Event handler for WebSocket close
+                                                          //               ws.onclose = () => {
+                                                            //                 console.log('WebSocket connection closed')
+                                                            //               }
+                                                            //               // this is a webrtc client now
+                                                            //               // first connect to websocket
+                                                            //               // and get the online users
+                                                            //
+                                                            //
+                                                            //
+                                                            //               // create connection
+                                                            //               let localStream;
+                                                            //               let mediaRecorder;
+                                                            //               let chunks = [];
+                                                            //               let isTransmitting = false;
+                                                            //
+                                                            //               const transmitButton = Helper.create("button/left-right", overlay)
+                                                            //
+                                                            //               // Function to start audio transmission
+                                                            //               function startTransmit() {
+                                                              //                 // Request access to user's microphone
+                                                              //                 navigator.mediaDevices.getUserMedia({ audio: true })
+                                                              //                 .then(stream => {
+                                                                //                   localStream = stream;
+                                                                //                   mediaRecorder = new MediaRecorder(stream);
+                                                                //
+                                                                //                   // Start recording when data is available
+                                                                //                   mediaRecorder.addEventListener('dataavailable', event => {
+                                                                  //                     chunks.push(event.data);
+                                                                  //                   });
+                                                                  //
+                                                                  //                   // Start recording
+                                                                  //                   mediaRecorder.start();
+                                                                  //
+                                                                  //                   // Update button text
+                                                                  //                   transmitButton.textContent = 'Release to Stop';
+                                                                  //                   isTransmitting = true;
+                                                                  //                 })
+                                                                  //                 .catch(error => {
+                                                                    //                   console.error('Error starting transmission:', error);
+                                                                    //                 });
+                                                                    //               }
+                                                                    //
+                                                                    //               // Function to stop audio transmission
+                                                                    //               function stopTransmit() {
+                                                                      //                 // Stop recording
+                                                                      //                 mediaRecorder.stop();
+                                                                      //
+                                                                      //                 // Stop the local stream tracks
+                                                                      //                 localStream.getTracks().forEach(track => track.stop());
+                                                                      //
+                                                                      //                 // Update button text
+                                                                      //                 transmitButton.textContent = 'Press and Hold to Talk';
+                                                                      //                 isTransmitting = false;
+                                                                      //               }
+                                                                      //
+                                                                      //               // Event listener for button press
+                                                                      //               transmitButton.addEventListener('mousedown', () => {
+                                                                        //                 if (!isTransmitting) {
+                                                                          //                   startTransmit();
+                                                                          //                 }
+                                                                          //               });
+                                                                          //
+                                                                          //               // Event listener for button release
+                                                                          //               transmitButton.addEventListener('mouseup', () => {
+                                                                            //                 if (isTransmitting) {
+                                                                              //                   stopTransmit();
+                                                                              //                 }
+                                                                              //               });
+                                                                              //
+                                                                              //               // Event listener for touch start
+                                                                              //               transmitButton.addEventListener('touchstart', () => {
+                                                                                //                 if (!isTransmitting) {
+                                                                                  //                   startTransmit();
+                                                                                  //                 }
+                                                                                  //               });
+                                                                                  //
+                                                                                  //               // Event listener for touch end
+                                                                                  //               transmitButton.addEventListener('touchend', () => {
+                                                                                    //                 if (isTransmitting) {
+                                                                                      //                   stopTransmit();
+                                                                                      //                 }
+                                                                                      //               });
+                                                                                      //
+                                                                                      //               // Function to handle signaling message exchange
+                                                                                      //               function sendSignalingMessage(message) {
+                                                                                        //                 // Implement your signaling logic here (e.g., WebSocket)
+                                                                                        //               }
+                                                                                        //
+                                                                                        //
+                                                                                        //           } catch (error) {
+                                                                                          //
+                                                                                          //             console.error('WebSocket error:', error)
+                                                                                          //
+                                                                                          //           }
+                                                                                          //
+                                                                                          //
+                                                                                          //         })
+                                                                                          //
+                                                                                          //       } else {
+                                                                                            //         console.log("Notifications permission denied");
+                                                                                            //         // overlay.remove()
+                                                                                            //         throw new Error("Notifications permission denied")
+                                                                                            //       }
+                                                                                            //     }).catch(error => {
+                                                                                              //       console.error("Error requesting permission:", error)
+                                                                                              //     })
+                                                                                              //   }
+                                                                                              // } else {
+                                                                                                //   console.log("Browser does not support notifications")
+                                                                                                //   window.alert("Dein Browser unterstützt diese Funktion nicht. Unter 'https://caniuse.com' kannst du Browser vergleichen. Wechsel dann zu einem geeigneten Browser und versuche die Anwendung erneut zu starten.")
+                                                                                                //   // overlay.remove()
+                                                                                                //   throw new Error("Browser not supported")
+                                                                                                // }
+                                                                                                //
+                                                                                                //
+
+
+
+
+                                                                                              }
+                  }
+
+                  {
+                    const button = Helper.create("button/left-right", buttons)
+                    button.left.textContent = ".file-sharing"
+                    button.right.textContent = "Teile Daten mit deiner Gruppe"
+
+                  }
+                  {
+                    const button = Helper.create("button/left-right", buttons)
+                    button.left.textContent = ".location-sharing"
+                    button.right.textContent = "Teile deinen Standort mit deiner Gruppe"
+
+                  }
+
+                  {
+                    const button = Helper.create("button/left-right", buttons)
+                    button.left.textContent = ".remove"
+                    button.right.textContent = "Gruppe entfernen"
+                    button.onclick = () => {
+
+                      // remove my only my self from group
+                      // if my self is the last email
+                      // then remove group
+
+                      const confirm = window.confirm("Möchtest du deine Gruppe wirklich entfernen?")
+                      if (confirm === true) {
+                        Helper.overlay("security", async securityOverlay => {
+                          const res = await Helper.request("/remove/groups/id-self/", {id: group.created})
+                          if (res.status === 200) {
+                            window.alert("Gruppe erfolgreich entfernt.")
+                            groupButton.remove()
+                            buttonsOverlay.remove()
+                            securityOverlay.remove()
+                          } else {
+                            window.alert("Fehler.. Bitte wiederholen.")
+                            securityOverlay.remove()
+                          }
+                        })
+                      }
+                    }
+                  }
+
+
+                })
+
+              }
+
+            }
+            parent?.appendChild(fragment)
+            return fragment
+          }
+
+          async function getAndRenderGroups(parent) {
+            const res = await Helper.request("/get/groups/self/")
+            if (res.status === 200) {
+              const groups = JSON.parse(res.response)
+              renderGroupButtons(groups, parent)
+              filterGroupsByEmail(groups, parent)
+            } else {
+              Helper.convert("parent/info", parent)
+              renderInfo("Deine E-Mail Adresse wurde in keiner Gruppe gefunden. Erstelle eine neue Gruppe in dem du auf", "/public/add.svg", "klickst.", parent)
+            }
+          }
+
+        })
+      }
+    }
+
     if (event === "id/total-amount") {
 
       return new Promise(async(resolve, reject) => {
@@ -47,6 +1626,17 @@ export class Helper {
         }
       })
 
+    }
+
+    if (event === "select-options") {
+
+      input.select.textContent = ""
+      for (let i = 0; i < input.options.length; i++) {
+        const option = document.createElement("option")
+        option.value = input.options[i]
+        option.text = input.options[i]
+        input.select.appendChild(option)
+      }
     }
 
     if (event === "selected/node") {
@@ -210,8 +1800,8 @@ export class Helper {
 
           const res = await this.request("/verify/user/closed/")
           if (res.status === 200) {
-            const toSave = this.render("text/link", "Möchtest du deine Daten speichern?", numerologyOverlay)
-            this.style(toSave, {padding: "13px 89px", margin: "21px 34px", textAlign: "center", lineHeight: "1.5", letterSpacing: "2px"})
+            const toSave = this.render("text/link", "Möchtest du deine Daten speichern?", content)
+            this.style(toSave, {margin: "21px 34px", textAlign: "center", lineHeight: "1.5", letterSpacing: "2px"})
             toSave.onclick = () => {
               this.overlay("security", async securityOverlay => {
                 const res = await this.request("/register/location/map-self/", {map: {birthname: birthnameValue, birthdate: new Date(birthdateValue).toISOString()}})
@@ -224,8 +1814,8 @@ export class Helper {
               })
             }
           } else {
-            const toLogin = this.render("text/link", "Möchtest du die Geheimnisse deiner Numerologie mit anderen wahren Suchenden teilen?", numerologyOverlay)
-            this.style(toLogin, {padding: "13px 89px", margin: "21px 34px", textAlign: "center", lineHeight: "1.5", letterSpacing: "2px"})
+            const toLogin = this.render("text/link", "Möchtest du die Geheimnisse deiner Numerologie mit anderen wahren Suchenden teilen?", content)
+            this.style(toLogin, {margin: "21px 34px", textAlign: "center", lineHeight: "1.5", letterSpacing: "2px"})
             toLogin.onclick = () => window.location.assign("/entwicklung/numerologie/login/")
           }
 
@@ -2056,7 +3646,12 @@ export class Helper {
       this.convert("dark-light", dsgvoField)
       this.verify("input/value", emailInput)
       this.verify("input/value", dsgvoInput)
-      this.add("input/value", emailInput)
+
+      if (window.localStorage.getItem("email") !== null) {
+        emailInput.value = window.localStorage.getItem("email")
+        this.verify("input/value", emailInput)
+      }
+
       this.add("oninput/verify-input", emailInput)
       this.add("oninput/verify-input", dsgvoInput)
       this.add("outline-hover", emailInput)
@@ -2157,7 +3752,12 @@ export class Helper {
       this.verify("input/value", dsgvoInput)
       this.add("oninput/verify-input", emailInput)
       this.add("oninput/verify-input", dsgvoInput)
-      this.add("input/value", emailInput)
+
+      if (window.localStorage.getItem("email") !== null) {
+        emailInput.value = window.localStorage.getItem("email")
+        this.verify("input/value", emailInput)
+      }
+
       funnel.submit.onclick = async () => {
         await this.verify("input/value", emailInput)
         await this.verify("input/value", dsgvoInput)
@@ -2193,7 +3793,8 @@ export class Helper {
         sign.classList.add("sign")
         sign.textContent = "x"
         sign.style.position = "absolute"
-        sign.style.right = "34px"
+        sign.style.right = "0"
+        sign.style.top = "-5px"
         sign.style.color = color
         sign.style.fontSize = "34px"
         sign.style.fontFamily = "sans-serif"
@@ -2206,7 +3807,8 @@ export class Helper {
         sign.classList.add("sign")
         sign.textContent = "x"
         sign.style.position = "absolute"
-        sign.style.right = "34px"
+        sign.style.right = "0"
+        sign.style.top = "-5px"
         sign.style.color = color
         sign.style.fontSize = "34px"
         sign.style.fontFamily = "sans-serif"
@@ -2229,7 +3831,8 @@ export class Helper {
 
         sign.textContent = "✓"
         sign.style.position = "absolute"
-        sign.style.right = "34px"
+        sign.style.right = "0"
+        sign.style.top = "-5px"
         sign.style.color = "#00c853"
         sign.style.fontSize = "34px"
         sign.style.fontFamily = "sans-serif"
@@ -2243,7 +3846,8 @@ export class Helper {
 
         sign.textContent = "✓"
         sign.style.position = "absolute"
-        sign.style.right = "34px"
+        sign.style.right = "0"
+        sign.style.top = "-5px"
         sign.style.color = "#00c853"
         sign.style.fontSize = "34px"
         sign.style.fontFamily = "sans-serif"
@@ -2253,1308 +3857,25 @@ export class Helper {
       return input
     }
 
-    if (event === "button/network") {
+    if (event === "next-steps") {
 
       const button = this.create("button/left-right")
-      button.left.textContent = ".network"
-      button.right.textContent = "Nutze die Macht deines Netzwerks"
+      button.left.textContent = ".next-steps"
+      button.right.textContent = "Was sind deine nächsten Schritte"
       button.onclick = () => {
         this.overlay("popup", async nextStepOverlay => {
-          this.render("text/bottom-left", ".network", nextStepOverlay)
-          this.render("text/h1", "Nächste Schritte", nextStepOverlay)
-          const updateNext = this.render("text/link", "Aktualisieren", nextStepOverlay)
-          updateNext.style.justifyContent = "flex-start"
-          updateNext.style.width = "233px"
-          updateNext.style.margin = "0 34px"
-
-          const nextList = this.create("div/scrollable", nextStepOverlay)
+          nextStepOverlay.info.textContent = ".next-steps"
+          const content = this.create("div/scrollable", nextStepOverlay)
+          this.render("text/h1", "Nächste Schritte", content)
+          const options = this.create("div/flex-row", content)
+          options.style.justifyContent = "flex-start"
+          const updateNext = this.render("text/link", "Aktualisieren", options)
+          const nextList = this.create("div/scrollable", content)
           this.render("contacts/node/next-list", nextList)
           updateNext.onclick = async () => {
             await this.render("contacts/node/next-list", nextList)
+            window.alert("Deine Liste wurde erfolgreich aktualisiert.")
           }
-          const app = this.create("button/getyour", nextStepOverlay)
-
-          app.onclick = () => {
-            this.overlay("popup", async networkFunctionsOverlay => {
-              this.render("text/bottom-left", ".network.functions", networkFunctionsOverlay)
-              const buttons = this.create("div/scrollable", networkFunctionsOverlay)
-              {
-                const button = this.create("button/left-right", buttons)
-                button.left.textContent = ".contacts"
-                button.right.textContent = "Meine Kontakte"
-                button.onclick = () => {
-                  this.overlay("popup", async overlay => {
-                    const searchField = this.create("field/text", overlay)
-                    searchField.label.textContent = "Filter nach E-Mail Adresse oder Notizen"
-                    searchField.input.placeholder = "text jetzt suchen.."
-                    searchField.style.margin = "21px 34px 5px 34px"
-                    this.verify("input/value", searchField.input)
-                    this.add("outline-hover", searchField.input)
-
-                    const container = this.create("div", overlay)
-                    container.style.display = "flex"
-                    container.style.flexWrap = "wrap"
-                    container.style.margin = "5px 34px"
-                    const importButton = this.render("text/link", "Importieren", container)
-                    const exportButton = this.render("text/link", "Exportieren", container)
-                    const sendTemplateButton = this.render("text/link", "Template senden", container)
-
-                    importButton.onclick = () => {
-                      this.overlay("popup", overlay => {
-                        const funnel = this.create("div/scrollable", overlay)
-
-                        const contactsField = this.create("field/textarea", funnel)
-                        contactsField.label.textContent = "Meine JavaScript Kontaktliste"
-                        contactsField.input.style.fontFamily = "monospace"
-                        contactsField.input.style.height = "55vh"
-                        contactsField.input.setAttribute("required", "true")
-                        contactsField.input.oninput = () => this.verify("input/value", contactsField.input)
-                        this.add("outline-hover", contactsField.input)
-                        this.verify("input/value", contactsField.input)
-                        contactsField.input.placeholder = `[
-{
-  created: 1706575455693, // id, einzigartig
-  email: "neuer@kontakt.de", // id, einzigartig
-  alias: "Kontakt Name",  // optional
-  birthday: "1999-03-21", // optional
-  status: "kontakt status", // optional
-  notes: "Kontakt Notizen", // optional
-  phone: "+123456789", // optional
-  website: "https://www.kontakt-webseite.de/" // optional
-},
-
-.
-.
-
-]
-                        `
-
-                        const submit = this.render("text/node/action-button", "Kontakte jetzt importieren", funnel)
-                        submit.onclick = async () => {
-                          await this.verify("input/value", contactsField.input)
-
-                          const contacts = JSON.parse(contactsField.input.value)
-
-                          for (let i = 0; i < contacts.length; i++) {
-                            const contact = contacts[i]
-                            if (!contact.created || !contact.email) {
-                              this.add("style/node/not-valid", contactsField.input)
-                              window.alert("Deine Kontaktliste ist in einem ungültigen Format.")
-                              throw new Error("contact list not valid")
-                            }
-                          }
-
-                          this.overlay("security", async securityOverlay => {
-                            const res = await this.request("/register/contacts/js-list-self/", {contacts})
-                            if (res.status === 200) {
-                              window.alert("Deine Kontakte wurden erfolgreich importiert.")
-                              this.convert("parent/loading", contactsDiv)
-                              await getAndRenderContacts(contactsDiv)
-                              overlay.remove()
-                              securityOverlay.remove()
-                            }
-                          })
-
-
-                        }
-
-                      })
-                    }
-
-                    sendTemplateButton.onclick = () => {
-                      this.overlay("popup", async overlay => {
-                        const searchField = this.create("field/text", overlay)
-                        const h2 = this.createNode("h2", searchField.label, "Wähle ein Template")
-                        h2.style.margin = "0"
-                        searchField.input.placeholder = "Suche nach Text in deinem Template"
-                        searchField.style.margin = "21px 34px"
-                        this.verify("input/value", searchField.input)
-                        this.add("outline-hover", searchField.input)
-                        const contactsDiv = this.create("div/scrollable", overlay)
-                        const res = await this.request("/get/templates/closed/")
-                        if (res.status === 200) {
-                          const templates = JSON.parse(res.response)
-                          let filtered
-                          searchField.input.oninput = async (ev) => {
-                            filtered = templates.filter(it => it.html.toLowerCase().includes(ev.target.value.toLowerCase()))
-                            const highlighted = filtered.map(it => {
-                              const highlightedHtml = it.html.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
-                              return { ...it, html: highlightedHtml }
-                            })
-                            await this.render("templates/node/send-html", highlighted, contactsDiv)
-                          }
-                          await this.render("templates/node/send-html", templates, contactsDiv)
-                        } else {
-                          this.convert("parent/info", contactsDiv)
-                          contactsDiv.textContent = "Keine Templates gefunden"
-                        }
-                      })
-                    }
-                    const contactsDiv = this.create("div/scrollable", overlay)
-
-                    async function getAndRenderContacts(parent) {
-                      const res = await Helper.request("/get/contacts/self/")
-                      if (res.status === 200) {
-                        const contacts = JSON.parse(res.response)
-                        renderContactButtons(contacts, parent)
-                      } else {
-                        Helper.convert("parent/info", parent)
-                        parent.textContent = "Keine Kontakte gefunden"
-                      }
-                    }
-
-                    function concatEmailAndNotes(array, key) {
-                      return array.map(it => {
-                        if (it.email && it.notes) {
-                          return { ...it, [key]: `${it.email},${it.notes}` }
-                        } else {
-                          return it
-                        }
-                      })
-                    }
-
-                    const websiteIcon = await this.convert("path/icon", "/public/website.svg")
-                    const phoneIcon = await this.convert("path/icon", "/public/phone-out.svg")
-                    const emailIcon = await this.convert("path/icon", "/public/email-out.svg")
-                    function renderContactButtons(contacts, parent, query = "") {
-                      const fragment = document.createDocumentFragment()
-                      Helper.convert("parent/scrollable", parent)
-                      for (let i = 0; i < contacts.length; i++) {
-                        const contact = contacts[i]
-                        const contactButton = Helper.create("button/left-right", fragment)
-                        contactButton.left.style.width = "55%"
-
-                        let text = contact.email
-                        if (contact.text) text = contact.text
-                        if (query === "") text = contact.email
-
-                        while (contactButton.left.firstChild) {
-                          contactButton.left.removeChild(contactButton.left.firstChild)
-                        }
-
-                        Helper.convert("text/marked", {text, query, parent: contactButton.left})
-
-                        if (contact.alias !== undefined) {
-                          Helper.createNode("div", contactButton.left, contact.alias)
-                          const div = Helper.createNode("div", contactButton.left, contact.email)
-                          Helper.style(div, {fontSize: "13px"})
-                        }
-                        contactButton.right.style.display = "flex"
-                        if (contact.website) {
-                          const clone = websiteIcon.cloneNode(true)
-                          clone.style.padding = "5px"
-                          contactButton.right.appendChild(clone)
-                          Helper.add("outline-hover", clone)
-                          clone.onclick = () => {
-                            window.open(contact.website, "_blank")
-                          }
-                        }
-                        if (contact.phone) {
-                          const clone = phoneIcon.cloneNode(true)
-                          clone.style.padding = "5px"
-                          contactButton.right.appendChild(clone)
-                          Helper.add("outline-hover", clone)
-                          clone.onclick = () => {
-                            window.location.href = `tel:${contact.phone}`
-                          }
-                        }
-                        if (contact.email) {
-                          const clone = emailIcon.cloneNode(true)
-                          clone.style.padding = "5px"
-                          contactButton.right.appendChild(clone)
-                          Helper.add("outline-hover", clone)
-                          clone.onclick = () => {
-                            window.location.href = `mailto:${contact.email}`
-                          }
-                        }
-                        contactButton.onclick = () => {
-                          Helper.overlay("popup", async updateOverlay => {
-                            Helper.create("header/info", updateOverlay).textContent = contact.email
-                            const buttons = Helper.create("div/scrollable", updateOverlay)
-
-                            {
-                              const button = Helper.create("button/left-right", buttons)
-                              button.left.textContent = ".email"
-                              button.right.textContent = "Aktualisiere die E-Mail Adresse deines Kontakts"
-                              button.onclick = () => {
-                                Helper.overlay("popup", overlay => {
-                                  overlay.info.textContent = contact.email
-                                  const funnel = Helper.create("div/scrollable", overlay)
-
-                                  const emailField = Helper.create("field/text", funnel)
-                                  emailField.label.textContent = "E-Mail Adresse"
-                                  emailField.input.setAttribute("required", "true")
-                                  if (contact.email !== undefined) {
-                                    emailField.input.value = contact.email
-                                  }
-                                  Helper.verify("input/value", emailField.input)
-                                  Helper.add("outline-hover", emailField.input)
-                                  emailField.input.oninput = () => Helper.verify("input/value", emailField.input)
-
-                                  const submit = Helper.create("button/action", funnel)
-                                  Helper.add("outline-hover", submit)
-                                  submit.textContent = "E-Mail jetzt speichern"
-                                  submit.onclick = async () => {
-                                    await Helper.verify("input/value", emailField.input)
-
-                                    Helper.overlay("security", async securityOverlay => {
-                                      const res = await Helper.request("/register/contacts/email-update/", {id: contact.created, email: emailField.input.value})
-                                      if (res.status === 200) {
-                                        window.alert("E-Mail erfolgreich gespeichert.")
-                                        await getAndRenderContacts(parent)
-                                        overlay.remove()
-                                        updateOverlay.remove()
-                                        securityOverlay.remove()
-                                      } else {
-                                        window.alert("Fehler.. Bitte wiederholen.")
-                                        securityOverlay.remove()
-                                      }
-                                    })
-
-                                  }
-
-                                })
-                              }
-                            }
-
-                            {
-                              const button = Helper.create("button/left-right", buttons)
-                              button.left.textContent = ".alias"
-                              button.right.textContent = "Gib deinem Kontakt einen alternativen Namen"
-                              button.onclick = () => {
-                                Helper.overlay("popup", overlay => {
-                                  Helper.create("header/info", overlay).textContent = contact.email
-
-                                  const funnel = Helper.create("div/scrollable", overlay)
-
-                                  const aliasField = Helper.create("field/text", funnel)
-                                  aliasField.label.textContent = "Alternative Bezeichnung für deinen Kontakt"
-                                  aliasField.input.setAttribute("required", "true")
-                                  if (contact.alias !== undefined) {
-                                    aliasField.input.value = contact.alias
-                                  }
-                                  Helper.verify("input/value", aliasField.input)
-                                  Helper.add("outline-hover", aliasField.input)
-                                  aliasField.input.oninput = () => Helper.verify("input/value", aliasField.input)
-
-
-                                  const submit = Helper.create("button/action", funnel)
-                                  Helper.add("outline-hover", submit)
-                                  submit.textContent = "Alias jetzt speichern"
-                                  submit.onclick = async () => {
-
-                                    await Helper.verify("input/value", aliasField.input)
-
-                                    Helper.overlay("security", async securityOverlay => {
-                                      const res = await Helper.request("/register/contacts/alias-self/", {id: contact.created, alias: aliasField.input.value})
-                                      if (res.status === 200) {
-                                        window.alert("Alias erfolgreich gespeichert.")
-                                        await getAndRenderContacts(parent)
-                                        overlay.remove()
-                                        updateOverlay.remove()
-                                        securityOverlay.remove()
-                                      } else {
-                                        window.alert("Fehler.. Bitte wiederholen.")
-                                        securityOverlay.remove()
-                                      }
-                                    })
-
-                                  }
-
-                                })
-                              }
-                            }
-
-                            {
-                              const button = Helper.create("button/left-right", buttons)
-                              button.left.textContent = ".character"
-                              button.right.textContent = "Erfahre mehr über deinen Kontakt"
-                              button.onclick = () => {
-                                const numerology = Helper.fn("numerology")
-
-                                Helper.overlay("popup", overlay => {
-                                  Helper.create("header/info", overlay).textContent = contact.email
-                                  const funnel = Helper.create("div", overlay)
-
-                                  const dateField = Helper.create("field/date", funnel)
-                                  dateField.label.textContent = "Gebe das Geburtsdatum deines Kontakts ein"
-                                  dateField.input.placeholder = "yyyy-mm-dd"
-                                  Helper.add("outline-hover", dateField.input)
-                                  let birthday
-                                  if (contact.birthday) {
-                                    const split = contact.birthday.split("T")
-                                    dateField.input.value = split[0]
-                                    birthday = split[0]
-                                  }
-                                  dateField.input.setAttribute("required", "true")
-                                  Helper.verify("input/value", dateField.input)
-
-                                  const submit = Helper.render("text/node/action-button", "Geburtsdatum jetzt speichern", funnel)
-                                  Helper.add("outline-hover", submit)
-                                  submit.onclick = async () => {
-                                    await Helper.verify("input/value", dateField.input)
-
-                                    const date = new Date(dateField.input.value)
-
-                                    Helper.overlay("security", async securityOverlay => {
-                                      const res = await Helper.request("/register/contacts/birthday-self/", {id: contact.created, birthday: date.toISOString()})
-                                      if (res.status === 200) {
-                                        window.alert("Geburtsdatum erfolgreich gespeichert.")
-                                        await getAndRenderContacts(parent)
-                                        overlay.remove()
-                                        updateOverlay.remove()
-                                        securityOverlay.remove()
-                                      } else {
-                                        window.alert("Fehler.. Bitte wiederholen.")
-                                        securityOverlay.remove()
-                                      }
-                                    })
-
-                                  }
-
-                                  if (!Helper.verifyIs("text/empty", birthday)) {
-                                    const content = Helper.create("div/scrollable", overlay)
-
-                                    if (contact.alias) {
-                                      Helper.render("text/hr", `Numerologie von ${contact.alias}`, content)
-                                    } else {
-                                      Helper.render("text/hr", `Numerologie von ${contact.email}`, content)
-                                    }
-
-                                    const date = new Date(birthday)
-
-                                    numerology.renderAge(date, content)
-                                    numerology.renderLifePath(date, content)
-                                    numerology.renderMaster(date, content)
-                                    numerology.renderBirthDayEnergy(date, content)
-                                    numerology.renderPrevailingEnergies(date, content)
-                                    numerology.renderRecedingEnergies(date, content)
-                                    numerology.renderTones(date, content)
-                                    numerology.renderFirstCycle(date, content)
-                                    numerology.renderFirstKeyTone(date, content)
-                                    numerology.renderSecondCycle(date, content)
-                                    numerology.renderSecondKeyTone(date, content)
-                                    numerology.renderThirdCycle(date, content)
-                                    numerology.renderThirdKeyTone(date, content)
-                                    numerology.renderFourthCycle(date, content)
-                                    numerology.renderFourthKeyTone(date, content)
-
-                                    if (contact.alias) {
-                                      numerology.renderBirthNameEnergies(contact.alias, content)
-                                      numerology.renderDeterminationEnergy(contact.alias, content)
-                                      numerology.renderHeartsDesire(contact.alias, content)
-                                      numerology.renderPersona(contact.alias, content)
-                                      numerology.renderDoubleLetterEnergies(contact.alias, content)
-                                      numerology.renderPhysicalLevel(contact.alias, content)
-                                      numerology.renderEmotionalLevel(contact.alias, content)
-                                      numerology.renderMentalLevel(contact.alias, content)
-                                      numerology.renderIntuitiveLevel(contact.alias, content)
-                                    }
-
-                                  }
-
-                                })
-                              }
-                            }
-
-                            {
-                              const button = Helper.create("button/left-right", buttons)
-                              button.left.textContent = ".status"
-                              button.right.textContent = "Gib deinem Kontakt einen Status"
-                              button.onclick = () => {
-                                Helper.overlay("popup", overlay => {
-                                  Helper.create("header/info", overlay).textContent = contact.email
-
-                                  const funnel = Helper.create("div/scrollable", overlay)
-
-                                  const statusField = Helper.create("field/text", funnel)
-                                  Helper.add("outline-hover", statusField.input)
-                                  statusField.label.textContent = "Vergebe einen Status Wert"
-                                  statusField.input.setAttribute("required", "true")
-                                  if (contact.status !== undefined) {
-                                    statusField.input.value = contact.status
-                                  }
-                                  Helper.verify("input/value", statusField.input)
-                                  statusField.input.oninput = () => Helper.verify("input/value", statusField.input)
-
-                                  const submit = Helper.create("button/action", funnel)
-                                  Helper.add("outline-hover", submit)
-                                  submit.textContent = "Status jetzt speichern"
-                                  submit.onclick = async () => {
-
-                                    await Helper.verify("input/value", statusField.input)
-
-                                    Helper.overlay("security", async securityOverlay => {
-                                      const res = await Helper.request("/register/contacts/status-self/", {id: contact.created, status: statusField.input.value})
-                                      if (res.status === 200) {
-                                        window.alert("Status erfolgreich gespeichert.")
-                                        await getAndRenderContacts(parent)
-                                        overlay.remove()
-                                        updateOverlay.remove()
-                                        securityOverlay.remove()
-                                      } else {
-                                        window.alert("Fehler.. Bitte wiederholen.")
-                                        securityOverlay.remove()
-                                      }
-                                    })
-                                  }
-
-                                })
-                              }
-                            }
-
-                            {
-                              const button = Helper.create("button/left-right", buttons)
-                              button.left.textContent = ".notes"
-                              button.right.textContent = "Mache dir Notizen zu deinem Kontakt"
-                              button.onclick = () => {
-                                Helper.overlay("popup", overlay => {
-                                  overlay.info.textContent = contact.email
-
-                                  const funnel = Helper.create("div/scrollable", overlay)
-
-                                  const notesField = Helper.create("field/textarea", funnel)
-                                  Helper.add("outline-hover", notesField.input)
-                                  notesField.label.textContent = "Notizen"
-                                  notesField.input.style.height = "55vh"
-                                  if (contact.notes !== undefined) {
-                                    notesField.input.value = contact.notes
-                                  }
-                                  Helper.verify("input/value", notesField.input)
-                                  notesField.input.oninput = () => Helper.verify("input/value", notesField.input)
-
-                                  const submit = Helper.create("button/action", funnel)
-                                  Helper.add("outline-hover", submit)
-                                  submit.textContent = "Notizen jetzt speichern"
-                                  submit.onclick = async () => {
-
-                                    await Helper.verify("input/value", notesField.input)
-
-                                    Helper.overlay("security", async securityOverlay => {
-                                      const res = await Helper.request("/register/contacts/notes-self/", {id: contact.created, notes: notesField.input.value})
-
-                                      if (res.status === 200) {
-                                        window.alert("Notizen erfolgreich gespeichert.")
-                                        await getAndRenderContacts(parent)
-                                        overlay.remove()
-                                        updateOverlay.remove()
-                                        securityOverlay.remove()
-                                      } else {
-                                        window.alert("Fehler.. Bitte wiederholen.")
-                                        securityOverlay.remove()
-                                      }
-                                    })
-
-                                  }
-
-                                })
-                              }
-                            }
-
-                            {
-                              const button = Helper.create("button/left-right", buttons)
-                              button.left.textContent = ".phone"
-                              button.right.textContent = "Gib die Telefon Nummer deines Kontakts ein"
-                              button.onclick = () => {
-                                Helper.overlay("popup", overlay => {
-                                  Helper.create("header/info", overlay).textContent = contact.email
-
-                                  const funnel = Helper.create("div/scrollable", overlay)
-
-                                  const phoneField = Helper.create("field/tel", funnel)
-                                  phoneField.label.textContent = "Telefon Nummer"
-                                  phoneField.input.setAttribute("required", "true")
-                                  phoneField.input.setAttribute("accept", "text/tel")
-                                  if (contact.phone !== undefined) {
-                                    phoneField.input.value = contact.phone
-                                  }
-                                  Helper.verify("input/value", phoneField.input)
-                                  Helper.add("outline-hover", phoneField.input)
-                                  phoneField.input.oninput = () => Helper.verify("input/value", phoneField.input)
-
-
-                                  const submit = Helper.create("button/action", funnel)
-                                  Helper.add("outline-hover", submit)
-                                  submit.textContent = "Nummer jetzt speichern"
-                                  submit.onclick = async () => {
-
-                                    await Helper.verify("input/value", phoneField.input)
-
-                                    Helper.overlay("security", async securityOverlay => {
-                                      const res = await Helper.request("/register/contacts/phone-self/", {id: contact.created, phone: phoneField.input.value})
-
-                                      if (res.status !== 200) {
-                                        window.alert("Fehler.. Bitte wiederholen.")
-                                        securityOverlay.remove()
-                                      }
-
-                                      if (res.status === 200) {
-                                        window.alert("Telefon Nummer erfolgreich gespeichert.")
-
-                                        const res = await Helper.request("/get/contacts/self/")
-                                        if (res.status !== 200) {
-                                          Helper.convert("parent/info", parent)
-                                          parent.textContent = "Keine Kontakte gefunden"
-                                        }
-                                        if (res.status === 200) {
-                                          const contacts = JSON.parse(res.response)
-                                          Helper.render(event, contacts, parent)
-                                        }
-
-                                        overlay.remove()
-                                        updateOverlay.remove()
-                                        securityOverlay.remove()
-                                      }
-                                    })
-
-                                  }
-
-                                })
-                              }
-                            }
-
-                            {
-                              const button = Helper.create("button/left-right", buttons)
-                              button.left.textContent = ".website"
-                              button.right.textContent = "Gib die Webseite deines Kontakts ein"
-                              button.onclick = () => {
-                                Helper.overlay("popup", overlay => {
-                                  Helper.create("header/info", overlay).textContent = contact.email
-
-                                  const funnel = Helper.create("div/scrollable", overlay)
-
-                                  const websiteField = Helper.create("field/text", funnel)
-                                  websiteField.label.textContent = "Webseite"
-                                  websiteField.input.setAttribute("required", "true")
-                                  if (contact.website !== undefined) {
-                                    websiteField.input.value = contact.website
-                                  }
-                                  Helper.verify("input/value", websiteField.input)
-                                  Helper.add("outline-hover", websiteField.input)
-                                  websiteField.input.oninput = () => Helper.verify("input/value", websiteField.input)
-
-
-                                  const submit = Helper.create("button/action", funnel)
-                                  Helper.add("outline-hover", submit)
-                                  submit.textContent = "Webseite jetzt speichern"
-                                  submit.onclick = async () => {
-
-                                    await Helper.verify("input/value", websiteField.input)
-
-                                    Helper.overlay("security", async securityOverlay => {
-                                      const res = await Helper.request("/register/contacts/website-self/", {id: contact.created, website: websiteField.input.value})
-
-                                      if (res.status !== 200) {
-                                        window.alert("Fehler.. Bitte wiederholen.")
-                                        securityOverlay.remove()
-                                      }
-
-                                      if (res.status === 200) {
-                                        window.alert("Webseite erfolgreich gespeichert.")
-                                        await getAndRenderContacts(parent)
-                                        overlay.remove()
-                                        updateOverlay.remove()
-                                        securityOverlay.remove()
-                                      }
-                                    })
-
-                                  }
-
-                                })
-                              }
-                            }
-
-                            {
-                              const res = await Helper.request("/verify/user/expert/")
-                              if (res.status === 200) {
-                                const button = Helper.create("button/left-right", buttons)
-                                button.left.textContent = ".promote"
-                                button.right.textContent = "Erhalte Zugang zu unendlich vielen Möglichkeiten"
-                                button.onclick = () => {
-                                  Helper.overlay("popup", async overlay => {
-                                    if (contact.alias) {
-                                      Helper.render("text/h1", `Promote ${contact.email}`, overlay)
-                                    } else {
-                                      Helper.render("text/h1", `Promote ${contact.email}`, overlay)
-                                    }
-                                    const funnel = Helper.create("div/scrollable", overlay)
-                                    const searchField = Helper.create("field/text", funnel)
-                                    searchField.label.textContent = "Suche nach Text im Pfad"
-                                    searchField.input.placeholder = "/experte/plattform/pfad"
-                                    searchField.style.margin = "0 34px"
-                                    Helper.verify("input/value", searchField.input)
-                                    Helper.add("outline-hover", searchField.input)
-                                    const pathField = await Helper.create("field/open-expert-values-path-select", funnel)
-                                    const originalOptions = Array.from(pathField.input.options).map(option => option.cloneNode(true))
-                                    searchField.input.oninput = (ev) => {
-                                      const searchTerm = ev.target.value.toLowerCase()
-                                      const options = originalOptions.map(it => it.value)
-                                      const filtered = options.filter(it => it.toLowerCase().includes(searchTerm))
-                                      pathField.input.add(filtered)
-                                    }
-                                    pathField.input.style.height = "55vh"
-                                    pathField.input.setAttribute("multiple", "true")
-                                    for (let i = 0; i < pathField.input.options.length; i++) {
-                                      const option = pathField.input.options[i]
-                                      option.selected = false
-                                    }
-                                    pathField.input.oninput = async () => {
-                                      const fieldFunnel = await Helper.convert("path/field-funnel", pathField.input.value)
-                                      if (fieldFunnel.id) {
-                                        Helper.overlay("popup", async overlay => {
-                                          overlay.info.textContent = contact.email + "." + fieldFunnel.id
-                                          const create = Helper.create("button/left-right", overlay)
-                                          create.left.textContent = ".create"
-                                          create.right.textContent = Helper.convert("text/capital-first-letter", fieldFunnel.id) + " definieren"
-                                          create.onclick = () => {
-                                            Helper.overlay("popup", async overlay => {
-                                              Helper.create("header/info", overlay).textContent = contact.email + "." + fieldFunnel.id + ".create"
-                                              overlay.append(fieldFunnel)
-                                              Helper.verifyIs("field-funnel/valid", fieldFunnel)
-                                              Helper.add("outline-hover/field-funnel", fieldFunnel)
-                                              const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
-                                              if (submitButton) {
-                                                submitButton.textContent = `${Helper.convert("text/capital-first-letter", fieldFunnel.id)} jetzt speichern`
-                                                submitButton.onclick = async () => {
-                                                  const path = pathField.input.value
-                                                  await Helper.verify("field-funnel", fieldFunnel)
-                                                  const map = await Helper.convert("field-funnel/map", fieldFunnel)
-                                                  Helper.overlay("security", async securityOverlay => {
-                                                    const register = {}
-                                                    register.email = contact.email
-                                                    register.map = map
-                                                    register.path = path
-                                                    register.id = fieldFunnel.id
-                                                    const res = await Helper.request("/register/location/email-expert", register)
-                                                    if (res.status === 200) {
-                                                      window.alert("Daten erfolgreich gespeichert.")
-                                                      await Helper.render("location-list/node/email-expert", {tag: fieldFunnel.id, email: contact.email, path: pathField.input.value}, locationList)
-                                                      securityOverlay.remove()
-                                                    } else {
-                                                      window.alert("Fehler.. Bitte wiederholen.")
-                                                      securityOverlay.remove()
-                                                    }
-                                                  })
-                                                }
-                                              } else {
-                                                window.alert("Field Funnel besitzt keinen Button mit der Klasse 'submit-field-funnel-button'")
-                                              }
-                                            })
-                                          }
-                                          if (contact.alias) {
-                                            Helper.render("text/hr", Helper.convert("text/capital-first-letter", fieldFunnel.id) + " von " + contact.alias, overlay)
-                                          } else {
-                                            Helper.render("text/hr", Helper.convert("text/capital-first-letter", fieldFunnel.id) + " von " + contact.email, overlay)
-                                          }
-                                          const locationList = Helper.create("info/loading", overlay)
-                                          await Helper.render("location-list/node/email-expert", {tag: fieldFunnel.id, email: contact.email, path: pathField.input.value}, locationList)
-                                        })
-                                      }
-                                    }
-                                  })
-                                }
-                              }
-                            }
-                            {
-                              const button = Helper.create("button/left-right", buttons)
-                              button.left.textContent = ".delete"
-                              button.right.textContent = "Kontakt entfernen"
-                              button.onclick = () => {
-                                const confirm = window.confirm("Möchtest du deinen Kontakt wirklich entfernen?")
-                                if (confirm === true) {
-                                  Helper.overlay("security", async securityOverlay => {
-                                    const res = await Helper.request("/remove/contacts/id-self/", {id: contact.created})
-                                    if (res.status === 200) {
-                                      window.alert("Kontakt erfolgreich entfernt.")
-                                      contactButton.remove()
-                                      updateOverlay.remove()
-                                      securityOverlay.remove()
-                                    }
-                                    if (res.status !== 200) {
-                                      window.alert("Fehler.. Bitte wiederholen.")
-                                      securityOverlay.remove()
-                                    }
-                                  })
-                                }
-                              }
-                            }
-                          })
-                        }
-                      }
-
-                      parent?.appendChild(fragment)
-                    }
-
-                    const res = await this.request("/get/contacts/self/")
-                    let filtered
-                    if (res.status === 200) {
-                      const contacts = JSON.parse(res.response)
-
-                      exportButton.onclick = () => {
-                        if (filtered) {
-                          this.convert("text/clipboard", JSON.stringify(filtered))
-                          .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
-                        } else {
-                          this.convert("text/clipboard", JSON.stringify(contacts))
-                          .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
-                        }
-                      }
-
-                      searchField.input.oninput = (ev) => {
-                        const prepared = concatEmailAndNotes(contacts, "text")
-                        filtered = prepared.filter(it => {
-                          const check = it.text ? it.text : it.email
-                          return check.toLowerCase().includes(ev.target.value.toLowerCase())
-                        })
-                        renderContactButtons(filtered, contactsDiv, ev.target.value)
-                      }
-
-                      renderContactButtons(contacts, contactsDiv)
-                    } else {
-                      this.convert("parent/info", contactsDiv)
-                      parent.textContent = "Keine Kontakte gefunden"
-                    }
-
-                    const addButton = this.create("button/add", overlay)
-                    addButton.onclick = () => {
-
-                      this.overlay("popup", overlay => {
-                        this.render("text/h1", "Neuen Kontakt erstellen", overlay)
-
-                        const funnel = this.create("div/scrollable", overlay)
-
-                        const emailField = this.create("field/email", funnel)
-                        emailField.label.textContent = "Welche E-Mail Adresse möchtest du zu deiner Kontaktliste hinzufügen"
-                        emailField.input.placeholder = "neue@email.de"
-                        this.verify("input/value", emailField.input)
-                        emailField.input.oninput = () => this.verify("input/value", emailField.input)
-
-                        const submit = this.create("button/action", funnel)
-                        submit.textContent = "Kontakt jetzt speichern"
-                        submit.onclick = async () => {
-                          await this.verify("input/value", emailField.input)
-
-                          this.overlay("security", async securityOverlay => {
-                            const res = await this.request("/register/contacts/email-self/", {email: emailField.input.value})
-                            if (res.status === 200) {
-                              window.alert("Kontakt erfolgreich gespeichert.")
-                              await getAndRenderContacts(contactsDiv)
-                              securityOverlay.remove()
-                              overlay.remove()
-                            } else {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
-                            }
-                          })
-
-                        }
-
-                      })
-                    }
-
-                  })
-                }
-              }
-              {
-                const button = this.create("button/left-right", buttons)
-                button.left.textContent = ".calendar"
-                button.right.textContent = "Dein persönlicher Kalender"
-                button.onclick = () => {
-                  window.alert("Bald verfügbar..")
-                  // mond calender app
-                  // termin calendar app
-                }
-              }
-              {
-                const button = this.create("button/left-right", buttons)
-                button.left.textContent = ".groups"
-                button.right.textContent = "Schnell, einfach und sicher Kontakte gruppieren"
-                button.onclick = () => {
-                  this.overlay("popup", async overlay => {
-
-                    async function renderInfo(prefix, path, postfix, parent) {
-                      const fragment = document.createDocumentFragment()
-                      const info = Helper.createNode("div", fragment)
-                      info.style.margin = "21px 34px"
-                      const span1 = Helper.createNode("span", info, prefix)
-                      const span2 = Helper.createNode("span", info)
-                      Helper.style(span2, {width: "34px", margin: "0 5px"})
-                      const icon = await Helper.convert("path/icon", path)
-                      Helper.style(icon, {display: "inline-block", width: "34px"})
-                      span2.appendChild(icon)
-                      Helper.createNode("span", info, postfix)
-                      parent?.appendChild(fragment)
-                      return fragment
-                    }
-
-                    async function defineNewGroup(overlay) {
-                      Helper.render("text/h1", "Neue Gruppe definieren", overlay)
-                      const funnel = Helper.create("div/scrollable", overlay)
-                      const emailSelect = Helper.create("email-select", funnel)
-                      const res = await Helper.request("/get/user/tree-closed/", {tree: "contacts"})
-                      if (res.status === 200) {
-                        const contacts = JSON.parse(res.response)
-                        emailSelect.renderEmails(contacts)
-                        emailSelect.filterEmailsOnSearch(contacts)
-                      }
-                      emailSelect.submit = Helper.create("toolbox/action", funnel)
-                      emailSelect.submit.textContent = "Gruppe jetzt speichern"
-                      return emailSelect
-                    }
-
-                    const addGroup = this.create("button/add", overlay)
-                    addGroup.onclick = () => {
-                      this.overlay("popup", async overlay => {
-                        const emailSelect = await defineNewGroup(overlay)
-                        emailSelect.submit.onclick = () => {
-                          const emails = emailSelect.selectedEmails()
-                          if (this.verifyIs("array/empty", emails)) {
-                            window.alert("Wähle mindestens eine E-Mail Adresse.")
-                            this.add("style/node/not-valid", emailSelect.field.input)
-                            return
-                          }
-                          this.overlay("security", async securityOverlay => {
-                            const res = await this.request("/register/groups/self/", {emails})
-                            if (res.status === 200) {
-                              window.alert("Deine Gruppe wurde erfolgreich gespeichert.")
-                              await getAndRenderGroups(groupsContainer)
-                              securityOverlay.remove()
-                              overlay.remove()
-                            }
-                          })
-                        }
-                      })
-                    }
-
-                    this.render("text/h1", "Meine Gruppen", overlay)
-
-                    const searchField = this.create("field/text", overlay)
-                    searchField.label.textContent = "Filter nach E-Mail Adresse oder Alias"
-                    searchField.input.placeholder = "..@domain.de.."
-                    searchField.style.margin = "0 34px"
-                    this.add("outline-hover", searchField.input)
-                    this.verify("input/value", searchField.input)
-
-                    const groupsContainer = this.create("info/loading", overlay)
-                    await getAndRenderGroups(groupsContainer)
-
-                    function renderGroupEmails(group, parent) {
-                      const fragment = document.createDocumentFragment()
-                      for (let i = 0; i < group.emails.length; i++) {
-                        const email = group.emails[i]
-                        const div = Helper.create("div", fragment)
-                        div.textContent = email
-                        fragment.appendChild(div)
-                      }
-                      parent?.appendChild(fragment)
-                      return fragment
-                    }
-
-                    function filterGroupsByEmail(array, parent) {
-                      searchField.input.oninput = (ev) => {
-                        const filtered = array.filter(it => {
-                          const lowercase = ev.target.value.toLowerCase()
-                          if (it.emails && it.emails.length > 0) {
-                            return it.emails.some(email => email.includes(lowercase)) || (it.alias && it.alias.toLowerCase().includes(lowercase))
-                          } else {
-                            if (it.alias && it.alias.toLowerCase().includes(lowercase)) {
-                              return true
-                            }
-                            return false
-                          }
-                        })
-                        renderGroupButtons(filtered, parent, ev.target.value)
-                      }
-                    }
-
-                    function markQueryInNode(node, query) {
-                      if (node.children.length > 0) {
-                        for (let i = 0; i < node.children.length; i++) {
-                          const child = node.children[i]
-                          markQueryInNode(child, query)
-                        }
-                      } else {
-                        Helper.convert("node/marked", {node, query})
-                      }
-
-                    }
-
-                    function renderGroupButtons(groups, parent, query = "") {
-                      const fragment = document.createDocumentFragment()
-
-                      Helper.convert("parent/scrollable", parent)
-                      for (let i = 0; i < groups.length; i++) {
-                        const group = groups[i]
-
-                        const groupButton = Helper.create("toolbox/left-right", fragment)
-                        if (Helper.verifyIs("text/empty", query)) {
-                          if (!Helper.verifyIs("text/empty", group.alias)) {
-                            Helper.createNode("span", groupButton.left, `${group.alias}`)
-                          } else {
-                            renderGroupEmails(group, groupButton.left)
-                          }
-                        } else {
-                          if (!Helper.verifyIs("text/empty", group.alias)) {
-                            Helper.createNode("span", groupButton.left, `${group.alias}:`)
-                            renderGroupEmails(group, groupButton.left)
-                          } else {
-                            renderGroupEmails(group, groupButton.left)
-                          }
-                        }
-                        markQueryInNode(groupButton.left, query)
-                        groupButton.onclick = () => {
-                          Helper.overlay("popup", buttonsOverlay => {
-                            renderGroupEmails(group, buttonsOverlay.info)
-                            const buttons = Helper.create("div/scrollable", buttonsOverlay)
-                            {
-                              const button = Helper.create("toolbox/left-right", buttons)
-                              button.left.textContent = ".alias"
-                              button.right.textContent = "Gebe deiner Gruppe einen alternativen Namen"
-                              button.onclick = () => {
-                                Helper.overlay("popup", overlay => {
-                                  overlay.info.textContent = group.alias ? `${group.alias}.alias` : ".alias"
-                                  const funnel = Helper.create("div/scrollable", overlay)
-                                  const aliasField = Helper.create("field/text", funnel)
-                                  aliasField.label.textContent = "Alternative Bezeichnung für deine Gruppe"
-                                  aliasField.input.placeholder = "Family, Friends, Work.."
-                                  aliasField.input.setAttribute("required", "true")
-                                  if (group.alias !== undefined) {
-                                    aliasField.input.value = group.alias
-                                  }
-                                  Helper.verify("input/value", aliasField.input)
-                                  Helper.add("outline-hover", aliasField.input)
-                                  aliasField.input.oninput = () => Helper.verify("input/value", aliasField.input)
-                                  const submit = Helper.create("button/action", funnel)
-                                  Helper.add("outline-hover", submit)
-                                  submit.textContent = "Alias jetzt speichern"
-                                  submit.onclick = async () => {
-                                    await Helper.verify("input/value", aliasField.input)
-                                    Helper.overlay("security", async securityOverlay => {
-                                      const res = await Helper.request("/register/groups/alias/", {id: group.created, alias: aliasField.input.value})
-                                      if (res.status === 200) {
-                                        window.alert("Alias erfolgreich gespeichert.")
-                                        await getAndRenderGroups(groupsContainer)
-                                        overlay.remove()
-                                        buttonsOverlay.remove()
-                                        securityOverlay.remove()
-                                      } else {
-                                        window.alert("Fehler.. Bitte wiederholen.")
-                                        securityOverlay.remove()
-                                      }
-                                    })
-                                  }
-                                })
-                              }
-                            }
-                            {
-                              const button = Helper.create("toolbox/left-right", buttons)
-                              button.left.textContent = ".emails"
-                              button.right.textContent = "Aktualisiere die Mitglieder deiner Gruppe"
-                              button.onclick = () => {
-                                Helper.overlay("popup", async overlay => {
-                                  const emailSelect = await defineNewGroup(overlay, (emails) => Helper.request("/register/groups/emails-self/", {id: group.created, emails}))
-                                  for (let i = 0; i < emailSelect.field.input.options.length; i++) {
-                                    const option = emailSelect.field.input.options[i]
-                                    if (group.emails.includes(option.value)) {
-                                      option.selected = true
-                                    }
-                                  }
-                                  emailSelect.submit.onclick = () => {
-                                    const emails = emailSelect.selectedEmails()
-                                    if (Helper.verifyIs("array/empty", emails)) {
-                                      window.alert("Wähle mindestens eine E-Mail Adresse.")
-                                      Helper.add("style/node/not-valid", emailSelect.field.input)
-                                      return
-                                    }
-                                    Helper.overlay("security", async securityOverlay => {
-                                      const res = await Helper.request("/register/groups/emails-self/", {id: group.created, emails})
-                                      if (res.status === 200) {
-                                        window.alert("Deine Gruppe wurde erfolgreich gespeichert.")
-                                        await getAndRenderGroups(groupsContainer)
-                                        overlay.remove()
-                                        buttonsOverlay.remove()
-                                        securityOverlay.remove()
-                                      }
-                                    })
-                                  }
-                                })
-                              }
-                            }
-                            // render a button only when
-                            // the jwt user is in the contacts emails
-                            // onclick create signaling server
-                            // connect browser with webrtc
-                            // the create walkie talkie app
-                            {
-                              const button = Helper.create("toolbox/left-right", buttons)
-                              button.left.textContent = ".walkie-talkie"
-                              button.right.textContent = "Spreche über WebRTC mit deiner Gruppe"
-                              button.onclick = async () => {
-
-                                // test in secdev
-                                // then add it here
-                                // const walkieTalkie = this.fn("walkie-talkie")
-                                // walkieTalkie.openOverlay()
-                                // walkieTalkie.thing()
-
-
-
-
-
-                                // try {
-                                //   if (!("Notification" in window)) {
-                                //     throw new Error("Browser does not support notifications")
-                                //   }
-                                //   const permission = await Notification.requestPermission()
-                                //   console.log(permission);
-                                //   if (permission === "denied") {
-                                //     // permission = await Notification.requestPermission()
-                                //     window.confirm("Du hast Benachrichtigungen in deinem Browser abgelehnt. Damit du diese Funktion nutzen kannst, musst die die Einstellungen in deinem Browser ändern.\n\nMöchtest du die Einstellungen deines Browsers öffnen?")
-                                //     // if (confirm === true) {
-                                //     //   window.open("about:preferences#notifications", "_blank")
-                                //     // }
-                                //   }
-                                //
-                                //   if (permission === "granted") {
-                                //     new Notification("Walkie Talkie", {body: "Das ist BODY", icon: "/public/logo-getyour-red.svg"})
-                                //   }
-                                //
-                                //
-                                // } catch (error) {
-                                //
-                                // }
-
-                                //
-                                //
-                                //
-                                //
-                                //
-                                // if ("Notification" in window) {
-                                //   if (Notification.permission === "granted") {
-                                //     console.log("Notifications are already allowed");
-                                //   } else if (Notification.permission !== "denied") {
-                                //     Notification.requestPermission().then(permission => {
-                                //       if (permission === "granted") {
-                                //         console.log("Notifications permission granted");
-                                //
-                                //         // open overlay here
-                                //         Helper.overlay("popup", async overlay => {
-                                //
-                                //
-                                //
-                                //           // webrtc logic
-                                //           try {
-                                //             const hostname = window.location.hostname || "localhost"
-                                //             const ws = new WebSocket(`ws://${hostname}:9998`)
-                                //
-                                //               function send(message) {
-                                //                 ws.send(JSON.stringify(message))
-                                //               }
-                                //
-                                //               overlay.removeOverlayButton.addEventListener("click", () => ws.close())
-                                //
-                                //               ws.onopen = () => {
-                                //                 console.log('WebSocket connection established')
-                                //                 // send({ type: 'getOnlineUsers' })
-                                //               }
-                                //
-                                //               ws.onmessage = (ev) => {
-                                //                 const message = JSON.parse(ev.data)
-                                //                 console.log(message)
-                                //               }
-                                //
-                                //               // Event handler for WebSocket errors
-                                //               ws.onerror = (error) => {
-                                //                 throw error
-                                //               }
-                                //
-                                //               // Event handler for WebSocket close
-                                //               ws.onclose = () => {
-                                //                 console.log('WebSocket connection closed')
-                                //               }
-                                //               // this is a webrtc client now
-                                //               // first connect to websocket
-                                //               // and get the online users
-                                //
-                                //
-                                //
-                                //               // create connection
-                                //               let localStream;
-                                //               let mediaRecorder;
-                                //               let chunks = [];
-                                //               let isTransmitting = false;
-                                //
-                                //               const transmitButton = Helper.create("button/left-right", overlay)
-                                //
-                                //               // Function to start audio transmission
-                                //               function startTransmit() {
-                                //                 // Request access to user's microphone
-                                //                 navigator.mediaDevices.getUserMedia({ audio: true })
-                                //                 .then(stream => {
-                                //                   localStream = stream;
-                                //                   mediaRecorder = new MediaRecorder(stream);
-                                //
-                                //                   // Start recording when data is available
-                                //                   mediaRecorder.addEventListener('dataavailable', event => {
-                                //                     chunks.push(event.data);
-                                //                   });
-                                //
-                                //                   // Start recording
-                                //                   mediaRecorder.start();
-                                //
-                                //                   // Update button text
-                                //                   transmitButton.textContent = 'Release to Stop';
-                                //                   isTransmitting = true;
-                                //                 })
-                                //                 .catch(error => {
-                                //                   console.error('Error starting transmission:', error);
-                                //                 });
-                                //               }
-                                //
-                                //               // Function to stop audio transmission
-                                //               function stopTransmit() {
-                                //                 // Stop recording
-                                //                 mediaRecorder.stop();
-                                //
-                                //                 // Stop the local stream tracks
-                                //                 localStream.getTracks().forEach(track => track.stop());
-                                //
-                                //                 // Update button text
-                                //                 transmitButton.textContent = 'Press and Hold to Talk';
-                                //                 isTransmitting = false;
-                                //               }
-                                //
-                                //               // Event listener for button press
-                                //               transmitButton.addEventListener('mousedown', () => {
-                                //                 if (!isTransmitting) {
-                                //                   startTransmit();
-                                //                 }
-                                //               });
-                                //
-                                //               // Event listener for button release
-                                //               transmitButton.addEventListener('mouseup', () => {
-                                //                 if (isTransmitting) {
-                                //                   stopTransmit();
-                                //                 }
-                                //               });
-                                //
-                                //               // Event listener for touch start
-                                //               transmitButton.addEventListener('touchstart', () => {
-                                //                 if (!isTransmitting) {
-                                //                   startTransmit();
-                                //                 }
-                                //               });
-                                //
-                                //               // Event listener for touch end
-                                //               transmitButton.addEventListener('touchend', () => {
-                                //                 if (isTransmitting) {
-                                //                   stopTransmit();
-                                //                 }
-                                //               });
-                                //
-                                //               // Function to handle signaling message exchange
-                                //               function sendSignalingMessage(message) {
-                                //                 // Implement your signaling logic here (e.g., WebSocket)
-                                //               }
-                                //
-                                //
-                                //           } catch (error) {
-                                //
-                                //             console.error('WebSocket error:', error)
-                                //
-                                //           }
-                                //
-                                //
-                                //         })
-                                //
-                                //       } else {
-                                //         console.log("Notifications permission denied");
-                                //         // overlay.remove()
-                                //         throw new Error("Notifications permission denied")
-                                //       }
-                                //     }).catch(error => {
-                                //       console.error("Error requesting permission:", error)
-                                //     })
-                                //   }
-                                // } else {
-                                //   console.log("Browser does not support notifications")
-                                //   window.alert("Dein Browser unterstützt diese Funktion nicht. Unter 'https://caniuse.com' kannst du Browser vergleichen. Wechsel dann zu einem geeigneten Browser und versuche die Anwendung erneut zu starten.")
-                                //   // overlay.remove()
-                                //   throw new Error("Browser not supported")
-                                // }
-                                //
-                                //
-
-
-
-
-                              }
-                            }
-
-
-
-                            {
-                              const button = Helper.create("toolbox/left-right", buttons)
-                              button.left.textContent = ".remove"
-                              button.right.textContent = "Gruppe entfernen"
-                              button.onclick = () => {
-
-                                // remove my only my self from group
-                                // if my self is the last email
-                                // then remove group
-
-                                const confirm = window.confirm("Möchtest du deine Gruppe wirklich entfernen?")
-                                if (confirm === true) {
-                                  Helper.overlay("security", async securityOverlay => {
-                                    const res = await Helper.request("/remove/groups/id-self/", {id: group.created})
-                                    if (res.status === 200) {
-                                      window.alert("Gruppe erfolgreich entfernt.")
-                                      groupButton.remove()
-                                      buttonsOverlay.remove()
-                                      securityOverlay.remove()
-                                    } else {
-                                      window.alert("Fehler.. Bitte wiederholen.")
-                                      securityOverlay.remove()
-                                    }
-                                  })
-                                }
-                              }
-                            }
-
-                            // todo webrtc features
-
-
-
-
-                            console.log(group);
-                          })
-
-                        }
-
-                      }
-                      parent?.appendChild(fragment)
-                      return fragment
-                    }
-
-                    async function getAndRenderGroups(parent) {
-                      const res = await Helper.request("/get/groups/self/")
-                      if (res.status === 200) {
-                        const groups = JSON.parse(res.response)
-                        renderGroupButtons(groups, parent)
-                        filterGroupsByEmail(groups, parent)
-                      } else {
-                        Helper.convert("parent/info", parent)
-                        renderInfo("Deine E-Mail Adresse wurde in keiner Gruppe gefunden. Erstelle eine neue Gruppe in dem du auf", "/public/add.svg", "klickst.", parent)
-                      }
-                    }
-
-                  })
-                }
-              }
-            })
-          }
-
-
         })
       }
       input?.appendChild(button)
@@ -3799,19 +4120,6 @@ export class Helper {
           this.add("outline-hover", node)
         }
       }
-    }
-
-    if (event === "input/value") {
-
-      if (input.type === "email") {
-
-        if (window.localStorage.getItem("email") !== null) {
-          input.value = window.localStorage.getItem("email")
-          this.verify("input/value", input)
-        }
-
-      }
-
     }
 
     if (event === "user-json/keydown-event") {
@@ -4108,63 +4416,154 @@ export class Helper {
     }
 
     if (event === "input/select") {
-      const select = document.createElement("select")
-      select.add = (options) => {
-        select.textContent = ""
-        for (let i = 0; i < options.length; i++) {
-          const option = document.createElement("option")
-          option.value = options[i]
-          option.text = options[i]
-          select.appendChild(option)
-        }
-      }
-      input?.append(select)
-      return select
-    }
 
-    if (event === "input/password") {
-
-      const password = document.createElement("input")
-      password.type = "password"
-
-      if (input) input.append(password)
-      return password
+      const div = document.createElement("div")
+      this.style(div, {margin: "21px 34px", position: "relative"})
+      div.input = document.createElement("select")
+      div.appendChild(div.input)
+      this.style(div.input, {width: "89%", fontSize: "21px"})
+      this.add("outline-hover", div.input)
+      this.convert("dark-light", div.input)
+      input?.appendChild(div)
+      return div
     }
 
     if (event === "input/checkbox") {
 
-      const checkbox = document.createElement("input")
-      checkbox.type = "checkbox"
-
-      if (input) input.append(checkbox)
-      return checkbox
+      const div = document.createElement("div")
+      this.style(div, {display: "flex", alignItems: "center", height: "34px", width: "55px", margin: "21px 34px", position: "relative"})
+      div.input = document.createElement("input")
+      div.appendChild(div.input)
+      div.input.type = "checkbox"
+      div.input.style.transform = "scale(2)"
+      this.verify("input/value", div.input)
+      this.convert("dark-light", div.input)
+      input?.appendChild(div)
+      return div
     }
 
-    if (event === "input/tel") {
+    if (event === "input/date") {
 
-      const tel = document.createElement("input")
-      tel.type = "tel"
+      const div = document.createElement("div")
+      this.style(div, {margin: "21px 34px", position: "relative"})
+      div.input = document.createElement("input")
+      div.appendChild(div.input)
+      div.input.type = "date"
+      this.style(div.input, {width: "89%", fontSize: "21px"})
+      this.add("outline-hover", div.input)
+      this.verify("input/value", div.input)
+      this.convert("dark-light", div.input)
+      input?.appendChild(div)
+      return div
+    }
 
-      if (input) input.append(tel)
-      return tel
+    if (event === "input/email") {
+
+      const div = document.createElement("div")
+      this.style(div, {margin: "21px 34px", position: "relative"})
+      div.input = document.createElement("input")
+      div.appendChild(div.input)
+      div.input.classList.add("email-input")
+      div.input.type = "email"
+      div.input.placeholder = "meine@email.de"
+      div.input.setAttribute("required", "true")
+      div.input.setAttribute("accept", "text/email")
+      this.style(div.input, {width: "89%", fontSize: "21px"})
+      this.add("outline-hover", div.input)
+      this.verify("input/value", div.input)
+      this.convert("dark-light", div.input)
+      input?.appendChild(div)
+      return div
+    }
+
+    if (event === "input/file") {
+
+      const div = document.createElement("div")
+      this.style(div, {margin: "21px 34px", position: "relative"})
+      div.input = document.createElement("input")
+      div.appendChild(div.input)
+      div.input.type = "file"
+      this.style(div.input, {width: "89%", fontSize: "21px"})
+      this.add("outline-hover", div.input)
+      this.verify("input/value", div.input)
+      this.convert("dark-light", div.input)
+      input?.appendChild(div)
+      return div
     }
 
     if (event === "input/number") {
 
-      const number = document.createElement("input")
-      number.type = "number"
+      const div = document.createElement("div")
+      this.style(div, {margin: "21px 34px", position: "relative"})
+      div.input = document.createElement("input")
+      div.appendChild(div.input)
+      div.input.type = "number"
+      this.style(div.input, {width: "89%", fontSize: "21px"})
+      this.add("outline-hover", div.input)
+      this.verify("input/value", div.input)
+      this.convert("dark-light", div.input)
+      input?.appendChild(div)
+      return div
+    }
 
-      if (input) input.append(number)
-      return number
+    if (event === "input/password") {
+
+      const div = document.createElement("div")
+      this.style(div, {margin: "21px 34px", position: "relative"})
+      div.input = document.createElement("input")
+      div.appendChild(div.input)
+      div.input.type = "password"
+      this.style(div.input, {width: "89%", fontSize: "21px"})
+      this.add("outline-hover", div.input)
+      this.verify("input/value", div.input)
+      this.convert("dark-light", div.input)
+      input?.appendChild(div)
+      return div
+    }
+
+    if (event === "input/range") {
+
+      const div = document.createElement("div")
+      this.style(div, {margin: "21px 34px", position: "relative"})
+      div.input = document.createElement("input")
+      div.appendChild(div.input)
+      div.input.type = "range"
+      this.style(div.input, {width: "89%", fontSize: "21px"})
+      this.add("outline-hover", div.input)
+      this.verify("input/value", div.input)
+      this.convert("dark-light", div.input)
+      input?.appendChild(div)
+      return div
+    }
+
+    if (event === "input/tel") {
+
+      const div = document.createElement("div")
+      this.style(div, {margin: "21px 34px", position: "relative"})
+      div.input = document.createElement("input")
+      div.appendChild(div.input)
+      div.input.type = "tel"
+      this.style(div.input, {width: "89%", fontSize: "21px"})
+      this.add("outline-hover", div.input)
+      this.verify("input/value", div.input)
+      this.convert("dark-light", div.input)
+      input?.appendChild(div)
+      return div
     }
 
     if (event === "input/text") {
 
-      const text = document.createElement("input")
-      text.type = "text"
-      input?.appendChild(text)
-      return text
-
+      const div = document.createElement("div")
+      this.style(div, {margin: "21px 34px", position: "relative"})
+      div.input = document.createElement("input")
+      div.appendChild(div.input)
+      div.input.type = "text"
+      this.style(div.input, {width: "89%", fontSize: "21px"})
+      this.add("outline-hover", div.input)
+      this.verify("input/value", div.input)
+      this.convert("dark-light", div.input)
+      input?.appendChild(div)
+      return div
     }
 
     if (event === "img") {
@@ -6827,79 +7226,11 @@ await Helper.add("event/click-funnel")
 
     if (event === "field/checkbox") {
 
-      const field = document.createElement("div")
-      field.classList.add("field")
-      field.style.position = "relative"
-      field.style.borderRadius = "13px"
-      field.style.display = "flex"
-      field.style.flexDirection = "column"
-      field.style.margin = "34px"
-      field.style.justifyContent = "center"
-      field.style.alignItems = "flex-start"
-
-      field.labelContainer = document.createElement("div")
-      field.labelContainer.classList.add("field-label-container")
-      field.labelContainer.style.display = "flex"
-      field.labelContainer.style.alignItems = "center"
-      field.labelContainer.style.margin = "21px 89px 0 34px"
-      field.append(field.labelContainer)
-
-      field.image = document.createElement("div")
-      field.image.classList.add("field-label-image")
-      field.image.style.minWidth = "34px"
-      field.image.style.maxWidth = "34px"
-      field.image.style.marginRight = "21px"
-      field.labelContainer.append(field.image)
-
-      field.label = document.createElement("label")
-      field.label.classList.add("field-label")
-      field.label.style.fontFamily = "sans-serif"
-      field.label.style.fontSize = "21px"
-
-      field.labelContainer.append(field.label)
-
-      field.inputContainer = document.createElement("div")
-      field.inputContainer.classList.add("field-input-container")
-      field.inputContainer.style.display = "flex"
-      field.inputContainer.style.alignItems = "center"
-      field.inputContainer.style.margin = "21px 89px 21px 34px"
-      field.append(field.inputContainer)
-
-      field.input = document.createElement("input")
+      const field = this.create("field")
+      const checkboxInput = this.create("input/checkbox", field)
+      field.input = checkboxInput.input
       field.input.classList.add("field-input")
-      field.input.type = "checkbox"
-      field.input.style.marginRight = "34px"
-      field.input.style.width = "21px"
-      field.input.style.height = "21px"
-      field.inputContainer.append(field.input)
-
-      field.afterInput = document.createElement("div")
-      field.afterInput.classList.add("field-after-input")
-
-      field.afterInput.style.fontFamily = "sans-serif"
-      field.afterInput.style.fontSize = "21px"
-      field.inputContainer.append(field.afterInput)
-
-      field.style.backgroundColor = this.colors.light.foreground
-      field.style.border = this.colors.light.border
-      field.style.boxShadow = this.colors.light.boxShadow
-      field.style.color = this.colors.light.text
-      field.label.style.color = this.colors.light.text
-      field.input.style.backgroundColor = this.colors.light.background
-      field.input.style.color = this.colors.light.text
-      field.afterInput.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        field.style.backgroundColor = this.colors.dark.foreground
-        field.style.border = this.colors.dark.border
-        field.style.boxShadow = this.colors.dark.boxShadow
-        field.style.color = this.colors.dark.text
-        field.label.style.color = this.colors.dark.text
-        field.input.style.backgroundColor = this.colors.dark.background
-        field.input.style.color = this.colors.dark.text
-        field.afterInput.style.color = this.colors.dark.text
-      }
-
-      if (input !== undefined) input.append(field)
+      input?.appendChild(field)
       return field
     }
 
@@ -6919,10 +7250,15 @@ await Helper.add("event/click-funnel")
       a2.className = "button"
       a2.href = "/datenschutz/"
       this.createNode("span", label, "gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.")
+      field.image = document.createElement("div")
+      field.image.classList.add("field-label-image")
+      field.image.style.minWidth = "34px"
+      field.image.style.maxWidth = "34px"
+      field.image.style.marginRight = "21px"
       this.render("icon/node/path", "/public/info-circle.svg", field.image)
+      field.label.before(field.image)
       field.input.setAttribute("required", "true")
-      field.input.style.transform = "scale(1.4)"
-      if (input !== undefined) input.append(field)
+      input?.appendChild(field)
       return field
 
     }
@@ -6991,228 +7327,76 @@ await Helper.add("event/click-funnel")
 
     if (event === "field/file") {
 
-      const field = document.createElement("div")
-      field.classList.add("field")
-      field.style.position = "relative"
-      field.style.borderRadius = "13px"
-      field.style.display = "flex"
-      field.style.flexDirection = "column"
-      field.style.margin = "34px"
-      field.style.justifyContent = "center"
-
-      field.labelContainer = document.createElement("div")
-      field.labelContainer.classList.add("field-label-container")
-      field.labelContainer.style.display = "flex"
-      field.labelContainer.style.alignItems = "center"
-      field.labelContainer.style.margin = "21px 89px 0 34px"
-      field.append(field.labelContainer)
-
-      field.label = document.createElement("label")
-      field.label.classList.add("field-label")
-      field.label.style.fontFamily = "sans-serif"
-      field.label.style.fontSize = "21px"
-      field.labelContainer.append(field.label)
-
-      field.input = document.createElement("input")
+      const field = this.create("field")
+      const fileInput = this.create("input/file", field)
+      field.input = fileInput.input
       field.input.classList.add("field-input")
-      field.input.type = "file"
-      field.input.style.margin = "21px 89px 21px 34px"
-      field.input.style.fontSize = "21px"
-      field.append(field.input)
-
-      this.convert("dark-light", field)
-
-      input?.append(field)
+      input?.appendChild(field)
       return field
     }
 
     if (event === "field/tel") {
 
-      const field = document.createElement("div")
-      field.classList.add("field")
-      field.style.position = "relative"
-      field.style.borderRadius = "13px"
-      field.style.display = "flex"
-      field.style.flexDirection = "column"
-      field.style.margin = "34px"
-      field.style.justifyContent = "center"
-
-      field.labelContainer = document.createElement("div")
-      field.labelContainer.classList.add("field-label-container")
-      field.labelContainer.style.display = "flex"
-      field.labelContainer.style.alignItems = "center"
-      field.labelContainer.style.margin = "21px 89px 0 34px"
-      field.append(field.labelContainer)
-
-      field.label = document.createElement("label")
-      field.label.classList.add("field-label")
-      field.label.style.fontFamily = "sans-serif"
-      field.label.style.fontSize = "21px"
-      field.labelContainer.append(field.label)
-
-      field.input = document.createElement("input")
+      const field = this.create("field")
+      const telInput = this.create("input/tel", field)
+      field.input = telInput.input
       field.input.classList.add("field-input")
-      field.input.type = "tel"
-      field.input.style.margin = "21px 89px 21px 34px"
-      field.input.style.fontSize = "21px"
-      field.append(field.input)
-
-      this.convert("dark-light", field)
-
-      input?.append(field)
+      input?.appendChild(field)
       return field
     }
 
     if (event === "field/date") {
 
-      const field = document.createElement("div")
-      field.classList.add("field")
-      field.style.position = "relative"
-      field.style.borderRadius = "13px"
-      field.style.display = "flex"
-      field.style.flexDirection = "column"
-      field.style.margin = "34px"
-      field.style.justifyContent = "center"
-
-      field.labelContainer = document.createElement("div")
-      field.labelContainer.classList.add("field-label-container")
-      field.labelContainer.style.display = "flex"
-      field.labelContainer.style.alignItems = "center"
-      field.labelContainer.style.margin = "21px 89px 0 34px"
-      field.append(field.labelContainer)
-
-      field.label = document.createElement("label")
-      field.label.classList.add("field-label")
-      field.label.style.fontFamily = "sans-serif"
-      field.label.style.fontSize = "21px"
-      field.labelContainer.append(field.label)
-
-      field.input = document.createElement("input")
+      const field = this.create("field")
+      const dateInput = this.create("input/date", field)
+      field.input = dateInput.input
       field.input.classList.add("field-input")
-      field.input.type = "date"
-      field.input.style.margin = "21px 89px 21px 34px"
-      field.input.style.fontSize = "21px"
-      field.append(field.input)
-
-      this.convert("dark-light", field)
-
-      input?.append(field)
+      input?.appendChild(field)
       return field
     }
 
     if (event === "field/number") {
 
-      const field = document.createElement("div")
-      field.classList.add("field")
-      field.style.position = "relative"
-      field.style.borderRadius = "13px"
-      field.style.display = "flex"
-      field.style.flexDirection = "column"
-      field.style.margin = "34px"
-      field.style.justifyContent = "center"
-
-      field.labelContainer = document.createElement("div")
-      field.labelContainer.classList.add("field-label-container")
-      field.labelContainer.style.display = "flex"
-      field.labelContainer.style.alignItems = "center"
-      field.labelContainer.style.margin = "21px 89px 0 34px"
-      field.append(field.labelContainer)
-
-      field.label = document.createElement("label")
-      field.label.classList.add("field-label")
-      field.label.style.fontFamily = "sans-serif"
-      field.label.style.fontSize = "21px"
-      field.labelContainer.append(field.label)
-
-      field.input = document.createElement("input")
+      const field = this.create("field")
+      const numberInput = this.create("input/number", field)
+      field.input = numberInput.input
       field.input.classList.add("field-input")
-      field.input.type = "number"
-      field.input.style.margin = "21px 89px 21px 34px"
-      field.input.style.fontSize = "21px"
-      field.append(field.input)
-
-      this.convert("dark-light", field)
-
-      if (input !== undefined) input.append(field)
+      input?.appendChild(field)
       return field
     }
 
     if (event === "field/password") {
 
-      const field = document.createElement("div")
-      field.classList.add("field")
-      field.style.position = "relative"
-      field.style.borderRadius = "13px"
-      field.style.display = "flex"
-      field.style.flexDirection = "column"
-      field.style.margin = "34px"
-      field.style.justifyContent = "center"
-
-      field.labelContainer = document.createElement("div")
-      field.labelContainer.classList.add("field-label-container")
-      field.labelContainer.style.display = "flex"
-      field.labelContainer.style.alignItems = "center"
-      field.labelContainer.style.margin = "21px 89px 0 34px"
-      field.append(field.labelContainer)
-
-      field.label = document.createElement("label")
-      field.label.classList.add("field-label")
-      field.label.style.fontFamily = "sans-serif"
-      field.label.style.fontSize = "21px"
-      field.labelContainer.append(field.label)
-
-      field.input = document.createElement("input")
+      const field = this.create("field")
+      const passwordInput = this.create("input/password", field)
+      field.input = passwordInput.input
       field.input.classList.add("field-input")
-      field.input.type = "password"
-      field.input.style.margin = "21px 89px 21px 34px"
-      field.input.style.fontSize = "21px"
-      field.append(field.input)
-
-      this.convert("dark-light", field)
-
-      input?.append(field)
+      input?.appendChild(field)
       return field
     }
 
     if (event === "field/range") {
 
-      const field = document.createElement("div")
-      field.classList.add("field")
-      field.style.position = "relative"
-      field.style.borderRadius = "13px"
-      field.style.display = "flex"
-      field.style.flexDirection = "column"
-      field.style.margin = "34px"
-      field.style.justifyContent = "center"
-
-      field.labelContainer = document.createElement("div")
-      field.labelContainer.classList.add("field-label-container")
-      field.labelContainer.style.display = "flex"
-      field.labelContainer.style.alignItems = "center"
-      field.labelContainer.style.margin = "21px 89px 0 34px"
-      field.append(field.labelContainer)
-
-      field.label = document.createElement("label")
-      field.label.classList.add("field-label")
-      field.label.style.fontFamily = "sans-serif"
-      field.label.style.fontSize = "21px"
-      field.labelContainer.append(field.label)
-
-      field.input = document.createElement("input")
+      const field = this.create("field")
+      const rangeInput = this.create("input/range", field)
+      field.input = rangeInput.input
       field.input.classList.add("field-input")
-      field.input.type = "range"
-      field.input.style.margin = "21px 89px 21px 34px"
-      field.input.style.fontSize = "21px"
-      field.append(field.input)
-
-      this.convert("dark-light", field)
-
-      input?.append(field)
+      input?.appendChild(field)
       return field
     }
 
     if (event === "field/text") {
 
+      const field = this.create("field")
+      const textInput = this.create("input/text", field)
+      field.input = textInput.input
+      field.input.classList.add("field-input")
+      input?.appendChild(field)
+      return field
+    }
+
+    if (event === "field") {
+
       const field = document.createElement("div")
       field.classList.add("field")
       field.style.position = "relative"
@@ -7221,30 +7405,20 @@ await Helper.add("event/click-funnel")
       field.style.flexDirection = "column"
       field.style.margin = "34px"
       field.style.justifyContent = "center"
-
       field.labelContainer = document.createElement("div")
       field.labelContainer.classList.add("field-label-container")
+      field.labelContainer.style.wordBreak = "break-word"
       field.labelContainer.style.display = "flex"
       field.labelContainer.style.alignItems = "center"
       field.labelContainer.style.margin = "21px 89px 0 34px"
-      field.append(field.labelContainer)
-
+      field.appendChild(field.labelContainer)
       field.label = document.createElement("label")
       field.label.classList.add("field-label")
       field.label.style.fontFamily = "sans-serif"
       field.label.style.fontSize = "21px"
-      field.labelContainer.append(field.label)
-
-      field.input = document.createElement("input")
-      field.input.classList.add("field-input")
-      field.input.type = "text"
-      field.input.style.margin = "21px 89px 21px 34px"
-      field.input.style.fontSize = "21px"
-      field.append(field.input)
-
+      field.labelContainer.appendChild(field.label)
       this.convert("dark-light", field)
-
-      input?.append(field)
+      input?.appendChild(field)
       return field
     }
 
@@ -7265,44 +7439,12 @@ await Helper.add("event/click-funnel")
 
     if (event === "field/email") {
 
-      const field = document.createElement("div")
-      field.classList.add("field")
-      field.style.position = "relative"
-      field.style.borderRadius = "13px"
-      field.style.display = "flex"
-      field.style.flexDirection = "column"
-      field.style.margin = "34px"
-      field.style.justifyContent = "center"
-
-      field.labelContainer = document.createElement("div")
-      field.labelContainer.classList.add("field-label-container")
-      field.labelContainer.style.display = "flex"
-      field.labelContainer.style.alignItems = "center"
-      field.labelContainer.style.margin = "21px 89px 0 34px"
-      field.label = document.createElement("label")
-      field.label.classList.add("field-label")
+      const field = this.create("field")
       field.label.textContent = "E-Mail Adresse"
-      field.label.style.fontFamily = "sans-serif"
-      field.label.style.fontSize = "21px"
-      field.labelContainer.append(field.label)
-      field.append(field.labelContainer)
-
-      field.input = document.createElement("input")
+      const emailInput = this.create("input/email", field)
+      field.input = emailInput.input
       field.input.classList.add("field-input")
-      field.input.classList.add("email-input")
-      field.input.type = "email"
-      field.input.placeholder = "meine@email.de"
-      field.input.style.margin = "21px 89px 21px 34px"
-      field.input.style.fontSize = "21px"
-      field.append(field.input)
-      this.add("outline-hover", field.input)
-
-      field.input.setAttribute("required", "true")
-      field.input.setAttribute("accept", "text/email")
-
-      this.convert("dark-light", field)
-
-      input?.append(field)
+      input?.appendChild(field)
       return field
     }
 
@@ -10350,13 +10492,9 @@ await Helper.add("event/click-funnel")
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
           input.style.boxShadow = this.colors.dark.boxShadow
           input.style.border = this.colors.dark.border
-          input.style.backgroundColor = this.colors.dark.foreground
-          input.style.color = this.colors.dark.text
         } else {
-          input.style.color = this.colors.light.text
           input.style.boxShadow = this.colors.light.boxShadow
           input.style.border = this.colors.light.border
-          input.style.backgroundColor = this.colors.light.foreground
         }
       }
 
@@ -10377,8 +10515,8 @@ await Helper.add("event/click-funnel")
           input.style.boxShadow = this.colors.dark.boxShadow
           input.style.color = this.colors.dark.text
           input.querySelector(".field-label").style.color = this.colors.dark.text
-          input.querySelector(".field-input").style.backgroundColor = this.colors.dark.background
-          input.querySelector(".field-input").style.color = this.colors.dark.text
+          // input.querySelector(".field-input").style.backgroundColor = this.colors.dark.background
+          // input.querySelector(".field-input").style.color = this.colors.dark.text
           for (let i = 0; i < input.querySelectorAll("*").length; i++) {
             const child = input.querySelectorAll("*")[i]
             if (child.tagName === "A") {
@@ -10394,8 +10532,8 @@ await Helper.add("event/click-funnel")
           input.style.boxShadow = this.colors.light.boxShadow
           input.style.color = this.colors.light.text
           input.querySelector(".field-label").style.color = this.colors.light.text
-          input.querySelector(".field-input").style.backgroundColor = this.colors.light.background
-          input.querySelector(".field-input").style.color = this.colors.light.text
+          // input.querySelector(".field-input").style.backgroundColor = this.colors.light.background
+          // input.querySelector(".field-input").style.color = this.colors.light.text
           for (let i = 0; i < input.querySelectorAll("*").length; i++) {
             const child = input.querySelectorAll("*")[i]
             if (child.tagName === "A") {
@@ -11552,7 +11690,7 @@ await Helper.add("event/click-funnel")
           this.style(backgroundDiv, {marginBottom: "55px", height: "100vh", width: "100%", backgroundImage: `url(${prompt})`, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", display: "flex", justifyContent: "center", alignItems: "center"})
           const titleContainer = document.createElement("div")
           backgroundDiv.appendChild(titleContainer)
-          this.style(titleContainer, {overflow: "auto", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", padding: "21px", lineHeight: "1.5"})
+          this.style(titleContainer, {wordBreak: "break-word", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", padding: "21px", lineHeight: "1.5"})
           const h1 = document.createElement("h1")
           titleContainer.appendChild(h1)
           this.style(h1, {textTransform: "uppercase", fontSize: "34px", color: "white", fontFamily: "sans-serif", margin: "0 0 21px 0", letterSpacing: "3px"})
@@ -11571,7 +11709,7 @@ await Helper.add("event/click-funnel")
         const prompt = window.prompt("Gebe die URL deines Bildes ein:")
         const container = document.createElement("div")
         node.appendChild(container)
-        this.style(container, {minHeight: "100vh", width: "100%", display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap"})
+        this.style(container, {padding: "8px", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap"})
         const image = document.createElement("div")
         container.appendChild(image)
         this.style(image, {width: "100%", maxWidth: "610px", display: "flex", justifyContent: "center", alignItems: "center"})
@@ -11585,7 +11723,7 @@ await Helper.add("event/click-funnel")
         image.appendChild(img)
         const text = document.createElement("div")
         container.appendChild(text)
-        this.style(text, {display: "flex", flexDirection: "column", fontFamily: "sans-serif", margin: "21px 34px", maxWidth: "610px"})
+        this.style(text, {wordBreak: "break-word", width: "100%", display: "flex", flexDirection: "column", fontFamily: "sans-serif", margin: "21px 13px", maxWidth: "610px"})
         const h4 = document.createElement("h4")
         text.appendChild(h4)
         this.style(h4, {fontSize: "21px", color: "#0EA35B", textTransform: "uppercase", margin: "0 0 21px 0"})
@@ -17845,149 +17983,6 @@ await Helper.add("event/click-funnel")
 
     }
 
-    if (event === "templates/node/send-html") {
-
-      return new Promise(async(resolve, reject) => {
-        try {
-          this.convert("parent/scrollable", parent)
-          for (let i = 0; i < input.length; i++) {
-            const template = input[i]
-            const templateButton = this.create("button/left-right", parent)
-            templateButton.left.innerHTML = await Helper.convert("text/purified", template.html)
-            templateButton.right.style.fontSize = "21px"
-            templateButton.onclick = () => {
-              this.overlay("popup", async overlay => {
-                const funnel = this.create("div/scrollable", overlay)
-                const searchField = this.create("field/text", funnel)
-                searchField.label.textContent = "Filter deine Kontakte nach E-Mail Adressen"
-                searchField.input.placeholder = "domain.de"
-                searchField.style.margin = "21px 34px"
-                this.verify("input/value", searchField.input)
-                this.add("outline-hover", searchField.input)
-                const selectField = this.create("field/select", funnel)
-                selectField.label.textContent = "An welche E-Mail Adressen möchtest du dein Template senden"
-                selectField.input.setAttribute("multiple", "true")
-                selectField.input.style.height = "34vh"
-                this.verify("input/value", selectField.input)
-                this.add("outline-hover", selectField.input)
-                const res = await this.request("/get/contacts/self/")
-                if (res.status !== 200) {
-                  this.convert("parent/info", contactsDiv)
-                  parent.textContent = "Keine Kontakte gefunden"
-                }
-                if (res.status === 200) {
-                  const contacts = JSON.parse(res.response)
-                  let filtered
-                  searchField.input.oninput = (ev) => {
-                    filtered = contacts.filter(it => it.email.toLowerCase().includes(ev.target.value.toLowerCase()))
-                    let emails
-                    if (filtered) {
-                      emails = filtered.map(it => it.email)
-                    } else {
-                      emails = contacts.map(it => it.email)
-                    }
-                    selectField.input.add(emails)
-                  }
-                  selectField.input.add(contacts.map(it => it.email))
-                  let selectedEmails
-                  let sendTemplateButton
-                  selectField.oninput = (ev) => {
-                    selectedEmails = Array.from(ev.target.selectedOptions).map(option => option.value)
-                    if (!sendTemplateButton) {
-                      sendTemplateButton = this.create("button/action", buttons)
-                      sendTemplateButton.className = "send-template-button"
-                      this.add("outline-hover", sendTemplateButton)
-                      sendTemplateButton.textContent = "Template senden"
-                      sendTemplateButton.style.width = "34vw"
-                      sendTemplateButton.onclick = async () => {
-                        await this.verify("input/value", subjectField.input)
-                        const emails = Array.from(selectField.input.selectedOptions).map(option => option.value)
-                        this.overlay("security", async securityOverlay => {
-                          try {
-                            securityOverlay.textContent = ""
-                            securityOverlay.style.display = "flex"
-                            securityOverlay.style.flexDirection = "column"
-                            securityOverlay.style.justifyContent = "center"
-                            const promises = []
-                            for (let i = 0; i < emails.length; i++) {
-                              const email = emails[i]
-                              const container = this.create("div", securityOverlay)
-                              container.style.display = "flex"
-                              container.style.margin = "21px 34px"
-                              container.style.fontSize = "21px"
-                              container.style.fontFamily = "sans-serif"
-                              container.style.color = this.colors.light.text
-                              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                container.style.color = this.colors.dark.text
-                              }
-                              const emailDiv = this.create("div", container)
-                              emailDiv.textContent = email
-                              const signDiv = this.create("div", container)
-                              signDiv.style.marginLeft = "34px"
-                              this.render("icon/node/path", "/public/loading.svg", signDiv)
-                              const promise = this.request("/send/email/send-template/", {email, template: template.html, subject: subjectField.input.value})
-                              .then((res) => {
-                                if (res.status === 200) {
-                                  signDiv.style.color = this.colors.dark.success
-                                  signDiv.textContent = "Erfolgreich gesendet.."
-                                } else {
-                                  signDiv.style.color = this.colors.dark.error
-                                  signDiv.textContent = "Fehler beim Senden.."
-                                }
-                              })
-                              .catch((error) => {
-                                signDiv.style.color = this.colors.dark.error
-                                signDiv.textContent = "Fehler beim Senden.."
-                              })
-                              promises.push(promise)
-                            }
-                            await Promise.all(promises)
-                            this.removeOverlayButton(securityOverlay)
-                          } catch (error) {
-                            window.alert("sadf")
-                          }
-                        })
-                      }
-                    }
-                  }
-                  const subjectField = this.create("field/text", funnel)
-                  subjectField.label.textContent = "Betreff"
-                  subjectField.input.setAttribute("required", "true")
-                  subjectField.style.margin = "21px 34px"
-                  subjectField.input.oninput = () => this.verify("input/value", subjectField.input)
-                  this.verify("input/value", subjectField.input)
-                  this.add("outline-hover", subjectField.input)
-                  const buttons = this.create("div", funnel)
-                  buttons.style.display = "flex"
-                  buttons.style.justifyContent = "space-between"
-                  buttons.style.width = "100%"
-                  const testTemplateButton = this.create("button/action", buttons)
-                  this.add("outline-hover", testTemplateButton)
-                  testTemplateButton.textContent = "Test senden"
-                  testTemplateButton.style.background = this.colors.light.success
-                  testTemplateButton.style.width = "34vw"
-                  testTemplateButton.onclick = async () => {
-                    await this.verify("input/value", subjectField.input)
-                    this.overlay("security", async securityOverlay => {
-                      securityOverlay.remove()
-                      const res = await this.request("/send/email/test-template/", {template: template.html, subject: subjectField.input.value})
-                      if (res.status === 200) {
-                        window.alert("Template erfolgreich gesendet.")
-                        securityOverlay.remove()
-                      }
-                    })
-                  }
-                }
-              })
-            }
-          }
-
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-
     if (event === "text/bottom-left") {
 
       let bottomLeft = parent.querySelector(".bottom-left-text")
@@ -18316,17 +18311,23 @@ await Helper.add("event/click-funnel")
                           const funnel = this.create("div/scrollable", overlay)
 
                           const valueAliasField = this.create("field/text", funnel)
-                          valueAliasField.input.value = value.alias
+                          if (value.alias.includes("<mark>")) {
+                            const cleanAlias = value.alias.replace(/<mark>(.*?)<\/mark>/gi, "$1")
+                            const convertedAlias = this.convert("text/capital-first-letter", cleanAlias)
+                            valueAliasField.input.value = convertedAlias
+                          } else {
+                            valueAliasField.input.value = value.alias
+                          }
                           valueAliasField.label.textContent = "Alias"
                           valueAliasField.input.maxLength = "144"
                           valueAliasField.input.setAttribute("required", "true")
                           valueAliasField.input.placeholder = "Meine Werteinheit"
-                          valueAliasField.input.addEventListener("input", () => this.verify("input/value", valueAliasField.input))
+                          valueAliasField.input.oninput = () => this.verify("input/value", valueAliasField.input)
                           this.verify("input/value", valueAliasField.input)
 
                           const button = this.create("button/action", funnel)
                           button.textContent = "Alias jetzt ändern"
-                          button.addEventListener("click", async () => {
+                          button.onclick = async () => {
 
                             await this.verify("input/value", valueAliasField.input)
                             const alias = valueAliasField.input.value
@@ -18347,7 +18348,7 @@ await Helper.add("event/click-funnel")
                             })
 
 
-                          })
+                          }
                         }
 
                       })
@@ -18672,8 +18673,6 @@ await Helper.add("event/click-funnel")
             itemState.style.justifyContent = "center"
             itemState.style.alignItems = "center"
             itemState.style.width = "89px"
-            itemState.style.height = "89px"
-            itemState.style.fontSize = "34px"
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
               itemState.style.backgroundColor = this.colors.matte.black
             } else {
@@ -18910,6 +18909,85 @@ await Helper.add("event/click-funnel")
                     units.textContent = `Es wurden keine Werteinheiten gefunden.`
                     throw new Error("platform values is empty")
                   }
+                })
+              }
+            }
+            {
+              const button = this.create("button/left-right", buttons)
+              button.left.textContent = ".bulk-values"
+              button.right.textContent = "Massen Funktionen für ausgewählte Werteinheiten"
+              button.onclick = () => {
+                this.overlay("popup", async overlay => {
+                  overlay.info.textContent = `${platform.name}.bulk-values`
+
+                  const content = this.create("info/loading", overlay)
+
+                  const res = await this.request("/get/platform/paths-location-expert/", {platform: platform.name})
+                  if (res.status === 200) {
+                    const paths = JSON.parse(res.response)
+                    this.convert("parent/scrollable", content)
+                    content.style.marginTop = "21px"
+                    this.render("text/hr", "Wähle deine Pfade", content)
+
+                    const select = this.create("input/select", content)
+                    select.input.multiple = true
+                    select.input.required = true
+                    this.verify("input/value", select.input)
+                    select.input.oninput = () => this.verify("input/value", select.input)
+
+                    let height = 0
+                    select.input.textContent = ""
+                    for (let i = 0; i < paths.length; i++) {
+                      const option = document.createElement("option")
+                      height += 34
+                      option.value = paths[i]
+                      option.text = paths[i].split("/")[3]
+                      select.input.appendChild(option)
+                    }
+
+                    select.input.style.height = `${height}px`
+
+                    this.render("text/hr", "Wähle eine Funktion", content)
+                    const buttons = this.create("div/flex-row", content)
+                    const addFeedbackButton = this.render("text/link", "Feedback Button anhängen", buttons)
+                    addFeedbackButton.onclick = async () => {
+                      await this.verify("input/value", select.input)
+                      const selectedPaths = Array.from(select.input.selectedOptions).map(it => it.value)
+                      this.overlay("security", async securityOverlay => {
+                        const res = await this.request("/update/paths/html-add-feedback-script/", {paths: selectedPaths})
+                        if (res.status === 200) {
+                          window.alert("Pfad wurden erfolgreich aktualisiert.")
+                          overlay.remove()
+                          securityOverlay.remove()
+                        } else {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                          securityOverlay.remove()
+                        }
+                      })
+                    }
+
+                    const addRequestedButton = this.render("text/link", "Requested Statistik anhängen", buttons)
+                    addRequestedButton.onclick = async () => {
+                      await this.verify("input/value", select.input)
+                      const selectedPaths = Array.from(select.input.selectedOptions).map(it => it.value)
+                      this.overlay("security", async securityOverlay => {
+                        const res = await this.request("/update/paths/html-add-requested-script/", {paths: selectedPaths})
+                        if (res.status === 200) {
+                          window.alert("Pfad wurden erfolgreich aktualisiert.")
+                          overlay.remove()
+                          securityOverlay.remove()
+                        } else {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                          securityOverlay.remove()
+                        }
+                      })
+                    }
+
+                  } else {
+                    this.convert("parent/info", content)
+                    content.textContent = "Keine Pfade gefunden"
+                  }
+
                 })
               }
             }
@@ -20248,9 +20326,28 @@ await Helper.add("event/click-funnel")
                     this.add("script-onbody", script)
                     window.alert("Feedback Taste wurde erfolgreich angehängt.")
                   }
-
                 }
-
+                {
+                  const button = this.create("toolbox/left-right", buttons)
+                  button.left.textContent = ".html-statistics"
+                  button.right.textContent = "Entscheide welche Statistiken du, für deine Werteinheit, anwenden möchtest"
+                  button.onclick = () => {
+                    this.overlay("toolbox", overlay => {
+                      overlay.info.textContent = ".html-statistics"
+                      const buttons = this.create("div/scrollable", overlay)
+                      {
+                        const button = this.create("toolbox/left-right", buttons)
+                        button.right.textContent = ".html-requested"
+                        button.left.textContent = "Speichert, wie oft deine Werteinheit angefordert wird"
+                        button.onclick = () => {
+                          const script = this.create("script", {id: "html-requested", js: 'Helper.request("/register/location/html-requested/")'})
+                          this.add("script-onbody", script)
+                          window.alert("HTML Requested Skript wurde erfolgreich angehängt.")
+                        }
+                      }
+                    })
+                  }
+                }
                 {
                   const button = this.create("toolbox/left-right", buttons)
                   button.left.textContent = ".back-button"
@@ -22545,6 +22642,7 @@ await Helper.add("event/click-funnel")
       if (input.minHeight) node.style.minHeight = input.minHeight
       if (input.width) node.style.width = input.width
       if (input.maxWidth) node.style.maxWidth = input.maxWidth
+      if (input.minWidth) node.style.minWidth = input.minWidth
       if (input.overflow) node.style.overflow = input.overflow
       if (input.margin) node.style.margin = input.margin
       if (input.marginTop) node.style.marginTop = input.marginTop
@@ -22567,6 +22665,8 @@ await Helper.add("event/click-funnel")
       if (input.textAlign) node.style.textAlign = input.textAlign
       if (input.borderRadius) node.style.borderRadius = input.borderRadius
       if (input.alignSelf) node.style.alignSelf = input.alignSelf
+      if (input.wordBreak) node.style.wordBreak = input.wordBreak
+      if (input.whiteSpace) node.style.whiteSpace = input.whiteSpace
     }
   }
 
