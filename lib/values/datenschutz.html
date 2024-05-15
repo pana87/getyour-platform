@@ -37,6 +37,7 @@
     Helper.convert("dark-light", backButton)
 
     Helper.render("text/h1", "Datenschutz Richtlinien", document.body)
+    Helper.render("text/h2", `Stand: ${Helper.convert("millis/dd.mm.yyyy", Date.now())}`, document.body)
 
     {
       const button = Helper.create("button/left-right", document.body)

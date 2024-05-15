@@ -35,6 +35,7 @@
     Helper.convert("dark-light", backButton)
 
     Helper.render("text/h1", "Nutzervereinbarung", document.body)
+    Helper.render("text/h2", `Stand: ${Helper.convert("millis/dd.mm.yyyy", Date.now())}`, document.body)
     {
       const button = Helper.create("button/left-right", document.body)
       button.left.innerHTML = /*html*/`
@@ -105,6 +106,13 @@
         <p>Durch die Nutzung unserer Dienste stimmst du allen Bedingungen zu. Die Nutzung unserer Dienste wird durch die Nutzervereinbarung und unsere Datenschutzrichtlinien geregelt. Sie beschreiben, wie wir deine personenbezogenen Daten erheben, verwenden, weitergeben und speichern.</p>
         <p>Wenn du dich bei getyour plattform registrierst, indem du auf „Registrieren“ oder ähnliches klickst, erklärst du dich damit einverstanden, einen rechtsverbindlichen Vertrag mit getyour plattform einzugehen. Das gilt auch für die Nutzung unserer Dienste im Namen deines Unternehmens. Wenn du dieser Vereinbarung nicht zustimmen möchtest, klicke bitte nicht auf „Registrieren“ oder ähnliches. Wenn du diese Vereinbarung kündigen möchtest, kannst du dein Konto schließen und den Zugriff auf unserer Dienste jederzeit einstellen.</p>
       `
+
+      Helper.request("/verify/user/closed/").then(res => {
+        if (res.status === 200) {
+          const deleteUserButton = Helper.render("text/link", "Konto jetzt schließen", button.left)
+          deleteUserButton.style.margin = "8px"
+        }
+      })
     }
 
     {
@@ -140,7 +148,7 @@
       const button = Helper.create("button/left-right", document.body)
       button.left.innerHTML = /*html*/`
         ${Helper.convert("text/h2", "Sichtbarkeit").outerHTML}
-        <p>Unser Dienst ermöglicht es dir, Informationen, Inhalte, Logos, Texte, Bilder, Designs, Quellcode oder ähnliche persönliche oder unternehmensspezifische Daten (nachfolgend “Inhalt” oder “Inhalte”) auf verschiedene Art und Weise bereitzustellen (z. B. über dein Profil). Inhalte, die du zur Verfügung stellst, können für Mitglieder, Besucher oder andere Dritte (einschließlich außerhalb des Dienstes) sichtbar sein. Die Entscheidungen darüber, wer welche Inhalte sehen kann, liegt ganz allein bei dir (z. B. Sichtbar für alle, Sichtbar nur für Mitglieder oder Sichtbar nur für mich). Du kannst die Sichtbarkeit, für jeden Dienst, unter den Diensteinstellungen bearbeiten.</p>
+        <p>Unser Dienst ermöglicht es dir, Informationen, Inhalte, Logos, Texte, Bilder, Designs, Quellcode oder ähnliche persönliche oder unternehmensspezifische Daten (nachfolgend “Inhalt” oder “Inhalte”) auf verschiedene Art und Weise bereitzustellen (z. B. über dein Profil). Inhalte, die du zur Verfügung stellst, können für Mitglieder, Besucher oder andere Dritte (einschließlich außerhalb des Dienstes) sichtbar sein. Die Entscheidungen darüber, wer welche Inhalte sehen kann, liegt ganz allein bei dir. Du hast volle Kontrolle über deine Daten und kannst sie jeder Zeit entfernen. Mit dem entfernen deiner Daten verschwindet auch die Sichtbarkeit.</p>
         <p>Wir sind nicht verpflichtet, Inhalte auf unseren Diensten bereitzustellen und können Inhalte ohne Vorankündigung entfernen.</p>
       `
     }

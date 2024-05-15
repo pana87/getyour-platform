@@ -913,81 +913,88 @@ export class Helper {
                   buttonsOverlay.info.textContent = group.emails.join(", ")
 
                   const buttons = Helper.create("div/scrollable", buttonsOverlay)
-                  {
-                    const button = Helper.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".alias"
-                    button.right.textContent = "Gebe deiner Gruppe einen alternativen Namen"
-                    button.onclick = () => {
-                      Helper.overlay("popup", overlay => {
-                        overlay.info.textContent = group.emails.join(", ")
-                        // overlay.info.textContent = group.alias ? `${group.alias}.alias` : ".alias"
-                        const funnel = Helper.create("div/scrollable", overlay)
-                        const aliasField = Helper.create("field/text", funnel)
-                        aliasField.label.textContent = "Alternative Bezeichnung für deine Gruppe"
-                        aliasField.input.placeholder = "Family, Friends, Work.."
-                        aliasField.input.setAttribute("required", "true")
-                        if (group.alias !== undefined) {
-                          aliasField.input.value = group.alias
-                        }
-                        Helper.verify("input/value", aliasField.input)
-                        Helper.add("outline-hover", aliasField.input)
-                        aliasField.input.oninput = () => Helper.verify("input/value", aliasField.input)
-                        const submit = Helper.create("button/action", funnel)
-                        Helper.add("outline-hover", submit)
-                        submit.textContent = "Alias jetzt speichern"
-                        submit.onclick = async () => {
-                          await Helper.verify("input/value", aliasField.input)
-                          Helper.overlay("security", async securityOverlay => {
-                            const res = await Helper.request("/register/groups/alias/", {id: group.created, alias: aliasField.input.value})
-                            if (res.status === 200) {
-                              window.alert("Alias erfolgreich gespeichert.")
-                              await getAndRenderGroups(groupsContainer)
-                              overlay.remove()
-                              buttonsOverlay.remove()
-                              securityOverlay.remove()
-                            } else {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
+
+                  Helper.request("/verify/group/is-creator/", {id: group.created}).then(res => {
+                    if (res.status === 200) {
+                      {
+                        const button = Helper.create("toolbox/left-right", buttons)
+                        button.left.textContent = ".alias"
+                        button.right.textContent = "Gebe deiner Gruppe einen alternativen Namen"
+                        button.onclick = () => {
+                          Helper.overlay("popup", overlay => {
+                            overlay.info.textContent = group.emails.join(", ")
+                            const funnel = Helper.create("div/scrollable", overlay)
+                            const aliasField = Helper.create("field/text", funnel)
+                            aliasField.label.textContent = "Alternative Bezeichnung für deine Gruppe"
+                            aliasField.input.placeholder = "Family, Friends, Work.."
+                            if (group.alias !== undefined) {
+                              aliasField.input.value = group.alias
+                            }
+                            Helper.verify("input/value", aliasField.input)
+                            Helper.add("outline-hover", aliasField.input)
+                            aliasField.input.oninput = () => Helper.verify("input/value", aliasField.input)
+                            const submit = Helper.create("button/action", funnel)
+                            Helper.add("outline-hover", submit)
+                            submit.textContent = "Alias jetzt speichern"
+                            submit.onclick = async () => {
+                              await Helper.verify("input/value", aliasField.input)
+                              Helper.overlay("security", async securityOverlay => {
+                                const res = await Helper.request("/register/groups/alias/", {id: group.created, alias: aliasField.input.value})
+                                if (res.status === 200) {
+                                  window.alert("Alias erfolgreich gespeichert.")
+                                  await getAndRenderGroups(groupsContainer)
+                                  overlay.remove()
+                                  buttonsOverlay.remove()
+                                  securityOverlay.remove()
+                                } else {
+                                  window.alert("Fehler.. Bitte wiederholen.")
+                                  securityOverlay.remove()
+                                }
+                              })
                             }
                           })
                         }
-                      })
-                    }
-                  }
-                  {
-                    const button = Helper.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".emails"
-                    button.right.textContent = "Aktualisiere die Mitglieder deiner Gruppe"
-                    button.onclick = () => {
-                      Helper.overlay("popup", async overlay => {
-                        const emailSelect = await defineNewGroup(overlay, (emails) => Helper.request("/register/groups/emails-self/", {id: group.created, emails}))
-                        for (let i = 0; i < emailSelect.field.input.options.length; i++) {
-                          const option = emailSelect.field.input.options[i]
-                          if (group.emails.includes(option.value)) {
-                            option.selected = true
-                          }
-                        }
-                        emailSelect.submit.onclick = () => {
-                          const emails = emailSelect.selectedEmails()
-                          if (Helper.verifyIs("array/empty", emails)) {
-                            window.alert("Wähle mindestens eine E-Mail Adresse.")
-                            Helper.add("style/node/not-valid", emailSelect.field.input)
-                            return
-                          }
-                          Helper.overlay("security", async securityOverlay => {
-                            const res = await Helper.request("/register/groups/emails-self/", {id: group.created, emails})
-                            if (res.status === 200) {
-                              window.alert("Deine Gruppe wurde erfolgreich gespeichert.")
-                              await getAndRenderGroups(groupsContainer)
-                              overlay.remove()
-                              buttonsOverlay.remove()
-                              securityOverlay.remove()
+                      }
+                      {
+                        const button = Helper.create("toolbox/left-right", buttons)
+                        button.left.textContent = ".emails"
+                        button.right.textContent = "Aktualisiere die Mitglieder deiner Gruppe"
+                        button.onclick = () => {
+                          Helper.overlay("popup", async overlay => {
+                            const emailSelect = await defineNewGroup(overlay, (emails) => Helper.request("/register/groups/emails-self/", {id: group.created, emails}))
+                            for (let i = 0; i < emailSelect.field.input.options.length; i++) {
+                              const option = emailSelect.field.input.options[i]
+                              if (group.emails.includes(option.value)) {
+                                option.selected = true
+                              }
+                            }
+                            emailSelect.submit.onclick = () => {
+                              const emails = emailSelect.selectedEmails()
+                              if (Helper.verifyIs("array/empty", emails)) {
+                                window.alert("Wähle mindestens eine E-Mail Adresse.")
+                                Helper.add("style/node/not-valid", emailSelect.field.input)
+                                return
+                              }
+                              Helper.overlay("security", async securityOverlay => {
+                                const res = await Helper.request("/register/groups/emails-self/", {id: group.created, emails})
+                                if (res.status === 200) {
+                                  window.alert("Deine Gruppe wurde erfolgreich gespeichert.")
+                                  await getAndRenderGroups(groupsContainer)
+                                  overlay.remove()
+                                  buttonsOverlay.remove()
+                                  securityOverlay.remove()
+                                } else {
+                                  window.alert("Fehler.. Bitte wiederholen.")
+                                  securityOverlay.remove()
+                                }
+                              })
                             }
                           })
                         }
-                      })
+                      }
                     }
-                  }
+                  })
+
                   {
                     const button = Helper.create("button/left-right", buttons)
                     button.left.textContent = ".send-template"
@@ -1037,6 +1044,14 @@ export class Helper {
                           sendTemplateButton.textContent = "Template senden"
                           sendTemplateButton.style.width = "233px"
                           sendTemplateButton.onclick = async () => {
+
+                            const res = await Helper.request("/get/user/tree-closed/", {tree: "email"})
+                            let userEmail
+                            if (res.status === 200) {
+                              userEmail = res.response
+                            }
+                            if (!userEmail) return window.alert("Fehler.. Bitte wiederholen.")
+
                             await Helper.verify("input/value", subjectField.input)
                             Helper.overlay("security", async securityOverlay => {
                               try {
@@ -1044,43 +1059,41 @@ export class Helper {
                                 securityOverlay.style.display = "flex"
                                 securityOverlay.style.flexDirection = "column"
                                 securityOverlay.style.justifyContent = "center"
-                                const promises = []
-                                for (let i = 0; i < emails.length; i++) {
-                                  const email = emails[i]
-                                  const container = Helper.create("div", securityOverlay)
-                                  container.style.display = "flex"
-                                  container.style.margin = "21px 34px"
-                                  container.style.fontSize = "21px"
-                                  container.style.fontFamily = "sans-serif"
-                                  container.style.color = Helper.colors.light.text
-                                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                    container.style.color = Helper.colors.dark.text
-                                  }
-                                  const emailDiv = Helper.create("div", container)
-                                  emailDiv.textContent = email
-                                  const signDiv = Helper.create("div", container)
-                                  signDiv.style.marginLeft = "34px"
-                                  Helper.render("icon/node/path", "/public/loading.svg", signDiv)
-                                  const promise = Helper.request("/send/email/send-template/", {email, template: template.html, subject: subjectField.input.value})
-                                  .then((res) => {
-                                    if (res.status === 200) {
-                                      signDiv.style.color = Helper.colors.dark.success
-                                      signDiv.textContent = "Erfolgreich gesendet.."
-                                    } else {
-                                      signDiv.style.color = Helper.colors.dark.error
-                                      signDiv.textContent = "Fehler beim Senden.."
+
+                                await renderEmailStatus(userEmail, group.emails, securityOverlay)
+                                Helper.removeOverlayButton(securityOverlay)
+
+                                for (let i = 0; i < group.emails.length; i++) {
+                                  const email = group.emails[i]
+                                  if (userEmail === email) continue
+
+                                  document.querySelectorAll(".email-status").forEach(emailStatus => {
+                                    if (emailStatus.textContent.includes(email)) {
+                                      const sign = emailStatus.querySelector(".sign")
+
+                                      Helper.request("/send/email/send-template/", {email, template: template.html, subject: subjectField.input.value})
+                                      .then((res) => {
+                                        if (res.status === 200) {
+                                          sign.style.color = Helper.colors.dark.success
+                                          sign.textContent = "Erfolgreich gesendet.."
+                                        } else {
+                                          sign.style.color = Helper.colors.dark.error
+                                          sign.textContent = "Fehler beim Senden.."
+                                        }
+                                      })
+                                      .catch((error) => {
+                                        sign.style.color = Helper.colors.dark.error
+                                        sign.textContent = "Fehler beim Senden.."
+                                      })
+
                                     }
                                   })
-                                  .catch((error) => {
-                                    signDiv.style.color = Helper.colors.dark.error
-                                    signDiv.textContent = "Fehler beim Senden.."
-                                  })
-                                  promises.push(promise)
+
                                 }
-                                await Promise.all(promises)
-                                Helper.removeOverlayButton(securityOverlay)
+
                               } catch (error) {
-                                window.alert("sadf")
+                                window.alert("Fehler.. Bitte wiederholen.")
+                                console.error(error)
                               }
                             })
                           }
@@ -1120,7 +1133,6 @@ export class Helper {
                   }
 
                   {
-
                     const button = Helper.create("button/left-right", buttons)
                     button.left.textContent = ".web-call"
                     button.right.textContent = "Verbinde dich per Videochat mit deiner Gruppe"
@@ -1319,213 +1331,13 @@ export class Helper {
                       })
 
                     }
-
                   }
 
                   {
                     const button = Helper.create("button/left-right", buttons)
                     button.left.textContent = ".web-chat"
                     button.right.textContent = "Schreibe deiner Gruppe Nachrichten"
-                    button.onclick = async () => {
 
-                      // test in secdev
-                      // then add it here
-                      // const walkieTalkie = this.fn("walkie-talkie")
-                      // walkieTalkie.openOverlay()
-                      // walkieTalkie.thing()
-
-
-
-
-
-                      // try {
-                        //   if (!("Notification" in window)) {
-                          //     throw new Error("Browser does not support notifications")
-                          //   }
-                          //   const permission = await Notification.requestPermission()
-                          //   console.log(permission);
-                          //   if (permission === "denied") {
-                            //     // permission = await Notification.requestPermission()
-                            //     window.confirm("Du hast Benachrichtigungen in deinem Browser abgelehnt. Damit du diese Funktion nutzen kannst, musst die die Einstellungen in deinem Browser ändern.\n\nMöchtest du die Einstellungen deines Browsers öffnen?")
-                            //     // if (confirm === true) {
-                              //     //   window.open("about:preferences#notifications", "_blank")
-                              //     // }
-                              //   }
-                              //
-                              //   if (permission === "granted") {
-                                //     new Notification("Walkie Talkie", {body: "Das ist BODY", icon: "/public/logo-getyour-red.svg"})
-                                //   }
-                                //
-                                //
-                                // } catch (error) {
-                                  //
-                                  // }
-
-                                  //
-                                  //
-                                  //
-                                  //
-                                  //
-                                  // if ("Notification" in window) {
-                                    //   if (Notification.permission === "granted") {
-                                      //     console.log("Notifications are already allowed");
-                                      //   } else if (Notification.permission !== "denied") {
-                                        //     Notification.requestPermission().then(permission => {
-                                          //       if (permission === "granted") {
-                                            //         console.log("Notifications permission granted");
-                                            //
-                                            //         // open overlay here
-                                            //         Helper.overlay("popup", async overlay => {
-                                              //
-                                              //
-                                              //
-                                              //           // webrtc logic
-                                              //           try {
-                                                //             const hostname = window.location.hostname || "localhost"
-                                                //             const ws = new WebSocket(`ws://${hostname}:9998`)
-                                                  //
-                                                  //               function send(message) {
-                                                    //                 ws.send(JSON.stringify(message))
-                                                    //               }
-                                                    //
-                                                    //               overlay.removeOverlayButton.addEventListener("click", () => ws.close())
-                                                    //
-                                                    //               ws.onopen = () => {
-                                                      //                 console.log('WebSocket connection established')
-                                                      //                 // send({ type: 'getOnlineUsers' })
-                                                      //               }
-                                                      //
-                                                      //               ws.onmessage = (ev) => {
-                                                        //                 const message = JSON.parse(ev.data)
-                                                        //                 console.log(message)
-                                                        //               }
-                                                        //
-                                                        //               // Event handler for WebSocket errors
-                                                        //               ws.onerror = (error) => {
-                                                          //                 throw error
-                                                          //               }
-                                                          //
-                                                          //               // Event handler for WebSocket close
-                                                          //               ws.onclose = () => {
-                                                            //                 console.log('WebSocket connection closed')
-                                                            //               }
-                                                            //               // this is a webrtc client now
-                                                            //               // first connect to websocket
-                                                            //               // and get the online users
-                                                            //
-                                                            //
-                                                            //
-                                                            //               // create connection
-                                                            //               let localStream;
-                                                            //               let mediaRecorder;
-                                                            //               let chunks = [];
-                                                            //               let isTransmitting = false;
-                                                            //
-                                                            //               const transmitButton = Helper.create("button/left-right", overlay)
-                                                            //
-                                                            //               // Function to start audio transmission
-                                                            //               function startTransmit() {
-                                                              //                 // Request access to user's microphone
-                                                              //                 navigator.mediaDevices.getUserMedia({ audio: true })
-                                                              //                 .then(stream => {
-                                                                //                   localStream = stream;
-                                                                //                   mediaRecorder = new MediaRecorder(stream);
-                                                                //
-                                                                //                   // Start recording when data is available
-                                                                //                   mediaRecorder.addEventListener('dataavailable', event => {
-                                                                  //                     chunks.push(event.data);
-                                                                  //                   });
-                                                                  //
-                                                                  //                   // Start recording
-                                                                  //                   mediaRecorder.start();
-                                                                  //
-                                                                  //                   // Update button text
-                                                                  //                   transmitButton.textContent = 'Release to Stop';
-                                                                  //                   isTransmitting = true;
-                                                                  //                 })
-                                                                  //                 .catch(error => {
-                                                                    //                   console.error('Error starting transmission:', error);
-                                                                    //                 });
-                                                                    //               }
-                                                                    //
-                                                                    //               // Function to stop audio transmission
-                                                                    //               function stopTransmit() {
-                                                                      //                 // Stop recording
-                                                                      //                 mediaRecorder.stop();
-                                                                      //
-                                                                      //                 // Stop the local stream tracks
-                                                                      //                 localStream.getTracks().forEach(track => track.stop());
-                                                                      //
-                                                                      //                 // Update button text
-                                                                      //                 transmitButton.textContent = 'Press and Hold to Talk';
-                                                                      //                 isTransmitting = false;
-                                                                      //               }
-                                                                      //
-                                                                      //               // Event listener for button press
-                                                                      //               transmitButton.addEventListener('mousedown', () => {
-                                                                        //                 if (!isTransmitting) {
-                                                                          //                   startTransmit();
-                                                                          //                 }
-                                                                          //               });
-                                                                          //
-                                                                          //               // Event listener for button release
-                                                                          //               transmitButton.addEventListener('mouseup', () => {
-                                                                            //                 if (isTransmitting) {
-                                                                              //                   stopTransmit();
-                                                                              //                 }
-                                                                              //               });
-                                                                              //
-                                                                              //               // Event listener for touch start
-                                                                              //               transmitButton.addEventListener('touchstart', () => {
-                                                                                //                 if (!isTransmitting) {
-                                                                                  //                   startTransmit();
-                                                                                  //                 }
-                                                                                  //               });
-                                                                                  //
-                                                                                  //               // Event listener for touch end
-                                                                                  //               transmitButton.addEventListener('touchend', () => {
-                                                                                    //                 if (isTransmitting) {
-                                                                                      //                   stopTransmit();
-                                                                                      //                 }
-                                                                                      //               });
-                                                                                      //
-                                                                                      //               // Function to handle signaling message exchange
-                                                                                      //               function sendSignalingMessage(message) {
-                                                                                        //                 // Implement your signaling logic here (e.g., WebSocket)
-                                                                                        //               }
-                                                                                        //
-                                                                                        //
-                                                                                        //           } catch (error) {
-                                                                                          //
-                                                                                          //             console.error('WebSocket error:', error)
-                                                                                          //
-                                                                                          //           }
-                                                                                          //
-                                                                                          //
-                                                                                          //         })
-                                                                                          //
-                                                                                          //       } else {
-                                                                                            //         console.log("Notifications permission denied");
-                                                                                            //         // overlay.remove()
-                                                                                            //         throw new Error("Notifications permission denied")
-                                                                                            //       }
-                                                                                            //     }).catch(error => {
-                                                                                              //       console.error("Error requesting permission:", error)
-                                                                                              //     })
-                                                                                              //   }
-                                                                                              // } else {
-                                                                                                //   console.log("Browser does not support notifications")
-                                                                                                //   window.alert("Dein Browser unterstützt diese Funktion nicht. Unter 'https://caniuse.com' kannst du Browser vergleichen. Wechsel dann zu einem geeigneten Browser und versuche die Anwendung erneut zu starten.")
-                                                                                                //   // overlay.remove()
-                                                                                                //   throw new Error("Browser not supported")
-                                                                                                // }
-                                                                                                //
-                                                                                                //
-
-
-
-
-                                                                                              }
                   }
 
                   {
@@ -1534,22 +1346,140 @@ export class Helper {
                     button.right.textContent = "Teile Daten mit deiner Gruppe"
 
                   }
+
+                  function renderEmailStatus(except, emails, node) {
+                    return new Promise((resolve, reject) => {
+                      try {
+                        let iterations = 0
+
+                        for (let i = 0; i < emails.length; i++) {
+                          const email = emails[i]
+                          if (except && except === email) continue
+                          const container = Helper.create("div", node)
+                          container.className = "email-status"
+                          Helper.style(container, {wordBreak: "break-word", display: "flex", flexWrap: "wrap", margin: "21px 34px", fontSize: "21px", fontFamily: "sans-serif", alignItems: "center"})
+                          container.style.color = Helper.colors.light.text
+                          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                            container.style.color = Helper.colors.dark.text
+                          }
+                          const emailDiv = Helper.create("div", container)
+                          emailDiv.textContent = `${email}: `
+                          const signDiv = Helper.create("div", container)
+                          signDiv.className = "sign"
+                          signDiv.style.marginLeft = "34px"
+                          Helper.render("icon/node/path", "/public/loading.svg", signDiv)
+                          iterations++
+                        }
+
+                        if (iterations === emails.length - 1) {
+                          return resolve()
+                        } else {
+                          throw new Error("iterations mismatch")
+                        }
+
+                      } catch (error) {
+                        console.error(error)
+                        reject(error)
+                      }
+
+                    })
+
+                  }
+
+
                   {
                     const button = Helper.create("button/left-right", buttons)
                     button.left.textContent = ".location-sharing"
                     button.right.textContent = "Teile deinen Standort mit deiner Gruppe"
+                    button.onclick = async () => {
 
+                      function getCoords() {
+                        return new Promise((resolve, reject) => {
+                          function success(pos) {
+                            resolve(pos.coords)
+                          }
+
+                          function error(err) {
+                            reject(err)
+                          }
+
+                          navigator.geolocation.getCurrentPosition(success, error, {
+                            enableHighAccuracy: true,
+                            timeout: 5000,
+                            maximumAge: 0
+                          })
+                        })
+                      }
+
+                      const res = await Helper.request("/get/user/tree-closed/", {tree: "email"})
+                      let userEmail
+                      if (res.status === 200) {
+                        userEmail = res.response
+                      }
+                      if (!userEmail) return window.alert("Fehler.. Bitte wiederholen.")
+
+                      Helper.overlay("security", async securityOverlay => {
+                        try {
+                          securityOverlay.textContent = ""
+                          securityOverlay.style.display = "flex"
+                          securityOverlay.style.flexDirection = "column"
+                          securityOverlay.style.justifyContent = "center"
+
+                          await renderEmailStatus(userEmail, group.emails, securityOverlay)
+
+                          Helper.removeOverlayButton(securityOverlay)
+
+                          let coords
+                          try {
+                            coords = await getCoords()
+                          } catch (error) {
+                            window.alert("Fehler.. Bitte wiederholen.")
+                            console.error(error)
+                            securityOverlay.remove()
+                            return
+                          }
+                          if (!coords) return
+
+                          for (let i = 0; i < group.emails.length; i++) {
+                            const email = group.emails[i]
+                            if (userEmail === email) continue
+
+                            document.querySelectorAll(".email-status").forEach(emailStatus => {
+                              if (emailStatus.textContent.includes(email)) {
+                                const sign = emailStatus.querySelector(".sign")
+
+                                Helper.request("/send/email/lat-lon/", {to: email, lat: coords.latitude, lon: coords.longitude})
+                                .then((res) => {
+                                  if (res.status === 200) {
+                                    sign.style.color = Helper.colors.dark.success
+                                    sign.textContent = "Erfolgreich gesendet.."
+                                  } else {
+                                    sign.style.color = Helper.colors.dark.error
+                                    sign.textContent = "Fehler beim Senden.."
+                                  }
+                                })
+                                .catch((error) => {
+                                  sign.style.color = Helper.colors.dark.error
+                                  sign.textContent = "Fehler beim Senden.."
+                                })
+
+                              }
+                            })
+
+
+                          }
+
+                        } catch (error) {
+                          console.error(error);
+                        }
+                      })
+                    }
                   }
-
                   {
                     const button = Helper.create("button/left-right", buttons)
                     button.left.textContent = ".remove"
                     button.right.textContent = "Gruppe entfernen"
                     button.onclick = () => {
-
-                      // remove my only my self from group
-                      // if my self is the last email
-                      // then remove group
 
                       const confirm = window.confirm("Möchtest du deine Gruppe wirklich entfernen?")
                       if (confirm === true) {
@@ -1568,8 +1498,6 @@ export class Helper {
                       }
                     }
                   }
-
-
                 })
 
               }
@@ -11217,6 +11145,17 @@ await Helper.add("event/click-funnel")
       it.templateOptions = this.create("div/flex-row", it.optionsContainer)
       it.templateOptions.style.display = "none"
 
+      // todo Profil Box
+      // design und skript laden
+      // skript holt id vom vierten paramter in pathname
+      // mit id wird box befüllt
+      // wenn es keine id findet dann lädt das skript ein
+      // eine id einzufüllen
+      // oder liste mit ids geben ???
+      // oder es holt sich das irgendwie anders ???
+      // ohne id ???
+      // mit listen vorher
+      // dann created benutzen
       it.imageTextAndActionButton = this.render("text/link", "Bild-Text-Action Box", it.templateOptions)
       it.createImageTextAndActionBox = this.fn("createImageTextAndActionBox")
       it.backgroundImageWithTitlesButton = this.render("text/link", "Hintergrund Bild mit Titel", it.templateOptions)
@@ -19570,12 +19509,10 @@ await Helper.add("event/click-funnel")
               const buttons = this.create("div/scrollable", overlay)
 
               if (child.tagName !== "SCRIPT") {
-
                 const button = this.create("toolbox/left-right", buttons)
                 button.left.textContent = ".children"
                 button.right.textContent = "Element Inhalt"
-
-                button.addEventListener("click", async () => {
+                button.onclick = async () => {
 
                   if (child.children.length > 0) {
 
@@ -19591,8 +19528,18 @@ await Helper.add("event/click-funnel")
 
                   } else alert("Das HTML Element ist leer.")
 
-                })
+                }
+              }
 
+              if (["BODY", "DIV"].includes(child.tagName)) {
+                const button = this.create("toolbox/left-right", buttons)
+                button.left.textContent = ".div"
+                button.right.textContent = "DIV-Element anhängen"
+                button.onclick = () => {
+                  const div = document.createElement("div")
+                  child.appendChild(div)
+                  window.alert("DIV Element wurde erfolgreich angehängt.")
+                }
               }
 
               if (child.closest("svg") !== null) {
@@ -21081,16 +21028,6 @@ await Helper.add("event/click-funnel")
                 }
 
 
-                {
-                  const button = this.create("toolbox/left-right", buttons)
-                  button.left.textContent = ".div"
-                  button.right.textContent = "DIV-Element anhängen"
-                  button.onclick = () => {
-                    const div = document.createElement("div")
-                    document.body.appendChild(div)
-                    window.alert("DIV Element wurde erfolgreich angehängt.")
-                  }
-                }
 
               }
 
