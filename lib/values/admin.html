@@ -63,7 +63,8 @@
                       button.right.appendChild(icon.cloneNode(true))
                       Helper.add("outline-hover", button)
                       Helper.add("outline-hover", button.right)
-                      button.right.onclick = async () => {
+                      button.right.onclick = async (ev) => {
+                        ev.stopPropagation()
                         const confirm = window.confirm("Möchten Sie wirklich diesen Nutzer löschen?")
                         if (confirm === true) {
                           const res = await Helper.request("/remove/user/by-admin/", {id: user.id})
@@ -74,20 +75,59 @@
                           if (res.status !== 200) window.alert("Fehler.. Bitte wiederholen.")
                         }
                       }
+
+                      button.left.style.margin = "0"
+
                       const message = document.createElement("div")
-                      Helper.add("outline-hover", message)
-                      message.style.margin = "13px 34px"
-                      const email = createNode("div", message, "Email: ")
-                      createNode("b", email, user.email)
-                      const verified = createNode("div", message, "Verifiziert: ")
-                      createNode("b", verified, user.verified)
-                      const counter = createNode("div", message, "Anmeldeversuche: ")
-                      createNode("b", counter, user.counter)
-                      message.style.cursor = "pointer"
-                      message.onclick = () => {
+                      message.style.margin = "21px 34px"
+
+                      {
+                        const prefix = document.createElement("div")
+                        prefix.textContent = "Email: "
+                        Helper.style(prefix, {fontSize: "13px"})
+                        message.appendChild(prefix)
+                        const value = document.createElement("div")
+                        value.textContent = user.email
+                        message.appendChild(value)
+                      }
+                      {
+                        const prefix = document.createElement("div")
+                        prefix.textContent = "Verifiziert: "
+                        Helper.style(prefix, {fontSize: "13px"})
+                        message.appendChild(prefix)
+                        const value = document.createElement("div")
+                        value.textContent = user.verified
+                        message.appendChild(value)
+                      }
+                      {
+                        const prefix = document.createElement("div")
+                        prefix.textContent = "Anmeldungen: "
+                        Helper.style(prefix, {fontSize: "13px"})
+                        message.appendChild(prefix)
+                        const value = document.createElement("div")
+                        value.textContent = user.counter
+                        message.appendChild(value)
+                      }
+
+                      button.onclick = ev => {
+                        ev.stopPropagation()
                         Helper.overlay("popup", userOverlay => {
                           userOverlay.info.textContent = user.email
                           const buttons = Helper.create("div/scrollable", userOverlay)
+                          // {
+                          //   const button = Helper.create("button/left-right", buttons)
+                          //   button.left.textContent = ".profile"
+                          //   button.right.textContent = "Nutzer Profilseite besuchen"
+                          //   button.onclick = async () => {
+                          //     const res = await Helper.request("/get/user/id-by-email/", {email: user.email})
+                          //     if (res.status === 200) {
+                          //       const userId = res.response
+                          //       window.open(`/${userId}/`, "_blank")
+                          //     } else {
+                          //       window.alert("Fehler.. Bitte wiederholen.")
+                          //     }
+                          //   }
+                          // }
                           {
                             const button = Helper.create("button/left-right", buttons)
                             button.left.textContent = ".verified"
@@ -188,6 +228,7 @@
                         })
                       }
                       button.left.append(message)
+
                     }
                   }
                 })
