@@ -1249,7 +1249,7 @@ export class Helper {
                         if (window.location.hostname === "localhost") {
                           websocketUrl = `${isSecure ? "wss" : "ws"}://${window.location.hostname}:9998`
                         } else {
-                          websocketUrl = `wss://webrtc.get-your.de`
+                          websocketUrl = `webrtc.get-your.de`
                         }
                         const socket = new WebSocket(websocketUrl)
 
