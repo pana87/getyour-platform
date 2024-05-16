@@ -1244,7 +1244,14 @@ export class Helper {
                           stream.getTracks().forEach(track => track.stop())
                         }
 
-                        const socket = new WebSocket(`wss://${window.location.hostname}:9998`)
+                        let websocketUrl
+                        const isSecure = window.location.protocol === "https:"
+                        if (window.location.hostname === "localhost") {
+                          websocketUrl = `${isSecure ? "wss" : "ws"}://${window.location.hostname}:9998`
+                        } else {
+                          websocketUrl = `wss://webrtc.get-your.de`
+                        }
+                        const socket = new WebSocket(websocketUrl)
 
                         function send(type, data = {}) {
                           socket.send(JSON.stringify({type, emails: group.emails, ...data}))

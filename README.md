@@ -28,6 +28,7 @@ CLIENT_PORT=9999
 CLIENT_HOSTNAME=localhost
 CLIENT_PROTOCOL=http
 
+# optional for local ssl 
 PATH_TO_CERTIFICATE=./security/cert.pem
 PATH_TO_PRIVATE_KEY=./security/key.pem
 
