@@ -1,5 +1,6 @@
 const WebSocket = require('ws')
 const https = require("node:https")
+const http = require("node:http")
 const fs = require("node:fs")
 const {Helper} = require("../lib/Helper.js")
 const nano = require("nano")(process.env.COUCHDB_LOCATION)
@@ -16,10 +17,15 @@ function findCookie(name, cookie) {
 
 function startWebRtc(app) {
 
-  const server = https.createServer({
-    cert: fs.readFileSync(process.env.PATH_TO_CERTIFICATE),
-    key: fs.readFileSync(process.env.PATH_TO_PRIVATE_KEY)
-  }, app)
+  let server
+  if (process.env.PATH_TO_CERTIFICATE && process.env.PATH_TO_PRIVATE_KEY) {
+    server = https.createServer({
+      cert: fs.readFileSync(process.env.PATH_TO_CERTIFICATE),
+      key: fs.readFileSync(process.env.PATH_TO_PRIVATE_KEY)
+    }, app)
+  } else {
+    server = http.createServer(app)
+  }
 
   const wss = new WebSocket.Server({ server })
 
