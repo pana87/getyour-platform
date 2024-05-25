@@ -9,16 +9,16 @@ const nano = require("nano")(process.env.COUCHDB_LOCATION)
 const multer = require('multer')
 const storage = multer.memoryStorage()
 const upload = multer({storage})
+const http = require("http")
 const path = require("node:path")
 const {startWebRtc} = require("./webrtc.js")
-const createExpressServer = Helper.createExpressServer()
 
 Helper.createDatabase("getyour")
 Helper.createUsers("getyour")
 Helper.createLogs("getyour")
 
-const client = createExpressServer("client", process.env.CLIENT_PORT || "9999")
-const app = client.app
+const app = express()
+const server = http.createServer(app)
 
 app.use(cookieParser())
 app.use(express.json({limit: "50mb"}))
@@ -39,7 +39,6 @@ app.use(express.static(path.join(__dirname, "..", "client")))
 app.get("/cookies/", async (req, res) => {
   try {
     return res.send(req.cookies)
-
   } catch (error) {
     await Helper.logError(error, req)
   }
@@ -565,5 +564,6 @@ async(req, res) => {
   return res.sendStatus(404)
 })
 
-client.start()
-startWebRtc(app)
+startWebRtc(server)
+const port = 9999
+server.listen(port, () => console.log(`[client] is running on port :${port}`))

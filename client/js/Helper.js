@@ -1244,21 +1244,28 @@ export class Helper {
                           stream.getTracks().forEach(track => track.stop())
                         }
 
-                        let websocketUrl
-                        const isSecure = window.location.protocol === "https:"
-                        if (window.location.hostname === "localhost") {
-                          websocketUrl = `${isSecure ? "wss" : "ws"}://${window.location.hostname}:9998`
-                        } else {
-                          websocketUrl = `webrtc.get-your.de`
-                        }
-                        const socket = new WebSocket(websocketUrl)
+                        // let websocketUrl
+                        // const isSecure = window.location.protocol === "https:"
+                        // if (window.location.hostname === "localhost") {
+                        //   websocketUrl = `ws://${window.location.hostname}:9998`
+                        //   // websocketUrl = `${isSecure ? "wss" : "ws"}://${window.location.hostname}:9998`
+                        // } else {
+                        //   websocketUrl = `wss://webrtc.get-your.de`
+                        // }
+
+                        // change url when starting localtunnel
+                        // if (window.location.origin.startsWith("https://") && window.location.origin.endsWith(".loca.lt")) {
+                        //   websocketUrl = "https://eleven-beans-mix.loca.lt"
+                        // }
+
+                        const socket = new WebSocket(`wss://${window.location.host}`)
 
                         function send(type, data = {}) {
                           socket.send(JSON.stringify({type, emails: group.emails, ...data}))
                         }
 
                         socket.onopen = async ev => {
-                          console.log('WebRTC is connected.')
+                          console.log('WebSocket connected.')
                           setTimeout(() => send("start"), 610)
                         }
 
@@ -1317,7 +1324,7 @@ export class Helper {
                           }
 
                           if (data.type === "iceCandidate") {
-                            peerConnections[data.from].addIceCandidate(new RTCIceCandidate(data.candidate))
+                            if (peerConnections[data.from]) peerConnections[data.from].addIceCandidate(new RTCIceCandidate(data.candidate))
                           }
 
                           if (data.type === "stop") {
@@ -4355,6 +4362,19 @@ export class Helper {
       const div = document.createElement("div")
       this.style(div, {margin: "21px 34px", position: "relative"})
       div.input = document.createElement("select")
+      div.appendChild(div.input)
+      this.style(div.input, {width: "89%", fontSize: "21px"})
+      this.add("outline-hover", div.input)
+      this.convert("dark-light", div.input)
+      input?.appendChild(div)
+      return div
+    }
+
+    if (event === "input/textarea") {
+
+      const div = document.createElement("div")
+      this.style(div, {margin: "21px 34px", position: "relative"})
+      div.input = document.createElement("textarea")
       div.appendChild(div.input)
       this.style(div.input, {width: "89%", fontSize: "21px"})
       this.add("outline-hover", div.input)
@@ -8252,10 +8272,8 @@ await Helper.add("event/click-funnel")
       return rgba
     }
 
-    if (event === "markdown/div") {
+    if (event === "markdown/html") {
 
-      // test the convert results
-      // convert(markdown/html)
       // Convert '#' at the beginning of a line to <h1> tag
       input = input.replace(/^# (.+)$/gm, '<h1>$1</h1>')
 
@@ -8327,11 +8345,7 @@ await Helper.add("event/click-funnel")
       input = input.replace(/\[ \]/g, '<input type="checkbox" disabled>')
       input = input.replace(/\[x\]/g, '<input type="checkbox" checked disabled>')
 
-      // convert(html/div)
-      const div = document.createElement("div")
-      div.textContent = input
-
-      return div
+      return input
     }
 
     if (event === "tag/capital-first-letter") {
@@ -16579,47 +16593,6 @@ await Helper.add("event/click-funnel")
 
     }
 
-    if (event === "roles/toolbox-access") {
-
-      const renderRoleButtons = (roles, child, node) => {
-        this.convert("parent/scrollable", node)
-        for (let i = 0; i < roles.length; i++) {
-          const role = roles[i]
-          const button = this.create("button/left-right", node)
-          button.left.textContent = role.name
-          button.right.textContent = `Rolle ${i + 1}`
-          this.add("outline-hover", button)
-          button.onclick = () => {
-            this.create("field-funnel/login", child)
-            const script = this.create("script", {id: "role-login", js: `Helper.add("role-login", {"id":${role.created},"name":"${role.name}"})`})
-            this.add("script-onbody", script)
-            window.alert("Zugang wurde erfolgreich angehängt.")
-          }
-        }
-      }
-      return new Promise(async(resolve, reject) => {
-        try {
-          const res = await this.request("/get/platform/roles-location-expert/")
-          if (res.status === 200) {
-            const roles = JSON.parse(res.response)
-            renderRoleButtons(roles, input, parent)
-          } else {
-            const res = await this.request("/get/platform/roles-location-writable/")
-            if (res.status === 200) {
-              const roles = JSON.parse(res.response)
-              renderRoleButtons(roles, input, parent)
-            } else {
-              this.convert("parent/info", parent)
-              content.textContent = "Es wurden keine Rollen gefunden."
-            }
-          }
-        } catch (error) {
-          reject(error)
-        }
-      })
-
-    }
-
     if (event === "script/role-apps-event") {
 
       if (input !== undefined) {
@@ -20872,7 +20845,39 @@ await Helper.add("event/click-funnel")
                       overlay.info.textContent = `<${this.convert("node/selector", child)}.access`
                       this.render("text/title", "Für welche Rolle möchtest du einen Zugang anhängen?", overlay)
                       const content = this.create("info/loading", overlay)
-                      await this.render("roles/toolbox-access", child, content)
+
+                      function renderRoleButtons(roles, child, node) {
+                        this.convert("parent/scrollable", node)
+                        for (let i = 0; i < roles.length; i++) {
+                          const role = roles[i]
+                          const button = this.create("button/left-right", node)
+                          button.left.textContent = role.name
+                          button.right.textContent = `Rolle ${i + 1}`
+                          this.add("outline-hover", button)
+                          button.onclick = () => {
+                            this.create("field-funnel/login", child)
+                            const script = this.create("script", {id: "role-login", js: `Helper.add("role-login", {"id":${role.created},"name":"${role.name}"})`})
+                            this.add("script-onbody", script)
+                            window.alert("Zugang wurde erfolgreich angehängt.")
+                          }
+                        }
+                      }
+
+                      const res = await this.request("/get/platform/roles-location-expert/")
+                      if (res.status === 200) {
+                        const roles = JSON.parse(res.response)
+                        renderRoleButtons(roles, input, content)
+                      } else {
+                        const res = await this.request("/get/platform/roles-location-writable/")
+                        if (res.status === 200) {
+                          const roles = JSON.parse(res.response)
+                          renderRoleButtons(roles, input, content)
+                        } else {
+                          this.convert("parent/info", content)
+                          content.textContent = "Es wurden keine Rollen gefunden."
+                        }
+                      }
+
                     })
                   }
                 }
@@ -20960,10 +20965,10 @@ await Helper.add("event/click-funnel")
                   button.right.textContent = "Markdown konvertieren und anhängen"
                   button.onclick = async () => {
                     this.overlay("toolbox", markdownToHtmlOverlay => {
+                      markdownToHtmlOverlay.info.textContent = ".md-to-div"
                       const funnel = this.create("div/scrollable", markdownToHtmlOverlay)
-                      const markdownField = this.create("field/textarea", funnel)
-                      markdownField.label.textContent = "Markdown zu HTML konvertieren (md/html)"
-                      markdownField.input.placeholder = " # Hello, Markdown! .. "
+                      const markdownField = this.create("input/textarea", funnel)
+                      markdownField.input.placeholder = "Markdown zu HTML konvertieren (md/html)\n\n# Hello, Markdown! .. "
                       markdownField.input.style.fontSize = "13px"
                       markdownField.input.style.height = "55vh"
                       markdownField.input.setAttribute("required", "true")
@@ -20974,10 +20979,13 @@ await Helper.add("event/click-funnel")
                       submit.onclick = async () => {
                         await this.verify("input/value", markdownField.input)
                         const markdown = markdownField.input.value
-                        const markdownContainer = this.convert("markdown/div", markdown)
-                        markdownContainer.classList.add("markdown-container")
-                        child.appendChild(markdownContainer)
+                        const html = this.convert("markdown/html", markdown)
+                        const markdownDiv = document.createElement("div")
+                        markdownDiv.classList.add("markdown-container")
+                        markdownDiv.innerHTML = await this.convert("text/purified", html)
+                        child.appendChild(markdownDiv)
                         window.alert(`Markdown erfolgreich konvertiert und im ${child.tagName} angehängt.`)
+                        this.remove("overlays")
                       }
                     })
                   }

@@ -1,31 +1,22 @@
 const WebSocket = require('ws')
-const https = require("node:https")
-const http = require("node:http")
-const fs = require("node:fs")
 const {Helper} = require("../lib/Helper.js")
 const nano = require("nano")(process.env.COUCHDB_LOCATION)
 
 function findCookie(name, cookie) {
-  const cookieArray = cookie.split(";")
-  for (let i = 0; i < cookieArray.length; i++) {
-    const cookiePair = cookieArray[i].split("=")
-    if (name === cookiePair[0].trim()) {
-      return cookiePair[1]
+  try {
+    const cookieArray = cookie.split(";")
+    for (let i = 0; i < cookieArray.length; i++) {
+      const cookiePair = cookieArray[i].split("=")
+      if (name === cookiePair[0].trim()) {
+        return cookiePair[1]
+      }
     }
+  } catch (error) {
+    console.error(error)
   }
 }
 
-function startWebRtc(app) {
-
-  let server
-  if (process.env.PATH_TO_CERTIFICATE && process.env.PATH_TO_PRIVATE_KEY) {
-    server = https.createServer({
-      cert: fs.readFileSync(process.env.PATH_TO_CERTIFICATE),
-      key: fs.readFileSync(process.env.PATH_TO_PRIVATE_KEY)
-    }, app)
-  } else {
-    server = http.createServer(app)
-  }
+function startWebRtc(server) {
 
   const wss = new WebSocket.Server({ server })
 
@@ -185,8 +176,6 @@ function startWebRtc(app) {
 
   })
 
-  const port = 9998
-  server.listen(port, () => console.log(`[websocket] is running on port :${port}`))
 }
 
 module.exports = { startWebRtc }
