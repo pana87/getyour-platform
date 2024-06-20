@@ -1244,21 +1244,7 @@ export class Helper {
                           stream.getTracks().forEach(track => track.stop())
                         }
 
-                        // let websocketUrl
-                        // const isSecure = window.location.protocol === "https:"
-                        // if (window.location.hostname === "localhost") {
-                        //   websocketUrl = `ws://${window.location.hostname}:9998`
-                        //   // websocketUrl = `${isSecure ? "wss" : "ws"}://${window.location.hostname}:9998`
-                        // } else {
-                        //   websocketUrl = `wss://webrtc.get-your.de`
-                        // }
-
-                        // change url when starting localtunnel
-                        // if (window.location.origin.startsWith("https://") && window.location.origin.endsWith(".loca.lt")) {
-                        //   websocketUrl = "https://eleven-beans-mix.loca.lt"
-                        // }
-
-                        const socket = new WebSocket(`wss://${window.location.host}`)
+                        const socket = new WebSocket(`ws://${window.location.host}`)
 
                         function send(type, data = {}) {
                           socket.send(JSON.stringify({type, emails: group.emails, ...data}))
@@ -3170,6 +3156,18 @@ export class Helper {
 
               const buttons = this.fn("creator-buttons", {parent: overlay})
 
+              buttons.convertTextContentToH1Button.onclick = () => {
+                const h1 = buttons.convertTextContentToH1(selectedNode)
+                selectedNode = h1
+              }
+              buttons.convertTextContentToH2Button.onclick = () => {
+                const h2 = buttons.convertTextContentToH2(selectedNode)
+                selectedNode = h2
+              }
+              buttons.convertTextContentToH3Button.onclick = () => {
+                const h3 = buttons.convertTextContentToH3(selectedNode)
+                selectedNode = h3
+              }
               buttons.imageTextAndActionButton.onclick = () => buttons.createImageTextAndActionBox(selectedNode)
               buttons.backgroundImageWithTitlesButton.onclick = () => buttons.createBackgroundImageWithTitles(selectedNode)
               buttons.duckDuckGoButton.onclick = () => buttons.convertTextContentToDuckDuckGoLink(selectedNode)
@@ -11234,6 +11232,25 @@ await Helper.add("event/click-funnel")
       it.packDivButton = this.render("text/link", "Inhalt als Div einpacken", it.templateOptions)
       it.createDivPackOuter = this.fn("createDivPackOuter")
 
+
+      it.converterTitle = this.render("text/hr", "Anwendungen für Konverter", it.optionsContainer)
+      this.add("outline-hover", it.converterTitle)
+      it.converterTitle.onclick = () => toggleDisplayFlexNone(it.converterOptions)
+      it.converterOptions = this.create("div/flex-row", it.optionsContainer)
+      it.converterOptions.style.display = "none"
+
+      it.textConverterButton = this.render("text/link", "Text konvertieren", it.converterOptions)
+      it.textConverterButton.onclick = () => this.fn("overlay-text-converter")
+      it.duckDuckGoButton = this.render("text/link", "DuckDuckGo Link erstellen", it.converterOptions)
+      it.convertTextContentToDuckDuckGoLink = this.fn("convertTextContentToDuckDuckGoLink")
+      it.convertTextContentToH1Button = this.render("text/link", "Textinhalt als Überschrift 1", it.converterOptions)
+      it.convertTextContentToH1 = this.fn("convertTextContentToH1")
+      it.convertTextContentToH2Button = this.render("text/link", "Textinhalt als Überschrift 2", it.converterOptions)
+      it.convertTextContentToH2 = this.fn("convertTextContentToH2")
+      it.convertTextContentToH3Button = this.render("text/link", "Textinhalt als Überschrift 3", it.converterOptions)
+      it.convertTextContentToH3 = this.fn("convertTextContentToH3")
+
+
       it.inputTitle = this.render("text/hr", "Anwendungen für Eingabe Felder einsetzen", it.optionsContainer)
       this.add("outline-hover", it.inputTitle)
       it.inputTitle.onclick = () => toggleDisplayFlexNone(it.inputOptions)
@@ -11523,16 +11540,15 @@ await Helper.add("event/click-funnel")
       it.setAttributeButton = this.render("text/link", "Attribut setzen", it.optimizeWorkOptions)
       it.setAttributeWithPrompt = this.fn("setAttributeWithPrompt")
 
-      it.converterTitle = this.render("text/hr", "Anwendungen für Konverter", it.optionsContainer)
-      this.add("outline-hover", it.converterTitle)
-      it.converterTitle.onclick = () => toggleDisplayFlexNone(it.converterOptions)
-      it.converterOptions = this.create("div/flex-row", it.optionsContainer)
-      it.converterOptions.style.display = "none"
 
-      it.textConverterButton = this.render("text/link", "Text konvertieren", it.converterOptions)
-      it.textConverterButton.onclick = () => this.fn("overlay-text-converter")
-      it.duckDuckGoButton = this.render("text/link", "DuckDuckGo Link erstellen", it.converterOptions)
-      it.convertTextContentToDuckDuckGoLink = this.fn("convertTextContentToDuckDuckGoLink")
+      it.contentCheckerTitle = this.render("text/hr", "Anwendungen für Inhalte prüfen", it.optionsContainer)
+      this.add("outline-hover", it.contentCheckerTitle)
+      it.contentCheckerTitle.onclick = () => toggleDisplayFlexNone(it.contentCheckerOptions)
+      it.contentCheckerOptions = this.create("div/flex-row", it.optionsContainer)
+      it.contentCheckerOptions.style.display = "none"
+
+      it.some = this.render("text/link", "Als Zitat markieren", it.contentCheckerOptions)
+      // do some crazy shit with content
 
       it.forEachChildTitle = this.render("text/hr", "Anwendungen für jedes Kind Element", it.optionsContainer)
       this.add("outline-hover", it.forEachChildTitle)
@@ -12073,6 +12089,48 @@ await Helper.add("event/click-funnel")
         Helper.convert("link-colors", link)
         node.textContent = ""
         node.appendChild(link)
+      }
+    }
+
+    if (event === "convertTextContentToH1") {
+      return (node) => {
+        const h1 = document.createElement("h1")
+        for (let i = 0; i < node.attributes.length; i++) {
+          const attribute = node.attributes[i]
+          h1.setAttribute(attribute.name, attribute.value)
+        }
+        h1.textContent = node.textContent
+        const parent = node.parentNode
+        if (parent) parent.replaceChild(h1, node)
+        return h1
+      }
+    }
+
+    if (event === "convertTextContentToH2") {
+      return (node) => {
+        const h2 = document.createElement("h2")
+        for (let i = 0; i < node.attributes.length; i++) {
+          const attribute = node.attributes[i]
+          h2.setAttribute(attribute.name, attribute.value)
+        }
+        h2.textContent = node.textContent
+        const parent = node.parentNode
+        if (parent) parent.replaceChild(h2, node)
+        return h2
+      }
+    }
+
+    if (event === "convertTextContentToH3") {
+      return (node) => {
+        const h3 = document.createElement("h3")
+        for (let i = 0; i < node.attributes.length; i++) {
+          const attribute = node.attributes[i]
+          h3.setAttribute(attribute.name, attribute.value)
+        }
+        h3.textContent = node.textContent
+        const parent = node.parentNode
+        if (parent) parent.replaceChild(h3, node)
+        return h3
       }
     }
 
@@ -13835,9 +13893,50 @@ await Helper.add("event/click-funnel")
 
                     const inlineButton = Helper.create("toolbox/left-right", buttons)
                     inlineButton.left.textContent = ".inline-cite"
-                    inlineButton.right.textContent = "Füge einen Verweise im Text ein"
+                    inlineButton.right.textContent = "Füge einen Verweis im Text ein"
                     inlineButton.onclick = () => {
-                      Helper.render("inline-cite/node/mla", source, selectedNode)
+                      const pages = window.prompt("Gebe die Seitenzahlen ein: (z.B., 55-68)")
+                      if (Helper.verifyIs("text/empty", pages)) {
+                        window.alert("Für ein Zitat Verweis in MLA Format, wird die Seitenzahl benötigt.")
+                        return
+                      }
+
+                      const cite = document.createElement("span")
+                      cite.className = "inline cite"
+
+                      if (source.authors.length === 0) {
+
+                        let title
+                        try {
+                          title = source.title.split("(")[0].trim()
+                        } catch (error) {
+                          title = source.title
+                        }
+                        cite.textContent = `(${title} ${pages})`
+
+                      } else {
+
+                        if (source.authors.length === 1) {
+                          const author = source.authors[0].split(" ").at(-1)
+                          cite.textContent = `(${author} ${pages})`
+                        }
+
+                        if (source.authors.length === 2) {
+                          const first = source.authors[0].split(" ").at(-1)
+                          const second = source.authors[1].split(" ").at(-1)
+                          cite.textContent = `(${first} und ${second} ${pages})`
+                        }
+
+                        if (source.authors.length > 2) {
+                          const author = source.authors[0].split(" ").at(-1)
+                          cite.textContent = `(${author} et al. ${pages})`
+                        }
+
+                      }
+                      const citationCounter = document.querySelectorAll(".cite").length
+                      cite.setAttribute("citation-counter", citationCounter + 1)
+                      selectedNode?.appendChild(cite)
+
                       overlay.remove()
                       sourcesOverlay.remove()
                     }
@@ -13846,7 +13945,28 @@ await Helper.add("event/click-funnel")
                     fullButton.left.textContent = ".full-cite"
                     fullButton.right.textContent = "Füge einen Block Verweis ein"
                     fullButton.onclick = () => {
-                      Helper.render("full-cite/node/mla", source, selectedNode)
+
+                      const authors = []
+                      for (let i = 0; i < source.authors.length; i++) {
+                        const author = source.authors[i]
+                        const names = author.split(" ")
+                        const formattedName = names[names.length - 1] + ", " + names.slice(0, names.length - 1).join(" ")
+                        authors.push(formattedName)
+                      }
+
+                      const authorStr = authors.join(". ")
+
+                      let publisherStr = source.publisher[0]
+                      if (source.publisher.length > 1) {
+                        publisherStr = `${source.publisher[0]} et al.`
+                      }
+                      const cite = document.createElement("div")
+                      cite.className = "full cite"
+                      const title = source.title.slice(0, -7)
+                      cite.textContent = `${authorStr}. "${title}". ${publisherStr}, ${Helper.convert("millis/yyyy", source.published)}.`
+                      const citationCounter = document.querySelectorAll(".cite").length
+                      cite.setAttribute("citation-counter", citationCounter + 1)
+                      selectedNode?.appendChild(cite)
                       overlay.remove()
                       sourcesOverlay.remove()
                     }
@@ -16206,43 +16326,6 @@ await Helper.add("event/click-funnel")
       const image = this.create("div/image", input)
       parent?.appendChild(image)
       return image
-    }
-
-    if (event === "full-cite/node/mla") {
-      let authorStr = input.authors.join(", ")
-      let publisherStr = input.publisher[0]
-      if (input.publisher.length > 1) {
-        publisherStr = `${input.publisher[0]} et al.`
-      }
-      const cite = document.createElement("div")
-      cite.className = "full cite"
-      cite.style.fontFamily = "sans-serif"
-      cite.style.margin = "21px 34px"
-      input.title = input.title.slice(0, -7)
-      cite.textContent = `${authorStr}, ${input.title}, ${publisherStr}, (${this.convert("millis/yyyy", input.published)})`
-      const citationCounter = document.querySelectorAll(".cite").length
-      cite.setAttribute("citation-counter", citationCounter + 1)
-      parent?.append(cite)
-      return cite
-
-    }
-
-    if (event === "inline-cite/node/mla") {
-
-      let author = input.authors[0]
-      if (input.authors.length > 1) {
-        author += " et al."
-      }
-      const cite = document.createElement("span")
-      cite.className = "inline cite"
-      cite.style.fontFamily = "sans-serif"
-      cite.style.margin = "0 5px"
-      cite.textContent = `(${author} ${this.convert("millis/yyyy", input.published)})`
-      const citationCounter = document.querySelectorAll(".cite").length
-      cite.setAttribute("citation-counter", citationCounter + 1)
-      parent?.append(cite)
-      return cite
-
     }
 
     if (event === "object-node") {
@@ -19778,6 +19861,18 @@ await Helper.add("event/click-funnel")
 
                     const buttons = this.fn("creator-buttons", {parent: content})
 
+                    buttons.convertTextContentToH1Button.onclick = () => {
+                      const h1 = buttons.convertTextContentToH1(selectedNode)
+                      selectedNode = h1
+                    }
+                    buttons.convertTextContentToH2Button.onclick = () => {
+                      const h2 = buttons.convertTextContentToH2(selectedNode)
+                      selectedNode = h2
+                    }
+                    buttons.convertTextContentToH3Button.onclick = () => {
+                      const h3 = buttons.convertTextContentToH3(selectedNode)
+                      selectedNode = h3
+                    }
                     buttons.imageTextAndActionButton.onclick = () => buttons.createImageTextAndActionBox(selectedNode)
                     buttons.backgroundImageWithTitlesButton.onclick = () => buttons.createBackgroundImageWithTitles(selectedNode)
                     buttons.duckDuckGoButton.onclick = () => buttons.convertTextContentToDuckDuckGoLink(selectedNode)
