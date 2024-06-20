@@ -1244,7 +1244,7 @@ export class Helper {
                           stream.getTracks().forEach(track => track.stop())
                         }
 
-                        const socket = new WebSocket(`ws://${window.location.host}`)
+                        const socket = new WebSocket(`wss://${window.location.host}`)
 
                         function send(type, data = {}) {
                           socket.send(JSON.stringify({type, emails: group.emails, ...data}))
