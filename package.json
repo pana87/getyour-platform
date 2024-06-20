@@ -1,12 +1,7 @@
 {
   "scripts": {
-    "production": "(npm run prod-client&)",
-    "prod-client": "node ./server/client.js",
     "client": "nodemon ./server/client.js",
-    "server": "(npm run client&)",
-    "secdev": "npm install && nodemon ./security/secure-localhost-server.js",
-    "start": "npm run build && npm run production",
-    "dev": "npm run build && npm run server",
+    "dev": "npm install && (npm run client&)",
     "build": "npm install --omit=dev",
     "close": "killall -9 node && rm -rf node_modules",
     "rm-branches": "git branch | grep -v 'main' | xargs git branch -D",
