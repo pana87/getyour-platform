@@ -28,6 +28,150 @@ export class Helper {
       }
     }
 
+    if (event === "cite-checker") {
+
+      const cites = document.querySelectorAll(`[class*="cite"]`)
+      cites.forEach(cite => {
+        this.add("outline-hover", cite)
+        cite.onclick = () => {
+          const originalTextContent = cite.textContent
+
+
+          function createIntegrations(text) {
+            const webSearchEngines = [
+              { name: 'Google', url: `https://www.google.com/search?q=${text}` },
+              { name: 'Bing', url: `https://www.bing.com/search?q=${text}` },
+              { name: 'Yahoo', url: `https://search.yahoo.com/search?p=${text}` },
+              { name: 'DuckDuckGo', url: `https://duckduckgo.com/?q=${text}` },
+              { name: 'Baidu', url: `https://www.baidu.com/s?wd=${text}` },
+              { name: 'Yandex', url: `https://yandex.com/search/?text=${text}` },
+            ]
+
+            const academicSearchEngines = [
+              { name: 'Google Books', url: `https://books.google.com/books?q=${encodeURIComponent(text)}` },
+              { name: 'WorldCat', url: `https://www.worldcat.org/search?q=${encodeURIComponent(text)}` },
+              { name: 'Open Library', url: `https://openlibrary.org/search?q=${encodeURIComponent(text)}` },
+              { name: 'Internet Archive', url: `https://archive.org/search.php?query=${encodeURIComponent(text)}` },
+              { name: 'Library of Congress', url: `https://catalog.loc.gov/vwebv/search?searchArg=${encodeURIComponent(text)}&searchCode=GKEY%5E*&searchType=0&recCount=25` },
+              { name: 'Google Scholar', url: `https://scholar.google.com/scholar?q=${text}` },
+              { name: 'PubMed', url: `https://pubmed.ncbi.nlm.nih.gov/?term=${text}` },
+              { name: 'CrossRef', url: `https://search.crossref.org/search/works?q=${text}&from_ui=yes` },
+              { name: 'Semantic Scholar', url: `https://www.semanticscholar.org/search?q=${text}` },
+              { name: 'IEEE Xplore', url: `https://ieeexplore.ieee.org/search/searchresult.jsp?queryText=${text}` },
+              { name: 'SpringerLink', url: `https://link.springer.com/search?query=${text}` },
+              { name: 'Wiley Online Library', url: `https://onlinelibrary.wiley.com/action/doSearch?AllField=${text}` },
+              { name: 'ResearchGate', url: `https://www.researchgate.net/search?q=${text}` },
+            ]
+
+            const codingPlatforms = [
+              { name: 'GitHub', url: `https://github.com/search?q=${encodeURIComponent(text)}` },
+              { name: 'CodePen', url: `https://codepen.io/search/pens?q=${encodeURIComponent(text)}` }
+            ]
+
+            const developerCommunities = [
+              { name: 'Stack Overflow', url: `https://stackoverflow.com/search?q=${encodeURIComponent(text)}` },
+              { name: 'Stack Exchange', url: `https://stackexchange.com/search?q=${text}` },
+              { name: 'Dev.to', url: `https://dev.to/search?q=${encodeURIComponent(text)}` }
+            ]
+
+            const translationTools = [
+              { name: 'DeepL', url: `https://www.deepl.com/translator#auto/de/${encodeURIComponent(text)}` },
+              { name: 'Google Translate', url: `https://translate.google.com/?sl=auto&tl=de&text=${encodeURIComponent(text)}&op=translate` },
+            ]
+
+            const informationReference = [
+              { name: 'Wikipedia', url: `https://www.wikipedia.org/wiki/Special:Search?search=${text}` },
+              { name: 'Wikileaks', url: `https://wikileaks.org/wiki/Special:Search?search=${text}` },
+              { name: 'Infoplease', url: `https://www.infoplease.com/search/${text}` },
+            ]
+
+            const integrations = [
+              ...webSearchEngines,
+              ...academicSearchEngines,
+              ...codingPlatforms,
+              ...developerCommunities,
+              ...translationTools,
+              ...informationReference,
+            ]
+
+            integrations.sort((a, b) => a.name.localeCompare(b.name))
+            return integrations
+          }
+
+          function createIntegrationButton(text, node) {
+            const button = Helper.create("toolbox/left-right", node)
+            button.right.remove()
+            button.left.textContent = text
+            button.onclick = () => {
+              Helper.overlay("popup", overlay => {
+                overlay.info.textContent = text
+                const content = Helper.create("div/scrollable", overlay)
+                const integrations = createIntegrations(text)
+                for (let i = 0; i < integrations.length; i++) {
+                  const integration = integrations[i]
+                  const button = Helper.create("toolbox/left-right", content)
+                  button.left.textContent = integration.name
+                  button.right.textContent = "Öffnet ein neues Fenster"
+                  button.onclick = () => {
+                    window.open(integration.url, "_blank")
+                    Helper.remove("overlays")
+                  }
+                }
+              })
+            }
+          }
+
+          if (cite.classList.contains("full-cite")) {
+
+            const parts = originalTextContent.split(', "')
+            const authors = parts[0].split(', ').map(name => name.trim())
+            const titlePublisherYear = parts[1].split('", ')
+            const title = titlePublisherYear[0].trim()
+            const publisherAndMeta = titlePublisherYear[1].split(', ')
+            const publisher = publisherAndMeta[0].trim()
+            const meta = publisherAndMeta.slice(1)
+            this.overlay("popup", overlay => {
+              overlay.info.textContent = ".cite-checker"
+              const content = this.create("div/scrollable", overlay)
+              this.render("text/h2", "Inhalt wählen", content)
+              createIntegrationButton(title, content)
+              createIntegrationButton(`${title} + Inhaltsverzeichnis + table of contents`, content)
+              createIntegrationButton(`${title}, ${meta.join(", ")}`, content)
+              for (let i = 0; i < authors.length; i++) {
+                const author = authors[i]
+                if (author === "et al.") continue
+                createIntegrationButton(author, content)
+              }
+              if (authors.length > 1) createIntegrationButton(authors.join(", "), content)
+              createIntegrationButton(`${authors.join(", ")}, ${title}`, content)
+              createIntegrationButton(publisher, content)
+              createIntegrationButton(publisherAndMeta.join(", "), content)
+              createIntegrationButton(`${title},  ${publisherAndMeta.join(", ")}`, content)
+            })
+          }
+
+          if (cite.classList.contains("inline-cite")) {
+
+            const splitString = window.prompt("Gebe ein Zeichen oder eine Zeichenkette ein, nach der du den Inhalt aufteilen möchtest.")
+            if (splitString === null) return
+            const splittedTextContent = originalTextContent.split(splitString)
+            this.overlay("popup", overlay => {
+              overlay.info.textContent = ".cite-checker"
+              const content = this.create("div/scrollable", overlay)
+              this.render("text/h2", "Inhalt wählen", content)
+              for (let i = 0; i < splittedTextContent.length; i++) {
+                const splittedText = splittedTextContent[i]
+                const trimmedText = splittedText.trim()
+                if (this.verifyIs("text/empty", splittedText)) continue
+                createIntegrationButton(trimmedText, content)
+              }
+            })
+          }
+
+        }
+      })
+    }
+
     if (event === "contacts") {
 
       const button = this.create("button/left-right", input)
@@ -1289,6 +1433,8 @@ export class Helper {
                         socket.onmessage = async ev => {
 
                           const data = JSON.parse(ev.data)
+                          // todo test in production what is happening??
+                          console.log("Received message:", data)
 
                           if (data.type === "start") {
                             if (!peerConnections[data.from]) peerConnections[data.from] = createPeerConnection(data.from)
@@ -3168,6 +3314,9 @@ export class Helper {
                 const h3 = buttons.convertTextContentToH3(selectedNode)
                 selectedNode = h3
               }
+              buttons.convertToInlineCiteButton.onclick = () => buttons.convertToInlineCite(selectedNode)
+              buttons.convertToFullCiteButton.onclick = () => buttons.convertToFullCite(selectedNode)
+              buttons.removeCiteMarksButton.onclick = () => buttons.removeCiteMarks(selectedNode)
               buttons.imageTextAndActionButton.onclick = () => buttons.createImageTextAndActionBox(selectedNode)
               buttons.backgroundImageWithTitlesButton.onclick = () => buttons.createBackgroundImageWithTitles(selectedNode)
               buttons.duckDuckGoButton.onclick = () => buttons.convertTextContentToDuckDuckGoLink(selectedNode)
@@ -4201,6 +4350,9 @@ export class Helper {
                 span1.style.fontSize = "34px"
                 this.createNode("p", infoBox, "Es ist wichtig, dass deine PIN geheim gehalten wird, da sie als persönliches Kennwort dient und den Zugriff auf sensible Informationen oder Ressourcen ermöglicht. Teile deine PIN niemals mit anderen Personen. Das gilt selbst für enge Freunde, Familienmitglieder oder Mitarbeiter. Deine PIN sollte nur dir bekannt sein.")
                 this.createNode("p", infoBox, "Bitte bestätige deine PIN um fortzufahren.")
+              } else {
+                window.alert("Fehler.. Bitte wiederholen.")
+                window.location.reload()
               }
             } catch (error) {
               EventTarget.prototype.addEventListener = function(type, listener, options) {
@@ -11249,6 +11401,12 @@ await Helper.add("event/click-funnel")
       it.convertTextContentToH2 = this.fn("convertTextContentToH2")
       it.convertTextContentToH3Button = this.render("text/link", "Textinhalt als Überschrift 3", it.converterOptions)
       it.convertTextContentToH3 = this.fn("convertTextContentToH3")
+      it.convertToInlineCiteButton = this.render("text/link", "Als Inline-Zitat markieren", it.converterOptions)
+      it.convertToInlineCite = this.fn("convertToInlineCite")
+      it.convertToFullCiteButton = this.render("text/link", "Als Voll-Zitat markieren", it.converterOptions)
+      it.convertToFullCite = this.fn("convertToFullCite")
+      it.removeCiteMarksButton = this.render("text/link", "Zitatmarkierung entfernen", it.converterOptions)
+      it.removeCiteMarks = this.fn("removeCiteMarks")
 
 
       it.inputTitle = this.render("text/hr", "Anwendungen für Eingabe Felder einsetzen", it.optionsContainer)
@@ -12131,6 +12289,45 @@ await Helper.add("event/click-funnel")
         const parent = node.parentNode
         if (parent) parent.replaceChild(h3, node)
         return h3
+      }
+    }
+
+    if (event === "convertToInlineCite") {
+      return (node) => {
+        node.classList.add("inline-cite")
+        let citationCounter = document.querySelectorAll(".inline-cite").length
+        if (citationCounter === 0) citationCounter = 1
+        node.setAttribute("citation-counter", citationCounter)
+        if (node.classList.contains("full-cite")) node.classList.remove("full-cite")
+        window.alert("Inhalt erfolgreich markiert.")
+      }
+    }
+
+    if (event === "convertToFullCite") {
+      return (node) => {
+        if (node.classList.contains("inline-cite")) node.classList.remove("inline-cite")
+        node.removeAttribute("citation-counter")
+        for (let i = 0; i < document.querySelectorAll(".inline-cite").length; i++) {
+          const inlineCite = document.querySelectorAll(".inline-cite")[i]
+          inlineCite.setAttribute("citation-counter", i + 1)
+        }
+        node.classList.add("full-cite")
+        window.alert("Inhalt erfolgreich markiert.")
+      }
+    }
+
+    if (event === "removeCiteMarks") {
+
+      return (node) => {
+        if (node.classList.contains("inline-cite")) node.classList.remove("inline-cite")
+        if (node.classList.contains("full-cite")) node.classList.remove("full-cite")
+        node.removeAttribute("citation-counter")
+        for (let i = 0; i < document.querySelectorAll(".inline-cite").length; i++) {
+          const inlineCite = document.querySelectorAll(".inline-cite")[i]
+          inlineCite.setAttribute("citation-counter", i + 1)
+        }
+        node.querySelectorAll("span[inline-cite]").forEach(span => span.remove())
+        window.alert("Markierung erfolgreich entfernt.")
       }
     }
 
@@ -13902,7 +14099,8 @@ await Helper.add("event/click-funnel")
                       }
 
                       const cite = document.createElement("span")
-                      cite.className = "inline cite"
+                      cite.setAttribute("inline-cite", "")
+                      cite.style.marginLeft = "5px"
 
                       if (source.authors.length === 0) {
 
@@ -13924,7 +14122,7 @@ await Helper.add("event/click-funnel")
                         if (source.authors.length === 2) {
                           const first = source.authors[0].split(" ").at(-1)
                           const second = source.authors[1].split(" ").at(-1)
-                          cite.textContent = `(${first} und ${second} ${pages})`
+                          cite.textContent = `(${first} & ${second} ${pages})`
                         }
 
                         if (source.authors.length > 2) {
@@ -13933,8 +14131,9 @@ await Helper.add("event/click-funnel")
                         }
 
                       }
-                      const citationCounter = document.querySelectorAll(".cite").length
-                      cite.setAttribute("citation-counter", citationCounter + 1)
+                      selectedNode.classList.add("inline-cite")
+                      const citationCounter = document.querySelectorAll(".inline-cite").length
+                      selectedNode.setAttribute("citation-counter", citationCounter)
                       selectedNode?.appendChild(cite)
 
                       overlay.remove()
@@ -13950,22 +14149,20 @@ await Helper.add("event/click-funnel")
                       for (let i = 0; i < source.authors.length; i++) {
                         const author = source.authors[i]
                         const names = author.split(" ")
-                        const formattedName = names[names.length - 1] + ", " + names.slice(0, names.length - 1).join(" ")
+                        const formattedName = names[names.length - 1] + " " + names.slice(0, names.length - 1).join(" ")
                         authors.push(formattedName)
                       }
 
-                      const authorStr = authors.join(". ")
+                      const authorStr = authors.join(", ")
 
                       let publisherStr = source.publisher[0]
                       if (source.publisher.length > 1) {
                         publisherStr = `${source.publisher[0]} et al.`
                       }
-                      const cite = document.createElement("div")
-                      cite.className = "full cite"
+                      const cite = document.createElement("p")
+                      cite.className = "full-cite"
                       const title = source.title.slice(0, -7)
-                      cite.textContent = `${authorStr}. "${title}". ${publisherStr}, ${Helper.convert("millis/yyyy", source.published)}.`
-                      const citationCounter = document.querySelectorAll(".cite").length
-                      cite.setAttribute("citation-counter", citationCounter + 1)
+                      cite.textContent = `${authorStr}, "${title}", ${publisherStr}, ${Helper.convert("millis/yyyy", source.published)}`
                       selectedNode?.appendChild(cite)
                       overlay.remove()
                       sourcesOverlay.remove()
@@ -19873,6 +20070,9 @@ await Helper.add("event/click-funnel")
                       const h3 = buttons.convertTextContentToH3(selectedNode)
                       selectedNode = h3
                     }
+                    buttons.convertToInlineCiteButton.onclick = () => buttons.convertToInlineCite(selectedNode)
+                    buttons.convertToFullCiteButton.onclick = () => buttons.convertToFullCite(selectedNode)
+                    buttons.removeCiteMarksButton.onclick = () => buttons.removeCiteMarks(selectedNode)
                     buttons.imageTextAndActionButton.onclick = () => buttons.createImageTextAndActionBox(selectedNode)
                     buttons.backgroundImageWithTitlesButton.onclick = () => buttons.createBackgroundImageWithTitles(selectedNode)
                     buttons.duckDuckGoButton.onclick = () => buttons.convertTextContentToDuckDuckGoLink(selectedNode)
@@ -20378,6 +20578,16 @@ await Helper.add("event/click-funnel")
                     const script = this.create("script", {id: "back-button", js: 'Helper.create("back-button", document.body)'})
                     this.add("script-onbody", script)
                     window.alert("Zurück Taste wurde erfolgreich angehängt.")
+                  }
+                }
+                {
+                  const button = this.create("toolbox/left-right", buttons)
+                  button.left.textContent = ".cite-checker"
+                  button.right.textContent = "Lass deine Nutzer, Zitate selber prüfen"
+                  button.onclick = () => {
+                    const script = this.create("script", {id: "cite-checker", js: `await Helper.add("cite-checker")`})
+                    this.add("script-onbody", script)
+                    window.alert("Skript wurde erfolgreich angehängt.")
                   }
                 }
 

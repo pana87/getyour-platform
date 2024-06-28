@@ -14,6 +14,7 @@
       line-height: 1.2;
       font-family: sans-serif;
       padding-bottom: 144px;
+      word-break: break-word;
     }
     .button:hover {
       outline: 3px solid #999;
@@ -59,6 +60,27 @@
         <a class="button" href="mailto:datenschutz@get-your.de">datenschutz@get-your.de</a>
         <p>Bei Fragen zum Datenschutz oder zu dieser Webseite, kontaktiere uns bitte unter der angegebenen E-Mail Adresse.</p>
         <p>Du schließt einen Vertrag mit getyour plattform ab (nachfolgend “getyour plattform”, “wir”, “uns”, “unser” oder “unsere”)</p>
+      `
+    }
+
+    {
+      const button = Helper.create("button/left-right", document.body)
+      button.left.innerHTML = /*html*/`
+        ${Helper.convert("text/h2", "Community Verhaltensrichtlinien").outerHTML}
+        <p><b>Realistische Erwartungen:</b><br>Akzeptiere die Plattform, ihre Möglichkeiten und Einschränkungen. Vermeide unrealistische Forderungen und versuche, konstruktiv mit den gegebenen Rahmenbedingungen umzugehen.</p>
+        <p><b>Positives Verhalten:</b><br>Nimm Herausforderungen und Probleme an, ohne zu lamentieren oder andere zu beschuldigen. Sei lösungsorientiert und unterstütze andere dabei, Lösungen zu finden.</p>
+        <p><b>Anonymität und Diskretion:</b><br>Respektiere die Privatsphäre der anderen Mitglieder. Teile keine persönlichen Daten ohne deren Zustimmung und vermeide es, andere zu identifizieren, wenn sie anonym bleiben möchten.</p>
+        <p><b>Inklusivität:</b><br>Trage dazu bei, eine unterstützende und integrative Gemeinschaft zu schaffen. Jeder sollte sich willkommen und sicher fühlen, unabhängig von Herkunft, Geschlecht, Religion oder Meinungen.</p>
+        <p><b>Gemeinschaftsgeist:</b><br>Arbeite im Sinne der Gemeinschaft und nicht nur für persönliche Vorteile. Hilf anderen und fördere eine positive und kooperative Atmosphäre.</p>
+        <p><b>Respektiere die Wahlfreiheit:</b><br>Akzeptiere und respektiere Mitglieder, die sich entscheiden, nicht aktiv teilzunehmen. Jeder sollte das Recht haben, so aktiv oder passiv zu sein, wie er möchte, ohne Druck oder Zwang.</p>
+        <p><b>Keine Ausnutzung:</b><br>Zwinge niemanden zu Aktivitäten oder Beiträgen, um persönliche Vorteile zu erzielen. Jeder Beitrag sollte auf Freiwilligkeit basieren.</p>
+        <p><b>Unterstützung ohne Druck:</b><br>Sei aufmerksam und unterstützend gegenüber allen Mitgliedern, aber respektiere auch deren Wunsch nach Zurückhaltung. Biete Hilfe an, aber dränge sie niemandem auf.</p>
+        <p><b>Respekt und Höflichkeit:</b><br>Begegne anderen Mitgliedern stets mit Respekt und Höflichkeit. Beleidigungen, Mobbing oder diskriminierendes Verhalten werden nicht toleriert.</p>
+        <p><b>Konstruktive Kritik:</b><br>Kritik sollte stets konstruktiv und hilfreich sein. Vermeide destruktive oder abwertende Kommentare.</p>
+        <p><b>Inhaltliche Relevanz:</b><br>Beiträge sollten relevant und themenbezogen sein. Vermeide Spam, Werbung oder irrelevante Inhalte.</p>
+        <p><b>Vertraulichkeit:</b><br>Respektiere die Vertraulichkeit privater Nachrichten und Gespräche. Veröffentliche keine privaten Informationen ohne Zustimmung.</p>
+        <p><b>Meinungsfreiheit:</b><br>Jeder hat das Recht, seine Meinung frei zu äußern, ohne Angst vor Konsequenzen.</p>
+        <p><b>Kritisches Denken:</b><br>Ermutige dich und andere, alle Informationen zu hinterfragen und nicht blind zu akzeptieren.</p>
       `
     }
 

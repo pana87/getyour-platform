@@ -53,6 +53,7 @@
                   const res = await Helper.request("/get/user/list-admin/")
                   if (res.status === 200) {
                     const users = JSON.parse(res.response)
+                    users.sort((a, b) => b.counter - a.counter)
                     usersOverlay.info.textContent = users.length
                     const buttons = Helper.create("div/scrollable", usersOverlay)
                     const icon = await Helper.render("icon/node/path", "/public/delete.svg")
