@@ -36,8 +36,32 @@
             Helper.render("text/hr", "closed apps", content)
 
             const closedButtons = Helper.create("div/scrollable", content)
-            Helper.add("next-steps", closedButtons)
 
+            {
+              // todo community
+              // bei refresh alle daten sind verloren ???
+              // wenn du drauf kommst wird alles ins html geschrieben ??
+              // wie sollen es die anderen dann sehen?
+              // die user erstellen eine raum mit thema und chat
+              // room {}
+              // room.topic = string
+              // room.chat = []
+              // alle schreiben auf ein array
+              // jeder darf ein array erstellen
+              // tagged sich selber mit dem array
+              // user.rooms = []
+              // user.alias in chat
+              const button = Helper.create("toolbox/left-right", closedButtons)
+              button.left.textContent = ".community"
+              button.right.textContent = "Dein Raum für Gespräche"
+              button.onclick = () => {
+                window.alert("Bald verfügbar.")
+              }
+            }
+
+
+
+            Helper.add("next-steps", closedButtons)
             Helper.add("contacts", closedButtons)
             Helper.add("calendar", closedButtons)
             Helper.add("groups", closedButtons)
@@ -59,7 +83,35 @@
 
         })
       }
-      Helper.render("text/title", "Zugangspunkte", document.body)
+
+      {
+        Helper.render("text/title", "Plattformen", document.body)
+        const openPlatformContainer = Helper.create("div", document.body)
+        openPlatformContainer.style.paddingBottom = "55px"
+        const tree = "getyour.expert.platforms"
+        const res = await Helper.request("/get/user/trees-open/", {trees: [tree]})
+        if (res.status === 200) {
+          const users = JSON.parse(res.response)
+          for (let i = 0; i < users.length; i++) {
+            const user = users[i]
+            const platforms = user[tree]
+            for (let i = 0; i < platforms.length; i++) {
+              const platform = platforms[i]
+              if (platform.visibility === "open") {
+                const button = Helper.create("button/left-right", openPlatformContainer)
+                button.left.innerHTML = Helper.convert("text/capital-first-letter", platform.name)
+                button.onclick = () => window.open(platform.start, "_blank")
+              }
+            }
+          }
+        } else {
+          Helper.convert("parent/info", openPlatformContainer)
+          openPlatformContainer.innerHTML = `<span style="margin: 21px 34px;">Keine Plattformen gefunden</span>`
+          throw new Error("platform not found")
+        }
+      }
+
+      Helper.render("text/title", "Themen", document.body)
       const buttons = Helper.create("info/loading", document.body)
       const res = await Helper.request("/get/user/trees-open/", {trees: ["getyour.expert.name"]})
       if (res.status === 200) {
@@ -77,6 +129,7 @@
         buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Zugänge für dich zur Verfügung stehen.</span>`
         throw new Error("expert not found")
       }
+
     </script>
 
   </body>
