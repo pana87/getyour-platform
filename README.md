@@ -16,6 +16,7 @@ You need a [couch db instance](https://docs.couchdb.org/en/stable/install/index.
 COUCHDB_LOCATION=http://user:password@localhost:5984/
 DATABASE_NAME=my-database
 
+# nft storage is deprecated
 NFT_STORAGE_API_KEY=my-api-key
 
 JWT_SECRET=my-jwt-secret
@@ -30,11 +31,6 @@ DOMAIN=@my-domain.de
 ```
 
 ## Start
-
-Start the production
-```bash
-npm start
-```
 
 Start the developement environment
 ```bash
