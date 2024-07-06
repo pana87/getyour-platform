@@ -10905,12 +10905,26 @@ await Helper.add("event/click-funnel")
 
     if (event === "dark-light") {
 
+      if (input.tagName === "DIV") {
+        for (let i = 0; i < input.querySelectorAll("input").length; i++) {
+          const it = input.querySelectorAll("input")[i]
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            it.style.backgroundColor = this.colors.dark.background
+            it.style.color = this.colors.dark.text
+          } else {
+            it.style.backgroundColor = this.colors.light.background
+            it.style.color = this.colors.light.text
+          }
+        }
+      }
+
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         input.style.color = this.colors.dark.text
         input.style.background = this.colors.dark.foreground
       } else {
         input.style.color = this.colors.light.text
         input.style.background = this.colors.light.foreground
+
       }
 
       if (input.classList.contains("button")) {
@@ -10933,6 +10947,7 @@ await Helper.add("event/click-funnel")
         }
       }
 
+
       if (input.classList.contains("field")) {
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
           input.style.backgroundColor = this.colors.dark.foreground
@@ -10940,8 +10955,8 @@ await Helper.add("event/click-funnel")
           input.style.boxShadow = this.colors.dark.boxShadow
           input.style.color = this.colors.dark.text
           input.querySelector(".field-label").style.color = this.colors.dark.text
-          input.querySelector("input").style.backgroundColor = this.colors.dark.background
-          input.querySelector("input").style.color = this.colors.dark.text
+          // input.querySelector("input").style.backgroundColor = this.colors.dark.background
+          // input.querySelector("input").style.color = this.colors.dark.text
           for (let i = 0; i < input.querySelectorAll("*").length; i++) {
             const child = input.querySelectorAll("*")[i]
             if (child.tagName === "A") {
@@ -10957,8 +10972,8 @@ await Helper.add("event/click-funnel")
           input.style.boxShadow = this.colors.light.boxShadow
           input.style.color = this.colors.light.text
           input.querySelector(".field-label").style.color = this.colors.light.text
-          input.querySelector("input").style.backgroundColor = this.colors.light.background
-          input.querySelector("input").style.color = this.colors.light.text
+          // input.querySelector("input").style.backgroundColor = this.colors.light.background
+          // input.querySelector("input").style.color = this.colors.light.text
           for (let i = 0; i < input.querySelectorAll("*").length; i++) {
             const child = input.querySelectorAll("*")[i]
             if (child.tagName === "A") {
