@@ -553,10 +553,12 @@ async (req, res) => {
 
 app.post('/upload/ipfs/file/', upload.single('file'), async (req, res) => {
   try {
-    await Helper.logError("hi", req)
+    await Helper.logInput(req.file, req)
     if (!req.file) {
       return res.sendStatus(404)
     }
+    await Helper.logInput("hiho", req)
+
     // console.log(req.file);
     // await Helper.log(req.file, req, res, next)
     const fileBuffer = req.file.buffer
