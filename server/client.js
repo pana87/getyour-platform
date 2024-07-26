@@ -575,6 +575,7 @@ app.post('/upload/ipfs/file/', upload.single('file'), async (req, res) => {
     await Helper.log("nothing found end upload ipfs file", req, res, next)
     return res.sendStatus(404)
   } catch (err) {
+    await Helper.log(error, req, res, next)
     console.error('Error uploading file:', err)
     res.status(500).send('Error uploading file')
   }
