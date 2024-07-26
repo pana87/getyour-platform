@@ -99,7 +99,7 @@
               const platform = platforms[i]
               if (platform.visibility === "open") {
                 const button = Helper.create("button/left-right", openPlatformContainer)
-                button.left.innerHTML = Helper.convert("text/capital-first-letter", platform.name)
+                button.left.innerHTML = Helper.convert("tag/capital-first-letter", platform.name)
                 button.onclick = () => window.open(platform.start, "_blank")
               }
             }
@@ -121,13 +121,34 @@
           const expert = experts[i]
           const name = expert["getyour.expert.name"]
           const button = Helper.create("button/left-right", buttons)
-          button.left.innerHTML = Helper.convert("text/capital-first-letter", name)
+          button.left.innerHTML = Helper.convert("tag/capital-first-letter", name)
           button.onclick = () => window.open(`/${name}/`, "_blank")
         }
       } else {
         Helper.convert("parent/info", buttons)
         buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Zugänge für dich zur Verfügung stehen.</span>`
         throw new Error("expert not found")
+      }
+
+      {
+        Helper.render("text/title", "Experten", document.body)
+        const container = Helper.create("info/loading", document.body)
+        const res = await Helper.request("/get/users/tree-open/", {tree: "getyour.expert"})
+        if (res.status === 200) {
+          const users = JSON.parse(res.response)
+          Helper.convert("style/flex-row", container)
+          for (let i = 0; i < users.length; i++) {
+            const user = users[i]
+            if (user.verified === true) {
+              Helper.render("expert-box", user, container)
+            }
+          }
+        } else {
+          Helper.convert("dark-light", container)
+          Helper.style(container, {margin: "21px 34px", fontFamily: "sans-serif", background: "transparent"})
+          container.textContent = `Keine Experten gefunden`
+          throw new Error("expert not found")
+        }
       }
 
     </script>
