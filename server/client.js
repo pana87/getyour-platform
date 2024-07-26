@@ -13,6 +13,24 @@ const http = require("http")
 const path = require("node:path")
 const {startWebRtc} = require("./webrtc.js")
 
+let all
+(async () => {
+  all = await import('it-all')
+})()
+
+let IPFS
+let ipfs
+(async () => {
+  IPFS = await import('ipfs-core')
+  ipfs = await IPFS.create()
+})()
+
+let CID
+(async () => {
+  const multiformats = await import('multiformats')
+  CID = multiformats.CID
+})()
+
 Helper.createDatabase("getyour")
 Helper.createUsers("getyour")
 Helper.createLogs("getyour")
@@ -109,6 +127,22 @@ app.get("/:expert/", async (req, res, next) => {
     await Helper.logError(error, req)
   }
   return res.sendStatus(404)
+})
+
+app.get("/ipfs/:cid/", async (req, res) => {
+  try {
+    const cid = req.params.cid
+    const cidObject = CID.parse(cid)
+    const chunks = ipfs.cat(cidObject)
+    const file = []
+    for await (const chunk of chunks) {
+      file.push(chunk)
+    }
+    res.send(Buffer.concat(file))
+  } catch (err) {
+    console.error('Error retrieving file:', err)
+    res.status(500).send('Error retrieving file')
+  }
 })
 
 async function isOpen(req) {
@@ -515,6 +549,29 @@ async (req, res) => {
     await Helper.logError(error, req)
   }
   return res.sendStatus(404)
+})
+
+app.post('/upload/ipfs/file/', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.sendStatus(404)
+    }
+    const fileBuffer = req.file.buffer
+    const cid = await ipfs.add(fileBuffer)
+    const cidString = cid.cid.toString()
+    if (!Helper.verifyIs("text/empty", cidString)) {
+      if (req.hostname === "localhost") {
+        return res.send(`http://localhost:9999/ipfs/${cidString}/`)
+      }
+      if (req.hostname === "get-your.de") {
+        return res.send(`https://get-your.de/ipfs/${cidString}/`)
+      }
+    }
+    return res.sendStatus(404)
+  } catch (err) {
+    console.error('Error uploading file:', err)
+    res.status(500).send('Error uploading file')
+  }
 })
 
 app.post(`/upload/:type/self/`,

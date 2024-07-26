@@ -3832,6 +3832,8 @@ export class Helper {
     }
 
     if (event === "profile-surveys") {
+      // umfragen können auch direkt im html gemacht werden mit dem field funnel
+      // oder dem click funnel
       // hol dir die platform.profile.surveys
       // vom url id param 4
       // wenn eins existiert
@@ -3890,6 +3892,13 @@ export class Helper {
               // do something with profileSurveyDiv
               // create a button where an overlay comes
               // and the the overlay can create new surveys
+
+
+              // add edit icon to node
+
+              // this.create("icon/edit", profileSurveysDiv)
+
+
               profileSurveysDiv.parentElement.style.position = "relative"
               const editIcon = document.createElement('div')
               editIcon.className = 'edit-icon'
@@ -3897,6 +3906,10 @@ export class Helper {
               editIcon.innerHTML = '&#9998;'
               this.add("outline-hover", editIcon)
               profileSurveysDiv.parentElement.appendChild(editIcon)
+
+
+
+
               editIcon.onclick = () => {
                 this.overlay("popup", overlay => {
                   overlay.info.textContent = ".surveys"
@@ -9952,6 +9965,12 @@ await Helper.add("event/click-funnel")
           reject(error)
         }
       })
+    }
+
+    if (event === "style/flex-row") {
+      input.textContent = ""
+      input.removeAttribute("style")
+      this.style(input, {display: "flex", flexDirection: "row", flexWrap: "wrap"})
     }
 
     if (event === "text/clipboard") {
@@ -16814,6 +16833,126 @@ await Helper.add("event/click-funnel")
 
 
 
+    }
+
+    if (event === "expert-box") {
+
+      const box = this.create("button/left-right", parent)
+      this.style(box, {width: "610px"})
+
+      if (!this.verifyIs("text/empty", input.getyour.expert.alias)) {
+        const h1 = document.createElement("h1")
+        h1.textContent = input.getyour.expert.alias
+        box.left.appendChild(h1)
+      }
+
+      const p = document.createElement("p")
+      p.textContent = "Experte"
+      box.left.appendChild(p)
+
+      if (!this.verifyIs("text/empty", input.getyour.expert.image)) {
+        const image = document.createElement("img")
+        image.src = input.getyour.expert.image
+        image.style.width = "100%"
+        image.style.borderRadius = "5px"
+        box.left.appendChild(image)
+      }
+
+      if (!this.verifyIs("text/empty", input.getyour.expert.description)) {
+        const p = document.createElement("p")
+        p.textContent = input.getyour.expert.description
+        box.left.appendChild(p)
+      }
+
+      {
+        const container = this.create("div", box.left)
+        this.style(container, {fontFamily: "sans-serif", display: "flex"})
+        const platformDiv = document.createElement("div")
+        this.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
+        platformDiv.textContent = `Plattformen:`
+        container.appendChild(platformDiv)
+        const platformLengthDiv = document.createElement("div")
+        this.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
+        if (!this.verifyIs("number/empty", input.getyour.expert.platforms.length)) {
+          platformLengthDiv.textContent = input.getyour.expert.platforms.length
+        }
+        container.appendChild(platformLengthDiv)
+      }
+
+      {
+        const container = this.create("div", box.left)
+        this.style(container, {fontFamily: "sans-serif", display: "flex"})
+        const platformDiv = document.createElement("div")
+        this.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
+        platformDiv.textContent = `Werteinheiten:`
+        container.appendChild(platformDiv)
+        const platformLengthDiv = document.createElement("div")
+        this.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
+        let counter = 0
+        try {
+          for (let i = 0; i < input.getyour.expert.platforms.length; i++) {
+            const platform = input.getyour.expert.platforms[i]
+            if (platform.values) {
+              for (let i = 0; i < platform.values.length; i++) {
+                const value = platform.values[i]
+                counter++
+              }
+            }
+          }
+          platformLengthDiv.textContent = counter
+        } catch (error) {
+          console.log(error);
+          platformLengthDiv.textContent = 0
+        }
+        container.appendChild(platformLengthDiv)
+      }
+
+      {
+        const container = this.create("div", box.left)
+        this.style(container, {fontFamily: "sans-serif", display: "flex"})
+        const platformDiv = document.createElement("div")
+        this.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
+        platformDiv.textContent = `Reputation:`
+        container.appendChild(platformDiv)
+        const platformLengthDiv = document.createElement("div")
+        this.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
+        if (!this.verifyIs("number/empty", input.reputation)) {
+          platformLengthDiv.textContent = input.reputation
+        }
+        container.appendChild(platformLengthDiv)
+      }
+
+      {
+        const container = this.create("div", box.left)
+        this.style(container, {fontFamily: "sans-serif", display: "flex"})
+        const platformDiv = document.createElement("div")
+        this.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
+        platformDiv.textContent = `Erfahrung:`
+        container.appendChild(platformDiv)
+        const platformLengthDiv = document.createElement("div")
+        this.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
+        if (!this.verifyIs("number/empty", input.xp)) {
+          platformLengthDiv.textContent = input.xp
+        }
+        if (input.xp === undefined) {
+          platformLengthDiv.textContent = "Keine"
+          platformLengthDiv.style.color = "red"
+
+        }
+
+        if (input.xp > 0) {
+          platformLengthDiv.textContent = "Beginner"
+          platformLengthDiv.style.color = "orange"
+        }
+
+        if (input.xp > 89) {
+          platformLengthDiv.textContent = "Fortgeschritten"
+          platformLengthDiv.style.color = "green"
+        }
+        container.appendChild(platformLengthDiv)
+      }
+
+      return box
     }
 
     if (event === "icon/node/path") {

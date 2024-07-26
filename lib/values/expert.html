@@ -53,29 +53,172 @@
           if (res2.status === 200) {
             Helper.convert("parent/scrollable", content)
             Helper.create("start-button", content)
+
             {
               const button = Helper.create("button/left-right", content)
-              button.right.textContent = "Experten Name ändern"
-              button.left.textContent = ".expert.name"
+              button.right.textContent = "Experten Alias ändern"
+              button.left.textContent = ".expert.alias"
+              button.addEventListener("click", () => {
+                Helper.overlay("popup", async overlay => {
+                  const funnel = Helper.create("div/scrollable", overlay)
+                  const aliasField = Helper.create("input/text", funnel)
+                  const res = await Helper.request("/get/user/tree-closed/", {tree: "getyour.expert.alias"})
+                  if (res.status === 200) {
+                    aliasField.input.value = res.response
+                  }
+                  aliasField.input.setAttribute("required", "true")
+                  aliasField.input.placeholder = "Mein Alias"
+                  aliasField.input.maxLength = "89"
+                  aliasField.input.oninput = () => Helper.verify("input/value", aliasField.input)
+                  Helper.verify("input/value", aliasField.input)
+                  const button = Helper.create("button/action", funnel)
+                  button.textContent = "Alias jetzt speichern"
+                  button.addEventListener("click", async () => {
+                    await Helper.verify("input/value", aliasField.input)
+                    Helper.overlay("security", async securityOverlay => {
+                      const res = await Helper.request("/register/expert/alias-self/", {alias: aliasField.input.value})
+                      if (res.status === 200) {
+                        window.alert("Alias erfolgreich gespeichert.")
+                        securityOverlay.remove()
+                        overlay.remove()
+                      }
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
+                      }
+                    })
+                  })
+                })
+              })
+            }
+            {
+              const button = Helper.create("button/left-right", content)
+              button.right.textContent = "Experten Beschreibung ändern"
+              button.left.textContent = ".expert.description"
+              button.addEventListener("click", () => {
+                Helper.overlay("popup", async overlay => {
+                  const funnel = Helper.create("div/scrollable", overlay)
+                  const descriptionField = Helper.create("input/textarea", funnel)
+                  const res = await Helper.request("/get/user/tree-closed/", {tree: "getyour.expert.description"})
+                  if (res.status === 200) {
+                    descriptionField.input.value = res.response
+                  }
+                  descriptionField.input.maxLength = "233"
+                  descriptionField.input.placeholder = "Meine kurze Experten Beschreibung.."
+                  descriptionField.input.oninput = () => Helper.verify("input/value", descriptionField.input)
+                  Helper.verify("input/value", descriptionField.input)
+                  const button = Helper.create("button/action", funnel)
+                  button.textContent = "Beschreibung jetzt speichern"
+                  button.addEventListener("click", async () => {
+                    await Helper.verify("input/value", descriptionField.input)
+                    Helper.overlay("security", async securityOverlay => {
+                      const res = await Helper.request("/register/expert/description-self/", {description: descriptionField.input.value})
+                      if (res.status === 200) {
+                        window.alert("Beschreibung erfolgreich gespeichert.")
+                        securityOverlay.remove()
+                        overlay.remove()
+                      }
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
+                      }
+                    })
+                  })
+                })
+              })
+            }
+            {
+              const button = Helper.create("button/left-right", content)
+              button.right.textContent = "Experten Image ändern"
+              button.left.textContent = ".expert.image"
+              button.addEventListener("click", () => {
+                Helper.overlay("popup", async overlay => {
+                  overlay.info.textContent = `expert.image`
+                  const funnel = Helper.create("div/scrollable", overlay)
+                  const imageField = Helper.create("input/text", funnel)
+                  const res = await Helper.request("/get/user/tree-closed/", {tree: "getyour.expert.image"})
+                  if (res.status === 200) {
+                    imageField.input.value = res.response
+                  }
+                  imageField.input.setAttribute("required", "true")
+                  imageField.input.setAttribute("accept", "text/url")
+                  imageField.input.placeholder = "https://www.meine-image-url.de/mein-image.png"
+                  imageField.input.oninput = () => Helper.verify("input/value", imageField.input)
+                  Helper.verify("input/value", imageField.input)
+                  const button = Helper.create("button/action", funnel)
+                  button.textContent = "Image jetzt speichern"
+                  button.addEventListener("click", async () => {
+                    await Helper.verify("input/value", imageField.input)
+                    Helper.overlay("security", async securityOverlay => {
+                      const res = await Helper.request("/register/expert/image-self/", {image: imageField.input.value})
+                      if (res.status === 200) {
+                        window.alert("Image erfolgreich gespeichert.")
+                        securityOverlay.remove()
+                        overlay.remove()
+                      }
+                      if (res.status !== 200) {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
+                      }
+                    })
+                  })
+
+                  const fileField = Helper.create("input/file", funnel)
+                  fileField.input.setAttribute("accept", "image/jpeg")
+                  Helper.add("style/node/not-valid", fileField.input)
+                  fileField.input.onclick = () => {
+                    window.alert(`Achtung! Wenn du eine Datei hochlädst, werden deine Daten auf unserem IPFS-Node gespeichert und durch einen öffentlichen Link verfügbar gemacht. Auf diesen Link haben dann alle Zugriff. Bitte überlege dir genau, ob du deine Datei veröffentlichen möchtest.`)
+                  }
+                  fileField.input.oninput = async (ev) => {
+                    const file = ev.target.files[0]
+                    if (file && file.type === "image/jpeg") {
+                      const formdata = new FormData()
+                      formdata.append("file", file, file.name)
+                      if (file.type === "image/jpeg") {
+                        Helper.add("style/node/valid", fileField.input)
+                        fetch('/upload/ipfs/file/', {
+                          method: 'POST',
+                          body: formdata,
+                        })
+                        .then(response => response.text())
+                        .then(data => {
+                          imageField.input.value = data
+                          console.log('Successfully uploaded:', data);
+                        })
+                        .catch(error => {
+                          Helper.render("style/node/not-valid", imageField.input)
+                          console.error('Error uploading file:', error);
+                        });
+                      }
+                    }
+                  }
+                })
+              })
+            }
+            {
+              const button = Helper.create("button/left-right", content)
+              button.right.textContent = "Experten Domain ändern"
+              button.left.textContent = ".expert.domain"
               button.addEventListener("click", () => {
                 Helper.overlay("popup", overlay => {
                   const funnel = Helper.create("div/scrollable", overlay)
-                  const nameField = Helper.create("field/tag", funnel)
-                  nameField.input.value = window.location.pathname.split("/")[1]
-                  nameField.input.placeholder = "mein-neuer-experten-name"
-                  nameField.label.textContent = "Name"
-                  nameField.input.maxLength = "21"
-                  nameField.input.oninput = () => Helper.verify("input/value", nameField.input)
-                  Helper.verify("input/value", nameField.input)
+                  const domainField = Helper.create("input/text", funnel)
+                  domainField.input.value = window.location.pathname.split("/")[1]
+                  domainField.input.placeholder = "meine-domain"
+                  domainField.input.maxLength = "21"
+                  domainField.input.setAttribute("required", "true")
+                  domainField.input.setAttribute("accept", "text/tag")
+                  domainField.input.oninput = () => Helper.verify("input/value", domainField.input)
+                  Helper.verify("input/value", domainField.input)
                   const button = Helper.create("button/action", funnel)
-                  button.textContent = "Name jetzt speichern"
+                  button.textContent = "Domain jetzt speichern"
                   button.addEventListener("click", async () => {
-                    await Helper.verify("input/value", nameField.input)
+                    await Helper.verify("input/value", domainField.input)
                     Helper.overlay("security", async securityOverlay => {
-                      const res = await Helper.request("/register/expert/name-self/", {name: nameField.input.value})
+                      const res = await Helper.request("/register/expert/name-self/", {domain: domainField.input.value})
                       if (res.status === 200) {
                         window.alert("Name erfolgreich gespeichert.")
-                        window.location.assign(`/${nameField.input.value}/`)
+                        window.location.assign(`/${domainField.input.value}/`)
                       }
                       if (res.status !== 200) {
                         window.alert("Fehler.. Bitte wiederholen.")
