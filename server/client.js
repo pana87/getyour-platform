@@ -569,6 +569,7 @@ app.post('/upload/ipfs/file/', upload.single('file'), async (req, res) => {
     // console.log(cidString);
     // await Helper.log(cidString, req, res, next)
     await Helper.logInput(cidString, req)
+    await Helper.logInput(req.hostname, req)
 
     if (!Helper.verifyIs("text/empty", cidString)) {
       if (req.hostname === "localhost") {
