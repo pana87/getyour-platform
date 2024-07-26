@@ -226,10 +226,48 @@
                               })
                             })
                           }
+                          {
+                            const button = Helper.create("button/left-right", buttons)
+                            button.right.textContent = "Datenfeld aktualisieren"
+                            button.left.textContent = ".update"
+                            button.addEventListener("click", () => {
+                              Helper.overlay("popup", async overlay => {
+                                const content = Helper.create("div/scrollable", overlay)
+                                const keyValueField = Helper.create("input/text", content)
+                                keyValueField.input.setAttribute("required", "true")
+                                keyValueField.input.placeholder = "user.xp = 3"
+                                Helper.add("style/node/not-valid", keyValueField.input)
+                                keyValueField.input.oninput = () => Helper.verify("input/value", keyValueField.input)
+                                const submit = Helper.create("toolbox/action", content)
+                                submit.textContent = "Datenfeld jetzt aktualisieren"
+                                submit.onclick = async () => {
+                                  await Helper.verify("input/value", keyValueField.input)
+                                  const userInput = keyValueField.input.value
+                                  const userSplit = userInput.split("=")
+                                  const tree = userSplit[0].trim()
+                                  const value = userSplit[1].trim()
+                                  Helper.add("style/node/not-valid", keyValueField.input)
+                                  if (userSplit.length === 2) {
+                                    if (!Helper.verifyIs("text/empty", tree) && !Helper.verifyIs("text/empty", value)) {
+                                      Helper.add("style/node/valid", keyValueField.input)
+                                      Helper.overlay("security", async securityOverlay => {
+                                        const res = await Helper.request("/register/user/tree-value-admin/", {tree, value, email: user.email})
+                                        if (res.status === 200) {
+                                          window.alert("Datenfeld erfolgreich gespeichert.")
+                                        } else {
+                                          window.alert("Fehler.. Bitte wiederholen.")
+                                        }
+                                        securityOverlay.remove()
+                                      })
+                                    }
+                                  }
+                                }
+                              })
+                            })
+                          }
                         })
                       }
                       button.left.append(message)
-
                     }
                   }
                 })
