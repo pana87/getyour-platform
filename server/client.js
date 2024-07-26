@@ -553,23 +553,12 @@ async (req, res) => {
 
 app.post('/upload/ipfs/file/', upload.single('file'), async (req, res) => {
   try {
-    // await Helper.logInput(req.file, req)
     if (!req.file) {
       return res.sendStatus(404)
     }
-    // await Helper.logInput("hiho", req)
-
-    // console.log(req.file);
-    // await Helper.log(req.file, req, res, next)
     const fileBuffer = req.file.buffer
-    // console.log(fileBuffer);
-    // await Helper.logInput(fileBuffer, req)
     const cid = await ipfs.add(fileBuffer)
     const cidString = cid.cid.toString()
-    // console.log(cidString);
-    // await Helper.log(cidString, req, res, next)
-    // await Helper.logInput(cidString, req)
-    // await Helper.logInput(req.hostname, req)
 
     if (!Helper.verifyIs("text/empty", cidString)) {
       if (req.hostname === "localhost") {
@@ -582,7 +571,6 @@ app.post('/upload/ipfs/file/', upload.single('file'), async (req, res) => {
         return res.send(`https://www.get-your.de/ipfs/${cidString}/`)
       }
     }
-    // await Helper.log("nothing found end upload ipfs file", req, res, next)
     return res.sendStatus(404)
   } catch (error) {
     await Helper.logError(error, req)
