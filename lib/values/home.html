@@ -31,52 +31,56 @@
 
           const content = Helper.create("div/scrollable", overlay)
 
-          const res = await Helper.request("/verify/user/closed/")
-          if (res.status === 200) {
-            Helper.render("text/hr", "closed apps", content)
-
-            const closedButtons = Helper.create("div/scrollable", content)
-
-            {
-              // todo community
-              // bei refresh alle daten sind verloren ???
-              // wenn du drauf kommst wird alles ins html geschrieben ??
-              // wie sollen es die anderen dann sehen?
-              // die user erstellen eine raum mit thema und chat
-              // room {}
-              // room.topic = string
-              // room.chat = []
-              // alle schreiben auf ein array
-              // jeder darf ein array erstellen
-              // tagged sich selber mit dem array
-              // user.rooms = []
-              // user.alias in chat
-              const button = Helper.create("toolbox/left-right", closedButtons)
-              button.left.textContent = ".community"
-              button.right.textContent = "Dein Raum für Gespräche"
-              button.onclick = () => {
-                window.alert("Bald verfügbar.")
-              }
-            }
-
-
-
-            Helper.add("next-steps", closedButtons)
-            Helper.add("contacts", closedButtons)
-            Helper.add("calendar", closedButtons)
-            Helper.add("groups", closedButtons)
-
-            Helper.add("button/assign-expert-home", closedButtons)
-
-            const res = await Helper.request("/verify/user/admin/")
+          Helper.request("/verify/user/closed/").then(res => {
             if (res.status === 200) {
-              const button = Helper.create("button/left-right", closedButtons)
-              button.left.innerHTML = ".admin"
-              button.right.innerHTML = "Der Bereich für Admins"
-              button.onclick = () => window.open("/admin/", "_blank")
+              Helper.render("text/hr", "closed apps", content)
+
+              const closedButtons = Helper.create("div/scrollable", content)
+
+              {
+                // todo community
+                // bei refresh alle daten sind verloren ???
+                // wenn du drauf kommst wird alles ins html geschrieben ??
+                // wie sollen es die anderen dann sehen?
+                // die user erstellen eine raum mit thema und chat
+                // room {}
+                // room.topic = string
+                // room.chat = []
+                // alle schreiben auf ein array
+                // jeder darf ein array erstellen
+                // tagged sich selber mit dem array
+                // user.rooms = []
+                // user.alias in chat
+                // websocket needed
+                const button = Helper.create("toolbox/left-right", closedButtons)
+                button.left.textContent = ".community"
+                button.right.textContent = "Dein Raum für Gespräche"
+                button.onclick = () => {
+                  window.alert("Bald verfügbar.")
+                }
+              }
+
+
+
+              Helper.add("next-steps", closedButtons)
+              Helper.add("contacts", closedButtons)
+              Helper.add("calendar", closedButtons)
+              Helper.add("groups", closedButtons)
+
+              Helper.add("button/assign-expert-home", closedButtons)
+
+              Helper.request("/verify/user/admin/").then(res => {
+                if (res.status === 200) {
+                  const button = Helper.create("button/left-right", closedButtons)
+                  button.left.innerHTML = ".admin"
+                  button.right.innerHTML = "Der Bereich für Admins"
+                  button.onclick = () => window.open("/admin/", "_blank")
+                }
+              })
+
             }
 
-          }
+          })
 
           Helper.render("text/hr", "open apps", content)
           Helper.render("nav/open", content)
@@ -89,67 +93,70 @@
         const openPlatformContainer = Helper.create("div", document.body)
         openPlatformContainer.style.paddingBottom = "55px"
         const tree = "getyour.expert.platforms"
-        const res = await Helper.request("/get/user/trees-open/", {trees: [tree]})
-        if (res.status === 200) {
-          const users = JSON.parse(res.response)
-          for (let i = 0; i < users.length; i++) {
-            const user = users[i]
-            const platforms = user[tree]
-            for (let i = 0; i < platforms.length; i++) {
-              const platform = platforms[i]
-              if (platform.visibility === "open") {
-                const button = Helper.create("button/left-right", openPlatformContainer)
-                button.left.innerHTML = Helper.convert("tag/capital-first-letter", platform.name)
-                button.onclick = () => window.open(platform.start, "_blank")
+        Helper.request("/get/user/trees-open/", {trees: [tree]}).then(res => {
+          if (res.status === 200) {
+            const users = JSON.parse(res.response)
+            for (let i = 0; i < users.length; i++) {
+              const user = users[i]
+              const platforms = user[tree]
+              for (let i = 0; i < platforms.length; i++) {
+                const platform = platforms[i]
+                if (platform.visibility === "open") {
+                  const button = Helper.create("button/left-right", openPlatformContainer)
+                  button.left.innerHTML = Helper.convert("tag/capital-first-letter", platform.name)
+                  button.onclick = () => window.open(platform.start, "_blank")
+                }
               }
             }
+          } else {
+            Helper.convert("parent/info", openPlatformContainer)
+            openPlatformContainer.innerHTML = `<span style="margin: 21px 34px;">Keine Plattformen gefunden</span>`
+            throw new Error("platform not found")
           }
-        } else {
-          Helper.convert("parent/info", openPlatformContainer)
-          openPlatformContainer.innerHTML = `<span style="margin: 21px 34px;">Keine Plattformen gefunden</span>`
-          throw new Error("platform not found")
-        }
+        })
       }
 
       Helper.render("text/title", "Themen", document.body)
       const buttons = Helper.create("info/loading", document.body)
-      const res = await Helper.request("/get/user/trees-open/", {trees: ["getyour.expert.name"]})
-      if (res.status === 200) {
-        const experts = JSON.parse(res.response)
-        Helper.convert("parent/scrollable", buttons)
-        for (let i = 0; i < experts.length; i++) {
-          const expert = experts[i]
-          const name = expert["getyour.expert.name"]
-          const button = Helper.create("button/left-right", buttons)
-          button.left.innerHTML = Helper.convert("tag/capital-first-letter", name)
-          button.onclick = () => window.open(`/${name}/`, "_blank")
+      Helper.request("/get/user/trees-open/", {trees: ["getyour.expert.name"]}).then(res => {
+        if (res.status === 200) {
+          const experts = JSON.parse(res.response)
+          Helper.convert("parent/scrollable", buttons)
+          for (let i = 0; i < experts.length; i++) {
+            const expert = experts[i]
+            const name = expert["getyour.expert.name"]
+            const button = Helper.create("button/left-right", buttons)
+            button.left.innerHTML = Helper.convert("tag/capital-first-letter", name)
+            button.onclick = () => window.open(`/${name}/`, "_blank")
+          }
+        } else {
+          Helper.convert("parent/info", buttons)
+          buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Zugänge für dich zur Verfügung stehen.</span>`
+          throw new Error("expert not found")
         }
-      } else {
-        Helper.convert("parent/info", buttons)
-        buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Zugänge für dich zur Verfügung stehen.</span>`
-        throw new Error("expert not found")
-      }
+      })
 
       {
         Helper.render("text/title", "Experten", document.body)
         const container = Helper.create("info/loading", document.body)
-        const res = await Helper.request("/get/users/tree-open/", {tree: "getyour.expert"})
-        if (res.status === 200) {
-          const users = JSON.parse(res.response)
-          Helper.convert("style/flex-row", container)
-          container.style.paddingBottom = "144px"
-          for (let i = 0; i < users.length; i++) {
-            const user = users[i]
-            if (user.verified === true) {
-              Helper.render("expert-box", user, container)
+        Helper.request("/get/users/tree-open/", {tree: "getyour.expert"}).then(res => {
+          if (res.status === 200) {
+            const users = JSON.parse(res.response)
+            Helper.convert("style/flex-row", container)
+            container.style.paddingBottom = "144px"
+            for (let i = 0; i < users.length; i++) {
+              const user = users[i]
+              if (user.verified === true) {
+                Helper.render("expert-box", user, container)
+              }
             }
+          } else {
+            Helper.convert("dark-light", container)
+            Helper.style(container, {margin: "21px 34px", fontFamily: "sans-serif", background: "transparent"})
+            container.textContent = `Keine Experten gefunden`
+            throw new Error("expert not found")
           }
-        } else {
-          Helper.convert("dark-light", container)
-          Helper.style(container, {margin: "21px 34px", fontFamily: "sans-serif", background: "transparent"})
-          container.textContent = `Keine Experten gefunden`
-          throw new Error("expert not found")
-        }
+        })
       }
 
     </script>
