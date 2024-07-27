@@ -90,12 +90,15 @@
 
       {
         Helper.render("text/title", "Plattformen", document.body)
-        const openPlatformContainer = Helper.create("div", document.body)
+        const openPlatformContainer = Helper.create("info/loading", document.body)
         openPlatformContainer.style.paddingBottom = "55px"
         const tree = "getyour.expert.platforms"
         Helper.request("/get/user/trees-open/", {trees: [tree]}).then(res => {
           if (res.status === 200) {
             const users = JSON.parse(res.response)
+            openPlatformContainer.textContent = ""
+            openPlatformContainer.removeAttribute("style")
+            openPlatformContainer.style.paddingBottom = "144px"
             for (let i = 0; i < users.length; i++) {
               const user = users[i]
               const platforms = user[tree]
@@ -110,7 +113,7 @@
             }
           } else {
             Helper.convert("parent/info", openPlatformContainer)
-            openPlatformContainer.innerHTML = `<span style="margin: 21px 34px;">Keine Plattformen gefunden</span>`
+            openPlatformContainer.textContent = `Keine Plattformen gefunden`
             throw new Error("platform not found")
           }
         })
@@ -144,6 +147,7 @@
             const users = JSON.parse(res.response)
             Helper.convert("style/flex-row", container)
             container.style.paddingBottom = "144px"
+            container.style.justifyContent = "space-around"
             for (let i = 0; i < users.length; i++) {
               const user = users[i]
               if (user.verified === true) {

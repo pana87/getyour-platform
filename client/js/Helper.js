@@ -1884,6 +1884,7 @@ export class Helper {
       const birthdateField = document.querySelector("#birthdate")
       this.convert("dark-light", birthdateField)
       const birthdateInput = birthdateField.querySelector("input[type='date']")
+      birthdateInput.value = Helper.convert("millis/yyyy-mm-dd", Date.now())
       birthdateInput.oninput = () => this.add("style/node/valid", birthdateInput)
       this.add("outline-hover", birthdateInput)
 
@@ -6464,6 +6465,27 @@ export class Helper {
       return div
     }
 
+    if (event === "box") {
+
+      const box = document.createElement("span")
+      box.style.padding = "13px"
+      box.style.borderRadius = "13px"
+      box.style.cursor = "pointer"
+      box.style.backgroundColor = this.colors.gray[0]
+      box.style.border = this.colors.light.border
+      box.style.color = this.colors.light.text
+      box.style.boxShadow = this.colors.light.boxShadow
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        box.style.backgroundColor = this.colors.matte.black
+        box.style.border = this.colors.dark.border
+        box.style.boxShadow = this.colors.dark.boxShadow
+        box.style.color = this.colors.dark.text
+      }
+      this.add("outline-hover", box)
+      input?.appendChild(box)
+      return box
+    }
+
     if (event === "button/key-value-color") {
 
       const button = this.create("div")
@@ -10642,17 +10664,23 @@ await Helper.add("event/click-funnel")
 
     if (event === "millis/dd.mm.yyyy") {
       const date = new Date(input)
-
       const day = date.getDate().toString().padStart(2, '0')
       const month = (date.getMonth() + 1).toString().padStart(2, '0')
       const year = date.getFullYear().toString()
-
       return `${day}.${month}.${year}`
     }
 
     if (event === "millis/yyyy") {
       const date = new Date(input)
       return date.getFullYear()
+    }
+
+    if (event === "millis/yyyy-mm-dd") {
+      const date = new Date(input)
+      const day = date.getDate().toString().padStart(2, '0')
+      const month = (date.getMonth() + 1).toString().padStart(2, '0')
+      const year = date.getFullYear().toString()
+      return `${year}-${month}-${day}`
     }
 
     if (event === "element/center") {
@@ -13198,7 +13226,7 @@ await Helper.add("event/click-funnel")
       }
 
       function renderHighlightedSpan(text, node) {
-        const span = document.createElement("span")
+        const span = Helper.create("box")
         span.style.fontSize = "34px"
         span.style.margin = "0 8px"
         span.textContent = text
@@ -13208,8 +13236,8 @@ await Helper.add("event/click-funnel")
       }
 
       function renderTitle(title, node) {
-        const titleNode = renderTitleSpan(`${title}:`, node)
-        Helper.add("outline-hover", titleNode)
+        const titleNode = Helper.create("box", node)
+        titleNode.textContent = `${title}:`
         const tag = title.toLowerCase().replaceAll(" ", "-").replaceAll("ü", "ue").replaceAll("ö", "oe").replaceAll("ä", "ae").replaceAll("1.", "ersten").replaceAll("2.", "zweiten").replaceAll("3.", "dritten").replaceAll("4.", "vierten")
         titleNode.onclick = () => window.open(`/entwicklung/numerologie/${tag}/`, "_blank")
         return titleNode
@@ -13310,11 +13338,8 @@ await Helper.add("event/click-funnel")
           const key = keys[i]
           if (key === "0") continue
           if (data[key] >= 2) {
-            const div = document.createElement("div")
+            const div = Helper.create("box")
             div.style.display = "inline-block"
-            div.style.margin = "0 5px"
-            Helper.convert("text/dark-light", div)
-            Helper.add("outline-hover", div)
             div.onclick = () => openPrevailingEnergy(key)
             fragment.appendChild(div)
             const span1 = document.createElement("span")
@@ -13384,10 +13409,8 @@ await Helper.add("event/click-funnel")
         const fragment = document.createDocumentFragment()
         for (let i = 0; i < array.length; i++) {
           const number = array[i]
-          const div = document.createElement("div")
+          const div = Helper.create("box")
           div.textContent = `${number}${i === array.length - 1 ? "" : ","}`
-          div.style.display = "inline-block"
-          div.style.margin = "0 5px"
           div.style.fontSize = "34px"
           Helper.convert("text/dark-light", div)
           Helper.add("outline-hover", div)
@@ -13411,11 +13434,8 @@ await Helper.add("event/click-funnel")
           const key = keys[i]
           if (key === "0") continue
           if (data[key] >= 1) {
-            const div = document.createElement("div")
+            const div = Helper.create("box")
             div.style.display = "inline-block"
-            div.style.margin = "0 5px"
-            Helper.convert("text/dark-light", div)
-            Helper.add("outline-hover", div)
             div.onclick = () => openTones(key, data[key])
             fragment.appendChild(div)
             const span1 = document.createElement("span")
@@ -13446,13 +13466,9 @@ await Helper.add("event/click-funnel")
         const fragment = document.createDocumentFragment()
         for (let i = 0; i < array.length; i++) {
           const number = array[i]
-          const div = document.createElement("div")
+          const div = Helper.create("box")
           div.textContent = `${number}${i === array.length - 1 ? "" : ","}`
-          div.style.display = "inline-block"
-          div.style.margin = "0 5px"
           div.style.fontSize = "34px"
-          Helper.convert("text/dark-light", div)
-          Helper.add("outline-hover", div)
           div.onclick = () => openBirthNameEnergy(number)
           fragment.appendChild(div)
         }
@@ -16838,7 +16854,7 @@ await Helper.add("event/click-funnel")
     if (event === "expert-box") {
 
       const box = this.create("button/left-right", parent)
-      this.style(box, {width: "610px"})
+      this.style(box, {width: "610px", margin: "8px", wordBreak: "break-word"})
 
       if (!this.verifyIs("text/empty", input.getyour.expert.alias)) {
         const h1 = document.createElement("h1")
