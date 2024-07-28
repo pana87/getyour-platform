@@ -2476,6 +2476,21 @@ export class Helper {
 
           {
             const button = this.create("toolbox/left-right", buttons)
+            button.left.textContent = "document.backup"
+            button.right.textContent = "Lade dein HTML Dokument herunter"
+            button.onclick = () => {
+              const htmlContent = document.documentElement.outerHTML
+              const title = document.querySelector("title")
+              if (title) {
+                this.downloadFile(htmlContent, `${this.convert("text/tag", title.textContent)}.html`, "text/html")
+              } else {
+                this.downloadFile(htmlContent, `meine-werteinheit.html`, "text/html")
+              }
+            }
+          }
+
+          {
+            const button = this.create("toolbox/left-right", buttons)
             button.left.textContent = ".start"
             button.right.textContent = "Schnell zum Start zurück"
             button.addEventListener("click", async () => window.open("/", "_blank"))
@@ -10457,10 +10472,8 @@ await Helper.add("event/click-funnel")
     if (event === "parent/flex-row") {
 
       input.style.flexDirection = null
-
       input.style.display = "flex"
       input.style.flexWrap = "wrap"
-
       return input
     }
 
@@ -10598,6 +10611,14 @@ await Helper.add("event/click-funnel")
       if (node) {
         this.convert("dark-light", node)
       }
+    }
+
+    if (event === "style/flex-row") {
+
+      input.removeAttribute("style")
+      input.style.display = "flex"
+      input.style.flexWrap = "wrap"
+      return input
     }
 
     if (event === "style/info") {
@@ -11272,6 +11293,14 @@ await Helper.add("event/click-funnel")
       return (input / 1000).toFixed(1) + 'T'
     }
 
+  }
+
+  static downloadFile(content, fileName, contentType) {
+    const a = document.createElement("a")
+    const file = new Blob([content], { type: contentType })
+    a.href = URL.createObjectURL(file)
+    a.download = fileName
+    a.click()
   }
 
   static async dynamicImport(url, callback) {
@@ -14714,12 +14743,8 @@ await Helper.add("event/click-funnel")
 
       return (node) => {
         this.overlay("popup", async templatesOverlay => {
-          const searchField = this.create("field/text", templatesOverlay)
-          searchField.label.textContent = "Suche nach Text in deinem Template"
-          searchField.input.placeholder = "Mein Button"
-          searchField.style.margin = "21px 34px"
-          this.verify("input/value", searchField.input)
-          this.add("outline-hover", searchField.input)
+          const searchField = this.create("input/text", templatesOverlay)
+          searchField.input.placeholder = "Suche nach Text in deinem Template"
           if (node) {
             const registerTemplateButton = this.create("toolbox/bottom-right", templatesOverlay)
             this.render("icon/node/path", "/public/add.svg", registerTemplateButton)
@@ -14747,6 +14772,200 @@ await Helper.add("event/click-funnel")
               }
             }
           }
+          async function renderTemplateClosed(selectedNode, container) {
+            const res = await Helper.request("/get/templates/closed/")
+            if (res.status === 200) {
+              const templates = JSON.parse(res.response)
+              await renderTemplateFeatureButtons(templates, selectedNode, container)
+            } else {
+              Helper.convert("parent/info", container)
+              container.textContent = "Keine Templates gefunden"
+            }
+          }
+
+          async function renderTemplateFeatureButtons(templates, selectedNode, container) {
+            Helper.convert("style/flex-row", container)
+            container.style.overflow = "auto"
+            container.style.wordBreak = "break-word"
+            container.style.justifyContent = "space-around"
+            for (let i = 0; i < templates.length; i++) {
+              const template = templates[i]
+              const templateButton = Helper.create("toolbox/left-right", container)
+              templateButton.style.width = "610px"
+              templateButton.style.margin = "21px 0"
+              templateButton.left.innerHTML = await Helper.convert("text/purified", template.html)
+              templateButton.left.style.height = "34vh"
+              templateButton.left.style.overflow = "auto"
+              templateButton.right.style.fontSize = "21px"
+              const signCounter = document.createElement("div")
+              signCounter.textContent = `Zeichen: ${templateButton.left.textContent.length}`
+              if (template.alias) templateButton.right.textContent = template.alias
+              templateButton.right.appendChild(signCounter)
+              templateButton.onclick = async () => {
+                Helper.overlay("popup", buttonsOverlay => {
+                  if (template.alias) buttonsOverlay.info.textContent = template.alias
+                  const buttons = Helper.create("div/scrollable", buttonsOverlay)
+                  {
+                    const button = Helper.create("toolbox/left-right", buttons)
+                    button.left.textContent = ".append-to-selected-node"
+                    button.right.textContent = "Hänge dein Template an das ausgewählte Element"
+                    button.onclick = async () => {
+                      const parser = document.createElement("div")
+                      parser.innerHTML = await Helper.convert("text/purified", template.html)
+                      selectedNode.appendChild(parser.firstChild)
+                      window.alert("Templete erfolgreich angehängt.")
+                      buttonsOverlay.remove()
+                      templatesOverlay.remove()
+                    }
+                  }
+                  {
+                    const button = Helper.create("toolbox/left-right", buttons)
+                    button.left.textContent = ".alias"
+                    button.right.textContent = "Gebe deinem Template einen alternativen Namen"
+                    button.onclick = () => {
+                      Helper.overlay("popup", overlay => {
+                        if (template.alias) overlay.info.textContent = template.alias
+                        const funnel = Helper.create("div/scrollable", overlay)
+                        const aliasField = Helper.create("field/text", funnel)
+                        aliasField.label.textContent = "Alternative Bezeichnung für deine Template"
+                        aliasField.input.setAttribute("required", "true")
+                        if (template.alias !== undefined) {
+                          aliasField.input.value = template.alias
+                        }
+                        Helper.verify("input/value", aliasField.input)
+                        Helper.add("outline-hover", aliasField.input)
+                        aliasField.input.oninput = () => Helper.verify("input/value", aliasField.input)
+                        const submit = Helper.create("button/action", funnel)
+                        Helper.add("outline-hover", submit)
+                        submit.textContent = "Alias jetzt speichern"
+                        submit.onclick = async () => {
+                          await Helper.verify("input/value", aliasField.input)
+                          Helper.overlay("security", async securityOverlay => {
+                            const res = await Helper.request("/register/templates/alias-self/", {id: template.created, alias: aliasField.input.value})
+                            if (res.status === 200) {
+                              window.alert("Alias erfolgreich gespeichert.")
+                              await renderTemplateClosed(selectedNode, container)
+                              overlay.remove()
+                              buttonsOverlay.remove()
+                              securityOverlay.remove()
+                            } else {
+                              window.alert("Fehler.. Bitte wiederholen.")
+                              securityOverlay.remove()
+                            }
+                          })
+                        }
+                      })
+                    }
+                  }
+
+                  function processTextContent(textContent) {
+                    const promptRegex = /prompt\(([^)]+)\)/g
+                    let match
+                    const matches = []
+                    while ((match = promptRegex.exec(textContent)) !== null) {
+                      matches.push(match)
+                    }
+                    matches.forEach(match => {
+                      const id = match[1]
+                      const userInput = window.prompt(`Bitte geben Sie den Text für ${id} ein:`)
+                      textContent = textContent.replace(`prompt(${id})`, userInput)
+                    })
+                    return textContent
+                  }
+
+                  {
+                    const button = Helper.create("toolbox/left-right", buttons)
+                    button.left.textContent = ".copy-to-clipboard"
+                    button.right.textContent = "Speicher deinen Template Inhalt in deiner Zwischenablage"
+                    button.onclick = async () => {
+                      const parser = document.createElement("div")
+                      parser.innerHTML = await Helper.convert("text/purified", template.html)
+                      let textContent = processTextContent(parser.firstChild.textContent)
+                      navigator.clipboard.writeText(textContent).then(() => window.alert("Dein Text wurde erfolgreich in deinen Zwischablage gespeichert."))
+                    }
+                  }
+                  {
+                    const button = Helper.create("toolbox/left-right", buttons)
+                    button.left.textContent = ".copy-to-email"
+                    button.right.textContent = "Versende deinen Template Inhalt per E-Mail"
+                    button.onclick = async () => {
+                      const parser = document.createElement("div")
+                      parser.innerHTML = await Helper.convert("text/purified", template.html)
+                      let textContent = processTextContent(parser.firstChild.textContent)
+                      const mailtoLink = `mailto:?body=${encodeURIComponent(textContent)}`
+                      const a = document.createElement("a")
+                      a.href = mailtoLink
+                      a.click()
+                    }
+                  }
+                  {
+                    const button = Helper.create("toolbox/left-right", buttons)
+                    button.left.textContent = ".copy-to-translater"
+                    button.right.textContent = "Versende deinen Template Inhalt an eine Übersetzungsmaschine"
+                    button.onclick = async () => {
+                      const parser = document.createElement("div")
+                      parser.innerHTML = await Helper.convert("text/purified", template.html)
+                      let textContent = processTextContent(parser.firstChild.textContent)
+                      Helper.overlay("popup", overlay => {
+                        overlay.info.textContent = ".translater"
+                        const content = Helper.create("div/scrollable", overlay)
+                        const translations = [
+                          { name: "Google Translate", url: `https://translate.google.com/?sl=auto&tl=auto&text=${encodeURIComponent(textContent)}` },
+                          { name: "DeepL Translate", url: `https://www.deepl.com/translator#auto/auto/${encodeURIComponent(textContent)}` },
+                          { name: "Bing Translator", url: `https://www.bing.com/translator?from=auto&to=auto&text=${encodeURIComponent(textContent)}` },
+                          { name: "Yandex Translate", url: `https://translate.yandex.com/?lang=auto-auto&text=${encodeURIComponent(textContent)}` }
+                        ]
+                        for (let i = 0; i < translations.length; i++) {
+                          const it = translations[i]
+                          const button = Helper.create("toolbox/left-right", content)
+                          button.left.textContent = it.name
+                          button.onclick = () => {
+                            window.open(it.url, "_blank")
+                          }
+                        }
+                      })
+                    }
+                  }
+                  {
+                    const button = Helper.create("toolbox/left-right", buttons)
+                    button.left.textContent = ".#!/bin/bash"
+                    button.right.textContent = "Lade eine .sh Datei herunter"
+                    button.onclick = async () => {
+                      const parser = document.createElement("div")
+                      parser.innerHTML = await Helper.convert("text/purified", template.html)
+                      const shebang = "#!/bin/bash\n"
+                      const scriptContent = shebang + parser.firstChild.textContent
+                      Helper.downloadFile(scriptContent, `${Helper.convert("text/tag", template.alias)}.sh`, "text/x-sh")
+                    }
+                  }
+                  {
+                    const button = Helper.create("toolbox/left-right", buttons)
+                    button.left.textContent = ".remove"
+                    button.right.textContent = "Template entfernen"
+                    button.onclick = () => {
+
+                      const confirm = window.confirm("Möchtest du dein Template wirklich entfernen?")
+                      if (confirm === true) {
+                        Helper.overlay("security", async securityOverlay => {
+                          const res = await Helper.request("/remove/templates/id-self/", {id: template.created})
+                          if (res.status === 200) {
+                            window.alert("Template erfolgreich entfernt.")
+                            templateButton.remove()
+                            buttonsOverlay.remove()
+                            securityOverlay.remove()
+                          } else {
+                            window.alert("Fehler.. Bitte wiederholen.")
+                            securityOverlay.remove()
+                          }
+                        })
+                      }
+                    }
+                  }
+                })
+              }
+            }
+          }
+
           const content = this.create("info/loading", templatesOverlay)
           const res = await this.request("/get/templates/closed/")
           if (res.status === 200) {
@@ -14766,111 +14985,6 @@ await Helper.add("event/click-funnel")
               }
             }
             await renderTemplateFeatureButtons(templates, node, content)
-
-            async function renderTemplateClosed(selectedNode, container) {
-              const res = await Helper.request("/get/templates/closed/")
-              if (res.status === 200) {
-                const templates = JSON.parse(res.response)
-                await renderTemplateFeatureButtons(templates, selectedNode, container)
-              } else {
-                Helper.convert("parent/info", container)
-                container.textContent = "Keine Templates gefunden"
-              }
-            }
-
-            async function renderTemplateFeatureButtons(templates, selectedNode, container, max = 5) {
-              Helper.convert("parent/scrollable", container)
-              for (let i = 0; i < Math.min(templates.length, max); i++) {
-                const template = templates[i]
-                const templateButton = Helper.create("toolbox/left-right", container)
-                templateButton.left.innerHTML = await Helper.convert("text/purified", template.html)
-                templateButton.left.style.height = "34vh"
-                templateButton.left.style.overflow = "auto"
-                templateButton.right.style.fontSize = "21px"
-                if (template.alias) templateButton.right.textContent = template.alias
-                templateButton.onclick = async () => {
-                  Helper.overlay("popup", buttonsOverlay => {
-                    if (template.alias) buttonsOverlay.info.textContent = template.alias
-                    const buttons = Helper.create("div/scrollable", buttonsOverlay)
-                    {
-                      const button = Helper.create("toolbox/left-right", buttons)
-                      button.left.textContent = ".append-to-selected-node"
-                      button.right.textContent = "Hänge dein Template an das ausgewählte Element"
-                      button.onclick = async () => {
-                        const parser = document.createElement("div")
-                        parser.innerHTML = await Helper.convert("text/purified", template.html)
-                        selectedNode.appendChild(parser.firstChild)
-                        window.alert("Templete erfolgreich angehängt.")
-                        buttonsOverlay.remove()
-                        templatesOverlay.remove()
-                      }
-                    }
-                    {
-                      const button = Helper.create("toolbox/left-right", buttons)
-                      button.left.textContent = ".alias"
-                      button.right.textContent = "Gebe deinem Template einen alternativen Namen"
-                      button.onclick = () => {
-                        Helper.overlay("popup", overlay => {
-                          if (template.alias) overlay.info.textContent = template.alias
-                          const funnel = Helper.create("div/scrollable", overlay)
-                          const aliasField = Helper.create("field/text", funnel)
-                          aliasField.label.textContent = "Alternative Bezeichnung für deine Template"
-                          aliasField.input.setAttribute("required", "true")
-                          if (template.alias !== undefined) {
-                            aliasField.input.value = template.alias
-                          }
-                          Helper.verify("input/value", aliasField.input)
-                          Helper.add("outline-hover", aliasField.input)
-                          aliasField.input.oninput = () => Helper.verify("input/value", aliasField.input)
-                          const submit = Helper.create("button/action", funnel)
-                          Helper.add("outline-hover", submit)
-                          submit.textContent = "Alias jetzt speichern"
-                          submit.onclick = async () => {
-                            await Helper.verify("input/value", aliasField.input)
-                            Helper.overlay("security", async securityOverlay => {
-                              const res = await Helper.request("/register/templates/alias-self/", {id: template.created, alias: aliasField.input.value})
-                              if (res.status === 200) {
-                                window.alert("Alias erfolgreich gespeichert.")
-                                await renderTemplateClosed(selectedNode, container)
-                                overlay.remove()
-                                buttonsOverlay.remove()
-                                securityOverlay.remove()
-                              } else {
-                                window.alert("Fehler.. Bitte wiederholen.")
-                                securityOverlay.remove()
-                              }
-                            })
-                          }
-                        })
-                      }
-                    }
-                    {
-                      const button = Helper.create("toolbox/left-right", buttons)
-                      button.left.textContent = ".remove"
-                      button.right.textContent = "Template entfernen"
-                      button.onclick = () => {
-
-                        const confirm = window.confirm("Möchtest du dein Template wirklich entfernen?")
-                        if (confirm === true) {
-                          Helper.overlay("security", async securityOverlay => {
-                            const res = await Helper.request("/remove/templates/id-self/", {id: template.created})
-                            if (res.status === 200) {
-                              window.alert("Template erfolgreich entfernt.")
-                              templateButton.remove()
-                              buttonsOverlay.remove()
-                              securityOverlay.remove()
-                            } else {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
-                            }
-                          })
-                        }
-                      }
-                    }
-                  })
-                }
-              }
-            }
 
           } else {
             Helper.convert("parent/info", content)
