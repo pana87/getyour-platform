@@ -64,7 +64,28 @@
 
               Helper.add("next-steps", closedButtons)
               Helper.add("contacts", closedButtons)
-              Helper.add("calendar", closedButtons)
+
+
+              {
+                const button = Helper.create("button/left-right", closedButtons)
+                button.left.textContent = ".calendar"
+                button.right.textContent = "Dein persönlicher Kalender"
+                button.onclick = () => {
+                  window.alert("Bald verfügbar..")
+                  // mond calender app
+                  // termin calendar app
+                }
+              }
+
+              {
+                const button = Helper.create("button/left-right", closedButtons)
+                button.left.textContent = ".open-ai"
+                button.right.textContent = "Artificial Intelligence Integrationen zum auswählen"
+                button.onclick = () => {
+                  window.alert("Bald verfügbar..")
+                }
+              }
+
               Helper.add("groups", closedButtons)
 
               Helper.add("button/assign-expert-home", closedButtons)
