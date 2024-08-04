@@ -16,18 +16,6 @@ export class Helper {
 
     }
 
-    if (event === "calendar") {
-
-      const button = this.create("button/left-right", input)
-      button.left.textContent = ".calendar"
-      button.right.textContent = "Dein persönlicher Kalender"
-      button.onclick = () => {
-        window.alert("Bald verfügbar..")
-        // mond calender app
-        // termin calendar app
-      }
-    }
-
     if (event === "cite-checker") {
 
       const cites = document.querySelectorAll(`[class*="cite"]`)
@@ -435,26 +423,23 @@ export class Helper {
                     button.onclick = () => {
                       const numerology = Helper.fn("numerology")
 
+                      const dateField = Helper.create("field/date")
+                      dateField.label.textContent = "Gebe das Geburtsdatum deines Kontakts ein"
+                      dateField.input.placeholder = "yyyy-mm-dd"
+                      Helper.add("outline-hover", dateField.input)
+                      let birthday
+                      if (contact.birthday) {
+                        const split = contact.birthday.split("T")
+                        dateField.input.value = split[0]
+                        birthday = split[0]
+                      }
+                      dateField.input.setAttribute("required", "true")
+                      Helper.verify("input/value", dateField.input)
+
                       Helper.overlay("popup", overlay => {
-                        Helper.create("header/info", overlay).textContent = contact.email
-                        const funnel = Helper.create("div", overlay)
+                        overlay.info.textContent = contact.email
 
-                        const dateField = Helper.create("field/date", funnel)
-                        dateField.label.textContent = "Gebe das Geburtsdatum deines Kontakts ein"
-                        dateField.input.placeholder = "yyyy-mm-dd"
-                        Helper.add("outline-hover", dateField.input)
-                        let birthday
-                        if (contact.birthday) {
-                          const split = contact.birthday.split("T")
-                          dateField.input.value = split[0]
-                          birthday = split[0]
-                        }
-                        dateField.input.setAttribute("required", "true")
-                        Helper.verify("input/value", dateField.input)
-
-                        const submit = Helper.render("text/node/action-button", "Geburtsdatum jetzt speichern", funnel)
-                        Helper.add("outline-hover", submit)
-                        submit.onclick = async () => {
+                        dateField.input.oninput = async () => {
                           await Helper.verify("input/value", dateField.input)
 
                           const date = new Date(dateField.input.value)
@@ -475,8 +460,9 @@ export class Helper {
 
                         }
 
+                        const content = Helper.create("div/scrollable", overlay)
+                        content.style.marginTop = "21px"
                         if (!Helper.verifyIs("text/empty", birthday)) {
-                          const content = Helper.create("div/scrollable", overlay)
 
                           if (contact.alias) {
                             Helper.render("text/hr", `Numerologie von ${contact.alias}`, content)
@@ -514,6 +500,54 @@ export class Helper {
                             numerology.renderIntuitiveLevel(contact.alias, content)
                           }
 
+                          content.appendChild(dateField)
+
+                          function removeFieldsAndButtons() {
+                            dateField.remove()
+                            shareButton.remove()
+                            downloadHtmlButton.remove()
+                          }
+
+                          function addFieldsAndButtons() {
+                            content.appendChild(dateField)
+                            content.appendChild(shareButton)
+                            content.appendChild(downloadHtmlButton)
+                          }
+
+                          const shareButton = Helper.create("toolbox/left-right", content)
+                          shareButton.left.textContent = "navigator.share"
+                          shareButton.right.textContent = "Sende die Numerologie Rechnung an dein Netzwerk"
+                          shareButton.onclick = async () => {
+                            try {
+                              removeFieldsAndButtons()
+                              const blob = new Blob([content.outerHTML], { type: 'text/html' })
+                              const file = new File([blob], `numerologie-von-${contact.email}.html`, { type: 'text/html' })
+                              await navigator.share({
+                                files: [file]
+                              })
+                              console.log("Numerology share successfully")
+                            } catch (err) {
+                              console.error(err)
+                            }
+                            addFieldsAndButtons()
+                          }
+
+                          const downloadHtmlButton = Helper.create("toolbox/left-right", content)
+                          downloadHtmlButton.left.textContent = "download.html"
+                          downloadHtmlButton.right.textContent = "Lade die Numerologie Rechnung als .html Datei herunter"
+                          downloadHtmlButton.onclick = () => {
+                            removeFieldsAndButtons()
+                            Helper.downloadFile(content.outerHTML, `numerologie-von-${contact.email}.html`)
+                            addFieldsAndButtons()
+                          }
+
+                          const toLoginButton = Helper.create("toolbox/left-right", content)
+                          toLoginButton.left.textContent = "numerology.login"
+                          toLoginButton.right.textContent = "Jetzt schnell und einfach anmelden"
+                          toLoginButton.onclick = () => window.open("https://www.get-your.de/entwicklung/numerologie/login/", "_blank")
+
+                        } else {
+                          content.appendChild(dateField)
                         }
 
                       })
@@ -2488,6 +2522,23 @@ export class Helper {
               }
             }
           }
+
+          {
+            const button = this.create("toolbox/left-right", buttons)
+            button.left.textContent = "navigator.share"
+            button.right.textContent = "Sende diese URL an dein Netzwerk"
+            button.onclick = async () => {
+              try {
+                await navigator.share({
+                  url: window.location.href
+                })
+                console.log("URL share successfully");
+              } catch (err) {
+                console.error(err)
+              }
+            }
+          }
+
 
           {
             const button = this.create("toolbox/left-right", buttons)
@@ -6581,8 +6632,10 @@ export class Helper {
       button.style.padding = "21px"
       button.style.zIndex = "1"
       button.style.cursor = "pointer"
-      this.convert("dark-light", button)
-      input?.append(button)
+      // convert dark light reverse
+      // this.convert("light")
+      // this.convert("dark-light", button)
+      input?.appendChild(button)
       return button
     }
 
@@ -6714,7 +6767,9 @@ export class Helper {
 
       const button = this.create("button/bottom-left")
       button.classList.add("back")
-      this.render("icon/node/path", "/public/arrow-back.svg", button)
+      this.render("icon/node/path", "/public/arrow-back.svg", button).then(icon => {
+        this.convert("dark-light", button)
+      })
       button.setAttribute("onclick", "window.goBack()")
       this.add("outline-hover", button)
       input?.appendChild(button)
@@ -6886,6 +6941,7 @@ export class Helper {
     if (event === "button/remove-overlay") {
 
       const button = this.create("button/bottom-left")
+      button.classList.add("back")
       return new Promise(async(resolve, reject) => {
         try {
           const icon = await this.convert("path/icon", "/public/arrow-back.svg")
@@ -8763,6 +8819,156 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "dark-light") {
+
+      if (input.tagName === "DIV") {
+        for (let i = 0; i < input.querySelectorAll("input").length; i++) {
+          const it = input.querySelectorAll("input")[i]
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            it.style.backgroundColor = this.colors.dark.background
+            it.style.color = this.colors.dark.text
+          } else {
+            it.style.backgroundColor = this.colors.light.background
+            it.style.color = this.colors.light.text
+          }
+        }
+      }
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        input.style.color = this.colors.dark.text
+        input.style.background = this.colors.dark.foreground
+      } else {
+        input.style.color = this.colors.light.text
+        input.style.background = this.colors.light.foreground
+
+      }
+
+      if (input.classList.contains("button")) {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          input.style.boxShadow = this.colors.dark.boxShadow
+          input.style.border = this.colors.dark.border
+        } else {
+          input.style.boxShadow = this.colors.light.boxShadow
+          input.style.border = this.colors.light.border
+        }
+      }
+
+      if (input.tagName === "BODY") {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          input.style.backgroundColor = this.colors.dark.background
+          input.style.color = this.colors.dark.text
+        } else {
+          input.style.color = this.colors.light.text
+          input.style.backgroundColor = this.colors.light.background
+        }
+      }
+
+
+      if (input.classList.contains("field")) {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          input.style.backgroundColor = this.colors.dark.foreground
+          input.style.border = this.colors.dark.border
+          input.style.boxShadow = this.colors.dark.boxShadow
+          input.style.color = this.colors.dark.text
+          input.querySelector(".field-label").style.color = this.colors.dark.text
+          // input.querySelector("input").style.backgroundColor = this.colors.dark.background
+          // input.querySelector("input").style.color = this.colors.dark.text
+          for (let i = 0; i < input.querySelectorAll("*").length; i++) {
+            const child = input.querySelectorAll("*")[i]
+            if (child.tagName === "A") {
+              child.style.color = this.colors.link.active
+            }
+            if (child.hasAttribute("fill")) {
+              child.setAttribute("fill", this.colors.dark.text)
+            }
+          }
+        } else {
+          input.style.backgroundColor = this.colors.light.foreground
+          input.style.border = this.colors.light.border
+          input.style.boxShadow = this.colors.light.boxShadow
+          input.style.color = this.colors.light.text
+          input.querySelector(".field-label").style.color = this.colors.light.text
+          // input.querySelector("input").style.backgroundColor = this.colors.light.background
+          // input.querySelector("input").style.color = this.colors.light.text
+          for (let i = 0; i < input.querySelectorAll("*").length; i++) {
+            const child = input.querySelectorAll("*")[i]
+            if (child.tagName === "A") {
+              child.style.color = this.colors.link.color
+            }
+            if (child.hasAttribute("fill")) {
+              child.setAttribute("fill", this.colors.light.text)
+            }
+          }
+        }
+      }
+
+      if (input.classList.contains("html-feedback-button")) {
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          input.style.boxShadow = this.colors.dark.boxShadow
+          input.style.border = this.colors.dark.border
+          input.style.backgroundColor = this.colors.dark.foreground
+        } else {
+          input.style.boxShadow = this.colors.light.boxShadow
+          input.style.border = this.colors.light.border
+          input.style.backgroundColor = this.colors.light.foreground
+        }
+        for (let i = 0; i < input.querySelectorAll("*").length; i++) {
+          const child = input.querySelectorAll("*")[i]
+          if (child.hasAttribute("fill")) {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              if (child.getAttribute("fill") === this.colors.light.text) {
+                child.setAttribute("fill", this.colors.dark.text)
+              }
+              if (child.getAttribute("fill") === this.colors.light.background) {
+                child.setAttribute("fill", this.colors.dark.background)
+              }
+              continue
+            } else {
+              if (child.getAttribute("fill") === this.colors.dark.text) {
+                child.setAttribute("fill", this.colors.light.text)
+              }
+              if (child.getAttribute("fill") === this.colors.dark.background) {
+                child.setAttribute("fill", this.colors.light.background)
+              }
+              continue
+            }
+          }
+          if (child.classList.contains("feedback-counter")) {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              child.style.color = this.colors.dark.text
+              child.style.background = this.colors.dark.foreground
+            } else {
+              child.style.color = this.colors.light.text
+              child.style.background = this.colors.light.foreground
+            }
+          }
+        }
+      }
+
+      if (input.classList.contains("back") && input.classList.contains("button")) {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          input.style.boxShadow = this.colors.light.boxShadow
+          input.style.border = this.colors.light.border
+          input.style.backgroundColor = this.colors.light.foreground
+        } else {
+          input.style.boxShadow = this.colors.dark.boxShadow
+          input.style.border = this.colors.dark.border
+          input.style.backgroundColor = this.colors.dark.foreground
+        }
+        input.querySelectorAll("*").forEach((child, i) => {
+          if (child.hasAttribute("stroke")) {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              child.setAttribute("stroke", `${this.colors.light.text}`)
+            } else {
+              child.setAttribute("stroke", `${this.colors.dark.text}`)
+            }
+          }
+        })
+      }
+
+    }
+
     if (event === "rgb/luminance") {
       const rgb = input.match(/\d+/g).map(Number)
       const luminance = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255
@@ -9253,6 +9459,10 @@ await Helper.add("event/click-funnel")
 
       }
 
+    }
+
+    if (event === "html/blob") {
+      return new Blob([input], { type: 'text/html' })
     }
 
     if (event === "key/div") {
@@ -10969,156 +11179,6 @@ await Helper.add("event/click-funnel")
 
       input.before(create)
       input.remove()
-    }
-
-    if (event === "dark-light") {
-
-      if (input.tagName === "DIV") {
-        for (let i = 0; i < input.querySelectorAll("input").length; i++) {
-          const it = input.querySelectorAll("input")[i]
-          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            it.style.backgroundColor = this.colors.dark.background
-            it.style.color = this.colors.dark.text
-          } else {
-            it.style.backgroundColor = this.colors.light.background
-            it.style.color = this.colors.light.text
-          }
-        }
-      }
-
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        input.style.color = this.colors.dark.text
-        input.style.background = this.colors.dark.foreground
-      } else {
-        input.style.color = this.colors.light.text
-        input.style.background = this.colors.light.foreground
-
-      }
-
-      if (input.classList.contains("button")) {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          input.style.boxShadow = this.colors.dark.boxShadow
-          input.style.border = this.colors.dark.border
-        } else {
-          input.style.boxShadow = this.colors.light.boxShadow
-          input.style.border = this.colors.light.border
-        }
-      }
-
-      if (input.tagName === "BODY") {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          input.style.backgroundColor = this.colors.dark.background
-          input.style.color = this.colors.dark.text
-        } else {
-          input.style.color = this.colors.light.text
-          input.style.backgroundColor = this.colors.light.background
-        }
-      }
-
-
-      if (input.classList.contains("field")) {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          input.style.backgroundColor = this.colors.dark.foreground
-          input.style.border = this.colors.dark.border
-          input.style.boxShadow = this.colors.dark.boxShadow
-          input.style.color = this.colors.dark.text
-          input.querySelector(".field-label").style.color = this.colors.dark.text
-          // input.querySelector("input").style.backgroundColor = this.colors.dark.background
-          // input.querySelector("input").style.color = this.colors.dark.text
-          for (let i = 0; i < input.querySelectorAll("*").length; i++) {
-            const child = input.querySelectorAll("*")[i]
-            if (child.tagName === "A") {
-              child.style.color = this.colors.link.active
-            }
-            if (child.hasAttribute("fill")) {
-              child.setAttribute("fill", this.colors.dark.text)
-            }
-          }
-        } else {
-          input.style.backgroundColor = this.colors.light.foreground
-          input.style.border = this.colors.light.border
-          input.style.boxShadow = this.colors.light.boxShadow
-          input.style.color = this.colors.light.text
-          input.querySelector(".field-label").style.color = this.colors.light.text
-          // input.querySelector("input").style.backgroundColor = this.colors.light.background
-          // input.querySelector("input").style.color = this.colors.light.text
-          for (let i = 0; i < input.querySelectorAll("*").length; i++) {
-            const child = input.querySelectorAll("*")[i]
-            if (child.tagName === "A") {
-              child.style.color = this.colors.link.color
-            }
-            if (child.hasAttribute("fill")) {
-              child.setAttribute("fill", this.colors.light.text)
-            }
-          }
-        }
-      }
-
-      if (input.classList.contains("html-feedback-button")) {
-
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          input.style.boxShadow = this.colors.dark.boxShadow
-          input.style.border = this.colors.dark.border
-          input.style.backgroundColor = this.colors.dark.foreground
-        } else {
-          input.style.boxShadow = this.colors.light.boxShadow
-          input.style.border = this.colors.light.border
-          input.style.backgroundColor = this.colors.light.foreground
-        }
-        for (let i = 0; i < input.querySelectorAll("*").length; i++) {
-          const child = input.querySelectorAll("*")[i]
-          if (child.hasAttribute("fill")) {
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              if (child.getAttribute("fill") === this.colors.light.text) {
-                child.setAttribute("fill", this.colors.dark.text)
-              }
-              if (child.getAttribute("fill") === this.colors.light.background) {
-                child.setAttribute("fill", this.colors.dark.background)
-              }
-              continue
-            } else {
-              if (child.getAttribute("fill") === this.colors.dark.text) {
-                child.setAttribute("fill", this.colors.light.text)
-              }
-              if (child.getAttribute("fill") === this.colors.dark.background) {
-                child.setAttribute("fill", this.colors.light.background)
-              }
-              continue
-            }
-          }
-          if (child.classList.contains("feedback-counter")) {
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              child.style.color = this.colors.dark.text
-              child.style.background = this.colors.dark.foreground
-            } else {
-              child.style.color = this.colors.light.text
-              child.style.background = this.colors.light.foreground
-            }
-          }
-        }
-      }
-
-      if (input.classList.contains("back-button")) {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          input.style.boxShadow = this.colors.dark.boxShadow
-          input.style.border = this.colors.dark.border
-          input.style.backgroundColor = this.colors.dark.foreground
-        } else {
-          input.style.boxShadow = this.colors.light.boxShadow
-          input.style.border = this.colors.light.border
-          input.style.backgroundColor = this.colors.light.foreground
-        }
-        input.querySelectorAll("*").forEach((child, i) => {
-          if (child.hasAttribute("stroke")) {
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              child.setAttribute("stroke", `${this.colors.dark.text}`)
-            } else {
-              child.setAttribute("stroke", `${this.colors.light.text}`)
-            }
-          }
-        })
-      }
-
     }
 
     if (event === "svg/dark-light") {
@@ -13268,7 +13328,7 @@ await Helper.add("event/click-funnel")
         const titleNode = Helper.create("box", node)
         titleNode.textContent = `${title}:`
         const tag = title.toLowerCase().replaceAll(" ", "-").replaceAll("ü", "ue").replaceAll("ö", "oe").replaceAll("ä", "ae").replaceAll("1.", "ersten").replaceAll("2.", "zweiten").replaceAll("3.", "dritten").replaceAll("4.", "vierten")
-        titleNode.onclick = () => window.open(`/entwicklung/numerologie/${tag}/`, "_blank")
+        titleNode.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/${tag}/", "_blank")`)
         return titleNode
       }
 
@@ -13355,11 +13415,6 @@ await Helper.add("event/click-funnel")
         return result
       }
 
-      function openBirthdayEnergy(energy) {
-        const url = `/entwicklung/numerologie/geburtstagsenergie-${numbersAsText[energy - 1]}/`
-        window.open(url, "_blank")
-      }
-
       function createPrevailingEnergies(data, node) {
         const fragment = document.createDocumentFragment()
         const keys = Object.keys(data)
@@ -13369,7 +13424,7 @@ await Helper.add("event/click-funnel")
           if (data[key] >= 2) {
             const div = Helper.create("box")
             div.style.display = "inline-block"
-            div.onclick = () => openPrevailingEnergy(key)
+            div.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/vorherrschende-energie-${numbersAsText[key - 1]}/", "_blank")`)
             fragment.appendChild(div)
             const span1 = document.createElement("span")
             span1.textContent = `${data[key]}x`
@@ -13383,11 +13438,6 @@ await Helper.add("event/click-funnel")
         }
         node.appendChild(fragment)
         return node
-      }
-
-      function openPrevailingEnergy(energy) {
-        const url = `/entwicklung/numerologie/vorherrschende-energie-${numbersAsText[energy - 1]}/`
-        window.open(url, "_blank")
       }
 
       function countOccurrences(array) {
@@ -13429,11 +13479,6 @@ await Helper.add("event/click-funnel")
         return dateNumbers
       }
 
-      function openRecedingEnergy(energy) {
-        const url = `/entwicklung/numerologie/zuruecktretende-energie-${numbersAsText[energy - 1]}/`
-        window.open(url, "_blank")
-      }
-
       function createRecedingEnergy(array, node) {
         const fragment = document.createDocumentFragment()
         for (let i = 0; i < array.length; i++) {
@@ -13443,7 +13488,7 @@ await Helper.add("event/click-funnel")
           div.style.fontSize = "34px"
           Helper.convert("text/dark-light", div)
           Helper.add("outline-hover", div)
-          div.onclick = () => openRecedingEnergy(number)
+          div.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/zuruecktretende-energie-${numbersAsText[number - 1]}/")`)
           fragment.appendChild(div)
         }
         node.appendChild(fragment)
@@ -13465,7 +13510,7 @@ await Helper.add("event/click-funnel")
           if (data[key] >= 1) {
             const div = Helper.create("box")
             div.style.display = "inline-block"
-            div.onclick = () => openTones(key, data[key])
+            div.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/tonarten-${occurencies[data[key] - 1]}-${numbersAsText[key - 1]}/")`)
             fragment.appendChild(div)
             const span1 = document.createElement("span")
             span1.textContent = `${data[key]}x`
@@ -13481,16 +13526,6 @@ await Helper.add("event/click-funnel")
         return node
       }
 
-      function openTone(tone) {
-        const url = `/entwicklung/numerologie/grundton-${numbersAsText[tone - 1]}/`
-        window.open(url, "_blank")
-      }
-
-      function openBirthNameEnergy(energy) {
-        const url = `/entwicklung/numerologie/geburtsname-${numbersAsText[energy - 1]}/`
-        window.open(url, "_blank")
-      }
-
       function renderBirthNameEnergy(array, node) {
         const fragment = document.createDocumentFragment()
         for (let i = 0; i < array.length; i++) {
@@ -13498,16 +13533,11 @@ await Helper.add("event/click-funnel")
           const div = Helper.create("box")
           div.textContent = `${number}${i === array.length - 1 ? "" : ","}`
           div.style.fontSize = "34px"
-          div.onclick = () => openBirthNameEnergy(number)
+          div.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/geburtsname-${numbersAsText[number - 1]}/", "_blank")`)
           fragment.appendChild(div)
         }
         node.appendChild(fragment)
         return node
-      }
-
-      function openDetermination(energy) {
-        const url = `/entwicklung/numerologie/bestimmung-${numbersAsText[energy - 1]}/`
-        window.open(url, "_blank")
       }
 
       function reduceStringToSingleDigit(str) {
@@ -13553,16 +13583,6 @@ await Helper.add("event/click-funnel")
         return sum
       }
 
-      function openHeartsDesire(energy) {
-        const url = `/entwicklung/numerologie/herzenswunsch-${numbersAsText[energy - 1]}/`
-        window.open(url, "_blank")
-      }
-
-      function openPersona(energy) {
-        const url = `/entwicklung/numerologie/persona-${numbersAsText[energy - 1]}/`
-        window.open(url, "_blank")
-      }
-
       function findDoubleLetters(str) {
         const result = []
         for (let i = 1; i < str.length; i++) {
@@ -13581,7 +13601,7 @@ await Helper.add("event/click-funnel")
       }
 
       function renderDoubleLettersValue(number, array) {
-        const div = document.createElement("div")
+        const div = Helper.create("box")
         div.classList.add("double-letters-value")
         div.textContent = `${number}${i === array.length - 1 ? "" : ","}`
         div.style.display = "inline-block"
@@ -13589,7 +13609,7 @@ await Helper.add("event/click-funnel")
         div.style.fontSize = "34px"
         Helper.convert("text/dark-light", div)
         Helper.add("outline-hover", div)
-        div.onclick = () => openDoubleLetters(number)
+        div.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/doppelte-buchstaben-${numbersAsText[number - 1]}/", "_blank")`)
         return div
       }
 
@@ -13641,26 +13661,6 @@ await Helper.add("event/click-funnel")
         return count
       }
 
-      function openPhysicalLevel(energy) {
-        const url = `/entwicklung/numerologie/koerperliche-ebene-${numbersAsText[energy - 1]}/`
-        window.open(url, "_blank")
-      }
-
-      function openEmotionalLevel(energy) {
-        const url = `/entwicklung/numerologie/emotionale-ebene-${numbersAsText[energy - 1]}/`
-        window.open(url, "_blank")
-      }
-
-      function openMentalLevel(energy) {
-        const url = `/entwicklung/numerologie/mental-ebene-${numbersAsText[energy - 1]}/`
-        window.open(url, "_blank")
-      }
-
-      function openIntuitiveLevel(energy) {
-        const url = `/entwicklung/numerologie/intuitive-ebene-${numbersAsText[energy - 1]}/`
-        window.open(url, "_blank")
-      }
-
       it.renderAge = (date, node) => {
         const age = calculateAge(date)
         const ageDiv = renderDiv(node)
@@ -13681,7 +13681,7 @@ await Helper.add("event/click-funnel")
         const lifePathNumber = dateToLifePath(date)
         const lifePathResult = renderHighlightedSpan(lifePathNumber, lifePathDiv)
         Helper.add("outline-hover", lifePathResult)
-        lifePathResult.onclick = () => openLifePath(lifePathResult.textContent)
+        lifePathResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/geburtsenergie-${numbersAsText[lifePathResult.textContent - 1]}/", "_blank")`)
       }
 
       it.renderMaster = (date, node) => {
@@ -13691,10 +13691,16 @@ await Helper.add("event/click-funnel")
           renderTitle("Masterenergie", masterDiv)
           const masterResult = renderHighlightedSpan(master, masterDiv)
           Helper.add("outline-hover", masterResult)
-          masterResult.onclick = () => {
-            if (master === 11) window.open("/entwicklung/numerologie/masterenergie-elf/", "_blank")
-            if (master === 22) window.open("/entwicklung/numerologie/masterenergie-zwei-und-zwanzig/", "_blank")
-            if (master === 33) window.open("/entwicklung/numerologie/masterenergie-drei-und-dreisig/", "_blank")
+          if (master === 11) {
+            masterResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/masterenergie-elf/", "_blank")`)
+          }
+
+          if (master === 22) {
+            masterResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/masterenergie-zwei-und-zwanzig/", "_blank")`)
+          }
+
+          if (master === 33) {
+            masterResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/masterenergie-drei-und-dreisig/", "_blank")`)
           }
         }
       }
@@ -13706,7 +13712,7 @@ await Helper.add("event/click-funnel")
         renderTitle("Geburtstagsenergie", birthdayEnergyDiv)
         const birthdayEnergyResult = renderHighlightedSpan(birthdayEnergyNumber, birthdayEnergyDiv)
         Helper.add("outline-hover", birthdayEnergyResult)
-        birthdayEnergyResult.onclick = () => openBirthdayEnergy(birthdayEnergyNumber)
+        birthdayEnergyResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/geburtstagsenergie-${numbersAsText[birthdayEnergyNumber - 1]}/", "_blank")`)
       }
 
       it.renderPrevailingEnergies = (date, node) => {
@@ -13745,7 +13751,7 @@ await Helper.add("event/click-funnel")
         const firstCycle = 36 - lifePathNumber
         const firstCycleResult = renderHighlightedSpan(`0 - ${firstCycle}`, firstCycleDiv)
         Helper.add("outline-hover", firstCycleResult)
-        firstCycleResult.onclick = () => window.open("/entwicklung/numerologie/erster-zyklus/", "_blank")
+        firstCycleResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/erster-zyklus/", "_blank")`)
       }
 
       it.renderFirstKeyTone = (date, node) => {
@@ -13759,7 +13765,7 @@ await Helper.add("event/click-funnel")
         renderTitle("Grundton zum 1. Zyklus", firstKeyToneDiv)
         const firstKeyToneResult = renderHighlightedSpan(firstKeyTone, firstKeyToneDiv)
         Helper.add("outline-hover", firstKeyToneResult)
-        firstKeyToneResult.onclick = () => openTone(firstKeyTone)
+        firstKeyToneResult.setAttribute("onclick", `https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[firstKeyTone - 1]}/`)
       }
 
       it.renderSecondCycle = (date, node) => {
@@ -13770,7 +13776,7 @@ await Helper.add("event/click-funnel")
         renderTitle("Dauer des 2. Zyklus", secondCycleDiv)
         const secondCycleResult = renderHighlightedSpan(`${firstCycle + 1} - ${secondCycle}`, secondCycleDiv)
         Helper.add("outline-hover", secondCycleResult)
-        secondCycleResult.onclick = () => window.open("/entwicklung/numerologie/zweiter-zyklus/", "_blank")
+        secondCycleResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/zweiter-zyklus/", "_blank")`)
       }
 
       it.renderSecondKeyTone = (date, node) => {
@@ -13786,7 +13792,7 @@ await Helper.add("event/click-funnel")
         renderTitle("Grundton zum 2. Zyklus", secondKeyToneDiv)
         const secondKeyToneResult = renderHighlightedSpan(secondKeyTone, secondKeyToneDiv)
         Helper.add("outline-hover", secondKeyToneResult)
-        secondKeyToneResult.onclick = () => openTone(secondKeyTone)
+        secondKeyToneResult.setAttribute("onclick", `https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[secondKeyTone - 1]}/`)
       }
 
       it.renderThirdCycle = (date, node) => {
@@ -13798,7 +13804,7 @@ await Helper.add("event/click-funnel")
         renderTitle("Dauer des 3. Zyklus", thirdCycleDiv)
         const thirdCycleResult = renderHighlightedSpan(`${secondCycle + 1} - ${thirdCycle}`, thirdCycleDiv)
         Helper.add("outline-hover", thirdCycleResult)
-        thirdCycleResult.onclick = () => window.open("/entwicklung/numerologie/dritter-zyklus/", "_blank")
+        thirdCycleResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/dritter-zyklus/", "_blank")`)
       }
 
       it.renderThirdKeyTone = (date, node) => {
@@ -13819,7 +13825,7 @@ await Helper.add("event/click-funnel")
         renderTitle("Grundton zum 3. Zyklus", thirdKeyToneDiv)
         const thirdKeyToneResult = renderHighlightedSpan(thirdKeyTone, thirdKeyToneDiv)
         Helper.add("outline-hover", thirdKeyToneResult)
-        thirdKeyToneResult.onclick = () => openTone(thirdKeyTone)
+        thirdKeyToneResult.setAttribute("onclick", `https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[thirdKeyTone - 1]}/`)
       }
 
       it.renderFourthCycle = (date, node) => {
@@ -13832,7 +13838,7 @@ await Helper.add("event/click-funnel")
         renderTitle("Dauer des 4. Zyklus", fourthCycleDiv)
         const fourthCycleResult = renderHighlightedSpan(`${thirdCycle + 1} - ${fourthCycle}`, fourthCycleDiv)
         Helper.add("outline-hover", fourthCycleResult)
-        fourthCycleResult.onclick = () => window.open("/entwicklung/numerologie/vierter-zyklus/", "_blank")
+        fourthCycleResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/vierter-zyklus/", "_blank")`)
       }
 
       it.renderFourthKeyTone = (date, node) => {
@@ -13848,7 +13854,7 @@ await Helper.add("event/click-funnel")
         renderTitle("Grundton zum 4. Zyklus", fourthKeyToneDiv)
         const fourthKeyToneResult = renderHighlightedSpan(fourthKeyTone, fourthKeyToneDiv)
         Helper.add("outline-hover", fourthKeyToneResult)
-        fourthKeyToneResult.onclick = () => openTone(fourthKeyTone)
+        fourthKeyToneResult.setAttribute("onclick", `https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[fourthKeyTone - 1]}/`)
       }
 
       function getBirthNameNumbers(string) {
@@ -13882,7 +13888,7 @@ await Helper.add("event/click-funnel")
         const determinationResult = renderHighlightedSpan(determinationNumber, determinationDiv)
         determinationResult.classList.add("determination")
         Helper.add("outline-hover", determinationResult)
-        determinationResult.onclick = () => openDetermination(determinationNumber)
+        determinationResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/bestimmung-${numbersAsText[determinationNumber - 1]}/", "_blank")`)
       }
 
       it.renderHeartsDesire = (string, node) => {
@@ -13893,7 +13899,7 @@ await Helper.add("event/click-funnel")
         const heartsDesireResult = renderHighlightedSpan(heartsDesire, heartsDesireDiv)
         heartsDesireResult.classList.add("heart-desire")
         Helper.add("outline-hover", heartsDesireResult)
-        heartsDesireResult.onclick = () => openHeartsDesire(heartsDesire)
+        heartsDesireResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/herzenswunsch-${numbersAsText[heartsDesire - 1]}/", "_blank")`)
       }
 
       it.renderPersona = (string, node) => {
@@ -13904,7 +13910,7 @@ await Helper.add("event/click-funnel")
         const personaResult = renderHighlightedSpan(persona, personaDiv)
         personaResult.classList.add("persona")
         Helper.add("outline-hover", personaResult)
-        personaResult.onclick = () => openPersona(persona)
+        personaResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/persona-${numbersAsText[persona - 1]}/", "_blank")`)
       }
 
       it.renderDoubleLetterEnergies = (string, node) => {
@@ -13934,7 +13940,7 @@ await Helper.add("event/click-funnel")
         const physicalLevelResult = renderHighlightedSpan(physicalLevel, physicalLevelDiv)
         physicalLevelResult.classList.add("physical-level")
         Helper.add("outline-hover", physicalLevelResult)
-        physicalLevelResult.onclick = () => openPhysicalLevel(physicalLevel)
+        physicalLevelResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/koerperliche-ebene-${numbersAsText[physicalLevel - 1]}/", "_blank")`)
       }
 
       it.renderEmotionalLevel = (string, node) => {
@@ -13945,7 +13951,7 @@ await Helper.add("event/click-funnel")
         const emotionalLevelResult = renderHighlightedSpan(emotionalLevel, emotionalLevelDiv)
         emotionalLevelResult.classList.add("emotional-level")
         Helper.add("outline-hover", emotionalLevelResult)
-        emotionalLevelResult.onclick = () => openEmotionalLevel(emotionalLevel)
+        emotionalLevelResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/emotionale-ebene-${numbersAsText[emotionalLevel - 1]}/", "_blank")`)
       }
 
       it.renderMentalLevel = (string, node) => {
@@ -13956,7 +13962,7 @@ await Helper.add("event/click-funnel")
         const mentalLevelResult = renderHighlightedSpan(mentalLevel, mentalLevelDiv)
         mentalLevelResult.classList.add("mental-level")
         Helper.add("outline-hover", mentalLevelResult)
-        mentalLevelResult.onclick = () => openMentalLevel(mentalLevel)
+        mentalLevelResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/mental-ebene-${numbersAsText[mentalLevel - 1]}/", "_blank")`)
       }
 
       it.renderIntuitiveLevel = (string, node) => {
@@ -13967,7 +13973,7 @@ await Helper.add("event/click-funnel")
         const intuitiveLevelResult = renderHighlightedSpan(intuitiveLevel, intuitiveLevelDiv)
         intuitiveLevelResult.classList.add("intuitive-level")
         Helper.add("outline-hover", intuitiveLevelResult)
-        intuitiveLevelResult.onclick = () => openIntuitiveLevel(intuitiveLevel)
+        intuitiveLevelResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/intuitive-ebene-${numbersAsText[intuitiveLevel - 1]}/", "_blank")`)
       }
 
       it.renderBirthNameFunctions = (birthname, node) => {
