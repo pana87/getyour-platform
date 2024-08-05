@@ -24,7 +24,6 @@ export class Helper {
         cite.onclick = () => {
           const originalTextContent = cite.textContent
 
-
           function createIntegrations(text) {
             const webSearchEngines = [
               { name: 'Google', url: `https://www.google.com/search?q=${text}` },
@@ -95,6 +94,35 @@ export class Helper {
                 overlay.info.textContent = text
                 const content = Helper.create("div/scrollable", overlay)
                 const integrations = createIntegrations(text)
+                console.log(text);
+                const windowOpenButton = Helper.create("toolbox/left-right", content)
+                windowOpenButton.left.textContent = "window.open"
+                windowOpenButton.right.textContent = "Öffne den Inhalt in einem neuen Tab"
+                windowOpenButton.onclick = () => {
+                  if (text.startsWith("www.")) {
+                    window.open(`https://${text}`, "_blank")
+                    return
+                  }
+
+                  if (text.startsWith("https://")) {
+                    window.open(text, "_blank")
+                    return
+                  }
+                  window.open(`https://www.${text}`, "_blank")
+                }
+                const copyToClipboardButton = Helper.create("toolbox/left-right", content)
+                copyToClipboardButton.left.textContent = ".copy-to-clipboard"
+                copyToClipboardButton.right.textContent = "Inhalt in die Zwischenablage speichern"
+                copyToClipboardButton.onclick = async () => {
+                  console.log(text);
+                  try {
+                    await navigator.clipboard.writeText(text)
+                    window.alert("Inhalt wurde erfolgreich in die Zwischenablage gespeichert.")
+                  } catch (error) {
+                    console.error(error)
+                    window.alert("Fehler.. Bitte wiederholen.")
+                  }
+                }
                 for (let i = 0; i < integrations.length; i++) {
                   const integration = integrations[i]
                   const button = Helper.create("toolbox/left-right", content)
@@ -111,30 +139,16 @@ export class Helper {
 
           if (cite.classList.contains("full-cite")) {
 
-            const parts = originalTextContent.split(', "')
-            const authors = parts[0].split(', ').map(name => name.trim())
-            const titlePublisherYear = parts[1].split('", ')
-            const title = titlePublisherYear[0].trim()
-            const publisherAndMeta = titlePublisherYear[1].split(', ')
-            const publisher = publisherAndMeta[0].trim()
-            const meta = publisherAndMeta.slice(1)
+            const parts = originalTextContent.split(', ')
             this.overlay("popup", overlay => {
               overlay.info.textContent = ".cite-checker"
               const content = this.create("div/scrollable", overlay)
               this.render("text/h2", "Inhalt wählen", content)
-              createIntegrationButton(title, content)
-              createIntegrationButton(`${title} + Inhaltsverzeichnis + table of contents`, content)
-              createIntegrationButton(`${title}, ${meta.join(", ")}`, content)
-              for (let i = 0; i < authors.length; i++) {
-                const author = authors[i]
-                if (author === "et al.") continue
-                createIntegrationButton(author, content)
+              createIntegrationButton(parts.join(", "), content)
+              for (let i = 0; i < parts.length; i++) {
+                const part = parts[i]
+                createIntegrationButton(part, content)
               }
-              if (authors.length > 1) createIntegrationButton(authors.join(", "), content)
-              createIntegrationButton(`${authors.join(", ")}, ${title}`, content)
-              createIntegrationButton(publisher, content)
-              createIntegrationButton(publisherAndMeta.join(", "), content)
-              createIntegrationButton(`${title},  ${publisherAndMeta.join(", ")}`, content)
             })
           }
 
