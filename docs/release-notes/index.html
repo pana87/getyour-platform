@@ -20,9 +20,10 @@
 
   <h1>Release Notes</h1>
 
-  <h2>Plattform Version 26.07.2024</h2>
+  <h2>Plattform Version <span id="version">26.07.2024</span></h2>
   <p><strong>Neue Funktionen:</strong></p>
   <ul>
+    <li>Meine Bilder sind ab jetzt in der Toolbox verfügbar</li>
     <li>IPFS Node für Experten ab jetzt verfügbar</li>
     <li>Zitat Prüfer ist ab jetzt in der Toolbox verfügbar</li>
     <li>Bulk Funktionen sind jetzt für Werteinheiten verfügbar</li>
@@ -91,6 +92,8 @@
     import {Helper} from "/js/Helper.js"
     const back = Helper.create("back-button", document.body)
     Helper.convert("dark-light", back)
+    const version = document.querySelector("span#version")
+    version.textContent = Helper.convert("millis/dd.mm.yyyy", Date.now())
   </script>
 
 </body>
