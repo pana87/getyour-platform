@@ -145,7 +145,8 @@
       Helper.request("/get/user/trees-open/", {trees: ["getyour.expert.name"]}).then(res => {
         if (res.status === 200) {
           const experts = JSON.parse(res.response)
-          Helper.convert("parent/scrollable", buttons)
+          Helper.convert("style/scrollable", buttons)
+          buttons.textContent = ""
           for (let i = 0; i < experts.length; i++) {
             const expert = experts[i]
             const name = expert["getyour.expert.name"]
