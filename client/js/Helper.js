@@ -10695,7 +10695,7 @@ await Helper.add("event/click-funnel")
 
     if (event === "parent/flex-row") {
 
-      input.style.flexDirection = null
+      this.convert("element/reset", input)
       input.style.display = "flex"
       input.style.flexWrap = "wrap"
       return input
@@ -10735,7 +10735,7 @@ await Helper.add("event/click-funnel")
 
     }
 
-    if (event === "parent/scrollableY") {
+    if (event === "parent/scrollable") {
       this.convert("element/reset", input)
       input.style.overflowY = "auto"
       input.style.overscrollBehavior = "none"
@@ -19380,13 +19380,16 @@ await Helper.add("event/click-funnel")
           pathProtectedIcon.children[0].style.fill = this.colors.light.text
           const pathOpenIcon = await this.convert("path/icon", "/public/eye-open.svg")
           const pathClosedIcon = await this.convert("path/icon", "/public/eye-crossed.svg")
-          this.convert("parent/scrollable", parent)
+          this.convert("parent/flex-row", parent)
+          parent.style.overflow = "auto"
+          parent.style.justifyContent = "space-around"
           const fragment = document.createDocumentFragment()
           for (let i = 0; i < input.length; i++) {
             const value = input[i]
             const item = document.createElement("div")
             item.classList.add("checklist-item")
-            item.style.margin = "34px"
+            item.style.padding = "8px"
+            item.style.width = "377px"
             const itemHeader = document.createElement("div")
             itemHeader.classList.add("item-header")
             this.add("outline-hover", itemHeader)
@@ -20052,9 +20055,8 @@ await Helper.add("event/click-funnel")
               button.onclick = () => {
                 this.overlay("popup", async overlay => {
                   overlay.info.textContent = `${platform.name}.values`
-                  const searchField = this.create("field/text", overlay)
-                  searchField.label.textContent = "Suche nach Alias"
-                  searchField.input.placeholder = "Meine Werteinheiten"
+                  const searchField = this.create("input/text", overlay)
+                  searchField.input.placeholder = "Suche nach Alias.."
                   this.verify("input/value", searchField.input)
                   const units = this.create("info/loading", overlay)
                   const res = await this.request("/get/platform/values-self/", {platform: platform.name})
