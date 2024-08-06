@@ -132,11 +132,12 @@
               button.right.textContent = "Experten Image ändern"
               button.left.textContent = ".expert.image"
               button.addEventListener("click", () => {
+
                 Helper.overlay("popup", async overlay => {
-                  overlay.info.textContent = `expert.image`
+                  overlay.info.textContent = `getyour.expert.image`
                   const funnel = Helper.create("div/scrollable", overlay)
                   const imageField = Helper.create("input/text", funnel)
-                  const res = await Helper.request("/get/user/tree-closed/", {tree: "getyour.expert.image"})
+                  const res = await Helper.request("/get/user/tree-closed/", {tree: `getyour.expert.image`})
                   if (res.status === 200) {
                     imageField.input.value = res.response
                   }
@@ -150,7 +151,7 @@
                   button.addEventListener("click", async () => {
                     await Helper.verify("input/value", imageField.input)
                     Helper.overlay("security", async securityOverlay => {
-                      const res = await Helper.request("/register/expert/image-self/", {image: imageField.input.value})
+                      const res = await Helper.request(`/register/expert/image-self/`, {image: imageField.input.value})
                       if (res.status === 200) {
                         window.alert("Image erfolgreich gespeichert.")
                         securityOverlay.remove()
@@ -164,17 +165,17 @@
                   })
 
                   const fileField = Helper.create("input/file", funnel)
-                  fileField.input.setAttribute("accept", "image/jpeg")
+                  fileField.input.setAttribute("accept", "image/*")
                   Helper.add("style/node/not-valid", fileField.input)
                   fileField.input.onclick = () => {
                     window.alert(`Achtung! Wenn du eine Datei hochlädst, werden deine Daten auf unserem IPFS-Node gespeichert und durch einen öffentlichen Link verfügbar gemacht. Auf diesen Link haben dann alle Zugriff. Bitte überlege dir genau, ob du deine Datei veröffentlichen möchtest.`)
                   }
                   fileField.input.oninput = async (ev) => {
                     const file = ev.target.files[0]
-                    if (file && file.type === "image/jpeg") {
+                    if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
                       const formdata = new FormData()
                       formdata.append("file", file, file.name)
-                      if (file.type === "image/jpeg") {
+                      if (file.type === "image/jpeg" || file.type === "image/png") {
                         Helper.add("style/node/valid", fileField.input)
                         fetch('/upload/ipfs/file/', {
                           method: 'POST',
@@ -183,7 +184,7 @@
                         .then(response => response.text())
                         .then(data => {
                           imageField.input.value = data
-                          console.log('Successfully uploaded:', data);
+                          console.log('Successfully uploaded:', data)
                         })
                         .catch(error => {
                           Helper.render("style/node/not-valid", imageField.input)
@@ -193,6 +194,10 @@
                     }
                   }
                 })
+
+
+
+
               })
             }
             {

@@ -10735,7 +10735,7 @@ await Helper.add("event/click-funnel")
 
     }
 
-    if (event === "parent/scrollable") {
+    if (event === "parent/scrollableY") {
       this.convert("element/reset", input)
       input.style.overflowY = "auto"
       input.style.overscrollBehavior = "none"
@@ -10860,6 +10860,14 @@ await Helper.add("event/click-funnel")
       } else {
         input.style.color = this.colors.light.text
       }
+      return input
+    }
+
+    if (event === "style/scrollable") {
+      input.removeAttribute("style")
+      input.style.overflow = "auto"
+      input.style.overscrollBehavior = "none"
+      input.style.paddingBottom = "144px"
       return input
     }
 
@@ -14064,9 +14072,109 @@ await Helper.add("event/click-funnel")
       return (node) => {
         this.overlay("popup", async imagesOverlay => {
           const addButton = this.create("toolbox/add", imagesOverlay)
-          addButton.onclick = () => {
-            this.overlay("popup", async takeImageOverlay => {
-              const content = this.create("div", takeImageOverlay)
+          const content = this.create("info/loading", imagesOverlay)
+
+          const res = await Helper.request("/get/user/tree-closed/", {tree: `images`})
+          if (res.status === 200) {
+            const images = JSON.parse(res.response)
+
+            this.convert("style/flex-row", content)
+            content.style.padding = "8px"
+            content.textContent = ""
+
+            for (let i = 0; i < images.length; i++) {
+              const image = images[i]
+              const div = document.createElement("div")
+              div.classList.add("image")
+              div.style.width = "233px"
+              div.style.padding = "8px"
+              this.add("outline-hover", div)
+              content.appendChild(div)
+              const img = document.createElement("img")
+              img.src = image.url
+              img.style.width = "100%"
+              div.appendChild(img)
+              div.onclick = () => {
+                this.overlay("popup", overlay => {
+                  overlay.info.textContent = `${image.url}`
+
+                  const content = this.create("div/scrollable", overlay)
+
+
+
+                  {
+                    const button = this.create("toolbox/left-right", content)
+                    button.left.textContent = ".append"
+                    button.right.textContent = "Bild am ausgewählten Element anhängen"
+                    button.onclick = () => {
+                      const img = document.createElement("img")
+                      img.src = image.url
+                      img.style.width = "100%"
+                      node.appendChild(img)
+                      imagesOverlay.remove()
+                      overlay.remove()
+                    }
+                  }
+
+                  function extractCid(url) {
+                    const cidPattern = /ipfs\/([^/]+)/
+                    const match = url.match(cidPattern)
+                    if (match && match[1]) {
+                      return match[1]
+                    }
+                  }
+
+                  {
+                    const button = this.create("toolbox/left-right", content)
+                    button.left.textContent = ".share"
+                    button.right.textContent = "Teile dein Bild an dein Netzwerk"
+                    button.onclick = async () => {
+                      const cid = extractCid(image.url)
+                      await navigator.share({text: `${window.location.protocol}//${window.location.host}/ipfs/${cid}/`})
+                    }
+                  }
+
+                  {
+                    const button = this.create("toolbox/left-right", content)
+                    button.left.textContent = ".remove"
+                    button.right.textContent = "Bild freigeben"
+                    button.onclick = () => {
+                      const confirm = window.confirm("Achtung! Dein Bild liegt auf einem dezentralen IPFS Server und könnte, trotz Löschung, immer noch im Umlauf sein. Dieses Bild wird allerding dann, nicht mehr zuweisbar sein.\n\nMöchtest du dieses Bild freigeben?")
+                      if (confirm === true) {
+                        this.overlay("security", async securityOverlay => {
+                          const res = await this.request("/remove/user/images/", {id: image.created})
+                          if (res.status === 200) {
+                            window.alert("Diese Bild wurde aus deiner persönlichen Datenbank entfernt.")
+                            imagesOverlay.remove()
+                            overlay.remove()
+                          } else {
+                            window.alert("Fehler.. Bitte wiederholen.")
+                          }
+                          securityOverlay.remove()
+                        })
+                      }
+                    }
+                  }
+
+                })
+              }
+            }
+
+
+
+
+
+
+
+          } else {
+            this.convert("parent/info", content)
+            content.textContent = ""
+          }
+
+          function startVideo() {
+
+            Helper.overlay("popup", async takeImageOverlay => {
+              const content = Helper.create("div", takeImageOverlay)
               content.style.display = "flex"
               content.style.justifyContent = "center"
               const video = document.createElement("video")
@@ -14094,11 +14202,11 @@ await Helper.add("event/click-funnel")
               await startCamera()
               takeImageOverlay.removeOverlayButton.addEventListener("click", stopCamera)
 
-              const takeImageButton = this.create("toolbox/bottom-right", content)
-              this.render("icon/node/path", "/public/disk-floppy.svg", takeImageButton)
+              const takeImageButton = Helper.create("toolbox/bottom-right", content)
+              Helper.render("icon/node/path", "/public/disk-floppy.svg", takeImageButton)
               takeImageButton.onclick = () => {
                 const canvas = captureCanvas()
-                this.overlay("popup", async imageButtonsOverlay => {
+                Helper.overlay("popup", async imageButtonsOverlay => {
                   async function convertCanvasToText(canvas) {
                     try {
                       const prompt = window.prompt("Gebe die Sprachen ein: (z.B., deu, eng, ..) - Drücke einfach Enter für Deutsch")
@@ -14115,9 +14223,9 @@ await Helper.add("event/click-funnel")
                       window.alert(`Fehler bei der Texterkennung:\n\n${error}`)
                     }
                   }
-                  const buttons = this.create("div", imageButtonsOverlay)
+                  const buttons = Helper.create("div", imageButtonsOverlay)
                   {
-                    const button = this.create("toolbox/left-right", buttons)
+                    const button = Helper.create("toolbox/left-right", buttons)
                     button.right.textContent = "Speicher das Bild auf deinem Gerät"
                     button.left.textContent = ".save"
                     button.onclick = () => {
@@ -14141,13 +14249,13 @@ await Helper.add("event/click-funnel")
                     }
                   }
                   {
-                    const button = this.create("toolbox/left-right", buttons)
+                    const button = Helper.create("toolbox/left-right", buttons)
                     button.right.textContent = "Exportiere Text aus deinem Bild in dein ausgewähltes Element"
                     button.left.textContent = ".tesseract-ocr"
                     button.onclick = async () => {
-                      await this.dynamicImport("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js", async() => {
+                      await Helper.dynamicImport("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js", async() => {
                         const text = await convertCanvasToText(canvas)
-                        const purified = await this.convert("text/purified", text)
+                        const purified = await Helper.convert("text/purified", text)
                         node.append(purified)
                         imageButtonsOverlay.remove()
                         takeImageOverlay.remove()
@@ -14170,6 +14278,78 @@ await Helper.add("event/click-funnel")
             })
           }
 
+          addButton.onclick = () => {
+
+
+            Helper.overlay("popup", async overlay => {
+              overlay.info.textContent = `user.images`
+              const funnel = Helper.create("div/scrollable", overlay)
+              const imageField = Helper.create("input/text", funnel)
+              imageField.input.setAttribute("required", "true")
+              imageField.input.setAttribute("accept", "text/url")
+              imageField.input.placeholder = "https://www.meine-image-url.de/mein-image.png"
+              imageField.input.oninput = () => Helper.verify("input/value", imageField.input)
+              Helper.verify("input/value", imageField.input)
+              const button = Helper.create("button/action", funnel)
+              button.textContent = "Image jetzt speichern"
+              button.addEventListener("click", async () => {
+                await Helper.verify("input/value", imageField.input)
+
+                Helper.overlay("security", async securityOverlay => {
+                  const res = await Helper.request(`/register/user/image-self/`, {image: imageField.input.value})
+                  if (res.status === 200) {
+                    window.alert("Image erfolgreich gespeichert.")
+                    const img = document.createElement("img")
+                    img.src = imageField.input.value
+                    img.style.width = "100%"
+                    node.appendChild(img)
+                    securityOverlay.remove()
+                    overlay.remove()
+                    imagesOverlay.remove()
+                  }
+                  if (res.status !== 200) {
+                    window.alert("Fehler.. Bitte wiederholen.")
+                    securityOverlay.remove()
+                  }
+                })
+              })
+
+              const fileField = Helper.create("input/file", funnel)
+              fileField.input.setAttribute("accept", "image/*")
+              Helper.add("style/node/not-valid", fileField.input)
+              fileField.input.onclick = () => {
+                window.alert(`Achtung! Wenn du eine Datei hochlädst, werden deine Daten auf unserem IPFS-Node gespeichert und durch einen öffentlichen Link verfügbar gemacht. Auf diesen Link haben dann alle Zugriff. Bitte überlege dir genau, ob du deine Datei veröffentlichen möchtest.`)
+              }
+              fileField.input.oninput = async (ev) => {
+                const file = ev.target.files[0]
+                if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+                  const formdata = new FormData()
+                  formdata.append("file", file, file.name)
+                  if (file.type === "image/jpeg" || file.type === "image/png") {
+                    Helper.add("style/node/valid", fileField.input)
+                    fetch('/upload/ipfs/file/', {
+                      method: 'POST',
+                      body: formdata,
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                      imageField.input.value = data
+                      console.log('Successfully uploaded:', data)
+                      const img = document.createElement("img")
+                      img.src = data
+                      img.style.width = "100%"
+                      node.appendChild(img)
+                      window.alert("Image wurde erfolgreich angehängt.")
+                    })
+                    .catch(error => {
+                      Helper.render("style/node/not-valid", imageField.input)
+                      console.error('Error uploading file:', error);
+                    });
+                  }
+                }
+              }
+            })
+          }
         })
       }
     }
@@ -14644,6 +14824,30 @@ await Helper.add("event/click-funnel")
                           })
                         }
                       })
+                    }
+
+                    const authorsButton = Helper.create("toolbox/left-right", buttons)
+                    authorsButton.left.textContent = ".authors"
+                    authorsButton.right.textContent = "Füge die Authoren ein"
+                    authorsButton.onclick = () => {
+                      const p = document.createElement("p")
+                      p.style.fontSize = "13px"
+                      p.textContent = `Authoren: ${source.authors.join(", ")}`
+                      selectedNode.appendChild(p)
+                      overlay.remove()
+                      sourcesOverlay.remove()
+                    }
+
+                    const timestampButton = Helper.create("toolbox/left-right", buttons)
+                    timestampButton.left.textContent = ".timestamp"
+                    timestampButton.right.textContent = "Füge einen Zeitspempel ein"
+                    timestampButton.onclick = () => {
+                      const p = document.createElement("p")
+                      p.style.fontSize = "13px"
+                      p.textContent = `Erstellt am: ${Helper.convert("millis/dd.mm.yyyy hh:mm", Date.now())}`
+                      selectedNode.appendChild(p)
+                      overlay.remove()
+                      sourcesOverlay.remove()
                     }
 
                     const inlineButton = Helper.create("toolbox/left-right", buttons)
