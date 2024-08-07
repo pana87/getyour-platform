@@ -262,7 +262,7 @@
                     Helper.overlay("security", async securityOverlay => {
                       const res = await Helper.request("/register/platform/expert-self/", {platform: platformName})
                       if (res.status === 200) {
-                        alert("Plattform erfolgreich gespeichert.")
+                        alert("Plattform erfolgreich gespeichert. +3 XP")
                         window.location.reload()
                       } else {
                         alert("Fehler.. Bitte wiederholen.")

@@ -2433,6 +2433,56 @@ export class Helper {
 
           {
             const button = this.create("toolbox/left-right", buttons)
+            button.left.textContent = "convert.text"
+            button.right.textContent = "Mit nur einem Klick erhälst du die aktuellste Version unserer Toolbox"
+            button.onclick = () => {
+              this.overlay("popup", overlay => {
+                const content = this.create("div/scrollable", overlay)
+
+                {
+                  const inputField = this.create("input/textarea", content)
+                  inputField.input.placeholder = "Konvertiere einen Tag (tag/Text)"
+                  inputField.input.setAttribute("required", "true")
+                  this.verify("input/value", inputField.input)
+                  inputField.input.oninput = () => {
+                    inputField.input.value = this.convert("tag/capital-first-letter", inputField.input.value)
+                    this.verify("input/value", inputField.input)
+                  }
+                }
+
+                {
+                  const inputField = this.create("input/textarea", content)
+                  inputField.input.placeholder = "Konvertiere einen Tag (text/tag)"
+                  inputField.input.setAttribute("required", "true")
+                  this.verify("input/value", inputField.input)
+                  inputField.input.oninput = () => {
+                    inputField.input.value = this.convert("text/tag", inputField.input.value)
+                    this.verify("input/value", inputField.input)
+                  }
+                }
+
+
+              })
+            }
+          }
+
+          {
+            const button = this.create("toolbox/left-right", buttons)
+            button.left.textContent = "document.backup"
+            button.right.textContent = "Lade dein HTML Dokument herunter"
+            button.onclick = () => {
+              const htmlContent = document.documentElement.outerHTML
+              const title = document.querySelector("title")
+              if (title) {
+                this.downloadFile(htmlContent, `${this.convert("text/tag", title.textContent)}.bak.html`, "text/html")
+              } else {
+                this.downloadFile(htmlContent, `meine-werteinheit.bak.html`, "text/html")
+              }
+            }
+          }
+
+          {
+            const button = this.create("toolbox/left-right", buttons)
             button.left.textContent = "document.children"
             button.right.textContent = "Dokumenten Inhalt"
             button.addEventListener("click", () => {
@@ -2442,6 +2492,32 @@ export class Helper {
                 this.render("children", document.documentElement, childrenContainer)
               })
             })
+          }
+
+          {
+            const button = this.create("toolbox/left-right", buttons)
+            button.left.textContent = "document.copy"
+            button.right.textContent = "Aktuelles Dokument kopieren"
+            button.onclick = () => {
+              this.convert("text/clipboard", document.documentElement.outerHTML)
+              .then(() => window.alert("Dokument erfolgreich in die Zwischenablage kopiert."))
+            }
+          }
+
+          {
+            const button = this.create("toolbox/left-right", buttons)
+            button.left.textContent = "document.designMode"
+            if (document.designMode === "on") {
+              const green = this.create("div/green-flag", button.right)
+              green.textContent = "on"
+            } else {
+              const red = this.create("div/red-flag", button.right)
+              red.textContent = "off"
+            }
+            button.onclick = () => {
+              this.convert("doc/design-mode")
+              overlay.remove()
+            }
           }
 
           {
@@ -2488,57 +2564,6 @@ export class Helper {
 
           {
             const button = this.create("toolbox/left-right", buttons)
-            button.left.textContent = "document.copy"
-            button.right.textContent = "Aktuelles Dokument kopieren"
-            button.onclick = () => {
-              this.convert("text/clipboard", document.documentElement.outerHTML)
-              .then(() => window.alert("Dokument erfolgreich in die Zwischenablage kopiert."))
-            }
-          }
-
-          {
-            const button = this.create("toolbox/left-right", buttons)
-            button.left.textContent = "update.toolbox"
-            button.right.textContent = "Mit nur einem Klick erhälst du die aktuellste Version unserer Toolbox"
-            button.addEventListener("click", async () => {
-              await this.update("toolbox-getter", document.body)
-              window.alert("Deine Toolbox ist jetzt auf dem neuesten Stand.\n\nUm sicherzustellen, dass Deine wertvollen Änderungen nicht verloren gehen und dauerhaft im Dokument gespeichert werden, vergiss bitte nicht, den Speichervorgang durchzuführen. Das Speichern Deiner Arbeit ist wie das Bewahren eines Kunstwerks. Denke daran, auf die 'Speichern'-Schaltfläche in Deiner Anwendungssoftware zu klicken. Andernfalls könnten Deine Anpassungen beim Schließen des Fensters verschwinden.")
-            })
-          }
-
-          {
-            const button = this.create("toolbox/left-right", buttons)
-            button.left.textContent = "document.designMode"
-            if (document.designMode === "on") {
-              const green = this.create("div/green-flag", button.right)
-              green.textContent = "on"
-            } else {
-              const red = this.create("div/red-flag", button.right)
-              red.textContent = "off"
-            }
-            button.onclick = () => {
-              this.convert("doc/design-mode")
-              overlay.remove()
-            }
-          }
-
-          {
-            const button = this.create("toolbox/left-right", buttons)
-            button.left.textContent = "document.backup"
-            button.right.textContent = "Lade dein HTML Dokument herunter"
-            button.onclick = () => {
-              const htmlContent = document.documentElement.outerHTML
-              const title = document.querySelector("title")
-              if (title) {
-                this.downloadFile(htmlContent, `${this.convert("text/tag", title.textContent)}.html`, "text/html")
-              } else {
-                this.downloadFile(htmlContent, `meine-werteinheit.html`, "text/html")
-              }
-            }
-          }
-
-          {
-            const button = this.create("toolbox/left-right", buttons)
             button.left.textContent = "navigator.share"
             button.right.textContent = "Sende diese URL an dein Netzwerk"
             button.onclick = async () => {
@@ -2553,6 +2578,32 @@ export class Helper {
             }
           }
 
+          {
+            const button = this.create("toolbox/left-right", buttons)
+            button.left.textContent = ".open-ai"
+            button.right.textContent = "Artificial Intelligence Integrationen zum auswählen"
+            button.onclick = () => {
+              const aiIntegrations = [
+                {name: "blackbox.ai", url: "https://www.blackbox.ai/"},
+                {name: "deepai.org", url: "https://www.deepai.org/chat/text-generator"},
+                {name: "futurepedia.io", url: "https://www.futurepedia.io"},
+                {name: "textsynth.com", url: "https://www.textsynth.com/completion.html"},
+                {name: "you.com", url: "https://www.you.com/"},
+              ]
+
+              this.overlay("popup", overlay => {
+                const content = this.create("div/scrollable", overlay)
+                for (let i = 0; i < aiIntegrations.length; i++) {
+                  const integration = aiIntegrations[i]
+                  const button = this.create("toolbox/left-right", content)
+                  button.left.textContent = integration.name
+                  button.right.remove()
+                  button.onclick = () => window.open(integration.url, "_blank")
+                }
+              })
+
+            }
+          }
 
           {
             const button = this.create("toolbox/left-right", buttons)
@@ -2560,6 +2611,17 @@ export class Helper {
             button.right.textContent = "Schnell zum Start zurück"
             button.addEventListener("click", async () => window.open("/", "_blank"))
           }
+
+          {
+            const button = this.create("toolbox/left-right", buttons)
+            button.left.textContent = "update.toolbox"
+            button.right.textContent = "Mit nur einem Klick erhälst du die aktuellste Version unserer Toolbox"
+            button.addEventListener("click", async () => {
+              await this.update("toolbox-getter", document.body)
+              window.alert("Deine Toolbox ist jetzt auf dem neuesten Stand.\n\nUm sicherzustellen, dass Deine wertvollen Änderungen nicht verloren gehen und dauerhaft im Dokument gespeichert werden, vergiss bitte nicht, den Speichervorgang durchzuführen. Das Speichern Deiner Arbeit ist wie das Bewahren eines Kunstwerks. Denke daran, auf die 'Speichern'-Schaltfläche in Deiner Anwendungssoftware zu klicken. Andernfalls könnten Deine Anpassungen beim Schließen des Fensters verschwinden.")
+            })
+          }
+
 
 
         })
@@ -2575,20 +2637,31 @@ export class Helper {
 
         try {
 
+          function addToolbox(){
+            Helper.add("toolbox/buttons")
+            Helper.add("observer/id-mutation")
+
+            const save = (ev) => {
+              if ((ev.ctrlKey || ev.metaKey) && ev.key === 's') {
+                ev.preventDefault()
+                Helper.add("register-html")
+              }
+            }
+            window.addEventListener('keydown', save)
+          }
+
           const res = await this.request("/verify/user/closed/")
           if (res.status === 200) {
             const res = await this.request("/verify/user/location-expert/")
             if (res.status === 200) {
-              this.add("toolbox/buttons")
-              this.add("observer/id-mutation")
+              addToolbox()
               resolve()
             }
 
             if (res.status !== 200) {
               const res = await this.request("/verify/user/location-writable/")
               if (res.status === 200) {
-                this.add("toolbox/buttons")
-                this.add("observer/id-mutation")
+                addToolbox()
                 resolve()
               }
             }
@@ -3284,10 +3357,12 @@ export class Helper {
         this.remove("element/selector", {element: document, selector: ".overlay"})
         const html = document.documentElement.outerHTML.replace(/<html>/, "<!DOCTYPE html><html>")
 
+        const successMessage = "Dokument erfolgreich gespeichert. +1 XP"
+
         // save html state
         const res = await this.request("/register/platform/value-html-location-expert/", {html})
         if (res.status === 200) {
-          window.alert("Dokument erfolgreich gespeichert.")
+          window.alert(successMessage)
           window.location.reload()
         }
 
@@ -3295,7 +3370,7 @@ export class Helper {
 
           const res = await this.request("/register/platform/value-html-writable/", {html})
           if (res.status === 200) {
-            window.alert("Dokument erfolgreich gespeichert.")
+            window.alert(successMessage)
             window.location.reload()
           }
 
@@ -6545,6 +6620,25 @@ export class Helper {
       return div
     }
 
+    if (event === "back-button") {
+
+      const button = this.create("button/bottom-left")
+      button.classList.add("back")
+      this.render("icon/node/path", "/public/arrow-back.svg", button).then(icon => {
+        this.convert("dark-light", button)
+      })
+      button.setAttribute("onclick", "window.goBack()")
+      this.add("outline-hover", button)
+      let exist = false
+      document.querySelectorAll("*").forEach(node => {
+        if (node.classList.contains("back") && node.classList.contains("button")) {
+          exist = true
+        }
+      })
+      if (exist === false) input?.appendChild(button)
+      return button
+    }
+
     if (event === "box") {
 
       const box = document.createElement("span")
@@ -6774,19 +6868,6 @@ export class Helper {
       const button = this.create("button/bottom-right")
       this.render("icon/node/path", "/public/add.svg", button)
       input?.append(button)
-      return button
-    }
-
-    if (event === "back-button") {
-
-      const button = this.create("button/bottom-left")
-      button.classList.add("back")
-      this.render("icon/node/path", "/public/arrow-back.svg", button).then(icon => {
-        this.convert("dark-light", button)
-      })
-      button.setAttribute("onclick", "window.goBack()")
-      this.add("outline-hover", button)
-      input?.appendChild(button)
       return button
     }
 
@@ -13039,7 +13120,17 @@ await Helper.add("event/click-funnel")
       }
 
       function bodyButton() {
-        const button = Helper.create("button/html-feedback", document.body)
+        const button = Helper.create("button/html-feedback")
+        button.classList.add("feedback")
+
+        let exist = false
+        document.querySelectorAll("*").forEach(node => {
+          if (node.classList.contains("feedback") && node.classList.contains("button")) {
+            exist = true
+          }
+        })
+        if (exist === false) document.body.appendChild(button)
+
         Helper.convert("dark-light", button)
         Helper.add("outline-hover", button)
         button.counter.textContent = "0"
@@ -20036,7 +20127,7 @@ await Helper.add("event/click-funnel")
                     this.overlay("security", async securityOverlay => {
                       const res = await this.request("/register/platform/value-expert/", {path, alias, platform: platform.name})
                       if (res.status === 200) {
-                        alert("Werteinheit erfolgreich gespeichert.")
+                        alert("Werteinheit erfolgreich gespeichert. +1 XP")
                         overlay.remove()
                         securityOverlay.remove()
                       } else {
