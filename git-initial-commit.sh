@@ -16,3 +16,5 @@ git checkout -b "$BRANCH_NAME"
 git add .
 git commit -m "$BRANCH_NAME"
 git push --set-upstream origin "$BRANCH_NAME"
+git branch
+git status

@@ -27,11 +27,7 @@
     import {Helper} from "/js/Helper.js"
     const createNode = Helper.fn("createNode")
     const createTextNode = Helper.fn("createTextNode")
-
-    document.body.style.background = Helper.colors.light.background
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.body.style.background = Helper.colors.dark.background
-    }
+    Helper.convert("dark-light", document.body)
 
     const backButton = Helper.create("back-button", document.body)
     Helper.convert("dark-light", backButton)

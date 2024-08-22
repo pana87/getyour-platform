@@ -23,7 +23,7 @@
 
     <script type="module">
       import {Helper} from "/js/Helper.js"
-      Helper.convert("parent/dark", document.body)
+      Helper.convert("dark-light", document.body)
       const backButton = Helper.create("back-button", document.body)
       const openClosedButton = Helper.create("button/getyour", document.body)
       openClosedButton.onclick = () => {
@@ -38,33 +38,42 @@
               const closedButtons = Helper.create("div/scrollable", content)
 
               {
-                // todo community
-                // bei refresh alle daten sind verloren ???
-                // wenn du drauf kommst wird alles ins html geschrieben ??
-                // wie sollen es die anderen dann sehen?
-                // die user erstellen eine raum mit thema und chat
-                // room {}
-                // room.topic = string
-                // room.chat = []
-                // alle schreiben auf ein array
-                // jeder darf ein array erstellen
-                // tagged sich selber mit dem array
-                // user.rooms = []
-                // user.alias in chat
-                // websocket needed
-                const button = Helper.create("toolbox/left-right", closedButtons)
-                button.left.textContent = ".community"
-                button.right.textContent = "Dein Raum für Gespräche"
-                button.onclick = () => {
-                  window.alert("Bald verfügbar.")
-                }
+                const button = Helper.create("button/left-right", closedButtons)
+                button.right.textContent = "Nutzer Alias ändern"
+                button.left.textContent = ".alias"
+                button.addEventListener("click", () => {
+                  Helper.overlay("popup", async overlay => {
+                    const funnel = Helper.create("div/scrollable", overlay)
+                    const aliasField = Helper.create("input/text", funnel)
+                    const res = await Helper.request("/get/user/tree-closed/", {tree: "getyour.expert.alias"})
+                    if (res.status === 200) {
+                      aliasField.input.value = res.response
+                    }
+                    aliasField.input.setAttribute("required", "true")
+                    aliasField.input.placeholder = "Mein Alias"
+                    aliasField.input.maxLength = "34"
+                    aliasField.input.oninput = () => Helper.verify("input/value", aliasField.input)
+                    Helper.verify("input/value", aliasField.input)
+                    const button = Helper.create("button/action", funnel)
+                    button.textContent = "Alias jetzt speichern"
+                    button.addEventListener("click", async () => {
+                      await Helper.verify("input/value", aliasField.input)
+                      Helper.overlay("security", async securityOverlay => {
+                        const res = await Helper.request("/register/user/alias/", {alias: aliasField.input.value})
+                        if (res.status === 200) {
+                          window.alert("Alias erfolgreich gespeichert.")
+                          securityOverlay.remove()
+                          overlay.remove()
+                        }
+                        if (res.status !== 200) {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                          securityOverlay.remove()
+                        }
+                      })
+                    })
+                  })
+                })
               }
-
-
-
-              Helper.add("next-steps", closedButtons)
-              Helper.add("contacts", closedButtons)
-
 
               {
                 const button = Helper.create("button/left-right", closedButtons)
@@ -77,7 +86,317 @@
                 }
               }
 
+              {
+                Helper.request("/get/user/latest-message/").then(res => {
+                  if (res.status === 200) {
+                    const message = JSON.parse(res.response)
+                    const latest = localStorage.getItem("latest-message")
+                    if (!latest || message.created > Number(latest)) {
+                      Helper.add("style/new-message", button)
+                    }
+                    localStorage.setItem("latest-message", message.created)
+                  }
+                })
+                const button = Helper.create("toolbox/left-right", closedButtons)
+                button.left.textContent = ".community"
+                button.right.textContent = "Dein Raum für Gespräche"
+                button.onclick = () => {
+                  Helper.remove("style/new-message", button)
+                  Helper.overlay("community")
+                }
+              }
+
+              Helper.add("contacts", closedButtons)
+
+              {
+                const button = Helper.create("button/left-right", closedButtons)
+                button.left.textContent = ".deadlines"
+                button.right.textContent = "Mehr Infos"
+                Helper.add("outline-hover", button.right)
+                button.right.onclick = (ev) => {
+                  ev.stopPropagation()
+                  Helper.overlay("popup", overlay => {
+
+                  })
+                }
+                button.onclick = () => {
+                  Helper.overlay("popup", async deadlineOverlay => {
+                    const content = Helper.create("info/loading", deadlineOverlay)
+
+                    const res = await Helper.request("/get/deadlines/closed/")
+                    if (res.status === 200) {
+                      const deadlines = JSON.parse(res.response)
+                      Helper.convert("parent/scrollable", content)
+
+                      const now = new Date()
+                      deadlines.sort((a, b) => {
+                        const timeLeftA = new Date(a.date) - now
+                        const timeLeftB = new Date(b.date) - now
+                        return timeLeftA - timeLeftB
+                      })
+
+                      for (let i = 0; i < deadlines.length; i++) {
+                        const deadline = deadlines[i]
+                        const button = Helper.create("toolbox/left-right", content)
+
+                        function updateCountdown() {
+                          const now = new Date()
+                          const endTime = new Date(deadline.date)
+                          const timeLeft = endTime - now
+
+                          Helper.add("style/green", button)
+
+                          const threeDays = 3 * 24 * 60 * 60 * 1000
+                          if (timeLeft < threeDays) {
+                            Helper.add("style/yellow", button)
+                          }
+
+                          if (timeLeft <= 0) {
+                            button.right.textContent = "Zeit abgelaufen!"
+                            Helper.add("style/red", button)
+                            clearInterval(interval)
+                            return
+                          }
+
+                          const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24))
+                          const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+                          const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60))
+                          const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000)
+
+                          button.right.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`
+                        }
+                        const interval = setInterval(updateCountdown, 1000)
+                        updateCountdown()
+
+                        const title = document.createElement("h1")
+                        title.textContent = deadline.alias
+                        button.left.appendChild(title)
+
+                        const notes = document.createElement("p")
+                        notes.textContent = deadline.notes
+                        button.left.appendChild(notes)
+
+                        button.onclick = () => {
+                          Helper.overlay("popup", deadlineOptionsOverlay => {
+                            const content = Helper.create("div/scrollable", deadlineOptionsOverlay)
+                            {
+                              const button = Helper.create("toolbox/left-right", content)
+                              button.left.textContent = ".update"
+                              button.right.textContent = "Frist aktualisieren"
+                              button.onclick = () => {
+                                Helper.overlay("popup", funnelOverlay => {
+                                  const content = Helper.create("div/scrollable", funnelOverlay)
+                                  const funnel = createDeadlineFunnel(content)
+                                  funnel.dateField.input.value = deadline.date
+                                  Helper.verify("input/value", funnel.dateField.input)
+                                  funnel.aliasField.input.value = deadline.alias
+                                  funnel.notesField.input.value = deadline.notes
+                                  funnel.submit.onclick = async () => {
+                                    await Helper.verify("input/value", funnel.dateField.input)
+                                    Helper.overlay("security", async securityOverlay => {
+                                      const res = await Helper.request("/register/deadline/id-closed/", {id: deadline.created, date: funnel.dateField.input.value, alias: funnel.aliasField.input.value, notes: funnel.notesField.input.value})
+                                      if (res.status === 200) {
+                                        window.alert("Deadline erfolgreich gespeichert.")
+                                        deadlineOverlay.remove()
+                                        deadlineOptionsOverlay.remove()
+                                        funnelOverlay.remove()
+                                        securityOverlay.remove()
+                                      } else {
+                                        window.alert("Fehler.. Bitte wiederholen.")
+                                        securityOverlay.remove()
+                                      }
+                                    })
+                                  }
+                                })
+                              }
+                            }
+
+                            {
+                              const button = Helper.create("toolbox/left-right", content)
+                              button.left.textContent = ".remove"
+                              button.right.textContent = "Frist entfernen"
+                              button.onclick = () => {
+                                const confirm = window.confirm("Möchtest du diese Frist wirklich entfernen?")
+                                if (confirm === true) {
+                                  Helper.overlay("security", async securityOverlay => {
+                                    const res = await Helper.request("/remove/deadline/closed/", {id: deadline.created})
+                                    if (res.status === 200) {
+                                      window.alert("Frist wurde erfolgreich entfernt.")
+                                      deadlineOverlay.remove()
+                                      deadlineOptionsOverlay.remove()
+                                      securityOverlay.remove()
+                                    } else {
+                                      window.alert("Fehler.. Bitte wiederholen.")
+                                      securityOverlay.remove()
+                                    }
+                                  })
+                                }
+                              }
+                            }
+                          })
+                        }
+                      }
+
+                    } else {
+                      Helper.convert("parent/info", content)
+                      deadlineOverlay.textContent = "Keine Fristen gefunden"
+                    }
+
+                    function createDeadlineFunnel(node) {
+                      Helper.render("text/h1", "Neue Frist am:", node)
+                      const it = {}
+                      it.dateField = Helper.create("input/date", node)
+                      it.dateField.input.setAttribute("required", "true")
+                      it.dateField.input.oninput = () => Helper.add("style/node/valid", it.dateField.input)
+                      Helper.add("style/node/not-valid", it.dateField.input)
+                      it.aliasField = Helper.create("input/text", node)
+                      it.aliasField.input.placeholder = "Alias"
+                      Helper.add("style/node/valid", it.aliasField.input)
+                      it.notesField = Helper.create("input/textarea", node)
+                      it.notesField.input.placeholder = "Notizen"
+                      Helper.add("style/node/valid", it.notesField.input)
+                      it.submit = Helper.create("toolbox/action", node)
+                      it.submit.textContent = "Frist jetzt speichern"
+                      return it
+                    }
+
+                    const addButton = Helper.create("toolbox/add", deadlineOverlay)
+                    addButton.onclick = () => {
+                      Helper.overlay("popup", funnelOverlay => {
+                        const content = Helper.create("div/scrollable", funnelOverlay)
+                        const funnel = createDeadlineFunnel(content)
+                        funnel.submit.onclick = async () => {
+                          await Helper.verify("input/value", dateField.input)
+                          Helper.overlay("security", async securityOverlay => {
+                            const res = await Helper.request("/register/deadline/closed/", {date: dateField.input.value, alias: aliasField.input.value, notes: notesField.input.value})
+                            if (res.status === 200) {
+                              window.alert("Deadline erfolgreich gespeichert.")
+                              deadlineOverlay.remove()
+                              funnelOverlay.remove()
+                              securityOverlay.remove()
+                            } else {
+                              window.alert("Fehler.. Bitte wiederholen.")
+                              securityOverlay.remove()
+                            }
+                          })
+                        }
+                      })
+                    }
+
+                  })
+
+                }
+              }
+
+
               Helper.add("groups", closedButtons)
+
+              {
+                const button = Helper.create("button/left-right", closedButtons)
+                button.right.textContent = "Nutzer Bild ändern"
+                button.left.textContent = ".image"
+                button.addEventListener("click", () => {
+
+                  Helper.overlay("popup", async overlay => {
+                    overlay.info.textContent = `.image`
+                    const funnel = Helper.create("div/scrollable", overlay)
+                    const imageField = Helper.create("input/text", funnel)
+                    const res = await Helper.request("/get/user/tree-closed/", {tree: `getyour.expert.image`})
+                    if (res.status === 200) {
+                      imageField.input.value = res.response
+                    }
+                    imageField.input.setAttribute("required", "true")
+                    imageField.input.setAttribute("accept", "text/url")
+                    imageField.input.placeholder = "https://www.meine-image-url.de/mein-image.png"
+                    imageField.input.oninput = () => Helper.verify("input/value", imageField.input)
+                    Helper.verify("input/value", imageField.input)
+                    const button = Helper.create("button/action", funnel)
+                    button.textContent = "Bild jetzt speichern"
+                    button.addEventListener("click", async () => {
+                      await Helper.verify("input/value", imageField.input)
+                      Helper.overlay("security", async securityOverlay => {
+                        const res = await Helper.request(`/register/user/image/`, {image: imageField.input.value})
+                        if (res.status === 200) {
+                          window.alert("Image erfolgreich gespeichert.")
+                          securityOverlay.remove()
+                          overlay.remove()
+                        }
+                        if (res.status !== 200) {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                          securityOverlay.remove()
+                        }
+                      })
+                    })
+
+                    const fileField = Helper.create("input/file", funnel)
+                    fileField.input.setAttribute("accept", "image/*")
+                    Helper.add("style/node/not-valid", fileField.input)
+                    fileField.input.onclick = () => {
+                      window.alert(`Achtung! Wenn du eine Datei hochlädst, werden deine Daten auf unserem IPFS-Node gespeichert und durch einen öffentlichen Link verfügbar gemacht. Auf diesen Link haben dann alle Zugriff. Bitte überlege dir genau, ob du deine Datei veröffentlichen möchtest.`)
+                    }
+                    fileField.input.oninput = async (ev) => {
+                      const file = ev.target.files[0]
+                      if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+                        const formdata = new FormData()
+                        formdata.append("file", file, file.name)
+                        if (file.type === "image/jpeg" || file.type === "image/png") {
+                          Helper.add("style/node/valid", fileField.input)
+                          fetch('/upload/ipfs/file/', {
+                            method: 'POST',
+                            body: formdata,
+                          })
+                          .then(response => response.text())
+                          .then(data => {
+                            imageField.input.value = data
+                            console.log('Successfully uploaded:', data)
+                          })
+                          .catch(error => {
+                            Helper.render("style/node/not-valid", imageField.input)
+                            console.error('Error uploading file:', error);
+                          });
+                        }
+                      }
+                    }
+                  })
+
+                })
+              }
+
+              Helper.add("next-steps", closedButtons)
+
+              {
+                const button = Helper.create("button/left-right", closedButtons)
+                Helper.add("style/red", button)
+                Helper.render("text/node/bottom-right-onhover", "Achtung!", button)
+                button.right.textContent = "Mein Konto dauerhaft entfernen"
+                button.left.textContent = ".remove"
+                button.addEventListener("click", () => {
+                  const confirm = window.confirm("Du bist gerade dabei deine persönliche Datenbank zu entfernen. Deine Daten werden gelöscht und können nicht mehr wiederhergestellt werden. Du wirst abgemeldet und musst dich erneut registrieren.\n\nMöchtest du alle deine Daten wirklich löschen?")
+                  if (confirm === true) {
+                    const prompt = window.prompt("Bitte bestätige deine E-Mail Adresse, um fortzufahren.")
+                    if (Helper.verifyIs("text/empty", prompt)) {
+                      window.alert("Fehler.. Bitte wiederholen.")
+                      throw new Error("not found")
+                    }
+                    Helper.overlay("security", async securityOverlay => {
+                      const res = await Helper.request("/verify/email/closed/", {email: prompt})
+                      if (res.status === 200) {
+                        const res = await Helper.request("/remove/user/self/", {email: prompt})
+                        if (res.status === 200) {
+                          window.alert("Daten erfolgreich gelöscht.")
+                          window.location.assign("/")
+                        } else {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                          securityOverlay.remove()
+                        }
+                      } else {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
+                      }
+                    })
+                  }
+                })
+              }
 
               Helper.add("button/assign-expert-home", closedButtons)
 
@@ -97,6 +416,49 @@
           Helper.render("text/hr", "open apps", content)
           Helper.render("nav/open", content)
 
+        })
+      }
+
+      // meine tags
+
+      // Quests hier integrieren
+      // never ending random event loop
+      // Melde dich für das Gewinnspiel an
+      // unique tags event
+      // get credits
+
+      const parentTitle = Helper.render("text/title", "Dein Ansprechpartner", document.body)
+      Helper.request("/get/user/parent/").then(res => {
+        if (res.status === 200) {
+          const user = JSON.parse(res.response)
+          const box = Helper.render("user-box", user, parentTitle)
+          user.box = box
+          box.onclick = () => Helper.overlay("messages", user)
+        } else {
+          parentTitle.remove()
+        }
+      })
+
+      {
+        Helper.render("text/title", "Themen", document.body)
+        const buttons = Helper.create("info/loading", document.body)
+        Helper.request("/get/user/trees-open/", {trees: ["getyour.expert.name"]}).then(res => {
+          if (res.status === 200) {
+            const experts = JSON.parse(res.response)
+            Helper.convert("style/scrollable", buttons)
+            buttons.textContent = ""
+            for (let i = 0; i < experts.length; i++) {
+              const expert = experts[i]
+              const name = expert["getyour.expert.name"]
+              const button = Helper.create("button/left-right", buttons)
+              button.left.innerHTML = Helper.convert("tag/capital-first-letter", name)
+              button.onclick = () => window.open(`/${name}/`, "_blank")
+            }
+          } else {
+            Helper.convert("parent/info", buttons)
+            buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Zugänge für dich zur Verfügung stehen.</span>`
+            throw new Error("expert not found")
+          }
         })
       }
 
@@ -131,50 +493,8 @@
         })
       }
 
-      Helper.render("text/title", "Themen", document.body)
-      const buttons = Helper.create("info/loading", document.body)
-      Helper.request("/get/user/trees-open/", {trees: ["getyour.expert.name"]}).then(res => {
-        if (res.status === 200) {
-          const experts = JSON.parse(res.response)
-          Helper.convert("style/scrollable", buttons)
-          buttons.textContent = ""
-          for (let i = 0; i < experts.length; i++) {
-            const expert = experts[i]
-            const name = expert["getyour.expert.name"]
-            const button = Helper.create("button/left-right", buttons)
-            button.left.innerHTML = Helper.convert("tag/capital-first-letter", name)
-            button.onclick = () => window.open(`/${name}/`, "_blank")
-          }
-        } else {
-          Helper.convert("parent/info", buttons)
-          buttons.innerHTML = `<span style="margin: 21px 34px;">Schon bald werden hier Zugänge für dich zur Verfügung stehen.</span>`
-          throw new Error("expert not found")
-        }
-      })
-
-      {
-        Helper.render("text/title", "Experten", document.body)
-        const container = Helper.create("info/loading", document.body)
-        Helper.request("/get/users/tree-open/", {tree: "getyour.expert"}).then(res => {
-          if (res.status === 200) {
-            const users = JSON.parse(res.response)
-            Helper.convert("style/flex-row", container)
-            container.style.paddingBottom = "144px"
-            container.style.justifyContent = "space-around"
-            for (let i = 0; i < users.length; i++) {
-              const user = users[i]
-              if (user.verified === true) {
-                Helper.render("expert-box", user, container)
-              }
-            }
-          } else {
-            Helper.convert("dark-light", container)
-            Helper.style(container, {margin: "21px 34px", fontFamily: "sans-serif", background: "transparent"})
-            container.textContent = `Keine Experten gefunden`
-            throw new Error("expert not found")
-          }
-        })
-      }
+      Helper.render("text/title", "Web Entwickler", document.body)
+      Helper.render("tree/node", "getyour.web-entwickler", document.body)
 
     </script>
 

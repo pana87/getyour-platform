@@ -90,11 +90,10 @@ export class Helper {
             button.right.remove()
             button.left.textContent = text
             button.onclick = () => {
-              Helper.overlay("popup", overlay => {
+              Helper.overlay("pop", overlay => {
                 overlay.info.textContent = text
-                const content = Helper.create("div/scrollable", overlay)
+                const content = overlay.content
                 const integrations = createIntegrations(text)
-                console.log(text);
                 const windowOpenButton = Helper.create("toolbox/left-right", content)
                 windowOpenButton.left.textContent = "window.open"
                 windowOpenButton.right.textContent = "Öffne den Inhalt in einem neuen Tab"
@@ -140,9 +139,9 @@ export class Helper {
           if (cite.classList.contains("full-cite")) {
 
             const parts = originalTextContent.split(', ')
-            this.overlay("popup", overlay => {
+            this.overlay("pop", overlay => {
               overlay.info.textContent = ".cite-checker"
-              const content = this.create("div/scrollable", overlay)
+              const content = overlay.content
               this.render("text/h2", "Inhalt wählen", content)
               createIntegrationButton(parts.join(", "), content)
               for (let i = 0; i < parts.length; i++) {
@@ -157,9 +156,9 @@ export class Helper {
             const splitString = window.prompt("Gebe ein Zeichen oder eine Zeichenkette ein, nach der du den Inhalt aufteilen möchtest.")
             if (splitString === null) return
             const splittedTextContent = originalTextContent.split(splitString)
-            this.overlay("popup", overlay => {
+            this.overlay("pop", overlay => {
               overlay.info.textContent = ".cite-checker"
-              const content = this.create("div/scrollable", overlay)
+              const content = overlay.content
               this.render("text/h2", "Inhalt wählen", content)
               for (let i = 0; i < splittedTextContent.length; i++) {
                 const splittedText = splittedTextContent[i]
@@ -180,13 +179,13 @@ export class Helper {
       button.left.textContent = ".contacts"
       button.right.textContent = "Deine Kontakte"
       button.onclick = () => {
-        this.overlay("popup", async overlay => {
+        this.overlay("pop", async overlay => {
           overlay.info.textContent = ".contacts"
 
-          const searchField = this.create("input/text", overlay)
+          const searchField = this.create("input/text", overlay.content)
           searchField.input.placeholder = "Filter nach E-Mail Adresse oder Notizen.."
 
-          const content = this.create("div/scrollable", overlay)
+          const content = overlay.content
 
           const container = this.create("div/flex-row", content)
           container.style.justifyContent = "flex-start"
@@ -1294,7 +1293,6 @@ export class Helper {
 
                       }
 
-
                       Helper.overlay("popup", async overlay => {
                         overlay.info.textContent = group.emails.join(", ")
                         const searchField = Helper.create("input/text", overlay)
@@ -1321,6 +1319,7 @@ export class Helper {
                           contactsDiv.textContent = "Keine Templates gefunden"
                         }
                       })
+
                     }
                   }
 
@@ -2413,7 +2412,6 @@ export class Helper {
 
     if (event === "toolbox/buttons") {
 
-
       const back = this.create("toolbox/back")
       const toolbox = this.create("toolbox/getyour")
 
@@ -2434,14 +2432,25 @@ export class Helper {
           {
             const button = this.create("toolbox/left-right", buttons)
             button.left.textContent = "convert.text"
-            button.right.textContent = "Mit nur einem Klick erhälst du die aktuellste Version unserer Toolbox"
+
+
+            button.right.textContent = "Mehr Infos"
+            this.add("outline-hover", button.right)
+            button.right.onclick = (ev) => {
+              ev.stopPropagation()
+              this.overlay("popup", overlay => {
+                const content = this.create("div/scrollable", overlay)
+                this.render("text/h3", "Konvertiere Texte schnell und einfach", content)
+              })
+            }
+
             button.onclick = () => {
               this.overlay("popup", overlay => {
                 const content = this.create("div/scrollable", overlay)
 
                 {
                   const inputField = this.create("input/textarea", content)
-                  inputField.input.placeholder = "Konvertiere einen Tag (tag/Text)"
+                  inputField.input.placeholder = "Konvertiere (tag/Text)"
                   inputField.input.setAttribute("required", "true")
                   this.verify("input/value", inputField.input)
                   inputField.input.oninput = () => {
@@ -2452,7 +2461,7 @@ export class Helper {
 
                 {
                   const inputField = this.create("input/textarea", content)
-                  inputField.input.placeholder = "Konvertiere einen Tag (text/tag)"
+                  inputField.input.placeholder = "Konvertiere (text/tag)"
                   inputField.input.setAttribute("required", "true")
                   this.verify("input/value", inputField.input)
                   inputField.input.oninput = () => {
@@ -2460,6 +2469,18 @@ export class Helper {
                     this.verify("input/value", inputField.input)
                   }
                 }
+
+                {
+                  const inputField = this.create("input/textarea", content)
+                  inputField.input.placeholder = "Konvertiere (millis/since)"
+                  inputField.input.setAttribute("required", "true")
+                  this.verify("input/value", inputField.input)
+                  inputField.input.oninput = () => {
+                    inputField.input.value = this.convert("millis/since", inputField.input.value)
+                    this.verify("input/value", inputField.input)
+                  }
+                }
+
 
 
               })
@@ -2525,16 +2546,30 @@ export class Helper {
             const button = this.create("toolbox/left-right", buttons)
             button.left.textContent = "document.write"
             button.right.textContent = "Aktuelles Dokument ersetzen"
+
+            button.right.textContent = "Mehr Infos"
+            this.add("outline-hover", button.right)
+            button.right.onclick = (ev) => {
+              ev.stopPropagation()
+              this.overlay("popup", overlay => {
+                const content = this.create("div/scrollable", overlay)
+                this.render("text/h3", "Aktuelles Dokument ersetzen", content)
+                const a = document.createElement("a")
+                a.style.margin = "0 34px"
+                a.href = "https://developer.mozilla.org/en-US/docs/Web/API/Document/write"
+                a.textContent = "Mozilla Developer Network write() Methode"
+                a.target = "_blank"
+                this.add("outline-hover", a)
+                this.convert("dark-light", a)
+                content.appendChild(a)
+              })
+            }
+
             button.addEventListener("click", () => {
 
               this.overlay("toolbox", overlay => {
-
-                this.removeOverlayButton(overlay)
-
                 const funnel = this.create("div/scrollable", overlay)
-
-                const htmlField = this.create("field/textarea", funnel)
-                htmlField.label.textContent = "HTML Dokument"
+                const htmlField = this.create("input/textarea", funnel)
                 htmlField.input.style.fontFamily = "monospace"
                 htmlField.input.style.fontSize = "13px"
                 htmlField.input.style.height = "89px"
@@ -2542,7 +2577,7 @@ export class Helper {
                 this.verify("input/value", htmlField.input)
                 htmlField.input.oninput = () => this.verify("input/value", htmlField.input)
 
-                const button = this.create("button/action", funnel)
+                const button = this.create("toolbox/action", funnel)
                 button.textContent = "Dokument jetzt ersetzen"
                 button.addEventListener("click", async () => {
                   const confirm = window.confirm("Achtung! Diese Funktion wird dein aktuelles HTML Dokument mit deinem neuen HTML Import ersetzen. Der Inhalt deines aktuellen Dokuments wird unwideruflich gelöscht, sobald du deine Werteinheit abspeicherst.\n\nMöchtest du dein aktuelles HTML Dokument wirklich ersetzen?")
@@ -2556,10 +2591,7 @@ export class Helper {
                 })
 
               })
-
-
             })
-
           }
 
           {
@@ -2591,10 +2623,39 @@ export class Helper {
                 {name: "you.com", url: "https://www.you.com/"},
               ]
 
+              aiIntegrations.sort((a, b) => a.name.localeCompare(b.name))
+
               this.overlay("popup", overlay => {
                 const content = this.create("div/scrollable", overlay)
                 for (let i = 0; i < aiIntegrations.length; i++) {
                   const integration = aiIntegrations[i]
+                  const button = this.create("toolbox/left-right", content)
+                  button.left.textContent = integration.name
+                  button.right.remove()
+                  button.onclick = () => window.open(integration.url, "_blank")
+                }
+              })
+
+            }
+          }
+          {
+            const button = this.create("toolbox/left-right", buttons)
+            button.left.textContent = ".open-math"
+            button.right.textContent = "Mathematik Integrationen zum auswählen"
+            button.onclick = () => {
+              const mathIntegrations = [
+                {name: "wolframalpha.com", url: "https://www.wolframalpha.com/"},
+                {name: "integral-calculator.com", url: "https://www.integral-calculator.com/"},
+                {name: "gamma.sympy.org", url: "https://gamma.sympy.org/"},
+                {name: "calculatorsoup.com", url: "https://www.calculatorsoup.com/"},
+                {name: "mathway.com", url: "https://www.mathway.com/"},
+              ]
+              mathIntegrations.sort((a, b) => a.name.localeCompare(b.name))
+
+              this.overlay("popup", overlay => {
+                const content = this.create("div/scrollable", overlay)
+                for (let i = 0; i < mathIntegrations.length; i++) {
+                  const integration = mathIntegrations[i]
                   const button = this.create("toolbox/left-right", content)
                   button.left.textContent = integration.name
                   button.right.remove()
@@ -3099,6 +3160,68 @@ export class Helper {
           this.convert("field/on-info-click", field)
         }
       })
+    }
+
+    if (event === "open-profiles") {
+
+      const profilesDiv = document.createElement("div")
+      profilesDiv.classList.add("profiles")
+      let exist = false
+      document.querySelectorAll("*").forEach(node => {
+        if (node.classList.contains("profiles")) {
+          exist = true
+        }
+      })
+      const searchField = Helper.create("input/text", document.body)
+      if (exist === false) document.body.appendChild(profilesDiv)
+      this.add("style/node/valid", searchField.input)
+      searchField.input.placeholder = "Suche nach Schlüsselwörter"
+      this.request("/get/user/profiles-open/").then(res => {
+        if (res.status === 200) {
+          const profiles = JSON.parse(res.response)
+
+          for (let i = 0; i < profiles.length; i++) {
+            const profile = profiles[i]
+            profile.csv = ""
+            for (const [key, value] of Object.entries(profile)) {
+              profile.csv += `${value}, `
+            }
+          }
+
+          searchField.input.oninput = (ev) => {
+            const userInput = ev.target.value.toLowerCase()
+
+            if (this.verifyIs("text/empty", userInput)) {
+              this.render("open-profiles", profiles, profilesDiv)
+              return
+            }
+
+            const filtered = profiles.filter(it => it.csv.toLowerCase().includes(userInput))
+            const highlighted = filtered.map(it => {
+
+              const highlightedProfile = {}
+              const escapedTerm = userInput.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+              for (const [key, value] of Object.entries(it)) {
+                if (typeof value === 'string') {
+                  const highlightedValue = value.replace(new RegExp(escapedTerm, 'gi'), match => `<mark>${match}</mark>`)
+                  highlightedProfile[key] = highlightedValue
+                } else {
+                  highlightedProfile[key] = value
+                }
+              }
+
+              return highlightedProfile
+            })
+            this.render("open-profiles", highlighted, profilesDiv)
+          }
+          this.render("open-profiles", profiles, profilesDiv)
+        } else {
+          this.convert("parent/info", profilesDiv)
+          profilesDiv.textContent = `Es wurden keine Profile gefunden.`
+        }
+      })
+
     }
 
     if (event === "event/dbltouch") {
@@ -3898,6 +4021,32 @@ export class Helper {
       })
     }
 
+    if (event === "user-profile-button") {
+
+      this.create("add-button", input)
+      document.querySelector("div.add.button").onclick = () => {
+        this.overlay("popup", overlay => {
+          overlay.onlyClosedUser()
+          const content = this.create("div/scrollable", overlay)
+          const funnel = this.create("funnel/profile", content)
+          funnel.submit.onclick = async () => {
+            await this.verify("input/value", funnel.visibility.input)
+            this.overlay("security", async securityOverlay => {
+              const res = await Helper.request("/register/user/profile/", {aboutYou: funnel.aboutYou.input.value, whyThis: funnel.whyThis.input.value, whyYou: funnel.whyYou.input.value, strength: funnel.strength.input.value, weakness: funnel.weakness.input.value, motivation: funnel.motivation.input.value, visibility: funnel.visibility.input.value})
+              if (res.status === 200) {
+                window.alert("Deine Daten wurden erfolgreich gespeichert.")
+                window.location.reload()
+              } else {
+                window.alert("Fehler.. Bitte wiederholen.")
+                securityOverlay.remove()
+              }
+            })
+
+          }
+        })
+      }
+    }
+
     if (event === "click-funnel/end") {
 
       const endButton = input.querySelector(".end-click-funnel-button")
@@ -4381,6 +4530,38 @@ export class Helper {
       return input
     }
 
+    if (event === "style/green") {
+
+      input.style.background = "#71EEB8"
+      input.style.color = this.colors.dark.background
+      input.style.border = `3px solid ${this.colors.dark.background}`
+      return input
+    }
+
+    if (event === "style/new-message") {
+
+      this.render("text/node/bottom-right-onhover", "Neue Nachrichten gefunden", input)
+      const dot = this.render("text/top-right", "●", input)
+      dot.style.color = "green"
+      dot.style.fontSize = "21px"
+      this.add("style/green", input)
+      return input
+    }
+
+    if (event === "style/red") {
+      input.style.background = "#FA503D"
+      input.style.color = this.colors.dark.background
+      input.style.border = `3px solid ${this.colors.dark.background}`
+      return input
+    }
+
+    if (event === "style/yellow") {
+      input.style.background = "#EAC07F"
+      input.style.color = this.colors.dark.background
+      input.style.border = `3px solid ${this.colors.dark.background}`
+      return input
+    }
+
     if (event === "next-steps") {
 
       const button = this.create("button/left-right")
@@ -4427,157 +4608,6 @@ export class Helper {
         } catch (error) {
           reject(error)
         }
-      })
-
-    }
-
-    if (event === "button/conflicts") {
-      const button = this.create("button/left-right", input)
-      button.left.textContent = ".conflicts"
-      button.right.textContent = "Konflikte"
-
-      button.addEventListener("click", () => {
-
-        this.overlay("toolbox", overlay => {
-
-          this.removeOverlayButton(overlay)
-
-          const buttons = this.create("div/scrollable", overlay)
-
-          {
-            // const buttons = document.createElement("div")
-            // buttons.style.overflowY = "auto"
-            // buttons.style.overscrollBehavior = "none"
-            // buttons.style.paddingBottom = "144px"
-            // overlay.append(buttons)
-
-            {
-              const infoBox = document.createElement("div")
-
-              infoBox.style.display = "flex"
-
-              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                infoBox.style.color = this.colors.matte.black
-                infoBox.style.backgroundColor = this.colors.matte.celadon
-                infoBox.style.border = `2px solid ${this.colors.matte.forest}`
-              } else {
-                infoBox.style.color = this.colors.matte.black
-                infoBox.style.backgroundColor = this.colors.matte.celadon
-                infoBox.style.border = `2px solid ${this.colors.matte.forest}`
-              }
-
-              infoBox.style.fontSize = "13px"
-              infoBox.style.margin = "21px 34px"
-              infoBox.style.padding = "21px"
-              infoBox.style.borderRadius = "13px"
-
-              this.render("icon/node/path", "/public/smiling-bear.svg", infoBox).then(icon => {
-                icon.style.width = "144px"
-                icon.style.marginRight = "8px"
-              })
-
-              const message = document.createElement("div")
-              message.style.fontSize = "13px"
-              this.createNode("p", message, "In unserer Gemeinschaft legen wir großen Wert auf Offenheit, Transparenz und ein harmonisches Miteinander. Wir möchten betonen, dass es vollkommen in Ordnung ist, Konflikte zu melden, und wir ermutigen dies sogar ausdrücklich. Konflikte sind ein natürlicher Bestandteil des menschlichen Zusammenlebens und können uns dabei helfen, Missverständnisse aufzuklären, Probleme zu lösen und eine Veränderung herbeizuführen, bei der sich alle Parteien verstanden fühlen.")
-
-              infoBox.append(message)
-
-              buttons.append(infoBox)
-            }
-
-            {
-              const button = document.createElement("div")
-              button.style.display = "flex"
-              button.style.flexWrap = "wrap"
-              button.style.justifyContent = "space-between"
-              button.style.alignItems = "center"
-              button.style.margin = "21px 34px"
-              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-              button.style.borderRadius = "13px"
-              button.style.border = "0.3px solid black"
-              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-              button.style.cursor = "pointer"
-              // button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
-
-              const icon = document.createElement("img")
-              icon.style.margin = "13px 34px"
-              icon.style.width = "34px"
-              icon.src = "/public/add.svg"
-              icon.alt = "Hinzufügen"
-              button.append(icon)
-
-              const title = document.createElement("div")
-              title.textContent = "Neuen Konflikt melden"
-              title.style.margin = "21px 34px"
-              title.style.fontSize = "21px"
-              button.append(title)
-
-              buttons.append(button)
-            }
-
-            {
-              const button = document.createElement("div")
-              button.style.display = "flex"
-              button.style.flexWrap = "wrap"
-              button.style.justifyContent = "space-between"
-              button.style.alignItems = "center"
-              button.style.margin = "21px 34px"
-              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-              button.style.borderRadius = "13px"
-              button.style.border = "0.3px solid black"
-              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-              button.style.cursor = "pointer"
-
-              const icon = document.createElement("img")
-              icon.style.margin = "13px 34px"
-              icon.style.width = "34px"
-              icon.src = "/public/open.svg"
-              icon.alt = "Offen"
-              button.append(icon)
-
-              const title = document.createElement("div")
-              title.textContent = "Offene Konflikte"
-              title.style.margin = "21px 34px"
-              title.style.fontSize = "21px"
-              button.append(title)
-
-              buttons.append(button)
-            }
-
-            {
-              const button = document.createElement("div")
-              button.style.display = "flex"
-              button.style.flexWrap = "wrap"
-              button.style.justifyContent = "space-between"
-              button.style.alignItems = "center"
-              button.style.margin = "21px 34px"
-              button.style.backgroundColor = "rgba(255, 255, 255, 0.6)"
-              button.style.borderRadius = "13px"
-              button.style.border = "0.3px solid black"
-              button.style.boxShadow = "0 3px 6px rgba(0, 0, 0, 0.16)"
-              button.style.cursor = "pointer"
-              // button.addEventListener("click", () => window.location.assign("/getyour/pana/impressum/"))
-
-              const icon = document.createElement("img")
-              icon.style.margin = "13px 34px"
-              icon.style.width = "34px"
-              icon.src = "/public/solved.svg"
-              icon.alt = "Gelöst"
-              button.append(icon)
-
-              const title = document.createElement("div")
-              title.textContent = "Gelöste Konflikte"
-              title.style.margin = "21px 34px"
-              title.style.fontSize = "21px"
-              button.append(title)
-
-              buttons.append(button)
-            }
-
-          }
-
-        })
-
       })
 
     }
@@ -4824,7 +4854,21 @@ export class Helper {
 
     // no events, only creation
     // event = thing/algo
+    if (event === "add-button") {
 
+      const button = this.create("button/add")
+      this.add("outline-hover", button)
+      button.classList.add("add")
+      let exist = false
+      document.querySelectorAll("*").forEach(node => {
+        if (node.classList.contains("add") && node.classList.contains("button")) {
+          this.add("outline-hover", node)
+          exist = true
+        }
+      })
+      if (exist === false) input?.appendChild(button)
+      return button
+    }
 
     if (event === "email-select") {
 
@@ -5332,6 +5376,55 @@ export class Helper {
 
     }
 
+    if (event === "funnel/conflict") {
+      const it = {}
+
+      it.environment = this.create("input/textarea", input)
+      const environmentPlaceholder = `Environments: Beschreibe deine Umgebung ?
+
+- URL Link
+- Browser
+- App
+      `
+      it.environment.input.placeholder = environmentPlaceholder
+      it.environment.input.style.height = "144px"
+      this.add("style/node/valid", it.environment.input)
+      it.environment.input.style.fontSize = "13px"
+
+      it.reproduce = this.create("input/textarea", input)
+      const reproducePlaceholder = `Steps to reproduce: Reproduziere den Konflikt ?`
+      it.reproduce.input.placeholder = reproducePlaceholder
+      it.reproduce.input.style.height = "144px"
+      this.add("style/node/valid", it.reproduce.input)
+      it.reproduce.input.style.fontSize = "13px"
+
+      it.expected = this.create("input/textarea", input)
+      const expectedPlaceholder = `Expected behavior: Erwartetes Verhalten ?`
+      it.expected.input.placeholder = expectedPlaceholder
+      it.expected.input.style.height = "144px"
+      this.add("style/node/valid", it.expected.input)
+      it.expected.input.style.fontSize = "13px"
+
+      it.actual = this.create("input/textarea", input)
+      const actualPlaceholder = `Actual behavior: Wirkliches Verhalten ?`
+      it.actual.input.placeholder = actualPlaceholder
+      it.actual.input.style.height = "144px"
+      this.add("style/node/valid", it.actual.input)
+      it.actual.input.style.fontSize = "13px"
+
+      it.visibility = this.create("input/text", input)
+      it.visibility.input.placeholder = "Sichtbarkeit (open/closed)"
+      it.visibility.input.value = "open"
+      it.visibility.input.setAttribute("required", "true")
+      it.visibility.input.oninput = () => this.verify("input/value", it.visibility.input)
+      this.verify("input/value", it.visibility.input)
+
+      it.submit = this.create("toolbox/action", input)
+      it.submit.textContent = "Konflikt jetzt melden"
+
+      return it
+    }
+
     if (event === "funnel/condition") {
 
       const funnel = this.create("div/scrollable")
@@ -5361,6 +5454,158 @@ export class Helper {
 
       if (input !== undefined) input.append(funnel)
       return funnel
+    }
+
+    if (event === "funnel/profile") {
+      const it = {}
+
+      this.request("/get/user/tree-closed/", {tree: "profile"}).then(async res => {
+        if (res.status === 200) {
+          const profile = JSON.parse(res.response)
+
+          const messagesDiv = document.createElement("div")
+          this.style(messagesDiv, {display: "flex", flexWrap: "wrap", justifyContent: "space-around"})
+          input.prepend(messagesDiv)
+
+          if (profile.messages !== undefined) {
+            for (let i = 0; i < profile.messages.length; i++) {
+              const message = profile.messages[i]
+              const box = this.create("box", messagesDiv)
+              box.innerHTML = await this.convert("text/purified", message.html)
+              box.onclick = () => {
+                this.overlay("popup", overlay => {
+                  const content = this.create("div/scrollable", overlay)
+                  {
+                    const button = this.create("toolbox/left-right", content)
+                    button.left.textContent = ".remove"
+                    button.right.textContent = "Nachricht entfernen"
+                    button.onclick = () => {
+                      const confirm = window.confirm("Möchtest du diese Nachricht wirklich entfernen?")
+                      if (confirm === true) {
+                        this.overlay("security", async securityOverlay => {
+                          const res = await this.request("/remove/user/profile-message/", {id: message.created})
+                          if (res.status === 200) {
+                            window.alert("Deine Nachricht wurde erfolgreich entfernt.")
+                            box.remove()
+                            overlay.remove()
+                            securityOverlay.remove()
+                          } else {
+                            window.alert("Fehler.. Bitte wiederholen.")
+                            securityOverlay.remove()
+                          }
+                        })
+                      }
+                    }
+                  }
+                })
+              }
+            }
+          }
+
+          const title = this.render("text/h2", "Meinen Nachrichten")
+          input.prepend(title)
+
+
+          it.aboutYou.input.value = profile.aboutYou
+          it.whyThis.input.value = profile.whyThis
+          it.whyYou.input.value = profile.whyYou
+          it.strength.input.value = profile.strength
+          it.weakness.input.value = profile.weakness
+          it.motivation.input.value = profile.motivation
+          it.visibility.input.value = profile.visibility
+        }
+      })
+
+
+      it.aboutYou = this.create("input/textarea", input)
+      const aboutYouPlaceholder = `Erzähl etwas über dich?
+
+- was du gerade machst (beruflich oder privat)
+- etwas was dem anderen hilft
+- von jetzt sprechen
+- praktische Beispiele (beruflich oder privat)
+- Schlüsselwörter benutzen (IT, Beratung)
+
+z.b., ich bin ... (deine Person), das heißt ... (Vorteil), das bedeutet für dich ... (Nutzen für den anderen).
+      `
+      it.aboutYou.input.placeholder = aboutYouPlaceholder
+      it.aboutYou.input.style.height = "144px"
+      this.add("style/node/valid", it.aboutYou.input)
+      it.aboutYou.input.style.fontSize = "13px"
+
+      it.whyThis = this.create("input/textarea", input)
+      const whyThisPlaceholder = `Warum als ... ?
+
+- deine Tätigkeit im Moment
+
+z.b., ich arbeite als ... (deine Tätigkeit), das heißt ... (Vorteil), das bedeutet für dich ... (Nutzen für den anderen).
+      `
+      it.whyThis.input.placeholder = whyThisPlaceholder
+      it.whyThis.input.style.height = "144px"
+      this.add("style/node/valid", it.whyThis.input)
+      it.whyThis.input.style.fontSize = "13px"
+
+      it.whyYou = this.create("input/textarea", input)
+      const whyYouPlaceholder = `Warum sollten wir dich wählen ?
+
+- Stärken definieren
+
+z.b., ich kann ... (deine Stärken), das heißt ... (Vorteil), das bedeutet für dich ... (Nutzen für den anderen).
+      `
+      it.whyYou.input.placeholder = whyYouPlaceholder
+      it.whyYou.input.style.height = "144px"
+      this.add("style/node/valid", it.whyYou.input)
+      it.whyYou.input.style.fontSize = "13px"
+
+      it.strength = this.create("input/textarea", input)
+      const strengthPlaceholder = `Was sind deine Stärken ?
+
+- Stärken definieren
+
+z.b., ich kann ... (deine Stärken), das heißt ... (Vorteil), das bedeutet für dich ... (Nutzen für den anderen).
+      `
+      it.strength.input.placeholder = strengthPlaceholder
+      it.strength.input.style.height = "144px"
+      this.add("style/node/valid", it.strength.input)
+      it.strength.input.style.fontSize = "13px"
+
+      it.weakness = this.create("input/textarea", input)
+      const weaknessPlaceholder = `Was sind deine Schwächen ?
+
+- Schwächen definieren
+- aber dann Lösung anbieten
+- Schwächen die keine hohe Priorität haben am besten gar nicht erwähnen
+- Schwächen nennen die ich wirklich verbessern möchte
+
+z.b., ich bin ... (deine Schwäche), aber ich arbeite daran es zu verbessern mit ... (einem Beispiel oder zwei).
+      `
+      it.weakness.input.placeholder = weaknessPlaceholder
+      it.weakness.input.style.height = "144px"
+      this.add("style/node/valid", it.weakness.input)
+      it.weakness.input.style.fontSize = "13px"
+
+      it.motivation = this.create("input/textarea", input)
+      const motivationPlaceholder = `Wie motivierst du dich ?
+
+z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, ..
+
+      `
+      it.motivation.input.placeholder = motivationPlaceholder
+      it.motivation.input.style.height = "144px"
+      this.add("style/node/valid", it.motivation.input)
+      it.motivation.input.style.fontSize = "13px"
+
+      it.visibility = this.create("input/text", input)
+      it.visibility.input.placeholder = "Sichtbarkeit (open/closed)"
+      it.visibility.input.value = "closed"
+      it.visibility.input.setAttribute("required", "true")
+      it.visibility.input.oninput = () => this.verify("input/value", it.visibility.input)
+      this.verify("input/value", it.visibility.input)
+
+      it.submit = this.create("toolbox/action", input)
+      it.submit.textContent = "Profil jetzt speichern"
+
+      return it
     }
 
     if (event === "header/sticky-nav") {
@@ -6241,6 +6486,27 @@ export class Helper {
       return div
     }
 
+    if (event === "div/flex") {
+
+      const div = document.createElement("div")
+      div.style.display = "flex"
+      div.style.flexWrap = "wrap"
+      div.style.margin = "21px 34px"
+      input?.appendChild(div)
+      return div
+    }
+
+    if (event === "div/flex-between") {
+
+      const div = document.createElement("div")
+      div.style.display = "flex"
+      div.style.flexWrap = "wrap"
+      div.style.justifyContent = "space-between"
+      div.style.margin = "21px 34px"
+      input?.appendChild(div)
+      return div
+    }
+
     if (event === "div/flex-row") {
       const div = document.createElement("div")
       div.style.display = "flex"
@@ -6628,7 +6894,7 @@ export class Helper {
         this.convert("dark-light", button)
       })
       button.setAttribute("onclick", "window.goBack()")
-      this.add("outline-hover", button)
+
       let exist = false
       document.querySelectorAll("*").forEach(node => {
         if (node.classList.contains("back") && node.classList.contains("button")) {
@@ -6636,6 +6902,10 @@ export class Helper {
         }
       })
       if (exist === false) input?.appendChild(button)
+
+      const backButton = document.querySelector("div.back.button")
+      this.add("outline-hover", backButton)
+
       return button
     }
 
@@ -6867,7 +7137,7 @@ export class Helper {
 
       const button = this.create("button/bottom-right")
       this.render("icon/node/path", "/public/add.svg", button)
-      input?.append(button)
+      input?.appendChild(button)
       return button
     }
 
@@ -6922,6 +7192,7 @@ export class Helper {
 
     if (event === "button/left-right") {
 
+      const fragment = document.createDocumentFragment()
       const button = document.createElement("div")
       button.classList.add("button")
       button.style.display = "flex"
@@ -6947,19 +7218,10 @@ export class Helper {
       button.right.style.fontFamily = "sans-serif"
       button.append(button.right)
 
-      button.style.backgroundColor = this.colors.gray[0]
-      button.style.border = this.colors.light.border
-      button.style.color = this.colors.light.text
-      button.style.boxShadow = this.colors.light.boxShadow
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        button.style.backgroundColor = this.colors.matte.black
-        button.style.border = this.colors.dark.border
-        button.style.boxShadow = this.colors.dark.boxShadow
-        button.style.color = this.colors.dark.text
-      }
+      this.convert("button/dark-light", button)
 
-      if (input !== undefined) input.append(button)
-
+      fragment.appendChild(button)
+      input?.appendChild(fragment)
       return button
     }
 
@@ -7044,7 +7306,7 @@ export class Helper {
             const clone = button.cloneNode(true)
             clone.appendChild(icon.cloneNode(true))
             this.add("outline-hover", clone)
-            this.convert("dark-light", clone)
+            this.convert("back-button", clone)
             clone.onclick = () => node?.remove()
             node?.appendChild(clone)
             return clone
@@ -7474,10 +7736,12 @@ await Helper.add("event/click-funnel")
 
       const button = this.create("button/bottom-left")
       button.removeAttribute("class")
-      this.render("icon/node/path", "/public/arrow-back.svg", button)
+      this.render("icon/node/path", "/public/arrow-back.svg", button).then(icon => {
+        this.convert("back-button", button)
+        this.convert("icon/dark-light", icon)
+      })
       button.setAttribute("onclick", "window.goBack()")
       this.add("outline-hover", button)
-      this.convert("dark-light", button)
       input?.appendChild(button)
       return button
     }
@@ -7508,7 +7772,6 @@ await Helper.add("event/click-funnel")
       const button = this.create("button/left-right")
       button.removeAttribute("class")
       this.add("outline-hover", button)
-      this.convert("dark-light", button)
       input?.appendChild(button)
       return button
 
@@ -8877,6 +9140,79 @@ await Helper.add("event/click-funnel")
       return input.filter(it => it.selected === true).reduce((prev, curr) => prev + curr.price, 0)
     }
 
+    if (event === "array/table") {
+
+      const table = document.createElement('table')
+      table.setAttribute('border', '1')
+      const thead = document.createElement('thead')
+      const headerRow = document.createElement('tr')
+      Object.keys(input[0]).forEach(key => {
+        const th = document.createElement('th')
+        th.textContent = key
+        headerRow.appendChild(th)
+      })
+      thead.appendChild(headerRow)
+      table.appendChild(thead)
+      const tbody = document.createElement('tbody')
+      input.forEach(item => {
+        const row = document.createElement('tr')
+        Object.values(item).forEach(value => {
+          const td = document.createElement('td')
+          td.textContent = value
+          row.appendChild(td)
+        })
+        tbody.appendChild(row)
+      })
+      table.appendChild(tbody)
+      return table
+    }
+
+    if (event === "back-button") {
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        input.style.boxShadow = this.colors.light.boxShadow
+        input.style.border = this.colors.light.border
+        input.style.backgroundColor = this.colors.light.foreground
+      } else {
+        input.style.boxShadow = this.colors.dark.boxShadow
+        input.style.border = this.colors.dark.border
+        input.style.backgroundColor = this.colors.dark.foreground
+      }
+      input.querySelectorAll("*").forEach((child, i) => {
+        if (child.hasAttribute("stroke")) {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            child.setAttribute("stroke", `${this.colors.light.text}`)
+          } else {
+            child.setAttribute("stroke", `${this.colors.dark.text}`)
+          }
+        }
+      })
+    }
+
+    if (event === "border/dark-light") {
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        input.style.border = this.colors.dark.border
+      } else {
+        input.style.border = this.colors.light.border
+      }
+    }
+
+    if (event === "button/dark-light") {
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        input.style.backgroundColor = this.colors.dark.foreground
+        input.style.border = this.colors.dark.border
+        input.style.boxShadow = this.colors.dark.boxShadow
+        input.style.color = this.colors.dark.text
+      } else {
+        input.style.backgroundColor = this.colors.light.foreground
+        input.style.border = this.colors.light.border
+        input.style.color = this.colors.light.text
+        input.style.boxShadow = this.colors.light.boxShadow
+      }
+    }
+
     if (event === "canvas/file") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -8896,141 +9232,15 @@ await Helper.add("event/click-funnel")
 
     if (event === "dark-light") {
 
-      if (input.tagName === "DIV") {
-        for (let i = 0; i < input.querySelectorAll("input").length; i++) {
-          const it = input.querySelectorAll("input")[i]
-          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            it.style.backgroundColor = this.colors.dark.background
-            it.style.color = this.colors.dark.text
-          } else {
-            it.style.backgroundColor = this.colors.light.background
-            it.style.color = this.colors.light.text
-          }
-        }
-      }
-
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         input.style.color = this.colors.dark.text
-        input.style.background = this.colors.dark.foreground
+        input.style.background = this.colors.dark.background
       } else {
         input.style.color = this.colors.light.text
-        input.style.background = this.colors.light.foreground
-
+        input.style.background = this.colors.light.background
       }
 
-      if (input.classList.contains("button")) {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          input.style.boxShadow = this.colors.dark.boxShadow
-          input.style.border = this.colors.dark.border
-        } else {
-          input.style.boxShadow = this.colors.light.boxShadow
-          input.style.border = this.colors.light.border
-        }
-      }
-
-      if (input.tagName === "BODY") {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          input.style.backgroundColor = this.colors.dark.background
-          input.style.color = this.colors.dark.text
-        } else {
-          input.style.color = this.colors.light.text
-          input.style.backgroundColor = this.colors.light.background
-        }
-      }
-
-
-      if (input.classList.contains("field")) {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          input.style.backgroundColor = this.colors.dark.foreground
-          input.style.border = this.colors.dark.border
-          input.style.boxShadow = this.colors.dark.boxShadow
-          input.style.color = this.colors.dark.text
-          input.querySelector(".field-label").style.color = this.colors.dark.text
-          // input.querySelector("input").style.backgroundColor = this.colors.dark.background
-          // input.querySelector("input").style.color = this.colors.dark.text
-          for (let i = 0; i < input.querySelectorAll("*").length; i++) {
-            const child = input.querySelectorAll("*")[i]
-            if (child.tagName === "A") {
-              child.style.color = this.colors.link.active
-            }
-            if (child.hasAttribute("fill")) {
-              child.setAttribute("fill", this.colors.dark.text)
-            }
-          }
-        } else {
-          input.style.backgroundColor = this.colors.light.foreground
-          input.style.border = this.colors.light.border
-          input.style.boxShadow = this.colors.light.boxShadow
-          input.style.color = this.colors.light.text
-          input.querySelector(".field-label").style.color = this.colors.light.text
-          // input.querySelector("input").style.backgroundColor = this.colors.light.background
-          // input.querySelector("input").style.color = this.colors.light.text
-          for (let i = 0; i < input.querySelectorAll("*").length; i++) {
-            const child = input.querySelectorAll("*")[i]
-            if (child.tagName === "A") {
-              child.style.color = this.colors.link.color
-            }
-            if (child.hasAttribute("fill")) {
-              child.setAttribute("fill", this.colors.light.text)
-            }
-          }
-        }
-      }
-
-      if (input.classList.contains("html-feedback-button")) {
-
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          input.style.boxShadow = this.colors.dark.boxShadow
-          input.style.border = this.colors.dark.border
-          input.style.backgroundColor = this.colors.dark.foreground
-        } else {
-          input.style.boxShadow = this.colors.light.boxShadow
-          input.style.border = this.colors.light.border
-          input.style.backgroundColor = this.colors.light.foreground
-        }
-        for (let i = 0; i < input.querySelectorAll("*").length; i++) {
-          const child = input.querySelectorAll("*")[i]
-          if (child.hasAttribute("fill")) {
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              if (child.getAttribute("fill") === this.colors.light.text) {
-                child.setAttribute("fill", this.colors.dark.text)
-              }
-              if (child.getAttribute("fill") === this.colors.light.background) {
-                child.setAttribute("fill", this.colors.dark.background)
-              }
-              continue
-            } else {
-              if (child.getAttribute("fill") === this.colors.dark.text) {
-                child.setAttribute("fill", this.colors.light.text)
-              }
-              if (child.getAttribute("fill") === this.colors.dark.background) {
-                child.setAttribute("fill", this.colors.light.background)
-              }
-              continue
-            }
-          }
-          if (child.classList.contains("feedback-counter")) {
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              child.style.color = this.colors.dark.text
-              child.style.background = this.colors.dark.foreground
-            } else {
-              child.style.color = this.colors.light.text
-              child.style.background = this.colors.light.foreground
-            }
-          }
-        }
-      }
-
-      if (input.classList.contains("back") && input.classList.contains("button")) {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          input.style.boxShadow = this.colors.light.boxShadow
-          input.style.border = this.colors.light.border
-          input.style.backgroundColor = this.colors.light.foreground
-        } else {
-          input.style.boxShadow = this.colors.dark.boxShadow
-          input.style.border = this.colors.dark.border
-          input.style.backgroundColor = this.colors.dark.foreground
-        }
+      if (input.classList.contains("icon")) {
         input.querySelectorAll("*").forEach((child, i) => {
           if (child.hasAttribute("stroke")) {
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -9040,6 +9250,44 @@ await Helper.add("event/click-funnel")
             }
           }
         })
+      }
+
+      if (input.tagName === "A") {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          input.style.color = this.colors.link.active
+        } else {
+          input.style.color = this.colors.link.color
+        }
+      }
+
+      if (input.classList.contains("field")) {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          input.style.backgroundColor = this.colors.dark.foreground
+          input.style.border = this.colors.dark.border
+          input.style.boxShadow = this.colors.dark.boxShadow
+          input.style.color = this.colors.dark.text
+          for (let i = 0; i < input.querySelectorAll("*").length; i++) {
+            const child = input.querySelectorAll("*")[i]
+            if (child.hasAttribute("fill")) {
+              child.setAttribute("fill", this.colors.dark.text)
+            }
+          }
+        } else {
+          input.style.backgroundColor = this.colors.light.foreground
+          input.style.border = this.colors.light.border
+          input.style.boxShadow = this.colors.light.boxShadow
+          input.style.color = this.colors.light.text
+          for (let i = 0; i < input.querySelectorAll("*").length; i++) {
+            const child = input.querySelectorAll("*")[i]
+            if (child.hasAttribute("fill")) {
+              child.setAttribute("fill", this.colors.light.text)
+            }
+          }
+        }
+      }
+
+      if (input.classList.contains("back") && input.classList.contains("button")) {
+        this.convert("back-button", input)
       }
 
     }
@@ -9281,6 +9529,22 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "file/svg") {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const fileReader = new FileReader()
+          fileReader.onload = async () => {
+            const svg = await this.convert("text/first-child", fileReader.result)
+            resolve(svg)
+          }
+          fileReader.readAsText(input)
+
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "file/binary") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -9325,6 +9589,21 @@ await Helper.add("event/click-funnel")
         }
       }
 
+    }
+
+    if (event === "icon/dark-light") {
+
+      if (input.classList.contains("icon")) {
+        input.querySelectorAll("*").forEach((child, i) => {
+          if (child.hasAttribute("stroke")) {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              child.setAttribute("stroke", `${this.colors.light.text}`)
+            } else {
+              child.setAttribute("stroke", `${this.colors.dark.text}`)
+            }
+          }
+        })
+      }
     }
 
     if (event === "input/image") {
@@ -10420,6 +10699,22 @@ await Helper.add("event/click-funnel")
       return fragment.querySelector("script")
     }
 
+    if (event === "text/prompt") {
+
+      const promptRegex = /prompt\(([^)]+)\)/g
+      let match
+      const matches = []
+      while ((match = promptRegex.exec(input)) !== null) {
+        matches.push(match)
+      }
+      matches.forEach(match => {
+        const id = match[1]
+        const userInput = window.prompt(`Ersetze den Text für die Id: "${id}"`)
+        input = input.replace(`prompt(${id})`, userInput)
+      })
+      return input
+    }
+
     if (event === "js/script") {
 
       const script = document.createElement("script")
@@ -10626,6 +10921,21 @@ await Helper.add("event/click-funnel")
       return input.replace(/\./g, "-")
     }
 
+    if (event === "user-tree") {
+
+      let {user, tree} = input
+      const pathArray = tree.split('.')
+      for (let i = 0; i < pathArray.length; i++) {
+        const key = pathArray[i]
+        if (i + 1 === pathArray.length) {
+          if (user[key] !== undefined) return user[key]
+        }
+        if (user[key] !== undefined) {
+          user = user[key]
+        }
+      }
+    }
+
     if (event === "parent/box") {
 
       if (input.classList.contains("box")) {
@@ -10764,14 +11074,14 @@ await Helper.add("event/click-funnel")
 
     if (event === "parent/dark") {
 
+      input.style.color = this.colors.dark.text
+      input.style.background = this.colors.dark.background
+    }
 
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        if (input.tagName === "BODY") {
-          input.style.background = this.colors.dark.background
-        }
-      }
+    if (event === "parent/light") {
 
-
+      input.style.color = this.colors.light.text
+      input.style.background = this.colors.light.background
     }
 
     if (event === "parent/loading") {
@@ -10803,11 +11113,14 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "parent/scrollable") {
-      this.convert("element/reset", input)
-      input.style.overflowY = "auto"
-      input.style.overscrollBehavior = "none"
-      input.style.paddingBottom = "144px"
-      return input
+
+      if (input) {
+        this.convert("element/reset", input)
+        input.style.overflowY = "auto"
+        input.style.overscrollBehavior = "none"
+        input.style.paddingBottom = "144px"
+        return input
+      }
     }
 
     if (event === "parent/info") {
@@ -10968,6 +11281,37 @@ await Helper.add("event/click-funnel")
       input.style.overscrollBehavior = "none"
       input.style.paddingBottom = "144px"
       return input
+    }
+
+    if (event === "millis/since") {
+
+      function formatTimeSince(milliseconds) {
+        const now = Date.now();
+        const elapsed = now - milliseconds;
+
+        const msInMinute = 60 * 1000;
+        const msInHour = 60 * msInMinute;
+        const msInDay = 24 * msInHour;
+        const msInMonth = 30 * msInDay;
+        const msInYear = 12 * msInMonth;
+
+        if (elapsed >= msInYear) {
+          const years = Math.floor(elapsed / msInYear);
+          return `${years} Jahr${years !== 1 ? 'en' : ''}`;
+        } else if (elapsed >= msInMonth) {
+          const months = Math.floor(elapsed / msInMonth);
+          return `${months} Monat${months !== 1 ? 'en' : ''}`;
+        } else if (elapsed >= msInDay) {
+          const days = Math.floor(elapsed / msInDay);
+          return `${days} Tag${days !== 1 ? 'en' : ''}`;
+        } else {
+          const hours = Math.floor(elapsed / msInHour);
+          const minutes = Math.floor((elapsed % msInHour) / msInMinute);
+          return `${hours} Stunde${hours !== 1 ? 'n' : ''} ${minutes} Minute${minutes !== 1 ? 'n' : ''}`;
+        }
+      }
+
+      return formatTimeSince(input)
     }
 
     if (event === "millis/dd.mm.yyyy hh:mm") {
@@ -11214,8 +11558,10 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "element/reset") {
-      input.removeAttribute("style")
-      input.innerHTML = ""
+      if (input) {
+        input.removeAttribute("style")
+        input.innerHTML = ""
+      }
     }
 
     if (event === "element/textarea") {
@@ -12966,11 +13312,13 @@ await Helper.add("event/click-funnel")
 
     if (event === "feedback") {
 
-      function updateButtonCounter(button) {
-        if (parseInt(button.counter.textContent) > 0) {
-          button.counter.style.background = "green"
+      function updateCounter() {
+        const counter = document.querySelector("div.counter")
+        if (parseInt(counter.textContent) > 0) {
+          counter.style.background = "green"
+          counter.style.color = "white"
         } else {
-          Helper.convert("dark-light", button.counter)
+          Helper.convert("dark-light", counter)
         }
       }
 
@@ -13059,11 +13407,12 @@ await Helper.add("event/click-funnel")
 
                   if (res && res.status === 200) {
                     window.alert("Dieser Beitrag wurde erfolgreich entfernt.")
-                    button.counter.textContent = parseInt(button.counter.textContent) - 1
+                    const counter = document.querySelector("div.counter")
+                    counter.textContent = parseInt(counter.textContent) - 1
+                    updateCounter()
                     div.remove()
                     updateFeedbackOverlay.remove()
                     overlay.remove()
-                    updateButtonCounter(button)
                   } else {
                     window.alert("Fehler.. Bitte wiederholen.")
                     updateFeedbackOverlay.remove()
@@ -13078,8 +13427,7 @@ await Helper.add("event/click-funnel")
 
       function createFeedbackFields(node) {
         const fields = {}
-        fields.textField = Helper.create("field/textarea", node)
-        fields.textField.label.textContent = "Feedback"
+        fields.textField = Helper.create("input/textarea", node)
         fields.textField.input.setAttribute("required", "true")
         fields.textField.input.maxLength = "377"
         fields.textField.input.style.fontSize = "13px"
@@ -13108,6 +13456,8 @@ await Helper.add("event/click-funnel")
       function bodyButton() {
         const button = Helper.create("button/html-feedback")
         button.classList.add("feedback")
+        button.counter.textContent = "0"
+        Helper.convert("dark-light", button)
 
         let exist = false
         document.querySelectorAll("*").forEach(node => {
@@ -13117,23 +13467,28 @@ await Helper.add("event/click-funnel")
         })
         if (exist === false) document.body.appendChild(button)
 
-        Helper.convert("dark-light", button)
-        Helper.add("outline-hover", button)
-        button.counter.textContent = "0"
+        const counter = document.querySelector("div.counter")
         Helper.request("/get/feedback/length-html-value/").then((res) => {
           if (res.status === 200) {
-            button.counter.textContent = res.response
-            updateButtonCounter(button)
+            counter.textContent = res.response
+            if (parseInt(counter.textContent) > 0) {
+              counter.style.background = "green"
+              counter.style.color = "white"
+            }
           }
         })
-        button.onclick = () => openLocationOverlay(button)
+
+        const feedbackButton = document.querySelector("div.feedback.button")
+        Helper.add("outline-hover", feedbackButton)
+        feedbackButton.onclick = () => openLocationOverlay(button)
       }
 
       async function initScriptCounter(id, button) {
         const res = await Helper.request("/get/feedback/length-script/", {id})
         if (res.status === 200) {
-          button.counter.textContent = res.response
-          updateButtonCounter(button)
+          const counter = document.querySelector("div.counter")
+          counter.textContent = res.response
+          updateCounter()
         }
       }
 
@@ -13155,16 +13510,17 @@ await Helper.add("event/click-funnel")
           const funnel = Helper.create("div/scrollable", overlay)
           const fields = createFeedbackFields(funnel)
           fields.submit.onclick = async () => {
-            await Helper.verify("field-funnel", funnel)
+            await Helper.verify("input/value", fields.textField.input)
             Helper.overlay("security", async securityOverlay => {
               const res = await Helper.request(`/register/feedback/html-value/`, {text: fields.textField.input.value, importance: fields.importanceField.input.value})
               if (res.status === 200) {
                 window.alert("Vielen Dank für dein Feedback.\n\nDein Feedback ist vollkommen anonym, dynamisch und hilft dabei diese Webseite, noch besser für dich, zu optimieren.")
                 securityOverlay.remove()
                 overlay.remove()
-                button.counter.textContent = parseInt(button.counter.textContent) + 1
+                const counter = document.querySelector("div.counter")
+                counter.textContent = parseInt(counter.textContent) + 1
+                updateCounter()
                 await getLocationFeedback(feedbackContainer, button, overlay)
-                updateButtonCounter(button)
               } else {
                 window.alert("Fehler.. Bitte wiederholen.")
                 securityOverlay.remove()
@@ -13190,8 +13546,9 @@ await Helper.add("event/click-funnel")
                 window.alert("Vielen Dank für dein Feedback.\n\nDein Feedback ist vollkommen anonym, dynamisch und hilft dabei dieses Skript, noch besser für dich, zu optimieren.")
                 securityOverlay.remove()
                 overlay.remove()
-                button.counter.textContent = parseInt(button.counter.textContent) + 1
-                updateButtonCounter(button)
+                const counter = document.querySelector("div.counter")
+                counter.textContent = parseInt(counter.textContent) + 1
+                updateCounter()
               } else {
                 window.alert("Fehler.. Bitte wiederholen.")
                 securityOverlay.remove()
@@ -15007,6 +15364,19 @@ await Helper.add("event/click-funnel")
                       sourcesOverlay.remove()
                     }
 
+                    {
+                      const button = Helper.create("toolbox/left-right", buttons)
+                      button.left.textContent = ".requested"
+                      button.right.textContent = "Aktuell abgerufen Markierung anhängen"
+                      button.onclick = () => {
+                        const span = document.createElement("span")
+                        span.textContent = `, Aufgerufen am: ${Helper.convert("millis/dd.mm.yyyy hh:mm", Date.now())}`
+                        selectedNode?.appendChild(span)
+                        overlay.remove()
+                        sourcesOverlay.remove()
+                      }
+                    }
+
                     const removeButton = Helper.create("toolbox/left-right", buttons)
                     removeButton.left.textContent = ".remove"
                     removeButton.right.textContent = "Quelle entfernen"
@@ -15123,18 +15493,7 @@ await Helper.add("event/click-funnel")
                   }
 
                   function processTextContent(textContent) {
-                    const promptRegex = /prompt\(([^)]+)\)/g
-                    let match
-                    const matches = []
-                    while ((match = promptRegex.exec(textContent)) !== null) {
-                      matches.push(match)
-                    }
-                    matches.forEach(match => {
-                      const id = match[1]
-                      const userInput = window.prompt(`Bitte geben Sie den Text für ${id} ein:`)
-                      textContent = textContent.replace(`prompt(${id})`, userInput)
-                    })
-                    return textContent
+                    return Helper.convert("text/prompt", textContent)
                   }
 
                   {
@@ -16873,7 +17232,264 @@ await Helper.add("event/click-funnel")
     return text.trim()
   }
 
+  static on(event, input, callback) {
+
+    if (event === "click") {
+      input.addEventListener("click", ev => {
+        ev.preventDefault()
+        callback()
+      })
+    }
+
+    if (event === "enter") {
+      input.addEventListener("keydown", ev => {
+        if (ev.key === 'Enter') {
+          ev.preventDefault()
+          callback()
+        }
+      })
+    }
+
+    if (event === "shift+enter") {
+      input.addEventListener("keydown", ev => {
+        if (ev.key === 'Enter') {
+          if (ev.shiftKey) {
+            // do default
+          } else {
+            ev.preventDefault()
+            callback()
+          }
+        }
+      })
+    }
+
+  }
+
   static overlay(event, callback) {
+
+    if (event === "community") {
+
+      this.overlay("pop", communityOverlay => {
+        communityOverlay.onlyClosedUser()
+        const searchField = this.create("input/text", communityOverlay.content)
+        searchField.input.placeholder = "Suche nach Alias"
+
+        const flex = this.create("div/flex", communityOverlay.content)
+        const allButton = this.render("text/link", "Alle", flex)
+        allButton.onclick = () => send({type: "community"})
+
+        const blockButton = this.render("text/link", "Blockiert", flex)
+        blockButton.onclick = () => send({type: "blocked"})
+
+        const communityDiv = this.create("info/loading", communityOverlay.content)
+
+        let socket
+        if (window.location.host === "localhost:9999") {
+          socket = new WebSocket(`ws://${window.location.host}/`)
+        } else {
+          socket = new WebSocket(`wss://${window.location.host}/`)
+        }
+        communityOverlay.closeSocket(socket)
+        function send(data) {
+          socket.send(JSON.stringify(data))
+        }
+        socket.onopen = () => {
+          send({type: "community"})
+        }
+        socket.onerror = (error) => {
+          console.error('WebSocket error:', error)
+          socket.close()
+        }
+
+        socket.addEventListener("message", ev => {
+          const data = JSON.parse(ev.data)
+          if (data.type === "blocked") {
+            renderBlocked(data.blocked)
+          }
+          if (data.type === "community") {
+            renderOpen(data.community)
+          }
+          if (data.type === "unblock") {
+            renderBlocked(data.blocked)
+          }
+        })
+
+        socket.addEventListener("close", () => {
+          communityOverlay.remove()
+        })
+
+        function renderMessagesBox(community) {
+          Helper.convert("parent/scrollable", communityDiv)
+          communityDiv.style.padding = "8px"
+          Helper.sort("flag-true", {flag: "highlight", array: community})
+          for (let i = 0; i < community.length; i++) {
+            const user = community[i]
+            const box = Helper.render("user-box", user, communityDiv)
+            box.onclick = () => {
+              user.socket = socket
+              Helper.overlay("messages", user)
+            }
+          }
+        }
+
+        function renderBlockedBox(community) {
+          Helper.convert("parent/scrollable", communityDiv)
+          communityDiv.style.padding = "8px"
+          Helper.sort("flag-true", {flag: "highlight", array: community})
+          for (let i = 0; i < community.length; i++) {
+            const user = community[i]
+            const box = Helper.render("user-box", user, communityDiv)
+            box.created.textContent = `Blockiert seit: ${Helper.convert("millis/since", user.created)}`
+            box.onclick = () => {
+              Helper.overlay("pop", optionsOverlay => {
+                {
+                  const button = Helper.create("toolbox/left-right", optionsOverlay.content)
+                  button.left.textContent = ".unblock"
+                  button.right.textContent = "Entferne diesen Nutzer aus deiner Blockliste"
+                  button.onclick = () => {
+                    let message = "Möchtest du diesen Nutzer wirklich aus deiner Blockliste entfernen?"
+                    if (user.alias) message = `Möchtest du ${user.alias} wirklich aus deiner Blockliste entfernen?`
+                    const confirm = window.confirm(message)
+                    if (confirm === true) {
+                      send({type: "unblock", id: user.id})
+                      let message = "Dieser Nutzer wurde erfolgreich aus deiner Blockliste entfernt."
+                      if (user.alias) message = `${user.alias} wurde erfolgreich aus deiner Blockliste entfernt.`
+                      window.alert(message)
+                      optionsOverlay.remove()
+                      send({type: "community-to", to: user.id})
+                    }
+                  }
+                }
+              })
+            }
+          }
+        }
+
+        function renderOpen(community) {
+          if (Helper.verifyIs("array/empty", community)) {
+            userNotFound()
+            return
+          }
+          searchField.input.oninput = (ev) => {
+            if (Helper.verifyIs("text/empty", ev.target.value)) {
+              renderMessagesBox(community)
+              return
+            }
+            const filtered = community.filter(it => it.alias && it.alias.toLowerCase().includes(ev.target.value.toLowerCase()))
+            const highlighted = filtered.map(it => {
+              const highlightedAlias = it.alias.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
+              return { ...it, alias: highlightedAlias }
+            })
+            renderMessagesBox(highlighted)
+          }
+          renderMessagesBox(community)
+        }
+
+        function renderBlocked(community) {
+          if (Helper.verifyIs("array/empty", community)) {
+            userNotFound()
+            return
+          }
+          searchField.input.oninput = (ev) => {
+            if (Helper.verifyIs("text/empty", ev.target.value)) {
+              renderBlockedBox(community)
+              return
+            }
+            const filtered = community.filter(it => it.alias && it.alias.toLowerCase().includes(ev.target.value.toLowerCase()))
+            const highlighted = filtered.map(it => {
+              const highlightedAlias = it.alias.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
+              return { ...it, alias: highlightedAlias }
+            })
+            renderBlockedBox(highlighted)
+          }
+          renderBlockedBox(community)
+        }
+
+        function userNotFound() {
+          Helper.convert("parent/info", communityDiv)
+          communityDiv.textContent = "Keine Mitglieder gefunden"
+        }
+
+      })
+    }
+
+    if (event === "conflicts") {
+
+      return this.overlay("popup", overlay => {
+        overlay.onlyClosedUser()
+        overlay.appendChild(overlay.addButton)
+        overlay.addButton.onclick = () => {
+          this.overlay("popup", addOverlay => {
+            const content = this.create("div/scrollable", addOverlay)
+            const funnel = this.create("funnel/conflict", content)
+            funnel.submit.onclick = () => {
+              this.overlay("security", async securityOverlay => {
+                const res = await this.request("/register/user/conflict/", {trigger: callback.created, environment: funnel.environment.input.value, reproduce: funnel.reproduce.input.value, expected: funnel.expected.input.value, actual: funnel.actual.input.value, visibility: funnel.visibility.input.value})
+                if (res.status === 200) {
+                  window.alert("Dein Konflikt wurde erfolgreich gespeichert.")
+                  renderOpenConflicts()
+                  overlay.remove()
+                  addOverlay.remove()
+                  securityOverlay.remove()
+                } else {
+                  window.alert("Fehler.. Bitte wiederholen.")
+                  securityOverlay.remove()
+                }
+              })
+            }
+          })
+        }
+        const content = this.create("div/scrollable", overlay)
+
+        this.render("text/h1", "Konflikte", content)
+        const flexRow = this.create("div/flex", content)
+        const allButton = this.render("text/link", "Alle", flexRow)
+        const myButton = this.render("text/link", "Meine", flexRow)
+
+        const conflictsDiv = this.create("div", content)
+
+        function renderOpenConflicts() {
+          Helper.request("/get/user/conflicts-open/").then(res => {
+            if (res.status === 200) {
+              const conflicts = JSON.parse(res.response)
+              conflictsDiv.textContent = ""
+              for (let i = 0; i < conflicts.length; i++) {
+                const conflict = conflicts[i]
+                const button = Helper.create("toolbox/left-right", conflictsDiv)
+                button.left.textContent = Helper.convert("millis/dd.mm.yyyy hh:mm", conflict.created)
+                button.right.textContent = conflict.visibility
+              }
+            }
+          })
+        }
+
+        function renderClosedConflicts() {
+          Helper.request("/get/user/conflicts-closed/").then(res => {
+            if (res.status === 200) {
+              const conflicts = JSON.parse(res.response)
+              conflictsDiv.textContent = ""
+              for (let i = 0; i < conflicts.length; i++) {
+                const conflict = conflicts[i]
+                const button = Helper.create("toolbox/left-right", conflictsDiv)
+                button.left.textContent = Helper.convert("millis/dd.mm.yyyy hh:mm", conflict.created)
+                button.right.textContent = conflict.visibility
+              }
+            }
+          })
+        }
+
+        renderOpenConflicts()
+
+        allButton.onclick = () => {
+          renderOpenConflicts()
+        }
+
+        myButton.onclick = () => {
+          renderClosedConflicts()
+        }
+
+      })
+    }
 
     if (event === "html-creator") {
 
@@ -16900,6 +17516,142 @@ await Helper.add("event/click-funnel")
       return overlay
     }
 
+    if (event === "messages") {
+
+      const user = callback
+
+      this.overlay("pop", overlay => {
+        overlay.onlyClosedUser()
+        if (user.alias) overlay.info.textContent = user.alias
+        const funnel = this.create("div/flex-between", overlay.content)
+        funnel.style.margin = "0"
+        const messageField = this.create("input/textarea", funnel)
+        messageField.style.flex = "1 1 0"
+        messageField.input.style.fontSize = "13px"
+        messageField.input.style.height = "144px"
+        messageField.input.placeholder = "Nachricht"
+        messageField.input.setAttribute("required", "true")
+        messageField.input.setAttribute("accept", "text/length")
+        messageField.input.maxLength = "987"
+        messageField.input.oninput = () => this.verify("input/value", messageField.input)
+        this.verify("input/value", messageField.input)
+        this.on("shift+enter", messageField.input, async () => await submitMessage())
+        const submit = this.create("toolbox/action", funnel)
+        submit.textContent = "↑"
+        this.style(submit, {borderRadius: "50%", width: "55px", height: "34px", fontSize: "21px"})
+        async function submitMessage() {
+          await Helper.verify("input/value", messageField.input)
+          send({type: "message", message: messageField.input.value, to: user.created})
+          messageField.input.value = ""
+          Helper.add("style/node/not-valid", messageField.input)
+          await Helper.add("ms/timeout", 610)
+          send({type: "community"})
+          await Helper.add("ms/timeout", 610)
+          send({type: "community-to", to: user.created})
+        }
+        submit.onclick = async () => await submitMessage()
+        const flex = this.create("div/flex", overlay.content)
+        flex.style.marginTop = "0"
+        const blockButton = this.render("text/link", "Nutzer blockieren", flex)
+        blockButton.onclick = async () => {
+          let message = `Möchtest du wirklich diesen Nutzer blockieren?`
+          if (user.alias) message = `Möchtest du wirklich ${user.alias} blockieren?`
+          const confirm = window.confirm(message)
+          if (confirm === true) {
+            send({type: "block", id: user.created})
+            await this.add("ms/timeout", 610)
+            send({type: "community-to", to: user.created})
+          }
+        }
+        const conflictButton = this.render("text/link", "Konflikt melden", flex)
+        conflictButton.onclick = () => this.overlay("conflicts", user)
+        const addTemplate = this.render("text/link", "Template einfügen", flex)
+        addTemplate.onclick = () => {
+          this.overlay("select-template", template => {
+            messageField.input.value = template
+            this.verify("input/value", messageField.input)
+          })
+        }
+        const removeMessagesButton = this.render("text/link", "Meine Nachrichten entfernen", flex)
+        removeMessagesButton.onclick = () => {
+          send({type: "remove-messages", to: user.created})
+        }
+
+        const chatDiv = this.create("div", overlay.content)
+
+        let socket
+        if (user.socket) {
+          socket = user.socket
+          send({type: "chat", id: user.created})
+        } else {
+          if (window.location.host === "localhost:9999") {
+            socket = new WebSocket(`ws://${window.location.host}/`)
+          } else {
+            socket = new WebSocket(`wss://${window.location.host}/`)
+          }
+          overlay.closeSocket(socket)
+          socket.onopen = () => {
+            send({type: "chat", id: user.created})
+          }
+          socket.onerror = (error) => {
+            console.error('WebSocket error:', error)
+            socket.close()
+          }
+        }
+
+        socket.addEventListener("close", () => {
+          overlay.remove()
+        })
+
+        socket.addEventListener("message", async ev => {
+          const data = JSON.parse(ev.data)
+          if (data.type === "block") {
+            send({type: "community"})
+            let message = `Der Nutzer wurde erfolgreich blockiert.`
+            if (user.alias) message = `Der Nutzer ${user.alias} wurde erfolgreich blockiert.`
+            window.alert(message)
+            overlay.remove()
+          }
+          if (data.type === "chat") {
+            chatDiv.textContent = ""
+            chatDiv.removeAttribute("style")
+            chatDiv.style.display = "flex"
+            chatDiv.style.flexDirection = "column"
+            this.style(chatDiv, {display: "flex", flexDirection: "column", fontFamily: "sans-serif", wordBreak: "break-word", margin: "0 34px"})
+            for (let i = 0; i < data.chat.length; i++) {
+              const message = data.chat[i]
+              const box = this.create("box", chatDiv)
+              this.on("click", box, () => {
+                messageField.input.value = message.body
+                messageField.scrollIntoView({behavior: "smooth"})
+                this.add("style/node/valid", messageField.input)
+                messageField.input.focus()
+              })
+              box.style.whiteSpace = 'pre-wrap'
+              box.textContent = message.body
+              this.style(box, {width: "auto", maxWidth: "55%", flexShrink: "0", margin: "8px 0"})
+              if (message.to === user.created) {
+                box.style.alignSelf = "flex-end"
+                this.convert("parent/light", box)
+              } else {
+                box.style.alignSelf = "flex-start"
+              }
+            }
+          }
+          if (data.type === "message") {
+            send({type: "chat", id: user.created})
+          }
+          if (data.type === "remove-messages") {
+            send({type: "chat", id: user.created})
+          }
+        })
+
+        function send(data) {
+          socket.send(JSON.stringify(data))
+        }
+      })
+    }
+
     if (event === "toolbox") {
 
       const overlay = this.create("div/overlay")
@@ -16912,19 +17664,40 @@ await Helper.add("event/click-funnel")
       overlay.style.opacity = 0
       if (callback) callback(overlay)
       document.body.append(overlay)
-
       this.animate("fade-up", overlay)
-
-      // const animation = overlay.animate([
-      //   { opacity: 0, transform: 'translateY(13px)' },
-      //   { opacity: 1, transform: 'translateY(0)' },
-      // ], {
-      //   duration: 233,
-      //   easing: 'ease-in-out',
-      //   fill: "forwards"
-      // })
       return overlay
+    }
 
+    if (event === "pop") {
+
+      const overlay = this.create("div/overlay")
+      overlay.style.opacity = 0
+      overlay.info = this.create("header/info", overlay)
+      overlay.content = this.create("div/scrollable", overlay)
+      overlay.addButton = this.create("toolbox/add")
+      overlay.closeSocket = (socket) => {
+        overlay.removeOverlayButton.addEventListener("click", () => {
+          socket.close()
+        })
+      }
+      overlay.onlyClosedUser = () => {
+        this.request("/verify/user/closed/").then(res => {
+          if (res.status !== 200) {
+            const confirm = window.confirm("Um die folgenden Funktionen nutzen zu können, musst du dich anmelden.\n\nMöchtest du dich jetzt anmelden?")
+            if (confirm === true) {
+              overlay.remove()
+              window.open("/login/", "_blank")
+            } else {
+              overlay.remove()
+            }
+          }
+        })
+      }
+      overlay.removeOverlayButton = this.removeOverlayButton(overlay)
+      callback(overlay)
+      document.body.appendChild(overlay)
+      this.animate("fade-up", overlay)
+      return overlay
     }
 
     if (event === "popup") {
@@ -16932,6 +17705,20 @@ await Helper.add("event/click-funnel")
       const overlay = this.create("div/overlay")
       overlay.style.opacity = 0
       overlay.info = this.create("header/info", overlay)
+      overlay.addButton = this.create("toolbox/add")
+      overlay.onlyClosedUser = () => {
+        this.request("/verify/user/closed/").then(res => {
+          if (res.status !== 200) {
+            const confirm = window.confirm("Um die folgenden Funktionen nutzen zu können, musst du dich anmelden.\n\nMöchtest du dich jetzt anmelden?")
+            if (confirm === true) {
+              overlay.remove()
+              window.open("/login/", "_blank")
+            } else {
+              overlay.remove()
+            }
+          }
+        })
+      }
       overlay.removeOverlayButton = this.removeOverlayButton(overlay)
       callback(overlay)
       document.body.appendChild(overlay)
@@ -16986,9 +17773,56 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "select-template") {
+
+      this.overlay("popup", async overlay => {
+        async function renderTemplates(templates, node) {
+          Helper.convert("parent/scrollable", node)
+          for (let i = 0; i < templates.length; i++) {
+            const template = templates[i]
+            const fragment = document.createDocumentFragment()
+            const templateButton = Helper.create("button/left-right", fragment)
+            templateButton.left.innerHTML = await Helper.convert("text/purified", template.html)
+            templateButton.right.style.fontSize = "21px"
+            templateButton.onclick = () => {
+              const textContent = Helper.convert("text/prompt", templateButton.left.textContent)
+              callback(textContent)
+              overlay.remove()
+            }
+            node.appendChild(fragment)
+          }
+        }
+        const searchField = this.create("input/text", overlay)
+        searchField.input.placeholder = "Suche nach Text in deinem Template"
+        searchField.style.margin = "21px 34px"
+        this.verify("input/value", searchField.input)
+        this.add("outline-hover", searchField.input)
+        const contactsDiv = this.create("div/scrollable", overlay)
+        const res = await this.request("/get/templates/closed/")
+        if (res.status === 200) {
+          const templates = JSON.parse(res.response)
+          let filtered
+          searchField.input.oninput = async (ev) => {
+            filtered = templates.filter(it => it.html.toLowerCase().includes(ev.target.value.toLowerCase()))
+            const highlighted = filtered.map(it => {
+              const highlightedHtml = it.html.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
+              return { ...it, html: highlightedHtml }
+            })
+            await renderTemplates(highlighted, contactsDiv)
+          }
+          await renderTemplates(templates, contactsDiv)
+        } else {
+          this.convert("parent/info", contactsDiv)
+          contactsDiv.textContent = "Keine Templates gefunden"
+        }
+      })
+    }
+
   }
 
   static render(event, input, parent) {
+
+
 
     if (event === "text/node/action-button") {
       const button = this.create("button/action")
@@ -17717,124 +18551,28 @@ await Helper.add("event/click-funnel")
 
     }
 
-    if (event === "expert-box") {
+    if (event === "html/h1") {
 
-      const box = this.create("button/left-right", parent)
-      this.style(box, {width: "610px", margin: "8px", wordBreak: "break-word"})
+      const fragment = document.createDocumentFragment()
+      const h1 = document.createElement("h1")
+      fragment.appendChild(h1)
+      this.convert("text/purified", input).then(purified => {
+        h1.innerHTML = purified
+      })
+      parent?.appendChild(fragment)
+      return h1
+    }
 
-      if (!this.verifyIs("text/empty", input.getyour.expert.alias)) {
-        const h1 = document.createElement("h1")
-        h1.textContent = input.getyour.expert.alias
-        box.left.appendChild(h1)
-      }
+    if (event === "html/p") {
 
+      const fragment = document.createDocumentFragment()
       const p = document.createElement("p")
-      p.textContent = "Experte"
-      box.left.appendChild(p)
-
-      if (!this.verifyIs("text/empty", input.getyour.expert.image)) {
-        const image = document.createElement("img")
-        image.src = input.getyour.expert.image
-        image.style.width = "100%"
-        image.style.borderRadius = "5px"
-        box.left.appendChild(image)
-      }
-
-      if (!this.verifyIs("text/empty", input.getyour.expert.description)) {
-        const p = document.createElement("p")
-        p.textContent = input.getyour.expert.description
-        box.left.appendChild(p)
-      }
-
-      {
-        const container = this.create("div", box.left)
-        this.style(container, {fontFamily: "sans-serif", display: "flex"})
-        const platformDiv = document.createElement("div")
-        this.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
-        platformDiv.textContent = `Plattformen:`
-        container.appendChild(platformDiv)
-        const platformLengthDiv = document.createElement("div")
-        this.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
-        if (!this.verifyIs("number/empty", input.getyour.expert.platforms.length)) {
-          platformLengthDiv.textContent = input.getyour.expert.platforms.length
-        }
-        container.appendChild(platformLengthDiv)
-      }
-
-      {
-        const container = this.create("div", box.left)
-        this.style(container, {fontFamily: "sans-serif", display: "flex"})
-        const platformDiv = document.createElement("div")
-        this.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
-        platformDiv.textContent = `Werteinheiten:`
-        container.appendChild(platformDiv)
-        const platformLengthDiv = document.createElement("div")
-        this.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
-        let counter = 0
-        try {
-          for (let i = 0; i < input.getyour.expert.platforms.length; i++) {
-            const platform = input.getyour.expert.platforms[i]
-            if (platform.values) {
-              for (let i = 0; i < platform.values.length; i++) {
-                const value = platform.values[i]
-                counter++
-              }
-            }
-          }
-          platformLengthDiv.textContent = counter
-        } catch (error) {
-          console.log(error);
-          platformLengthDiv.textContent = 0
-        }
-        container.appendChild(platformLengthDiv)
-      }
-
-      {
-        const container = this.create("div", box.left)
-        this.style(container, {fontFamily: "sans-serif", display: "flex"})
-        const platformDiv = document.createElement("div")
-        this.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
-        platformDiv.textContent = `Reputation:`
-        container.appendChild(platformDiv)
-        const platformLengthDiv = document.createElement("div")
-        this.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
-        if (!this.verifyIs("number/empty", input.reputation)) {
-          platformLengthDiv.textContent = input.reputation
-        }
-        container.appendChild(platformLengthDiv)
-      }
-
-      {
-        const container = this.create("div", box.left)
-        this.style(container, {fontFamily: "sans-serif", display: "flex"})
-        const platformDiv = document.createElement("div")
-        this.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
-        platformDiv.textContent = `Erfahrung:`
-        container.appendChild(platformDiv)
-        const platformLengthDiv = document.createElement("div")
-        this.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
-        if (!this.verifyIs("number/empty", input.xp)) {
-          platformLengthDiv.textContent = input.xp
-        }
-        if (input.xp === undefined) {
-          platformLengthDiv.textContent = "Keine"
-          platformLengthDiv.style.color = "red"
-
-        }
-
-        if (input.xp > 0) {
-          platformLengthDiv.textContent = "Beginner"
-          platformLengthDiv.style.color = "orange"
-        }
-
-        if (input.xp > 89) {
-          platformLengthDiv.textContent = "Fortgeschritten"
-          platformLengthDiv.style.color = "green"
-        }
-        container.appendChild(platformLengthDiv)
-      }
-
-      return box
+      fragment.appendChild(p)
+      this.convert("text/purified", input).then(purified => {
+        p.innerHTML = purified
+      })
+      parent?.appendChild(fragment)
+      return p
     }
 
     if (event === "icon/node/path") {
@@ -19172,6 +19910,87 @@ await Helper.add("event/click-funnel")
       return object
     }
 
+    if (event === "open-profiles") {
+
+      parent.textContent = ""
+      this.convert("parent/flex-row", parent)
+      for (let i = 0; i < input.length; i++) {
+        const profile = input[i]
+        const button = this.create("toolbox/left-right", parent)
+        button.style.maxWidth = "610px"
+        button.right.remove()
+
+        const questions = [
+          "Erzähl etwas über dich ?",
+          "Warum als ... ?",
+          "Warum sollten wir dich wählen ?",
+          "Wie motivierst du dich ?",
+        ]
+
+        for (let i = 0; i < questions.length; i++) {
+          const question = questions[i]
+          const h2 = this.render("text/h2", question, button.left)
+          h2.style.margin = "0"
+          const content = this.render("html/p", profile.aboutYou, button.left)
+          content.style.height = "144px"
+          content.style.overflow = "auto"
+        }
+
+        button.onclick = () => {
+          this.overlay("popup", overlay => {
+            const content = this.create("div/scrollable", overlay)
+            {
+              const button = this.create("toolbox/left-right", content)
+              button.left.textContent = ".message"
+              button.right.textContent = "Sende eine Nachricht an dieses Profil"
+              button.onclick = () => {
+
+                this.overlay("popup", htmlOverlay => {
+                  const content = this.create("div/scrollable", htmlOverlay)
+                  const htmlField = this.create("input/textarea", content)
+                  htmlField.input.placeholder = `Text oder HTML Nachricht hier rein kopieren
+
+Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu kontaktieren.
+                  `
+                  htmlField.input.style.height = "233px"
+                  htmlField.input.setAttribute("required", "true")
+                  this.verify("input/value", htmlField.input)
+                  htmlField.input.oninput = () => this.verify("input/value", htmlField.input)
+                  const submit = this.create("toolbox/action", content)
+                  submit.textContent = "Nachricht jetzt senden"
+                  submit.onclick = async () => {
+                    await this.verify("input/value", htmlField.input)
+                    this.overlay("security", async securityOverlay => {
+                      const res = await this.request("/register/user/profile-message/", {id: profile.created, message: htmlField.input.value})
+                      if (res.status === 200) {
+                        window.alert("Deine Nachricht wurde erfolgreich gesendet.")
+                        htmlOverlay.remove()
+                        overlay.remove()
+                        securityOverlay.remove()
+                      } else {
+                        window.alert("Fehler.. Bitte wiederholen.")
+                        securityOverlay.remove()
+                      }
+                    })
+                  }
+                })
+              }
+            }
+            {
+              const button = this.create("toolbox/left-right", content)
+              button.left.textContent = ".conflicts"
+              button.right.textContent = "Melde einen Konflikt"
+              button.onclick = () => {
+                this.overlay("conflicts", profile)
+              }
+            }
+
+          })
+        }
+
+      }
+    }
+
     if (event === "id-map/field-funnel") {
 
       return new Promise(async(resolve, reject) => {
@@ -19218,6 +20037,152 @@ await Helper.add("event/click-funnel")
           reject(error)
         }
       })
+
+    }
+
+    if (event === "tree/node") {
+
+      const container = this.create("info/loading", parent)
+      this.request("/get/users/tree-open/", {tree: input}).then(res => {
+        if (res.status === 200) {
+          const users = JSON.parse(res.response)
+          this.convert("style/flex-row", container)
+          container.style.paddingBottom = "144px"
+          container.style.justifyContent = "space-around"
+          for (let i = 0; i < users.length; i++) {
+            const user = users[i]
+            if (user.verified === true) {
+              render(user, container)
+            }
+          }
+        } else {
+          this.convert("dark-light", container)
+          this.style(container, {margin: "21px 34px", fontFamily: "sans-serif", background: "transparent"})
+          container.textContent = `Keine Experten gefunden`
+        }
+      })
+
+      function render(user, node) {
+
+        const box = Helper.create("button/left-right", node)
+        Helper.style(box, {width: "610px", margin: "8px", wordBreak: "break-word"})
+
+        const treeObj = Helper.convert("user-tree", {user, tree: input})
+        if (!Helper.verifyIs("text/empty", treeObj.alias)) {
+          const h1 = document.createElement("h1")
+          h1.textContent = treeObj.alias
+          box.left.appendChild(h1)
+        }
+
+        if (!Helper.verifyIs("text/empty", treeObj.status)) {
+          const p = document.createElement("p")
+          p.textContent = treeObj.status
+          box.left.appendChild(p)
+        }
+
+        if (!Helper.verifyIs("text/empty", treeObj.image)) {
+          const image = document.createElement("img")
+          image.src = treeObj.image
+          image.style.width = "100%"
+          image.style.borderRadius = "5px"
+          box.left.appendChild(image)
+        }
+
+        if (!Helper.verifyIs("text/empty", treeObj.description)) {
+          const p = document.createElement("p")
+          p.textContent = treeObj.description
+          box.left.appendChild(p)
+        }
+
+        if (!Helper.verifyIs("text/empty", treeObj.platforms)) {
+          const container = Helper.create("div", box.left)
+          Helper.style(container, {fontFamily: "sans-serif", display: "flex"})
+          const platformDiv = document.createElement("div")
+          Helper.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
+          platformDiv.textContent = `Plattformen:`
+          container.appendChild(platformDiv)
+          const platformLengthDiv = document.createElement("div")
+          Helper.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
+          if (!Helper.verifyIs("number/empty", treeObj.platforms.length)) {
+            platformLengthDiv.textContent = treeObj.platforms.length
+          }
+          container.appendChild(platformLengthDiv)
+        }
+
+        if (!Helper.verifyIs("text/empty", treeObj.platforms)) {
+          const container = Helper.create("div", box.left)
+          Helper.style(container, {fontFamily: "sans-serif", display: "flex"})
+          const platformDiv = document.createElement("div")
+          Helper.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
+          platformDiv.textContent = `Werteinheiten:`
+          container.appendChild(platformDiv)
+          const platformLengthDiv = document.createElement("div")
+          Helper.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
+          let counter = 0
+          try {
+            for (let i = 0; i < treeObj.platforms.length; i++) {
+              const platform = treeObj.platforms[i]
+              if (platform.values) {
+                for (let i = 0; i < platform.values.length; i++) {
+                  const value = platform.values[i]
+                  counter++
+                }
+              }
+            }
+            platformLengthDiv.textContent = counter
+          } catch (error) {
+            console.log(error);
+            platformLengthDiv.textContent = 0
+          }
+          container.appendChild(platformLengthDiv)
+        }
+
+        {
+          const container = Helper.create("div", box.left)
+          Helper.style(container, {fontFamily: "sans-serif", display: "flex"})
+          const platformDiv = document.createElement("div")
+          Helper.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
+          platformDiv.textContent = `Reputation:`
+          container.appendChild(platformDiv)
+          const platformLengthDiv = document.createElement("div")
+          Helper.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
+          if (!Helper.verifyIs("number/empty", user.reputation)) {
+            platformLengthDiv.textContent = user.reputation
+          }
+          container.appendChild(platformLengthDiv)
+        }
+
+        {
+          const container = Helper.create("div", box.left)
+          Helper.style(container, {fontFamily: "sans-serif", display: "flex"})
+          const platformDiv = document.createElement("div")
+          Helper.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
+          platformDiv.textContent = `Erfahrung:`
+          container.appendChild(platformDiv)
+          const platformLengthDiv = document.createElement("div")
+          Helper.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
+          if (!Helper.verifyIs("number/empty", user.xp)) {
+            platformLengthDiv.textContent = user.xp
+          }
+          if (user.xp === undefined) {
+            platformLengthDiv.textContent = "Keine"
+            platformLengthDiv.style.color = "red"
+          }
+
+          if (user.xp > 0) {
+            platformLengthDiv.textContent = "Beginner"
+            platformLengthDiv.style.color = "orange"
+          }
+
+          if (user.xp > 89) {
+            platformLengthDiv.textContent = "Fortgeschritten"
+            platformLengthDiv.style.color = "green"
+          }
+          container.appendChild(platformLengthDiv)
+        }
+
+        return box
+      }
 
     }
 
@@ -19337,19 +20302,19 @@ await Helper.add("event/click-funnel")
         const button = this.create("button/left-right", input)
         button.left.textContent = ".login"
         button.right.textContent = "Dein Zugang zur personalisierten Erfahrung"
-        button.addEventListener("click", () => window.location.assign("/login/"))
+        button.addEventListener("click", () => window.open("/login/", "_blank"))
       }
       {
         const button = this.create("button/left-right", input)
         button.left.textContent = ".user-agreement"
         button.right.textContent = "Für Klarheit und Fairness im Umgang miteinander"
-        button.addEventListener("click", () => window.location.assign("/nutzervereinbarung/"))
+        button.addEventListener("click", () => window.open("/nutzervereinbarung/", "_blank"))
       }
       {
         const button = this.create("button/left-right", input)
         button.left.textContent = ".data-protection"
         button.right.textContent = "Fördert Vertrauen in digitale Interaktionen"
-        button.addEventListener("click", () => window.location.assign("/datenschutz/"))
+        button.addEventListener("click", () => window.open("/datenschutz/", "_blank"))
       }
     }
 
@@ -19679,20 +20644,30 @@ await Helper.add("event/click-funnel")
 
     if (event === "text/bottom-left") {
 
-      let bottomLeft = parent.querySelector(".bottom-left-text")
+      const text = document.createElement("div")
+      text.textContent = input
+      text.style.position = "absolute"
+      text.style.bottom = "0"
+      text.style.left = "0"
+      text.style.margin = "3px 13px"
+      parent.style.position = "relative"
+      parent.style.fontFamily = "sans-serif"
+      parent?.appendChild(text)
+      return text
+    }
 
-      if (bottomLeft !== null) {
-        bottomLeft.append(input)
-      }
+    if (event === "text/bottom-right") {
 
-      if (bottomLeft === null) {
-        bottomLeft = this.create("div/bottom-left", parent)
-        bottomLeft.classList.add("bottom-left-text")
-        bottomLeft.textContent = input
-      }
-
-      return bottomLeft
-
+      const text = document.createElement("div")
+      text.textContent = input
+      text.style.position = "absolute"
+      text.style.bottom = "0"
+      text.style.right = "0"
+      text.style.margin = "3px 13px"
+      parent.style.position = "relative"
+      parent.style.fontFamily = "sans-serif"
+      parent?.appendChild(text)
+      return text
     }
 
     if (event === "text/info") {
@@ -19812,16 +20787,8 @@ await Helper.add("event/click-funnel")
 
     if (event === "text/node/bottom-right-onhover") {
 
-      const text = document.createElement("div")
-      text.textContent = input
+      const text = this.render("text/bottom-right", input, parent)
       text.style.opacity = "0"
-      text.style.position = "absolute"
-      text.style.bottom = "0"
-      text.style.right = "0"
-      text.style.margin = "3px 13px"
-      parent.style.position = "relative"
-      parent.style.fontFamily = "sans-serif"
-      parent.append(text)
       parent.addEventListener("mouseover", () => {
         text.style.opacity = "1"
       })
@@ -19864,18 +20831,18 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "text/p") {
+
+      const fragment = document.createDocumentFragment()
       const p = document.createElement("p")
       p.textContent = input
       p.style.margin = "21px 34px"
       p.style.fontFamily = "sans-serif"
-
       p.style.color = this.colors.light.text
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         p.style.color = this.colors.dark.text
       }
-
-      if (parent !== undefined) parent.append(p)
-
+      fragment.appendChild(p)
+      parent?.appendChild(fragment)
       return p
     }
 
@@ -19894,6 +20861,21 @@ await Helper.add("event/click-funnel")
       if (parent !== undefined) parent.append(title)
 
       return title
+    }
+
+    if (event === "text/top-right") {
+
+      const fragment = document.createDocumentFragment()
+      const text = document.createElement("div")
+      text.textContent = input
+      text.style.position = "absolute"
+      text.style.top = "0"
+      text.style.right = "0"
+      text.style.margin = "1px 5px"
+      parent.style.position = "relative"
+      fragment.appendChild(text)
+      parent?.appendChild(fragment)
+      return text
     }
 
     if (event === "platform-values/closed") {
@@ -20584,7 +21566,7 @@ await Helper.add("event/click-funnel")
                 this.overlay("popup", async overlay => {
                   overlay.info.textContent = `${platform.name}.values`
                   const searchField = this.create("input/text", overlay)
-                  searchField.input.placeholder = "Suche nach Alias.."
+                  searchField.input.placeholder = "Suche nach Alias"
                   this.verify("input/value", searchField.input)
                   const units = this.create("info/loading", overlay)
                   const res = await this.request("/get/platform/values-self/", {platform: platform.name})
@@ -21340,6 +22322,19 @@ await Helper.add("event/click-funnel")
                   child.appendChild(div)
                   window.alert("DIV Element wurde erfolgreich angehängt.")
                 }
+              }
+
+              if (child.tagName === "svg") {
+
+                const button = this.create("toolbox/left-right", buttons)
+                button.left.textContent = ".cut-to-corners"
+                button.right.textContent = "Schneide dein SVG bis an seine äußersten Kanten"
+                button.onclick = () => {
+                  // todo no svg view aber das andere ja
+
+                }
+
+
               }
 
               if (child.closest("svg") !== null) {
@@ -22509,27 +23504,87 @@ await Helper.add("event/click-funnel")
 
               if (child.tagName !== "BODY") {
 
-                const button = this.create("toolbox/left-right", buttons)
-                button.left.textContent = ".innerHTML"
-                button.right.textContent = "Element Inhalt aktualisieren"
-                button.onclick = () => {
 
-                  this.overlay("toolbox", overlay => {
-                    overlay.info.textContent = `<${this.convert("node/selector", child)}.innerHTML`
-                    const htmlField = this.create("field/textarea", overlay)
-                    htmlField.label.textContent = "Element Inhalt"
-                    htmlField.input.style.height = "55vh"
-                    htmlField.input.style.fontFamily = "monospace"
-                    htmlField.input.style.fontSize = "13px"
-                    htmlField.input.placeholder = "<div>..</div>"
-                    htmlField.input.value = child.innerHTML
-                    this.add("outline-hover", htmlField.input)
-                    this.verify("input/value", htmlField.input)
-                    htmlField.input.oninput = async () => {
-                      child.innerHTML = await Helper.convert("text/purified", htmlField.input.value)
-                    }
-                  })
+                {
+                  const button = this.create("toolbox/left-right", buttons)
+                  button.left.textContent = ".innerHTML"
+                  button.right.textContent = "Element Inhalt aktualisieren"
+                  button.onclick = () => {
+
+                    this.overlay("toolbox", overlay => {
+                      overlay.info.textContent = `<${this.convert("node/selector", child)}.innerHTML`
+                      const htmlField = this.create("field/textarea", overlay)
+                      htmlField.label.textContent = "Element Inhalt"
+                      htmlField.input.style.height = "55vh"
+                      htmlField.input.style.fontFamily = "monospace"
+                      htmlField.input.style.fontSize = "13px"
+                      htmlField.input.placeholder = "<div>..</div>"
+                      htmlField.input.value = child.innerHTML
+                      this.add("outline-hover", htmlField.input)
+                      this.verify("input/value", htmlField.input)
+                      htmlField.input.oninput = async () => {
+                        child.innerHTML = await Helper.convert("text/purified", htmlField.input.value)
+                      }
+                    })
+                  }
                 }
+
+
+                {
+                  const button = this.create("toolbox/left-right", buttons)
+                  button.left.textContent = ".textContent"
+                  button.right.textContent = "Text Inhalt aktualisieren"
+                  button.onclick = () => {
+
+                    const editors = [
+                      { name: 'codepen.io', url: 'https://codepen.io/pen/?editors=1100' },
+                      { name: 'jsfiddle.net', url: 'https://jsfiddle.net/' },
+                      { name: 'codesandbox.io', url: 'https://codesandbox.io/s/new' },
+                      { name: 'jsbin.com', url: 'https://jsbin.com/?js' },
+                      { name: 'playcode.io', url: 'https://playcode.io/javascript' },
+                      { name: 'blackbox.ai', url: 'https://blackbox.ai/' },
+                      { name: 'beautifier.io', url: 'https://beautifier.io/' },
+                    ]
+
+
+                    this.overlay("toolbox", overlay => {
+                      overlay.info.textContent = `<${this.convert("node/selector", child)}.textContent`
+                      const content = this.create("div/scrollable", overlay)
+                      const htmlField = this.create("input/textarea", content)
+                      htmlField.input.style.height = "55vh"
+                      htmlField.input.style.fontFamily = "monospace"
+                      htmlField.input.style.fontSize = "13px"
+                      htmlField.input.placeholder = "Mein Text Inhalt"
+                      htmlField.input.value = child.textContent
+                      this.add("outline-hover", htmlField.input)
+                      this.verify("input/value", htmlField.input)
+                      htmlField.input.oninput = () => {
+                        child.textContent = htmlField.input.value
+                      }
+
+                      for (let i = 0; i < editors.length; i++) {
+                        const editor = editors[i]
+                        const button = this.create("toolbox/left-right", content)
+                        button.left.textContent = `.${editor.name}`
+                        button.right.textContent = "Öffnet einen Editor in einem neuen Fenster"
+                        button.onclick = () => window.open(editor.url, "_blank")
+                      }
+
+                    })
+                  }
+                }
+
+                {
+                  const button = this.create("toolbox/left-right", buttons)
+                  button.left.textContent = ".trim-lines"
+                  button.right.textContent = "Jede Zeile wird von äußeren Leerzeichen befreit"
+                  button.onclick = () => {
+                    const textContent = child.textContent
+                    child.textContent = textContent.split('\n').map(line => line.trim()).join('\n')
+                    window.alert("Dein Text Inhalt wurde erfolgreich formattiert.")
+                  }
+                }
+
 
               }
 
@@ -22662,6 +23717,30 @@ await Helper.add("event/click-funnel")
                           })
                         }
                       }
+
+                      {
+                        const button = this.create("toolbox/left-right", buttons)
+                        button.left.textContent = ".upload"
+                        button.right.textContent = "Lade dein eigenes SVG und füge es deinem Element hinzu"
+                        button.onclick = () => {
+                          this.overlay("popup", overlay => {
+                            const inputField = this.create("input/file", overlay)
+                            inputField.input.setAttribute("accept", "image/svg+xml")
+                            this.add("style/node/not-valid", inputField.input)
+                            inputField.input.oninput = async () => {
+                              const file = inputField.input.files[0]
+                              if (file.type === "image/svg+xml") {
+                                this.add("style/node/valid", inputField.input)
+                                const svg = await this.convert("file/svg", file)
+                                child.appendChild(svg)
+                                this.remove("overlays")
+                              } else {
+                                window.alert("Falsches Format. Es sind nur .svg Dateien erlaubt.")
+                              }
+                            }
+                          })
+                        }
+                      }
                     })
                   }
                 }
@@ -22676,11 +23755,8 @@ await Helper.add("event/click-funnel")
                   button.right.textContent = "Dark Light Skript für dein Element anhängen"
                   button.onclick = async () => {
                     const selector = await this.convert("element/selector", child)
-                    const script = document.createElement("script")
-                    script.id = "dark-light-aware"
-                    script.type = "module"
-                    script.textContent = `import {Helper} from "/js/Helper.js"\nHelper.convert("selector/dark-light", "${selector}")`
-                    if (!document.getElementById(script.id)) document.body.appendChild(script)
+                    const script = this.create("script", {id: "sdark-light-aware", js: `Helper.convert("selector/dark-light", "${selector}")`})
+                    this.add("script-onbody", script)
                     window.alert("Dark Light Skript erfolgreich angehängt.")
                   }
                 }
@@ -24057,6 +25133,44 @@ await Helper.add("event/click-funnel")
       renderHtmlValuesOverlay(input)
     }
 
+    if (event === "user-reputation") {
+
+      const fragment = document.createDocumentFragment()
+      function getRecommendation(reputation) {
+        if (reputation < -610) {
+          return "Es scheint, dass es ernsthafte Probleme gibt, die gelöst werden müssen. Wir empfehlen eine umfassende Überprüfung der Aktivitäten und möglicherweise professionelle Unterstützung, um Verhaltensänderungen herbeizuführen."
+        } else if (reputation < -145) {
+          return "Die Reputation ist besorgniserregend. Es wäre hilfreich, detaillierte Rückmeldungen und gezielte Unterstützung anzubieten, um die zugrunde liegenden Ursachen der negativen Bewertung zu adressieren."
+        } else if (reputation < -90) {
+          return "Die Reputation weist auf Herausforderungen hin. Ermutigen Sie den Nutzer, Feedback anzunehmen und Verbesserungsmaßnahmen zu implementieren, um seine Interaktionen zu verbessern."
+        } else if (reputation < -34) {
+          return "Der Nutzer hat einige Schwierigkeiten gezeigt. Eine positive Verstärkung und klar definierte Ziele könnten hilfreich sein, um die Reputation zu verbessern."
+        } else if (reputation < -13) {
+          return "Die Reputation zeigt eine leichte negative Tendenz. Geben Sie konstruktives Feedback und Unterstützung, um die Engagement-Qualität zu erhöhen."
+        } else if (reputation === 0) {
+          return "Neutral"
+        } else if (reputation <= 13) {
+          return "Der Nutzer hat eine gute Reputation. Weiterhin positives Engagement fördern und Möglichkeiten zur weiteren Verbesserung bieten."
+        } else if (reputation <= 34) {
+          return "Der Nutzer hat eine sehr gute Reputation. Anerkennung und zusätzliche Herausforderungen könnten motivierend wirken."
+        } else if (reputation <= 89) {
+          return "Der Nutzer zeigt herausragendes Engagement. Überlege, wie du diesen Beitrag weiter anerkennen und belohnen kannst."
+        } else if (reputation <= 144) {
+          return "Exzellente Leistung und Engagement. Erwäge besondere Anerkennung oder Belohnungen für den außergewöhnlichen Beitrag zur Community."
+        } else if (reputation <= 610) {
+          return "Der Nutzer hat eine beeindruckende Reputation. Dies ist ein wertvolles Mitglied der Community; eine bedeutende Auszeichnung oder persönliche Anerkennung könnten angebracht sein."
+        } else {
+          return "Der Nutzer hat eine außergewöhnliche Reputation. Biete herausragende Anerkennung und ziehe in Betracht, ihm spezielle Verantwortungen oder Auszeichnungen zu geben."
+        }
+      }
+
+      const recommendation = getRecommendation(input)
+      const text = this.render("text/p", `Reputation: ${recommendation}`, fragment)
+      text.style.fontSize = "13px"
+      parent.appendChild(fragment)
+      return text
+    }
+
     if (event === "user/selector/all") {
 
       const node = document.querySelector(parent)
@@ -24281,6 +25395,55 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "user-box") {
+
+      const fragment = document.createDocumentFragment()
+      const it = this.create("toolbox/left-right", fragment)
+      this.style(it, {margin: "8px", justifyContent: "center"})
+      this.style(it.right, {fontSize: "21px"})
+
+      if (!this.verifyIs("text/empty", input.image)) {
+        const img = document.createElement("img")
+        img.src = input.image
+        img.style.width = "144px"
+        img.style.height = "144px"
+        img.style.borderRadius = "50%"
+        img.style.objectFit = "cover"
+        img.style.objectPosition = "center"
+        it.left.appendChild(img)
+      }
+
+      if (!this.verifyIs("text/empty", input.alias)) {
+        it.alias = this.render("html/h1", input.alias, it.right)
+      }
+
+      if (!this.verifyIs("number/empty", input.created)) {
+        it.created = this.render("text/p", `Auf der Plattform seit: ${this.convert("millis/since", input.created)}`, it.right)
+      }
+
+      if (!this.verifyIs("text/empty", input.status)) {
+        it.status = this.render("text/p", `Status: ${input.status}`, it.right)
+      }
+
+      let reputation
+      if (!this.verifyIs("number/empty", input.reputation)) {
+        it.reputation = this.render("user-reputation", input.reputation, it.right)
+      }
+
+      if (input.highlight === true) {
+        this.add("style/new-message", it)
+        if (it.alias) it.alias.style.color = this.colors.light.text
+        if (it.created) it.created.style.color = this.colors.light.text
+        if (it.status) it.status.style.color = this.colors.light.text
+        if (it.reputation) it.reputation.style.color = this.colors.light.text
+      } else {
+        it.newMessageText = this.render("text/node/bottom-right-onhover", "Keine neuen Nachrichten", it)
+      }
+
+      parent?.appendChild(fragment)
+      return it
+    }
+
   }
 
   static remove(event, input) {
@@ -24374,6 +25537,14 @@ await Helper.add("event/click-funnel")
       }
     }
 
+    if (event === "style/new-message") {
+
+      input.querySelectorAll("*").forEach(node => {
+        if (node.textContent === "Neue Nachrichten gefunden" || node.textContent === "●") node.remove()
+      })
+      this.convert("button/dark-light", input)
+    }
+
     if (event === "event-listener") {
       Array.from(document.querySelectorAll('*')).forEach(element => element.replaceWith(element.cloneNode(true)));
     }
@@ -24425,11 +25596,26 @@ await Helper.add("event/click-funnel")
   static sort(event, input) {
     // event = input/by/algorithm
 
-    // sort by text
-    // if (event === "property-query") {
-    //   const filtered = input.array.filter(it => it[input.property].toLowerCase().includes(input.query.toLowerCase()))
-    //   return filtered.map(it => { ...it })
-    // }
+    if (event === "flag-true") {
+
+      return input.array.sort((a, b) => {
+        const flagA = a[input.flag] ?? false;
+        const flagB = b[input.flag] ?? false;
+        if (flagA && !flagB) return -1;
+        if (!flagA && flagB) return 1;
+        return 0;
+      })
+    }
+
+    if (event === "created-desc") {
+
+      return input?.sort((a, b) => {
+        if (!a.created && !b.created) return 0
+        if (!a.created) return 1
+        if (!b.created) return -1
+        b.created.localeCompare(a.created)
+      })
+    }
 
     if (event === "array/reputation/descending") {
       return input?.sort((a, b) => b.reputation - a.reputation)
@@ -24451,6 +25637,7 @@ await Helper.add("event/click-funnel")
       if (input.fontWeight) node.style.fontWeight = input.fontWeight
       if (input.fontFamily) node.style.fontFamily = input.fontFamily
       if (input.fontSize) node.style.fontSize = input.fontSize
+      if (input.flexShrink) node.style.flexShrink = input.flexShrink
       if (input.height) node.style.height = input.height
       if (input.minHeight) node.style.minHeight = input.minHeight
       if (input.width) node.style.width = input.width
@@ -25213,6 +26400,15 @@ await Helper.add("event/click-funnel")
         try {
           return this.verifyIs("text/js", input.value)
         } catch (error) {
+          return false
+        }
+      }
+
+      if (input.getAttribute("accept") === "text/length") {
+
+        if (input.value.length <= input.maxLength) {
+          return true
+        } else {
           return false
         }
       }

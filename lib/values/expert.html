@@ -273,37 +273,6 @@
                 })
               })
             }
-            {
-              const button = Helper.create("button/left-right", content)
-              button.right.textContent = "Mein Konto entfernen"
-              button.left.textContent = ".remove"
-              button.addEventListener("click", () => {
-                const confirm = window.confirm("Du bist gerade dabei deine persönliche Datenbank zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden. Du wirst abgemeldet und musst dich erneut registrieren lassen.\n\nMöchtest du alle deine Daten wirklich löschen?")
-                if (confirm === true) {
-                  const prompt = window.prompt("Bitte bestätige deine E-Mail Adresse, um fortzufahren.")
-                  if (Helper.verifyIs("text/empty", prompt)) {
-                    alert("Fehler.. Bitte wiederholen.")
-                    throw new Error("not found")
-                  }
-                  Helper.overlay("security", async securityOverlay => {
-                    const res = await Helper.request("/verify/email/closed/", {email: prompt})
-                    if (res.status === 200) {
-                      const res = await Helper.request("/remove/user/self/", {email: prompt})
-                      if (res.status === 200) {
-                        alert("Daten erfolgreich gelöscht.")
-                        window.location.assign("/")
-                      } else {
-                        alert("Fehler.. Bitte wiederholen.")
-                        securityOverlay.remove()
-                      }
-                    } else {
-                      alert("Fehler.. Bitte wiederholen.")
-                      securityOverlay.remove()
-                    }
-                  })
-                }
-              })
-            }
           } else {
             if (res1.status !== 200) {
               Helper.convert("element/reset", content)

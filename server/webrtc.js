@@ -178,4 +178,25 @@ function startWebRtc(server) {
 
 }
 
-module.exports = { startWebRtc }
+function startWebSocket(server) {
+  const wss = new WebSocket.Server({server})
+  wss.on('connection', (ws, req) => {
+    const url = req.url
+    if (url === "/messages") {
+      handleMessages(ws, req)
+    }
+  })
+}
+
+function handleMessages(ws, req) {
+  ws.on('message', (message) => {
+    console.log('Nachricht auf /messages empfangen:', message)
+    ws.send('Nachricht auf /messages empfangen!')
+  })
+
+  ws.on('close', () => {
+    console.log('Verbindung auf /messages geschlossen')
+  })
+}
+
+module.exports = { startWebRtc, startWebSocket }
