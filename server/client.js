@@ -11,7 +11,7 @@ const storage = multer.memoryStorage()
 const upload = multer({storage})
 const http = require("http")
 const path = require("node:path")
-const {startWebRtc} = require("./webrtc.js")
+const {startWebSocket} = require("./websocket.js")
 
 let all
 (async () => {
@@ -626,6 +626,6 @@ async(req, res) => {
   return res.sendStatus(404)
 })
 
-startWebRtc(server)
+startWebSocket(server)
 const port = 9999
 server.listen(port, () => console.log(`[client] is running on port :${port}`))

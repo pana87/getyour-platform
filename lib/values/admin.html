@@ -39,8 +39,16 @@
             const button = Helper.create("button/left-right", buttons)
             button.left.textContent = ".start"
             button.right.textContent = "Beginne deine digitale Reise"
-            button.addEventListener("click", () => window.open("/", "_blank"))
+            button.onclick = () => window.open("/", "_blank")
           }
+
+          {
+            const button = Helper.create("button/left-right", buttons)
+            button.left.textContent = ".login"
+            button.right.textContent = "Schnell und einfach anmelden"
+            button.onclick = () => window.open("/login/", "_blank")
+          }
+
 
           const res = await Helper.request("/verify/user/admin/")
           if (res && res.status === 200) {
