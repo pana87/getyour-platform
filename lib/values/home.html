@@ -427,6 +427,13 @@
       // unique tags event
       // get credits
 
+      const logoDiv = document.createElement("div")
+      Helper.style(logoDiv, {display: "flex", justifyContent: "center", height: "100vh"})
+      document.body.appendChild(logoDiv)
+      const logo = document.createElement("img")
+      logo.src = "/public/logo-getyour-red.svg"
+      logoDiv.appendChild(logo)
+
       const parentTitle = Helper.render("text/title", "Dein Ansprechpartner", document.body)
       Helper.request("/get/user/parent/").then(res => {
         if (res.status === 200) {

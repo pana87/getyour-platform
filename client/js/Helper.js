@@ -20058,7 +20058,8 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
         } else {
           this.convert("dark-light", container)
           this.style(container, {margin: "21px 34px", fontFamily: "sans-serif", background: "transparent"})
-          container.textContent = `Keine Experten gefunden`
+          container.textContent = `Keine Ergebnisse gefunden`
+          container.style.paddingBottom = "144px"
         }
       })
 
