@@ -20069,21 +20069,22 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
         Helper.style(box, {width: "610px", margin: "8px", wordBreak: "break-word"})
 
         const treeObj = Helper.convert("user-tree", {user, tree: input})
-        if (!Helper.verifyIs("text/empty", treeObj.alias)) {
+
+        if (!Helper.verifyIs("text/empty", user.alias)) {
           const h1 = document.createElement("h1")
-          h1.textContent = treeObj.alias
+          h1.textContent = user.alias
           box.left.appendChild(h1)
         }
 
-        if (!Helper.verifyIs("text/empty", treeObj.status)) {
+        if (!Helper.verifyIs("text/empty", user.status)) {
           const p = document.createElement("p")
-          p.textContent = treeObj.status
+          p.textContent = user.status
           box.left.appendChild(p)
         }
 
-        if (!Helper.verifyIs("text/empty", treeObj.image)) {
+        if (!Helper.verifyIs("text/empty", user.image)) {
           const image = document.createElement("img")
-          image.src = treeObj.image
+          image.src = user.image
           image.style.width = "100%"
           image.style.borderRadius = "5px"
           box.left.appendChild(image)
@@ -20132,7 +20133,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
             }
             platformLengthDiv.textContent = counter
           } catch (error) {
-            console.log(error);
+            console.log(error)
             platformLengthDiv.textContent = 0
           }
           container.appendChild(platformLengthDiv)
@@ -20140,22 +20141,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
         {
           const container = Helper.create("div", box.left)
-          Helper.style(container, {fontFamily: "sans-serif", display: "flex"})
-          const platformDiv = document.createElement("div")
-          Helper.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
-          platformDiv.textContent = `Reputation:`
-          container.appendChild(platformDiv)
-          const platformLengthDiv = document.createElement("div")
-          Helper.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
-          if (!Helper.verifyIs("number/empty", user.reputation)) {
-            platformLengthDiv.textContent = user.reputation
-          }
-          container.appendChild(platformLengthDiv)
-        }
-
-        {
-          const container = Helper.create("div", box.left)
-          Helper.style(container, {fontFamily: "sans-serif", display: "flex"})
+          Helper.style(container, {fontFamily: "sans-serif", display: "flex", margin: "21px 0"})
           const platformDiv = document.createElement("div")
           Helper.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
           platformDiv.textContent = `Erfahrung:`
@@ -20181,6 +20167,9 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
           }
           container.appendChild(platformLengthDiv)
         }
+
+        const reputation = Helper.render("user-reputation", user.reputation, box.left)
+        Helper.style(reputation, {fontSize: "21px", margin: "21px 0"})
 
         return box
       }
