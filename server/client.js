@@ -13,6 +13,7 @@ const http = require("http")
 const path = require("node:path")
 const {startWebSocket} = require("./websocket.js")
 
+// https://github.com/ipfs/helia/wiki/Migrating-from-js-IPFS
 let all
 (async () => {
   all = await import('it-all')
