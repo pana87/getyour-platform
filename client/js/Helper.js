@@ -2410,6 +2410,12 @@ export class Helper {
 
     }
 
+    if (event === "pointer") {
+
+      input.setAttribute("onmouseover", "this.style.cursor = 'pointer'; this.style.outline = '3px solid #999'")
+      input.setAttribute("onmouseout", "this.style.cursor = null; this.style.outline = null")
+    }
+
     if (event === "toolbox/buttons") {
 
       const back = this.create("toolbox/back")
@@ -4029,8 +4035,9 @@ export class Helper {
           overlay.onlyClosedUser()
           const content = this.create("div/scrollable", overlay)
           const funnel = this.create("funnel/profile", content)
+
           funnel.submit.onclick = async () => {
-            await this.verify("input/value", funnel.visibility.input)
+            await this.verify("funnel", funnel)
             this.overlay("security", async securityOverlay => {
               const res = await Helper.request("/register/user/profile/", {aboutYou: funnel.aboutYou.input.value, whyThis: funnel.whyThis.input.value, whyYou: funnel.whyYou.input.value, strength: funnel.strength.input.value, weakness: funnel.weakness.input.value, motivation: funnel.motivation.input.value, visibility: funnel.visibility.input.value})
               if (res.status === 200) {
@@ -5471,6 +5478,7 @@ export class Helper {
             for (let i = 0; i < profile.messages.length; i++) {
               const message = profile.messages[i]
               const box = this.create("box", messagesDiv)
+              this.style(box, {fontFamily: "sans-serif", fontSize: "21px"})
               box.innerHTML = await this.convert("text/purified", message.html)
               box.onclick = () => {
                 this.overlay("popup", overlay => {
@@ -5502,7 +5510,7 @@ export class Helper {
             }
           }
 
-          const title = this.render("text/h2", "Meinen Nachrichten")
+          const title = this.render("text/h2", "Meine Nachrichten")
           input.prepend(title)
 
 
@@ -5516,9 +5524,8 @@ export class Helper {
         }
       })
 
-
       it.aboutYou = this.create("input/textarea", input)
-      const aboutYouPlaceholder = `Erzähl etwas über dich?
+      const aboutYouPlaceholder = `Erzähl etwas über dich ?
 
 - was du gerade machst (beruflich oder privat)
 - etwas was dem anderen hilft
@@ -5532,18 +5539,28 @@ z.b., ich bin ... (deine Person), das heißt ... (Vorteil), das bedeutet für di
       it.aboutYou.input.style.height = "144px"
       this.add("style/node/valid", it.aboutYou.input)
       it.aboutYou.input.style.fontSize = "13px"
+      it.aboutYou.input.setAttribute("accept", "text/length")
+      it.aboutYou.input.maxLength = "4181"
 
       it.whyThis = this.create("input/textarea", input)
-      const whyThisPlaceholder = `Warum als ... ?
+      const whyThisPlaceholder = `Was kannst du besonders gut ?
 
-- deine Tätigkeit im Moment
+- Nicht in Bullet Points schreiben
+- Vollständige Sätze formulieren
 
-z.b., ich arbeite als ... (deine Tätigkeit), das heißt ... (Vorteil), das bedeutet für dich ... (Nutzen für den anderen).
+z.b., mit der STAR Methode:
+
+1. Situation
+2. Task
+3. Action
+4. Result
       `
       it.whyThis.input.placeholder = whyThisPlaceholder
       it.whyThis.input.style.height = "144px"
       this.add("style/node/valid", it.whyThis.input)
       it.whyThis.input.style.fontSize = "13px"
+      it.whyThis.input.setAttribute("accept", "text/length")
+      it.whyThis.input.maxLength = "4181"
 
       it.whyYou = this.create("input/textarea", input)
       const whyYouPlaceholder = `Warum sollten wir dich wählen ?
@@ -5556,6 +5573,8 @@ z.b., ich kann ... (deine Stärken), das heißt ... (Vorteil), das bedeutet für
       it.whyYou.input.style.height = "144px"
       this.add("style/node/valid", it.whyYou.input)
       it.whyYou.input.style.fontSize = "13px"
+      it.whyYou.input.setAttribute("accept", "text/length")
+      it.whyYou.input.maxLength = "4181"
 
       it.strength = this.create("input/textarea", input)
       const strengthPlaceholder = `Was sind deine Stärken ?
@@ -5568,6 +5587,8 @@ z.b., ich kann ... (deine Stärken), das heißt ... (Vorteil), das bedeutet für
       it.strength.input.style.height = "144px"
       this.add("style/node/valid", it.strength.input)
       it.strength.input.style.fontSize = "13px"
+      it.strength.input.setAttribute("accept", "text/length")
+      it.strength.input.maxLength = "6765"
 
       it.weakness = this.create("input/textarea", input)
       const weaknessPlaceholder = `Was sind deine Schwächen ?
@@ -5583,23 +5604,28 @@ z.b., ich bin ... (deine Schwäche), aber ich arbeite daran es zu verbessern mit
       it.weakness.input.style.height = "144px"
       this.add("style/node/valid", it.weakness.input)
       it.weakness.input.style.fontSize = "13px"
+      it.weakness.input.setAttribute("accept", "text/length")
+      it.weakness.input.maxLength = "6765"
 
       it.motivation = this.create("input/textarea", input)
       const motivationPlaceholder = `Wie motivierst du dich ?
 
 z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, ..
-
       `
       it.motivation.input.placeholder = motivationPlaceholder
       it.motivation.input.style.height = "144px"
       this.add("style/node/valid", it.motivation.input)
       it.motivation.input.style.fontSize = "13px"
+      it.motivation.input.setAttribute("accept", "text/length")
+      it.motivation.input.maxLength = "4181"
 
       it.visibility = this.create("input/text", input)
       it.visibility.input.placeholder = "Sichtbarkeit (open/closed)"
       it.visibility.input.value = "closed"
       it.visibility.input.setAttribute("required", "true")
       it.visibility.input.oninput = () => this.verify("input/value", it.visibility.input)
+      it.visibility.input.setAttribute("accept", "text/length")
+      it.visibility.input.maxLength = "6"
       this.verify("input/value", it.visibility.input)
 
       it.submit = this.create("toolbox/action", input)
@@ -9253,11 +9279,7 @@ await Helper.add("event/click-funnel")
       }
 
       if (input.tagName === "A") {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          input.style.color = this.colors.link.active
-        } else {
-          input.style.color = this.colors.link.color
-        }
+        this.convert("link/dark-light", input)
       }
 
       if (input.classList.contains("field")) {
@@ -10426,6 +10448,15 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "link/dark-light") {
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        input.style.color = this.colors.link.active
+      } else {
+        input.style.color = this.colors.link.color
+      }
+    }
+
     if (event === "styles/text") {
       const styles = input.style
       const div = document.createElement("div")
@@ -10579,6 +10610,7 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "text/dark-light") {
+
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         input.style.color = this.colors.dark.text
       } else {
@@ -15075,9 +15107,9 @@ await Helper.add("event/click-funnel")
     if (event === "openSourcesOverlay") {
 
       return (selectedNode) => {
-        this.overlay("popup", async sourcesOverlay => {
+        this.overlay("pop", async sourcesOverlay => {
           sourcesOverlay.info.textContent = ".sources"
-          const create = this.create("toolbox/left-right", sourcesOverlay)
+          const create = this.create("toolbox/left-right", sourcesOverlay.content)
           create.left.textContent = ".create"
           create.right.textContent = "Neue Quelle definieren"
           create.onclick = () => {
@@ -15151,8 +15183,91 @@ await Helper.add("event/click-funnel")
               }
             })
           }
-          this.render("text/hr", "Meine Quellen", sourcesOverlay)
-          const sourceList = this.create("info/loading", sourcesOverlay)
+
+
+          {
+            const button = Helper.create("toolbox/left-right", sourcesOverlay.content)
+            button.left.textContent = ".cite-button"
+            button.right.textContent = "Erlaube deinen Nutzern dieses Dokument zu zitieren"
+            button.onclick = () => {
+
+              function extractAuthors() {
+                const authorsElement = document.querySelector('.authors')
+                if (authorsElement) {
+                  const authorsText = authorsElement.textContent.replace('Authoren: ', '').trim()
+                  const authorsArray = authorsText.split(',').map(author => author.trim())
+                  const formattedAuthors = authorsArray.join(', ')
+                  return formattedAuthors
+                } else {
+                  window.alert('Kein Element mit der Klasse "authors" gefunden!')
+                }
+              }
+
+              function extractTitle() {
+                const titleElement = document.querySelector('title')
+                if (titleElement) {
+                  return titleElement.textContent
+                } else {
+                  window.alert('Es wurde kein <title> im Dokument gefunden!')
+                }
+              }
+
+              function extractYear() {
+                const createdElement = document.querySelector('.post-created')
+                if (createdElement) {
+                  const dateText = createdElement.textContent.replace('Erstellt am: ', '').trim()
+                  return dateText.match(/\b\d{4}\b/)
+                } else {
+                  window.alert('Kein Element mit der Klasse "post-created" gefunden!')
+                }
+              }
+
+              const authors = extractAuthors()
+              const title = extractTitle()
+              const year = extractYear()
+              const requested = createRequested()
+
+              const fullCite = `${authors}, "${title}", getyour-plattform, ${year}, https://www.get-your.de${window.location.pathname}${requested.textContent}`
+              const citeButton = Helper.render("cite-button", fullCite, document.body)
+              window.alert("Dein Zitier-Button wurde erfolgreich im <body> angehängt.")
+              Helper.remove("overlays")
+            }
+          }
+
+          function createRequested() {
+            const span = document.createElement("span")
+            span.textContent = `, Aufgerufen am: ${Helper.convert("millis/dd.mm.yyyy hh:mm", Date.now())}`
+            return span
+          }
+
+          {
+            const button = Helper.create("toolbox/left-right", sourcesOverlay.content)
+            button.left.textContent = ".requested"
+            button.right.textContent = "Aktuell abgerufen Markierung anhängen"
+            button.onclick = () => {
+              const span = createRequested()
+              selectedNode?.appendChild(span)
+              sourcesOverlay.content.remove()
+            }
+          }
+
+          const timestampButton = Helper.create("toolbox/left-right", sourcesOverlay.content)
+          timestampButton.left.textContent = ".timestamp"
+          timestampButton.right.textContent = "Füge einen Zeitstempel ein"
+          timestampButton.onclick = () => {
+            const p = document.createElement("p")
+            p.className = "post-created"
+            p.style.fontSize = "13px"
+            p.textContent = `Erstellt am: ${Helper.convert("millis/dd.mm.yyyy hh:mm", Date.now())}`
+            selectedNode.appendChild(p)
+            sourcesOverlay.content.remove()
+          }
+
+
+
+
+          this.render("text/hr", "Meine Quellen", sourcesOverlay.content)
+          const sourceList = this.create("info/loading", sourcesOverlay.content)
           async function renderSourceButton(source, node, query = "") {
 
             const button = Helper.create("toolbox/left-right", node)
@@ -15265,20 +15380,9 @@ await Helper.add("event/click-funnel")
                     authorsButton.right.textContent = "Füge die Authoren ein"
                     authorsButton.onclick = () => {
                       const p = document.createElement("p")
+                      p.className = "authors"
                       p.style.fontSize = "13px"
                       p.textContent = `Authoren: ${source.authors.join(", ")}`
-                      selectedNode.appendChild(p)
-                      overlay.remove()
-                      sourcesOverlay.remove()
-                    }
-
-                    const timestampButton = Helper.create("toolbox/left-right", buttons)
-                    timestampButton.left.textContent = ".timestamp"
-                    timestampButton.right.textContent = "Füge einen Zeitspempel ein"
-                    timestampButton.onclick = () => {
-                      const p = document.createElement("p")
-                      p.style.fontSize = "13px"
-                      p.textContent = `Erstellt am: ${Helper.convert("millis/dd.mm.yyyy hh:mm", Date.now())}`
                       selectedNode.appendChild(p)
                       overlay.remove()
                       sourcesOverlay.remove()
@@ -15362,19 +15466,6 @@ await Helper.add("event/click-funnel")
                       selectedNode?.appendChild(cite)
                       overlay.remove()
                       sourcesOverlay.remove()
-                    }
-
-                    {
-                      const button = Helper.create("toolbox/left-right", buttons)
-                      button.left.textContent = ".requested"
-                      button.right.textContent = "Aktuell abgerufen Markierung anhängen"
-                      button.onclick = () => {
-                        const span = document.createElement("span")
-                        span.textContent = `, Aufgerufen am: ${Helper.convert("millis/dd.mm.yyyy hh:mm", Date.now())}`
-                        selectedNode?.appendChild(span)
-                        overlay.remove()
-                        sourcesOverlay.remove()
-                      }
                     }
 
                     const removeButton = Helper.create("toolbox/left-right", buttons)
@@ -17822,7 +17913,18 @@ await Helper.add("event/click-funnel")
 
   static render(event, input, parent) {
 
+    if (event === "cite-button") {
 
+      const it = document.createElement("div")
+      it.className = "cite-button"
+      it.setAttribute("onclick", `navigator.clipboard.writeText(\`${input}\`).then(() => window.alert(\`${input}\n\nDas Voll-Zitat wurde erfolgreich in deine Zwischenablage gespeichert.\`))`)
+      it.textContent = "Dieses Dokument zitieren."
+      Helper.style(it, {display: "inline-block", textDecoration: "underline", fontSize: "21px", margin: "34px 0", fontFamily: "sans-serif"})
+      Helper.add("pointer", it)
+      Helper.convert("link/dark-light", it)
+      parent?.appendChild(it)
+      return it
+    }
 
     if (event === "text/node/action-button") {
       const button = this.create("button/action")
@@ -19922,7 +20024,7 @@ await Helper.add("event/click-funnel")
 
         const questions = [
           "Erzähl etwas über dich ?",
-          "Warum als ... ?",
+          "Was kannst du besonders gut ?",
           "Warum sollten wir dich wählen ?",
           "Wie motivierst du dich ?",
         ]
@@ -19960,8 +20062,14 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
                   submit.textContent = "Nachricht jetzt senden"
                   submit.onclick = async () => {
                     await this.verify("input/value", htmlField.input)
+                    const message = await this.convert("text/purified", htmlField.input.value)
+                    if (this.verifyIs("text/empty", message)) {
+                      window.alert("Fehler.. Bitte wiederholen.")
+                      this.add("style/node/not-valid", htmlField.input)
+                      return
+                    }
                     this.overlay("security", async securityOverlay => {
-                      const res = await this.request("/register/user/profile-message/", {id: profile.created, message: htmlField.input.value})
+                      const res = await this.request("/register/user/profile-message/", {id: profile.created, message})
                       if (res.status === 200) {
                         window.alert("Deine Nachricht wurde erfolgreich gesendet.")
                         htmlOverlay.remove()
@@ -25655,6 +25763,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       if (input.transform) node.style.transform = input.transform
       if (input.flexWrap) node.style.flexWrap = input.flexWrap
       if (input.flex) node.style.flex = input.flex
+      if (input.textDecoration) node.style.textDecoration = input.textDecoration
       if (input.textTransform) node.style.textTransform = input.textTransform
       if (input.textAlign) node.style.textAlign = input.textAlign
       if (input.textOverflow) node.style.textOverflow = input.textOverflow
@@ -25789,6 +25898,51 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       }
       return false
 
+    }
+
+    if (event === "funnel") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const observer = new MutationObserver((mutationsList, observer) => {
+            for (const mutation of mutationsList) {
+              if (mutation.type === 'attributes') {
+                if (mutation.attributeName === 'accept' || mutation.attributeName === 'maxlength') {
+                  window.location.reload()
+                }
+              }
+            }
+          })
+          const allNodes = []
+          if (typeof input === "object") {
+            for (const key in input) {
+              if (input.hasOwnProperty(key)) {
+                const div = input[key]
+                const nodes = [...div.querySelectorAll("input"), ...div.querySelectorAll("textarea"), ...div.querySelectorAll("select")]
+                allNodes.push(...nodes)
+              }
+            }
+          }
+          if (input instanceof Node) {
+            const nodes = [...input.querySelectorAll("input"), ...input.querySelectorAll("textarea"), ...input.querySelectorAll("select")]
+            allNodes.push(...nodes)
+          }
+
+          for (const node of allNodes) {
+            observer.observe(node, { attributes: true, childList: true, subtree: true })
+            node.oninput = () => this.verifyIs("input/valid", node)
+            const isValid = await this.verifyIs("input/valid", node)
+            if (!isValid) {
+              node.scrollIntoView({ behavior: "smooth", block: "start" })
+              throw new Error("funnel invalid")
+            }
+          }
+          observer.disconnect()
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      })
     }
 
     if (event === "field-funnel") {
