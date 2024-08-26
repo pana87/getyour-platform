@@ -3185,13 +3185,17 @@ export class Helper {
       this.request("/get/user/profiles-open/").then(res => {
         if (res.status === 200) {
           const profiles = JSON.parse(res.response)
-
+          const csvParts = []
           for (let i = 0; i < profiles.length; i++) {
             const profile = profiles[i]
             profile.csv = ""
             for (const [key, value] of Object.entries(profile)) {
-              profile.csv += `${value}, `
+              if (key === "created" || key === "visibility" || key === "messages" || key === "weakness") continue
+              if (!this.verifyIs("text/empty", value)) {
+                csvParts.push(value)
+              }
             }
+            profile.csv = csvParts.join(", ")
           }
 
           searchField.input.oninput = (ev) => {
@@ -20023,17 +20027,17 @@ await Helper.add("event/click-funnel")
         button.right.remove()
 
         const questions = [
-          "Erzähl etwas über dich ?",
-          "Was kannst du besonders gut ?",
-          "Warum sollten wir dich wählen ?",
-          "Wie motivierst du dich ?",
+          {question: "Erzähl etwas über dich ?", answer: profile.aboutYou},
+          {question: "Was kannst du besonders gut ?", answer: profile.whyThis},
+          {question: "Warum sollten wir dich wählen ?", answer: profile.whyYou},
+          {question: "Wie motivierst du dich ?", answer: profile.motivation},
         ]
 
         for (let i = 0; i < questions.length; i++) {
-          const question = questions[i]
-          const h2 = this.render("text/h2", question, button.left)
+          const it = questions[i]
+          const h2 = this.render("text/h2", it.question, button.left)
           h2.style.margin = "0"
-          const content = this.render("html/p", profile.aboutYou, button.left)
+          const content = this.render("html/p", it.answer, button.left)
           content.style.height = "144px"
           content.style.overflow = "auto"
         }
