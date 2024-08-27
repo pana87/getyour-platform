@@ -2431,7 +2431,13 @@ export class Helper {
 
       toolbox.addEventListener("click", () => {
 
+        // todo open the toolbox buttons without register button
+        // genau diesen inhalt brauche ich nur ohne den speichern button
+
         this.overlay("toolbox", async overlay => {
+
+          // toolbox buttons
+          // create("toolbox-buttons", overlay)
 
           const buttons = this.create("div/scrollable", overlay)
 
@@ -3544,6 +3550,9 @@ export class Helper {
           button.appendChild(icon)
           this.add("outline-hover", button)
           button.onclick = () => {
+
+            // todo open the toolbox buttons without register button
+
             this.overlay(event, async overlay => {
               const body = document.body
               let selectedNode = body
@@ -3912,6 +3921,9 @@ export class Helper {
               })
 
             })
+
+
+
           }
           resolve()
         } catch (error) {
@@ -23885,6 +23897,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
                             const script = Helper.create("script", {id: "role-login", js: `Helper.add("role-login", {"id":${role.created},"name":"${role.name}"})`})
                             Helper.add("script-onbody", script)
                             window.alert("Zugang wurde erfolgreich angehängt.")
+                            Helper.remove("overlays")
                           }
                         }
                       }
