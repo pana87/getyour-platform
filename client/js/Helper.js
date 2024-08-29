@@ -4,6 +4,17 @@ export class Helper {
     // add event to input
     // no dom creation, events only
 
+    if (event === "cite-button") {
+
+      let citeButton = document.querySelector("div.cite-button")
+      if (!citeButton) {
+        citeButton = this.create("cite-button", document.body)
+      }
+      citeButton.onclick = () => {
+        navigator.clipboard.writeText(input).then(() => window.alert(`${input}\n\nQuelle wurde erfolgreich in deiner Zwischenablage gespeichert.`))
+      }
+    }
+
     if (event === "background/node/hover") {
 
       input.addEventListener("mouseover", () => {
@@ -2680,6 +2691,40 @@ export class Helper {
 
           {
             const button = this.create("toolbox/left-right", buttons)
+            button.left.textContent = ".open-ux"
+            button.right.textContent = "UX und UI Integrationen zum auswählen"
+            button.onclick = () => {
+              const uxIntegrations = [
+                {name: "figma.com", url: "https://www.figma.com/"},
+                {name: "penpot.app", url: "https://penpot.app/"},
+                {name: "mockflow.com", url: "https://www.mockflow.com/"},
+                {name: "canva.com", url: "https://www.canva.com/"},
+                {name: "draw.io", url: "https://app.diagrams.net/"},
+                {name: "uizard.io", url: "https://uizard.io/"},
+                {name: "excalidraw.com", url: "https://excalidraw.com/"},
+                {name: "figjam.com", url: "https://www.figma.com/figjam/"},
+                {name: "moqups.com", url: "https://moqups.com/"},
+                {name: "uxpin.com", url: "https://www.uxpin.com/"},
+                {name: "wireframe.cc", url: "https://wireframe.cc/"},
+              ]
+              uxIntegrations.sort((a, b) => a.name.localeCompare(b.name))
+
+              this.overlay("popup", overlay => {
+                const content = this.create("div/scrollable", overlay)
+                for (let i = 0; i < uxIntegrations.length; i++) {
+                  const integration = uxIntegrations[i]
+                  const button = this.create("toolbox/left-right", content)
+                  button.left.textContent = integration.name
+                  button.right.remove()
+                  button.onclick = () => window.open(integration.url, "_blank")
+                }
+              })
+
+            }
+          }
+
+          {
+            const button = this.create("toolbox/left-right", buttons)
             button.left.textContent = ".start"
             button.right.textContent = "Schnell zum Start zurück"
             button.addEventListener("click", async () => window.open("/", "_blank"))
@@ -3176,16 +3221,7 @@ export class Helper {
 
     if (event === "open-profiles") {
 
-      const profilesDiv = document.createElement("div")
-      profilesDiv.classList.add("profiles")
-      let exist = false
-      document.querySelectorAll("*").forEach(node => {
-        if (node.classList.contains("profiles")) {
-          exist = true
-        }
-      })
       const searchField = Helper.create("input/text", document.body)
-      if (exist === false) document.body.appendChild(profilesDiv)
       this.add("style/node/valid", searchField.input)
       searchField.input.placeholder = "Suche nach Schlüsselwörter"
       this.request("/get/user/profiles-open/").then(res => {
@@ -3237,7 +3273,7 @@ export class Helper {
           profilesDiv.textContent = `Es wurden keine Profile gefunden.`
         }
       })
-
+      const profilesDiv = Helper.render("selector", "div.profiles", document.body)
     }
 
     if (event === "event/dbltouch") {
@@ -4428,6 +4464,7 @@ export class Helper {
       const backButton = document.querySelector("div.button.back")
       this.convert("dark-light", backButton)
       const startButton = document.querySelector("div.button.start")
+      this.add("outline-hover", startButton)
       this.convert("dark-light", startButton)
       startButton.onclick = () => {
         this.overlay("popup", overlay => {
@@ -4676,18 +4713,9 @@ export class Helper {
     }
 
     if (event === "outline-hover") {
-      input.style.cursor = "pointer"
-      for (let i = 0; i < input.querySelectorAll("*").length; i++) {
-        const child = input.querySelectorAll("*")[i]
-        child.style.cursor = "pointer"
-      }
-      input.addEventListener("mouseover", () => {
-        input.style.outline = "3px solid #999"
-      })
 
-      input.addEventListener("mouseout", () => {
-        input.style.outline = null
-      })
+      input.setAttribute("onmouseover", "this.style.cursor = 'pointer'; this.style.outline = '3px solid #999'")
+      input.setAttribute("onmouseout", "this.style.cursor = null; this.style.outline = null")
     }
 
     if (event === "outline-hover/field-funnel") {
@@ -4718,6 +4746,21 @@ export class Helper {
 
   static animate(event, input) {
     // event = input/animation
+
+    if (event === "bounce") {
+
+      const keyframes = [
+        { transform: 'translateY(-21px)' },
+        { transform: 'translateY(8px)' },
+        { transform: 'translateY(-21px)' }
+      ]
+      const options = {
+        duration: 2000,
+        iterations: Infinity,
+        easing: 'ease-in-out'
+      }
+      input.animate(keyframes, options)
+    }
 
     if (event === "fade-up") {
       return input?.animate([
@@ -4891,6 +4934,29 @@ export class Helper {
       })
       if (exist === false) input?.appendChild(button)
       return button
+    }
+
+    if (event === "arrow-down") {
+
+      const fragment = document.createDocumentFragment()
+      const img = document.createElement("img")
+      img.src = "/public/arrow-down-without-line.svg"
+      this.style(img, {position: "absolute", bottom: "0", left: "50%", width: "34px"})
+      fragment.appendChild(img)
+      input?.appendChild(fragment)
+      return img
+    }
+
+    if (event === "cite-button") {
+
+      const it = document.createElement("div")
+      it.className = "cite-button"
+      it.textContent = "Dieses Dokument zitieren."
+      Helper.style(it, {display: "inline-block", textDecoration: "underline", fontSize: "21px", margin: "34px 0", fontFamily: "sans-serif"})
+      Helper.add("pointer", it)
+      Helper.convert("link/dark-light", it)
+      input?.appendChild(it)
+      return it
     }
 
     if (event === "email-select") {
@@ -7737,6 +7803,7 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "script") {
+
       const script = document.createElement("script")
       script.id = input.id
       script.type = "module"
@@ -11415,6 +11482,25 @@ await Helper.add("event/click-funnel")
       return input
     }
 
+    if (event === "selector/class") {
+
+      const classMatches = input.match(/\.([a-zA-Z0-9-_]+)/g)
+      const className = classMatches ? classMatches.map(cls => cls.slice(1)).join(' ') : undefined
+      return className
+    }
+
+    if (event === "selector/id") {
+
+      const idMatch = input.match(/#([a-zA-Z0-9-_]+)/)
+      return idMatch ? idMatch[1] : undefined
+    }
+
+    if (event === "selector/tag") {
+
+      const tagMatch = input.match(/^[a-zA-Z0-9]+/)
+      return tagMatch ? tagMatch[0] : undefined
+    }
+
     if (event === "text/img") {
       const img = document.createElement("img")
       img.src = input
@@ -12160,6 +12246,18 @@ await Helper.add("event/click-funnel")
       }
     }
 
+    if (event === "appendDiv") {
+
+      return (node) => {
+        const div = document.createElement("div")
+        div.style.margin = "21px 34px"
+        div.textContent = "DIV"
+        const fragment = document.createDocumentFragment()
+        fragment.appendChild(div)
+        node.appendChild(fragment)
+      }
+    }
+
     if (event === "appendOrderedListItem") {
 
       let inner
@@ -12213,6 +12311,18 @@ await Helper.add("event/click-funnel")
           li.textContent = inner
           node.textContent = ""
           node.appendChild(ul)
+        }
+      }
+    }
+
+    if (event === "openUrl") {
+
+      return (node) => {
+        const url = window.prompt("Gebe die URL ein:")
+        if (this.verifyIs("text/url", url)) {
+          node.setAttribute("onclick", `window.open('${url}', '_blank')`)
+        } else {
+          window.alert("Keine gültige URL.")
         }
       }
     }
@@ -12291,6 +12401,8 @@ await Helper.add("event/click-funnel")
       it.createFlexWidthWithPrompt = this.fn("createFlexWidthWithPrompt")
       it.createGridButton = this.render("text/link", "Grid Matrix erstellen", it.templateOptions)
       it.createGridMatrixWithPrompt = this.fn("createGridMatrixWithPrompt")
+      it.appendDivButton = this.render("text/link", "Div anhängen", it.templateOptions)
+      it.appendDiv = this.fn("appendDiv")
       it.rowContainerButton = this.render("text/link", "Div als Flex Zeile", it.templateOptions)
       it.createFlexRow = this.fn("createFlexRow")
       it.columnContainerButton = this.render("text/link", "Div als Flex Spalte", it.templateOptions)
@@ -12339,6 +12451,17 @@ await Helper.add("event/click-funnel")
       it.createScrollableY = this.fn("createScrollableY")
       it.packDivButton = this.render("text/link", "Inhalt als Div einpacken", it.templateOptions)
       it.createDivPackOuter = this.fn("createDivPackOuter")
+
+      it.eventTitle = this.render("text/hr", "Anwendungen für Events", it.optionsContainer)
+      this.add("outline-hover", it.eventTitle)
+      it.eventTitle.onclick = () => toggleDisplayFlexNone(it.eventOptions)
+      it.eventOptions = this.create("div/flex-row", it.optionsContainer)
+      it.eventOptions.style.display = "none"
+
+      it.pointerButton = this.render("text/link", "Pointer-Event hinzufügen", it.eventOptions)
+      it.pointer = this.fn("pointer")
+      it.openUrlButton = this.render("text/link", "URL-Klick-Weiterleitung hinzufügen", it.eventOptions)
+      it.openUrl = this.fn("openUrl")
 
 
       it.converterTitle = this.render("text/hr", "Anwendungen für Konverter", it.optionsContainer)
@@ -15242,9 +15365,9 @@ await Helper.add("event/click-funnel")
               const title = extractTitle()
               const year = extractYear()
               const requested = createRequested()
-
               const fullCite = `${authors}, "${title}", getyour-plattform, ${year}, https://www.get-your.de${window.location.pathname}${requested.textContent}`
-              const citeButton = Helper.render("cite-button", fullCite, document.body)
+              const script = Helper.create("script", {id: "cite-button", js: `Helper.add('cite-button', '${fullCite}')`})
+              Helper.add("script-onbody", script)
               window.alert("Dein Zitier-Button wurde erfolgreich im <body> angehängt.")
               Helper.remove("overlays")
             }
@@ -15263,7 +15386,7 @@ await Helper.add("event/click-funnel")
             button.onclick = () => {
               const span = createRequested()
               selectedNode?.appendChild(span)
-              sourcesOverlay.content.remove()
+              sourcesOverlay.remove()
             }
           }
 
@@ -15276,7 +15399,7 @@ await Helper.add("event/click-funnel")
             p.style.fontSize = "13px"
             p.textContent = `Erstellt am: ${Helper.convert("millis/dd.mm.yyyy hh:mm", Date.now())}`
             selectedNode.appendChild(p)
-            sourcesOverlay.content.remove()
+            sourcesOverlay.remove()
           }
 
 
@@ -16209,6 +16332,13 @@ await Helper.add("event/click-funnel")
           updateClosedTemplates(content)
 
         })
+      }
+    }
+
+    if (event === "pointer") {
+
+      return (node) => {
+        this.add("pointer", node)
       }
     }
 
@@ -17357,6 +17487,22 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "hover") {
+
+      input.style.cursor = "pointer"
+      for (let i = 0; i < input.querySelectorAll("*").length; i++) {
+        const child = input.querySelectorAll("*")[i]
+        child.style.cursor = "pointer"
+      }
+      input.addEventListener("mouseover", () => {
+        input.style.outline = "3px solid #999"
+      })
+
+      input.addEventListener("mouseout", () => {
+        input.style.outline = null
+      })
+    }
+
     if (event === "shift+enter") {
       input.addEventListener("keydown", ev => {
         if (ev.key === 'Enter') {
@@ -17928,19 +18074,6 @@ await Helper.add("event/click-funnel")
   }
 
   static render(event, input, parent) {
-
-    if (event === "cite-button") {
-
-      const it = document.createElement("div")
-      it.className = "cite-button"
-      it.setAttribute("onclick", `navigator.clipboard.writeText(\`${input}\`).then(() => window.alert(\`${input}\n\nDas Voll-Zitat wurde erfolgreich in deine Zwischenablage gespeichert.\`))`)
-      it.textContent = "Dieses Dokument zitieren."
-      Helper.style(it, {display: "inline-block", textDecoration: "underline", fontSize: "21px", margin: "34px 0", fontFamily: "sans-serif"})
-      Helper.add("pointer", it)
-      Helper.convert("link/dark-light", it)
-      parent?.appendChild(it)
-      return it
-    }
 
     if (event === "text/node/action-button") {
       const button = this.create("button/action")
@@ -18693,6 +18826,19 @@ await Helper.add("event/click-funnel")
       return p
     }
 
+    if (event === "icon/path") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const icon = await this.convert("path/icon", input)
+          parent?.append(icon)
+          resolve(icon)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "icon/node/path") {
 
       return new Promise(async(resolve, reject) => {
@@ -18705,6 +18851,16 @@ await Helper.add("event/click-funnel")
         }
       })
 
+    }
+
+    if (event === "img") {
+
+      const div = document.createElement("div")
+      parent?.appendChild(div)
+      const img = document.createElement("img")
+      img.src = input
+      div.appendChild(img)
+      return div
     }
 
     if (event === "image-url/selector/self") {
@@ -20032,6 +20188,7 @@ await Helper.add("event/click-funnel")
 
       parent.textContent = ""
       this.convert("parent/flex-row", parent)
+      parent.style.paddingBottom = "144px"
       for (let i = 0; i < input.length; i++) {
         const profile = input[i]
         const button = this.create("toolbox/left-right", parent)
@@ -20756,6 +20913,22 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
     }
 
+    if (event === "text/a") {
+
+      const fragment = document.createDocumentFragment()
+      const a = document.createElement("a")
+      a.textContent = input.textContent
+      a.href = input.href
+      a.style.margin = "0 34px"
+      a.style.fontFamily = "sans-serif"
+      a.style.display = "inline-block"
+      this.convert("link/dark-light", a)
+      this.add("pointer", a)
+      fragment.appendChild(a)
+      parent?.appendChild(fragment)
+      return a
+    }
+
     if (event === "text/bottom-left") {
 
       const text = document.createElement("div")
@@ -20823,13 +20996,14 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     }
 
     if (event === "text/div") {
-      const div = this.create("div")
+
+      const fragment = document.createDocumentFragment()
+      const div = document.createElement("div")
+      fragment.appendChild(div)
       div.textContent = input
-      div.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        div.style.color = this.colors.dark.text
-      }
-      parent?.append(div)
+      div.style.margin = "0 34px"
+      this.convert("text/dark-light", div)
+      parent?.appendChild(fragment)
       return div
     }
 
@@ -22719,6 +22893,9 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
                       const h3 = buttons.convertTextContentToH3(selectedNode)
                       selectedNode = h3
                     }
+
+
+                    buttons.openUrlButton.onclick = () => buttons.openUrl(selectedNode)
                     buttons.convertToInlineCiteButton.onclick = () => buttons.convertToInlineCite(selectedNode)
                     buttons.convertToFullCiteButton.onclick = () => buttons.convertToFullCite(selectedNode)
                     buttons.removeCiteMarksButton.onclick = () => buttons.removeCiteMarks(selectedNode)
@@ -22727,12 +22904,14 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
                     buttons.imageTextAndActionButton.onclick = () => buttons.createImageTextAndActionBox(selectedNode)
                     buttons.backgroundImageWithTitlesButton.onclick = () => buttons.createBackgroundImageWithTitles(selectedNode)
                     buttons.duckDuckGoButton.onclick = () => buttons.convertTextContentToDuckDuckGoLink(selectedNode)
+                    buttons.pointerButton.onclick = () => buttons.pointer(selectedNode)
                     buttons.sourcesButton.onclick = () => buttons.openSourcesOverlay(selectedNode)
                     buttons.templatesButton.onclick = () => buttons.openTemplatesOverlay(selectedNode)
                     buttons.scriptsButton.onclick = () => buttons.openScriptsOverlay()
                     buttons.imagesButton.onclick = () => buttons.openImagesOverlay(selectedNode)
                     buttons.createFlexButton.onclick = () => buttons.createFlexWidthWithPrompt(selectedNode)
                     buttons.createGridButton.onclick = () => buttons.createGridMatrixWithPrompt(selectedNode)
+                    buttons.appendDivButton.onclick = () => buttons.appendDiv(selectedNode)
                     buttons.rowContainerButton.onclick = () => buttons.createFlexRow(selectedNode)
                     buttons.columnContainerButton.onclick = () => buttons.createFlexColumn(selectedNode)
                     buttons.imageTextButton.onclick = () => buttons.createImageText(selectedNode)
@@ -25190,6 +25369,22 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
         }
       })
 
+    }
+
+    if (event === "selector") {
+
+      let node = document.querySelector(input)
+      if (node) return node
+      const fragment = document.createDocumentFragment()
+      const tag = this.convert("selector/tag", input)
+      const id = this.convert("selector/id", input)
+      const className = this.convert("selector/class", input)
+      node = document.createElement(tag)
+      if (id) node.id = id
+      if (className) node.className = className
+      fragment?.appendChild(node)
+      parent?.appendChild(fragment)
+      return node
     }
 
     if (event === "html-values-writable") {

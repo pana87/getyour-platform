@@ -25,7 +25,7 @@
       import {Helper} from "/js/Helper.js"
       Helper.convert("dark-light", document.body)
       const backButton = Helper.create("back-button", document.body)
-      const openClosedButton = Helper.create("button/getyour", document.body)
+      const openClosedButton = Helper.create("toolbox/getyour", document.body)
       openClosedButton.onclick = () => {
         Helper.overlay("popup", async overlay => {
 
@@ -426,13 +426,13 @@
       // Melde dich für das Gewinnspiel an
       // unique tags event
       // get credits
+      const logo = Helper.render("img", "/public/logo-getyour-red.svg", document.body)
+      Helper.style(logo, {display: "flex", justifyContent: "center", height: "100vh"})
 
-      const logoDiv = document.createElement("div")
-      Helper.style(logoDiv, {display: "flex", justifyContent: "center", height: "100vh"})
-      document.body.appendChild(logoDiv)
-      const logo = document.createElement("img")
-      logo.src = "/public/logo-getyour-red.svg"
-      logoDiv.appendChild(logo)
+      Helper.render("icon/path", "/public/arrow-down-without-line.svg", document.body).then(icon => {
+        Helper.style(icon, {position: "absolute", bottom: "0", left: "50%", width: "34px"})
+        Helper.animate("bounce", icon)
+      })
 
       const parentTitle = Helper.render("text/title", "Dein Ansprechpartner", document.body)
       Helper.request("/get/user/parent/").then(res => {

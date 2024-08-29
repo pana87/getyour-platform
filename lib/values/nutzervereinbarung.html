@@ -35,28 +35,22 @@
     Helper.render("text/h2", `Stand: ${Helper.convert("millis/dd.mm.yyyy", Date.now())}`, document.body)
     {
       const button = Helper.create("button/left-right", document.body)
-      button.left.innerHTML = /*html*/`
-        <p>Vielen Dank, dass du die getyour plattform, ihre Produkte, Dienste und Funktionen nutzt (nachfolgend „Dienste“).</p>
-        <p>getyour plattform hat es sich zur Aufgabe gemacht Plattformentwickler mit Branchenexperten auf eine Art und Weise zu vernetzen, so dass der Nutzen für alle beteiligten aus der spezifischen Branche, im optimalen Fall, ständig wächst. Unsere Dienste spezialisieren sich dabei auf die Erstellung von Plattformen und ermöglichen es dir als Nutzer, höhere Marktanteile aus deiner Branche zu erzielen. <a class="button" href="/docs/release-notes/">Eine Liste mit allen unseren aktuellen Diensten findest du hier auf unseren Release Notes.</a></p>
-        <p>Bitte lies dir diese Vereinbarung sorgfältig durch und vergewissere dich, dass du sie verstanden hast. Wenn du einen Teil dieser Vereinbarung nicht verstehst oder akzeptierst, solltest du die Dienste nicht nutzen.</p>
-      `
+      Helper.render("text/p", "Vielen Dank, dass du die getyour plattform, ihre Produkte, Dienste und Funktionen nutzt (nachfolgend „Dienste“).", button.left)
+      Helper.render("text/p", "getyour plattform hat es sich zur Aufgabe gemacht Plattformentwickler mit Branchenexperten auf eine Art und Weise zu vernetzen, so dass der Nutzen für alle beteiligten aus der spezifischen Branche, im optimalen Fall, ständig wächst. Unsere Dienste spezialisieren sich dabei auf die Erstellung von Plattformen und ermöglichen es dir als Nutzer, höhere Marktanteile aus deiner Branche zu erzielen.", button.left)
+      Helper.render("text/a", {href: "/docs/release-notes/", textContent: "Eine Liste mit allen unseren aktuellen Diensten findest du hier auf unseren Release Notes."}, button.left)
+      Helper.render("text/p", "Bitte lies dir diese Vereinbarung sorgfältig durch und vergewissere dich, dass du sie verstanden hast. Wenn du einen Teil dieser Vereinbarung nicht verstehst oder akzeptierst, solltest du die Dienste nicht nutzen.", button.left)
     }
 
     {
       const button = Helper.create("button/left-right", document.body)
-      button.left.innerHTML = /*html*/`
-        ${Helper.convert("text/h2", "Dienstanbieter").outerHTML}
-        <p>Inhaltlich Verantwortlicher</p>
-        <p>
-          <b>Panagiotis Tsivelekidis</b><br>
-          Schwarenbergstr Str. 188<br>
-          70184 Stuttgart<br>
-          Deutschland<br>
-        </p>
-        <a class="button" href="mailto:datenschutz@get-your.de">datenschutz@get-your.de</a>
-        <p>Bei Fragen zum Datenschutz oder zu dieser Webseite, kontaktiere uns bitte unter der angegebenen E-Mail Adresse.</p>
-        <p>Du schließt einen Vertrag mit getyour plattform ab (nachfolgend “getyour plattform”, “wir”, “uns”, “unser” oder “unsere”)</p>
-      `
+      Helper.render("text/h2", "Dienstanbieter", button.left)
+      Helper.render("text/div", "Panagiotis Tsivelekidis", button.left)
+      Helper.render("text/div", "Schwarenbergstr Str. 188", button.left)
+      Helper.render("text/div", "70184 Stuttgart", button.left)
+      Helper.render("text/div", "Deutschland", button.left)
+      Helper.render("text/a", {href: "mailto:datenschutz@get-your.de", textContent: "datenschutz(at)get-your.de"}, button.left)
+      Helper.render("text/p", "Bei Fragen zum Datenschutz oder zu dieser Webseite, kontaktiere uns bitte unter der angegebenen E-Mail Adresse.", button.left)
+      Helper.render("text/p", "Du schließt einen Vertrag mit getyour plattform ab (nachfolgend “getyour plattform”, “wir”, “uns”, “unser” oder “unsere”)", button.left)
     }
 
     {
