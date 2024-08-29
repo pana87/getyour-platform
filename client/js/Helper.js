@@ -10,9 +10,11 @@ export class Helper {
       if (!citeButton) {
         citeButton = this.create("cite-button", document.body)
       }
-      citeButton.onclick = () => {
+      citeButton.addEventListener("click", (ev) => {
+        ev.stopPropagation()
+        ev.preventDefault()
         navigator.clipboard.writeText(input).then(() => window.alert(`${input}\n\nQuelle wurde erfolgreich in deiner Zwischenablage gespeichert.`))
-      }
+      })
     }
 
     if (event === "background/node/hover") {
