@@ -56,9 +56,10 @@
       createTextNode(impressum, "70184 Stuttgart")
       createNode("br", impressum)
       createTextNode(impressum, "E-Mail: ")
-      const a = createNode("a", impressum, "p.tsivelekidis@get-your.de")
+      const a = createNode("a", impressum, "datenschutz(at)get-your.de")
       a.className = "button"
-      a.href = "mailto:p.tsivelekidis@get-your.de?subject=[Datenschutz]"
+      a.href = "mailto:datenschutz@get-your.de?subject=[Datenschutz]"
+      Helper.convert("link/dark-light", a)
       createNode("br", impressum)
     }
 
