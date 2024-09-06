@@ -7,6 +7,13 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
+#Überprüfen, ob eine Versionsnumer angegeben wurde
+if [ -z "$2" ]; then 
+  echo "Warnung: Keine Versionsnummer angegeben. Kein Tag wird erstellt."
+else 
+  Version=$2 
+fi
+
 # Parameter zuweisen
 BRANCH_NAME=$1 
 
@@ -25,7 +32,12 @@ git checkout -b "$BRANCH_NAME"
 git add .
 git commit -m "$BRANCH_NAME"
 git push --set-upstream origin "$BRANCH_NAME"
-git tag -a "v1.0.0" -m 
-git push origin "v1.0.0"
+
+# Tag erstellen, wenn eine Versionsnummer angegeben wurde
+if [ ! -z "$VERSION" ]; then
+  git tag -a "$VERSION" -m "RELEASE $VERSION"
+  git push origin "$VERSION"
+fi
+
 git branch
 git status
