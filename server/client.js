@@ -12,25 +12,21 @@ const upload = multer({storage})
 const http = require("http")
 const path = require("node:path")
 const {startWebSocket} = require("./websocket.js")
-
-// https://github.com/ipfs/helia/wiki/Migrating-from-js-IPFS
-let all
-(async () => {
-  all = await import('it-all')
-})()
-
-let IPFS
 let ipfs
 (async () => {
-  IPFS = await import('ipfs-core')
-  ipfs = await IPFS.create()
+  const {create} = await import('ipfs-core')
+  ipfs = await create()
 })()
-
 let CID
 (async () => {
   const multiformats = await import('multiformats')
   CID = multiformats.CID
 })()
+
+let fileType
+Helper.import("file-type").then(it => {
+  fileType = it
+})
 
 Helper.createDatabase("getyour")
 Helper.createUsers("getyour")
@@ -131,6 +127,7 @@ app.get("/:expert/", async (req, res, next) => {
 })
 
 app.get("/ipfs/:cid/", async (req, res) => {
+
   try {
     const cid = req.params.cid
     const cidObject = CID.parse(cid)
@@ -139,7 +136,10 @@ app.get("/ipfs/:cid/", async (req, res) => {
     for await (const chunk of chunks) {
       file.push(chunk)
     }
-    res.send(Buffer.concat(file))
+    const buffer = Buffer.concat(file)
+    const type = await fileType.fileTypeFromBuffer(buffer)
+    res.header("Content-Type", type.mime)
+    res.send(buffer)
   } catch (err) {
     console.error('Error retrieving file:', err)
     res.status(500).send('Error retrieving file')
@@ -355,7 +355,7 @@ async (req, res, next) => {
   }
 })
 
-app.get("/:expert/:platform/:path/:id/",
+app.get("/:expert/:platform/profil/:id/",
 async(req, res, next) => {
   try {
 
@@ -372,7 +372,7 @@ async(req, res, next) => {
   }
 })
 
-app.get("/:expert/:platform/:path/:id/",
+app.get("/:expert/:platform/profil/:id/",
   Request.verifyJwtToken,
   Request.verifySession,
 async (req, res, next) => {

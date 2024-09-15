@@ -166,7 +166,7 @@
 
                   const fileField = Helper.create("input/file", funnel)
                   fileField.input.setAttribute("accept", "image/*")
-                  Helper.add("style/node/not-valid", fileField.input)
+                  Helper.add("style/not-valid", fileField.input)
                   fileField.input.onclick = () => {
                     window.alert(`Achtung! Wenn du eine Datei hochlädst, werden deine Daten auf unserem IPFS-Node gespeichert und durch einen öffentlichen Link verfügbar gemacht. Auf diesen Link haben dann alle Zugriff. Bitte überlege dir genau, ob du deine Datei veröffentlichen möchtest.`)
                   }
@@ -176,7 +176,7 @@
                       const formdata = new FormData()
                       formdata.append("file", file, file.name)
                       if (file.type === "image/jpeg" || file.type === "image/png") {
-                        Helper.add("style/node/valid", fileField.input)
+                        Helper.add("style/valid", fileField.input)
                         fetch('/upload/ipfs/file/', {
                           method: 'POST',
                           body: formdata,
@@ -187,7 +187,7 @@
                           console.log('Successfully uploaded:', data)
                         })
                         .catch(error => {
-                          Helper.render("style/node/not-valid", imageField.input)
+                          Helper.render("style/not-valid", imageField.input)
                           console.error('Error uploading file:', error);
                         });
                       }
@@ -256,7 +256,7 @@
                     const res = await Helper.request("/verify/platform/exist/", {platform: platformName})
                     if (res.status === 200) {
                       window.alert("Plattform existiert bereits.")
-                      Helper.add("style/node/not-valid", platformNameField.input)
+                      Helper.add("style/not-valid", platformNameField.input)
                       throw new Error("platform exist")
                     }
                     Helper.overlay("security", async securityOverlay => {
