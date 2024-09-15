@@ -35,6 +35,7 @@
     Helper.render("text/h2", `Stand: ${Helper.convert("millis/dd.mm.yyyy", Date.now())}`, document.body)
     {
       const button = Helper.create("button/left-right", document.body)
+      button.left.style.margin = "0"
       Helper.render("text/p", "Vielen Dank, dass du die getyour plattform, ihre Produkte, Dienste und Funktionen nutzt (nachfolgend „Dienste“).", button.left)
       Helper.render("text/p", "getyour plattform hat es sich zur Aufgabe gemacht Plattformentwickler mit Branchenexperten auf eine Art und Weise zu vernetzen, so dass der Nutzen für alle beteiligten aus der spezifischen Branche, im optimalen Fall, ständig wächst. Unsere Dienste spezialisieren sich dabei auf die Erstellung von Plattformen und ermöglichen es dir als Nutzer, höhere Marktanteile aus deiner Branche zu erzielen.", button.left)
       Helper.render("text/a", {href: "/docs/release-notes/", textContent: "Eine Liste mit allen unseren aktuellen Diensten findest du hier auf unseren Release Notes."}, button.left)
@@ -43,6 +44,7 @@
 
     {
       const button = Helper.create("button/left-right", document.body)
+      button.left.style.margin = "0"
       Helper.render("text/h2", "Dienstanbieter", button.left)
       Helper.render("text/div", "Panagiotis Tsivelekidis", button.left)
       Helper.render("text/div", "Schwarenbergstr Str. 188", button.left)

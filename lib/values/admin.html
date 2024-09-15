@@ -41,14 +41,7 @@
             button.right.textContent = "Beginne deine digitale Reise"
             button.onclick = () => window.open("/", "_blank")
           }
-
-          {
-            const button = Helper.create("button/left-right", buttons)
-            button.left.textContent = ".login"
-            button.right.textContent = "Schnell und einfach anmelden"
-            button.onclick = () => window.open("/login/", "_blank")
-          }
-
+          Helper.render("login-button", "/login/", buttons)
 
           const res = await Helper.request("/verify/user/admin/")
           if (res && res.status === 200) {
@@ -244,7 +237,7 @@
                                 const keyValueField = Helper.create("input/text", content)
                                 keyValueField.input.setAttribute("required", "true")
                                 keyValueField.input.placeholder = "user.xp = 3"
-                                Helper.add("style/node/not-valid", keyValueField.input)
+                                Helper.add("style/not-valid", keyValueField.input)
                                 keyValueField.input.oninput = () => Helper.verify("input/value", keyValueField.input)
                                 const submit = Helper.create("toolbox/action", content)
                                 submit.textContent = "Datenfeld jetzt aktualisieren"
@@ -254,10 +247,10 @@
                                   const userSplit = userInput.split("=")
                                   const tree = userSplit[0].trim()
                                   const value = userSplit[1].trim()
-                                  Helper.add("style/node/not-valid", keyValueField.input)
+                                  Helper.add("style/not-valid", keyValueField.input)
                                   if (userSplit.length === 2) {
                                     if (!Helper.verifyIs("text/empty", tree) && !Helper.verifyIs("text/empty", value)) {
-                                      Helper.add("style/node/valid", keyValueField.input)
+                                      Helper.add("style/valid", keyValueField.input)
                                       Helper.overlay("security", async securityOverlay => {
                                         const res = await Helper.request("/register/user/tree-value-admin/", {tree, value, email: user.email})
                                         if (res.status === 200) {
@@ -297,7 +290,7 @@
                   function usersVerified(type, emails) {
                     if (Helper.verifyIs("array/empty", emails)) {
                       window.alert("Wähle mindestens eine E-Mail Adresse.")
-                      Helper.add("style/node/not-valid", emailSelect.field.input)
+                      Helper.add("style/not-valid", emailSelect.field.input)
                       return
                     }
                     Helper.overlay("security", async securityOverlay => {
@@ -453,7 +446,7 @@
                         const res = await Helper.request("/verify/expert/name-exist/", {name: username})
                         if (res.status === 200) {
                           alert("Experte existiert bereits.")
-                          Helper.add("style/node/not-valid", nameField.input)
+                          Helper.add("style/not-valid", nameField.input)
                           throw new Error("expert exist")
                         }
                       }

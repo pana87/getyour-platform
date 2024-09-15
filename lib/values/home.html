@@ -247,14 +247,14 @@
                       const it = {}
                       it.dateField = Helper.create("input/date", node)
                       it.dateField.input.setAttribute("required", "true")
-                      it.dateField.input.oninput = () => Helper.add("style/node/valid", it.dateField.input)
-                      Helper.add("style/node/not-valid", it.dateField.input)
+                      it.dateField.input.oninput = () => Helper.add("style/valid", it.dateField.input)
+                      Helper.add("style/not-valid", it.dateField.input)
                       it.aliasField = Helper.create("input/text", node)
                       it.aliasField.input.placeholder = "Alias"
-                      Helper.add("style/node/valid", it.aliasField.input)
+                      Helper.add("style/valid", it.aliasField.input)
                       it.notesField = Helper.create("input/textarea", node)
                       it.notesField.input.placeholder = "Notizen"
-                      Helper.add("style/node/valid", it.notesField.input)
+                      Helper.add("style/valid", it.notesField.input)
                       it.submit = Helper.create("toolbox/action", node)
                       it.submit.textContent = "Frist jetzt speichern"
                       return it
@@ -330,7 +330,7 @@
 
                     const fileField = Helper.create("input/file", funnel)
                     fileField.input.setAttribute("accept", "image/*")
-                    Helper.add("style/node/not-valid", fileField.input)
+                    Helper.add("style/not-valid", fileField.input)
                     fileField.input.onclick = () => {
                       window.alert(`Achtung! Wenn du eine Datei hochlädst, werden deine Daten auf unserem IPFS-Node gespeichert und durch einen öffentlichen Link verfügbar gemacht. Auf diesen Link haben dann alle Zugriff. Bitte überlege dir genau, ob du deine Datei veröffentlichen möchtest.`)
                     }
@@ -340,7 +340,7 @@
                         const formdata = new FormData()
                         formdata.append("file", file, file.name)
                         if (file.type === "image/jpeg" || file.type === "image/png") {
-                          Helper.add("style/node/valid", fileField.input)
+                          Helper.add("style/valid", fileField.input)
                           fetch('/upload/ipfs/file/', {
                             method: 'POST',
                             body: formdata,
@@ -351,7 +351,7 @@
                             console.log('Successfully uploaded:', data)
                           })
                           .catch(error => {
-                            Helper.render("style/node/not-valid", imageField.input)
+                            Helper.render("style/not-valid", imageField.input)
                             console.error('Error uploading file:', error);
                           });
                         }
@@ -426,8 +426,11 @@
       // Melde dich für das Gewinnspiel an
       // unique tags event
       // get credits
+      const logoDiv = Helper.div("flex center vh100", document.body)
       const logo = Helper.render("img", "/public/logo-getyour-red.svg", document.body)
-      Helper.style(logo, {display: "flex", justifyContent: "center", height: "100vh"})
+      logoDiv.appendChild(logo)
+
+
 
       Helper.render("icon/path", "/public/arrow-down-without-line.svg", document.body).then(icon => {
         Helper.style(icon, {position: "absolute", bottom: "0", left: "50%", width: "34px"})
