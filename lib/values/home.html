@@ -121,6 +121,7 @@
                 }
                 button.onclick = () => {
                   Helper.overlay("popup", async deadlineOverlay => {
+                    deadlineOverlay.removeOverlayButton.addEventListener("click", () => clearInterval(interval))
                     const content = Helper.create("info/loading", deadlineOverlay)
 
                     const res = await Helper.request("/get/deadlines/closed/")

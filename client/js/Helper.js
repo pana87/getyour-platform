@@ -1,4 +1,6 @@
 export class Helper {
+  // change name of Helper ??
+  // make it shorter
 
   static add(event, input) {
     // add event to input
@@ -198,789 +200,7 @@ export class Helper {
       button.left.textContent = ".contacts"
       button.right.textContent = "Deine Kontakte"
       button.onclick = () => {
-        this.overlay("pop", async overlay => {
-          overlay.info.textContent = ".contacts"
-
-          const searchField = this.create("input/text", overlay.content)
-          searchField.input.placeholder = "Filter nach E-Mail Adresse oder Notizen.."
-
-          const content = overlay.content
-
-          const container = this.create("div/flex-row", content)
-          container.style.justifyContent = "flex-start"
-          const importButton = this.render("text/link", "Importieren", container)
-          const exportButton = this.render("text/link", "Exportieren", container)
-
-          importButton.onclick = () => {
-            this.overlay("popup", overlay => {
-              const funnel = this.create("div/scrollable", overlay)
-
-              const contactsField = this.create("field/textarea", funnel)
-              contactsField.label.textContent = "Meine JavaScript Kontaktliste"
-              contactsField.input.style.fontFamily = "monospace"
-              contactsField.input.style.height = "55vh"
-              contactsField.input.setAttribute("required", "true")
-              contactsField.input.oninput = () => this.verify("input/value", contactsField.input)
-              this.add("outline-hover", contactsField.input)
-              this.verify("input/value", contactsField.input)
-              contactsField.input.placeholder = `[
-                {
-                  created: 1706575455693, // id, einzigartig
-                  email: "neuer@kontakt.de", // id, einzigartig
-                  alias: "Kontakt Name",  // optional
-                  birthday: "1999-03-21", // optional
-                  status: "kontakt status", // optional
-                  notes: "Kontakt Notizen", // optional
-                  phone: "+123456789", // optional
-                  website: "https://www.kontakt-webseite.de/" // optional
-                },
-
-                .
-                .
-
-              ]
-              `
-
-              const submit = this.render("text/node/action-button", "Kontakte jetzt importieren", funnel)
-              submit.onclick = async () => {
-                await this.verify("input/value", contactsField.input)
-
-                const contacts = JSON.parse(contactsField.input.value)
-
-                for (let i = 0; i < contacts.length; i++) {
-                  const contact = contacts[i]
-                  if (!contact.created || !contact.email) {
-                    this.add("style/not-valid", contactsField.input)
-                    window.alert("Deine Kontaktliste ist in einem ungültigen Format.")
-                    throw new Error("contact list not valid")
-                  }
-                }
-
-                this.overlay("security", async securityOverlay => {
-                  const res = await this.request("/register/contacts/js-list-self/", {contacts})
-                  if (res.status === 200) {
-                    window.alert("Deine Kontakte wurden erfolgreich importiert.")
-                    this.convert("parent/loading", contactsDiv)
-                    await getAndRenderContacts(contactsDiv)
-                    overlay.remove()
-                    securityOverlay.remove()
-                  }
-                })
-
-
-              }
-
-            })
-          }
-
-          const contactsDiv = this.create("div/scrollable", content)
-
-          async function getAndRenderContacts(parent) {
-            const res = await Helper.request("/get/contacts/self/")
-            if (res.status === 200) {
-              const contacts = JSON.parse(res.response)
-              renderContactButtons(contacts, parent)
-            } else {
-              Helper.convert("parent/info", parent)
-              parent.textContent = "Keine Kontakte gefunden"
-            }
-          }
-
-          function concatEmailAndNotes(array, key) {
-            return array.map(it => {
-              if (it.email && it.notes) {
-                return { ...it, [key]: `${it.email},${it.notes}` }
-              } else {
-                return it
-              }
-            })
-          }
-
-          const websiteIcon = await this.convert("path/icon", "/public/website.svg")
-          const phoneIcon = await this.convert("path/icon", "/public/phone-out.svg")
-          const emailIcon = await this.convert("path/icon", "/public/email-out.svg")
-          function renderContactButtons(contacts, parent, query = "") {
-            const fragment = document.createDocumentFragment()
-            Helper.convert("parent/scrollable", parent)
-            for (let i = 0; i < contacts.length; i++) {
-              const contact = contacts[i]
-              const contactButton = Helper.create("button/left-right", fragment)
-              contactButton.left.style.width = "55%"
-
-              let text = contact.email
-              if (contact.text) text = contact.text
-              if (query === "") text = contact.email
-
-              while (contactButton.left.firstChild) {
-                contactButton.left.removeChild(contactButton.left.firstChild)
-              }
-
-              Helper.convert("text/marked", {text, query, parent: contactButton.left})
-
-              if (contact.alias !== undefined) {
-                Helper.createNode("div", contactButton.left, contact.alias)
-                const div = Helper.createNode("div", contactButton.left, contact.email)
-                Helper.style(div, {fontSize: "13px"})
-              }
-              contactButton.right.style.display = "flex"
-              if (contact.website) {
-                const clone = websiteIcon.cloneNode(true)
-                clone.style.padding = "5px"
-                contactButton.right.appendChild(clone)
-                Helper.add("outline-hover", clone)
-                clone.onclick = () => {
-                  window.open(contact.website, "_blank")
-                }
-              }
-              if (contact.phone) {
-                const clone = phoneIcon.cloneNode(true)
-                clone.style.padding = "5px"
-                contactButton.right.appendChild(clone)
-                Helper.add("outline-hover", clone)
-                clone.onclick = () => {
-                  window.location.href = `tel:${contact.phone}`
-                }
-              }
-              if (contact.email) {
-                const clone = emailIcon.cloneNode(true)
-                clone.style.padding = "5px"
-                contactButton.right.appendChild(clone)
-                Helper.add("outline-hover", clone)
-                clone.onclick = () => {
-                  window.location.href = `mailto:${contact.email}`
-                }
-              }
-              contactButton.onclick = () => {
-                Helper.overlay("popup", async updateOverlay => {
-                  Helper.create("header/info", updateOverlay).textContent = contact.email
-                  const buttons = Helper.create("div/scrollable", updateOverlay)
-
-                  {
-                    const button = Helper.create("button/left-right", buttons)
-                    button.left.textContent = ".email"
-                    button.right.textContent = "Aktualisiere die E-Mail Adresse deines Kontakts"
-                    button.onclick = () => {
-                      Helper.overlay("popup", overlay => {
-                        overlay.info.textContent = contact.email
-                        const funnel = Helper.create("div/scrollable", overlay)
-
-                        const emailField = Helper.create("field/text", funnel)
-                        emailField.label.textContent = "E-Mail Adresse"
-                        emailField.input.setAttribute("required", "true")
-                        if (contact.email !== undefined) {
-                          emailField.input.value = contact.email
-                        }
-                        Helper.verify("input/value", emailField.input)
-                        Helper.add("outline-hover", emailField.input)
-                        emailField.input.oninput = () => Helper.verify("input/value", emailField.input)
-
-                        const submit = Helper.create("button/action", funnel)
-                        Helper.add("outline-hover", submit)
-                        submit.textContent = "E-Mail jetzt speichern"
-                        submit.onclick = async () => {
-                          await Helper.verify("input/value", emailField.input)
-
-                          Helper.overlay("security", async securityOverlay => {
-                            const res = await Helper.request("/register/contacts/email-update/", {id: contact.created, email: emailField.input.value})
-                            if (res.status === 200) {
-                              window.alert("E-Mail erfolgreich gespeichert.")
-                              await getAndRenderContacts(parent)
-                              overlay.remove()
-                              updateOverlay.remove()
-                              securityOverlay.remove()
-                            } else {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
-                            }
-                          })
-
-                        }
-
-                      })
-                    }
-                  }
-
-                  {
-                    const button = Helper.create("button/left-right", buttons)
-                    button.left.textContent = ".alias"
-                    button.right.textContent = "Gib deinem Kontakt einen alternativen Namen"
-                    button.onclick = () => {
-                      Helper.overlay("popup", overlay => {
-                        Helper.create("header/info", overlay).textContent = contact.email
-
-                        const funnel = Helper.create("div/scrollable", overlay)
-
-                        const aliasField = Helper.create("field/text", funnel)
-                        aliasField.label.textContent = "Alternative Bezeichnung für deinen Kontakt"
-                        aliasField.input.setAttribute("required", "true")
-                        if (contact.alias !== undefined) {
-                          aliasField.input.value = contact.alias
-                        }
-                        Helper.verify("input/value", aliasField.input)
-                        Helper.add("outline-hover", aliasField.input)
-                        aliasField.input.oninput = () => Helper.verify("input/value", aliasField.input)
-
-
-                        const submit = Helper.create("button/action", funnel)
-                        Helper.add("outline-hover", submit)
-                        submit.textContent = "Alias jetzt speichern"
-                        submit.onclick = async () => {
-
-                          await Helper.verify("input/value", aliasField.input)
-
-                          Helper.overlay("security", async securityOverlay => {
-                            const res = await Helper.request("/register/contacts/alias-self/", {id: contact.created, alias: aliasField.input.value})
-                            if (res.status === 200) {
-                              window.alert("Alias erfolgreich gespeichert.")
-                              await getAndRenderContacts(parent)
-                              overlay.remove()
-                              updateOverlay.remove()
-                              securityOverlay.remove()
-                            } else {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
-                            }
-                          })
-
-                        }
-
-                      })
-                    }
-                  }
-
-                  {
-                    const button = Helper.create("button/left-right", buttons)
-                    button.left.textContent = ".character"
-                    button.right.textContent = "Erfahre mehr über deinen Kontakt"
-                    button.onclick = () => {
-                      const numerology = Helper.fn("numerology")
-
-                      const dateField = Helper.create("field/date")
-                      dateField.label.textContent = "Gebe das Geburtsdatum deines Kontakts ein"
-                      dateField.input.placeholder = "yyyy-mm-dd"
-                      Helper.add("outline-hover", dateField.input)
-                      let birthday
-                      if (contact.birthday) {
-                        const split = contact.birthday.split("T")
-                        dateField.input.value = split[0]
-                        birthday = split[0]
-                      }
-                      dateField.input.setAttribute("required", "true")
-                      Helper.verify("input/value", dateField.input)
-
-                      Helper.overlay("popup", overlay => {
-                        overlay.info.textContent = contact.email
-
-                        dateField.input.oninput = async () => {
-                          await Helper.verify("input/value", dateField.input)
-
-                          const date = new Date(dateField.input.value)
-
-                          Helper.overlay("security", async securityOverlay => {
-                            const res = await Helper.request("/register/contacts/birthday-self/", {id: contact.created, birthday: date.toISOString()})
-                            if (res.status === 200) {
-                              window.alert("Geburtsdatum erfolgreich gespeichert.")
-                              await getAndRenderContacts(parent)
-                              overlay.remove()
-                              updateOverlay.remove()
-                              securityOverlay.remove()
-                            } else {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
-                            }
-                          })
-
-                        }
-
-                        const content = Helper.create("div/scrollable", overlay)
-                        content.style.marginTop = "21px"
-                        if (!Helper.verifyIs("text/empty", birthday)) {
-
-                          if (contact.alias) {
-                            Helper.render("text/hr", `Numerologie von ${contact.alias}`, content)
-                          } else {
-                            Helper.render("text/hr", `Numerologie von ${contact.email}`, content)
-                          }
-
-                          const date = new Date(birthday)
-
-                          numerology.renderAge(date, content)
-                          numerology.renderLifePath(date, content)
-                          numerology.renderMaster(date, content)
-                          numerology.renderBirthDayEnergy(date, content)
-                          numerology.renderPrevailingEnergies(date, content)
-                          numerology.renderRecedingEnergies(date, content)
-                          numerology.renderTones(date, content)
-                          numerology.renderFirstCycle(date, content)
-                          numerology.renderFirstKeyTone(date, content)
-                          numerology.renderSecondCycle(date, content)
-                          numerology.renderSecondKeyTone(date, content)
-                          numerology.renderThirdCycle(date, content)
-                          numerology.renderThirdKeyTone(date, content)
-                          numerology.renderFourthCycle(date, content)
-                          numerology.renderFourthKeyTone(date, content)
-
-                          if (contact.alias) {
-                            numerology.renderBirthNameEnergies(contact.alias, content)
-                            numerology.renderDeterminationEnergy(contact.alias, content)
-                            numerology.renderHeartsDesire(contact.alias, content)
-                            numerology.renderPersona(contact.alias, content)
-                            numerology.renderDoubleLetterEnergies(contact.alias, content)
-                            numerology.renderPhysicalLevel(contact.alias, content)
-                            numerology.renderEmotionalLevel(contact.alias, content)
-                            numerology.renderMentalLevel(contact.alias, content)
-                            numerology.renderIntuitiveLevel(contact.alias, content)
-                          }
-
-                          content.appendChild(dateField)
-
-                          function removeFieldsAndButtons() {
-                            dateField.remove()
-                            shareButton.remove()
-                            downloadHtmlButton.remove()
-                          }
-
-                          function addFieldsAndButtons() {
-                            content.appendChild(dateField)
-                            content.appendChild(shareButton)
-                            content.appendChild(downloadHtmlButton)
-                          }
-
-                          const shareButton = Helper.create("toolbox/left-right", content)
-                          shareButton.left.textContent = "navigator.share"
-                          shareButton.right.textContent = "Sende die Numerologie Rechnung an dein Netzwerk"
-                          shareButton.onclick = async () => {
-                            try {
-                              removeFieldsAndButtons()
-                              const blob = new Blob([content.outerHTML], { type: 'text/html' })
-                              const file = new File([blob], `numerologie-von-${contact.email}.html`, { type: 'text/html' })
-                              await navigator.share({
-                                files: [file]
-                              })
-                              console.log("Numerology share successfully")
-                            } catch (err) {
-                              console.error(err)
-                            }
-                            addFieldsAndButtons()
-                          }
-
-                          const downloadHtmlButton = Helper.create("toolbox/left-right", content)
-                          downloadHtmlButton.left.textContent = "download.html"
-                          downloadHtmlButton.right.textContent = "Lade die Numerologie Rechnung als .html Datei herunter"
-                          downloadHtmlButton.onclick = () => {
-                            removeFieldsAndButtons()
-                            Helper.downloadFile(content.outerHTML, `numerologie-von-${contact.email}.html`)
-                            addFieldsAndButtons()
-                          }
-
-                          const toLoginButton = Helper.render("login-button", "https://www.get-your.de/entwicklung/numerologie/login/", content)
-                          toLoginButton.left.textContent = "numerology.login"
-                          toLoginButton.right.textContent = "Jetzt schnell und einfach anmelden"
-
-                        } else {
-                          content.appendChild(dateField)
-                        }
-
-                      })
-                    }
-                  }
-
-                  {
-                    const button = Helper.create("button/left-right", buttons)
-                    button.left.textContent = ".status"
-                    button.right.textContent = "Gib deinem Kontakt einen Status"
-                    button.onclick = () => {
-                      Helper.overlay("popup", overlay => {
-                        Helper.create("header/info", overlay).textContent = contact.email
-
-                        const funnel = Helper.create("div/scrollable", overlay)
-
-                        const statusField = Helper.create("field/text", funnel)
-                        Helper.add("outline-hover", statusField.input)
-                        statusField.label.textContent = "Vergebe einen Status Wert"
-                        statusField.input.setAttribute("required", "true")
-                        if (contact.status !== undefined) {
-                          statusField.input.value = contact.status
-                        }
-                        Helper.verify("input/value", statusField.input)
-                        statusField.input.oninput = () => Helper.verify("input/value", statusField.input)
-
-                        const submit = Helper.create("button/action", funnel)
-                        Helper.add("outline-hover", submit)
-                        submit.textContent = "Status jetzt speichern"
-                        submit.onclick = async () => {
-
-                          await Helper.verify("input/value", statusField.input)
-
-                          Helper.overlay("security", async securityOverlay => {
-                            const res = await Helper.request("/register/contacts/status-self/", {id: contact.created, status: statusField.input.value})
-                            if (res.status === 200) {
-                              window.alert("Status erfolgreich gespeichert.")
-                              await getAndRenderContacts(parent)
-                              overlay.remove()
-                              updateOverlay.remove()
-                              securityOverlay.remove()
-                            } else {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
-                            }
-                          })
-                        }
-
-                      })
-                    }
-                  }
-
-                  {
-                    const button = Helper.create("button/left-right", buttons)
-                    button.left.textContent = ".notes"
-                    button.right.textContent = "Mache dir Notizen zu deinem Kontakt"
-                    button.onclick = () => {
-                      Helper.overlay("popup", overlay => {
-                        overlay.info.textContent = contact.email
-
-                        const funnel = Helper.create("div/scrollable", overlay)
-
-                        const notesField = Helper.create("field/textarea", funnel)
-                        Helper.add("outline-hover", notesField.input)
-                        notesField.label.textContent = "Notizen"
-                        notesField.input.style.height = "55vh"
-                        if (contact.notes !== undefined) {
-                          notesField.input.value = contact.notes
-                        }
-                        Helper.verify("input/value", notesField.input)
-                        notesField.input.oninput = () => Helper.verify("input/value", notesField.input)
-
-                        const submit = Helper.create("button/action", funnel)
-                        Helper.add("outline-hover", submit)
-                        submit.textContent = "Notizen jetzt speichern"
-                        submit.onclick = async () => {
-
-                          await Helper.verify("input/value", notesField.input)
-
-                          Helper.overlay("security", async securityOverlay => {
-                            const res = await Helper.request("/register/contacts/notes-self/", {id: contact.created, notes: notesField.input.value})
-
-                            if (res.status === 200) {
-                              window.alert("Notizen erfolgreich gespeichert.")
-                              await getAndRenderContacts(parent)
-                              overlay.remove()
-                              updateOverlay.remove()
-                              securityOverlay.remove()
-                            } else {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
-                            }
-                          })
-
-                        }
-
-                      })
-                    }
-                  }
-
-                  {
-                    const button = Helper.create("button/left-right", buttons)
-                    button.left.textContent = ".phone"
-                    button.right.textContent = "Gib die Telefon Nummer deines Kontakts ein"
-                    button.onclick = () => {
-                      Helper.overlay("popup", overlay => {
-                        Helper.create("header/info", overlay).textContent = contact.email
-
-                        const funnel = Helper.create("div/scrollable", overlay)
-
-                        const phoneField = Helper.create("field/tel", funnel)
-                        phoneField.label.textContent = "Telefon Nummer"
-                        phoneField.input.setAttribute("required", "true")
-                        phoneField.input.setAttribute("accept", "text/tel")
-                        if (contact.phone !== undefined) {
-                          phoneField.input.value = contact.phone
-                        }
-                        Helper.verify("input/value", phoneField.input)
-                        Helper.add("outline-hover", phoneField.input)
-                        phoneField.input.oninput = () => Helper.verify("input/value", phoneField.input)
-
-
-                        const submit = Helper.create("button/action", funnel)
-                        Helper.add("outline-hover", submit)
-                        submit.textContent = "Nummer jetzt speichern"
-                        submit.onclick = async () => {
-
-                          await Helper.verify("input/value", phoneField.input)
-
-                          Helper.overlay("security", async securityOverlay => {
-                            const res = await Helper.request("/register/contacts/phone-self/", {id: contact.created, phone: phoneField.input.value})
-
-                            if (res.status !== 200) {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
-                            }
-
-                            if (res.status === 200) {
-                              window.alert("Telefon Nummer erfolgreich gespeichert.")
-
-                              const res = await Helper.request("/get/contacts/self/")
-                              if (res.status !== 200) {
-                                Helper.convert("parent/info", parent)
-                                parent.textContent = "Keine Kontakte gefunden"
-                              }
-                              if (res.status === 200) {
-                                const contacts = JSON.parse(res.response)
-                                Helper.render(event, contacts, parent)
-                              }
-
-                              overlay.remove()
-                              updateOverlay.remove()
-                              securityOverlay.remove()
-                            }
-                          })
-
-                        }
-
-                      })
-                    }
-                  }
-
-                  {
-                    const button = Helper.create("button/left-right", buttons)
-                    button.left.textContent = ".website"
-                    button.right.textContent = "Gib die Webseite deines Kontakts ein"
-                    button.onclick = () => {
-                      Helper.overlay("popup", overlay => {
-                        Helper.create("header/info", overlay).textContent = contact.email
-
-                        const funnel = Helper.create("div/scrollable", overlay)
-
-                        const websiteField = Helper.create("field/text", funnel)
-                        websiteField.label.textContent = "Webseite"
-                        websiteField.input.setAttribute("required", "true")
-                        if (contact.website !== undefined) {
-                          websiteField.input.value = contact.website
-                        }
-                        Helper.verify("input/value", websiteField.input)
-                        Helper.add("outline-hover", websiteField.input)
-                        websiteField.input.oninput = () => Helper.verify("input/value", websiteField.input)
-
-
-                        const submit = Helper.create("button/action", funnel)
-                        Helper.add("outline-hover", submit)
-                        submit.textContent = "Webseite jetzt speichern"
-                        submit.onclick = async () => {
-
-                          await Helper.verify("input/value", websiteField.input)
-
-                          Helper.overlay("security", async securityOverlay => {
-                            const res = await Helper.request("/register/contacts/website-self/", {id: contact.created, website: websiteField.input.value})
-
-                            if (res.status !== 200) {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
-                            }
-
-                            if (res.status === 200) {
-                              window.alert("Webseite erfolgreich gespeichert.")
-                              await getAndRenderContacts(parent)
-                              overlay.remove()
-                              updateOverlay.remove()
-                              securityOverlay.remove()
-                            }
-                          })
-
-                        }
-
-                      })
-                    }
-                  }
-
-                  {
-                    const res = await Helper.request("/verify/user/expert/")
-                    if (res.status === 200) {
-                      const button = Helper.create("button/left-right", buttons)
-                      button.left.textContent = ".promote"
-                      button.right.textContent = "Erhalte Zugang zu unendlich vielen Möglichkeiten"
-                      button.onclick = () => {
-                        Helper.overlay("popup", async overlay => {
-                          if (contact.alias) {
-                            Helper.render("text/h1", `Promote ${contact.email}`, overlay)
-                          } else {
-                            Helper.render("text/h1", `Promote ${contact.email}`, overlay)
-                          }
-                          const funnel = Helper.create("div/scrollable", overlay)
-                          const searchField = Helper.create("field/text", funnel)
-                          searchField.label.textContent = "Suche nach Text im Pfad"
-                          searchField.input.placeholder = "/experte/plattform/pfad"
-                          searchField.style.margin = "0 34px"
-                          Helper.verify("input/value", searchField.input)
-                          Helper.add("outline-hover", searchField.input)
-                          const pathField = await Helper.create("field/open-expert-values-path-select", funnel)
-                          const originalOptions = Array.from(pathField.input.options).map(option => option.cloneNode(true))
-                          searchField.input.oninput = (ev) => {
-                            const searchTerm = ev.target.value.toLowerCase()
-                            const options = originalOptions.map(it => it.value)
-                            const filtered = options.filter(it => it.toLowerCase().includes(searchTerm))
-                            pathField.input.add(filtered)
-                          }
-                          pathField.input.style.height = "55vh"
-                          pathField.input.setAttribute("multiple", "true")
-                          for (let i = 0; i < pathField.input.options.length; i++) {
-                            const option = pathField.input.options[i]
-                            option.selected = false
-                          }
-                          pathField.input.oninput = async () => {
-                            const fieldFunnel = await Helper.convert("path/field-funnel", pathField.input.value)
-                            if (fieldFunnel.id) {
-                              Helper.overlay("popup", async overlay => {
-                                overlay.info.textContent = contact.email + "." + fieldFunnel.id
-                                const create = Helper.create("button/left-right", overlay)
-                                create.left.textContent = ".create"
-                                create.right.textContent = Helper.convert("text/capital-first-letter", fieldFunnel.id) + " definieren"
-                                create.onclick = () => {
-                                  Helper.overlay("popup", async overlay => {
-                                    Helper.create("header/info", overlay).textContent = contact.email + "." + fieldFunnel.id + ".create"
-                                    overlay.append(fieldFunnel)
-                                    Helper.verifyIs("field-funnel/valid", fieldFunnel)
-                                    Helper.add("outline-hover/field-funnel", fieldFunnel)
-                                    const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
-                                    if (submitButton) {
-                                      submitButton.textContent = `${Helper.convert("text/capital-first-letter", fieldFunnel.id)} jetzt speichern`
-                                      submitButton.onclick = async () => {
-                                        const path = pathField.input.value
-                                        await Helper.verify("field-funnel", fieldFunnel)
-                                        const map = await Helper.convert("field-funnel/map", fieldFunnel)
-                                        Helper.overlay("security", async securityOverlay => {
-                                          const register = {}
-                                          register.email = contact.email
-                                          register.map = map
-                                          register.path = path
-                                          register.id = fieldFunnel.id
-                                          const res = await Helper.request("/register/location/email-expert", register)
-                                          if (res.status === 200) {
-                                            window.alert("Daten erfolgreich gespeichert.")
-                                            await Helper.render("location-list/node/email-expert", {tag: fieldFunnel.id, email: contact.email, path: pathField.input.value}, locationList)
-                                            securityOverlay.remove()
-                                          } else {
-                                            window.alert("Fehler.. Bitte wiederholen.")
-                                            securityOverlay.remove()
-                                          }
-                                        })
-                                      }
-                                    } else {
-                                      window.alert("Field Funnel besitzt keinen Button mit der Klasse 'submit-field-funnel-button'")
-                                    }
-                                  })
-                                }
-                                if (contact.alias) {
-                                  Helper.render("text/hr", Helper.convert("text/capital-first-letter", fieldFunnel.id) + " von " + contact.alias, overlay)
-                                } else {
-                                  Helper.render("text/hr", Helper.convert("text/capital-first-letter", fieldFunnel.id) + " von " + contact.email, overlay)
-                                }
-                                const locationList = Helper.create("info/loading", overlay)
-                                await Helper.render("location-list/node/email-expert", {tag: fieldFunnel.id, email: contact.email, path: pathField.input.value}, locationList)
-                              })
-                            }
-                          }
-                        })
-                      }
-                    }
-                  }
-                  {
-                    const button = Helper.create("button/left-right", buttons)
-                    button.left.textContent = ".delete"
-                    button.right.textContent = "Kontakt entfernen"
-                    button.onclick = () => {
-                      const confirm = window.confirm("Möchtest du deinen Kontakt wirklich entfernen?")
-                      if (confirm === true) {
-                        Helper.overlay("security", async securityOverlay => {
-                          const res = await Helper.request("/remove/contacts/id-self/", {id: contact.created})
-                          if (res.status === 200) {
-                            window.alert("Kontakt erfolgreich entfernt.")
-                            contactButton.remove()
-                            updateOverlay.remove()
-                            securityOverlay.remove()
-                          }
-                          if (res.status !== 200) {
-                            window.alert("Fehler.. Bitte wiederholen.")
-                            securityOverlay.remove()
-                          }
-                        })
-                      }
-                    }
-                  }
-                })
-              }
-            }
-
-            parent?.appendChild(fragment)
-          }
-
-          const res = await this.request("/get/contacts/self/")
-          let filtered
-          if (res.status === 200) {
-            const contacts = JSON.parse(res.response)
-
-            exportButton.onclick = () => {
-              if (filtered) {
-                this.convert("text/clipboard", JSON.stringify(filtered))
-                .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
-              } else {
-                this.convert("text/clipboard", JSON.stringify(contacts))
-                .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
-              }
-            }
-
-            searchField.input.oninput = (ev) => {
-              const prepared = concatEmailAndNotes(contacts, "text")
-              filtered = prepared.filter(it => {
-                const check = it.text ? it.text : it.email
-                return check.toLowerCase().includes(ev.target.value.toLowerCase())
-              })
-              renderContactButtons(filtered, contactsDiv, ev.target.value)
-            }
-
-            renderContactButtons(contacts, contactsDiv)
-          } else {
-            this.convert("parent/info", contactsDiv)
-            parent.textContent = "Keine Kontakte gefunden"
-          }
-
-          const addButton = this.create("button/add", content)
-          addButton.onclick = () => {
-
-            this.overlay("popup", overlay => {
-              this.render("text/h1", "Neuen Kontakt erstellen", overlay)
-
-              const funnel = this.create("div/scrollable", overlay)
-
-              const emailField = this.create("field/email", funnel)
-              emailField.label.textContent = "Welche E-Mail Adresse möchtest du zu deiner Kontaktliste hinzufügen"
-              emailField.input.placeholder = "neue@email.de"
-              this.verify("input/value", emailField.input)
-              emailField.input.oninput = () => this.verify("input/value", emailField.input)
-
-              const submit = this.create("button/action", funnel)
-              submit.textContent = "Kontakt jetzt speichern"
-              submit.onclick = async () => {
-                await this.verify("input/value", emailField.input)
-
-                this.overlay("security", async securityOverlay => {
-                  const res = await this.request("/register/contacts/email-self/", {email: emailField.input.value})
-                  if (res.status === 200) {
-                    window.alert("Kontakt erfolgreich gespeichert.")
-                    await getAndRenderContacts(contactsDiv)
-                    securityOverlay.remove()
-                    overlay.remove()
-                  } else {
-                    window.alert("Fehler.. Bitte wiederholen.")
-                    securityOverlay.remove()
-                  }
-                })
-
-              }
-
-            })
-          }
-
-        })
+        this.overlay("contacts")
       }
     }
 
@@ -2526,16 +1746,18 @@ export class Helper {
         try {
 
           function addToolbox(){
-            Helper.add("toolbox/buttons")
-            Helper.add("observer/id-mutation")
 
-            const save = (ev) => {
-              if ((ev.ctrlKey || ev.metaKey) && ev.key === 's') {
-                ev.preventDefault()
-                Helper.add("register-html")
+            if (Helper.verifyIs("path/valid")) {
+              Helper.add("toolbox/buttons")
+              Helper.add("observer/id-mutation")
+              const save = (ev) => {
+                if ((ev.ctrlKey || ev.metaKey) && ev.key === 's') {
+                  ev.preventDefault()
+                  Helper.add("register-html")
+                }
               }
+              window.addEventListener('keydown', save)
             }
-            window.addEventListener('keydown', save)
           }
 
           const res = await this.request("/verify/user/closed/")
@@ -4416,6 +3638,13 @@ export class Helper {
 
   }
 
+  static append(node, to){
+
+    const fragment = document.createDocumentFragment()
+    fragment.appendChild(node)
+    to?.appendChild(fragment)
+  }
+
   static callback(event, input, callback) {
     // event = input/algo
 
@@ -4505,11 +3734,31 @@ export class Helper {
 
   }
 
+  static design(tree, input, parent) {
+
+    if (tree === "numerologie") {
+
+      if (input.birthdate) {
+        const birthdate = input.birthdate
+        const numerology = this.fn("numerology")
+        const date = new Date(birthdate)
+        const lifepath = numerology.dateToLifePath(date)
+        const button = this.create("toolbox/left-right")
+        button.left.className = "flex align center circle bg-green w55 h55"
+        button.left.textContent = lifepath
+        button.right.textContent = "Weiter zum Profil"
+        if (parent) this.append(button, parent)
+        return button
+      }
+    }
+
+  }
+
   static div(className, node) {
 
     const div = document.createElement("div")
     div.className = className
-    if (node) this.render("node", div, node)
+    if (node) this.append(div, node)
     return div
   }
 
@@ -4719,6 +3968,20 @@ export class Helper {
 
     }
 
+    if (event === "input/alias"){
+
+      const alias = this.create("input/text")
+      alias.input.maxLength = "55"
+      alias.input.placeholder = "Alternativer Name"
+      alias.input.addEventListener("input", () => this.verify("input/value", alias.input))
+      alias.input.setAttribute("required", "true")
+      alias.input.setAttribute("accept", "text/length")
+      this.add("outline-hover", alias.input)
+      this.verify("input/value", alias.input)
+      if (input) this.render("node", alias, input)
+      return alias
+    }
+
     if (event === "input/path") {
 
       const fragment = document.createDocumentFragment()
@@ -4778,9 +4041,11 @@ export class Helper {
       this.style(div, {margin: "21px 34px", position: "relative"})
       div.input = document.createElement("textarea")
       div.appendChild(div.input)
-      this.style(div.input, {width: "89%", fontSize: "21px"})
+      div.input.addEventListener("input", ev => this.verify("input/value", div.input))
       this.add("outline-hover", div.input)
       this.convert("dark-light", div.input)
+      this.style(div.input, {width: "89%", fontSize: "21px"})
+      this.verify("input/value", div.input)
       input?.appendChild(div)
       return div
     }
@@ -4822,7 +4087,8 @@ export class Helper {
       div.appendChild(div.input)
       div.input.classList.add("email-input")
       div.input.type = "email"
-      div.input.placeholder = "meine@email.de"
+      div.input.placeholder = "E-Mail Adresse"
+      div.input.addEventListener("input", ev => this.verify("input/value", div.input))
       div.input.setAttribute("required", "true")
       div.input.setAttribute("accept", "text/email")
       this.style(div.input, {width: "89%", fontSize: "21px"})
@@ -4905,18 +4171,38 @@ export class Helper {
       return div
     }
 
+    if (event === "input/phone") {
+
+      const div = document.createElement("div")
+      this.style(div, {margin: "21px 34px", position: "relative"})
+      div.input = document.createElement("input")
+      this.append(div.input, div)
+      div.input.type = "tel"
+      div.input.placeholder = "Telefon Nummer"
+      div.input.addEventListener("input", ev => this.verify("input/value", div.input))
+      div.input.setAttribute("required", "true")
+      div.input.setAttribute("accept", "text/tel")
+      this.add("outline-hover", div.input)
+      this.convert("dark-light", div.input)
+      this.style(div.input, {width: "89%", fontSize: "21px"})
+      this.verify("input/value", div.input)
+      if (input) this.append(div, input)
+      return div
+    }
+
     if (event === "input/tel") {
 
       const div = document.createElement("div")
       this.style(div, {margin: "21px 34px", position: "relative"})
       div.input = document.createElement("input")
-      div.appendChild(div.input)
+      this.append(div.input, div)
       div.input.type = "tel"
-      this.style(div.input, {width: "89%", fontSize: "21px"})
+      div.input.addEventListener("input", ev => this.verify("input/value", div.input))
       this.add("outline-hover", div.input)
-      this.verify("input/value", div.input)
       this.convert("dark-light", div.input)
-      input?.appendChild(div)
+      this.style(div.input, {width: "89%", fontSize: "21px"})
+      this.verify("input/value", div.input)
+      if (input) this.append(div, input)
       return div
     }
 
@@ -4925,13 +4211,25 @@ export class Helper {
       const div = document.createElement("div")
       this.style(div, {margin: "21px 34px", position: "relative"})
       div.input = document.createElement("input")
-      div.appendChild(div.input)
+      this.append(div.input, div)
       div.input.type = "text"
-      this.style(div.input, {width: "89%", fontSize: "21px"})
+      div.input.addEventListener("input", ev => this.verify("input/value", div.input))
       this.add("outline-hover", div.input)
-      this.verify("input/value", div.input)
       this.convert("dark-light", div.input)
-      input?.appendChild(div)
+      this.verify("input/value", div.input)
+      this.style(div.input, {width: "89%", fontSize: "21px"})
+      if (input) this.append(div, input)
+      return div
+    }
+
+    if (event === "input/url"){
+
+      const div = this.create("input/text")
+      div.input.placeholder = "Webseiten URL (text/url)"
+      div.input.setAttribute("required", "true")
+      div.input.setAttribute("accept", "text/url")
+      this.verify("input/value", div.input)
+      if (input) this.append(div, input)
       return div
     }
 
@@ -8596,10 +7894,6 @@ await Helper.add("event/click-funnel")
 
     }
 
-    if (event === "node") {
-
-    }
-
     if (event === "video") {
 
       const fragment = document.createDocumentFragment()
@@ -10443,6 +9737,22 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "number/de") {
+
+      const de = {
+        1: "eins",
+        2: "zwei",
+        3: "drei",
+        4: "vier",
+        5: "fuenf",
+        6: "sechs",
+        7: "sieben",
+        8: "acht",
+        9: "neun",
+      }
+      return de[input] || undefined
+    }
+
     if (event === "path/field-funnel") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -10544,6 +9854,11 @@ await Helper.add("event/click-funnel")
       this.style(input, {display: "flex", flexDirection: "row", flexWrap: "wrap"})
     }
 
+    if (event === "tag/tree") {
+
+      return input.replaceAll("-", ".")
+    }
+
     if (event === "text/boolean") {
 
       if (input === "true" || input === "false") {
@@ -10615,6 +9930,7 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "text/doc") {
+
       const parser = new DOMParser()
       const doc = parser.parseFromString(input, "text/html")
       return doc
@@ -10952,6 +10268,16 @@ await Helper.add("event/click-funnel")
 
     if (event === "tree/class") {
       return input.replace(/\./g, "-")
+    }
+
+    if (event === "tree/key") {
+
+      const keys = input.split(".")
+      if (keys.length > 0) {
+        return keys[keys.length - 1]
+      } else {
+        return input
+      }
     }
 
     if (event === "user-tree") {
@@ -11875,7 +11201,7 @@ await Helper.add("event/click-funnel")
     const file = new Blob([content], { type: contentType })
     const hash = await this.digest(file)
     a.href = URL.createObjectURL(file)
-    a.download = `${hash}.sh`
+    a.download = `${hash}.${this.convert("type/extension", contentType)}`
     a.click()
   }
 
@@ -13729,6 +13055,58 @@ await Helper.add("event/click-funnel")
       return {open, icon, openScriptOverlay, bodyButton, initScriptCounter}
     }
 
+    if (event === "handleClassName") {
+
+      const {platform, key} = input
+      const numerology = this.fn("numerology")
+
+
+      const handlers = {
+
+        birthdate: (node, value) => {
+
+          if (platform === "numerologie") {
+            const date = new Date(value)
+            const lifepath = numerology.dateToLifePath(date)
+            const lifepathText = Helper.convert("number/de", lifepath)
+            const millis = date.getTime()
+            const formatted = Helper.convert("millis/dd.mm.yyyy", millis)
+            node.textContent = formatted
+            Helper.on("hover", {node, class: "outline pointer"})
+            node.onclick = ev => {
+              numerology.openBirthDateOverlay(date)
+            }
+            document.querySelectorAll("[lifepath='number']").forEach(node => node.textContent = lifepath)
+            fetch(`/entwicklung/numerologie/geburtsenergie-${lifepathText}/`)
+            .then(data => data.text())
+            .then(async text => {
+              const purified = await this.convert("text/purified", text)
+              const doc = this.convert("text/doc", purified)
+              const contentNodes = Array.from(doc.body.querySelectorAll(".content"))
+              if (contentNodes.length > 0) {
+                const randomIndex = Math.floor(Math.random() * contentNodes.length)
+                const randomText = contentNodes[randomIndex].textContent
+                const lifepathNode = document.querySelector("[lifepath='content']")
+                if (lifepathNode) {
+                  lifepathNode.textContent = randomText
+                }
+              }
+            })
+          }
+        },
+        birthname: (node, value) => {
+
+          node.textContent = value
+          Helper.on("hover", {node, class: "outline pointer"})
+          node.onclick = ev => {
+            numerology.openBirthNameOverlay(value)
+          }
+        },
+        default: (node, value) => node.textContent = value
+      }
+      return handlers[key] || handlers.default
+    }
+
     if (event === "incrementStyle") {
 
       return ({key, node, delta}) => {
@@ -13840,10 +13218,8 @@ await Helper.add("event/click-funnel")
     if (event === "numerology") {
 
       const it = {}
-
       const numbersAsText = ['eins', 'zwei', 'drei', 'vier', 'fuenf', 'sechs', 'sieben', 'acht', 'neun']
       const occurencies = ['ein-mal', 'zwei-mal', 'drei-mal', 'vier-mal', 'fuenf-mal', 'sechs-mal', 'sieben-mal', 'acht-mal', 'neun-mal']
-
       const latinAlphabet = {
         'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5,
         'f': 6, 'g': 7, 'h': 8, 'i': 9, 'j': 1,
@@ -13852,7 +13228,6 @@ await Helper.add("event/click-funnel")
         'u': 3, 'v': 4, 'w': 5, 'x': 6, 'y': 7,
         'z': 8
       }
-
       const greekAlphabet = {
         'α': 1, 'β': 2, 'γ': 3, 'δ': 4, 'ε': 5,
         'ζ': 6, 'η': 7, 'θ': 8, 'ι': 9, 'κ': 1,
@@ -13860,7 +13235,6 @@ await Helper.add("event/click-funnel")
         'π': 7, 'ρ': 8, 'σ': 9, 'τ': 1, 'υ': 2,
         'φ': 3, 'χ': 4, 'ψ': 5, 'ω': 6
       }
-
       const russianAlphabet = {
         'а': 1, 'б': 2, 'в': 3, 'г': 4, 'д': 5,
         'е': 6, 'ё': 7, 'ж': 8, 'з': 9, 'и': 1,
@@ -13870,37 +13244,27 @@ await Helper.add("event/click-funnel")
         'ш': 8, 'щ': 9, 'ъ': 1, 'ы': 2, 'ь': 3,
         'э': 4, 'ю': 5, 'я': 6
       }
-
       const alphabetMap = {
         ...latinAlphabet,
         ...greekAlphabet,
         ...russianAlphabet
       }
-
       const latinConsonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z']
-
       const greekConsonants = ['β', 'γ', 'δ', 'ζ', 'θ', 'κ', 'λ', 'μ', 'ν', 'ξ', 'π', 'ρ', 'σ', 'τ', 'φ', 'χ', 'ψ']
-
       const russianConsonants = ['б', 'в', 'г', 'д', 'ж', 'з', 'й', 'к', 'л', 'м', 'н', 'п', 'р', 'с', 'т', 'ф', 'х', 'ц', 'ч', 'ш', 'щ']
-
       const consonants = [
         ...latinConsonants,
         ...greekConsonants,
         ...russianConsonants
       ]
-
       const latinVowels = ['a', 'e', 'i', 'o', 'u', 'y']
-
       const greekVowels = ['α', 'ε', 'η', 'ι', 'ο', 'υ', 'ω']
-
       const russianVowels = ['а', 'е', 'ё', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я']
-
       const vowels = [
         ...latinVowels,
         ...greekVowels,
         ...russianVowels
       ]
-
       function calculateAge(date) {
         const currentDate = new Date()
         let age = currentDate.getFullYear() - date.getFullYear()
@@ -13911,14 +13275,12 @@ await Helper.add("event/click-funnel")
         }
         return age
       }
-
       function renderDiv(node) {
         const div = document.createElement("div")
         Helper.style(div, {margin: "21px 34px", fontFamily: "sans-serif"})
         node.appendChild(div)
         return div
       }
-
       function renderTitleSpan(text, node) {
         const span = document.createElement("span")
         span.textContent = text
@@ -13927,7 +13289,6 @@ await Helper.add("event/click-funnel")
         node.appendChild(span)
         return span
       }
-
       function renderHighlightedSpan(text, node) {
         const span = Helper.create("box")
         span.style.fontSize = "34px"
@@ -13937,7 +13298,6 @@ await Helper.add("event/click-funnel")
         node.appendChild(span)
         return span
       }
-
       function renderTitle(title, node) {
         const titleNode = Helper.create("box", node)
         titleNode.textContent = `${title}:`
@@ -13945,12 +13305,10 @@ await Helper.add("event/click-funnel")
         titleNode.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/${tag}/", "_blank")`)
         return titleNode
       }
-
       function dateToIsoSplit(date) {
         const isoDate = date.toISOString()
         return isoDate.split("T")[0]
       }
-
       function renderLifePathCalculation(date) {
         date = dateToIsoSplit(date)
         const digits = [...date.toString()].map(digit => parseInt(digit))
@@ -13966,7 +13324,6 @@ await Helper.add("event/click-funnel")
         }
         return text
       }
-
       function dateToMaster(date) {
         date = dateToIsoSplit(date)
         const digits = [...date.toString()].map(digit => parseInt(digit, 10)).filter(Number.isFinite)
@@ -13983,14 +13340,13 @@ await Helper.add("event/click-funnel")
         }
         return ![11, 22, 33].includes(sum) ? prevSum : sum
       }
-
       function renderEqualsSign(node) {
         const equalsSign = renderTitleSpan("=", node)
         equalsSign.style.margin = "0 5px"
         return equalsSign
       }
+      it.dateToLifePath = date => {
 
-      function dateToLifePath(date) {
         date = dateToIsoSplit(date)
         const digits = [...date.toString()].map(digit => parseInt(digit))
         let sum = 0
@@ -14004,23 +13360,19 @@ await Helper.add("event/click-funnel")
         }
         return sum
       }
-
       function openLifePath(lifePath) {
         const url = `/entwicklung/numerologie/geburtsenergie-${numbersAsText[lifePath - 1]}/`
         window.open(url, "_blank")
       }
-
       function getDigits(number) {
         const numberString = Math.abs(number).toString()
         return Array.from(numberString, Number)
       }
-
       function sumDigits(number) {
         const digits = getDigits(number)
         const sum = digits.reduce((accumulator, currentValue) => accumulator + currentValue, 0)
         return sum
       }
-
       function reduceToSingleDigit(number) {
         let result = number
         while (result >= 10) {
@@ -14028,7 +13380,6 @@ await Helper.add("event/click-funnel")
         }
         return result
       }
-
       function createPrevailingEnergies(data, node) {
         const fragment = document.createDocumentFragment()
         const keys = Object.keys(data)
@@ -14053,7 +13404,6 @@ await Helper.add("event/click-funnel")
         node.appendChild(fragment)
         return node
       }
-
       function countOccurrences(array) {
         const occurrences = {}
         array.forEach(number => {
@@ -14061,18 +13411,16 @@ await Helper.add("event/click-funnel")
         })
         return occurrences
       }
-
       function splitYear(year) {
         const yearString = year.toString()
         const firstPart = yearString.substring(0, 2)
         const secondPart = yearString.substring(2)
         return [firstPart, secondPart]
       }
-
       function fillDateNumbers(date) {
         const isoDateSplit = dateToIsoSplit(date)
         const dateNumbers = isoDateSplit.match(/\d/g).map(Number)
-        const lifePathNumber = dateToLifePath(date)
+        const lifePathNumber = it.dateToLifePath(date)
         dateNumbers.push(lifePathNumber)
         const day = date.getDate()
         const sumDay = reduceToSingleDigit(day)
@@ -14092,7 +13440,6 @@ await Helper.add("event/click-funnel")
         dateNumbers.push(sumYear)
         return dateNumbers
       }
-
       function createRecedingEnergy(array, node) {
         const fragment = document.createDocumentFragment()
         for (let i = 0; i < array.length; i++) {
@@ -14108,12 +13455,10 @@ await Helper.add("event/click-funnel")
         node.appendChild(fragment)
         return node
       }
-
       function openTones(tone, occurency) {
         const url = `/entwicklung/numerologie/tonarten-${occurencies[occurency - 1]}-${numbersAsText[tone - 1]}/`
         window.open(url, "_blank")
       }
-
       function createTones(array, node) {
         const data = countOccurrences(array)
         const fragment = document.createDocumentFragment()
@@ -14139,7 +13484,6 @@ await Helper.add("event/click-funnel")
         node.appendChild(fragment)
         return node
       }
-
       function renderBirthNameEnergy(array, node) {
         const fragment = document.createDocumentFragment()
         for (let i = 0; i < array.length; i++) {
@@ -14153,7 +13497,6 @@ await Helper.add("event/click-funnel")
         node.appendChild(fragment)
         return node
       }
-
       function reduceStringToSingleDigit(str) {
         let sum = 0
         for (let i = 0; i < str.length; i++) {
@@ -14168,7 +13511,6 @@ await Helper.add("event/click-funnel")
         }
         return sum
       }
-
       function reduceVowelsToSingleDigit(str) {
         let sum = 0
         for (let i = 0; i < str.length; i++) {
@@ -14182,7 +13524,6 @@ await Helper.add("event/click-funnel")
         }
         return sum
       }
-
       function reduceConsonantsToSingleDigit(str) {
         let sum = 0
         for (let i = 0; i < str.length; i++) {
@@ -14196,7 +13537,6 @@ await Helper.add("event/click-funnel")
         }
         return sum
       }
-
       function findDoubleLetters(str) {
         const result = []
         for (let i = 1; i < str.length; i++) {
@@ -14208,12 +13548,10 @@ await Helper.add("event/click-funnel")
         }
         return result
       }
-
       function openDoubleLetters(energy) {
         const url = `/entwicklung/numerologie/doppelte-buchstaben-${numbersAsText[energy - 1]}/`
         window.open(url, "_blank")
       }
-
       function renderDoubleLettersValue(number, array) {
         const div = Helper.create("box")
         div.classList.add("double-letters-value")
@@ -14226,7 +13564,6 @@ await Helper.add("event/click-funnel")
         div.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/doppelte-buchstaben-${numbersAsText[number - 1]}/", "_blank")`)
         return div
       }
-
       function countFourAndFive(str) {
         let count = 0
         for (let i = 0; i < str.length; i++) {
@@ -14238,7 +13575,6 @@ await Helper.add("event/click-funnel")
         }
         return count
       }
-
       function countTwoThreeAndSix(str) {
         let count = 0
         for (let i = 0; i < str.length; i++) {
@@ -14250,7 +13586,6 @@ await Helper.add("event/click-funnel")
         }
         return count
       }
-
       function countOneAndEight(str) {
         let count = 0
         for (let i = 0; i < str.length; i++) {
@@ -14262,7 +13597,6 @@ await Helper.add("event/click-funnel")
         }
         return count
       }
-
       function countSevenAndNine(str) {
         let count = 0
         for (let i = 0; i < str.length; i++) {
@@ -14274,14 +13608,58 @@ await Helper.add("event/click-funnel")
         }
         return count
       }
+      it.openBirthDateOverlay = (date) => {
 
+        this.overlay("pop", o1 => {
+          it.renderBirthDate(date, o1.content)
+        })
+      }
+      it.openBirthNameOverlay = (name) => {
+
+        this.overlay("pop", o1 => {
+          it.renderBirthName(name, o1.content)
+        })
+      }
       it.renderAge = (date, node) => {
         const age = calculateAge(date)
         const ageDiv = renderDiv(node)
         renderTitleSpan("Alter:", ageDiv)
         renderHighlightedSpan(age, ageDiv)
       }
+      it.renderBirthDate = (date, node) => {
 
+        if (date && node){
+          it.renderAge(date, node)
+          it.renderLifePath(date, node)
+          it.renderMaster(date, node)
+          it.renderBirthDayEnergy(date, node)
+          it.renderPrevailingEnergies(date, node)
+          it.renderRecedingEnergies(date, node)
+          it.renderTones(date, node)
+          it.renderFirstCycle(date, node)
+          it.renderFirstKeyTone(date, node)
+          it.renderSecondCycle(date, node)
+          it.renderSecondKeyTone(date, node)
+          it.renderThirdCycle(date, node)
+          it.renderThirdKeyTone(date, node)
+          it.renderFourthCycle(date, node)
+          it.renderFourthKeyTone(date, node)
+        }
+      }
+      it.renderBirthName = (name, node) => {
+
+        if (name && node){
+          it.renderBirthNameEnergies(name, node)
+          it.renderDeterminationEnergy(name, node)
+          it.renderHeartsDesire(name, node)
+          it.renderPersona(name, node)
+          it.renderDoubleLetterEnergies(name, node)
+          it.renderPhysicalLevel(name, node)
+          it.renderEmotionalLevel(name, node)
+          it.renderMentalLevel(name, node)
+          it.renderIntuitiveLevel(name, node)
+        }
+      }
       it.renderLifePath = (date, node) => {
         const lifePathDiv = renderDiv(node)
         renderTitle("Geburtsenergie", lifePathDiv)
@@ -14292,12 +13670,11 @@ await Helper.add("event/click-funnel")
         const masterCalc = renderTitleSpan(master.toString().split('').join(' + '), lifePathDiv)
         masterCalc.style.margin = "0 5px"
         renderEqualsSign(lifePathDiv)
-        const lifePathNumber = dateToLifePath(date)
+        const lifePathNumber = it.dateToLifePath(date)
         const lifePathResult = renderHighlightedSpan(lifePathNumber, lifePathDiv)
         Helper.add("outline-hover", lifePathResult)
         lifePathResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/geburtsenergie-${numbersAsText[lifePathResult.textContent - 1]}/", "_blank")`)
       }
-
       it.renderMaster = (date, node) => {
         const master = dateToMaster(date)
         if (master === 11 || master === 22 || master === 33) {
@@ -14318,7 +13695,6 @@ await Helper.add("event/click-funnel")
           }
         }
       }
-
       it.renderBirthDayEnergy = (date, node) => {
         const day = date.getDate()
         const birthdayEnergyNumber = reduceToSingleDigit(day)
@@ -14328,14 +13704,12 @@ await Helper.add("event/click-funnel")
         Helper.add("outline-hover", birthdayEnergyResult)
         birthdayEnergyResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/geburtstagsenergie-${numbersAsText[birthdayEnergyNumber - 1]}/", "_blank")`)
       }
-
       it.renderPrevailingEnergies = (date, node) => {
         const pervailingEnergyDiv = renderDiv(node)
         renderTitle("Vorherrschende Energien", pervailingEnergyDiv)
         const dateNumbers = fillDateNumbers(date)
         createPrevailingEnergies(countOccurrences(dateNumbers), pervailingEnergyDiv)
       }
-
       it.renderRecedingEnergies = (date, node) => {
         const missingNumbers = []
         const dateNumbers = fillDateNumbers(date)
@@ -14350,24 +13724,21 @@ await Helper.add("event/click-funnel")
           createRecedingEnergy(missingNumbers, recedingEnergyDiv)
         }
       }
-
       it.renderTones = (date, node) => {
         const tonesDiv = renderDiv(node)
         renderTitle("Tonarten", tonesDiv)
         const dateNumbers = fillDateNumbers(date)
         createTones(dateNumbers, tonesDiv)
       }
-
       it.renderFirstCycle = (date, node) => {
         const firstCycleDiv = renderDiv(node)
         renderTitle("Dauer des 1. Zyklus", firstCycleDiv)
-        const lifePathNumber = dateToLifePath(date)
+        const lifePathNumber = it.dateToLifePath(date)
         const firstCycle = 36 - lifePathNumber
         const firstCycleResult = renderHighlightedSpan(`0 - ${firstCycle}`, firstCycleDiv)
         Helper.add("outline-hover", firstCycleResult)
         firstCycleResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/erster-zyklus/", "_blank")`)
       }
-
       it.renderFirstKeyTone = (date, node) => {
         const day = date.getDate()
         const sumDay = reduceToSingleDigit(day)
@@ -14379,11 +13750,10 @@ await Helper.add("event/click-funnel")
         renderTitle("Grundton zum 1. Zyklus", firstKeyToneDiv)
         const firstKeyToneResult = renderHighlightedSpan(firstKeyTone, firstKeyToneDiv)
         Helper.add("outline-hover", firstKeyToneResult)
-        firstKeyToneResult.setAttribute("onclick", `https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[firstKeyTone - 1]}/`)
+        firstKeyToneResult.setAttribute("onclick", `window.open('https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[firstKeyTone - 1]}/', '_blank')`)
       }
-
       it.renderSecondCycle = (date, node) => {
-        const lifePathNumber = dateToLifePath(date)
+        const lifePathNumber = it.dateToLifePath(date)
         const firstCycle = 36 - lifePathNumber
         const secondCycle = firstCycle + 1 + 9
         const secondCycleDiv = renderDiv(node)
@@ -14392,7 +13762,6 @@ await Helper.add("event/click-funnel")
         Helper.add("outline-hover", secondCycleResult)
         secondCycleResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/zweiter-zyklus/", "_blank")`)
       }
-
       it.renderSecondKeyTone = (date, node) => {
         const day = date.getDate()
         const sumDay = reduceToSingleDigit(day)
@@ -14406,11 +13775,10 @@ await Helper.add("event/click-funnel")
         renderTitle("Grundton zum 2. Zyklus", secondKeyToneDiv)
         const secondKeyToneResult = renderHighlightedSpan(secondKeyTone, secondKeyToneDiv)
         Helper.add("outline-hover", secondKeyToneResult)
-        secondKeyToneResult.setAttribute("onclick", `https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[secondKeyTone - 1]}/`)
+        secondKeyToneResult.setAttribute("onclick", `window.open('https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[secondKeyTone - 1]}/', '_blank')`)
       }
-
       it.renderThirdCycle = (date, node) => {
-        const lifePathNumber = dateToLifePath(date)
+        const lifePathNumber = it.dateToLifePath(date)
         const firstCycle = 36 - lifePathNumber
         const secondCycle = firstCycle + 1 + 9
         const thirdCycle = secondCycle + 1 + 9
@@ -14420,8 +13788,8 @@ await Helper.add("event/click-funnel")
         Helper.add("outline-hover", thirdCycleResult)
         thirdCycleResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/dritter-zyklus/", "_blank")`)
       }
-
       it.renderThirdKeyTone = (date, node) => {
+
         const day = date.getDate()
         const sumDay = reduceToSingleDigit(day)
         const month = date.getMonth() + 1
@@ -14439,11 +13807,10 @@ await Helper.add("event/click-funnel")
         renderTitle("Grundton zum 3. Zyklus", thirdKeyToneDiv)
         const thirdKeyToneResult = renderHighlightedSpan(thirdKeyTone, thirdKeyToneDiv)
         Helper.add("outline-hover", thirdKeyToneResult)
-        thirdKeyToneResult.setAttribute("onclick", `https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[thirdKeyTone - 1]}/`)
+        thirdKeyToneResult.setAttribute("onclick", `window.open('https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[thirdKeyTone - 1]}/', '_blank')`)
       }
-
       it.renderFourthCycle = (date, node) => {
-        const lifePathNumber = dateToLifePath(date)
+        const lifePathNumber = it.dateToLifePath(date)
         const firstCycle = 36 - lifePathNumber
         const secondCycle = firstCycle + 1 + 9
         const thirdCycle = secondCycle + 1 + 9
@@ -14454,7 +13821,6 @@ await Helper.add("event/click-funnel")
         Helper.add("outline-hover", fourthCycleResult)
         fourthCycleResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/vierter-zyklus/", "_blank")`)
       }
-
       it.renderFourthKeyTone = (date, node) => {
         const month = date.getMonth() + 1
         const sumMonth = reduceToSingleDigit(month)
@@ -14468,9 +13834,8 @@ await Helper.add("event/click-funnel")
         renderTitle("Grundton zum 4. Zyklus", fourthKeyToneDiv)
         const fourthKeyToneResult = renderHighlightedSpan(fourthKeyTone, fourthKeyToneDiv)
         Helper.add("outline-hover", fourthKeyToneResult)
-        fourthKeyToneResult.setAttribute("onclick", `https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[fourthKeyTone - 1]}/`)
+        fourthKeyToneResult.setAttribute("onclick", `window.open('https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[fourthKeyTone - 1]}/', '_blank')`)
       }
-
       function getBirthNameNumbers(string) {
         const splitAlias = string.split(" ")
         const birthNameSums = []
@@ -14485,7 +13850,6 @@ await Helper.add("event/click-funnel")
         }
         return birthNameSums.map(it => reduceToSingleDigit(it))
       }
-
       it.renderBirthNameEnergies = (string, node) => {
         const birthNameNumbers = getBirthNameNumbers(string)
         const birthNameDiv = renderDiv(node)
@@ -14493,7 +13857,6 @@ await Helper.add("event/click-funnel")
         renderTitle("Geburtsname", birthNameDiv)
         renderBirthNameEnergy(birthNameNumbers, birthNameDiv)
       }
-
       it.renderDeterminationEnergy = (string, node) => {
         let determinationNumber = reduceStringToSingleDigit(string)
         if (determinationNumber === 0) determinationNumber = 9
@@ -14504,7 +13867,6 @@ await Helper.add("event/click-funnel")
         Helper.add("outline-hover", determinationResult)
         determinationResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/bestimmung-${numbersAsText[determinationNumber - 1]}/", "_blank")`)
       }
-
       it.renderHeartsDesire = (string, node) => {
         let heartsDesire = reduceVowelsToSingleDigit(string)
         if (heartsDesire === 0) heartsDesire = 9
@@ -14515,7 +13877,6 @@ await Helper.add("event/click-funnel")
         Helper.add("outline-hover", heartsDesireResult)
         heartsDesireResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/herzenswunsch-${numbersAsText[heartsDesire - 1]}/", "_blank")`)
       }
-
       it.renderPersona = (string, node) => {
         let persona = reduceConsonantsToSingleDigit(string)
         if (persona === 0) persona = 9
@@ -14526,7 +13887,6 @@ await Helper.add("event/click-funnel")
         Helper.add("outline-hover", personaResult)
         personaResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/persona-${numbersAsText[persona - 1]}/", "_blank")`)
       }
-
       it.renderDoubleLetterEnergies = (string, node) => {
         const doubleLetters = findDoubleLetters(string)
         const doubleLettersDiv = renderDiv(node)
@@ -14545,7 +13905,6 @@ await Helper.add("event/click-funnel")
           doubleLettersDiv.style.display = "none"
         }
       }
-
       it.renderPhysicalLevel = (string, node) => {
         let physicalLevel = countFourAndFive(string)
         if (physicalLevel === 0) physicalLevel = 9
@@ -14556,7 +13915,6 @@ await Helper.add("event/click-funnel")
         Helper.add("outline-hover", physicalLevelResult)
         physicalLevelResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/koerperliche-ebene-${numbersAsText[physicalLevel - 1]}/", "_blank")`)
       }
-
       it.renderEmotionalLevel = (string, node) => {
         let emotionalLevel = countTwoThreeAndSix(string)
         if (emotionalLevel === 0) emotionalLevel = 9
@@ -14567,7 +13925,6 @@ await Helper.add("event/click-funnel")
         Helper.add("outline-hover", emotionalLevelResult)
         emotionalLevelResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/emotionale-ebene-${numbersAsText[emotionalLevel - 1]}/", "_blank")`)
       }
-
       it.renderMentalLevel = (string, node) => {
         let mentalLevel = countOneAndEight(string)
         if (mentalLevel === 0) mentalLevel = 9
@@ -14578,7 +13935,6 @@ await Helper.add("event/click-funnel")
         Helper.add("outline-hover", mentalLevelResult)
         mentalLevelResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/mental-ebene-${numbersAsText[mentalLevel - 1]}/", "_blank")`)
       }
-
       it.renderIntuitiveLevel = (string, node) => {
         let intuitiveLevel = countSevenAndNine(string)
         if (intuitiveLevel === 0) intuitiveLevel = 9
@@ -14589,7 +13945,6 @@ await Helper.add("event/click-funnel")
         Helper.add("outline-hover", intuitiveLevelResult)
         intuitiveLevelResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/intuitive-ebene-${numbersAsText[intuitiveLevel - 1]}/", "_blank")`)
       }
-
       it.renderBirthNameFunctions = (birthname, node) => {
         it.renderBirthNameEnergies(birthname, node)
         it.renderDeterminationEnergy(birthname, node)
@@ -14601,7 +13956,6 @@ await Helper.add("event/click-funnel")
         it.renderMentalLevel(birthname, node)
         it.renderIntuitiveLevel(birthname, node)
       }
-
       it.updateBirthNameFunctions = (birthname) => {
 
         const birthNameNumbers = getBirthNameNumbers(birthname)
@@ -14655,7 +14009,6 @@ await Helper.add("event/click-funnel")
         document.querySelector(".physical-level").textContent = physicalLevel
 
       }
-
       return it
     }
 
@@ -15523,6 +14876,21 @@ await Helper.add("event/click-funnel")
             this.render("text/hover-bottom-right", it.visibility, button)
             return button
           }
+        })
+      }
+    }
+
+    if (event === "open-profile") {
+
+      const {it, node, overlay} = input
+      if (it && it.id && node && overlay) {
+        const split = window.location.pathname.split("/")
+        const expert = split[1]
+        const platform = split[2]
+        const url = `/${expert}/${platform}/profil/${it.id}/`
+        node.addEventListener("click", ev => {
+          window.open(url, "_blank")
+          overlay.remove()
         })
       }
     }
@@ -18976,6 +18344,606 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "contacts") {
+
+      this.overlay("pop", async o1 => {
+        o1.onlyClosedUser()
+        o1.info.textContent = ".contacts"
+        const content = o1.content
+        const searchField = this.create("input/text", content)
+        searchField.input.placeholder = "Filter nach E-Mail oder Notizen"
+        const container = this.create("div/flex-row", content)
+        container.style.justifyContent = "flex-start"
+        const exportButton = this.render("text/link", "Exportieren", container)
+        const importButton = this.render("text/link", "Importieren", container)
+        importButton.onclick = () => {
+
+          this.overlay("pop", o2 => {
+            const funnel = o2.content
+            const field = this.create("input/textarea", funnel)
+            this.style(field.input, {fontFamily: "monospace", height: "55vh", fontSize: "8px"})
+            field.input.setAttribute("required", "true")
+            this.verify("input/value", field.input)
+            field.input.placeholder = `[
+  {
+    email: "neuer@kontakt.de", // id
+    alias: "Kontakt Name",  // optional
+    birthday: "1999-03-21", // optional
+    status: "kontakt status", // optional
+    notes: "Kontakt Notizen", // optional
+    phone: "+123456789", // optional
+    website: "https://www.kontakt-webseite.de/" // optional
+  },
+
+  .
+  .
+
+]
+            `
+            const submit = this.create("toolbox/action", funnel)
+            submit.textContent = "Kontakte jetzt importieren"
+            submit.onclick = async () => {
+              await this.verify("input/value", field.input)
+              try {
+                const contacts = JSON.parse(field.input.value)
+                if (this.verifyIs("array/empty", contacts)) throw new Error("contacts is empty")
+                for (let i = 0; i < contacts.length; i++) {
+                  const contact = contacts[i]
+                  if (!contact.email) {
+                    throw new Error("'contact.email' is missing")
+                  }
+                }
+                this.overlay("lock", async o3 => {
+                  const res = await this.request("/register/contacts/import/", {contacts})
+                  if (res.status === 200) {
+                    window.alert("Deine Kontakte wurden erfolgreich importiert.")
+                    await getAndRenderContactsClosed()
+                    o2.remove()
+                    o3.remove()
+                  }
+                })
+              } catch (error) {
+                console.error(error)
+                window.alert("Deine Kontaktliste ist in einem ungültigen Format.")
+                this.add("style/not-valid", field.input)
+              }
+
+
+            }
+          })
+        }
+        const contactsDiv = this.create("info/loading", content)
+        function concatEmailAndNotes(array, key) {
+          return array.map(it => {
+            if (it.email && it.notes) {
+              return { ...it, [key]: `${it.email}<br>${it.notes}` }
+            } else {
+              return { ...it, [key]: it.email }
+            }
+          })
+        }
+        const websiteIcon = await this.convert("path/icon", "/public/website.svg")
+        const phoneIcon = await this.convert("path/icon", "/public/phone-out.svg")
+        const emailIcon = await this.convert("path/icon", "/public/email-out.svg")
+        async function renderContactButtons(contacts, parent, query) {
+
+          const numerology = Helper.fn("numerology")
+          const fragment = document.createDocumentFragment()
+          Helper.convert("parent/scrollable", parent)
+          for (let i = 0; i < contacts.length; i++) {
+            const contact = contacts[i]
+            const contactButton = Helper.create("toolbox/left-right", fragment)
+            Helper.style(contactButton.left, {width: "55%", margin: "21px"})
+            if (contact.birthday){
+              const birthdate = new Date(contact.birthday)
+              const lifepath = numerology.dateToLifePath(birthdate)
+              const div = Helper.div("flex align center circle bg-green w34 h34", contactButton.left)
+              div.textContent = lifepath
+            }
+            if (contact.alias) {
+              const alias = Helper.div("fs-21")
+              alias.textContent = contact.alias
+              Helper.render("node", alias, contactButton.left)
+            }
+            const query = Helper.div("fs-13 mtb8")
+            Helper.render("node", query, contactButton.left)
+            if (contact.query) {
+              let text = await Helper.convert("text/purified", contact.query)
+              query.innerHTML = text
+            } else {
+              query.textContent = contact.email
+            }
+
+            if (contact.website) {
+              const clone = websiteIcon.cloneNode(true)
+              clone.style.padding = "5px"
+              contactButton.right.appendChild(clone)
+              Helper.add("outline-hover", clone)
+              clone.onclick = ev => {
+                ev.stopPropagation()
+                window.open(contact.website, "_blank")
+                openNotes(contact)
+              }
+            }
+            if (contact.phone) {
+              const clone = phoneIcon.cloneNode(true)
+              clone.style.padding = "5px"
+              contactButton.right.appendChild(clone)
+              Helper.add("outline-hover", clone)
+              clone.onclick = ev => {
+                ev.stopPropagation()
+                window.location.href = `tel:${contact.phone}`
+                openNotes(contact)
+              }
+            }
+            if (contact.email) {
+              const clone = emailIcon.cloneNode(true)
+              clone.style.padding = "5px"
+              contactButton.right.appendChild(clone)
+              Helper.add("outline-hover", clone)
+              clone.onclick = ev => {
+                ev.stopPropagation()
+                window.location.href = `mailto:${contact.email}`
+                openNotes(contact)
+              }
+            }
+
+            function openNotes(contact, o){
+
+              Helper.overlay("pop", o1 => {
+                o1.info.textContent = contact.email
+                const funnel = o1.content
+                const notes = Helper.create("input/textarea", funnel)
+                notes.input.placeholder = `next:email(Meine Notizen)
+next:tel(Meine Notizen)
+next:webcall(Meine Notizen)
+                `
+                Helper.style(notes.input, {height: "55vh", fontSize: "13px"})
+                notes.input.style.height = "55vh"
+                if (contact.notes) {
+                  notes.input.value = contact.notes
+                }
+                const submit = Helper.create("toolbox/action", funnel)
+                submit.textContent = "Notizen jetzt speichern"
+                submit.onclick = async () => {
+
+                  await Helper.verify("input/value", notes.input)
+                  Helper.overlay("lock", async o2 => {
+                    const res = await Helper.request("/register/contacts/notes/", {created: contact.created, notes: notes.input.value})
+                    if (res.status === 200) {
+                      window.alert("Notizen erfolgreich gespeichert.")
+                      await getAndRenderContactsClosed()
+                      o1.remove()
+                      if (o) o.remove()
+                    } else {
+                      window.alert("Fehler.. Bitte wiederholen.")
+                    }
+                    o2.remove()
+                  })
+                }
+              })
+            }
+
+            contactButton.onclick = () => {
+              Helper.overlay("pop", async o2 => {
+                o2.info.textContent = contact.email
+                const buttons = o2.content
+                function createButton(left, right){
+
+                  const button = Helper.create("toolbox/left-right", buttons)
+                  button.left.textContent = left
+                  button.right.textContent = right
+                  return button
+                }
+                function registerKey(it, o, object){
+
+                  const key = Object.keys(object)[0]
+                  Helper.overlay("lock", async o4 => {
+                    const res = await Helper.request(`/register/contacts/${key}/`, {created: it.created, [key]: object[key]})
+                    if (res.status === 200) {
+                      window.alert("Daten erfolgreich gespeichert.")
+                      await getAndRenderContactsClosed()
+                      o.remove()
+                      o2.remove()
+                    } else {
+                      window.alert("Fehler.. Bitte wiederholen.")
+                    }
+                    o4.remove()
+                  })
+                }
+                {
+                  const button = createButton(".email", "Aktualisiere die E-Mail Adresse deines Kontakts")
+                  button.onclick = () => {
+
+                    Helper.overlay("pop", o3 => {
+                      o3.info.textContent = contact.email
+                      const funnel = o3.content
+                      const email = Helper.create("input/email", funnel)
+                      if (contact.email) {
+                        email.input.value = contact.email
+                      }
+                      Helper.verify("input/value", email.input)
+                      const submit = Helper.create("toolbox/action", funnel)
+                      submit.textContent = "E-Mail jetzt speichern"
+                      submit.onclick = async () => {
+                        await Helper.verify("input/value", email.input)
+                        registerKey(contact, o3, {email: email.input.value})
+                      }
+                    })
+                  }
+                }
+                {
+                  const button = createButton(".alias", "Gib deinem Kontakt einen alternativen Namen")
+                  button.onclick = () => {
+
+                    Helper.overlay("pop", o3 => {
+                      o3.info.textContent = contact.email
+                      const funnel = o3.content
+                      const alias = Helper.create("input/alias", funnel)
+                      if (contact.alias) {
+                        alias.input.value = contact.alias
+                      }
+                      Helper.verify("input/value", alias.input)
+                      const submit = Helper.create("toolbox/action", funnel)
+                      submit.textContent = "Alias jetzt speichern"
+                      submit.onclick = async () => {
+                        await Helper.verify("input/value", alias.input)
+                        registerKey(contact, o3, {alias: alias.input.value})
+                      }
+
+                    })
+                  }
+                }
+                {
+                  const button = createButton(".character", "Erfahre mehr über deinen Kontakt")
+                  button.onclick = () => {
+
+                    const dateField = Helper.create("field/date")
+                    dateField.label.textContent = "Gebe das Geburtsdatum deines Kontakts ein"
+                    dateField.input.placeholder = "yyyy-mm-dd"
+                    Helper.add("outline-hover", dateField.input)
+                    let birthday
+                    if (contact.birthday) {
+                      const split = contact.birthday.split("T")
+                      dateField.input.value = split[0]
+                      birthday = split[0]
+                    }
+                    dateField.input.setAttribute("required", "true")
+                    Helper.verify("input/value", dateField.input)
+                    Helper.overlay("popup", overlay => {
+                      overlay.info.textContent = contact.email
+                      dateField.input.oninput = async () => {
+                        await Helper.verify("input/value", dateField.input)
+                        const date = new Date(dateField.input.value)
+                        Helper.overlay("security", async securityOverlay => {
+                          const res = await Helper.request("/register/contacts/birthday/", {created: contact.created, birthday: date.toISOString()})
+                          if (res.status === 200) {
+                            window.alert("Geburtsdatum erfolgreich gespeichert.")
+                            await getAndRenderContactsClosed(parent)
+                            overlay.remove()
+                            o2.remove()
+                            securityOverlay.remove()
+                          } else {
+                            window.alert("Fehler.. Bitte wiederholen.")
+                            securityOverlay.remove()
+                          }
+                        })
+                      }
+                      const content = Helper.create("div/scrollable", overlay)
+                      content.style.marginTop = "21px"
+                      if (!Helper.verifyIs("text/empty", birthday)) {
+                        if (contact.alias) {
+                          Helper.render("text/hr", `Numerologie von ${contact.alias}`, content)
+                        } else {
+                          Helper.render("text/hr", `Numerologie von ${contact.email}`, content)
+                        }
+                        const date = new Date(birthday)
+                        numerology.renderBirthDate(date, content)
+                        numerology.renderBirthName(contact.alias, content)
+                        const toLoginButton = Helper.render("login-button", "https://www.get-your.de/entwicklung/numerologie/login/", content)
+                        toLoginButton.left.textContent = ".login"
+                        toLoginButton.right.textContent = "Jetzt schnell und einfach anmelden"
+                        content.appendChild(dateField)
+                        function removeFieldsAndButtons() {
+                          dateField.remove()
+                          shareButton.remove()
+                          downloadHtmlButton.remove()
+                        }
+                        function addFieldsAndButtons() {
+                          content.appendChild(dateField)
+                          content.appendChild(shareButton)
+                          content.appendChild(downloadHtmlButton)
+                        }
+                        const downloadHtmlButton = Helper.create("toolbox/left-right", content)
+                        downloadHtmlButton.left.textContent = ".download"
+                        downloadHtmlButton.right.textContent = "Lade die Numerologie Rechnung als .html Datei herunter"
+                        downloadHtmlButton.onclick = () => {
+                          removeFieldsAndButtons()
+                          Helper.downloadFile(content.outerHTML, "text/html")
+                          addFieldsAndButtons()
+                        }
+                        const shareButton = Helper.create("toolbox/left-right", content)
+                        shareButton.left.textContent = ".share"
+                        shareButton.right.textContent = "Sende die Numerologie Rechnung an dein Netzwerk"
+                        shareButton.onclick = async () => {
+
+                          if (navigator.share) {
+                            removeFieldsAndButtons()
+                            try {
+                              const blob = new Blob([content.outerHTML], { type: 'text/html' })
+                              const file = new File([blob], `numerologie-von-${contact.email}.html`, { type: 'text/html' })
+                              await navigator.share({
+                                files: [file]
+                              })
+                              console.log("Numerology share successfully")
+                            } catch (err) {
+                              console.error(err)
+                            }
+                            addFieldsAndButtons()
+                          } else {
+                            window.alert("Dein Browser unterstützt diese Funktion leider nicht. Versuche es mit einem anderen Browser.")
+                          }
+                        }
+                      } else {
+                        content.appendChild(dateField)
+                      }
+                    })
+                  }
+                }
+
+                {
+                  const button = createButton(".status", "Gib deinem Kontakt einen Status")
+                  button.onclick = () => {
+
+                    Helper.overlay("pop", o3 => {
+                      o3.info.textContent = contact.email
+                      const funnel = o3.content
+                      const status = Helper.create("input/text", funnel)
+                      status.input.placeholder = "Status"
+                      status.input.setAttribute("required", "true")
+                      if (contact.status) {
+                        status.input.value = contact.status
+                      }
+                      Helper.verify("input/value", status.input)
+                      const submit = Helper.create("toolbox/action", funnel)
+                      submit.textContent = "Status jetzt speichern"
+                      submit.onclick = async () => {
+                        await Helper.verify("input/value", status.input)
+                        registerKey(contact, o3, {status: status.input.value})
+                      }
+                    })
+                  }
+                }
+
+                {
+                  const button = createButton(".notes", "Mache dir Notizen zu deinem Kontakt")
+                  button.onclick = () => {
+
+                    openNotes(contact, o2)
+                  }
+                }
+
+                {
+                  const button = createButton(".phone", "Gib die Telefon Nummer deines Kontakts ein")
+                  button.onclick = () => {
+
+                    Helper.overlay("pop", o3 => {
+                      o3.info.textContent = contact.email
+                      const funnel = o3.content
+                      const phone = Helper.create("input/phone", funnel)
+                      if (contact.phone) {
+                        phone.input.value = contact.phone
+                      }
+                      Helper.verify("input/value", phone.input)
+                      const submit = Helper.create("toolbox/action", funnel)
+                      submit.textContent = "Nummer jetzt speichern"
+                      submit.onclick = async () => {
+                        await Helper.verify("input/value", phone.input)
+                        registerKey(contact, o3, {phone: phone.input.value})
+                      }
+                    })
+                  }
+                }
+
+                {
+                  const button = createButton(".website", "Gib die Webseite deines Kontakts ein")
+                  button.onclick = () => {
+
+                    Helper.overlay("pop", o3 => {
+                      o3.info.textContent = contact.email
+                      const funnel = o3.content
+                      const website = Helper.create("input/url", funnel)
+                      if (contact.website) {
+                        website.input.value = contact.website
+                      }
+                      Helper.verify("input/value", website.input)
+                      const submit = Helper.create("toolbox/action", funnel)
+                      submit.textContent = "Webseite jetzt speichern"
+                      submit.onclick = async () => {
+                        await Helper.verify("input/value", website.input)
+                        registerKey(contact, o3, {website: website.input.value})
+                      }
+                    })
+                  }
+                }
+
+                {
+                  const res = await Helper.request("/verify/user/expert/")
+                  if (res.status === 200) {
+                    const button = createButton(".promote", "Erhalte Zugang zu unendlich vielen Möglichkeiten")
+                    button.onclick = () => {
+                      Helper.overlay("popup", async overlay => {
+                        if (contact.alias) {
+                          Helper.render("text/h1", `Promote ${contact.email}`, overlay)
+                        } else {
+                          Helper.render("text/h1", `Promote ${contact.email}`, overlay)
+                        }
+                        const funnel = Helper.create("div/scrollable", overlay)
+                        const searchField = Helper.create("field/text", funnel)
+                        searchField.label.textContent = "Suche nach Text im Pfad"
+                        searchField.input.placeholder = "/experte/plattform/pfad"
+                        searchField.style.margin = "0 34px"
+                        Helper.verify("input/value", searchField.input)
+                        Helper.add("outline-hover", searchField.input)
+                        const pathField = await Helper.create("field/open-expert-values-path-select", funnel)
+                        const originalOptions = Array.from(pathField.input.options).map(option => option.cloneNode(true))
+                        searchField.input.oninput = (ev) => {
+                          const searchTerm = ev.target.value.toLowerCase()
+                          const options = originalOptions.map(it => it.value)
+                          const filtered = options.filter(it => it.toLowerCase().includes(searchTerm))
+                          pathField.input.add(filtered)
+                        }
+                        pathField.input.style.height = "55vh"
+                        pathField.input.setAttribute("multiple", "true")
+                        for (let i = 0; i < pathField.input.options.length; i++) {
+                          const option = pathField.input.options[i]
+                          option.selected = false
+                        }
+                        pathField.input.oninput = async () => {
+                          const fieldFunnel = await Helper.convert("path/field-funnel", pathField.input.value)
+                          if (fieldFunnel.id) {
+                            Helper.overlay("popup", async overlay => {
+                              overlay.info.textContent = contact.email + "." + fieldFunnel.id
+                              const create = Helper.create("button/left-right", overlay)
+                              create.left.textContent = ".create"
+                              create.right.textContent = Helper.convert("text/capital-first-letter", fieldFunnel.id) + " definieren"
+                              create.onclick = () => {
+                                Helper.overlay("popup", async overlay => {
+                                  Helper.create("header/info", overlay).textContent = contact.email + "." + fieldFunnel.id + ".create"
+                                  overlay.append(fieldFunnel)
+                                  Helper.verifyIs("field-funnel/valid", fieldFunnel)
+                                  Helper.add("outline-hover/field-funnel", fieldFunnel)
+                                  const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
+                                  if (submitButton) {
+                                    submitButton.textContent = `${Helper.convert("text/capital-first-letter", fieldFunnel.id)} jetzt speichern`
+                                    submitButton.onclick = async () => {
+                                      const path = pathField.input.value
+                                      await Helper.verify("field-funnel", fieldFunnel)
+                                      const map = await Helper.convert("field-funnel/map", fieldFunnel)
+                                      Helper.overlay("security", async securityOverlay => {
+                                        const register = {}
+                                        register.email = contact.email
+                                        register.map = map
+                                        register.path = path
+                                        register.id = fieldFunnel.id
+                                        const res = await Helper.request("/register/location/email-expert", register)
+                                        if (res.status === 200) {
+                                          window.alert("Daten erfolgreich gespeichert.")
+                                          await Helper.render("location-list/node/email-expert", {tag: fieldFunnel.id, email: contact.email, path: pathField.input.value}, locationList)
+                                          securityOverlay.remove()
+                                        } else {
+                                          window.alert("Fehler.. Bitte wiederholen.")
+                                          securityOverlay.remove()
+                                        }
+                                      })
+                                    }
+                                  } else {
+                                    window.alert("Field Funnel besitzt keinen Button mit der Klasse 'submit-field-funnel-button'")
+                                  }
+                                })
+                              }
+                              if (contact.alias) {
+                                Helper.render("text/hr", Helper.convert("text/capital-first-letter", fieldFunnel.id) + " von " + contact.alias, overlay)
+                              } else {
+                                Helper.render("text/hr", Helper.convert("text/capital-first-letter", fieldFunnel.id) + " von " + contact.email, overlay)
+                              }
+                              const locationList = Helper.create("info/loading", overlay)
+                              await Helper.render("location-list/node/email-expert", {tag: fieldFunnel.id, email: contact.email, path: pathField.input.value}, locationList)
+                            })
+                          }
+                        }
+                      })
+                    }
+                  }
+                }
+
+                {
+                  const button = createButton(".remove", "Kontakt entfernen")
+                  button.onclick = () => {
+
+                    const confirm = window.confirm("Möchtest du deinen Kontakt wirklich entfernen?")
+                    if (confirm === true) {
+                      Helper.overlay("lock", async o3 => {
+                        const res = await Helper.request("/remove/user/contacts/", {created: contact.created})
+                        if (res.status === 200) {
+                          window.alert("Kontakt erfolgreich entfernt.")
+                          await getAndRenderContactsClosed()
+                          o2.remove()
+                        } else {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                        }
+                        o3.remove()
+                      })
+                    }
+                  }
+                }
+              })
+            }
+          }
+
+          parent?.appendChild(fragment)
+        }
+        async function getAndRenderContactsClosed(){
+
+          Helper.convert("parent/loading", contactsDiv)
+          const res = await Helper.request("/get/user/contacts/")
+          let filtered
+          if (res.status === 200) {
+            const contacts = JSON.parse(res.response)
+            exportButton.onclick = () => {
+              if (filtered) {
+                Helper.convert("text/clipboard", JSON.stringify(filtered))
+                .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
+              } else {
+                Helper.convert("text/clipboard", JSON.stringify(contacts))
+                .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
+              }
+            }
+            searchField.input.oninput = async ev => {
+              const query = ev.target.value
+              if (!Helper.verifyIs("text/empty", query)) {
+                const prepared = concatEmailAndNotes(contacts, "query")
+                const highlighted = Helper.sort("query", {array: prepared, query, filter: "query"})
+                await renderContactButtons(highlighted, contactsDiv)
+              } else {
+                await renderContactButtons(contacts, contactsDiv)
+              }
+            }
+            await renderContactButtons(contacts, contactsDiv)
+          } else {
+            Helper.convert("parent/info", contactsDiv)
+            parent.textContent = "Keine Kontakte gefunden"
+          }
+        }
+        getAndRenderContactsClosed()
+        o1.append(o1.addButton)
+        o1.addButton.onclick = () => {
+
+          this.overlay("pop", o2 => {
+            const funnel = o2.content
+            this.render("text/h1", "Neuer Kontakt", funnel)
+            const email = this.create("input/email", funnel)
+            const submit = this.create("toolbox/action", funnel)
+            submit.textContent = "Kontakt jetzt speichern"
+            submit.onclick = async () => {
+              await this.verify("input/value", email.input)
+              this.overlay("lock", async o3 => {
+                const res = await this.request("/register/contacts/email/", {email: email.input.value})
+                if (res.status === 200) {
+                  window.alert("Kontakt erfolgreich gespeichert.")
+                  await getAndRenderContactsClosed()
+                  o2.remove()
+                } else {
+                  window.alert("Fehler.. Bitte wiederholen.")
+                }
+                o3.remove()
+              })
+            }
+          })
+        }
+      })
+    }
+
     if (event === "html-creator") {
 
       const overlay = document.createElement("div")
@@ -19250,15 +19218,7 @@ await Helper.add("event/click-funnel")
           const button = this.create("toolbox/left-right", buttons)
           button.left.textContent = "document.backup"
           button.right.textContent = "Lade dein HTML Dokument herunter"
-          button.onclick = () => {
-            const htmlContent = document.documentElement.outerHTML
-            const title = document.querySelector("title")
-            if (title) {
-              this.downloadFile(htmlContent, `${this.convert("text/tag", title.textContent)}.bak.html`, "text/html")
-            } else {
-              this.downloadFile(htmlContent, `meine-werteinheit.bak.html`, "text/html")
-            }
-          }
+          button.onclick = async ev => await this.downloadFile(document.documentElement.outerHTML, "text/html")
         }
 
         {
@@ -19360,83 +19320,95 @@ await Helper.add("event/click-funnel")
           }
         }
 
-        function createIntegration(type, integrations) {
+        {
+          const button = this.create("toolbox/left-right", buttons)
+          button.left.textContent = ".open"
+          button.right.textContent = "Ein Platz für Open Innovation"
+          button.onclick = () => {
 
-          const button = Helper.create("toolbox/left-right", buttons)
-          button.left.textContent = `.${type}`
-          button.addEventListener("click", () => {
-            integrations.sort((a, b) => a.name.localeCompare(b.name))
-            Helper.overlay("popup", overlay => {
-              const content = Helper.create("div/scrollable", overlay)
-              for (let i = 0; i < integrations.length; i++) {
-                const integration = integrations[i]
-                const button = Helper.create("toolbox/left-right", content)
-                button.left.textContent = integration.name
-                button.right.remove()
-                button.onclick = () => window.open(integration.url, "_blank")
+            this.overlay("pop", o2 => {
+
+              function createIntegration(type, integrations) {
+
+                const button = Helper.create("toolbox/left-right", buttons)
+                button.left.textContent = `.${type}`
+                button.addEventListener("click", () => {
+                  integrations.sort((a, b) => a.name.localeCompare(b.name))
+                  Helper.overlay("popup", overlay => {
+                    const content = Helper.create("div/scrollable", overlay)
+                    for (let i = 0; i < integrations.length; i++) {
+                      const integration = integrations[i]
+                      const button = Helper.create("toolbox/left-right", content)
+                      button.left.textContent = integration.name
+                      button.right.remove()
+                      button.onclick = () => window.open(integration.url, "_blank")
+                    }
+                  })
+                })
               }
+
+              const aiIntegrations = [
+                {name: "blackbox.ai", url: "https://www.blackbox.ai/"},
+                {name: "deepai.org", url: "https://www.deepai.org/chat/text-generator"},
+                {name: "futurepedia.io", url: "https://www.futurepedia.io"},
+                {name: "textsynth.com", url: "https://www.textsynth.com/completion.html"},
+              ]
+              createIntegration(".ai", aiIntegrations)
+
+              const mailIntegrations = [
+                {name: "yopmail.com", url: "https://www.yopmail.com/"},
+              ]
+              createIntegration(".mail", mailIntegrations)
+
+              const mathIntegrations = [
+                {name: "wolframalpha.com", url: "https://www.wolframalpha.com/"},
+                {name: "integral-calculator.com", url: "https://www.integral-calculator.com/"},
+                {name: "gamma.sympy.org", url: "https://gamma.sympy.org/"},
+                {name: "calculatorsoup.com", url: "https://www.calculatorsoup.com/"},
+                {name: "mathway.com", url: "https://www.mathway.com/"},
+              ]
+              createIntegration(".math", mathIntegrations)
+
+              const musicIntegrations = [
+                {name: "web-audio-api", url: "https://webaudio.github.io/web-audio-api/"},
+                {name: "hydrogen-music.org", url: "http://hydrogen-music.org/"},
+                {name: "freesound.org", url: "https://freesound.org/"},
+                {name: "tidalcycles.org", url: "https://tidalcycles.org/"},
+              ]
+              createIntegration(".music", musicIntegrations)
+
+              const regexIntegrations = [
+                { name: "debuggex.com", url: "https://www.debuggex.com/" },
+                { name: "regex101.com", url: "https://regex101.com/" },
+                { name: "regexr.com", url: "https://regexr.com/" },
+                { name: "regextester.com", url: "https://www.regextester.com/" },
+              ]
+              createIntegration(".regex", regexIntegrations)
+
+              const svgIntegrations = [
+                {name: "svgviewer.dev", url: "https://www.svgviewer.dev/"},
+                {name: "svg-path-editor", url: "https://yqnn.github.io/svg-path-editor/"},
+              ]
+              createIntegration(".svg", svgIntegrations)
+
+              const uxIntegrations = [
+                {name: "figma.com", url: "https://www.figma.com/"},
+                {name: "penpot.app", url: "https://penpot.app/"},
+                {name: "mockflow.com", url: "https://www.mockflow.com/"},
+                {name: "canva.com", url: "https://www.canva.com/"},
+                {name: "draw.io", url: "https://app.diagrams.net/"},
+                {name: "uizard.io", url: "https://uizard.io/"},
+                {name: "excalidraw.com", url: "https://excalidraw.com/"},
+                {name: "figjam.com", url: "https://www.figma.com/figjam/"},
+                {name: "moqups.com", url: "https://moqups.com/"},
+                {name: "uxpin.com", url: "https://www.uxpin.com/"},
+                {name: "wireframe.cc", url: "https://wireframe.cc/"},
+              ]
+              createIntegration(".ux", uxIntegrations)
             })
-          })
+          }
         }
 
-        const aiIntegrations = [
-          {name: "blackbox.ai", url: "https://www.blackbox.ai/"},
-          {name: "deepai.org", url: "https://www.deepai.org/chat/text-generator"},
-          {name: "futurepedia.io", url: "https://www.futurepedia.io"},
-          {name: "textsynth.com", url: "https://www.textsynth.com/completion.html"},
-        ]
-        createIntegration("open-ai", aiIntegrations)
-
-        const mailIntegrations = [
-          {name: "yopmail.com", url: "https://www.yopmail.com/"},
-        ]
-        createIntegration("open-mail", mailIntegrations)
-
-        const mathIntegrations = [
-          {name: "wolframalpha.com", url: "https://www.wolframalpha.com/"},
-          {name: "integral-calculator.com", url: "https://www.integral-calculator.com/"},
-          {name: "gamma.sympy.org", url: "https://gamma.sympy.org/"},
-          {name: "calculatorsoup.com", url: "https://www.calculatorsoup.com/"},
-          {name: "mathway.com", url: "https://www.mathway.com/"},
-        ]
-        createIntegration("open-math", mathIntegrations)
-
-        const musicIntegrations = [
-          {name: "web-audio-api", url: "https://webaudio.github.io/web-audio-api/"},
-          {name: "hydrogen-music.org", url: "http://hydrogen-music.org/"},
-          {name: "freesound.org", url: "https://freesound.org/"},
-          {name: "tidalcycles.org", url: "https://tidalcycles.org/"},
-        ]
-        createIntegration("open-music", musicIntegrations)
-
-        const regexIntegrations = [
-          { name: "debuggex.com", url: "https://www.debuggex.com/" },
-          { name: "regex101.com", url: "https://regex101.com/" },
-          { name: "regexr.com", url: "https://regexr.com/" },
-          { name: "regextester.com", url: "https://www.regextester.com/" },
-        ]
-        createIntegration("open-regex", regexIntegrations)
-
-        const svgIntegrations = [
-          {name: "svgviewer.dev", url: "https://www.svgviewer.dev/"},
-          {name: "svg-path-editor", url: "https://yqnn.github.io/svg-path-editor/"},
-        ]
-        createIntegration("open-svg", svgIntegrations)
-
-        const uxIntegrations = [
-          {name: "figma.com", url: "https://www.figma.com/"},
-          {name: "penpot.app", url: "https://penpot.app/"},
-          {name: "mockflow.com", url: "https://www.mockflow.com/"},
-          {name: "canva.com", url: "https://www.canva.com/"},
-          {name: "draw.io", url: "https://app.diagrams.net/"},
-          {name: "uizard.io", url: "https://uizard.io/"},
-          {name: "excalidraw.com", url: "https://excalidraw.com/"},
-          {name: "figjam.com", url: "https://www.figma.com/figjam/"},
-          {name: "moqups.com", url: "https://moqups.com/"},
-          {name: "uxpin.com", url: "https://www.uxpin.com/"},
-          {name: "wireframe.cc", url: "https://wireframe.cc/"},
-        ]
-        createIntegration("open-ux", uxIntegrations)
         {
           async function recordAudioScreen() {
 
@@ -19882,6 +19854,10 @@ await Helper.add("event/click-funnel")
         o.content.appendChild(fragment)
         return button
       }
+      overlay.loading = () => {
+
+        this.convert("parent/loading", overlay.content)
+      }
       overlay.ocr = (canvas, node, o, ok) => {
 
         async function convertCanvasToText(canvas) {
@@ -20139,21 +20115,17 @@ await Helper.add("event/click-funnel")
         return button
       }
       function updateSearchField(array, node){
+
         if (overlay.input && overlay.filter) {
           let filtered
           overlay.input.oninput = async ev => {
             const query = ev.target.value
             if (!Helper.verifyIs("text/empty", query)) {
-              filtered = array.filter(it => it[overlay.filter]?.toLowerCase().includes(query.toLowerCase()))
-              const highlighted = filtered.map(it => {
-                const highlightedHtml = it[overlay.filter]?.replace(new RegExp(query, 'ig'), `<mark>${query}</mark>`)
-                return { ...it, query: highlightedHtml }
-              })
+              const highlighted = Helper.sort("query", {array, query, filter: overlay.filter})
               await renderBasedOnTab(highlighted, node)
             } else {
               await renderBasedOnTab(array, node)
             }
-
           }
         }
       }
@@ -20476,6 +20448,16 @@ await Helper.add("event/click-funnel")
 
       return overlay
 
+    }
+
+    if (event === "lock") {
+
+      return this.overlay("pop", async o1 => {
+        o1.removeOverlayButton.remove()
+        o1.className = "overlay flex align center"
+        this.create("info/loading", o1.content)
+        if (callback) await callback(o1)
+      })
     }
 
     if (event === "security") {
@@ -25786,6 +25768,30 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       }
     }
 
+    if (event === "link/js") {
+
+      const script = document.createElement("script")
+      script.id = input
+      script.src = input
+      script.type = "module"
+      script.setAttribute("async", "true")
+      if (!document.getElementById(input)) {
+        this.render("node", script, document.head)
+      }
+    }
+
+    if (event === "list") {
+
+      const {list, tree, type} = input
+      const key = this.convert("tree/key", tree)
+      this.convert("parent/scrollable", parent.content)
+      for (let i = 0; i < list.length; i++) {
+        const it = list[i]
+        const button = this.design(tree, it[key], parent.content)
+        this.fn(type, {it, node: button, overlay: parent})
+      }
+    }
+
     if (event === "node") {
 
       const fragment = document.createDocumentFragment()
@@ -26626,6 +26632,16 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
   static sort(event, input) {
     // event = input/by/algorithm
 
+    if (event === "fisher-yates") {
+
+      const array = Array.from(input)
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array
+    }
+
     if (event === "flag-true") {
 
       return input.array.sort((a, b) => {
@@ -26649,6 +26665,15 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
     if (event === "array/reputation/descending") {
       return input?.sort((a, b) => b.reputation - a.reputation)
+    }
+
+    if (event === "query"){
+
+      const filtered = input.array.filter(it => it[input.filter]?.toLowerCase().includes(input.query.toLowerCase()))
+      return filtered.map(it => {
+        const highlightedHtml = it[input.filter]?.replace(new RegExp(input.query, 'ig'), `<mark>${input.query}</mark>`)
+        return { ...it, query: highlightedHtml }
+      })
     }
 
   }
@@ -27221,6 +27246,11 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       return this.verifyIs("text/empty", input) || !/^[a-z](?:-?[a-z]+)*$/.test(input)
     }
 
+    if (event === "text/class") {
+
+      return /^[A-Za-z0-9\-_:]+$/.test(input)
+    }
+
     if (event === "text/json") {
       try {
         JSON.parse(input)
@@ -27251,15 +27281,8 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     }
 
     if (event === "text/email") {
-      if (typeof input !== "string") return false
-      if (input === undefined) return false
-      if (input === null) return false
-      if (input === "") return false
-      if (input === "null") return false
-      if (input.replace(/\s/g, "") === "") return false
-      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input) === false) return false
-      if (/^(.+)@(.+)$/.test(input) === true) return true
-      return false
+
+      return /^(.+)@(.+)$/.test(input)
     }
 
     if (event === "text/empty") {
@@ -27904,6 +27927,32 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       return this.verifyIs("text/empty", input) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)
     }
 
+    if (event === "path/profil") {
+
+      const split = window.location.pathname.split("/")
+      const expert = split[1]
+      const platform = split[2]
+      const path = split[3]
+      const checkExpert = !this.verifyIs("text/empty", expert)
+      const checkPlatform = !this.verifyIs("text/empty", platform)
+      const checkPath = !this.verifyIs("text/empty", path) && path === "profil"
+      return heckExpert && checkPlatform && checkPath
+    }
+
+    if (event === "path/valid") {
+
+      const split = window.location.pathname.split("/")
+      const expert = split[1]
+      const platform = split[2]
+      const path = split[3]
+      const checkLength = split.length === 5
+      const checkLast = split[4] === ""
+      const checkExpert = !this.verifyIs("text/empty", expert)
+      const checkPlatform = !this.verifyIs("text/empty", platform)
+      const checkPath = !this.verifyIs("text/empty", path)
+      return checkLength && checkLast && checkExpert && checkPlatform && checkPath
+    }
+
     if (event === "text/hex") {
       if (typeof input !== "string") return false
       if (/^[0-9A-Fa-f]+$/.test(input) === true) return true
@@ -27938,3 +27987,4 @@ window.goBack = () => {
 }
 
 Helper.render("link/css", "/public/classes.css", document.head)
+Helper.render("link/js", "/public/functions.js", document.head)
