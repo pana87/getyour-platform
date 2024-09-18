@@ -19330,12 +19330,12 @@ next:webcall(Meine Notizen)
 
               function createIntegration(type, integrations) {
 
-                const button = Helper.create("toolbox/left-right", buttons)
-                button.left.textContent = `.${type}`
+                const button = Helper.create("toolbox/left-right", o2.content)
+                button.left.textContent = type
                 button.addEventListener("click", () => {
                   integrations.sort((a, b) => a.name.localeCompare(b.name))
-                  Helper.overlay("popup", overlay => {
-                    const content = Helper.create("div/scrollable", overlay)
+                  Helper.overlay("pop", o3 => {
+                    const content = o3.content
                     for (let i = 0; i < integrations.length; i++) {
                       const integration = integrations[i]
                       const button = Helper.create("toolbox/left-right", content)
