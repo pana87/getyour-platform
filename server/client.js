@@ -147,6 +147,7 @@ app.get("/ipfs/:cid/", async (req, res) => {
 })
 
 async function isOpen(req) {
+
   const doc = await nano.db.use("getyour").get("users")
   for (let i = 0; i < doc.users.length; i++) {
     const user = doc.users[i]
@@ -355,50 +356,20 @@ async (req, res, next) => {
   }
 })
 
-app.get("/:expert/:platform/profil/:id/",
-async(req, res, next) => {
+app.get("/:expert/:platform/:path/:id/", async(req, res, next) => {
+
   try {
-
-    const html = await isOpen(req)
-    if (!Helper.verifyIs("text/empty", html)) {
-      return res.send(html)
-    } else {
-      return next()
+    if (req.params.path === "profil") {
+      const html = await isOpen(req)
+      if (!Helper.verifyIs("text/empty", html)) {
+        return res.send(html)
+      }
     }
-
+    return res.sendStatus(404)
   } catch (error) {
     await Helper.logError(error, req)
-    return res.sendStatus(404)
   }
-})
-
-app.get("/:expert/:platform/profil/:id/",
-  Request.verifyJwtToken,
-  Request.verifySession,
-async (req, res, next) => {
-  try {
-
-    let html = await isWritable(req)
-    if (!Helper.verifyIs("text/empty", html)) {
-      return res.send(html)
-    }
-
-    html = await isExpert(req)
-    if (!Helper.verifyIs("text/empty", html)) {
-      return res.send(html)
-    }
-
-    html = await isVisible(req)
-    if (!Helper.verifyIs("text/empty", html)) {
-      return res.send(html)
-    }
-
-    return res.redirect("/")
-
-  } catch (error) {
-    await Helper.logError(error, req)
-    return res.sendStatus(404)
-  }
+  return res.sendStatus(404)
 })
 
 app.post("/register/session/",
