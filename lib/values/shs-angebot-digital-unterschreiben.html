@@ -28,7 +28,7 @@
 
   <script type="module">
     import { CanvasField } from "/js/CanvasField.js"
-    import { Request } from "/js/Request.js"
+    import { Request } from "/js/Helper.js"
     import {Helper} from "/js/Helper.js"
     import { HeaderField } from "/js/HeaderField.js"
     import { DivField } from "/js/DivField.js"
@@ -39,9 +39,9 @@
     getOffer.url = "/consumer/1/closed/"
     getOffer.method = "get"
     getOffer.type = "offer"
-    getOffer.email = await Request.email()
+    getOffer.email = await Helper.email()
     getOffer.referer = document.referrer
-    getOffer.localStorageId = await Request.localStorageId()
+    getOffer.localStorageId = await Helper.localStorageId()
     const res = await this.request("json", getOffer)
 
     if (res.status !== 200) {
@@ -104,8 +104,8 @@
       // button.addEventListener("click", async() => {
       //   if (signField.isEmpty === undefined) return alert("Sie müssen erst unterschreiben.")
       //
-      //   const email = await Request.email()
-      //   await Request.withVerifiedEmail(email, async () => {
+      //   const email = await Helper.email()
+      //   await Helper.withVerifiedEmail(email, async () => {
       //
       //     const registerOffer = {}
       //     registerOffer.url = "/consumer/1/closed/"
@@ -113,7 +113,7 @@
       //     registerOffer.type = "offer"
       //     registerOffer.email = email
       //     registerOffer.referer = document.referrer
-      //     registerOffer.localStorageId = await Request.localStorageId()
+      //     registerOffer.localStorageId = await Helper.localStorageId()
       //     registerOffer.offer = offer
       //     registerOffer.offer.value.eSign = {}
       //     const canvas = document.querySelector(signField.inputSelector)
@@ -132,7 +132,7 @@
       //     getChecklist.urlId = urlId
       //     getChecklist.email = email
       //     getChecklist.referer = document.referrer
-      //     getChecklist.localStorageId = await Request.localStorageId()
+      //     getChecklist.localStorageId = await Helper.localStorageId()
       //     const res = await this.request("json", getChecklist)
       //
       //     const checklist = JSON.parse(res.response)
@@ -147,7 +147,7 @@
       //     registerChecklist.type = "checklist"
       //     registerChecklist.email = email
       //     registerChecklist.referer = document.referrer
-      //     registerChecklist.localStorageId = await Request.localStorageId()
+      //     registerChecklist.localStorageId = await Helper.localStorageId()
       //     registerChecklist.checklist = checklist
       //     await this.request("json", registerChecklist)
       //

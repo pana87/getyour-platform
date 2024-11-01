@@ -1,9 +1,10 @@
-node_modules/
-.netlify/
+audios/
+*.bak
 .DS_Store
 .env
-logs
 images/
-audios/
-videos/
+logs
+node_modules/
 .notes
+security/
+videos/

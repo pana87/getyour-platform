@@ -35,20 +35,20 @@
     <script type="module">
 
       import {HeaderField} from "/js/HeaderField.js"
-      import {Request} from "/js/Request.js"
+      import {Request} from "/js/Helper.js"
       import {DivField} from "/js/DivField.js"
       import {Helper} from "/js/Helper.js"
 
-      const localStorageId = await Request.localStorageId()
+      const localStorageId = await Helper.localStorageId()
       const urlId = window.location.pathname.split("/")[3]
 
       const getOffer = {}
       getOffer.url = "/consumer/1/closed/"
       getOffer.method = "get"
       getOffer.type = "offer"
-      getOffer.email = await Request.email()
+      getOffer.email = await Helper.email()
       getOffer.referer = document.referrer
-      getOffer.localStorageId = await Request.localStorageId()
+      getOffer.localStorageId = await Helper.localStorageId()
       const res = await this.request("json", getOffer)
 
       if (res.status !== 200) {

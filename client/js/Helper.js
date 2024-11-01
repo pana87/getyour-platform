@@ -1,6 +1,6 @@
+import {button} from "/js/button.js"
+
 export class Helper {
-  // change name of Helper ??
-  // make it shorter
 
   static add(event, input) {
     // add event to input
@@ -41,7 +41,7 @@ export class Helper {
 
       const cites = document.querySelectorAll(`[class*="cite"]`)
       cites.forEach(cite => {
-        this.add("outline-hover", cite)
+        this.add("hover-outline", cite)
         cite.onclick = () => {
           const originalTextContent = cite.textContent
 
@@ -107,7 +107,7 @@ export class Helper {
           }
 
           function createIntegrationButton(text, node) {
-            const button = Helper.create("toolbox/left-right", node)
+            const button = Helper.create("button/left-right", node)
             button.right.remove()
             button.left.textContent = text
             button.onclick = () => {
@@ -115,7 +115,7 @@ export class Helper {
                 overlay.info.textContent = text
                 const content = overlay.content
                 const integrations = createIntegrations(text)
-                const windowOpenButton = Helper.create("toolbox/left-right", content)
+                const windowOpenButton = Helper.create("button/left-right", content)
                 windowOpenButton.left.textContent = "window.open"
                 windowOpenButton.right.textContent = "Öffne den Inhalt in einem neuen Tab"
                 windowOpenButton.onclick = () => {
@@ -130,7 +130,7 @@ export class Helper {
                   }
                   window.open(`https://www.${text}`, "_blank")
                 }
-                const copyToClipboardButton = Helper.create("toolbox/left-right", content)
+                const copyToClipboardButton = Helper.create("button/left-right", content)
                 copyToClipboardButton.left.textContent = ".copy-to-clipboard"
                 copyToClipboardButton.right.textContent = "Inhalt in die Zwischenablage speichern"
                 copyToClipboardButton.onclick = async () => {
@@ -145,7 +145,7 @@ export class Helper {
                 }
                 for (let i = 0; i < integrations.length; i++) {
                   const integration = integrations[i]
-                  const button = Helper.create("toolbox/left-right", content)
+                  const button = Helper.create("button/left-right", content)
                   button.left.textContent = integration.name
                   button.right.textContent = "Öffnet ein neues Fenster"
                   button.onclick = () => {
@@ -194,763 +194,12 @@ export class Helper {
       })
     }
 
-    if (event === "contacts") {
-
-      const button = this.create("button/left-right", input)
-      button.left.textContent = ".contacts"
-      button.right.textContent = "Deine Kontakte"
-      button.onclick = () => {
-        this.overlay("contacts")
-      }
-    }
-
-    if (event === "groups") {
-
-      const button = this.create("button/left-right", input)
-      button.left.textContent = ".groups"
-      button.right.textContent = "Schnell, einfach und sicher Kontakte gruppieren"
-      button.onclick = () => {
-        this.overlay("popup", async overlay => {
-          overlay.info.textContent = ".groups"
-
-          async function renderInfo(prefix, path, postfix, parent) {
-            const fragment = document.createDocumentFragment()
-            const info = Helper.createNode("div", fragment)
-            info.style.margin = "21px 34px"
-            const span1 = Helper.createNode("span", info, prefix)
-            const span2 = Helper.createNode("span", info)
-            Helper.style(span2, {width: "34px", margin: "0 5px"})
-            const icon = await Helper.convert("path/icon", path)
-            Helper.style(icon, {display: "inline-block", width: "34px"})
-            span2.appendChild(icon)
-            Helper.createNode("span", info, postfix)
-            parent?.appendChild(fragment)
-            return fragment
-          }
-
-          async function defineNewGroup(overlay) {
-            Helper.render("text/h1", "Neue Gruppe definieren", overlay)
-            const funnel = Helper.create("div/scrollable", overlay)
-            const emailSelect = Helper.create("email-select", funnel)
-            const res = await Helper.request("/get/user/tree-closed/", {tree: "contacts"})
-            if (res.status === 200) {
-              const contacts = JSON.parse(res.response)
-              emailSelect.renderEmails(contacts)
-              emailSelect.filterEmailsOnSearch(contacts)
-            }
-            emailSelect.submit = Helper.create("toolbox/action", funnel)
-            emailSelect.submit.textContent = "Gruppe jetzt speichern"
-            return emailSelect
-          }
-
-          const addGroup = this.create("button/add", overlay)
-          addGroup.onclick = () => {
-            this.overlay("popup", async overlay => {
-              const emailSelect = await defineNewGroup(overlay)
-              emailSelect.submit.onclick = () => {
-                const emails = emailSelect.selectedEmails()
-                if (this.verifyIs("array/empty", emails)) {
-                  window.alert("Wähle mindestens eine E-Mail Adresse.")
-                  this.add("style/not-valid", emailSelect.field.input)
-                  return
-                }
-                this.overlay("security", async securityOverlay => {
-                  const res = await this.request("/register/groups/self/", {emails})
-                  if (res.status === 200) {
-                    window.alert("Deine Gruppe wurde erfolgreich gespeichert.")
-                    await getAndRenderGroups(groupsContainer)
-                    securityOverlay.remove()
-                    overlay.remove()
-                  }
-                })
-              }
-            })
-          }
-
-          const searchField = this.create("input/text", overlay)
-          searchField.input.placeholder = "Filter nach E-Mail Adresse oder Alias"
-
-          const groupsContainer = this.create("info/loading", overlay)
-          await getAndRenderGroups(groupsContainer)
-
-          function renderGroupEmails(group, parent) {
-            const fragment = document.createDocumentFragment()
-            for (let i = 0; i < group.emails.length; i++) {
-              const email = group.emails[i]
-              const div = Helper.create("div", fragment)
-              div.textContent = email
-              fragment.appendChild(div)
-            }
-            parent?.appendChild(fragment)
-            return fragment
-          }
-
-          function filterGroupsByEmail(array, parent) {
-            searchField.input.oninput = (ev) => {
-              const filtered = array.filter(it => {
-                const lowercase = ev.target.value.toLowerCase()
-                if (it.emails && it.emails.length > 0) {
-                  return it.emails.some(email => email.includes(lowercase)) || (it.alias && it.alias.toLowerCase().includes(lowercase))
-                } else {
-                  if (it.alias && it.alias.toLowerCase().includes(lowercase)) {
-                    return true
-                  }
-                  return false
-                }
-              })
-              renderGroupButtons(filtered, parent, ev.target.value)
-            }
-          }
-
-          function markQueryInNode(node, query) {
-            if (node.children.length > 0) {
-              for (let i = 0; i < node.children.length; i++) {
-                const child = node.children[i]
-                markQueryInNode(child, query)
-              }
-            } else {
-              Helper.convert("node/marked", {node, query})
-            }
-
-          }
-
-          function renderGroupButtons(groups, parent, query = "") {
-            const fragment = document.createDocumentFragment()
-
-            Helper.convert("parent/scrollable", parent)
-            for (let i = 0; i < groups.length; i++) {
-              const group = groups[i]
-
-              const groupButton = Helper.create("toolbox/left-right", fragment)
-              if (Helper.verifyIs("text/empty", query)) {
-                if (!Helper.verifyIs("text/empty", group.alias)) {
-                  Helper.createNode("span", groupButton.left, `${group.alias}`)
-                } else {
-                  renderGroupEmails(group, groupButton.left)
-                }
-              } else {
-                if (!Helper.verifyIs("text/empty", group.alias)) {
-                  Helper.createNode("span", groupButton.left, `${group.alias}:`)
-                  renderGroupEmails(group, groupButton.left)
-                } else {
-                  renderGroupEmails(group, groupButton.left)
-                }
-              }
-              markQueryInNode(groupButton.left, query)
-              groupButton.onclick = () => {
-                Helper.overlay("popup", buttonsOverlay => {
-                  buttonsOverlay.info.textContent = group.emails.join(", ")
-
-                  const buttons = Helper.create("div/scrollable", buttonsOverlay)
-
-                  Helper.request("/verify/group/is-creator/", {id: group.created}).then(res => {
-                    if (res.status === 200) {
-                      {
-                        const button = Helper.create("toolbox/left-right", buttons)
-                        button.left.textContent = ".alias"
-                        button.right.textContent = "Gebe deiner Gruppe einen alternativen Namen"
-                        button.onclick = () => {
-                          Helper.overlay("popup", overlay => {
-                            overlay.info.textContent = group.emails.join(", ")
-                            const funnel = Helper.create("div/scrollable", overlay)
-                            const aliasField = Helper.create("field/text", funnel)
-                            aliasField.label.textContent = "Alternative Bezeichnung für deine Gruppe"
-                            aliasField.input.placeholder = "Family, Friends, Work.."
-                            if (group.alias !== undefined) {
-                              aliasField.input.value = group.alias
-                            }
-                            Helper.verify("input/value", aliasField.input)
-                            Helper.add("outline-hover", aliasField.input)
-                            aliasField.input.oninput = () => Helper.verify("input/value", aliasField.input)
-                            const submit = Helper.create("button/action", funnel)
-                            Helper.add("outline-hover", submit)
-                            submit.textContent = "Alias jetzt speichern"
-                            submit.onclick = async () => {
-                              await Helper.verify("input/value", aliasField.input)
-                              Helper.overlay("security", async securityOverlay => {
-                                const res = await Helper.request("/register/groups/alias/", {id: group.created, alias: aliasField.input.value})
-                                if (res.status === 200) {
-                                  window.alert("Alias erfolgreich gespeichert.")
-                                  await getAndRenderGroups(groupsContainer)
-                                  overlay.remove()
-                                  buttonsOverlay.remove()
-                                  securityOverlay.remove()
-                                } else {
-                                  window.alert("Fehler.. Bitte wiederholen.")
-                                  securityOverlay.remove()
-                                }
-                              })
-                            }
-                          })
-                        }
-                      }
-                      {
-                        const button = Helper.create("toolbox/left-right", buttons)
-                        button.left.textContent = ".emails"
-                        button.right.textContent = "Aktualisiere die Mitglieder deiner Gruppe"
-                        button.onclick = () => {
-                          Helper.overlay("popup", async overlay => {
-                            const emailSelect = await defineNewGroup(overlay, (emails) => Helper.request("/register/groups/emails-self/", {id: group.created, emails}))
-                            for (let i = 0; i < emailSelect.field.input.options.length; i++) {
-                              const option = emailSelect.field.input.options[i]
-                              if (group.emails.includes(option.value)) {
-                                option.selected = true
-                              }
-                            }
-                            emailSelect.submit.onclick = () => {
-                              const emails = emailSelect.selectedEmails()
-                              if (Helper.verifyIs("array/empty", emails)) {
-                                window.alert("Wähle mindestens eine E-Mail Adresse.")
-                                Helper.add("style/not-valid", emailSelect.field.input)
-                                return
-                              }
-                              Helper.overlay("security", async securityOverlay => {
-                                const res = await Helper.request("/register/groups/emails-self/", {id: group.created, emails})
-                                if (res.status === 200) {
-                                  window.alert("Deine Gruppe wurde erfolgreich gespeichert.")
-                                  await getAndRenderGroups(groupsContainer)
-                                  overlay.remove()
-                                  buttonsOverlay.remove()
-                                  securityOverlay.remove()
-                                } else {
-                                  window.alert("Fehler.. Bitte wiederholen.")
-                                  securityOverlay.remove()
-                                }
-                              })
-                            }
-                          })
-                        }
-                      }
-                    }
-                  })
-
-                  {
-                    const button = Helper.create("button/left-right", buttons)
-                    button.left.textContent = ".send-template"
-                    button.right.textContent = "Sende ein HTML Template an deine Gruppe"
-                    button.onclick = () => {
-
-                      async function renderTemplates(templates, node, callback) {
-                        Helper.convert("parent/scrollable", node)
-                        for (let i = 0; i < templates.length; i++) {
-                          const template = templates[i]
-                          const templateButton = Helper.create("button/left-right", node)
-                          templateButton.left.innerHTML = await Helper.convert("text/purified", template.html)
-                          templateButton.right.style.fontSize = "21px"
-                          templateButton.onclick = () => callback(template)
-                        }
-                      }
-
-                      function openSendTemplateOverlay(template, emails) {
-
-                        Helper.overlay("popup", async overlay => {
-                          overlay.info.textContent = emails.join(", ")
-                          const funnel = Helper.create("div/scrollable", overlay)
-
-                          const subjectField = Helper.create("field/text", funnel)
-                          subjectField.label.textContent = "Betreff"
-                          subjectField.input.setAttribute("required", "true")
-                          subjectField.style.margin = "21px 34px"
-                          subjectField.input.oninput = () => Helper.verify("input/value", subjectField.input)
-                          Helper.verify("input/value", subjectField.input)
-                          const buttons = Helper.create("div/flex-row", funnel)
-                          const testTemplateButton = Helper.create("button/action", buttons)
-                          testTemplateButton.textContent = "Test senden"
-                          testTemplateButton.style.background = Helper.colors.light.success
-                          testTemplateButton.style.width = "233px"
-                          testTemplateButton.onclick = async () => {
-                            await Helper.verify("input/value", subjectField.input)
-                            Helper.overlay("security", async securityOverlay => {
-                              securityOverlay.remove()
-                              const res = await Helper.request("/send/email/test-template/", {template: template.html, subject: subjectField.input.value})
-                              if (res.status === 200) {
-                                window.alert("Template erfolgreich gesendet.")
-                                securityOverlay.remove()
-                              }
-                            })
-                          }
-                          const sendTemplateButton = Helper.create("button/action", buttons)
-                          sendTemplateButton.textContent = "Template senden"
-                          sendTemplateButton.style.width = "233px"
-                          sendTemplateButton.onclick = async () => {
-
-                            const res = await Helper.request("/get/user/tree-closed/", {tree: "email"})
-                            let userEmail
-                            if (res.status === 200) {
-                              userEmail = res.response
-                            }
-                            if (!userEmail) return window.alert("Fehler.. Bitte wiederholen.")
-
-                            await Helper.verify("input/value", subjectField.input)
-                            Helper.overlay("security", async securityOverlay => {
-                              try {
-                                securityOverlay.textContent = ""
-                                securityOverlay.style.display = "flex"
-                                securityOverlay.style.flexDirection = "column"
-                                securityOverlay.style.justifyContent = "center"
-
-                                await renderEmailStatus(userEmail, group.emails, securityOverlay)
-                                Helper.removeOverlayButton(securityOverlay)
-
-                                for (let i = 0; i < group.emails.length; i++) {
-                                  const email = group.emails[i]
-                                  if (userEmail === email) continue
-
-                                  document.querySelectorAll(".email-status").forEach(emailStatus => {
-                                    if (emailStatus.textContent.includes(email)) {
-                                      const sign = emailStatus.querySelector(".sign")
-
-                                      Helper.request("/send/email/send-template/", {email, template: template.html, subject: subjectField.input.value})
-                                      .then((res) => {
-                                        if (res.status === 200) {
-                                          sign.style.color = Helper.colors.dark.success
-                                          sign.textContent = "Erfolgreich gesendet.."
-                                        } else {
-                                          sign.style.color = Helper.colors.dark.error
-                                          sign.textContent = "Fehler beim Senden.."
-                                        }
-                                      })
-                                      .catch((error) => {
-                                        sign.style.color = Helper.colors.dark.error
-                                        sign.textContent = "Fehler beim Senden.."
-                                      })
-
-                                    }
-                                  })
-
-                                }
-
-                              } catch (error) {
-                                window.alert("Fehler.. Bitte wiederholen.")
-                                console.error(error)
-                              }
-                            })
-                          }
-
-                        })
-
-                      }
-
-                      Helper.overlay("popup", async overlay => {
-                        overlay.info.textContent = group.emails.join(", ")
-                        const searchField = Helper.create("input/text", overlay)
-                        searchField.input.placeholder = "Suche nach Text in deinem Template"
-                        searchField.style.margin = "21px 34px"
-                        Helper.verify("input/value", searchField.input)
-                        Helper.add("outline-hover", searchField.input)
-                        const contactsDiv = Helper.create("div/scrollable", overlay)
-                        const res = await Helper.request("/get/templates/closed/")
-                        if (res.status === 200) {
-                          const templates = JSON.parse(res.response)
-                          let filtered
-                          searchField.input.oninput = async (ev) => {
-                            filtered = templates.filter(it => it.html.toLowerCase().includes(ev.target.value.toLowerCase()))
-                            const highlighted = filtered.map(it => {
-                              const highlightedHtml = it.html.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
-                              return { ...it, html: highlightedHtml }
-                            })
-                            await renderTemplates(highlighted, contactsDiv, (template) => openSendTemplateOverlay(template, group.emails))
-                          }
-                          await renderTemplates(templates, contactsDiv, (template) => openSendTemplateOverlay(template, group.emails))
-                        } else {
-                          Helper.convert("parent/info", contactsDiv)
-                          contactsDiv.textContent = "Keine Templates gefunden"
-                        }
-                      })
-
-                    }
-                  }
-
-                  {
-                    const button = Helper.create("button/left-right", buttons)
-                    button.left.textContent = ".web-call"
-                    button.right.textContent = "Verbinde dich per Videochat mit deiner Gruppe"
-                    button.onclick = () => {
-
-                      if (group.emails.length > 5) {
-                        window.alert("Es dürfen maximal 5 Nutzer an einem Webcall teilnehmen.")
-                        return
-                      }
-
-                      const confirm = window.confirm("Wenn du dem Webcall beitrittst, wirst du direkt als online angezeigt.\n\nMöchtest du diesem Webcall beitreten?")
-                      if (confirm !== true) return
-                      Helper.overlay("popup", async overlay => {
-                        overlay.info.textContent = ".web-call"
-                        const content = Helper.create("info/loading", overlay)
-                        let res = await Helper.request("/verify/user/jwt-in-emails/", {emails: group.emails})
-                        if (res.status !== 200) {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          overlay.remove()
-                          return
-                        }
-
-                        res = await Helper.request("/get/user/tree-closed/", {tree: "email"})
-                        if (res.status !== 200) {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          overlay.remove()
-                          return
-                        }
-
-                        Helper.convert("parent/scrollable", content)
-
-                        const localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true})
-                        const userEmail = res.response
-                        const peerConnections = {}
-
-                        overlay.removeOverlayButton.addEventListener("click", () => {
-                          stopLocalStream(localStream)
-                          send("stop")
-                          socket.close()
-                        })
-
-                        function escapeCSSId(id) {
-                          return id.replace(/\./g, "-").replace(/@/g, "-")
-                        }
-
-                        const container = document.createElement("div")
-                        Helper.style(container, {margin: "21px 34px", display: "flex", flexWrap: "wrap", justifyContent: "space-around", alignItems: "center"})
-                        content.appendChild(container)
-                        const fragment = document.createDocumentFragment()
-
-                        function updateStatus(node) {
-                          const video = node.querySelector("video")
-                          const status = node.querySelector(".status")
-                          if (video.srcObject) {
-                            status.textContent = "on"
-                            status.style.backgroundColor = "green"
-                          } else {
-                            status.textContent = "off"
-                            status.style.backgroundColor = "red"
-                          }
-                        }
-
-                        function createUserBox(email, node) {
-
-                          const userBox = document.createElement("div")
-                          Helper.style(userBox, {fontSize: "21px", fontFamily: "sans-serif", position: "relative", borderRadius: "13px", margin: "8px", padding: "8px", minWidth: "55px"})
-                          Helper.convert("dark-light", userBox)
-                          userBox.className = "user"
-
-                          userBox.video = document.createElement("video")
-                          userBox.video.id = escapeCSSId(email)
-                          userBox.video.autoplay = true
-                          userBox.video.controls = true
-                          userBox.video.style.width = "100%"
-                          userBox.appendChild(userBox.video)
-
-                          userBox.info = document.createElement("div")
-                          Helper.style(userBox.info, {display: "flex", justifyContent: "space-between", alignItems: "center"})
-                          userBox.appendChild(userBox.info)
-
-                          userBox.email = document.createElement("div")
-                          userBox.email.className = "email"
-                          userBox.email.textContent = email
-                          Helper.style(userBox.email, {whiteSpace: "nowrap", overflow: "auto"})
-                          userBox.info.appendChild(userBox.email)
-
-                          userBox.status = document.createElement("div")
-                          userBox.status.className = "status"
-                          Helper.style(userBox.status, {display: "flex", justifyContent: "center", alignItems: "center", width: "34px", height: "34px", borderRadius: "50%"})
-                          userBox.info.appendChild(userBox.status)
-                          updateStatus(userBox)
-
-                          node?.appendChild(userBox)
-                          return userBox
-                        }
-
-                        const localUserBox = createUserBox(userEmail, fragment)
-                        localUserBox.video.srcObject = localStream
-                        updateStatus(localUserBox)
-
-                        for (let i = 0; i < group.emails.length; i++) {
-                          const email = group.emails[i]
-                          if (email === userEmail) continue
-                          createUserBox(email, fragment)
-                        }
-                        container.appendChild(fragment)
-
-                        function stopLocalStream(stream) {
-                          stream.getTracks().forEach(track => track.stop())
-                        }
-
-                        const socket = new WebSocket(`wss://${window.location.host}`)
-
-                        function send(type, data = {}) {
-                          socket.send(JSON.stringify({type, emails: group.emails, ...data}))
-                        }
-
-                        socket.onopen = async ev => {
-                          console.log('WebSocket connected.')
-                          setTimeout(() => send("start"), 610)
-                        }
-
-                        function createPeerConnection(email) {
-                          const peerConnection = new RTCPeerConnection({iceServers: [{urls: "stun:stun.l.google.com:19302"}]})
-                          peerConnection.onicecandidate = ev => {
-                            if (ev.candidate) send("iceCandidate", {candidate: ev.candidate})
-                          }
-                          peerConnection.ontrack = ev => {
-                            const [remoteStream] = ev.streams
-                            const videoTag = document.querySelector(`video#${escapeCSSId(email)}`)
-                            if (videoTag) {
-                              videoTag.srcObject = remoteStream
-                              updateStatus(videoTag.parentElement)
-                            }
-                          }
-                          localStream.getTracks().forEach(track => {
-                            peerConnection.addTrack(track, localStream)
-                          })
-                          return peerConnection
-                        }
-
-                        function closePeerConnection(email) {
-                          if (peerConnections[email]) {
-                            peerConnections[email].close()
-                            delete peerConnections[email]
-                            const video = document.querySelector(`video#${escapeCSSId(email)}`)
-                            video.srcObject = null
-                            const status = video.parentElement.querySelector(".status")
-                            status.textContent = "off"
-                            status.style.backgroundColor = "red"
-                          }
-                        }
-
-                        socket.onmessage = async ev => {
-
-                          const data = JSON.parse(ev.data)
-                          // todo test in production what is happening??
-                          console.log("Received message:", data)
-
-                          if (data.type === "start") {
-                            if (!peerConnections[data.from]) peerConnections[data.from] = createPeerConnection(data.from)
-                            const offer = await peerConnections[data.from].createOffer()
-                            await peerConnections[data.from].setLocalDescription(offer)
-                            send("offer", {offer, from: data.from})
-                          }
-
-                          if (data.type === "offer") {
-                            if (!peerConnections[data.from]) peerConnections[data.from] = createPeerConnection(data.from)
-                            peerConnections[data.from].setRemoteDescription(new RTCSessionDescription(data.offer))
-                            const answer = await peerConnections[data.from].createAnswer()
-                            await peerConnections[data.from].setLocalDescription(answer)
-                            send("answer", {answer})
-                          }
-
-                          if (data.type === "answer") {
-                            await peerConnections[data.from].setRemoteDescription(new RTCSessionDescription(data.answer))
-                          }
-
-                          if (data.type === "iceCandidate") {
-                            if (peerConnections[data.from]) peerConnections[data.from].addIceCandidate(new RTCIceCandidate(data.candidate))
-                          }
-
-                          if (data.type === "stop") {
-                            closePeerConnection(data.from)
-                          }
-
-                        }
-
-                        socket.onerror = (error) => {
-                          console.error('WebSocket error:', error)
-                          socket.close()
-                        }
-
-                        socket.onclose = (event) => {
-                          console.log('WebSocket closed.')
-                        }
-
-                      })
-
-                    }
-                  }
-
-                  {
-                    const button = Helper.create("button/left-right", buttons)
-                    button.left.textContent = ".web-chat"
-                    button.right.textContent = "Schreibe deiner Gruppe Nachrichten"
-
-                  }
-
-                  {
-                    const button = Helper.create("button/left-right", buttons)
-                    button.left.textContent = ".file-sharing"
-                    button.right.textContent = "Teile Daten mit deiner Gruppe"
-
-                  }
-
-                  function renderEmailStatus(except, emails, node) {
-                    return new Promise((resolve, reject) => {
-                      try {
-                        let iterations = 0
-
-                        for (let i = 0; i < emails.length; i++) {
-                          const email = emails[i]
-                          if (except && except === email) continue
-                          const container = Helper.create("div", node)
-                          container.className = "email-status"
-                          Helper.style(container, {wordBreak: "break-word", display: "flex", flexWrap: "wrap", margin: "21px 34px", fontSize: "21px", fontFamily: "sans-serif", alignItems: "center"})
-                          container.style.color = Helper.colors.light.text
-                          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                            container.style.color = Helper.colors.dark.text
-                          }
-                          const emailDiv = Helper.create("div", container)
-                          emailDiv.textContent = `${email}: `
-                          const signDiv = Helper.create("div", container)
-                          signDiv.className = "sign"
-                          signDiv.style.marginLeft = "34px"
-                          Helper.render("icon/node/path", "/public/loading.svg", signDiv)
-                          iterations++
-                        }
-
-                        if (iterations === emails.length - 1) {
-                          return resolve()
-                        } else {
-                          throw new Error("iterations mismatch")
-                        }
-
-                      } catch (error) {
-                        console.error(error)
-                        reject(error)
-                      }
-
-                    })
-
-                  }
-
-
-                  {
-                    const button = Helper.create("button/left-right", buttons)
-                    button.left.textContent = ".location-sharing"
-                    button.right.textContent = "Teile deinen Standort mit deiner Gruppe"
-                    button.onclick = async () => {
-
-                      function getCoords() {
-                        return new Promise((resolve, reject) => {
-                          function success(pos) {
-                            resolve(pos.coords)
-                          }
-
-                          function error(err) {
-                            reject(err)
-                          }
-
-                          navigator.geolocation.getCurrentPosition(success, error, {
-                            enableHighAccuracy: true,
-                            timeout: 5000,
-                            maximumAge: 0
-                          })
-                        })
-                      }
-
-                      const res = await Helper.request("/get/user/tree-closed/", {tree: "email"})
-                      let userEmail
-                      if (res.status === 200) {
-                        userEmail = res.response
-                      }
-                      if (!userEmail) return window.alert("Fehler.. Bitte wiederholen.")
-
-                      Helper.overlay("security", async securityOverlay => {
-                        try {
-                          securityOverlay.textContent = ""
-                          securityOverlay.style.display = "flex"
-                          securityOverlay.style.flexDirection = "column"
-                          securityOverlay.style.justifyContent = "center"
-
-                          await renderEmailStatus(userEmail, group.emails, securityOverlay)
-
-                          Helper.removeOverlayButton(securityOverlay)
-
-                          let coords
-                          try {
-                            coords = await getCoords()
-                          } catch (error) {
-                            window.alert("Fehler.. Bitte wiederholen.")
-                            console.error(error)
-                            securityOverlay.remove()
-                            return
-                          }
-                          if (!coords) return
-
-                          for (let i = 0; i < group.emails.length; i++) {
-                            const email = group.emails[i]
-                            if (userEmail === email) continue
-
-                            document.querySelectorAll(".email-status").forEach(emailStatus => {
-                              if (emailStatus.textContent.includes(email)) {
-                                const sign = emailStatus.querySelector(".sign")
-
-                                Helper.request("/send/email/lat-lon/", {to: email, lat: coords.latitude, lon: coords.longitude})
-                                .then((res) => {
-                                  if (res.status === 200) {
-                                    sign.style.color = Helper.colors.dark.success
-                                    sign.textContent = "Erfolgreich gesendet.."
-                                  } else {
-                                    sign.style.color = Helper.colors.dark.error
-                                    sign.textContent = "Fehler beim Senden.."
-                                  }
-                                })
-                                .catch((error) => {
-                                  sign.style.color = Helper.colors.dark.error
-                                  sign.textContent = "Fehler beim Senden.."
-                                })
-
-                              }
-                            })
-
-
-                          }
-
-                        } catch (error) {
-                          console.error(error);
-                        }
-                      })
-                    }
-                  }
-                  {
-                    const button = Helper.create("button/left-right", buttons)
-                    button.left.textContent = ".remove"
-                    button.right.textContent = "Gruppe entfernen"
-                    button.onclick = () => {
-
-                      const confirm = window.confirm("Möchtest du deine Gruppe wirklich entfernen?")
-                      if (confirm === true) {
-                        Helper.overlay("security", async securityOverlay => {
-                          const res = await Helper.request("/remove/groups/id-self/", {id: group.created})
-                          if (res.status === 200) {
-                            window.alert("Gruppe erfolgreich entfernt.")
-                            groupButton.remove()
-                            buttonsOverlay.remove()
-                            securityOverlay.remove()
-                          } else {
-                            window.alert("Fehler.. Bitte wiederholen.")
-                            securityOverlay.remove()
-                          }
-                        })
-                      }
-                    }
-                  }
-                })
-
-              }
-
-            }
-            parent?.appendChild(fragment)
-            return fragment
-          }
-
-          async function getAndRenderGroups(parent) {
-            const res = await Helper.request("/get/groups/self/")
-            if (res.status === 200) {
-              const groups = JSON.parse(res.response)
-              renderGroupButtons(groups, parent)
-              filterGroupsByEmail(groups, parent)
-            } else {
-              Helper.convert("parent/info", parent)
-              renderInfo("Deine E-Mail Adresse wurde in keiner Gruppe gefunden. Erstelle eine neue Gruppe in dem du auf", "/public/add.svg", "klickst.", parent)
-            }
-          }
-
-        })
+    if (event === "class/dark-light") {
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        input.classList.add("bg-dark", "bs-dark", "border-dark", "color-dark")
+      } else {
+        input.classList.add("bg-light", "bs-light", "border-light", "color-light")
       }
     }
 
@@ -1011,7 +260,7 @@ export class Helper {
         this.request("/verify/user/closed/").then((res) => {
 
           if (res.status === 200) {
-            this.request("/get/user/reputation-self/").then((res) => {
+            this.request("/jwt/get/reputation/").then((res) => {
 
               if (this.verifyIs("text/int", res.response)) {
                 node.textContent = res.response
@@ -1031,6 +280,19 @@ export class Helper {
       input.style.outline = "3px solid #777"
     }
 
+    if (event === "loading") {
+
+      input.info = this.div("fs13 color-error sans-serif")
+      input.info.textContent = "Das kann einen Moment dauern .."
+      input.loading = this.render("icon/node/path", "/public/loading.svg").then(icon => {
+        icon.classList.add("m13")
+        const svg = icon.querySelector("svg")
+        svg.classList.add("fill-error")
+        this.append(icon, input)
+        this.append(input.info, input)
+      })
+    }
+
     if (event === "my-value-units") {
 
       return new Promise(async(resolve, reject) => {
@@ -1048,7 +310,7 @@ export class Helper {
                 const valueBox = this.create("div")
                 this.style(valueBox, {cursor: "pointer", width: "144px", borderRadius: "5px", margin: "21px 13px", fontFamily: "sans-serif", boxShadow: "rgba(0, 0, 0, 0.13) 0px 1px 3px"})
                 valueUnitsDiv.appendChild(valueBox)
-                this.add("outline-hover", valueBox)
+                this.add("hover-outline", valueBox)
                 valueBox.onclick = () => {
                   window.open(value.path, "_blank")
                 }
@@ -1062,7 +324,7 @@ export class Helper {
                 this.style(title, {margin: "13px", overflow: "hidden", textOverflow: "ellipsis"})
                 valueBox.appendChild(title)
                 const requested = document.createElement("div")
-                requested.textContent = `Angefordert: ${value.requested.length}`
+                requested.textContent = `Angefordert: ${value.requested}`
                 this.style(requested, {margin: "13px", whiteSpace: "break-word"})
                 valueBox.appendChild(requested)
                 function closedState(node) {
@@ -1089,7 +351,7 @@ export class Helper {
                       return
                     }
                     if (confirm === true) {
-                      this.overlay("security", async securityOverlay => {
+                      this.overlay("lock", async securityOverlay => {
                         const res = await this.request("/register/platform/value-visibility-writable/", {path: value.path, visibility: "closed"})
                         if (res.status === 200) {
                           closedState(openClosedField.input)
@@ -1111,7 +373,7 @@ export class Helper {
                       return
                     }
                     if (confirm === true) {
-                      this.overlay("security", async securityOverlay => {
+                      this.overlay("lock", async securityOverlay => {
                         const res = await this.request("/register/platform/value-visibility-writable/", {path: value.path, visibility: "open"})
                         if (res.status === 200) {
                           openState(openClosedField.input)
@@ -1164,131 +426,6 @@ export class Helper {
 
     }
 
-    if (event === "numerology") {
-
-      const birthdateField = document.querySelector("#birthdate")
-      this.convert("dark-light", birthdateField)
-      const birthdateInput = birthdateField.querySelector("input[type='date']")
-      birthdateInput.value = Helper.convert("millis/yyyy-mm-dd", Date.now())
-      birthdateInput.oninput = () => this.add("style/valid", birthdateInput)
-      this.add("outline-hover", birthdateInput)
-
-      this.request("/verify/user/closed/").then(async res => {
-        if (res.status === 200) {
-          const birthnameTree = "numerologie.birthname"
-          const birthdateTree = "numerologie.birthdate"
-          res = await this.request("/get/user/tree-closed/", {tree: birthdateTree})
-          if (res.status === 200) {
-            birthdateInput.value = res.response.split("T")[0]
-          }
-        } else {
-
-          const buttons = this.create("div")
-          submit.after(buttons)
-          buttons.style.display = "flex"
-          buttons.style.flexDirection = "column"
-          buttons.style.alignItems = "center"
-
-          const orDiv = this.create("div")
-          buttons.appendChild(orDiv)
-          orDiv.textContent = "oder"
-          orDiv.style.textAlign = "center"
-          orDiv.style.margin = "21px 0"
-
-          const toLogin = this.create("toolbox/action")
-          buttons.appendChild(toLogin)
-          toLogin.textContent = "Jetzt anmelden"
-          this.style(toLogin, {width: "233px", padding: "13px 21px", margin: "0", height: "auto"})
-          toLogin.onclick = () => window.location.assign("/entwicklung/numerologie/login/")
-
-        }
-      })
-
-      const submit = document.querySelector(".submit-numerology")
-      this.add("outline-hover", submit)
-      submit.onclick = () => {
-
-        const birthdateField = document.querySelector("#birthdate")
-        const birthdateInput = birthdateField.querySelector("input[type='date']")
-        const birthdateValue = birthdateInput.value
-        const numerology = this.fn("numerology")
-
-        if (this.verifyIs("text/empty", birthdateValue)) {
-          window.alert("Du hast vergessen dein Geburtsdatum einzugeben.")
-          this.add("style/not-valid", birthdateInput)
-          return
-        } else {
-          this.add("style/valid", birthdateInput)
-        }
-
-        this.overlay("popup", async numerologyOverlay => {
-          const date = new Date(birthdateValue)
-          const content = this.create("div/scrollable", numerologyOverlay)
-          this.render("text/h1", `Numerologie Rechner`, content)
-          numerology.renderAge(date, content)
-          numerology.renderLifePath(date, content)
-          numerology.renderMaster(date, content)
-          numerology.renderBirthDayEnergy(date, content)
-          numerology.renderPrevailingEnergies(date, content)
-          numerology.renderRecedingEnergies(date, content)
-          numerology.renderTones(date, content)
-          numerology.renderFirstCycle(date, content)
-          numerology.renderFirstKeyTone(date, content)
-          numerology.renderSecondCycle(date, content)
-          numerology.renderSecondKeyTone(date, content)
-          numerology.renderThirdCycle(date, content)
-          numerology.renderThirdKeyTone(date, content)
-          numerology.renderFourthCycle(date, content)
-          numerology.renderFourthKeyTone(date, content)
-
-          const res = await this.request("/verify/user/closed/")
-          if (res.status === 200) {
-            const birthNameField = this.create("input/text", content)
-            birthNameField.input.placeholder = "Gebe deinen Geburtsnamen ein.."
-            const birthnameTree = "numerologie.birthname"
-            const res = await this.request("/get/user/tree-closed/", {tree: birthnameTree})
-            if (res.status === 200) {
-              birthNameField.input.value = res.response
-            }
-            birthNameField.input.oninput = (ev) => {
-              const birthname = ev.target.value
-              if (this.verifyIs("text/empty", birthname)) {
-                this.add("style/not-valid", birthNameField.input)
-                return
-              }
-              numerology.updateBirthNameFunctions(birthname)
-              this.add("style/valid", birthNameField.input)
-            }
-            numerology.renderBirthNameFunctions(birthNameField.input.value, content)
-            const toSave = this.create("toolbox/action", content)
-            toSave.textContent = "Zu deinem Profil"
-            toSave.onclick = () => {
-              this.overlay("security", async securityOverlay => {
-                const res = await this.request("/register/location/map-self/", {map: {birthname: birthNameField.input.value, birthdate: new Date(birthdateValue).toISOString()}})
-                if (res.status === 200) {
-                  window.alert("Deine Daten wurden erfolgreich gespeichert.")
-                  const res = await this.request("/get/user/tree-closed/", {tree: "id"})
-                  if (res.status === 200) {
-                    window.location.assign(`/entwicklung/numerologie/profil/${res.response}/`)
-                  }
-                } else {
-                  window.alert("Fehler.. Bitte wiederholen.")
-                  securityOverlay.remove()
-                }
-              })
-            }
-          } else {
-            const toSave = this.create("toolbox/action", content)
-            toSave.textContent = "Jetzt Geburtsname berechnen"
-            toSave.onclick = () => window.location.assign("/entwicklung/numerologie/login/")
-          }
-
-        })
-
-      }
-
-    }
-
     if (event === "oninput/verify-positive-integer") {
 
       input.addEventListener("input", () => {
@@ -1305,7 +442,7 @@ export class Helper {
 
       input.addEventListener("click", () => {
 
-        this.overlay("toolbox", async overlay => {
+        this.overlay("pop", async overlay => {
 
           this.removeOverlayButton(overlay)
 
@@ -1325,26 +462,12 @@ export class Helper {
 
     }
 
-    if (event === "onclick/assign-expert-home") {
-
-      input.addEventListener("click", async () => {
-
-        const res = await this.request("/get/expert/name-self/")
-        if (res.status === 200) {
-          const name = res.response
-          window.location.assign(`/${name}/`)
-        }
-
-      })
-
-    }
-
     if (event === "onclick/selector/contact-location-expert") {
       document.querySelectorAll(input).forEach(node => {
-        this.add("outline-hover", node)
+        this.add("hover-outline", node)
         node.onclick = () => {
 
-          this.overlay("popup", overlay => {
+          this.overlay("pop", overlay => {
             this.render("text/h1", "Kontakt anfragen", overlay)
 
             const funnel = this.create("div/scrollable", overlay)
@@ -1352,11 +475,11 @@ export class Helper {
             const preferenceField = this.create("field/select", funnel)
             preferenceField.label.textContent = "Wie möchten Sie gerne kontaktiert werden"
             preferenceField.input.add(["E-Mail", "Telefon", "Webcall"])
-            this.add("outline-hover", preferenceField.input)
+            this.add("hover-outline", preferenceField.input)
             this.verify("input/value", preferenceField.input)
 
             const emailField = this.create("field/email", funnel)
-            this.add("outline-hover", emailField.input)
+            this.add("hover-outline", emailField.input)
             this.verify("input/value", emailField.input)
             emailField.input.oninput = () => this.verify("input/value", emailField.input)
 
@@ -1365,7 +488,7 @@ export class Helper {
             subjectField.input.style.height = "89px"
             subjectField.input.placeholder = "Für eine schnelle Bearbeitung, können Sie uns hier den Grund Ihrer Kontaktanfrage nennen."
             subjectField.input.setAttribute("required", "true")
-            this.add("outline-hover", subjectField.input)
+            this.add("hover-outline", subjectField.input)
             this.verify("input/value", subjectField.input)
             subjectField.input.oninput = () => this.verify("input/value", subjectField.input)
 
@@ -1381,7 +504,7 @@ export class Helper {
                 telField.input.setAttribute("required", "true")
                 telField.input.setAttribute("accept", "text/tel")
                 telField.input.oninput = () => this.verify("input/value", telField.input)
-                this.add("outline-hover", telField.input)
+                this.add("hover-outline", telField.input)
                 this.verify("input/value", telField.input)
               } else {
                 telField = undefined
@@ -1391,7 +514,7 @@ export class Helper {
 
             const submit = this.create("button/action", funnel)
             submit.textContent = "Kontakt jetzt anfragen"
-            this.add("outline-hover", submit)
+            this.add("hover-outline", submit)
             submit.onclick = async () => {
               await this.verify("field-funnel", funnel)
 
@@ -1425,33 +548,6 @@ export class Helper {
           })
         }
       })
-    }
-
-    if (event === "field/image-url") {
-      const field = this.create("field/url", input)
-      field.input.setAttribute("required", "true")
-      field.input.accept = "text/https"
-      field.label.textContent = "Gebe hier die Quell-Url für dein Bild ein"
-      field.input.placeholder = "https://www.meine-quelle.de"
-      this.verify("input/value", field.input)
-      field.input.addEventListener("input", () => this.verify("input/value", field.input))
-
-      if (input) input.append(field)
-      return field
-    }
-
-    if (event === "field/image-url") {
-      const field = this.create("field/url")
-      field.input.setAttribute("required", "true")
-      field.input.accept = "text/https"
-      field.label.textContent = "Gebe hier die Quell-Url für dein Bild ein"
-      field.input.placeholder = "https://www.meine-quelle.de"
-
-      this.verify("input/value", field.input)
-      field.input.oninput = () => this.verify("input/value", field.input)
-
-      if (input) input.append(field)
-      return field
     }
 
     if (event === "observer/id-mutation") {
@@ -1650,8 +746,8 @@ export class Helper {
 
     if (event === "open-toolbox") {
 
-      const back = this.create("toolbox/back")
-      const toolbox = this.create("toolbox/getyour")
+      const back = this.create("button/back")
+      const toolbox = this.create("button/getyour")
 
       toolbox.style.zIndex = "2"
 
@@ -1717,25 +813,20 @@ export class Helper {
 
     if (event === "toolbox/buttons") {
 
-      const back = this.create("toolbox/back")
-      const toolbox = this.create("toolbox/getyour")
-
-      toolbox.style.zIndex = "2"
-
+      const back = this.create("button/goback")
+      const toolbox = this.create("button/getyour")
       back.setAttribute("data-id", "toolbox")
       toolbox.setAttribute("data-id", "toolbox")
-
       document.body.insertBefore(back, document.querySelector("#toolbox"))
       document.body.insertBefore(toolbox, document.querySelector("#toolbox"))
-
       toolbox.addEventListener("click", () => {
-        this.overlay("tools", {save: true, type: "expert"})
+        this.overlay("tools", {type: "expert"})
       })
     }
 
     if (event === "toolbox-getter") {
 
-      const script = this.create("script", {id: "toolbox-getter", js: "await Helper.add('toolbox/onbody')"})
+      const script = this.create("script/id", "toolbox-getter")
       this.add("script-onbody", script)
     }
 
@@ -1823,12 +914,12 @@ export class Helper {
             totalPrice.textContent = "0,00"
             selectedServices = []
 
-            this.overlay("toolbox", async roleListOverlay => {
+            this.overlay("pop", async roleListOverlay => {
               // this.removeOverlayButton(roleListOverlay)
 
-              const buttons = this.create("info/loading", roleListOverlay)
+              const buttons = this.create("div/loading", roleListOverlay)
 
-              const res = await this.request("/get/user/trees-open/", {trees: [`${window.location.pathname.split("/")[2]}.${selected}`, `${window.location.pathname.split("/")[2]}.company.name`, `${window.location.pathname.split("/")[2]}.services`, "reputation"]})
+              // const res = await this.request("/get/users/trees/", {trees: [`${window.location.pathname.split("/")[2]}.${selected}`, `${window.location.pathname.split("/")[2]}.company.name`, `${window.location.pathname.split("/")[2]}.services`, "reputation"]})
               if (res.status === 200) {
                 const users = JSON.parse(res.response)
 
@@ -1845,7 +936,7 @@ export class Helper {
                   button.left.textContent = user[`${window.location.pathname.split("/")[2]}.company.name`]
                   button.right.textContent = `${user[`${window.location.pathname.split("/")[2]}.services`].length} Dienstleistungen`
                   button.onclick = () => {
-                    this.overlay("toolbox", selectServicesOverlay => {
+                    this.overlay("pop", selectServicesOverlay => {
                       overlay.registerHtmlButton.onclick = () => {
 
                         if (selectedServices === undefined || selectedServices.length === 0) {
@@ -1958,7 +1049,7 @@ export class Helper {
             })
           }
 
-          const res = await this.request("/get/user/trees-open/", {trees: ["getyour.expert.platforms"]})
+          // const res = await this.request("/get/users/trees/", {trees: ["getyour.expert.platforms"]})
           if (res.status === 200) {
             const users = JSON.parse(res.response)
             for (let i = 0; i < users.length; i++) {
@@ -2027,136 +1118,13 @@ export class Helper {
 
     }
 
-    if (event === "event/role-apps") {
-
-      const button = document.querySelector(".role-apps-button")
-
-      if (button !== null) {
-
-        button.onclick = async () => {
-
-          this.overlay("toolbox", overlay => {
-            this.removeOverlayButton(overlay)
-            const info = this.create("header/info", overlay)
-            info.append(this.convert("text/span", input.tag))
-
-            this.get("role-apps/closed", overlay, input.id)
-
-          })
-
-        }
-
-      }
-
-    }
-
-    if (event === "location-list-funnel") {
-
-      const button = document.getElementById(`${input.tag}-location-list-button`)
-
-      if (button !== null) {
-        button.onclick = () => {
-
-          this.overlay("toolbox", async overlay => {
-
-            this.removeOverlayButton(overlay)
-            const info = this.create("header/info", overlay)
-            info.textContent = "." + input.tag
-
-            const create = this.create("button/left-right", overlay)
-            create.left.textContent = ".create"
-            create.right.textContent = this.convert("text/capital-first-letter", input.tag) + " definieren"
-            create.addEventListener("click", () => {
-
-              this.overlay("toolbox", async overlay => {
-                this.removeOverlayButton(overlay)
-                const info = this.create("header/info", overlay)
-                info.append(this.convert("text/span", input.tag + ".create"))
-
-                const content = this.create("div/scrollable", overlay)
-                const fieldFunnel = await this.convert("path/field-funnel", input.path)
-                content.append(fieldFunnel)
-
-                this.verifyIs("field-funnel/valid", fieldFunnel)
-
-                const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
-
-                if (submitButton) {
-
-                  submitButton.textContent = `${this.convert("text/capital-first-letter", input.tag)} jetzt speichern`
-                  submitButton.onclick = async () => {
-
-                    await this.verify("field-funnel", fieldFunnel)
-
-                    const map = await this.convert("field-funnel/map", fieldFunnel)
-
-                    this.overlay("security", async securityOverlay => {
-
-                      const register = {}
-                      register.tag = input.tag
-                      register.map = map
-                      const res = await this.request("register/location/list-self/", register)
-
-                      if (res.status === 200) {
-                        window.alert("Daten erfolgreich gespeichert.")
-
-                        const res = await this.request("/get/location/tag-self/", {tag: input.tag})
-                        if (res.status === 200) {
-                          const tag = JSON.parse(res.response)
-                          this.render("location-list/node/closed", {list: tag[input.tag], tag: input.tag, path: input.path}, locationList)
-                        }
-                        if (res.status !== 200) {
-                          this.convert("parent/info", locationList)
-                          locationList.textContent = `Keine ${this.convert("text/capital-first-letter", input.tag)} gefunden`
-                        }
-                        securityOverlay.remove()
-                      }
-
-                      if (res.status !== 200) {
-                        window.alert("Fehler.. Bitte wiederholen.")
-                        securityOverlay.remove()
-                      }
-
-                    })
-
-                  }
-
-                } else {
-                  window.alert("Field Funnel besitzt keinen Button mit der Klasse 'submit-field-funnel-button'")
-                }
-
-
-              })
-
-            })
-
-            this.render("text/hr", "Meine " + this.convert("text/capital-first-letter", input.tag), overlay)
-
-            const locationList = this.create("info/loading", overlay)
-            const res = await this.request("/get/location/tag-self/", {tag: input.tag})
-            if (res.status === 200) {
-              const tag = JSON.parse(res.response)
-              this.render("location-list/node/closed", {list: tag[input.tag], tag: input.tag, path: input.path}, locationList)
-            }
-            if (res.status !== 200) {
-              this.convert("parent/info", locationList)
-              locationList.textContent = `Keine ${this.comvert("text/capital-first-letter", input.tag)} gefunden`
-            }
-
-          })
-
-        }
-      }
-
-    }
-
     if (event === "prefill-field-funnel") {
 
       return new Promise(async(resolve, reject) => {
         try {
           for (let i = 0; i < document.querySelectorAll(".field-funnel").length; i++) {
             const funnel = document.querySelectorAll(".field-funnel")[i]
-            const res = await this.request("/get/user/location-list-closed/", {platform: window.location.pathname.split("/")[2], id: funnel.id})
+            const res = await this.request("/jwt/get/location/list/0/", {platform: window.location.pathname.split("/")[2], tag: funnel.id})
             if (res.status === 200) {
               const map = JSON.parse(res.response)
               this.render("map/field-funnel", map, funnel)
@@ -2182,8 +1150,8 @@ export class Helper {
               }
               const map = await this.convert("field-funnel/map", funnel)
               if (map !== undefined) {
-                this.overlay("security", async securityOverlay => {
-                  const res = await this.request("/register/location/list-self/", {tag: funnel.id, map})
+                this.overlay("lock", async securityOverlay => {
+                  const res = await this.request("/register/location/list/", {tag: funnel.id, map})
                   if (res.status === 200) {
                     window.alert("Daten wurden erfolgreich gespeichert.")
                     if (funnel.hasAttribute("next-path")) {
@@ -2209,63 +1177,6 @@ export class Helper {
           this.convert("field/on-info-click", field)
         }
       })
-    }
-
-    if (event === "open-profiles") {
-
-      const searchField = Helper.create("input/text", document.body)
-      this.add("style/valid", searchField.input)
-      searchField.input.placeholder = "Suche nach Schlüsselwörter"
-      this.request("/get/user/profiles-open/").then(res => {
-        if (res.status === 200) {
-          const profiles = JSON.parse(res.response)
-          const csvParts = []
-          for (let i = 0; i < profiles.length; i++) {
-            const profile = profiles[i]
-            profile.csv = ""
-            for (const [key, value] of Object.entries(profile)) {
-              if (key === "created" || key === "visibility" || key === "messages" || key === "weakness") continue
-              if (!this.verifyIs("text/empty", value)) {
-                csvParts.push(value)
-              }
-            }
-            profile.csv = csvParts.join(", ")
-          }
-
-          searchField.input.oninput = (ev) => {
-            const userInput = ev.target.value.toLowerCase()
-
-            if (this.verifyIs("text/empty", userInput)) {
-              this.render("open-profiles", profiles, profilesDiv)
-              return
-            }
-
-            const filtered = profiles.filter(it => it.csv.toLowerCase().includes(userInput))
-            const highlighted = filtered.map(it => {
-
-              const highlightedProfile = {}
-              const escapedTerm = userInput.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-
-              for (const [key, value] of Object.entries(it)) {
-                if (typeof value === 'string') {
-                  const highlightedValue = value.replace(new RegExp(escapedTerm, 'gi'), match => `<mark>${match}</mark>`)
-                  highlightedProfile[key] = highlightedValue
-                } else {
-                  highlightedProfile[key] = value
-                }
-              }
-
-              return highlightedProfile
-            })
-            this.render("open-profiles", highlighted, profilesDiv)
-          }
-          this.render("open-profiles", profiles, profilesDiv)
-        } else {
-          this.convert("parent/info", profilesDiv)
-          profilesDiv.textContent = `Es wurden keine Profile gefunden.`
-        }
-      })
-      const profilesDiv = Helper.render("selector", "div.profiles", document.body)
     }
 
     if (event === "event/dbltouch") {
@@ -2298,217 +1209,18 @@ export class Helper {
 
     }
 
-    if (event === "event/soundbox") {
+    if (event === "funnel/hover") {
 
-      return new Promise(async(resolve, reject) => {
-        try {
-
-          const fileImport = document.querySelector("[soundbox-file-import]")
-          fileImport.oninput = async () => {
-
-            const promises = []
-            for (let i = 0; i < fileImport.files.length; i++) {
-              const file = fileImport.files[i]
-              const promise = this.verifyIs("file/mp3", file)
-              promises.push(promise)
-            }
-
-            const results = await Promise.all(promises)
-
-            if (results.every(result => result === true)) {
-              this.add("style/valid", fileImport)
-
-              this.overlay("security", async securityOverlay => {
-
-                const progress = this.create("div/progress-bar", securityOverlay)
-
-                for (var i = 0; i < fileImport.files.length; i++) {
-                  const file = fileImport.files[i]
-
-                  // nginx file too large error
-                  // mit salih klären todo
-
-                  await new Promise(async(resolve, reject) => {
-                    const formdata = new FormData()
-                    formdata.append('mp3-file', file)
-
-                    const res = await fetch('/upload/mp3-file/self/', {
-                      method: 'POST',
-                      body: formdata,
-                    })
-
-                    if (res.status === 200) {
-
-                      progress.bar.style.backgroundColor = '#4CAF50'
-                      progress.bar.style.width = ((i + 1) / fileImport.files.length) * 100 + '%'
-
-                      resolve()
-                    }
-
-
-                    if (res.status !== 200) {
-
-                      progress.bar.style.backgroundColor = '#FF5733'
-                      progress.bar.style.width = ((i + 1) / fileImport.files.length) * 100 + '%'
-
-                      resolve()
-                    }
-
-                  })
-
-                }
-
-                window.alert("Sound erfolgreich gespeichert.")
-                securityOverlay.remove()
-
-              })
-
-            } else {
-              window.alert("Nicht alle Uploads sind mp3 Dateien.")
-              console.error("Not all files are mp3")
-              this.add("style/not-valid", fileImport)
-            }
-
-
-          }
-
-          const audioList = document.querySelector("[soundbox-audio-list]")
-          if (audioList !== null) {
-
-            const res = await this.request("/get/sounds/cids-self/")
-
-            if (res.status === 200) {
-              const sounds = JSON.parse(res.response)
-
-              for (let i = 0; i < sounds.length; i++) {
-                const sound = sounds[i]
-
-                const audioField = this.create("field/audio", audioList)
-                audioField.audio.id = sound.created
-                audioField.audio.src = `https://ipfs.io/ipfs/${sound.cid}/`
-
-                const track = document.createElement("div")
-                track.classList.add("track")
-                track.textContent = sound.track
-                audioField.label.append(track)
-
-                const creator = document.createElement("div")
-                creator.classList.add("creator")
-                creator.textContent = `${sound.creator} - ${sound.album}`
-                audioField.label.append(creator)
-
-                const played = document.createElement("div")
-                played.classList.add("played")
-
-                if (sound.played) {
-                  played.textContent = sound.played
-                } else {
-                  played.textContent = "0"
-                }
-
-                played.style.position = "absolute"
-                played.style.top = "0"
-                played.style.right = "0"
-                played.style.margin = "21px 34px 0 0"
-                audioField.label.append(played)
-
-                const reloadTimeout = setTimeout(audioField.audio.load(), 3000)
-                audioField.audio.addEventListener("canplay", () => {
-                  clearTimeout(reloadTimeout)
-                })
-                audioField.audio.addEventListener("error", () => {
-                  audioField.remove()
-                })
-
-                audioField.label.style.cursor = "pointer"
-                audioField.label.addEventListener("click", () => {
-                  console.log(audioField.audio.id)
-
-                  this.overlay("toolbox", overlay => {
-                    this.removeOverlayButton(overlay)
-
-                    const funnel = this.create("div/scrollable", overlay)
-
-                    const trackField = this.create("field/textarea", funnel)
-                    trackField.label.textContent = "Track"
-                    trackField.input.style.fontSize = "13px"
-                    trackField.input.setAttribute("required", "true")
-                    if (sound.track) trackField.input.value = sound.track
-                    trackField.input.oninput = () => this.verify("input/value", trackField.input)
-                    this.verify("input/value", trackField.input)
-
-                    const creatorField = this.create("field/textarea", funnel)
-                    creatorField.label.textContent = "Schöpfer"
-                    creatorField.input.style.fontSize = "13px"
-                    creatorField.input.setAttribute("required", "true")
-                    if (sound.creator) creatorField.input.value = sound.creator
-                    creatorField.input.oninput = () => this.verify("input/value", creatorField.input)
-                    this.verify("input/value", creatorField.input)
-
-                    const albumField = this.create("field/textarea", funnel)
-                    albumField.label.textContent = "Album"
-                    albumField.input.style.fontSize = "13px"
-                    albumField.input.setAttribute("required", "true")
-                    if (sound.album) albumField.input.value = sound.album
-                    albumField.input.oninput = () => this.verify("input/value", albumField.input)
-                    this.verify("input/value", albumField.input)
-
-                    const submit = this.create("button/action", funnel)
-                    submit.textContent = "Daten jetzt speichern"
-                    submit.onclick = async () => {
-                      await this.verify("input/value", trackField.input)
-                      await this.verify("input/value", creatorField.input)
-                      await this.verify("input/value", albumField.input)
-
-                      this.overlay("security", async securityOverlay => {
-
-                        const register = {}
-                        register.id = audioField.audio.id
-                        register.track = trackField.input.value
-                        register.creator = creatorField.input.value
-                        register.album = albumField.input.value
-                        const res = await this.request("/register/sounds/meta-self/", register)
-
-                        if (res.status === 200) {
-                          window.alert("Metadaten erfolgreich gespeichert.")
-                          window.location.reload()
-                        }
-
-                        if (res.status !== 200) {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          securityOverlay.remove()
-                        }
-                      })
-
-                    }
-
-
-
-
-                  })
-
-                })
-
-                audioField.audio.addEventListener("ended", () => {
-                  this.request("/register/sounds/played/", audioField.audio.id, "beacon").then(res => {
-                    if (res.status === 200) {
-                      played.textContent = parseInt(played.textContent) + 1
-                    }
-                  })
-
-                })
-
-
-              }
-
-
-
-            }
-
-          }
-
-        } catch (error) {
-          reject(error)
+      input.querySelectorAll("*").forEach(node => {
+        const shouldHover = (
+          node.classList.contains("submit") ||
+          node.tagName.toLowerCase() === "a" ||
+          node.tagName.toLowerCase() === "select" ||
+          node.tagName.toLowerCase() === "textarea" ||
+          node.tagName.toLowerCase() === "input"
+        )
+        if (shouldHover) {
+          this.add("hover-outline", node)
         }
       })
 
@@ -2516,7 +1228,7 @@ export class Helper {
 
     if (event === "register-html") {
 
-      this.overlay("security", async securityOverlay => {
+      this.overlay("lock", async securityOverlay => {
 
         // prepare html state
         this.remove("element/selector", {element: document, selector: "[data-id]"})
@@ -2580,7 +1292,7 @@ export class Helper {
             const icon = await this.convert("path/icon", "/public/pencil-ruler.svg")
             button.appendChild(icon)
           }
-          this.add("outline-hover", button)
+          this.add("hover-outline", button)
           button.onclick = () => {
             this.overlay("tools", {type: "closed"})
           }
@@ -2589,12 +1301,6 @@ export class Helper {
           reject(error)
         }
       })
-    }
-
-    if (event === "html-feedback") {
-
-      const feedback = this.fn("feedback")
-      feedback.bodyButton()
     }
 
     if (event === "event/click-funnel") {
@@ -2692,28 +1398,6 @@ export class Helper {
 
     }
 
-    if (event === "open-creator") {
-
-      return new Promise(async(resolve, reject) => {
-        try {
-          let button = document.querySelector(`.${event}`)
-          if (!button) {
-            button = this.create("button/bottom-right", document.body)
-            button.classList.add(event)
-            const icon = await this.convert("path/icon", "/public/pencil-ruler.svg")
-            button.appendChild(icon)
-          }
-          this.add("outline-hover", button)
-          button.onclick = () => {
-            this.overlay("tools")
-          }
-          resolve()
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-
     if (event === "underline-hover/node") {
       input.addEventListener("mouseover", () => {
         input.style.textDecoration = "underline"
@@ -2722,33 +1406,6 @@ export class Helper {
       input.addEventListener("mouseout", () => {
         input.style.textDecoration = null
       })
-    }
-
-    if (event === "user-profile-button") {
-
-      this.create("add-button", input)
-      document.querySelector("div.add.button").onclick = () => {
-        this.overlay("popup", overlay => {
-          overlay.onlyClosedUser()
-          const content = this.create("div/scrollable", overlay)
-          const funnel = this.create("funnel/profile", content)
-
-          funnel.submit.onclick = async () => {
-            await this.verify("funnel", funnel)
-            this.overlay("security", async securityOverlay => {
-              const res = await Helper.request("/register/user/profile/", {aboutYou: funnel.aboutYou.input.value, whyThis: funnel.whyThis.input.value, whyYou: funnel.whyYou.input.value, strength: funnel.strength.input.value, weakness: funnel.weakness.input.value, motivation: funnel.motivation.input.value, visibility: funnel.visibility.input.value})
-              if (res.status === 200) {
-                window.alert("Deine Daten wurden erfolgreich gespeichert.")
-                window.location.reload()
-              } else {
-                window.alert("Fehler.. Bitte wiederholen.")
-                securityOverlay.remove()
-              }
-            })
-
-          }
-        })
-      }
     }
 
     if (event === "click-funnel/end") {
@@ -2777,10 +1434,10 @@ export class Helper {
             })
           })
 
-          this.overlay("toolbox", async securityOverlay => {
-            this.create("info/loading", securityOverlay)
+          this.overlay("pop", async securityOverlay => {
+            this.create("div/loading", securityOverlay)
 
-            const res = await this.request("/register/location/list-self/", {tag: funnelTag, map})
+            const res = await this.request("/register/location/list/", {tag: funnelTag, map})
 
             if (res.status === 200) {
 
@@ -2840,6 +1497,24 @@ export class Helper {
       }
     }
 
+    if (event === "nav/open") {
+
+      {
+        const button = this.create("button/left-right", input)
+        button.left.textContent = ".data-protection"
+        button.right.textContent = "Fördert Vertrauen in digitale Interaktionen"
+        button.addEventListener("click", () => window.open("/datenschutz/", "_blank"))
+      }
+      this.render("button/login", "/login/", input)
+      this.create("button/start", input)
+      {
+        const button = this.create("button/left-right", input)
+        button.left.textContent = ".user-agreement"
+        button.right.textContent = "Für Klarheit und Fairness im Umgang miteinander"
+        button.addEventListener("click", () => window.open("/nutzervereinbarung/", "_blank"))
+      }
+    }
+
     if (event === "onbody") {
 
       document.body.appendChild(input)
@@ -2848,7 +1523,7 @@ export class Helper {
     if (event === "onbody-once") {
 
       if (input.id) document.querySelectorAll(`#${input.id}`).forEach(node => node.remove())
-      document.body.appendChild(input)
+      this.append(input, document.body)
     }
 
     if (event === "onmouseout") {
@@ -2861,185 +1536,6 @@ export class Helper {
 
       const onmouseover = input.node.getAttribute("onmouseover")
       input.node.setAttribute("onmouseover", `${onmouseover}; ${input.type}`)
-    }
-
-    if (event === "profile-surveys") {
-      // umfragen können auch direkt im html gemacht werden mit dem field funnel
-      // oder dem click funnel
-      // hol dir die platform.profile.surveys
-      // vom url id param 4
-      // wenn eins existiert
-      return new Promise(async(resolve, reject) => {
-        try {
-
-          // console.log("nhi");
-
-
-
-
-          const profileSurveysDiv = document.querySelector("div.profile-surveys")
-          // console.log(profileSurveysDiv);
-
-          // check profile path of location
-          // if id is not undefined
-          // then give the url id closed jwt.id
-
-          if (profileSurveysDiv) {
-
-
-            // always create overlays
-
-
-            const res = await this.request("/get/platform/surveys/", {path: window.location.pathname})
-            // console.log(id);
-            console.log(res);
-            if (res.status === 200) {
-
-              // get alle umfragen von der id in der url
-
-              // alle umfragen anzeigen all user.platform.surveys
-              // meine umfragen anzeigen closed user.platform.surveys
-              // seine umfragen anzeigen url id = jwt.id user.platform.surveys
-              // wie so tabs
-
-              // todo umfragen
-              // umfrage erstellen button
-              // nur wenn der user closed ist und er die selbe jwt.id hat wie in der url
-              // umfrage boxen
-              // umfragen löschen
-              // umfragen ergebnisse anzeigen
-              // empfehlungen geben
-
-            } else {
-              profileSurveysDiv.textContent = "Es wurden keine Umfragen gefunden."
-
-            }
-
-
-
-            // if the user is closed jwt and url id the same
-            // then provide a button to create new surveys
-            const res1 = await this.request("/verify/user/url-id/")
-            if (res1.status === 200) {
-              // do something with profileSurveyDiv
-              // create a button where an overlay comes
-              // and the the overlay can create new surveys
-
-
-              // add edit icon to node
-
-              // this.create("icon/edit", profileSurveysDiv)
-
-
-              profileSurveysDiv.parentElement.style.position = "relative"
-              const editIcon = document.createElement('div')
-              editIcon.className = 'edit-icon'
-              this.style(editIcon, {width: "55px", margin: "13px", alignItems: "center", justifyContent: "center", display: "flex", borderRadius: "50%", fontSize: "34px", position: "absolute", top: "0", right: "0"})
-              editIcon.innerHTML = '&#9998;'
-              this.add("outline-hover", editIcon)
-              profileSurveysDiv.parentElement.appendChild(editIcon)
-
-
-
-
-              editIcon.onclick = () => {
-                this.overlay("popup", overlay => {
-                  overlay.info.textContent = ".surveys"
-
-                  const addButton = this.create("toolbox/add", overlay)
-                  addButton.onclick = () => {
-                    // funnel to create a survey
-                    // ist eigentlich wie funnel um ein funnel zu erstellen
-                    // div.survey
-
-                    // function update answersContainer
-
-
-
-                    this.overlay("popup", createSurveyOverlay => {
-                      const surveyFunnel = this.create("div/scrollable", createSurveyOverlay)
-                      const questionField = this.create("input/textarea", surveyFunnel)
-                      questionField.input.setAttribute("required", "true")
-                      questionField.input.placeholder = "Frage"
-                      questionField.input.maxLength = "144"
-                      questionField.input.oninput = () => this.verify("input/value", questionField.input)
-                      this.verify("input/value", questionField.input)
-                      // question is einzigartig
-                      // kann nicht mehr geändert werden
-                      // muss gelöscht und neu gemacht werden
-                      // frage bearbeiten ???
-                      // dann stimmt die frage zu den antworrten nicht mehr
-                      // this.add("oninput/verify-input", questionField.input)
-                      const typeField = this.create("input/select", surveyFunnel)
-                      // typeField.input.
-                      this.add("select-options", {select: typeField.input, options: ["Freitext", "Multiple Choice", "Geschlossen", "Bewertung", "Skala"]})
-
-                      // ON INPUT CHANGE THE ANSWERS FIELD
-
-                      const answerContainer = this.create("div", surveyFunnel)
-
-                      const submit = this.create("toolbox/action", surveyFunnel)
-                      submit.textContent = "Umfrage jetzt speichern"
-                      submit.onclick = async () => {
-                        // check the input
-                        await this.verify("input/value", questionField.input)
-                        console.log(this.convert("text/tag", questionField.input.value));
-
-                        return
-
-                        this.overlay("security", async securityOverlay => {
-                          const res = await this.request("/register/survey/closed/", {})
-                        })
-                      }
-
-
-
-
-                    })
-                  }
-
-                  // .create
-                  // rechts unten ein button
-
-                  // show and edit own surveys
-                })
-              }
-
-
-
-
-            }
-
-
-
-
-
-
-
-
-
-
-
-          }
-
-
-
-
-
-
-          // const id = window.location.pathname.split("/")[4]
-          // if (!this.verifyIs("text/empty", id)) {
-          // } else {
-          // }
-
-
-        } catch (error) {
-          reject(error)
-        }
-      })
-
-
-
     }
 
     if (event === "recorder") {
@@ -3139,11 +1635,11 @@ export class Helper {
 
       this.add("oninput/verify-input", emailInput)
       this.add("oninput/verify-input", dsgvoInput)
-      this.add("outline-hover", emailInput)
-      this.add("outline-hover", submit)
+      this.add("hover-outline", emailInput)
+      this.add("hover-outline", submit)
       for (let i = 0; i < dsgvoField.querySelectorAll(".button").length; i++) {
         const child = dsgvoField.querySelectorAll(".button")[i]
-        this.add("outline-hover", child)
+        this.add("hover-outline", child)
       }
       submit.onclick = async () => {
         await this.verify("input/value", emailInput)
@@ -3163,26 +1659,10 @@ export class Helper {
       }
     }
 
-    if (event === "script/click-funnel-event") {
-
-      const script = this.create(event)
-
-      if (input !== undefined) {
-        document.querySelectorAll(`#${script.id}`).forEach(script => script.remove())
-        input.append(script)
-      }
-
-      return script
-
-    }
-
     if (event === "script/toolbox-getter") {
 
       return new Promise(async(resolve) => {
-        const script = document.createElement("script")
-        script.id = "toolbox-getter"
-        script.type = "module"
-        script.textContent = 'import {Helper} from "/js/Helper.js"\nawait Helper.add("toolbox/onbody")'
+        const script = this.create("script/id", "toolbox-getter")
         if (document.body) {
           document.querySelectorAll("#toolbox-getter").forEach(getter => getter.remove())
           document.body.appendChild(script)
@@ -3203,64 +1683,10 @@ export class Helper {
       document.body.appendChild(input)
     }
 
-    if (event === "session-login") {
-
-      this.convert("dark-light", input)
-      const backButton = document.querySelector("div.button.back")
-      this.convert("dark-light", backButton)
-      const startButton = document.querySelector("div.button.start")
-      this.add("outline-hover", startButton)
-      this.convert("dark-light", startButton)
-      startButton.onclick = () => {
-        this.overlay("popup", overlay => {
-          const content = this.create("div/scrollable", overlay)
-          this.render("nav/open", content)
-        })
-      }
-      const mailtoInfo = document.querySelector("a[href='mailto:datenschutz@get-your.de']")
-      this.add("outline-hover", mailtoInfo)
-      const emailInput = document.querySelector("input.email-input")
-      const dsgvoInput = document.querySelector("input.dsgvo-input")
-      this.verify("input/value", dsgvoInput)
-      this.add("oninput/verify-input", emailInput)
-      this.add("oninput/verify-input", dsgvoInput)
-      this.add("outline-hover", emailInput)
-      if (window.localStorage.getItem("email") !== null) {
-        emailInput.value = window.localStorage.getItem("email")
-      }
-      this.verify("input/value", emailInput)
-      const submit = document.querySelector(".session-login-submit")
-      this.add("outline-hover", submit)
-      submit.onclick = async () => {
-        await this.verify("input/value", emailInput)
-        await this.verify("input/value", dsgvoInput)
-        this.callback("email/pin-verified", emailInput.value, async () => {
-          const res = await this.request("/register/session/")
-          if (res.status === 200) {
-            const res = await this.request("/redirect/user/closed/")
-            if (res.status === 200) {
-              window.location.assign(res.response)
-            } else if (!Helper.verifyIs("text/empty", document.referrer)) {
-              window.location.assign(document.referrer)
-            } else {
-              window.history.back()
-            }
-          } else {
-            window.history.back()
-          }
-        })
-      }
-      for (let i = 0; i < document.links.length; i++) {
-        const link = document.links[i]
-        this.convert("link-colors", link)
-      }
-      document.querySelectorAll("a.button").forEach(button => this.add("outline-hover", button))
-    }
-
     if (event === "signs") {
 
       input.querySelectorAll("input, select, textarea").forEach(node => {
-        console.log(node);
+        // console.log(node);
         this.verify("input/value", node)
         // this.addd("style/not-valid", node)
       })
@@ -3443,56 +1869,6 @@ export class Helper {
       return input
     }
 
-    if (event === "next-steps") {
-
-      const button = this.create("button/left-right")
-      button.left.textContent = ".next-steps"
-      button.right.textContent = "Was sind deine nächsten Schritte"
-      button.onclick = () => {
-        this.overlay("popup", async nextStepOverlay => {
-          nextStepOverlay.info.textContent = ".next-steps"
-          const content = this.create("div/scrollable", nextStepOverlay)
-          this.render("text/h1", "Nächste Schritte", content)
-          const options = this.create("div/flex-row", content)
-          options.style.justifyContent = "flex-start"
-          const updateNext = this.render("text/link", "Aktualisieren", options)
-          const nextList = this.create("div/scrollable", content)
-          this.render("contacts/node/next-list", nextList)
-          updateNext.onclick = async () => {
-            await this.render("contacts/node/next-list", nextList)
-            window.alert("Deine Liste wurde erfolgreich aktualisiert.")
-          }
-        })
-      }
-      input?.appendChild(button)
-      return button
-    }
-
-    if (event === "button/assign-expert-home") {
-
-      return new Promise(async(resolve, reject) => {
-        try {
-
-          const res = await this.request("/get/expert/name-self/")
-          if (res.status === 200) {
-            const name = res.response
-
-            const button = this.create("button/left-right")
-            button.left.textContent = ".expert"
-            button.right.textContent = "Der Bereich für Experten"
-            button.onclick = () => window.open(`/${name}/`, "_blank")
-
-            if (input) input.append(button)
-            resolve(button)
-          }
-
-        } catch (error) {
-          reject(error)
-        }
-      })
-
-    }
-
     if (event === "admin-login") {
 
       const emailInput = document.querySelector(".email-input")
@@ -3502,7 +1878,7 @@ export class Helper {
         await this.verify("input/value", emailInput)
         await this.verify("input/value", dsgvoInput)
         this.callback("email/pin-verified", emailInput.value, async () => {
-          const res = await this.request("/register/user/super-admin", {email: emailInput.value})
+          const res = await this.request("/register/user/admin/", {email: emailInput.value})
           if (res.status === 200) {
             window.alert("Du kannst dich ab sofort auf deiner Plattform anmelden")
             window.location.assign("/login/")
@@ -3533,17 +1909,16 @@ export class Helper {
       }
     }
 
-    if (event === "outline-hover") {
+    if (event === "hover-outline") {
 
-      input.setAttribute("onmouseover", "this.style.cursor = 'pointer'; this.style.outline = '3px solid #999'")
-      input.setAttribute("onmouseout", "this.style.cursor = null; this.style.outline = null")
+      this.on("hover", {node: input, class: "outline pointer"})
     }
 
     if (event === "outline-hover/field-funnel") {
       for (let i = 0; i < input.querySelectorAll("*").length; i++) {
         const node = input.querySelectorAll("*")[i]
         if (node.classList.contains("field-input") || node.classList.contains("submit-field-funnel-button")) {
-          this.add("outline-hover", node)
+          this.add("hover-outline", node)
         }
       }
     }
@@ -3564,87 +1939,21 @@ export class Helper {
     }
 
   }
-
-  static animate(event, input) {
-    // event = input/animation
-
-    if (event === "bounce") {
-
-      const keyframes = [
-        { transform: 'translateY(-21px)' },
-        { transform: 'translateY(8px)' },
-        { transform: 'translateY(-21px)' }
-      ]
-      const options = {
-        duration: 2000,
-        iterations: Infinity,
-        easing: 'ease-in-out'
-      }
-      input.animate(keyframes, options)
-    }
-
-    if (event === "fade-up") {
-      return input?.animate([
-        { opacity: 0, transform: 'translateY(13px)' },
-        { opacity: 1, transform: 'translateY(0)' },
-      ], {
-        duration: 233,
-        easing: 'ease-in-out',
-        fill: "forwards"
-      })
-    }
-
-    if (event === "node/pulsate") {
-      return input?.animate(
-        [
-          { transform: 'scale(1)' },
-          { transform: 'scale(1.1)' },
-          { transform: 'scale(1)' }
-        ],
-        {
-          duration: 3000,
-          easing: 'ease-in-out',
-          iterations: Infinity
-        }
-      )
-    }
-
-    if (event === "node/border-ripple-out") {
-
-      input.style.position = "relative"
-
-      const rippleNode = input.cloneNode("true")
-      rippleNode.classList.add("ripple-out")
-      rippleNode.textContent = ""
-      rippleNode.style.position = "absolute"
-      rippleNode.style.top = "-8px"
-      rippleNode.style.left = "-8px"
-      input.querySelectorAll(".ripple-out").forEach(it => it.remove())
-      input.appendChild(rippleNode)
-
-      rippleNode.animate(
-        [
-          { transform: 'scale(1)', opacity: 1 },
-          { transform: 'scale(2)', opacity: 0 }
-        ],
-        {
-          duration: 3000,
-          easing: 'ease-in-out',
-          iterations: Infinity,
-        }
-      )
-
-    }
-
-  }
-
-  static append(node, to){
+  static append(node, to) {
 
     const fragment = document.createDocumentFragment()
     fragment.appendChild(node)
     to?.appendChild(fragment)
   }
+  static async button() {
 
+    if (!this._button) {
+      const module = await import("/js/button.js")
+      console.log(module);
+      this._button = module.button
+    }
+    return this._button
+  }
   static callback(event, input, callback) {
     // event = input/algo
 
@@ -3653,42 +1962,30 @@ export class Helper {
       return new Promise(async(resolve, reject) => {
         try {
 
-          this.overlay("security", async overlay => {
-
-            const content = document.createElement("div")
-            content.style.display = "flex"
-            content.style.flexDirection = "column"
-            content.style.justifyContent = "center"
-            content.style.alignItems = "center"
-            content.style.height = `${window.innerHeight}px`
-            overlay.append(content)
-
+          this.overlay("lock", async o1 => {
+            const content = o1.content
             try {
               const res = await this.request("/send/email/with/pin/", {email: input})
               if (res.status === 200) {
-                overlay.info.remove()
-                this.convert("element/reset", content)
-                content.style.overflowY = "auto"
-                const pinField = this.create("field/hex", content)
-                pinField.label.textContent = "Meine PIN"
-                this.add("style/not-valid", pinField.input)
-                pinField.input.addEventListener("input", () => {
-                  this.verify("input/value", pinField.input)
-                })
+                o1.loading.remove()
+                const pin = this.create("input/text", content)
+                pin.input.setAttribute("required", "true")
+                pin.input.placeholder = "Meine PIN"
+                this.verify("input/value", pin.input)
                 const button = this.create("button/action", content)
                 button.style.fontSize = "34px"
                 button.textContent = "PIN bestätigen"
-                this.add("outline-hover", button)
                 button.addEventListener("click", async () => {
 
-                  this.overlay("security", async securityOverlay => {
+                  await this.verify("input/value", pin.input)
+                  this.overlay("lock", async o2 => {
                     try {
-                      await this.verify("input/value", pinField.input)
-                      const res = await this.request("/verify/pin/", {userPin: pinField.input.value})
+                      await this.verify("input/value", pin.input)
+                      const res = await this.request("/verify/pin/", {userPin: pin.input.value})
                       if (res.status === 200) {
                         window.localStorage.setItem("email", input)
                         window.localStorage.setItem("localStorageId", await this.convert("text/digest", JSON.stringify({email: input, verified: true})))
-                        await callback(overlay)
+                        await callback(o1)
                       }
                     } catch (error) {
                       EventTarget.prototype.addEventListener = function(type, listener, options) {
@@ -3733,27 +2030,68 @@ export class Helper {
     }
 
   }
+  static async community() {
 
+    if (!this._community) {
+      const module = await import("/js/community.js")
+      this._community = module.community
+    }
+    return this._community
+  }
   static design(tree, input, parent) {
 
-    if (tree === "numerologie") {
+    if (tree === "getyour.expert.platforms") {
 
-      if (input.birthdate) {
-        const birthdate = input.birthdate
-        const numerology = this.fn("numerology")
-        const date = new Date(birthdate)
-        const lifepath = numerology.dateToLifePath(date)
-        const button = this.create("toolbox/left-right")
-        button.left.className = "flex align center circle bg-green w55 h55"
-        button.left.textContent = lifepath
-        button.right.textContent = "Weiter zum Profil"
-        if (parent) this.append(button, parent)
-        return button
+      const key = Helper.convert("tree/key", tree)
+      const it = input[key]
+
+      if (!Helper.verifyIs("text/empty", it)) {
+        const container = Helper.create("div", box.left)
+        Helper.style(container, {fontFamily: "sans-serif", display: "flex"})
+        const platformDiv = document.createElement("div")
+        Helper.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
+        platformDiv.textContent = `Plattformen:`
+        container.appendChild(platformDiv)
+        const platformLengthDiv = document.createElement("div")
+        Helper.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
+        if (!Helper.verifyIs("number/empty", it.length)) {
+          platformLengthDiv.textContent = it.length
+        }
+        container.appendChild(platformLengthDiv)
       }
+
+      if (!Helper.verifyIs("text/empty", it)) {
+        const container = Helper.create("div", box.left)
+        Helper.style(container, {fontFamily: "sans-serif", display: "flex"})
+        const platformDiv = document.createElement("div")
+        Helper.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
+        platformDiv.textContent = `Werteinheiten:`
+        container.appendChild(platformDiv)
+        const platformLengthDiv = document.createElement("div")
+        Helper.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
+        let counter = 0
+        try {
+          for (let i = 0; i < it.length; i++) {
+            const platform = it[i]
+            if (platform.values) {
+              for (let i = 0; i < platform.values.length; i++) {
+                const value = platform.values[i]
+                counter++
+              }
+            }
+          }
+          platformLengthDiv.textContent = counter
+        } catch (error) {
+          console.log(error)
+          platformLengthDiv.textContent = 0
+        }
+        container.appendChild(platformLengthDiv)
+      }
+
     }
 
-  }
 
+  }
   static div(className, node) {
 
     const div = document.createElement("div")
@@ -3761,26 +2099,10 @@ export class Helper {
     if (node) this.append(div, node)
     return div
   }
-
   static create(event, input) {
 
     // no events, only creation
     // event = thing/algo
-    if (event === "add-button") {
-
-      const button = this.create("button/add")
-      this.add("outline-hover", button)
-      button.classList.add("add")
-      let exist = false
-      document.querySelectorAll("*").forEach(node => {
-        if (node.classList.contains("add") && node.classList.contains("button")) {
-          this.add("outline-hover", node)
-          exist = true
-        }
-      })
-      if (exist === false) input?.appendChild(button)
-      return button
-    }
 
     if (event === "arrow-down") {
 
@@ -3800,7 +2122,7 @@ export class Helper {
       it.textContent = "Dieses Dokument zitieren."
       Helper.style(it, {display: "inline-block", textDecoration: "underline", fontSize: "21px", margin: "34px 0", fontFamily: "sans-serif"})
       Helper.add("pointer", it)
-      Helper.convert("link/dark-light", it)
+      Helper.convert("link/color", it)
       input?.appendChild(it)
       return it
     }
@@ -3827,7 +2149,7 @@ export class Helper {
       searchField.input.placeholder = "Filter nach Text.."
       searchField.style.margin = "21px 34px 5px 34px"
       this.verify("input/value", searchField.input)
-      this.add("outline-hover", searchField.input)
+      this.add("hover-outline", searchField.input)
 
       function filterEmailsOnSearch(array) {
         searchField.input.oninput = (ev) => {
@@ -3844,7 +2166,7 @@ export class Helper {
       field.label.textContent = "E-Mails auswählen"
       field.input.setAttribute("multiple", "true")
       field.input.style.height = "34vh"
-      this.add("outline-hover", field.input)
+      this.add("hover-outline", field.input)
       this.verify("input/value", field.input)
       field.input.oninput = () => this.verify("input/value", field.input)
       return {field, renderEmails, filterEmailsOnSearch, selectedEmails}
@@ -3864,7 +2186,7 @@ export class Helper {
       overlay.style.flexDirection = "column"
       overlay.style.background = this.colors.light.background
 
-      this.create("info/loading", overlay)
+      this.create("div/loading", overlay)
 
       input?.append(overlay)
       return overlay
@@ -3903,83 +2225,74 @@ export class Helper {
 
     }
 
-    if (event === "session-login") {
-      const backButton = this.create("back-button", input)
-      this.convert("dark-light", backButton)
-
-      const startButton = this.create("button/getyour", input)
-      startButton.classList.add("start")
-      this.convert("dark-light", startButton)
-
-      const info = this.create("info/success", input)
-      this.style(info, {fontSize: "13px", margin: "0", padding: "13px"})
-      const div1 = this.createNode("div", info, "Unser Login Prozess ist intuitiv gestaltet und erfordert nur wenige Klicks. Du musst lediglich Deine E-Mail Adresse eingeben, um dich einzuloggen. Wir möchten, dass Du den Login Prozess als einfach und stressfrei erlebst.")
-      const mailto = this.createNode("a", div1, " Wenn Du Probleme hast oder Hilfe benötigst, stehen wir Dir jederzeit zur Verfügung, um Dir schnell und effektiv weiter zu helfen.")
-      mailto.className = "button"
-      mailto.href = "mailto:datenschutz@get-your.de"
-
-      const div2 = this.createNode("div", info, "Die Plattform von getyour soll ein sicheres und vertrauenswürdiges Umfeld bieten, damit Du dich auf Deine Daten verlassen kannst.")
-      div2.style.marginTop = "13px"
-
-      const emailField = this.create("input/email", input)
-      emailField.style.margin = "21px 0"
-
-      const dsgvoField = this.create("input/checkbox", input)
-      dsgvoField.input.classList.add("dsgvo-input")
-      dsgvoField.input.setAttribute("required", "true")
-      this.style(dsgvoField, {margin: "21px 8px"})
-
-      const label = this.createNode("div", input)
-      this.style(label, {fontFamily: "sans-serif", margin: "21px 0"})
-      this.createNode("span", label, "Ich habe die")
-      const a1 = this.createNode("a", label, "Nutzervereinbarungen")
-      a1.style.margin = "0 5px"
-      a1.className = "button"
-      a1.href = "/nutzervereinbarung/"
-      this.createNode("span", label, "und die")
-      const a2 = this.createNode("a", label, "Datenschutz Richtlinien")
-      a2.style.margin = "0 5px"
-      a2.className = "button"
-      a2.href = "/datenschutz/"
-      this.createNode("span", label, "gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu.")
-
-      const submit = this.create("button/action", input)
-      this.style(submit, {fontSize: "34px", margin: "0"})
-      submit.classList.add("session-login-submit")
-      submit.textContent = "Jetzt anmelden"
-
-    }
-
-    if (event === "soundbox") {
-
-      const fileImportField = this.create("field/file", input)
-      fileImportField.label.textContent = "MP3 to CID"
-      fileImportField.input.setAttribute("accept", "audio/mp3")
-      fileImportField.input.setAttribute("required", "true")
-      fileImportField.input.setAttribute("multiple", "true")
-      fileImportField.input.setAttribute("soundbox-file-import", "")
-      this.verify("input/value", fileImportField.input)
-
-      this.create("script/soundbox", input)
-
-      const div = this.create("div/top-bottom", input)
-      div.top.setAttribute("soundbox-tools", "")
-      div.bottom.setAttribute("soundbox-audio-list", "")
-
-    }
-
     if (event === "input/alias"){
 
       const alias = this.create("input/text")
+      alias.input.id = "alias"
       alias.input.maxLength = "55"
-      alias.input.placeholder = "Alternativer Name"
-      alias.input.addEventListener("input", () => this.verify("input/value", alias.input))
-      alias.input.setAttribute("required", "true")
+      alias.input.placeholder = "Alternativer Name (text/any)"
       alias.input.setAttribute("accept", "text/length")
-      this.add("outline-hover", alias.input)
-      this.verify("input/value", alias.input)
-      if (input) this.render("node", alias, input)
+      if (input) this.append(alias, input)
       return alias
+    }
+
+    if (event === "input/description") {
+
+      const it = this.create("input/textarea")
+      it.input.maxLength = "233"
+      it.input.setAttribute("accept", "text/length")
+      it.input.placeholder = "Beschreibung"
+      if (input) this.append(it, input)
+      return it
+    }
+
+    if (event === "input/bool") {
+
+      const select = this.create("input/select")
+      select.setInput = bool => {
+        if (bool === true) {
+          select.input.add(["true", "false"])
+        }
+        if (bool === false) {
+          select.input.add(["false", "true"])
+        }
+        this.verify("input/value", select.input)
+      }
+      if (input) this.append(select, input)
+      return select
+    }
+
+    if (event === "input/feedback") {
+
+      const it = this.create("input/textarea")
+      it.input.setAttribute("required", "true")
+      it.input.setAttribute("accept", "text/length")
+      it.input.maxLength = "377"
+      it.input.placeholder = "Schreibe hier gerne ein Feedback, anonym und sicher"
+      this.verify("input/value", it.input)
+      this.add("hover-outline", it.input)
+      it.input.oninput = () => this.verify("input/value", it.input)
+      if (input) this.append(it, input)
+      return it
+    }
+
+    if (event === "input/importance") {
+
+      const it = this.create("field/range")
+      it.input.min = "0"
+      it.input.max = "13"
+      it.input.step = "1"
+      it.input.value = "0"
+      it.label.textContent = `Wichtigkeit - ${it.input.value}`
+      it.input.style.cursor = "pointer"
+      this.add("hover-outline", it.input)
+      this.verify("input/value", it.input)
+      it.input.oninput = ev => {
+        this.verify("input/value", it.input)
+        it.label.textContent = `Wichtigkeit - ${ev.target.value}`
+      }
+      if (input) this.append(it, input)
+      return it
     }
 
     if (event === "input/path") {
@@ -4008,17 +2321,97 @@ export class Helper {
 
     if (event === "input/select") {
 
-      const div = document.createElement("div")
-      this.style(div, {margin: "21px 34px", position: "relative"})
+      const div = this.div("mtb21 mlr34 relative")
       div.input = document.createElement("select")
-      div.appendChild(div.input)
-      div.input.add = (options) => {
+      this.append(div.input, div)
+      div.search = this.create("input/text")
+      div.search.input.placeholder = "Suche nach E-Mail Adresse"
+      div.search.input.oninput = ev => {
+
+        const query = ev.target.value.toLowerCase()
+        let filtered
+        if (this.verifyIs("text/empty", query)) {
+          filtered = div.options
+        } else {
+          filtered = div.options.filter(it => it.text.toLowerCase().includes(query))
+        }
+        div.input.textValue(filtered)
+      }
+      div.add = it => {
+
+        div.options = it
+        div.input.textValue(it)
+      }
+      div.input.add = options => {
+
         div.input.textContent = ""
         for (let i = 0; i < options.length; i++) {
           const option = document.createElement("option")
           option.value = options[i]
           option.text = options[i]
-          div.input.appendChild(option)
+          this.append(option, div.input)
+        }
+      }
+      div.input.select = options => {
+
+        const set = new Set(options)
+        Array.from(div.input.options).forEach(option => {
+          if (set.has(option.textContent.trim())) {
+            option.selected = true
+          } else {
+            option.selected = false
+          }
+        })
+      }
+      div.input.selectAll = () => {
+
+        for (let i = 0; i < div.input.options.length; i++) {
+          div.input.options[i].selected = true
+        }
+        this.add("style/valid", div.input)
+      }
+      div.selectByText = options => {
+
+        const set = new Set(options)
+        Array.from(div.input.options).forEach(option => {
+          if (set.has(option.text)) {
+            option.selected = true
+          } else {
+            option.selected = false
+          }
+        })
+      }
+      div.selectByValue = options => {
+
+        const set = new Set(options)
+        Array.from(div.input.options).forEach(option => {
+          if (set.has(option.value)) {
+            option.selected = true
+          } else {
+            option.selected = false
+          }
+        })
+      }
+      div.input.selectNone = () => {
+
+        for (let i = 0; i < div.input.options.length; i++) {
+          div.input.options[i].selected = false
+        }
+        this.add("style/not-valid", div.input)
+      }
+      div.selectedValues = () => {
+
+        return Array.from(div.input.selectedOptions).map(it => it.value)
+      }
+      div.input.textValue = options => {
+
+        div.input.textContent = ""
+        for (let i = 0; i < options.length; i++) {
+          const it = options[i]
+          const option = document.createElement("option")
+          if (it.value) option.value = it.value
+          if (it.text) option.text = it.text
+          this.append(option, div.input)
         }
       }
       div.input.addEventListener("input", ev => {
@@ -4028,23 +2421,20 @@ export class Helper {
         }
         this.add("style/valid", div.input)
       })
-      this.style(div.input, {width: "89%", fontSize: "21px"})
-      this.add("outline-hover", div.input)
-      this.convert("dark-light", div.input)
-      input?.appendChild(div)
+      div.input.className = "w89p fs21 dark-light"
+      this.add("hover-outline", div.input)
+      if (input) this.append(div, input)
       return div
     }
 
     if (event === "input/textarea") {
 
-      const div = document.createElement("div")
-      this.style(div, {margin: "21px 34px", position: "relative"})
+      const div = this.div("mtb21 mlr34 relative")
       div.input = document.createElement("textarea")
-      div.appendChild(div.input)
-      div.input.addEventListener("input", ev => this.verify("input/value", div.input))
-      this.add("outline-hover", div.input)
-      this.convert("dark-light", div.input)
-      this.style(div.input, {width: "89%", fontSize: "21px"})
+      div.input.className = "w89p fs21 dark-light"
+      this.append(div.input, div)
+      div.input.oninput = ev => this.verify("input/value", div.input)
+      this.add("hover-outline", div.input)
       this.verify("input/value", div.input)
       input?.appendChild(div)
       return div
@@ -4053,46 +2443,67 @@ export class Helper {
     if (event === "input/checkbox") {
 
       const div = document.createElement("div")
-      this.style(div, {display: "flex", alignItems: "center", height: "34px", width: "55px", margin: "21px 34px", position: "relative"})
+      div.className = "flex align start relative h34 w89 mtb21 mlr34"
       div.input = document.createElement("input")
       div.appendChild(div.input)
       div.input.type = "checkbox"
       div.input.style.transform = "scale(2)"
-      this.verify("input/value", div.input)
-      this.convert("dark-light", div.input)
-      input?.appendChild(div)
+      this.add("style/not-valid", div.input)
+      div.input.oninput = ev => {
+        if (ev.target.checked === true) {
+          this.add("style/valid", div.input)
+        } else {
+          this.add("style/not-valid", div.input)
+        }
+      }
+      if (input) this.append(div, input)
       return div
     }
 
     if (event === "input/date") {
 
-      const div = document.createElement("div")
-      this.style(div, {margin: "21px 34px", position: "relative"})
+      const div = this.div("mtb21 mlr34 relative")
       div.input = document.createElement("input")
-      div.appendChild(div.input)
+      this.append(div.input, div)
+      div.input.className = "w89p fs21 dark-light"
+      div.input.oninput = ev => this.verify("input/value", div.input)
       div.input.type = "date"
-      this.style(div.input, {width: "89%", fontSize: "21px"})
-      this.add("outline-hover", div.input)
+      div.input.setAttribute("value", this.convert("millis/yyyy-mm-dd", Date.now()))
+      this.add("hover-outline", div.input)
       this.verify("input/value", div.input)
-      this.convert("dark-light", div.input)
-      input?.appendChild(div)
+      if (input) this.append(div, input)
+      return div
+    }
+
+    if (event === "input/date-time") {
+
+      const div = this.div("mtb21 mlr34 relative")
+      div.input = document.createElement("input")
+      this.append(div.input, div)
+      div.input.className = "w89p fs21 dark-light"
+      div.input.oninput = ev => this.verify("input/value", div.input)
+      div.input.type = "datetime-local"
+      div.input.setAttribute("required", "true")
+      this.add("hover-outline", div.input)
+      this.verify("input/value", div.input)
+      if (input) this.append(div, input)
       return div
     }
 
     if (event === "input/email") {
 
       const div = document.createElement("div")
-      this.style(div, {margin: "21px 34px", position: "relative"})
+      div.className = "relative mtb21 mlr34"
       div.input = document.createElement("input")
       div.appendChild(div.input)
-      div.input.classList.add("email-input")
+      div.input.classList.add("email")
       div.input.type = "email"
       div.input.placeholder = "E-Mail Adresse"
       div.input.addEventListener("input", ev => this.verify("input/value", div.input))
       div.input.setAttribute("required", "true")
       div.input.setAttribute("accept", "text/email")
       this.style(div.input, {width: "89%", fontSize: "21px"})
-      this.add("outline-hover", div.input)
+      this.add("hover-outline", div.input)
       this.verify("input/value", div.input)
       this.convert("dark-light", div.input)
       input?.appendChild(div)
@@ -4107,10 +2518,19 @@ export class Helper {
       div.appendChild(div.input)
       div.input.type = "file"
       this.style(div.input, {width: "89%", fontSize: "21px"})
-      this.add("outline-hover", div.input)
+      this.add("hover-outline", div.input)
       this.verify("input/value", div.input)
       this.convert("dark-light", div.input)
       input?.appendChild(div)
+      return div
+    }
+
+    if (event === "input/html") {
+
+      const div = this.create("input/textarea")
+      div.input.className = "monospace fs13 vh55"
+      div.input.placeholder = `<html>..</html>`
+      this.verify("input/value", div.input)
       return div
     }
 
@@ -4126,6 +2546,53 @@ export class Helper {
       return id
     }
 
+    if (event === "input/image") {
+
+      const image = this.create("input/text")
+      image.input.id = "image"
+      image.input.setAttribute("required", "true")
+      image.input.setAttribute("accept", "text/url")
+      image.input.placeholder = "Bild-URL (text/url)"
+      image.input.oninput = () => this.verify("input/value", image.input)
+      this.verify("input/value", image.input)
+      image.file = this.create("input/file")
+      image.file.input.setAttribute("accept", "image/*")
+      this.add("style/not-valid", image.file.input)
+      image.file.input.onclick = () => {
+        window.alert(`Achtung! Wenn du eine Datei hochlädst, werden deine Daten auf unserem IPFS-Node gespeichert und durch einen öffentlichen Link verfügbar gemacht. Auf diesen Link haben dann alle Zugriff. Bitte überlege dir genau, ob du deine Datei veröffentlichen möchtest.`)
+      }
+      image.file.input.oninput = async ev => {
+
+        const file = ev.target.files[0]
+        const isImage = file && file.type.startsWith("image/")
+        if (isImage) {
+          const stripped = await this.remove("exif", file)
+          const formdata = new FormData()
+          formdata.append("file", stripped, stripped.name)
+          this.add("style/valid", image.input)
+          this.add("style/valid", image.file.input)
+          fetch('/upload/ipfs/file/', {
+            method: 'POST',
+            body: formdata,
+          })
+          .then(response => response.text())
+          .then(data => {
+            image.input.value = data
+            console.log('Successfully uploaded:', data)
+          })
+          .catch(error => {
+            this.render("style/not-valid", image.input)
+            console.error('Error uploading file:', error)
+          })
+        }
+      }
+      if (input) {
+        this.append(image, input)
+        this.append(image.file, input)
+      }
+      return image
+    }
+
     if (event === "input/number") {
 
       const div = document.createElement("div")
@@ -4134,11 +2601,23 @@ export class Helper {
       div.appendChild(div.input)
       div.input.type = "number"
       this.style(div.input, {width: "89%", fontSize: "21px"})
-      this.add("outline-hover", div.input)
+      this.add("hover-outline", div.input)
       this.verify("input/value", div.input)
       this.convert("dark-light", div.input)
       input?.appendChild(div)
       return div
+    }
+
+    if (event === "input/operator") {
+
+      const it = this.create("input/text")
+      it.input.placeholder = "Operator (text/operator)"
+      it.input.maxLength = "2"
+      it.input.setAttribute("required", "true")
+      it.input.setAttribute("accept", "text/operator, text/length")
+      this.verify("input/value", it.input)
+      if (input) this.append(it, input)
+      return it
     }
 
     if (event === "input/password") {
@@ -4149,7 +2628,7 @@ export class Helper {
       div.appendChild(div.input)
       div.input.type = "password"
       this.style(div.input, {width: "89%", fontSize: "21px"})
-      this.add("outline-hover", div.input)
+      this.add("hover-outline", div.input)
       this.verify("input/value", div.input)
       this.convert("dark-light", div.input)
       input?.appendChild(div)
@@ -4164,7 +2643,7 @@ export class Helper {
       div.appendChild(div.input)
       div.input.type = "range"
       this.style(div.input, {width: "89%", fontSize: "21px"})
-      this.add("outline-hover", div.input)
+      this.add("hover-outline", div.input)
       this.verify("input/value", div.input)
       this.convert("dark-light", div.input)
       input?.appendChild(div)
@@ -4182,12 +2661,23 @@ export class Helper {
       div.input.addEventListener("input", ev => this.verify("input/value", div.input))
       div.input.setAttribute("required", "true")
       div.input.setAttribute("accept", "text/tel")
-      this.add("outline-hover", div.input)
+      this.add("hover-outline", div.input)
       this.convert("dark-light", div.input)
       this.style(div.input, {width: "89%", fontSize: "21px"})
       this.verify("input/value", div.input)
       if (input) this.append(div, input)
       return div
+    }
+
+    if (event === "input/tag") {
+
+      const tag = this.create("input/text")
+      tag.input.maxLength = "21"
+      tag.input.setAttribute("accept", "text/tag, text/length")
+      tag.input.setAttribute("required", "true")
+      this.verify("input/value", tag.input)
+      if (input) this.append(tag, input)
+      return tag
     }
 
     if (event === "input/tel") {
@@ -4198,7 +2688,7 @@ export class Helper {
       this.append(div.input, div)
       div.input.type = "tel"
       div.input.addEventListener("input", ev => this.verify("input/value", div.input))
-      this.add("outline-hover", div.input)
+      this.add("hover-outline", div.input)
       this.convert("dark-light", div.input)
       this.style(div.input, {width: "89%", fontSize: "21px"})
       this.verify("input/value", div.input)
@@ -4209,15 +2699,26 @@ export class Helper {
     if (event === "input/text") {
 
       const div = document.createElement("div")
-      this.style(div, {margin: "21px 34px", position: "relative"})
+      div.className = "mtb21 mlr34 relative"
       div.input = document.createElement("input")
+      div.input.className = "w89p fs21 dark-light"
       this.append(div.input, div)
       div.input.type = "text"
-      div.input.addEventListener("input", ev => this.verify("input/value", div.input))
-      this.add("outline-hover", div.input)
-      this.convert("dark-light", div.input)
+      div.input.oninput = ev => this.verify("input/value", div.input)
+      this.add("hover-outline", div.input)
       this.verify("input/value", div.input)
-      this.style(div.input, {width: "89%", fontSize: "21px"})
+      if (input) this.append(div, input)
+      return div
+    }
+
+    if (event === "input/tree"){
+
+      const div = this.create("input/text")
+      div.input.maxLength = "34"
+      div.input.placeholder = "Datenstruktur (text/tree)"
+      div.input.setAttribute("required", "true")
+      div.input.setAttribute("accept", "text/tree, text/length")
+      this.verify("input/value", div.input)
       if (input) this.append(div, input)
       return div
     }
@@ -4235,11 +2736,12 @@ export class Helper {
 
     if (event === "input/visibility") {
 
-      const field = this.create("input/text", input)
-      field.input.placeholder = "Sichtbarkeit (open/closed)"
-      field.input.value = "closed"
+      const label = this.create("label", {for: "visibility", text: "Sichtbarkeit auswählen"})
+      const field = this.create("input/select", input)
+      field.prepend(label)
+      field.input.id = "visibility"
+      field.input.add(["closed", "open"])
       field.input.setAttribute("required", "true")
-      field.input.addEventListener("input", ev => this.verify("input/value", field.input))
       this.verify("input/value", field.input)
       return field
     }
@@ -4292,11 +2794,8 @@ export class Helper {
     if (event === "h1") {
 
       const h1 = document.createElement("h1")
-      h1.style.margin = "21px 34px"
-      h1.style.fontFamily = "sans-serif"
-      h1.style.fontWeight = "normal"
-
-      input?.append(h1)
+      h1.className = "mtb21 mlr34 sans-serif fw-normal color-theme"
+      if (input) this.append(h1, input)
       return h1
     }
 
@@ -4379,7 +2878,7 @@ export class Helper {
       funnel.image.input.placeholder = "Bild URL deiner Quelle"
       funnel.image.input.oninput = () => this.verify("input/value", funnel.image.input)
       this.verify("input/value", funnel.image.input)
-      funnel.submit = this.create("toolbox/action", funnel)
+      funnel.submit = this.create("button/action", funnel)
       funnel.submit.className = "submit-field-funnel-button"
       funnel.submit.textContent = "Quelle jetzt speichern"
       input?.appendChild(fragment)
@@ -4398,7 +2897,7 @@ export class Helper {
       funnel.authorsField.input.setAttribute("required", "true")
       funnel.authorsField.input.oninput = () => this.verify("input/value", funnel.authorsField.input)
       this.verify("input/value", funnel.authorsField.input)
-      this.add("outline-hover", funnel.authorsField.input)
+      this.add("hover-outline", funnel.authorsField.input)
 
       funnel.titleField = this.create("field/textarea", funnel)
       funnel.titleField.id = "title"
@@ -4407,7 +2906,7 @@ export class Helper {
       funnel.titleField.input.setAttribute("required", "true")
       funnel.titleField.input.oninput = () => this.verify("input/value", funnel.titleField.input)
       this.verify("input/value", funnel.titleField.input)
-      this.add("outline-hover", funnel.titleField.input)
+      this.add("hover-outline", funnel.titleField.input)
 
       funnel.editionField = this.create("field/tel", funnel)
       funnel.editionField.id = "edition"
@@ -4415,7 +2914,7 @@ export class Helper {
       funnel.editionField.input.placeholder = "0"
       funnel.editionField.input.oninput = () => this.verify("input/value", funnel.editionField.input)
       this.verify("input/value", funnel.editionField.input)
-      this.add("outline-hover", funnel.editionField.input)
+      this.add("hover-outline", funnel.editionField.input)
 
       funnel.publisherField = this.create("field/textarea", funnel)
       funnel.publisherField.id = "publisher"
@@ -4424,7 +2923,7 @@ export class Helper {
       funnel.publisherField.input.setAttribute("required", "true")
       funnel.publisherField.input.oninput = () => this.verify("input/value", funnel.publisherField.input)
       this.verify("input/value", funnel.publisherField.input)
-      this.add("outline-hover", funnel.publisherField.input)
+      this.add("hover-outline", funnel.publisherField.input)
 
       funnel.publishedField = this.create("field/tel", funnel)
       funnel.publishedField.id = "published"
@@ -4433,7 +2932,7 @@ export class Helper {
       funnel.publishedField.input.setAttribute("required", "true")
       funnel.publishedField.input.oninput = () => this.verify("input/value", funnel.publishedField.input)
       this.verify("input/value", funnel.publishedField.input)
-      this.add("outline-hover", funnel.publishedField.input)
+      this.add("hover-outline", funnel.publishedField.input)
 
       funnel.isbnField = this.create("field/text", funnel)
       funnel.isbnField.id = "isbn"
@@ -4441,7 +2940,7 @@ export class Helper {
       funnel.isbnField.input.placeholder = "isbn1, isbn2, .., isbnN"
       funnel.isbnField.input.oninput = () => this.verify("input/value", funnel.isbnField.input)
       this.verify("input/value", funnel.isbnField.input)
-      this.add("outline-hover", funnel.isbnField.input)
+      this.add("hover-outline", funnel.isbnField.input)
 
       funnel.weblinkField = this.create("field/text", funnel)
       funnel.weblinkField.id = "weblink"
@@ -4449,7 +2948,7 @@ export class Helper {
       funnel.weblinkField.input.placeholder = "https://www.meine-infos.de/meine-quelle/"
       funnel.weblinkField.input.oninput = () => this.verify("input/value", funnel.weblinkField.input)
       this.verify("input/value", funnel.weblinkField.input)
-      this.add("outline-hover", funnel.weblinkField.input)
+      this.add("hover-outline", funnel.weblinkField.input)
 
       funnel.languageField = this.create("field/text", funnel)
       funnel.languageField.id = "language"
@@ -4457,7 +2956,7 @@ export class Helper {
       funnel.languageField.input.placeholder = "de, en, fr, .."
       funnel.languageField.input.oninput = () => this.verify("input/value", funnel.languageField.input)
       this.verify("input/value", funnel.languageField.input)
-      this.add("outline-hover", funnel.languageField.input)
+      this.add("hover-outline", funnel.languageField.input)
 
       funnel.typeField = this.create("field/text", funnel)
       funnel.typeField.id = "type"
@@ -4465,7 +2964,7 @@ export class Helper {
       funnel.typeField.input.placeholder = "text/book"
       funnel.typeField.input.oninput = () => this.verify("input/value", funnel.typeField.input)
       this.verify("input/value", funnel.typeField.input)
-      this.add("outline-hover", funnel.typeField.input)
+      this.add("hover-outline", funnel.typeField.input)
 
       funnel.keywordsField = this.create("field/textarea", funnel)
       funnel.keywordsField.id = "keywords"
@@ -4474,7 +2973,7 @@ export class Helper {
       funnel.keywordsField.input.style.height = "144px"
       funnel.keywordsField.input.oninput = () => this.verify("input/value", funnel.keywordsField.input)
       this.verify("input/value", funnel.keywordsField.input)
-      this.add("outline-hover", funnel.keywordsField.input)
+      this.add("hover-outline", funnel.keywordsField.input)
 
       funnel.descriptionField = this.create("field/textarea", funnel)
       funnel.descriptionField.id = "description"
@@ -4483,7 +2982,7 @@ export class Helper {
       funnel.descriptionField.input.style.height = "144px"
       funnel.descriptionField.input.oninput = () => this.verify("input/value", funnel.descriptionField.input)
       this.verify("input/value", funnel.descriptionField.input)
-      this.add("outline-hover", funnel.descriptionField.input)
+      this.add("hover-outline", funnel.descriptionField.input)
 
       funnel.imageField = this.create("field/text", funnel)
       funnel.imageField.id = "image"
@@ -4491,59 +2990,14 @@ export class Helper {
       funnel.imageField.input.placeholder = "https://www.meine-infos.de/meine-quellbild.jpg"
       funnel.imageField.input.oninput = () => this.verify("input/value", funnel.imageField.input)
       this.verify("input/value", funnel.imageField.input)
-      this.add("outline-hover", funnel.imageField.input)
+      this.add("hover-outline", funnel.imageField.input)
 
       funnel.submit = this.create("button/action", funnel)
       funnel.submit.className = "submit-field-funnel-button"
-      this.add("outline-hover", funnel.submit)
+      this.add("hover-outline", funnel.submit)
       funnel.submit.textContent = "Quelle jetzt speichern"
       return funnel
 
-    }
-
-    if (event === "funnel/conflict") {
-      const it = {}
-
-      it.environment = this.create("input/textarea", input)
-      const environmentPlaceholder = `Environments: Beschreibe deine Umgebung ?
-
-- URL Link
-- Browser
-- App
-      `
-      it.environment.input.placeholder = environmentPlaceholder
-      it.environment.input.style.height = "144px"
-      this.add("style/valid", it.environment.input)
-      it.environment.input.style.fontSize = "13px"
-
-      it.reproduce = this.create("input/textarea", input)
-      const reproducePlaceholder = `Steps to reproduce: Reproduziere den Konflikt ?`
-      it.reproduce.input.placeholder = reproducePlaceholder
-      it.reproduce.input.style.height = "144px"
-      this.add("style/valid", it.reproduce.input)
-      it.reproduce.input.style.fontSize = "13px"
-
-      it.expected = this.create("input/textarea", input)
-      const expectedPlaceholder = `Expected behavior: Erwartetes Verhalten ?`
-      it.expected.input.placeholder = expectedPlaceholder
-      it.expected.input.style.height = "144px"
-      this.add("style/valid", it.expected.input)
-      it.expected.input.style.fontSize = "13px"
-
-      it.actual = this.create("input/textarea", input)
-      const actualPlaceholder = `Actual behavior: Wirkliches Verhalten ?`
-      it.actual.input.placeholder = actualPlaceholder
-      it.actual.input.style.height = "144px"
-      this.add("style/valid", it.actual.input)
-      it.actual.input.style.fontSize = "13px"
-
-      it.visibility = this.create("input/visibility", input)
-      it.visibility.input.value = "open"
-
-      it.submit = this.create("toolbox/action", input)
-      it.submit.textContent = "Konflikt jetzt melden"
-
-      return it
     }
 
     if (event === "funnel/condition") {
@@ -4575,177 +3029,6 @@ export class Helper {
 
       if (input !== undefined) input.append(funnel)
       return funnel
-    }
-
-    if (event === "funnel/profile") {
-      const it = {}
-
-      this.request("/get/user/tree-closed/", {tree: "profile"}).then(async res => {
-        if (res.status === 200) {
-          const profile = JSON.parse(res.response)
-
-          const messagesDiv = document.createElement("div")
-          this.style(messagesDiv, {display: "flex", flexWrap: "wrap", justifyContent: "space-around"})
-          input.prepend(messagesDiv)
-
-          if (profile.messages !== undefined) {
-            for (let i = 0; i < profile.messages.length; i++) {
-              const message = profile.messages[i]
-              const box = this.create("box", messagesDiv)
-              this.style(box, {fontFamily: "sans-serif", fontSize: "21px"})
-              box.innerHTML = await this.convert("text/purified", message.html)
-              box.onclick = () => {
-                this.overlay("popup", overlay => {
-                  const content = this.create("div/scrollable", overlay)
-                  {
-                    const button = this.create("toolbox/left-right", content)
-                    button.left.textContent = ".remove"
-                    button.right.textContent = "Nachricht entfernen"
-                    button.onclick = () => {
-                      const confirm = window.confirm("Möchtest du diese Nachricht wirklich entfernen?")
-                      if (confirm === true) {
-                        this.overlay("security", async securityOverlay => {
-                          const res = await this.request("/remove/user/profile-message/", {id: message.created})
-                          if (res.status === 200) {
-                            window.alert("Deine Nachricht wurde erfolgreich entfernt.")
-                            box.remove()
-                            overlay.remove()
-                            securityOverlay.remove()
-                          } else {
-                            window.alert("Fehler.. Bitte wiederholen.")
-                            securityOverlay.remove()
-                          }
-                        })
-                      }
-                    }
-                  }
-                })
-              }
-            }
-          }
-
-          const title = this.render("text/h2", "Meine Nachrichten")
-          input.prepend(title)
-
-
-          it.aboutYou.input.value = profile.aboutYou
-          it.whyThis.input.value = profile.whyThis
-          it.whyYou.input.value = profile.whyYou
-          it.strength.input.value = profile.strength
-          it.weakness.input.value = profile.weakness
-          it.motivation.input.value = profile.motivation
-          it.visibility.input.value = profile.visibility
-        }
-      })
-
-      it.aboutYou = this.create("input/textarea", input)
-      const aboutYouPlaceholder = `Erzähl etwas über dich ?
-
-- was du gerade machst (beruflich oder privat)
-- etwas was dem anderen hilft
-- von jetzt sprechen
-- praktische Beispiele (beruflich oder privat)
-- Schlüsselwörter benutzen (IT, Beratung)
-
-z.b., ich bin ... (deine Person), das heißt ... (Vorteil), das bedeutet für dich ... (Nutzen für den anderen).
-      `
-      it.aboutYou.input.placeholder = aboutYouPlaceholder
-      it.aboutYou.input.style.height = "144px"
-      this.add("style/valid", it.aboutYou.input)
-      it.aboutYou.input.style.fontSize = "13px"
-      it.aboutYou.input.setAttribute("accept", "text/length")
-      it.aboutYou.input.maxLength = "4181"
-
-      it.whyThis = this.create("input/textarea", input)
-      const whyThisPlaceholder = `Was kannst du besonders gut ?
-
-- Nicht in Bullet Points schreiben
-- Vollständige Sätze formulieren
-
-z.b., mit der STAR Methode:
-
-1. Situation
-2. Task
-3. Action
-4. Result
-      `
-      it.whyThis.input.placeholder = whyThisPlaceholder
-      it.whyThis.input.style.height = "144px"
-      this.add("style/valid", it.whyThis.input)
-      it.whyThis.input.style.fontSize = "13px"
-      it.whyThis.input.setAttribute("accept", "text/length")
-      it.whyThis.input.maxLength = "4181"
-
-      it.whyYou = this.create("input/textarea", input)
-      const whyYouPlaceholder = `Warum sollten wir dich wählen ?
-
-- Stärken definieren
-
-z.b., ich kann ... (deine Stärken), das heißt ... (Vorteil), das bedeutet für dich ... (Nutzen für den anderen).
-      `
-      it.whyYou.input.placeholder = whyYouPlaceholder
-      it.whyYou.input.style.height = "144px"
-      this.add("style/valid", it.whyYou.input)
-      it.whyYou.input.style.fontSize = "13px"
-      it.whyYou.input.setAttribute("accept", "text/length")
-      it.whyYou.input.maxLength = "4181"
-
-      it.strength = this.create("input/textarea", input)
-      const strengthPlaceholder = `Was sind deine Stärken ?
-
-- Stärken definieren
-
-z.b., ich kann ... (deine Stärken), das heißt ... (Vorteil), das bedeutet für dich ... (Nutzen für den anderen).
-      `
-      it.strength.input.placeholder = strengthPlaceholder
-      it.strength.input.style.height = "144px"
-      this.add("style/valid", it.strength.input)
-      it.strength.input.style.fontSize = "13px"
-      it.strength.input.setAttribute("accept", "text/length")
-      it.strength.input.maxLength = "6765"
-
-      it.weakness = this.create("input/textarea", input)
-      const weaknessPlaceholder = `Was sind deine Schwächen ?
-
-- Schwächen definieren
-- aber dann Lösung anbieten
-- Schwächen die keine hohe Priorität haben am besten gar nicht erwähnen
-- Schwächen nennen die ich wirklich verbessern möchte
-
-z.b., ich bin ... (deine Schwäche), aber ich arbeite daran es zu verbessern mit ... (einem Beispiel oder zwei).
-      `
-      it.weakness.input.placeholder = weaknessPlaceholder
-      it.weakness.input.style.height = "144px"
-      this.add("style/valid", it.weakness.input)
-      it.weakness.input.style.fontSize = "13px"
-      it.weakness.input.setAttribute("accept", "text/length")
-      it.weakness.input.maxLength = "6765"
-
-      it.motivation = this.create("input/textarea", input)
-      const motivationPlaceholder = `Wie motivierst du dich ?
-
-z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, ..
-      `
-      it.motivation.input.placeholder = motivationPlaceholder
-      it.motivation.input.style.height = "144px"
-      this.add("style/valid", it.motivation.input)
-      it.motivation.input.style.fontSize = "13px"
-      it.motivation.input.setAttribute("accept", "text/length")
-      it.motivation.input.maxLength = "4181"
-
-      it.visibility = this.create("input/text", input)
-      it.visibility.input.placeholder = "Sichtbarkeit (open/closed)"
-      it.visibility.input.value = "closed"
-      it.visibility.input.setAttribute("required", "true")
-      it.visibility.input.oninput = () => this.verify("input/value", it.visibility.input)
-      it.visibility.input.setAttribute("accept", "text/length")
-      it.visibility.input.maxLength = "6"
-      this.verify("input/value", it.visibility.input)
-
-      it.submit = this.create("toolbox/action", input)
-      it.submit.textContent = "Profil jetzt speichern"
-
-      return it
     }
 
     if (event === "header/sticky-nav") {
@@ -5068,6 +3351,15 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       input?.append(header)
       return header
 
+    }
+
+    if (event === "div/box") {
+
+      const div = document.createElement("div")
+      div.className = "btn-theme color-theme br13 mtb21 mlr34"
+      this.add("hover-outline", div)
+      if (input) this.append(div, input)
+      return div
     }
 
     if (event === "div/timer") {
@@ -5636,6 +3928,13 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       return div
     }
 
+    if (event === "div/flex-around") {
+
+      const div = this.div("flex wrap align space-around mtb21 mlr34")
+      if (input) this.append(div, input)
+      return div
+    }
+
     if (event === "div/flex-between") {
 
       const div = document.createElement("div")
@@ -5648,14 +3947,9 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     }
 
     if (event === "div/flex-row") {
-      const div = document.createElement("div")
-      div.style.display = "flex"
-      div.style.justifyContent = "space-around"
-      div.style.flexWrap = "wrap"
-      div.style.margin = "21px 34px"
 
-      if (input !== undefined) input.append(div)
-
+      const div = this.div("flex wrap mtb21 mlr34")
+      if (input) this.append(div, input)
       return div
     }
 
@@ -5910,6 +4204,20 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
     }
 
+    if (event === "div/info") {
+
+      const div = this.div("dark-light monospace fs13 fixed bottom left z1 max-w100p max-h21 of-auto btn-theme")
+      if (input) this.append(div, input)
+      return div
+    }
+
+    if (event === "div/note") {
+
+      const div = this.div("ptb144 flex align center color-theme sans-serif")
+      if (input) this.append(div, input)
+      return div
+    }
+
     if (event === "div/red-flag") {
 
       const div = document.createElement("div")
@@ -5946,13 +4254,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     }
 
     if (event === "div/scrollable") {
+
       const div = document.createElement("div")
-      div.style.overflowY = "auto"
-      div.style.overscrollBehavior = "none"
-      div.style.paddingBottom = "144px"
-
-      if (input !== undefined) input.append(div)
-
+      this.convert("parent/scrollable", div)
+      if (input) this.append(div, input)
       return div
     }
 
@@ -6040,26 +4345,40 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       return div
     }
 
-    if (event === "back-button") {
+    if (event === "div/button") {
+
+      const div = document.createElement("div")
+      div.className = "btn-theme color-theme br13"
+      this.add("hover-outline", div)
+      if (input) this.append(div, input)
+      return div
+    }
+
+    if (event === "button") {
+
+      const div = this.div("btn-theme color-theme flex align center mtb21 mlr34")
+      this.add("hover-outline", div)
+      input?.appendChild(div)
+      return div
+    }
+
+    if (event === "button/goback") {
+
+      const button = this.create("button/back")
+      button.classList.add("go-back")
+      button.onclick = ev => this.goBack()
+      if (input && !document.querySelector('div.go.back')) this.append(button, input)
+      return button
+    }
+
+    if (event === "button/back") {
 
       const button = this.create("button/bottom-left")
-      button.classList.add("back")
+      button.classList.add("back-button")
       this.render("icon/node/path", "/public/arrow-back.svg", button).then(icon => {
-        this.convert("dark-light", button)
+        this.convert("stroke/reverse", icon)
       })
-      button.setAttribute("onclick", "window.goBack()")
-
-      let exist = false
-      document.querySelectorAll("*").forEach(node => {
-        if (node.classList.contains("back") && node.classList.contains("button")) {
-          exist = true
-        }
-      })
-      if (exist === false) input?.appendChild(button)
-
-      const backButton = document.querySelector("div.back.button")
-      this.add("outline-hover", backButton)
-
+      if (input) this.append(button, input)
       return button
     }
 
@@ -6140,49 +4459,19 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     if (event === "button/bottom-left") {
 
       const button = document.createElement("div")
-      button.className = "button"
-      button.style.position = "fixed"
-      button.style.bottom = "0"
-      button.style.left = "0"
-      button.style.width = "34px"
-      button.style.height = "34px"
-      button.style.borderRadius = "50%"
-      button.style.margin = "34px"
-      button.style.padding = "21px"
-      button.style.zIndex = "1"
-      button.style.cursor = "pointer"
-      // convert dark light reverse
-      // this.convert("light")
-      // this.convert("dark-light", button)
-      input?.appendChild(button)
+      button.className = "fixed bottom left w34 h34 br55 m34 p21 z1"
+      this.add("hover-outline", button)
+      if (input) this.append(button, input)
       return button
     }
 
     if (event === "button/bottom-right") {
 
       const button = document.createElement("div")
-      button.className = "button"
-      button.style.position = "fixed"
-      button.style.bottom = "0"
-      button.style.right = "0"
-      button.style.width = "34px"
-      button.style.height = "34px"
-      button.style.borderRadius = "50%"
-      button.style.margin = "34px"
-      button.style.padding = "21px"
-      button.style.zIndex = "1"
-      button.style.cursor = "pointer"
-      button.style.boxShadow = this.colors.light.boxShadow
-      button.style.border = this.colors.light.border
-      button.style.backgroundColor = this.colors.light.foreground
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        button.style.boxShadow = this.colors.dark.boxShadow
-        button.style.border = this.colors.dark.border
-        button.style.backgroundColor = this.colors.dark.foreground
-      }
-      input?.appendChild(button)
+      button.className = "fixed bottom right w34 h34 br55 m34 p21 z2"
+      this.add("hover-outline", button)
+      if (input) this.append(button, input)
       return button
-
     }
 
     if (event === "button/icon") {
@@ -6249,121 +4538,63 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
     }
 
-    if (event === "button/image-text") {
-
-      const button = this.create("button/top-bottom")
-      button.image = document.createElement("img")
-      button.image.style.width = "100%"
-      button.image.className = "image"
-      button.image.src = "/public/image.svg"
-      button.top.appendChild(button.image)
-      button.text = this.create("div", button.bottom)
-      button.text.style.margin = "21px 34px"
-      button.text.style.fontSize = "21px"
-      button.text.style.fontFamily = "sans-serif"
-      input?.appendChild(button)
-      return button
-    }
-
     if (event === "button/getyour") {
 
       const button = this.create("button/bottom-right")
       this.render("icon/node/path", "/public/logo-getyour-red.svg", button)
-      input?.append(button)
+      this.add("hover-outline", button)
+      if (input) this.append(button, input)
       return button
-
     }
 
     if (event === "button/add") {
 
       const button = this.create("button/bottom-right")
+      button.classList.add("add-button")
       this.render("icon/node/path", "/public/add.svg", button)
-      input?.appendChild(button)
+      if (input) this.append(button, input)
       return button
     }
 
     if (event === "button/action") {
+
       const div = document.createElement("div")
-      div.className = "button"
-      div.style.backgroundColor = this.colors.matte.sunflower
-      div.style.color = this.colors.matte.black
-      div.style.boxShadow = this.colors.light.boxShadow
-      div.style.cursor = "pointer"
-      div.style.fontSize = "21px"
-      div.style.fontFamily = "sans-serif"
-      div.style.borderRadius = "13px"
-      div.style.margin = "21px 34px"
-      div.style.display = "flex"
-      div.style.justifyContent = "center"
-      div.style.alignItems = "center"
-      div.style.height = "89px"
+      div.className = "fs21 sans-serif br13 mtb21 mlr34 flex align center ptb21 plr34 bs-light color-light bg-sunflower"
+      this.add("hover-outline", div)
       input?.appendChild(div)
       return div
     }
 
     if (event === "button/top-bottom") {
 
-      const button = document.createElement("div")
-      button.className = "button"
-      button.style.display = "flex"
-      button.style.flexDirection = "column"
-      button.style.margin = "21px 34px"
-      button.style.borderRadius = "13px"
-      button.style.overflow = "hidden"
-      button.style.cursor = "pointer"
+      const button = this.create("div/button")
+      button.classList.add("flex", "column", "mtb21", "mlr34", "of-hidden")
       button.top = document.createElement("div")
-      button.top.classList.add("top")
-      button.append(button.top)
+      this.append(button.top, button)
       button.bottom = document.createElement("div")
-      button.bottom.classList.add("bottom")
-      button.append(button.bottom)
-      button.style.backgroundColor = this.colors.gray[0]
-      button.style.border = this.colors.light.border
-      button.style.color = this.colors.light.text
-      button.style.boxShadow = this.colors.light.boxShadow
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        button.style.backgroundColor = this.colors.matte.black
-        button.style.border = this.colors.dark.border
-        button.style.boxShadow = this.colors.dark.boxShadow
-        button.style.color = this.colors.dark.text
-      }
-      input?.append(button)
+      this.append(button.bottom, button)
+      if (input) this.append(button, input)
       return button
     }
 
     if (event === "button/left-right") {
 
-      const fragment = document.createDocumentFragment()
       const button = document.createElement("div")
-      button.classList.add("button")
       button.left = document.createElement("div")
-      button.left.classList.add("left")
-      button.append(button.left)
       button.right = document.createElement("div")
-      button.right.classList.add("right")
+      button.append(button.left)
       button.append(button.right)
-      this.convert("button/left-right", button)
-      fragment.appendChild(button)
-      input?.appendChild(fragment)
+      this.convert(event, button)
+      this.on("hover", {node: button, class: "outline pointer"})
+      if (input) this.append(button, input)
       return button
     }
 
     if (event === "counter") {
-      input.counter = document.createElement("div")
-      input.appendChild(input.counter)
-      input.counter.classList.add("counter")
-      input.counter.style.position = "absolute"
-      input.counter.style.display = "flex"
-      input.counter.style.justifyContent = "center"
-      input.counter.style.alignItems = "center"
-      input.counter.style.top = "-8px"
-      input.counter.style.right = "-5px"
-      input.counter.style.fontFamily = "monospace"
-      input.counter.style.fontSize = "21px"
-      input.counter.style.borderRadius = "50%"
-      input.counter.style.padding = "3px 5px"
+
+      input.counter = this.div("counter absolute flex align center monospace fs34 br50p p8 z1 dark-light top-21 right btn-theme")
       input.counter.textContent = "0"
-      this.convert("dark-light", input.counter)
+      this.append(input.counter, input)
       return input
     }
 
@@ -6372,16 +4603,15 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       return new Promise(async(resolve, reject) => {
         try {
           const icon = await this.convert("path/icon", "/public/branch.svg")
-          icon.style.width = "55px"
-          const svg = icon.firstChild
+          icon.svg = icon.firstChild
           if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            svg.children[0].setAttribute("fill", this.colors.dark.text)
-            svg.children[1].setAttribute("fill", this.colors.light.text)
+            icon.svg.children[0].setAttribute("fill", this.colors.dark.text)
+            icon.svg.children[1].setAttribute("fill", this.colors.light.text)
           } else {
-            svg.children[0].setAttribute("fill", this.colors.light.text)
-            svg.children[1].setAttribute("fill", this.colors.dark.text)
+            icon.svg.children[0].setAttribute("fill", this.colors.light.text)
+            icon.svg.children[1].setAttribute("fill", this.colors.dark.text)
           }
-          input?.appendChild(icon)
+          this.append(icon, input)
           resolve(icon)
         } catch (error) {
           reject(error)
@@ -6389,56 +4619,26 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       })
     }
 
-    if (event === "button/html-feedback") {
+    if (event === "button/branch") {
 
-      const button = document.createElement("div")
-      input?.appendChild(button)
-      button.classList.add("button")
-      button.style.position = "fixed"
-      button.style.bottom = "0"
-      button.style.right = "0"
-      button.style.display = "flex"
-      button.style.justifyContent = "center"
-      button.style.alignItems = "center"
-      button.style.boxShadow = this.colors.light.boxShadow
-      button.style.border = this.colors.light.border
-      button.style.backgroundColor = this.colors.light.foreground
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        button.style.backgroundColor = this.colors.dark.foreground
-        button.style.border = this.colors.dark.border
-        button.style.boxShadow = this.colors.dark.boxShadow
-      }
-      button.style.borderRadius = "50%"
-      button.style.margin = "34px"
-      button.style.padding = "8px"
-      button.style.zIndex = "1"
-      button.style.cursor = "pointer"
-      this.create("icon/branch", button)
-      this.create("counter", button)
-      return button
-    }
-
-    if (event === "button/remove-overlay") {
-
-      const button = this.create("button/bottom-left")
-      button.classList.add("back")
-      return new Promise(async(resolve, reject) => {
-        try {
-          const icon = await this.convert("path/icon", "/public/arrow-back.svg")
-          resolve((node) => {
-            const clone = button.cloneNode(true)
-            clone.appendChild(icon.cloneNode(true))
-            this.add("outline-hover", clone)
-            this.convert("back-button", clone)
-            clone.onclick = () => node?.remove()
-            node?.appendChild(clone)
-            return clone
-          })
-        } catch (error) {
-          reject(error)
+      const button = this.create("button/bottom-right")
+      button.className += " flex align center"
+      this.convert("path/icon", "/public/branch.svg").then(icon => {
+        icon.svg = icon.firstChild
+        icon.svg.classList.add("w55")
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          icon.svg.children[0].setAttribute("fill", this.colors.dark.text)
+          icon.svg.children[1].setAttribute("fill", this.colors.light.text)
+        } else {
+          icon.svg.children[0].setAttribute("fill", this.colors.light.text)
+          icon.svg.children[1].setAttribute("fill", this.colors.dark.text)
         }
+        this.append(icon, button)
       })
-
+      this.create("counter", button)
+      this.add("hover-outline", button)
+      if (input) this.append(button, input)
+      return button
     }
 
     if (event === "button/role-apps") {
@@ -6477,7 +4677,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       funnel.submit.style.fontSize = "34px"
       funnel.submit.classList.add("start-login-event")
       funnel.submit.textContent = "Jetzt anmelden"
-      this.add("outline-hover", funnel.submit)
+      this.add("hover-outline", funnel.submit)
       input?.appendChild(funnel)
       return funnel
 
@@ -6512,88 +4712,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
 
-    }
-
-    if (event === "script/contact-location-expert") {
-
-      const text = `
-        <script id="contact-location-expert" type="module">
-import {Helper} from "/js/Helper.js"
-Helper.add("onclick/selector/contact-location-expert", ".contact-location-expert")
-        </script>
-      `
-      const script = this.convert("text/first-child", text)
-      const create = document.createElement("script")
-      create.id = script.id
-      create.type = script.type
-      create.textContent = script.textContent
-      input?.append(create)
-      return create
-
-    }
-
-    if (event === "script/dark-light-body") {
-
-      const text = `
-        <script id="dark-light-body" type="module">
-import {Helper} from "/js/Helper.js"
-Helper.convert("dark-light", document.body)
-        </script>
-      `
-
-      const script = this.convert("text/first-child", text)
-
-      const create = document.createElement("script")
-      create.id = script.id
-      create.type = script.type
-      create.textContent = script.textContent
-
-      input?.append(create)
-      return create
-
-    }
-
-    if (event === "script/soundbox") {
-
-      const text = /*html*/`
-        <script id="soundbox" type="module">
-import {Helper} from "/js/Helper.js"
-
-await Helper.add("event/soundbox")
-        </script>
-      `
-
-      const script = this.convert("text/first-child", text)
-
-      const create = document.createElement("script")
-      create.id = script.id
-      create.type = script.type
-      create.textContent = script.textContent
-
-      if (input !== undefined) input.append(create)
-      return create
-
-    }
-
-    if (event === "script/empty-helper") {
-
-      const text = /*html*/`
-        <script id="${input.id}" type="module">
-import {Helper} from "/js/Helper.js"
-
-${input.js}
-
-        </script>
-      `
-
-      const script = this.convert("text/first-child", text)
-
-      const create = document.createElement("script")
-      create.id = script.id
-      create.type = script.type
-      create.textContent = script.textContent
-
-      return create
     }
 
     if (event === "script/match-maker-onload") {
@@ -6829,32 +4947,12 @@ ${input.js}
       return create
     }
 
-    if (event === "script/click-funnel-event") {
-
-      const text = `
-        <script id="click-funnel-event" type="module">
-import {Helper} from "/js/Helper.js"
-await Helper.add("event/click-funnel")
-        </script>
-      `
-
-      const script = this.convert("text/first-child", text)
-
-      const create = document.createElement("script")
-      create.id = script.id
-      create.type = script.type
-      create.textContent = script.textContent
-
-      return create
-    }
-
-    if (event === "script") {
+    if (event === "script/id") {
 
       const script = document.createElement("script")
-      script.id = input.id
+      script.id = input
+      script.src = `/js/${input}.js`
       script.type = "module"
-      script.textContent = `import {Helper} from "/js/Helper.js"\nif (Helper.verifyIs("script-id/disabled", "${script.id}")) throw new Error("'script#${script.id}' disabled")\n`
-      script.append(input.js)
       return script
     }
 
@@ -6880,55 +4978,72 @@ await Helper.add("event/click-funnel")
       })
     }
 
-    if (event === "toolbox/action") {
+    if (event === "select/emails") {
 
-      const button = this.create("button/action")
-      button.removeAttribute("class")
-      this.add("outline-hover", button)
-      input?.appendChild(button)
-      return button
-    }
+      const searchField = this.create("input/text", input)
+      searchField.input.placeholder = "Suche nach E-Mail Adresse"
+      const field = this.create("input/select", input)
+      field.input.className += " vh34"
+      field.input.setAttribute("multiple", "true")
+      field.input.render = options => {
 
-    if (event === "toolbox/add") {
+        field.input.textContent = ""
+        for (let i = 0; i < options.length; i++) {
+          const it = options[i]
+          if (it.id && it.email) {
+            const option = document.createElement("option")
+            option.text = it.email
+            option.value = it.id
+            this.append(option, field.input)
+          }
+        }
+      }
+      let options
+      field.input.add = async it => {
 
-      const button = this.create("button/add")
-      button.removeAttribute("class")
-      this.add("outline-hover", button)
-      this.convert("dark-light", button)
-      input?.appendChild(button)
-      return button
+        options = await Promise.all(it.map(async item => {
+          if (typeof item === "string") {
+            const id = await this.digestId(item)
+            return {email: item, id}
+          } else if (typeof item === "object" && item !== null) {
+            const id = await this.digestId(item.email)
+            return {email: item.email, id}
+          } else {
+            return null
+          }
+        }))
+        options = options.filter(it => it !== null)
+        field.input.render(options)
+      }
+      searchField.input.oninput = ev => {
+
+        const query = ev.target.value.toLowerCase()
+        let filtered
+        if (this.verifyIs("text/empty", query)) {
+          filtered = options
+        } else {
+          filtered = options.filter(it => it.email.toLowerCase().includes(query))
+        }
+        field.input.render(filtered)
+      }
+      field.selectedEmails = () => {
+
+        return Array.from(field.input.selectedOptions).map(it => it.text)
+      }
+      field.selectedIds = () => {
+
+        return Array.from(field.input.selectedOptions).map(it => it.value)
+      }
+      this.verify("input/value", field.input)
+      field.input.addEventListener("input", ev => this.verify("input/value", field.input))
+      return field
     }
 
     if (event === "toolbox/bottom-right") {
 
       const button = this.create("button/bottom-right")
       button.removeAttribute("class")
-      this.add("outline-hover", button)
-      this.convert("dark-light", button)
-      input?.appendChild(button)
-      return button
-    }
-
-    if (event === "toolbox/back") {
-
-      const button = this.create("button/bottom-left")
-      button.removeAttribute("class")
-      this.render("icon/node/path", "/public/arrow-back.svg", button).then(icon => {
-        this.convert("back-button", button)
-        this.convert("icon/dark-light", icon)
-      })
-      button.setAttribute("onclick", "window.goBack()")
-      this.add("outline-hover", button)
-      input?.appendChild(button)
-      return button
-    }
-
-    if (event === "toolbox/getyour") {
-
-      const button = this.create("button/bottom-right")
-      button.removeAttribute("class")
-      this.render("icon/node/path", "/public/logo-getyour-red.svg", button)
-      this.add("outline-hover", button)
+      this.add("hover-outline", button)
       this.convert("dark-light", button)
       input?.appendChild(button)
       return button
@@ -6938,42 +5053,10 @@ await Helper.add("event/click-funnel")
 
       const button = this.create("button/icon")
       button.removeAttribute("class")
-      this.add("outline-hover", button)
+      this.add("hover-outline", button)
       this.convert("dark-light", button)
       input?.appendChild(button)
       return button
-    }
-
-    if (event === "toolbox/left-right") {
-
-      const button = this.create("button/left-right")
-      button.removeAttribute("class")
-      this.add("outline-hover", button)
-      input?.appendChild(button)
-      return button
-
-    }
-
-    if (event === "toolbox/register-html") {
-
-      return new Promise(async(resolve, reject) => {
-        try {
-          const button = this.create("button/bottom-right")
-          button.removeAttribute("class")
-          const icon = await this.convert("path/icon", "/public/disk-floppy.svg")
-          resolve((node) => {
-            const clone = button.cloneNode(true)
-            clone.appendChild(icon.cloneNode(true))
-            this.convert("dark-light", clone)
-            this.add("outline-hover", clone)
-            clone.onclick = () => this.add("register-html")
-            node?.appendChild(clone)
-            return clone
-          })
-        } catch (error) {
-          reject(error)
-        }
-      })
     }
 
     if (event === "field/closed-contacts-email-select") {
@@ -6985,7 +5068,7 @@ await Helper.add("event/click-funnel")
           const defaultOption = document.createElement("option")
           defaultOption.text = "Bitte warten.."
           field.input.appendChild(defaultOption)
-          const res = await this.request("/get/user/tree-closed/", {tree: "contacts"})
+          const res = await this.request("/jwt/get/tree/", {tree: "contacts"})
           if (res.status === 200) {
             const contacts = JSON.parse(res.response)
             field.input.textContent = ""
@@ -7000,48 +5083,6 @@ await Helper.add("event/click-funnel")
             }
             resolve(field)
           }
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-
-    if (event === "field/open-expert-values-path-select") {
-
-      return new Promise(async(resolve, reject) => {
-        try {
-          const field = this.create("field/select", input)
-          field.label.textContent = "Wähle deinen passenden Funnel, aus Werteinheiten aller Experten"
-
-          const defaultOption = document.createElement("option")
-          defaultOption.text = "Bitte warten.."
-          field.input.append(defaultOption)
-
-          const res = await this.request("/get/user/trees-open/", {trees: ["getyour.expert.platforms"]})
-          if (res.status === 200) {
-            const users = JSON.parse(res.response)
-
-            field.input.textContent = ""
-            for (let i = 0; i < users.length; i++) {
-              const user = users[i]
-              if (user["getyour.expert.platforms"] !== undefined) {
-                for (let i = 0; i < user["getyour.expert.platforms"].length; i++) {
-                  const platform = user["getyour.expert.platforms"][i]
-                  if (platform.values !== undefined) {
-                    for (let i = 0; i < platform.values.length; i++) {
-                      const value = platform.values[i]
-                      const option = document.createElement("option")
-                      option.text = this.convert("text/capital-first-letter", value.path)
-                      option.value = value.path
-                      field.input.append(option)
-                    }
-                  }
-                }
-              }
-            }
-            resolve(field)
-          }
-
         } catch (error) {
           reject(error)
         }
@@ -7513,7 +5554,7 @@ await Helper.add("event/click-funnel")
       field.label.textContent = "Identifikationsname (text/tag)"
       field.input.placeholder = "meine-id"
       this.verify("input/value", field.input)
-      this.add("outline-hover", field.input)
+      this.add("hover-outline", field.input)
       field.input.oninput = () => {
         this.verify("input/value", field.input)
         if (this.verifyIs("id/unique", field.input.value) && this.verifyIs("text/tag", field.input.value)) {
@@ -7843,12 +5884,18 @@ await Helper.add("event/click-funnel")
       return field
     }
 
-    if (event === "info/loading") {
+    if (event === "div/loading") {
 
-      const header = document.createElement("div")
-      this.convert("parent/loading", header)
-      input?.appendChild(header)
-      return header
+      const div = this.div("flex column align")
+      div.info = this.div("fs13 color-error sans-serif", div)
+      div.info.textContent = "Das kann einen Moment dauern .."
+      this.render("icon/node/path", "/public/loading.svg").then(icon => {
+        const svg = icon.querySelector("svg")
+        svg.classList.add("fill-error")
+        this.append(icon, div)
+      })
+      if (input) this.append(div, input)
+      return div
     }
 
     if (event === "info/warning") {
@@ -7868,30 +5915,37 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "info/success") {
-      const element = document.createElement("div")
-      element.style.fontSize = "13px"
-      element.style.fontFamily = "sans-serif"
-      element.style.margin = "21px 34px"
-      element.style.padding = "21px 34px"
-      element.style.borderRadius = "13px"
-
-      element.style.color = this.colors.light.text
-      element.style.backgroundColor = this.colors.light.success
-
-      if (input !== undefined) input.append(element)
-
-      return element
+      const div = document.createElement("div")
+      div.className = "fs13 sans-serif p13 br13 mtb21 mlr34 dark-text bg-success"
+      if (input) this.append(div, input)
+      return div
     }
 
-    if (event === "start-button") {
+    if (event === "button/start") {
 
       const button = this.create("button/left-right")
       button.left.textContent = ".start"
       button.right.textContent = "Beginne deine Reise in die digitale Freiheit"
-      button.setAttribute("onclick", "window.open('/', '_blank')")
-      input?.append(button)
+      button.onclick = () => window.open("/", "_blank")
+      if (input) this.append(button, input)
       return button
 
+    }
+
+    if (event === "label") {
+
+      const it = document.createElement("label")
+      it.className = "sans-serif fs21 color-theme block break-word"
+      it.setAttribute("for", input.for)
+      it.textContent = input.text
+      return it
+    }
+
+    if (event === "ul") {
+
+      const ul = document.createElement("ul")
+      if (input) this.append(ul, input)
+      return ul
     }
 
     if (event === "video") {
@@ -7908,7 +5962,7 @@ await Helper.add("event/click-funnel")
     if (event === "visibility-button") {
 
       const fragment = document.createDocumentFragment()
-      const button = Helper.create("toolbox/left-right", fragment)
+      const button = Helper.create("button/left-right", fragment)
       button.left.textContent = ".visibility"
       button.right.textContent = "Sichtbarkeit ändern"
       input?.appendChild(fragment)
@@ -7916,7 +5970,6 @@ await Helper.add("event/click-funnel")
     }
 
   }
-
   static colors = {
     white: "#FFF",
     matte: {
@@ -8002,7 +6055,14 @@ await Helper.add("event/click-funnel")
     key: "#2E95D3",
     value: "#CE9178",
   }
+  static async contacts() {
 
+    if (!this._contacts) {
+      const module = await import("/js/contacts.js")
+      this._contacts = module.contacts
+    }
+    return this._contacts
+  }
   static convert(event, input) {
     // event = input/to
 
@@ -8361,7 +6421,7 @@ await Helper.add("event/click-funnel")
       return table
     }
 
-    if (event === "back-button") {
+    if (event === "button/back") {
 
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         input.style.boxShadow = this.colors.light.boxShadow
@@ -8372,6 +6432,8 @@ await Helper.add("event/click-funnel")
         input.style.border = this.colors.dark.border
         input.style.backgroundColor = this.colors.dark.foreground
       }
+
+
       input.querySelectorAll("*").forEach((child, i) => {
         if (child.hasAttribute("stroke")) {
           if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -8381,6 +6443,8 @@ await Helper.add("event/click-funnel")
           }
         }
       })
+
+
     }
 
     if (event === "border/dark-light") {
@@ -8478,7 +6542,7 @@ await Helper.add("event/click-funnel")
       }
 
       if (input.tagName === "A") {
-        this.convert("link/dark-light", input)
+        this.convert("link/color", input)
       }
 
       if (input.classList.contains("field")) {
@@ -8507,9 +6571,9 @@ await Helper.add("event/click-funnel")
         }
       }
 
-      if (input.classList.contains("back") && input.classList.contains("button")) {
-        this.convert("back-button", input)
-      }
+      // if (input.classList.contains("back") && input.classList.contains("button")) {
+      //   this.convert("button/back", input)
+      // }
 
     }
 
@@ -8910,6 +6974,19 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "it/map") {
+
+      const {tree, it} = input
+      let map
+      const key = this.convert("tree/key", tree)
+      try {
+        map = JSON.parse(it)
+      } catch (e) {
+        map = {[key]: it}
+      }
+      return map
+    }
+
     if (event === "text/line") {
 
       let text = input
@@ -8919,93 +6996,6 @@ await Helper.add("event/click-funnel")
       const filtered = textArray.filter(text => !this.verifyIs("text/empty", text))
       const singleLine = filtered.join(", ")
       return `{${singleLine}}`
-    }
-
-    if (event === "map/div") {
-
-      return new Promise((resolve, reject) => {
-
-        const div = this.create("info/loading", )
-        div.classList.add("json")
-        div.style.margin = "21px 34px"
-
-        const buttons = document.createElement("div")
-        buttons.classList.add("buttons")
-        buttons.style.display = "flex"
-        buttons.style.justifyContent = "space-between"
-        buttons.style.alignItems = "center"
-        div.append(buttons)
-
-        const foldAllButton = this.create("div/action", buttons)
-        foldAllButton.textContent = "fold"
-
-        foldAllButton.addEventListener("click", function() {
-          toggleAllValues("none");
-        });
-
-        const unfoldAllButton = this.create("div/action", buttons)
-        unfoldAllButton.textContent = "unfold"
-        unfoldAllButton.addEventListener("click", function() {
-          toggleAllValues("block");
-        });
-
-        function toggleAllValues(displayValue) {
-          const valueElements = div.querySelectorAll(".key-value");
-          valueElements.forEach(element => {
-            element.style.display = displayValue;
-          });
-        }
-
-        function toggleValue(event) {
-          const element = event.target.nextSibling
-          if (element !== null) {
-            element.style.display = element.style.display === "none" ? "block" : "none";
-          }
-        }
-
-        function processObject(container, obj) {
-          for (const key in obj) {
-            const value = obj[key];
-
-            const keyElement = Helper.convert("key/div", key)
-            const valueElement = Helper.convert("value/div", value)
-
-
-            if (Helper.verifyIs("string", value)) {
-              valueElement.setAttribute("value-type", "string")
-            }
-
-
-            if (Helper.verifyIs("boolean", value)) {
-              valueElement.setAttribute("value-type", "boolean")
-            }
-
-            const keyName = document.createElement("div")
-            keyName.classList.add("key-name")
-            keyName.textContent = key
-
-            keyElement.appendChild(keyName)
-            container.appendChild(keyElement);
-            keyElement.appendChild(valueElement);
-
-            keyElement.addEventListener("click", toggleValue);
-
-            if (typeof value === "object") {
-              processObject(valueElement, value);
-              valueElement.addEventListener("click", toggleValue);
-
-            } else {
-              valueElement.textContent = JSON.stringify(value);
-              // return resolve(div)
-              // see render map/div
-            }
-          }
-        }
-
-        processObject(div, input)
-      })
-
-
     }
 
     if (event === "map/form") {
@@ -9059,114 +7049,104 @@ await Helper.add("event/click-funnel")
       return new Blob([input], { type: 'text/html' })
     }
 
-    if (event === "key/div") {
-      const div = document.createElement("div");
-      div.classList.add("json-key")
-      div.style.fontFamily = "monospace";
-      div.style.cursor = "pointer";
-      div.style.fontWeight = "bold";
-      div.style.color = "#2e95d3";
-      div.style.fontSize = "21px";
-
-      return div
-    }
-
-    if (event === "value/div") {
-      const div = document.createElement("div");
-      div.classList.add("key-value")
-      div.style.display = "none";
-      div.style.marginLeft = "21px";
-      div.style.whiteSpace = "pre-wrap";
-      div.style.color = "#ce9178"
-      div.style.fontFamily = "monospace"
-
-      return div
-    }
-
     if (event === "json/div") {
 
-      const div = this.create("div/scrollable")
-      div.classList.add("json")
-      div.style.margin = "21px 34px"
-      // div.style.height = "100%"
-
-      const buttons = document.createElement("div")
-      buttons.classList.add("buttons")
-      buttons.style.display = "flex"
-      buttons.style.justifyContent = "space-between"
-      buttons.style.alignItems = "center"
-      div.append(buttons)
-
-      const foldAllButton = this.create("div/action", buttons)
-      foldAllButton.textContent = "fold"
-
-      foldAllButton.addEventListener("click", function() {
-        toggleAllValues("none");
-      });
-
-      const unfoldAllButton = this.create("div/action", buttons)
-      unfoldAllButton.textContent = "unfold"
-      unfoldAllButton.addEventListener("click", function() {
-        toggleAllValues("block");
-      });
-
-      function toggleAllValues(displayValue) {
-        const valueElements = div.querySelectorAll(".key-value");
-        valueElements.forEach(element => {
-          element.style.display = displayValue;
-        });
+      function blockAll(element) {
+        element.classList.add("block")
+        element.querySelectorAll(".key-value").forEach(node => {
+          node.classList.add("block")
+        })
+      }
+      function removeAllBlock(element) {
+        element.classList.remove("block")
+        element.querySelectorAll(".key-value").forEach(node => {
+          node.classList.remove("block")
+        })
       }
 
-      const jsonObject = JSON.parse(input);
+      function noneAll(element) {
+        element.classList.add("none")
+        element.querySelectorAll(".key-value").forEach(node => {
+          node.classList.add("none")
+        })
+      }
+      function removeAllNone(element) {
+        element.classList.remove("none")
+        element.querySelectorAll(".key-value").forEach(node => {
+          node.classList.remove("none")
+        })
+      }
 
-      function toggleValue(event) {
-        const element = event.target.nextSibling
-        if (element !== null) {
-          element.style.display = element.style.display === "none" ? "block" : "none";
+      const div = this.div("monospace fw-bold fs21 mtb21 mlr34")
+      const buttons = this.div("flex align between", div)
+      const foldAllButton = this.create("button/action", buttons)
+      foldAllButton.classList.add("w89")
+      foldAllButton.textContent = "fold"
+      foldAllButton.onclick = ev => {
+        toggleAllValues("none")
+      }
+      const unfoldAllButton = this.create("button/action", buttons)
+      unfoldAllButton.classList.add("w89")
+      unfoldAllButton.textContent = "unfold"
+      unfoldAllButton.onclick = ev => {
+        toggleAllValues("block")
+      }
+      function toggleAllValues(displayValue) {
+        const valueElements = div.querySelectorAll(".key-value")
+        valueElements.forEach(element => {
+          if (displayValue === "none") {
+            removeAllBlock(element)
+            noneAll(element)
+          }
+          if (displayValue === "block") {
+            removeAllNone(element)
+            blockAll(element)
+          }
+        })
+      }
+      const jsonObject = JSON.parse(input)
+      function toggleElement(element) {
+
+        if (element) {
+          if (element.classList.contains("none")) {
+            element.classList.remove("none")
+            element.classList.add("block")
+            return
+          }
+          if (element.classList.contains("block")) {
+            element.classList.remove("block")
+            element.classList.add("none")
+            return
+          }
         }
       }
-
       function processObject(container, obj) {
-        for (const key in obj) {
-          const value = obj[key];
 
-          const keyElement = Helper.convert("key/div", key)
-          const valueElement = Helper.convert("value/div", value)
-
-
-          if (Helper.verifyIs("string", value)) {
-            valueElement.setAttribute("value-type", "string")
-          }
-
-
-          if (Helper.verifyIs("boolean", value)) {
-            valueElement.setAttribute("value-type", "boolean")
-          }
-
+        for (let key in obj) {
+          const value = obj[key]
+          if (key === "") key = "\"\""
+          const keyElement = Helper.div("color-key")
+          Helper.add("hover-outline", keyElement)
+          const valueElement = Helper.div("key-value none ml21 color-value")
+          keyElement.addEventListener("click", ev => {
+            ev.stopPropagation()
+            toggleElement(valueElement)
+          })
           const keyName = document.createElement("div")
           keyName.classList.add("key-name")
           keyName.textContent = key
-
           keyElement.appendChild(keyName)
-          container.appendChild(keyElement);
-          keyElement.appendChild(valueElement);
-
-          keyElement.addEventListener("click", toggleValue);
-
+          container.appendChild(keyElement)
+          keyElement.appendChild(valueElement)
           if (typeof value === "object") {
-            processObject(valueElement, value);
-            valueElement.addEventListener("click", toggleValue);
-
+            processObject(valueElement, value)
           } else {
-            valueElement.textContent = JSON.stringify(value);
+            valueElement.textContent = JSON.stringify(value)
           }
         }
       }
-
-      processObject(div, jsonObject);
-
+      processObject(div, jsonObject)
       return div
-
     }
 
     if (event === "map/json") {
@@ -9270,7 +7250,7 @@ await Helper.add("event/click-funnel")
     if (event === "field/on-info-click") {
 
       const labelContainer = input.querySelector(".field-label-container")
-      this.add("outline-hover", labelContainer)
+      this.add("hover-outline", labelContainer)
       const label = input.querySelector(".field-label")
       if (input.querySelector(".field-image") === null) {
         const image = document.createElement("div")
@@ -9284,7 +7264,7 @@ await Helper.add("event/click-funnel")
       labelContainer.childNodes.forEach(child => child.style.cursor = "pointer")
       labelContainer.onclick = () => {
 
-        this.overlay("info", async overlay => {
+        this.overlay("pop", async overlay => {
           const content = this.create("div/scrollable", overlay)
           content.innerHTML = await Helper.convert("text/purified", input.getAttribute("on-info-click"))
         })
@@ -9664,13 +7644,46 @@ await Helper.add("event/click-funnel")
         const map = {}
         map[input.id] = {}
         input.querySelectorAll("*").forEach(node => {
-          if (this.verifyIs("tag/empty", node.id)) return
-          map[input.id][node.id] = node.children[0].value
+          if (!this.verifyIs("tag/empty", node.id)) {
+            const tagName = node.tagName.toLowerCase()
+            if (tagName === "select") {
+              map[input.id][node.id] = Array.from(node.selectedOptions).map(it => it.value)
+            }
+            if (tagName === "input" || tagName === "textarea") {
+              if (node.type === "checkbox") {
+                map[input.id][node.id] = node.checked
+              } else {
+                map[input.id][node.id] = node.value
+              }
+            }
+          }
         })
         return map
       } else {
         window.alert("Funnel Id ist ungültig.")
       }
+    }
+
+    if (event === "funnel/values") {
+
+      const it = {}
+      const nodes = input.querySelectorAll("*")
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i]
+        if (this.verifyIs("tag/empty", node.id)) continue
+        const tagName = node.tagName.toLowerCase()
+        if (tagName === "select") {
+          it[node.id] = Array.from(node.selectedOptions).map(it => it.value)
+        }
+        if (tagName === "input" || tagName === "textarea") {
+          if (node.type === "checkbox") {
+            it[node.id] = node.checked
+          } else {
+            it[node.id] = node.value
+          }
+        }
+      }
+      return it
     }
 
     if (event === "doc/design-mode") {
@@ -9679,15 +7692,6 @@ await Helper.add("event/click-funnel")
       document.designMode = currentMode === "on" ? "off" : "on"
       window.alert("Design Modus wurde erfolgreich umgeschaltet.")
 
-    }
-
-    if (event === "link/dark-light") {
-
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        input.style.color = this.colors.link.active
-      } else {
-        input.style.color = this.colors.link.color
-      }
     }
 
     if (event === "styles/text") {
@@ -9753,6 +7757,36 @@ await Helper.add("event/click-funnel")
       return de[input] || undefined
     }
 
+    if (event === "path/divs") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const funnels = []
+          const text = await this.convert("path/text", input)
+          const doc = this.convert("text/doc", text)
+          const divs = Array.from(doc.querySelectorAll("div"))
+          resolve(divs)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "path/ids") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const funnels = []
+          const text = await this.convert("path/text", input)
+          const doc = this.convert("text/doc", text)
+          const ids = Array.from(doc.querySelectorAll("[id]"))
+          resolve(ids)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "path/field-funnel") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -9769,68 +7803,77 @@ await Helper.add("event/click-funnel")
       })
     }
 
+    if (event === "path/funnel") {
+
+      const {path, tag} = input
+      return new Promise(async(resolve, reject) => {
+        try {
+          const funnels = await Helper.convert("path/funnels", path)
+          if (funnels.length <= 0) {
+            window.alert(`Fehler: Pfad enthält kein Funnel. Bitte kontaktiere deinen Ansprechpartner.\n\nPfad: '${path}'`)
+            throw new Error("funnel not found in path")
+          }
+          const funnel = funnels.find(it => it.id === tag)
+          await Helper.verify("funnel/ids", funnel)
+          .catch(error => {
+            window.alert(`Fehler: Es fehlen Ids im Funnel. Bitte kontaktiere deinen Ansprechpartner.\n\nPfad: '${path}'`)
+            throw error
+          })
+          Helper.add("funnel/hover", funnel)
+          Helper.verify("funnel", funnel)
+          funnel.submit = funnel.querySelector(".submit")
+          if (!funnel.submit) {
+            funnel.submit = Helper.create("button/action", funnel)
+            funnel.submit.className += " submit"
+            funnel.submit.textContent = "Daten jetzt speichern"
+          }
+          resolve(funnel)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "path/funnels") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const funnels = []
+          const text = await this.convert("path/text", input)
+          const doc = this.convert("text/doc", text)
+          const divs = doc.querySelectorAll("div[id]")
+          divs.forEach(div => {
+            const isFunnel = div.querySelector("input, select, textarea")
+            if (isFunnel) funnels.push(div)
+          })
+          resolve(funnels)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "path/icon") {
 
       return new Promise(async(resolve, reject) => {
         try {
           const text = await this.convert("path/text", input)
-          const icon = this.create("div")
-          icon.className = "icon"
-          icon.style.display = "flex"
-          icon.style.justifyContent = "center"
-          icon.style.alignItems = "center"
-          icon.style.width = "34px"
+          const icon = this.div("icon flex align center")
           const svg = await this.convert("text/first-child", text)
           svg.setAttribute("width", "100%")
           this.convert("svg/dark-light", svg)
-          //
-          // for (let i = 0; i < svg.querySelectorAll("*").length; i++) {
-          //   const node = svg.querySelectorAll("*")[i]
-          //   if (node.hasAttribute("fill")) {
-          //     if (node.getAttribute("fill").includes("#000")) {
-          //       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          //         node.setAttribute("fill", this.colors.dark.text)
-          //       } else {
-          //         node.setAttribute("fill", this.colors.light.text)
-          //       }
-          //     }
-          //   }
-          //   if (node.hasAttribute("stroke")) {
-          //     if (node.getAttribute("stroke").includes("#000")) {
-          //       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          //         node.setAttribute("stroke", this.colors.dark.text)
-          //       } else {
-          //         node.setAttribute("stroke", this.colors.light.text)
-          //       }
-          //     }
-          //   }
-          // }
-          // if (svg.hasAttribute("fill")) {
-          //   if (svg.getAttribute("fill").includes("#000")) {
-          //     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          //       svg.setAttribute("fill", this.colors.dark.text)
-          //     } else {
-          //       svg.setAttribute("fill", this.colors.light.text)
-          //     }
-          //   }
-          // }
-          // if (svg.hasAttribute("stroke")) {
-          //   if (svg.getAttribute("stroke").includes("#000")) {
-          //     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          //       svg.setAttribute("stroke", this.colors.dark.text)
-          //     } else {
-          //       svg.setAttribute("stroke", this.colors.light.text)
-          //     }
-          //   }
-          // }
-          //
-          //
-          icon.append(svg)
+          this.append(svg, icon)
           resolve(icon)
         } catch (error) {
           reject(error)
         }
       })
+    }
+
+    if (event === "path/id") {
+
+      const it = input.split("/").pop()
+      return it.split(".")[0]
     }
 
     if (event === "path/text") {
@@ -9848,10 +7891,12 @@ await Helper.add("event/click-funnel")
       })
     }
 
-    if (event === "style/flex-row") {
-      input.textContent = ""
-      input.removeAttribute("style")
-      this.style(input, {display: "flex", flexDirection: "row", flexWrap: "wrap"})
+    if (event === "stroke/reverse") {
+
+      input.querySelectorAll("[stroke]").forEach(node => {
+        node.removeAttribute("stroke")
+        node.classList.add("stroke-theme-reverse")
+      })
     }
 
     if (event === "tag/tree") {
@@ -10043,6 +8088,7 @@ await Helper.add("event/click-funnel")
     }
 
     if (event === "text/tag") {
+
       input = input.toLowerCase()
       input = input.replaceAll(" ", "-")
       input = input.replaceAll("ö", "oe")
@@ -10301,26 +8347,7 @@ await Helper.add("event/click-funnel")
       input.style.borderRadius = "13px"
       input.style.cursor = "pointer"
       this.convert("box/dark-light", input)
-      this.add("outline-hover", input)
-      return input
-    }
-
-    if (event === "parent/note") {
-
-      if (input) {
-        input.textContent = ""
-        input.removeAttribute("style")
-        input.className = "dark-light sans-serif center"
-        return input
-      }
-    }
-
-    if (event === "parent/space-around") {
-
-      input.style.display = "flex"
-      input.style.flexWrap = "wrap"
-      input.style.justifyContent = "space-around"
-
+      this.add("hover-outline", input)
       return input
     }
 
@@ -10335,10 +8362,8 @@ await Helper.add("event/click-funnel")
 
     if (event === "parent/flex-around") {
 
-      this.convert("element/reset", input)
-      input.style.display = "flex"
-      input.style.flexWrap = "wrap"
-      input.style.justifyContent = "space-around"
+      this.reset("node", input)
+      this.render("classes", "flex wrap around mlr34", input)
     }
 
     if (event === "parent/flex-shrink-height") {
@@ -10432,10 +8457,8 @@ await Helper.add("event/click-funnel")
 
     if (event === "parent/flex-row") {
 
-      this.convert("element/reset", input)
-      input.style.display = "flex"
-      input.style.flexWrap = "wrap"
-      return input
+      this.reset("node", input)
+      this.render("classes", "flex wrap mlr34", input)
     }
 
     if (event === "parent/dark") {
@@ -10446,21 +8469,10 @@ await Helper.add("event/click-funnel")
 
     if (event === "button/left-right") {
 
-      input.style.display = "flex"
-      input.style.flexWrap = "wrap"
-      input.style.justifyContent = "space-between"
-      input.style.alignItems = "center"
-      input.style.margin = "21px 34px"
-      input.style.borderRadius = "13px"
-      input.style.cursor = "pointer"
-      input.left.style.margin = "21px 34px"
-      input.left.style.fontSize = "21px"
-      input.left.style.fontFamily = "sans-serif"
-      input.left.style.overflow = "auto"
-      input.right.style.margin = "21px 34px"
-      input.right.style.fontSize = "13px"
-      input.right.style.fontFamily = "sans-serif"
-      this.convert("button/dark-light", input)
+      input.className = "br13 sans-serif pointer flex wrap align between mtb21 mlr34"
+      input.left.className = "of-auto mtb21 mlr34 fs21"
+      input.right.className = "of-auto mtb21 mlr34 fs13"
+      this.add("class/dark-light", input)
     }
 
     if (event === "parent/light") {
@@ -10471,60 +8483,34 @@ await Helper.add("event/click-funnel")
 
     if (event === "parent/loading") {
 
-      this.convert("element/reset", input)
-      input.style.display = "flex"
-      input.style.flexDirection = "column"
-      input.style.justifyContent = "center"
-      input.style.alignItems = "center"
-      input.style.height = "100%"
-      input.loading = this.create("div", input)
-      this.render("icon/node/path", "/public/loading.svg", input.loading).then(icon => {
-        const svg = icon.querySelector("svg")
-        svg.style.fill = this.colors.light.error
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          svg.style.fill = this.colors.dark.error
-        }
-      })
-      input.loading.style.fill = this.colors.light.error
-      input.loading.style.width = "55px"
-      input.loading.style.margin = "8px"
-      input.info = this.create("div", input)
-      input.info.textContent = "Das kann einen Moment dauern .."
-      input.info.style.color = this.colors.light.error
-      input.info.style.fontSize = "13px"
-      input.info.style.fontFamily = "sans-serif"
+      input.textContent = ""
+      input.removeAttribute("style")
+      input.className = "flex column align center"
+      this.add("loading", input)
       return input
-
     }
 
     if (event === "parent/scrollable") {
 
-      if (input) {
-        this.convert("element/reset", input)
-        input.style.overflowY = "auto"
-        input.style.overscrollBehavior = "none"
-        input.style.paddingBottom = "144px"
-        return input
-      }
+      input.textContent = ""
+      input.removeAttribute("style")
+      input.className = "ofy-auto overscroll-none pb144"
+      return input
     }
 
     if (event === "parent/info") {
-      this.convert("element/reset", input)
-      input.style.position = "absolute"
-      input.style.top = "0"
-      input.style.left = "0"
-      input.style.height = "89vh"
-      input.style.width = "100%"
-      input.style.display = "flex"
-      input.style.justifyContent = "center"
-      input.style.alignItems = "center"
-      input.style.zIndex = "-1"
-      input.style.fontFamily = "sans-serif"
-      input.style.textAlign = "center"
 
-      input.style.color = "gray"
-
+      input.textContent = ""
+      input.removeAttribute("style")
+      input.className = "flex align center z-1 sans-serif color-gray"
       return input
+    }
+
+    if (event === "parent/note") {
+
+      this.reset("node", input)
+      input.textContent = ""
+      this.render("classes", "ptb144 flex align center color-theme sans-serif", input)
     }
 
     if (event === "script/disabled-aware") {
@@ -10595,19 +8581,16 @@ await Helper.add("event/click-funnel")
 
     }
 
+    if (event === "seconds/millis") {
+
+      return Number(input) * 1000
+    }
+
     if (event === "selector/dark-light") {
       const node = document.querySelector(input)
       if (node) {
         this.convert("dark-light", node)
       }
-    }
-
-    if (event === "style/flex-row") {
-
-      input.removeAttribute("style")
-      input.style.display = "flex"
-      input.style.flexWrap = "wrap"
-      return input
     }
 
     if (event === "style/info") {
@@ -10709,6 +8692,29 @@ await Helper.add("event/click-funnel")
       const minutes = date.getMinutes().toString().padStart(2, "0")
 
       return `${day}.${month}.${year} ${hours}:${minutes}`
+    }
+
+    if (event === "millis/yyyy-mm-ddThh:mm") {
+
+      const date = new Date(input)
+      const day = date.getDate().toString().padStart(2, "0")
+      const month = (date.getMonth() + 1).toString().padStart(2, "0")
+      const year = date.getFullYear().toString()
+      const hours = date.getHours().toString().padStart(2, "0")
+      const minutes = date.getMinutes().toString().padStart(2, "0")
+      return `${year}-${month}-${day}T${hours}:${minutes}`
+    }
+
+    if (event === "millis/yyyy-mm-ddThh:mm:ss") {
+
+      const date = new Date(input)
+      const day = date.getDate().toString().padStart(2, "0")
+      const month = (date.getMonth() + 1).toString().padStart(2, "0")
+      const year = date.getFullYear().toString()
+      const hours = date.getHours().toString().padStart(2, "0")
+      const minutes = date.getMinutes().toString().padStart(2, "0")
+      const seconds = date.getSeconds().toString().padStart(2, "0")
+      return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
     }
 
     if (event === "millis/dd.mm.yyyy") {
@@ -11014,9 +9020,20 @@ await Helper.add("event/click-funnel")
       return input
     }
 
-    if (event === "link-colors") {
-      input.style.color = this.colors.link.color
-      input.addEventListener("click", () => input.style.color = this.colors.link.active)
+    if (event === "link") {
+
+      this.convert("link/color", input)
+      this.add("hover-outline", input)
+      input.classList.add("td-u")
+    }
+
+    if (event === "link/color") {
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        input.classList.add("dark-link")
+      } else {
+        input.classList.add("light-link")
+      }
     }
 
     if (event === "node/dark-light-toggle") {
@@ -11055,9 +9072,11 @@ await Helper.add("event/click-funnel")
       const backgroundLuminance = getLuminance(backgroundColor);
 
       if (textLuminance > backgroundLuminance) {
-        this.add("style/light", input)
+        input.classList.remove("dark")
+        input.classList.add("light")
       } else {
-        this.add("style/dark", input)
+        input.classList.remove("light")
+        input.classList.add("dark")
       }
 
     }
@@ -11185,7 +9204,14 @@ await Helper.add("event/click-funnel")
     }
 
   }
+  static async deadlines() {
 
+    if (!this._deadlines) {
+      const module = await import("/js/deadlines.js")
+      this._deadlines = module.deadlines
+    }
+    return this._deadlines
+  }
   static async digest(blob) {
 
     const arrayBuffer = await blob.arrayBuffer()
@@ -11194,7 +9220,16 @@ await Helper.add("event/click-funnel")
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
     return hashHex
   }
+  static async digestId(email) {
 
+    const text = JSON.stringify({email, verified: true})
+    const encoder = new TextEncoder()
+    const arrayBuffer = encoder.encode(text)
+    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+    return hashHex
+  }
   static async downloadFile(content, contentType) {
 
     const a = document.createElement("a")
@@ -11204,7 +9239,6 @@ await Helper.add("event/click-funnel")
     a.download = `${hash}.${this.convert("type/extension", contentType)}`
     a.click()
   }
-
   static async dynamicImport(url, callback) {
     const scriptLoaded = new Promise((resolve, reject) => {
       const script = document.createElement('script')
@@ -11222,7 +9256,6 @@ await Helper.add("event/click-funnel")
       window.alert(`Fehler beim Laden oder Ausführen des Skripts:\n\n${error}`)
     }
   }
-
   static fn(event, input) {
 
     if (event === "addLargeStyle") {
@@ -11501,7 +9534,7 @@ await Helper.add("event/click-funnel")
       function onButtonClick(node, callback) {
         for (let i = 0; i < node.children.length; i++) {
           const button = node.children[i]
-          Helper.add("outline-hover", button)
+          Helper.add("hover-outline", button)
           button.onclick = () => callback(button)
         }
       }
@@ -11656,7 +9689,7 @@ await Helper.add("event/click-funnel")
       it.optionsContainer.style.height = `${window.innerHeight * 0.4}px`
 
       it.quickContentTitle = this.render("text/hr", "Anwendungen für schnellen Inhalt", it.optionsContainer)
-      this.add("outline-hover", it.quickContentTitle)
+      this.add("hover-outline", it.quickContentTitle)
       it.quickContentOptions = this.create("div/flex-row", it.optionsContainer)
       it.quickContentTitle.onclick = () => toggleDisplayFlexNone(it.quickContentOptions)
       it.quickContentOptions.style.display = "none"
@@ -11682,7 +9715,7 @@ await Helper.add("event/click-funnel")
       it.openVideosOverlay = this.fn("openVideosOverlay")
 
       it.templatesTitle = this.render("text/hr", "Anwendungen für einfache Vorlagen", it.optionsContainer)
-      this.add("outline-hover", it.templatesTitle)
+      this.add("hover-outline", it.templatesTitle)
       it.templatesTitle.onclick = () => toggleDisplayFlexNone(it.templateOptions)
       it.templateOptions = this.create("div/flex-row", it.optionsContainer)
       it.templateOptions.style.display = "none"
@@ -11764,7 +9797,7 @@ await Helper.add("event/click-funnel")
       it.createDivPackOuter = this.fn("createDivPackOuter")
 
       it.eventTitle = this.render("text/hr", "Anwendungen für Events", it.optionsContainer)
-      this.add("outline-hover", it.eventTitle)
+      this.add("hover-outline", it.eventTitle)
       it.eventTitle.onclick = () => toggleDisplayFlexNone(it.eventOptions)
       it.eventOptions = this.create("div/flex-row", it.optionsContainer)
       it.eventOptions.style.display = "none"
@@ -11776,7 +9809,7 @@ await Helper.add("event/click-funnel")
 
 
       it.converterTitle = this.render("text/hr", "Anwendungen für Konverter", it.optionsContainer)
-      this.add("outline-hover", it.converterTitle)
+      this.add("hover-outline", it.converterTitle)
       it.converterTitle.onclick = () => toggleDisplayFlexNone(it.converterOptions)
       it.converterOptions = this.create("div/flex-row", it.optionsContainer)
       it.converterOptions.style.display = "none"
@@ -11802,7 +9835,7 @@ await Helper.add("event/click-funnel")
 
 
       it.inputTitle = this.render("text/hr", "Anwendungen für Eingabe Felder einsetzen", it.optionsContainer)
-      this.add("outline-hover", it.inputTitle)
+      this.add("hover-outline", it.inputTitle)
       it.inputTitle.onclick = () => toggleDisplayFlexNone(it.inputOptions)
       it.inputOptions = this.create("div/flex-row", it.optionsContainer)
       it.inputOptions.style.display = "none"
@@ -11821,7 +9854,7 @@ await Helper.add("event/click-funnel")
       it.createDateInput = this.fn("createDateInput")
 
       it.widthTitle = this.render("text/hr", "Anwendungen für die Breite", it.optionsContainer)
-      this.add("outline-hover", it.widthTitle)
+      this.add("hover-outline", it.widthTitle)
       it.widthTitle.onclick = () => toggleDisplayFlexNone(it.widthOptions)
       it.widthOptions = this.create("div/flex-row", it.optionsContainer)
       it.widthOptions.style.display = "none"
@@ -11834,7 +9867,7 @@ await Helper.add("event/click-funnel")
       it.decreaseWidthButton = this.render("text/link", "Breite -1", it.widthOptions)
 
       it.heightTitle = this.render("text/hr", "Anwendungen für die Höhe", it.optionsContainer)
-      this.add("outline-hover", it.heightTitle)
+      this.add("hover-outline", it.heightTitle)
       it.heightTitle.onclick = () => toggleDisplayFlexNone(it.heightOptions)
       it.heightOptions = this.create("div/flex-row", it.optionsContainer)
       it.heightOptions.style.display = "none"
@@ -11847,7 +9880,7 @@ await Helper.add("event/click-funnel")
       it.decreaseHeightButton = this.render("text/link", "Höhe -1", it.heightOptions)
 
       it.displayTitle = this.render("text/hr", "Anwendungen für Display Elemente", it.optionsContainer)
-      this.add("outline-hover", it.displayTitle)
+      this.add("hover-outline", it.displayTitle)
       it.displayTitle.onclick = () => toggleDisplayFlexNone(it.displayOptions)
       it.displayOptions = this.create("div/flex-row", it.optionsContainer)
       it.displayOptions.style.display = "none"
@@ -11860,7 +9893,7 @@ await Helper.add("event/click-funnel")
       it.toggleDisplayTableButton = this.render("text/link", "Display Table umschalten", it.displayOptions)
 
       it.gridTitle = this.render("text/hr", "Anwendungen für Grid Elemente", it.optionsContainer)
-      this.add("outline-hover", it.gridTitle)
+      this.add("hover-outline", it.gridTitle)
       it.gridTitle.onclick = () => toggleDisplayFlexNone(it.gridOptions)
       it.gridOptions = this.create("div/flex-row", it.optionsContainer)
       it.gridOptions.style.display = "none"
@@ -11886,7 +9919,7 @@ await Helper.add("event/click-funnel")
       it.removeGridRow = this.fn("removeGridRow")
 
       it.flexTitle = this.render("text/hr", "Anwendungen für Flex Elemente", it.optionsContainer)
-      this.add("outline-hover", it.flexTitle)
+      this.add("hover-outline", it.flexTitle)
       it.flexTitle.onclick = () => toggleDisplayFlexNone(it.flexOptions)
       it.flexOptions = this.create("div/flex-row", it.optionsContainer)
       it.flexOptions.style.display = "none"
@@ -11905,7 +9938,7 @@ await Helper.add("event/click-funnel")
       it.toggleWrapButton = this.render("text/link", "Flex Wrap umschalten", it.flexOptions)
 
       it.layerTitle = this.render("text/hr", "Anwendungen für die Layer Elemente", it.optionsContainer)
-      this.add("outline-hover", it.layerTitle)
+      this.add("hover-outline", it.layerTitle)
       it.layerTitle.onclick = () => toggleDisplayFlexNone(it.layerOptions)
       it.layerOptions = this.create("div/flex-row", it.optionsContainer)
       it.layerOptions.style.display = "none"
@@ -11927,7 +9960,7 @@ await Helper.add("event/click-funnel")
       it.positionLeftButton = this.render("text/link", "Position Links", it.layerOptions)
 
       it.transformationTitle = this.render("text/hr", "Anwendungen für die Transformation", it.optionsContainer)
-      this.add("outline-hover", it.transformationTitle)
+      this.add("hover-outline", it.transformationTitle)
       it.transformationTitle.onclick = () => toggleDisplayFlexNone(it.transformationOptions)
       it.transformationOptions = this.create("div/flex-row", it.optionsContainer)
       it.transformationOptions.style.display = "none"
@@ -11949,7 +9982,7 @@ await Helper.add("event/click-funnel")
       it.exactRotateLeftButton = this.render("text/link", "Exakt nach Links drehen", it.transformationOptions)
 
       it.editTextTitle = this.render("text/hr", "Anwendungen für die Textverarbeitung", it.optionsContainer)
-      this.add("outline-hover", it.editTextTitle)
+      this.add("hover-outline", it.editTextTitle)
       it.editTextTitle.onclick = () => toggleDisplayFlexNone(it.textManipulationOptions)
       it.textManipulationOptions = this.create("div/flex-row", it.optionsContainer)
       it.textManipulationOptions.style.display = "none"
@@ -11968,7 +10001,7 @@ await Helper.add("event/click-funnel")
       it.lineHeightButton = this.render("text/link", "Zeilenhöhe", it.textManipulationOptions)
 
       it.visibilityTitle = this.render("text/hr", "Anwendungen für die Sichtbarkeit", it.optionsContainer)
-      this.add("outline-hover", it.visibilityTitle)
+      this.add("hover-outline", it.visibilityTitle)
       it.visibilityTitle.onclick = () => toggleDisplayFlexNone(it.visibilityOptions)
       it.visibilityOptions = this.create("div/flex-row", it.optionsContainer)
       it.visibilityOptions.style.display = "none"
@@ -11981,7 +10014,7 @@ await Helper.add("event/click-funnel")
       it.addOpacityWithPrompt = this.fn("addOpacityWithPrompt")
 
       it.spacingTitle = this.render("text/hr", "Anwendungen für die Abstände", it.optionsContainer)
-      this.add("outline-hover", it.spacingTitle)
+      this.add("hover-outline", it.spacingTitle)
       it.spacingTitle.onclick = () => toggleDisplayFlexNone(it.spacingOptions)
       it.spacingOptions = this.create("div/flex-row", it.optionsContainer)
       it.spacingOptions.style.display = "none"
@@ -12008,7 +10041,7 @@ await Helper.add("event/click-funnel")
       it.exactPaddingLeftButton = this.render("text/link", "Exakter Innenabstand Links", it.spacingOptions)
 
       it.borderTitle = this.render("text/hr", "Anwendungen für die Grenzlinien", it.optionsContainer)
-      this.add("outline-hover", it.borderTitle)
+      this.add("hover-outline", it.borderTitle)
       it.borderTitle.onclick = () => toggleDisplayFlexNone(it.borderOptions)
       it.borderOptions = this.create("div/flex-row", it.optionsContainer)
       it.borderOptions.style.display = "none"
@@ -12038,7 +10071,7 @@ await Helper.add("event/click-funnel")
       it.exactBoxShadowButton = this.render("text/link", "Exakter Box Schatten", it.borderOptions)
 
       it.mediaQueriesTitle = this.render("text/hr", "Anwendungen für Media Queries", it.optionsContainer)
-      this.add("outline-hover", it.mediaQueriesTitle)
+      this.add("hover-outline", it.mediaQueriesTitle)
       it.mediaQueriesTitle.onclick = () => toggleDisplayFlexNone(it.mediaQueriesOptions)
       it.mediaQueriesOptions = this.create("div/flex-row", it.optionsContainer)
       it.mediaQueriesOptions.style.display = "none"
@@ -12055,7 +10088,7 @@ await Helper.add("event/click-funnel")
       it.addPrinterStyle = this.fn("addPrinterStyle")
 
       it.optimizeWorkTitle = this.render("text/hr", "Anwendungen für schnelle Korrekturen", it.optionsContainer)
-      this.add("outline-hover", it.optimizeWorkTitle)
+      this.add("hover-outline", it.optimizeWorkTitle)
       it.optimizeWorkTitle.onclick = () => toggleDisplayFlexNone(it.optimizeWorkOptions)
       it.optimizeWorkOptions = this.create("div/flex-row", it.optionsContainer)
       it.optimizeWorkOptions.style.display = "none"
@@ -12094,7 +10127,7 @@ await Helper.add("event/click-funnel")
 
 
       it.contentCheckerTitle = this.render("text/hr", "Anwendungen für Inhalte prüfen", it.optionsContainer)
-      this.add("outline-hover", it.contentCheckerTitle)
+      this.add("hover-outline", it.contentCheckerTitle)
       it.contentCheckerTitle.onclick = () => toggleDisplayFlexNone(it.contentCheckerOptions)
       it.contentCheckerOptions = this.create("div/flex-row", it.optionsContainer)
       it.contentCheckerOptions.style.display = "none"
@@ -12103,7 +10136,7 @@ await Helper.add("event/click-funnel")
       // do some crazy shit with content
 
       it.forEachChildTitle = this.render("text/hr", "Anwendungen für jedes Kind Element", it.optionsContainer)
-      this.add("outline-hover", it.forEachChildTitle)
+      this.add("hover-outline", it.forEachChildTitle)
       it.forEachChildTitle.onclick = () => toggleDisplayFlexNone(it.forEachChildrenOptions)
       it.forEachChildrenOptions = this.create("div/flex-row", it.optionsContainer)
       it.forEachChildrenOptions.style.display = "none"
@@ -12111,7 +10144,7 @@ await Helper.add("event/click-funnel")
       it.fontSizeForEachChildButton = this.render("text/link", "Schriftgröße definieren", it.forEachChildrenOptions)
 
       it.pickColorTitle = this.render("text/hr", "Anwendungen für Code und Farben wählen", it.optionsContainer)
-      this.add("outline-hover", it.pickColorTitle)
+      this.add("hover-outline", it.pickColorTitle)
       it.pickColorTitle.onclick = () => toggleDisplayFlexNone(it.colorPickerOptions)
       it.colorPickerOptions = this.create("div/flex-row", it.optionsContainer)
       it.colorPickerOptions.style.display = "none"
@@ -12123,7 +10156,7 @@ await Helper.add("event/click-funnel")
       })
 
       it.pickSvgTitle = this.render("text/hr", "Anwendungen für SVG einsetzen", it.optionsContainer)
-      this.add("outline-hover", it.pickSvgTitle)
+      this.add("hover-outline", it.pickSvgTitle)
       it.pickSvgTitle.onclick = () => toggleDisplayFlexNone(it.svgPickerOptions)
       it.svgPickerOptions = this.create("div/flex-row", it.optionsContainer)
       it.svgPickerOptions.style.display = "none"
@@ -12272,26 +10305,6 @@ await Helper.add("event/click-funnel")
       }
     }
 
-    if (event === "createProfileSurveysBox") {
-
-      return (node) => {
-        const box = this.create("div")
-        this.style(box, {borderRadius: "5px", margin: "21px 13px", fontFamily: "sans-serif", boxShadow: "rgba(0, 0, 0, 0.13) 0px 1px 3px"})
-        node.appendChild(box)
-        const title = this.create("h2")
-        title.textContent = "Umfragen"
-        box.appendChild(title)
-        this.style(title, {margin: "0", padding: "13px"})
-        const valueUnits = this.create("div")
-        valueUnits.classList.add("profile-surveys")
-        this.style(valueUnits, {padding: "13px"})
-        box.appendChild(valueUnits)
-        const script = this.create("script", {id: "profile-surveys", js: 'await Helper.add("profile-surveys")'})
-        this.add("script-onbody", script)
-        window.alert("Vorlage wurde erfolgreich angehängt.")
-      }
-    }
-
     if (event === "createMyValueUnitsBox") {
 
       return (node) => {
@@ -12306,7 +10319,7 @@ await Helper.add("event/click-funnel")
         valueUnits.classList.add("my-value-units")
         this.style(valueUnits, {padding: "13px"})
         box.appendChild(valueUnits)
-        const script = this.create("script", {id: "my-value-units", js: 'await Helper.add("my-value-units")'})
+        const script = this.create("script/id", "my-value-units")
         this.add("script-onbody", script)
         window.alert("Vorlage wurde erfolgreich angehängt.")
       }
@@ -12683,7 +10696,7 @@ await Helper.add("event/click-funnel")
         link.target = "_blank"
         link.textContent = `DuckDuckGo-Suche für ' ${textContent} ' öffnen.`
         Helper.style(link, {fontFamily: "sans-serif"})
-        Helper.convert("link-colors", link)
+        Helper.convert("link", link)
         node.textContent = ""
         node.appendChild(link)
       }
@@ -12806,153 +10819,52 @@ await Helper.add("event/click-funnel")
         }
       }
 
-      async function icon() {
-        const icon = await Helper.create("icon/branch")
-        return icon
-      }
-
       function renderFeedback(type, feedback, container, button, overlay, script) {
 
-        Helper.convert("parent/scrollable", container)
-        container.style.margin = "21px 34px"
-        container.style.overscrollBehavior = "none"
-        container.style.fontFamily = "monospace"
-        container.style.fontSize = "21px"
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          container.style.color = Helper.colors.dark.text
-        } else {
-          container.style.color = Helper.colors.light.text
-        }
-
+        Helper.reset("node", container)
+        container.className = "monospace fs21 mtb21 mlr34 color-theme"
         for (let i = 0; i < feedback.length; i++) {
           const it = feedback[i]
+          const button = Helper.render("button/feedback", {it, i}, container)
+          Helper.add("hover-outline", button)
+          button.onclick = () => {
 
-          const div = document.createElement("div")
-          Helper.add("outline-hover", div)
-          div.style.display = "flex"
-          div.style.justifyContent = "space-between"
-          div.style.alignItems = "center"
+            Helper.overlay("pop", o1 => {
+              const content = o1.content
+              const remove = Helper.render("button/left-right", {left: ".remove", right: "Feedback entfernen"}, content)
+              remove.onclick = async () => {
 
-          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            if (i % 2 === 0) {
-              div.style.background = Helper.colors.light.foreground
-              div.style.color = Helper.colors.light.text
-            } else {
-              div.style.background = Helper.colors.dark.foreground
-              div.style.color = Helper.colors.dark.text
-            }
-          } else {
-            if (i % 2 === 1) {
-              div.style.background = Helper.colors.light.foreground
-              div.style.color = Helper.colors.light.text
-            } else {
-              div.style.background = Helper.colors.dark.foreground
-              div.style.color = Helper.colors.dark.text
-            }
-          }
-
-          const left = document.createElement("span")
-          left.textContent = `${Helper.convert("millis/dd.mm.yyyy hh:mm", it.created)}`
-          div.appendChild(left)
-
-          const nextToLeft = document.createElement("span")
-          nextToLeft.style.width = "100%"
-          nextToLeft.style.padding = "8px"
-          nextToLeft.textContent = it.text
-          div.appendChild(nextToLeft)
-
-          const right = document.createElement("span")
-          right.style.padding = "13px"
-          right.textContent = it.importance
-          div.appendChild(right)
-
-          container.appendChild(div)
-
-          div.style.cursor = "pointer"
-          div.onclick = () => {
-            Helper.overlay("popup", updateFeedbackOverlay => {
-              const removeButton = Helper.create("button/left-right", updateFeedbackOverlay)
-              Helper.add("outline-hover", removeButton)
-              Helper.render("icon/node/path", "/public/bucket.svg", removeButton.left).then(icon => {
-                icon.style.width = "34px"
-              })
-              removeButton.right.textContent = "Feedback entfernen"
-              removeButton.onclick = async () => {
                 const confirm = window.confirm("Möchtest du diesen Beitrag wirklich entfernen?")
                 if (confirm === true) {
-
-                  let res
-                  if (type === "html-value") {
-                    res = await Helper.request(`/remove/feedback/${type}/`, {id: it.created})
-                  }
-                  if (type === "script") {
-                    res = await Helper.request(`/remove/feedback/${type}/`, {scriptId: script.created, feedbackId: it.created})
-                  }
-
+                  const res = await Helper.request("/remove/location/feedback/", {created: it.created})
                   if (res && res.status === 200) {
                     window.alert("Dieser Beitrag wurde erfolgreich entfernt.")
                     const counter = document.querySelector("div.counter")
                     counter.textContent = parseInt(counter.textContent) - 1
                     updateCounter()
-                    div.remove()
-                    updateFeedbackOverlay.remove()
-                    overlay.remove()
+                    button.remove()
+                    o1.remove()
                   } else {
                     window.alert("Fehler.. Bitte wiederholen.")
-                    updateFeedbackOverlay.remove()
                   }
                 }
               }
             })
           }
         }
-
-      }
-
-      function createFeedbackFields(node) {
-        const fields = {}
-        fields.textField = Helper.create("input/textarea", node)
-        fields.textField.input.setAttribute("required", "true")
-        fields.textField.input.maxLength = "377"
-        fields.textField.input.style.fontSize = "13px"
-        fields.textField.input.placeholder = "Schreibe ein anonymes Feedback, wenn du möchtest.."
-        Helper.verify("input/value", fields.textField.input)
-        Helper.add("outline-hover", fields.textField.input)
-        fields.textField.input.addEventListener("input", () => Helper.verify("input/value", fields.textField.input))
-        fields.importanceField = Helper.create("field/range", node)
-        fields.importanceField.input.min = "0"
-        fields.importanceField.input.max = "13"
-        fields.importanceField.input.step = "1"
-        fields.importanceField.input.value = "0"
-        fields.importanceField.label.textContent = `Wichtigkeit - ${fields.importanceField.input.value}`
-        fields.importanceField.input.style.cursor = "pointer"
-        Helper.add("outline-hover", fields.importanceField.input)
-        Helper.verify("input/value", fields.importanceField.input)
-        fields.importanceField.input.addEventListener("input", (event) => {
-          Helper.verify("input/value", fields.importanceField.input)
-          fields.importanceField.label.textContent = `Wichtigkeit - ${event.target.value}`
-        })
-        fields.submit = Helper.create("toolbox/action", node)
-        fields.submit.textContent = "Feedback jetzt speichern"
-        return fields
       }
 
       function bodyButton() {
-        const button = Helper.create("button/html-feedback")
-        button.classList.add("feedback")
-        button.counter.textContent = "0"
-        Helper.convert("dark-light", button)
 
-        let exist = false
-        document.querySelectorAll("*").forEach(node => {
-          if (node.classList.contains("feedback") && node.classList.contains("button")) {
-            exist = true
-          }
-        })
-        if (exist === false) document.body.appendChild(button)
-
+        let button = document.querySelector(".html-feedback")
+        Helper.add("hover-outline", button)
+        if (!button) {
+          button = Helper.create("button/branch")
+          button.className += " html-feedback"
+          Helper.append(button, document.body)
+        }
         const counter = document.querySelector("div.counter")
-        Helper.request("/get/feedback/length-html-value/").then((res) => {
+        Helper.request("/get/location/feedback-length/").then(res => {
           if (res.status === 200) {
             counter.textContent = res.response
             if (parseInt(counter.textContent) > 0) {
@@ -12961,14 +10873,11 @@ await Helper.add("event/click-funnel")
             }
           }
         })
-
-        const feedbackButton = document.querySelector("div.feedback.button")
-        Helper.add("outline-hover", feedbackButton)
-        feedbackButton.onclick = () => openLocationOverlay(button)
+        button.onclick = () => openLocationOverlay(button)
       }
 
       async function initScriptCounter(id, button) {
-        const res = await Helper.request("/get/feedback/length-script/", {id})
+        const res = await Helper.request("/get/script/feedback-length/", {created: id})
         if (res.status === 200) {
           const counter = document.querySelector("div.counter")
           counter.textContent = res.response
@@ -12977,134 +10886,51 @@ await Helper.add("event/click-funnel")
       }
 
       async function getLocationFeedback(container, button, overlay) {
-        const res = await Helper.request(`/get/feedback/html-value/`)
+
+        const res = await Helper.request("/get/location/feedback/")
+        container.textContent = ""
         if (res && res.status === 200) {
           const feedback = JSON.parse(res.response)
           renderFeedback("html-value", feedback, container, button, overlay)
         } else {
-          Helper.convert("style/info", container)
           container.textContent = "Kein Feedback gefunden"
-          Helper.style(container, {margin: "21px 34px"})
         }
       }
 
       function openLocationOverlay(button) {
-        Helper.overlay("popup", async overlay => {
-          overlay.info.textContent = `html.feedback`
-          const funnel = Helper.create("div/scrollable", overlay)
-          const fields = createFeedbackFields(funnel)
-          fields.submit.onclick = async () => {
-            await Helper.verify("input/value", fields.textField.input)
-            Helper.overlay("security", async securityOverlay => {
-              const res = await Helper.request(`/register/feedback/html-value/`, {text: fields.textField.input.value, importance: fields.importanceField.input.value})
+
+        Helper.overlay("pop", async o1 => {
+          o1.addInfo(`location.feedback`)
+          const content = o1.content
+          const funnel = Helper.funnel("feedback", content)
+          funnel.submit.onclick = async () => {
+
+            await Helper.verify("funnel", funnel)
+            const text = funnel.feedback.input.value
+            const importance = funnel.importance.input.value
+            Helper.overlay("lock", async o2 => {
+              const res = await Helper.request("/register/location/feedback/", {text, importance})
               if (res.status === 200) {
-                window.alert("Vielen Dank für dein Feedback.\n\nDein Feedback ist vollkommen anonym, dynamisch und hilft dabei diese Webseite, noch besser für dich, zu optimieren.")
-                securityOverlay.remove()
-                overlay.remove()
+                window.alert("Vielen Dank für dein Feedback.\n\nDein Feedback ist vollkommen anonym, dynamisch und hilft dabei, diese Webseite, noch besser für dich zu optimieren.")
                 const counter = document.querySelector("div.counter")
                 counter.textContent = parseInt(counter.textContent) + 1
                 updateCounter()
-                await getLocationFeedback(feedbackContainer, button, overlay)
+                funnel.feedback.input.value = ""
+                Helper.add("style/not-valid", funnel.feedback.input)
+                await getLocationFeedback(feedbackContainer, button, o1)
               } else {
                 window.alert("Fehler.. Bitte wiederholen.")
-                securityOverlay.remove()
               }
+              o2.remove()
             })
           }
-          const feedbackContainer = Helper.create("info/loading", funnel)
-          await getLocationFeedback(feedbackContainer, button, overlay)
+          const feedbackContainer = Helper.div("monospace fs21 mtb21 mlr34 color-theme text-center", content)
+          Helper.create("div/loading", feedbackContainer)
+          await getLocationFeedback(feedbackContainer, button, o1)
         })
       }
 
-      function openScriptOverlay(button, script) {
-
-        Helper.overlay("popup", async overlay => {
-          overlay.info.textContent = `${script.name}.feedback`
-          const funnel = Helper.create("div/scrollable", overlay)
-          const fields = createFeedbackFields(funnel)
-          fields.submit.onclick = async () => {
-            await Helper.verify("field-funnel", funnel)
-            Helper.overlay("security", async securityOverlay => {
-              const res = await Helper.request("/register/feedback/script/", {id: script.created, text: fields.textField.input.value, importance: fields.importanceField.input.value})
-              if (res.status === 200) {
-                window.alert("Vielen Dank für dein Feedback.\n\nDein Feedback ist vollkommen anonym, dynamisch und hilft dabei dieses Skript, noch besser für dich, zu optimieren.")
-                securityOverlay.remove()
-                overlay.remove()
-                const counter = document.querySelector("div.counter")
-                counter.textContent = parseInt(counter.textContent) + 1
-                updateCounter()
-              } else {
-                window.alert("Fehler.. Bitte wiederholen.")
-                securityOverlay.remove()
-              }
-            })
-          }
-          const feedbackContainer = Helper.create("info/loading", funnel)
-          const res = await Helper.request("/get/feedback/script/", {id: script.created})
-          if (res && res.status === 200) {
-            const feedback = JSON.parse(res.response)
-            renderFeedback("script", feedback, feedbackContainer, button, overlay, script)
-          } else {
-            Helper.convert("style/info", feedbackContainer)
-            feedbackContainer.textContent = "Kein Feedback gefunden"
-            Helper.style(feedbackContainer, {margin: "21px 34px"})
-          }
-        })
-      }
-
-      return {open, icon, openScriptOverlay, bodyButton, initScriptCounter}
-    }
-
-    if (event === "handleClassName") {
-
-      const {platform, key} = input
-      const numerology = this.fn("numerology")
-
-
-      const handlers = {
-
-        birthdate: (node, value) => {
-
-          if (platform === "numerologie") {
-            const date = new Date(value)
-            const lifepath = numerology.dateToLifePath(date)
-            const lifepathText = Helper.convert("number/de", lifepath)
-            const millis = date.getTime()
-            const formatted = Helper.convert("millis/dd.mm.yyyy", millis)
-            node.textContent = formatted
-            Helper.on("hover", {node, class: "outline pointer"})
-            node.onclick = ev => {
-              numerology.openBirthDateOverlay(date)
-            }
-            document.querySelectorAll("[lifepath='number']").forEach(node => node.textContent = lifepath)
-            fetch(`/entwicklung/numerologie/geburtsenergie-${lifepathText}/`)
-            .then(data => data.text())
-            .then(async text => {
-              const purified = await this.convert("text/purified", text)
-              const doc = this.convert("text/doc", purified)
-              const contentNodes = Array.from(doc.body.querySelectorAll(".content"))
-              if (contentNodes.length > 0) {
-                const randomIndex = Math.floor(Math.random() * contentNodes.length)
-                const randomText = contentNodes[randomIndex].textContent
-                const lifepathNode = document.querySelector("[lifepath='content']")
-                if (lifepathNode) {
-                  lifepathNode.textContent = randomText
-                }
-              }
-            })
-          }
-        },
-        birthname: (node, value) => {
-
-          node.textContent = value
-          Helper.on("hover", {node, class: "outline pointer"})
-          node.onclick = ev => {
-            numerology.openBirthNameOverlay(value)
-          }
-        },
-        default: (node, value) => node.textContent = value
-      }
-      return handlers[key] || handlers.default
+      return {open, bodyButton, initScriptCounter}
     }
 
     if (event === "incrementStyle") {
@@ -13215,803 +11041,6 @@ await Helper.add("event/click-funnel")
 
     }
 
-    if (event === "numerology") {
-
-      const it = {}
-      const numbersAsText = ['eins', 'zwei', 'drei', 'vier', 'fuenf', 'sechs', 'sieben', 'acht', 'neun']
-      const occurencies = ['ein-mal', 'zwei-mal', 'drei-mal', 'vier-mal', 'fuenf-mal', 'sechs-mal', 'sieben-mal', 'acht-mal', 'neun-mal']
-      const latinAlphabet = {
-        'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5,
-        'f': 6, 'g': 7, 'h': 8, 'i': 9, 'j': 1,
-        'k': 2, 'l': 3, 'm': 4, 'n': 5, 'o': 6,
-        'p': 7, 'q': 8, 'r': 9, 's': 1, 't': 2,
-        'u': 3, 'v': 4, 'w': 5, 'x': 6, 'y': 7,
-        'z': 8
-      }
-      const greekAlphabet = {
-        'α': 1, 'β': 2, 'γ': 3, 'δ': 4, 'ε': 5,
-        'ζ': 6, 'η': 7, 'θ': 8, 'ι': 9, 'κ': 1,
-        'λ': 2, 'μ': 3, 'ν': 4, 'ξ': 5, 'ο': 6,
-        'π': 7, 'ρ': 8, 'σ': 9, 'τ': 1, 'υ': 2,
-        'φ': 3, 'χ': 4, 'ψ': 5, 'ω': 6
-      }
-      const russianAlphabet = {
-        'а': 1, 'б': 2, 'в': 3, 'г': 4, 'д': 5,
-        'е': 6, 'ё': 7, 'ж': 8, 'з': 9, 'и': 1,
-        'й': 2, 'к': 3, 'л': 4, 'м': 5, 'н': 6,
-        'о': 7, 'п': 8, 'р': 9, 'с': 1, 'т': 2,
-        'у': 3, 'ф': 4, 'х': 5, 'ц': 6, 'ч': 7,
-        'ш': 8, 'щ': 9, 'ъ': 1, 'ы': 2, 'ь': 3,
-        'э': 4, 'ю': 5, 'я': 6
-      }
-      const alphabetMap = {
-        ...latinAlphabet,
-        ...greekAlphabet,
-        ...russianAlphabet
-      }
-      const latinConsonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z']
-      const greekConsonants = ['β', 'γ', 'δ', 'ζ', 'θ', 'κ', 'λ', 'μ', 'ν', 'ξ', 'π', 'ρ', 'σ', 'τ', 'φ', 'χ', 'ψ']
-      const russianConsonants = ['б', 'в', 'г', 'д', 'ж', 'з', 'й', 'к', 'л', 'м', 'н', 'п', 'р', 'с', 'т', 'ф', 'х', 'ц', 'ч', 'ш', 'щ']
-      const consonants = [
-        ...latinConsonants,
-        ...greekConsonants,
-        ...russianConsonants
-      ]
-      const latinVowels = ['a', 'e', 'i', 'o', 'u', 'y']
-      const greekVowels = ['α', 'ε', 'η', 'ι', 'ο', 'υ', 'ω']
-      const russianVowels = ['а', 'е', 'ё', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я']
-      const vowels = [
-        ...latinVowels,
-        ...greekVowels,
-        ...russianVowels
-      ]
-      function calculateAge(date) {
-        const currentDate = new Date()
-        let age = currentDate.getFullYear() - date.getFullYear()
-        const currentMonth = currentDate.getMonth()
-        const birthMonth = date.getMonth()
-        if (currentMonth < birthMonth || (currentMonth === birthMonth && currentDate.getDate() < date.getDate())) {
-          age--
-        }
-        return age
-      }
-      function renderDiv(node) {
-        const div = document.createElement("div")
-        Helper.style(div, {margin: "21px 34px", fontFamily: "sans-serif"})
-        node.appendChild(div)
-        return div
-      }
-      function renderTitleSpan(text, node) {
-        const span = document.createElement("span")
-        span.textContent = text
-        span.style.fontSize = "21px"
-        Helper.convert("text/dark-light", span)
-        node.appendChild(span)
-        return span
-      }
-      function renderHighlightedSpan(text, node) {
-        const span = Helper.create("box")
-        span.style.fontSize = "34px"
-        span.style.margin = "0 8px"
-        span.textContent = text
-        Helper.convert("text/dark-light", span)
-        node.appendChild(span)
-        return span
-      }
-      function renderTitle(title, node) {
-        const titleNode = Helper.create("box", node)
-        titleNode.textContent = `${title}:`
-        const tag = title.toLowerCase().replaceAll(" ", "-").replaceAll("ü", "ue").replaceAll("ö", "oe").replaceAll("ä", "ae").replaceAll("1.", "ersten").replaceAll("2.", "zweiten").replaceAll("3.", "dritten").replaceAll("4.", "vierten")
-        titleNode.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/${tag}/", "_blank")`)
-        return titleNode
-      }
-      function dateToIsoSplit(date) {
-        const isoDate = date.toISOString()
-        return isoDate.split("T")[0]
-      }
-      function renderLifePathCalculation(date) {
-        date = dateToIsoSplit(date)
-        const digits = [...date.toString()].map(digit => parseInt(digit))
-        let text
-        for (let i = 0; i < digits.length; i++) {
-          const digit = digits[i]
-          if (Helper.verifyIs("number/empty", digit)) continue
-          if (text === undefined) {
-            text = digit
-          } else {
-            text = text + " + " + digit
-          }
-        }
-        return text
-      }
-      function dateToMaster(date) {
-        date = dateToIsoSplit(date)
-        const digits = [...date.toString()].map(digit => parseInt(digit, 10)).filter(Number.isFinite)
-        let sum = digits.reduce((acc, digit) => acc + digit, 0)
-        let prevSum = sum
-        const seenSums = new Set()
-        while (![11, 22, 33].includes(sum) && ![0, 1, 4, 6, 7, 9].includes(sum) && !seenSums.has(sum)) {
-          seenSums.add(sum)
-          prevSum = sum
-          sum = [...sum.toString()].map(digit => parseInt(digit, 10)).reduce((acc, digit) => acc + digit, 0)
-          if (![11, 22, 33].includes(sum) && ![0, 1, 4, 6, 7, 9].includes(sum)) {
-            break
-          }
-        }
-        return ![11, 22, 33].includes(sum) ? prevSum : sum
-      }
-      function renderEqualsSign(node) {
-        const equalsSign = renderTitleSpan("=", node)
-        equalsSign.style.margin = "0 5px"
-        return equalsSign
-      }
-      it.dateToLifePath = date => {
-
-        date = dateToIsoSplit(date)
-        const digits = [...date.toString()].map(digit => parseInt(digit))
-        let sum = 0
-        for (let i = 0; i < digits.length; i++) {
-          const digit = digits[i]
-          if (Helper.verifyIs("number/empty", digit)) continue
-          sum += digit
-        }
-        while (sum > 9) {
-          sum = [...sum.toString()].reduce((acc, digit) => acc + parseInt(digit), 0)
-        }
-        return sum
-      }
-      function openLifePath(lifePath) {
-        const url = `/entwicklung/numerologie/geburtsenergie-${numbersAsText[lifePath - 1]}/`
-        window.open(url, "_blank")
-      }
-      function getDigits(number) {
-        const numberString = Math.abs(number).toString()
-        return Array.from(numberString, Number)
-      }
-      function sumDigits(number) {
-        const digits = getDigits(number)
-        const sum = digits.reduce((accumulator, currentValue) => accumulator + currentValue, 0)
-        return sum
-      }
-      function reduceToSingleDigit(number) {
-        let result = number
-        while (result >= 10) {
-          result = sumDigits(result)
-        }
-        return result
-      }
-      function createPrevailingEnergies(data, node) {
-        const fragment = document.createDocumentFragment()
-        const keys = Object.keys(data)
-        for (let i = 0; i < keys.length; i++) {
-          const key = keys[i]
-          if (key === "0") continue
-          if (data[key] >= 2) {
-            const div = Helper.create("box")
-            div.style.display = "inline-block"
-            div.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/vorherrschende-energie-${numbersAsText[key - 1]}/", "_blank")`)
-            fragment.appendChild(div)
-            const span1 = document.createElement("span")
-            span1.textContent = `${data[key]}x`
-            span1.style.fontSize = "21px"
-            div.appendChild(span1)
-            const span2 = document.createElement("span")
-            span2.textContent = `${key},`
-            span2.style.fontSize = "34px"
-            div.appendChild(span2)
-          }
-        }
-        node.appendChild(fragment)
-        return node
-      }
-      function countOccurrences(array) {
-        const occurrences = {}
-        array.forEach(number => {
-          occurrences[number] = (occurrences[number] || 0) + 1
-        })
-        return occurrences
-      }
-      function splitYear(year) {
-        const yearString = year.toString()
-        const firstPart = yearString.substring(0, 2)
-        const secondPart = yearString.substring(2)
-        return [firstPart, secondPart]
-      }
-      function fillDateNumbers(date) {
-        const isoDateSplit = dateToIsoSplit(date)
-        const dateNumbers = isoDateSplit.match(/\d/g).map(Number)
-        const lifePathNumber = it.dateToLifePath(date)
-        dateNumbers.push(lifePathNumber)
-        const day = date.getDate()
-        const sumDay = reduceToSingleDigit(day)
-        dateNumbers.push(sumDay)
-        const month = date.getMonth() + 1
-        const sumMonth = reduceToSingleDigit(month)
-        dateNumbers.push(sumMonth)
-        const year = date.getFullYear()
-        const [yearFirstPart, yearSecondPart] = splitYear(year)
-        const sumYearFirstPart = reduceToSingleDigit(Number(yearFirstPart))
-        const sumYearSecondPart = reduceToSingleDigit(Number(yearSecondPart))
-        dateNumbers.push(sumYearFirstPart)
-        dateNumbers.push(sumYearSecondPart)
-        const sumDayAndMonth = reduceToSingleDigit(sumDay + sumMonth)
-        dateNumbers.push(sumDayAndMonth)
-        const sumYear = reduceToSingleDigit(sumYearFirstPart + sumYearSecondPart)
-        dateNumbers.push(sumYear)
-        return dateNumbers
-      }
-      function createRecedingEnergy(array, node) {
-        const fragment = document.createDocumentFragment()
-        for (let i = 0; i < array.length; i++) {
-          const number = array[i]
-          const div = Helper.create("box")
-          div.textContent = `${number}${i === array.length - 1 ? "" : ","}`
-          div.style.fontSize = "34px"
-          Helper.convert("text/dark-light", div)
-          Helper.add("outline-hover", div)
-          div.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/zuruecktretende-energie-${numbersAsText[number - 1]}/")`)
-          fragment.appendChild(div)
-        }
-        node.appendChild(fragment)
-        return node
-      }
-      function openTones(tone, occurency) {
-        const url = `/entwicklung/numerologie/tonarten-${occurencies[occurency - 1]}-${numbersAsText[tone - 1]}/`
-        window.open(url, "_blank")
-      }
-      function createTones(array, node) {
-        const data = countOccurrences(array)
-        const fragment = document.createDocumentFragment()
-        const keys = Object.keys(data)
-        for (let i = 0; i < keys.length; i++) {
-          const key = keys[i]
-          if (key === "0") continue
-          if (data[key] >= 1) {
-            const div = Helper.create("box")
-            div.style.display = "inline-block"
-            div.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/tonarten-${occurencies[data[key] - 1]}-${numbersAsText[key - 1]}/")`)
-            fragment.appendChild(div)
-            const span1 = document.createElement("span")
-            span1.textContent = `${data[key]}x`
-            span1.style.fontSize = "21px"
-            div.appendChild(span1)
-            const span2 = document.createElement("span")
-            span2.textContent = `${key},`
-            span2.style.fontSize = "34px"
-            div.appendChild(span2)
-          }
-        }
-        node.appendChild(fragment)
-        return node
-      }
-      function renderBirthNameEnergy(array, node) {
-        const fragment = document.createDocumentFragment()
-        for (let i = 0; i < array.length; i++) {
-          const number = array[i]
-          const div = Helper.create("box")
-          div.textContent = `${number}${i === array.length - 1 ? "" : ","}`
-          div.style.fontSize = "34px"
-          div.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/geburtsname-${numbersAsText[number - 1]}/", "_blank")`)
-          fragment.appendChild(div)
-        }
-        node.appendChild(fragment)
-        return node
-      }
-      function reduceStringToSingleDigit(str) {
-        let sum = 0
-        for (let i = 0; i < str.length; i++) {
-          const char = str[i].toLowerCase()
-          if (alphabetMap.hasOwnProperty(char)) {
-            sum += alphabetMap[char]
-          }
-        }
-        while (sum >= 10) {
-          const digits = String(sum).split("").map(Number)
-          sum = digits.reduce((acc, val) => acc + val, 0)
-        }
-        return sum
-      }
-      function reduceVowelsToSingleDigit(str) {
-        let sum = 0
-        for (let i = 0; i < str.length; i++) {
-          if (vowels.includes(str[i].toLowerCase())) {
-            sum += alphabetMap[str[i].toLowerCase()] || 0
-          }
-        }
-        while (sum >= 10) {
-          const digits = String(sum).split("").map(Number)
-          sum = digits.reduce((acc, val) => acc + val, 0)
-        }
-        return sum
-      }
-      function reduceConsonantsToSingleDigit(str) {
-        let sum = 0
-        for (let i = 0; i < str.length; i++) {
-          if (consonants.includes(str[i].toLowerCase())) {
-            sum += alphabetMap[str[i].toLowerCase()] || 0
-          }
-        }
-        while (sum >= 10) {
-          const digits = String(sum).split("").map(Number)
-          sum = digits.reduce((acc, val) => acc + val, 0)
-        }
-        return sum
-      }
-      function findDoubleLetters(str) {
-        const result = []
-        for (let i = 1; i < str.length; i++) {
-          const currentChar = str[i].toLowerCase()
-          const previousChar = str[i - 1].toLowerCase()
-          if (currentChar === previousChar) {
-            result.push(alphabetMap[currentChar])
-          }
-        }
-        return result
-      }
-      function openDoubleLetters(energy) {
-        const url = `/entwicklung/numerologie/doppelte-buchstaben-${numbersAsText[energy - 1]}/`
-        window.open(url, "_blank")
-      }
-      function renderDoubleLettersValue(number, array) {
-        const div = Helper.create("box")
-        div.classList.add("double-letters-value")
-        div.textContent = `${number}${i === array.length - 1 ? "" : ","}`
-        div.style.display = "inline-block"
-        div.style.margin = "0 5px"
-        div.style.fontSize = "34px"
-        Helper.convert("text/dark-light", div)
-        Helper.add("outline-hover", div)
-        div.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/doppelte-buchstaben-${numbersAsText[number - 1]}/", "_blank")`)
-        return div
-      }
-      function countFourAndFive(str) {
-        let count = 0
-        for (let i = 0; i < str.length; i++) {
-          const char = str[i].toLowerCase()
-          const value = alphabetMap[char]
-          if (value === 4 || value === 5) {
-            count++
-          }
-        }
-        return count
-      }
-      function countTwoThreeAndSix(str) {
-        let count = 0
-        for (let i = 0; i < str.length; i++) {
-          const char = str[i].toLowerCase()
-          const value = alphabetMap[char]
-          if (value === 2 || value === 3 || value === 6) {
-            count++
-          }
-        }
-        return count
-      }
-      function countOneAndEight(str) {
-        let count = 0
-        for (let i = 0; i < str.length; i++) {
-          const char = str[i].toLowerCase()
-          const value = alphabetMap[char]
-          if (value === 1 || value === 8) {
-            count++
-          }
-        }
-        return count
-      }
-      function countSevenAndNine(str) {
-        let count = 0
-        for (let i = 0; i < str.length; i++) {
-          const char = str[i].toLowerCase()
-          const value = alphabetMap[char]
-          if (value === 7 || value === 9) {
-            count++
-          }
-        }
-        return count
-      }
-      it.openBirthDateOverlay = (date) => {
-
-        this.overlay("pop", o1 => {
-          it.renderBirthDate(date, o1.content)
-        })
-      }
-      it.openBirthNameOverlay = (name) => {
-
-        this.overlay("pop", o1 => {
-          it.renderBirthName(name, o1.content)
-        })
-      }
-      it.renderAge = (date, node) => {
-        const age = calculateAge(date)
-        const ageDiv = renderDiv(node)
-        renderTitleSpan("Alter:", ageDiv)
-        renderHighlightedSpan(age, ageDiv)
-      }
-      it.renderBirthDate = (date, node) => {
-
-        if (date && node){
-          it.renderAge(date, node)
-          it.renderLifePath(date, node)
-          it.renderMaster(date, node)
-          it.renderBirthDayEnergy(date, node)
-          it.renderPrevailingEnergies(date, node)
-          it.renderRecedingEnergies(date, node)
-          it.renderTones(date, node)
-          it.renderFirstCycle(date, node)
-          it.renderFirstKeyTone(date, node)
-          it.renderSecondCycle(date, node)
-          it.renderSecondKeyTone(date, node)
-          it.renderThirdCycle(date, node)
-          it.renderThirdKeyTone(date, node)
-          it.renderFourthCycle(date, node)
-          it.renderFourthKeyTone(date, node)
-        }
-      }
-      it.renderBirthName = (name, node) => {
-
-        if (name && node){
-          it.renderBirthNameEnergies(name, node)
-          it.renderDeterminationEnergy(name, node)
-          it.renderHeartsDesire(name, node)
-          it.renderPersona(name, node)
-          it.renderDoubleLetterEnergies(name, node)
-          it.renderPhysicalLevel(name, node)
-          it.renderEmotionalLevel(name, node)
-          it.renderMentalLevel(name, node)
-          it.renderIntuitiveLevel(name, node)
-        }
-      }
-      it.renderLifePath = (date, node) => {
-        const lifePathDiv = renderDiv(node)
-        renderTitle("Geburtsenergie", lifePathDiv)
-        const lifePathCalc = renderTitleSpan(renderLifePathCalculation(date), lifePathDiv)
-        lifePathCalc.style.margin = "0 5px"
-        renderEqualsSign(lifePathDiv)
-        const master = dateToMaster(date)
-        const masterCalc = renderTitleSpan(master.toString().split('').join(' + '), lifePathDiv)
-        masterCalc.style.margin = "0 5px"
-        renderEqualsSign(lifePathDiv)
-        const lifePathNumber = it.dateToLifePath(date)
-        const lifePathResult = renderHighlightedSpan(lifePathNumber, lifePathDiv)
-        Helper.add("outline-hover", lifePathResult)
-        lifePathResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/geburtsenergie-${numbersAsText[lifePathResult.textContent - 1]}/", "_blank")`)
-      }
-      it.renderMaster = (date, node) => {
-        const master = dateToMaster(date)
-        if (master === 11 || master === 22 || master === 33) {
-          const masterDiv = renderDiv(node)
-          renderTitle("Masterenergie", masterDiv)
-          const masterResult = renderHighlightedSpan(master, masterDiv)
-          Helper.add("outline-hover", masterResult)
-          if (master === 11) {
-            masterResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/masterenergie-elf/", "_blank")`)
-          }
-
-          if (master === 22) {
-            masterResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/masterenergie-zwei-und-zwanzig/", "_blank")`)
-          }
-
-          if (master === 33) {
-            masterResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/masterenergie-drei-und-dreisig/", "_blank")`)
-          }
-        }
-      }
-      it.renderBirthDayEnergy = (date, node) => {
-        const day = date.getDate()
-        const birthdayEnergyNumber = reduceToSingleDigit(day)
-        const birthdayEnergyDiv = renderDiv(node)
-        renderTitle("Geburtstagsenergie", birthdayEnergyDiv)
-        const birthdayEnergyResult = renderHighlightedSpan(birthdayEnergyNumber, birthdayEnergyDiv)
-        Helper.add("outline-hover", birthdayEnergyResult)
-        birthdayEnergyResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/geburtstagsenergie-${numbersAsText[birthdayEnergyNumber - 1]}/", "_blank")`)
-      }
-      it.renderPrevailingEnergies = (date, node) => {
-        const pervailingEnergyDiv = renderDiv(node)
-        renderTitle("Vorherrschende Energien", pervailingEnergyDiv)
-        const dateNumbers = fillDateNumbers(date)
-        createPrevailingEnergies(countOccurrences(dateNumbers), pervailingEnergyDiv)
-      }
-      it.renderRecedingEnergies = (date, node) => {
-        const missingNumbers = []
-        const dateNumbers = fillDateNumbers(date)
-        for (let i = 1; i <= 9; i++) {
-          if (!dateNumbers.includes(i)) {
-            missingNumbers.push(i)
-          }
-        }
-        if (missingNumbers.length > 0) {
-          const recedingEnergyDiv = renderDiv(node)
-          renderTitle("Zurücktretende Energien", recedingEnergyDiv)
-          createRecedingEnergy(missingNumbers, recedingEnergyDiv)
-        }
-      }
-      it.renderTones = (date, node) => {
-        const tonesDiv = renderDiv(node)
-        renderTitle("Tonarten", tonesDiv)
-        const dateNumbers = fillDateNumbers(date)
-        createTones(dateNumbers, tonesDiv)
-      }
-      it.renderFirstCycle = (date, node) => {
-        const firstCycleDiv = renderDiv(node)
-        renderTitle("Dauer des 1. Zyklus", firstCycleDiv)
-        const lifePathNumber = it.dateToLifePath(date)
-        const firstCycle = 36 - lifePathNumber
-        const firstCycleResult = renderHighlightedSpan(`0 - ${firstCycle}`, firstCycleDiv)
-        Helper.add("outline-hover", firstCycleResult)
-        firstCycleResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/erster-zyklus/", "_blank")`)
-      }
-      it.renderFirstKeyTone = (date, node) => {
-        const day = date.getDate()
-        const sumDay = reduceToSingleDigit(day)
-        const month = date.getMonth() + 1
-        const sumMonth = reduceToSingleDigit(month)
-        const sumDayAndMonth = reduceToSingleDigit(sumDay + sumMonth)
-        const firstKeyTone = sumDayAndMonth
-        const firstKeyToneDiv = renderDiv(node)
-        renderTitle("Grundton zum 1. Zyklus", firstKeyToneDiv)
-        const firstKeyToneResult = renderHighlightedSpan(firstKeyTone, firstKeyToneDiv)
-        Helper.add("outline-hover", firstKeyToneResult)
-        firstKeyToneResult.setAttribute("onclick", `window.open('https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[firstKeyTone - 1]}/', '_blank')`)
-      }
-      it.renderSecondCycle = (date, node) => {
-        const lifePathNumber = it.dateToLifePath(date)
-        const firstCycle = 36 - lifePathNumber
-        const secondCycle = firstCycle + 1 + 9
-        const secondCycleDiv = renderDiv(node)
-        renderTitle("Dauer des 2. Zyklus", secondCycleDiv)
-        const secondCycleResult = renderHighlightedSpan(`${firstCycle + 1} - ${secondCycle}`, secondCycleDiv)
-        Helper.add("outline-hover", secondCycleResult)
-        secondCycleResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/zweiter-zyklus/", "_blank")`)
-      }
-      it.renderSecondKeyTone = (date, node) => {
-        const day = date.getDate()
-        const sumDay = reduceToSingleDigit(day)
-        const year = date.getFullYear()
-        const [yearFirstPart, yearSecondPart] = splitYear(year)
-        const sumYearFirstPart = reduceToSingleDigit(Number(yearFirstPart))
-        const sumYearSecondPart = reduceToSingleDigit(Number(yearSecondPart))
-        const sumYear = reduceToSingleDigit(sumYearFirstPart + sumYearSecondPart)
-        const secondKeyTone = reduceToSingleDigit(sumDay + sumYear)
-        const secondKeyToneDiv = renderDiv(node)
-        renderTitle("Grundton zum 2. Zyklus", secondKeyToneDiv)
-        const secondKeyToneResult = renderHighlightedSpan(secondKeyTone, secondKeyToneDiv)
-        Helper.add("outline-hover", secondKeyToneResult)
-        secondKeyToneResult.setAttribute("onclick", `window.open('https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[secondKeyTone - 1]}/', '_blank')`)
-      }
-      it.renderThirdCycle = (date, node) => {
-        const lifePathNumber = it.dateToLifePath(date)
-        const firstCycle = 36 - lifePathNumber
-        const secondCycle = firstCycle + 1 + 9
-        const thirdCycle = secondCycle + 1 + 9
-        const thirdCycleDiv = renderDiv(node)
-        renderTitle("Dauer des 3. Zyklus", thirdCycleDiv)
-        const thirdCycleResult = renderHighlightedSpan(`${secondCycle + 1} - ${thirdCycle}`, thirdCycleDiv)
-        Helper.add("outline-hover", thirdCycleResult)
-        thirdCycleResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/dritter-zyklus/", "_blank")`)
-      }
-      it.renderThirdKeyTone = (date, node) => {
-
-        const day = date.getDate()
-        const sumDay = reduceToSingleDigit(day)
-        const month = date.getMonth() + 1
-        const sumMonth = reduceToSingleDigit(month)
-        const sumDayAndMonth = reduceToSingleDigit(sumDay + sumMonth)
-        const firstKeyTone = sumDayAndMonth
-        const year = date.getFullYear()
-        const [yearFirstPart, yearSecondPart] = splitYear(year)
-        const sumYearFirstPart = reduceToSingleDigit(Number(yearFirstPart))
-        const sumYearSecondPart = reduceToSingleDigit(Number(yearSecondPart))
-        const sumYear = reduceToSingleDigit(sumYearFirstPart + sumYearSecondPart)
-        const secondKeyTone = reduceToSingleDigit(sumDay + sumYear)
-        const thirdKeyTone = reduceToSingleDigit(firstKeyTone + secondKeyTone)
-        const thirdKeyToneDiv = renderDiv(node)
-        renderTitle("Grundton zum 3. Zyklus", thirdKeyToneDiv)
-        const thirdKeyToneResult = renderHighlightedSpan(thirdKeyTone, thirdKeyToneDiv)
-        Helper.add("outline-hover", thirdKeyToneResult)
-        thirdKeyToneResult.setAttribute("onclick", `window.open('https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[thirdKeyTone - 1]}/', '_blank')`)
-      }
-      it.renderFourthCycle = (date, node) => {
-        const lifePathNumber = it.dateToLifePath(date)
-        const firstCycle = 36 - lifePathNumber
-        const secondCycle = firstCycle + 1 + 9
-        const thirdCycle = secondCycle + 1 + 9
-        const fourthCycle = thirdCycle + 1 + 9
-        const fourthCycleDiv = renderDiv(node)
-        renderTitle("Dauer des 4. Zyklus", fourthCycleDiv)
-        const fourthCycleResult = renderHighlightedSpan(`${thirdCycle + 1} - ${fourthCycle}`, fourthCycleDiv)
-        Helper.add("outline-hover", fourthCycleResult)
-        fourthCycleResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/vierter-zyklus/", "_blank")`)
-      }
-      it.renderFourthKeyTone = (date, node) => {
-        const month = date.getMonth() + 1
-        const sumMonth = reduceToSingleDigit(month)
-        const year = date.getFullYear()
-        const [yearFirstPart, yearSecondPart] = splitYear(year)
-        const sumYearFirstPart = reduceToSingleDigit(Number(yearFirstPart))
-        const sumYearSecondPart = reduceToSingleDigit(Number(yearSecondPart))
-        const sumYear = reduceToSingleDigit(sumYearFirstPart + sumYearSecondPart)
-        const fourthKeyTone = reduceToSingleDigit(sumMonth + sumYear)
-        const fourthKeyToneDiv = renderDiv(node)
-        renderTitle("Grundton zum 4. Zyklus", fourthKeyToneDiv)
-        const fourthKeyToneResult = renderHighlightedSpan(fourthKeyTone, fourthKeyToneDiv)
-        Helper.add("outline-hover", fourthKeyToneResult)
-        fourthKeyToneResult.setAttribute("onclick", `window.open('https://www.get-your.de/entwicklung/numerologie/grundton-${numbersAsText[fourthKeyTone - 1]}/', '_blank')`)
-      }
-      function getBirthNameNumbers(string) {
-        const splitAlias = string.split(" ")
-        const birthNameSums = []
-        for (let i = 0; i < splitAlias.length; i++) {
-          const alias = splitAlias[i]
-          let sum = 0
-          for (let i = 0; i < alias.length; i++) {
-            const char = alias[i]
-            sum += alphabetMap[char.toLowerCase()] || 0
-          }
-          birthNameSums.push(sum)
-        }
-        return birthNameSums.map(it => reduceToSingleDigit(it))
-      }
-      it.renderBirthNameEnergies = (string, node) => {
-        const birthNameNumbers = getBirthNameNumbers(string)
-        const birthNameDiv = renderDiv(node)
-        birthNameDiv.classList.add("birth-name")
-        renderTitle("Geburtsname", birthNameDiv)
-        renderBirthNameEnergy(birthNameNumbers, birthNameDiv)
-      }
-      it.renderDeterminationEnergy = (string, node) => {
-        let determinationNumber = reduceStringToSingleDigit(string)
-        if (determinationNumber === 0) determinationNumber = 9
-        const determinationDiv = renderDiv(node)
-        renderTitle("Bestimmung", determinationDiv)
-        const determinationResult = renderHighlightedSpan(determinationNumber, determinationDiv)
-        determinationResult.classList.add("determination")
-        Helper.add("outline-hover", determinationResult)
-        determinationResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/bestimmung-${numbersAsText[determinationNumber - 1]}/", "_blank")`)
-      }
-      it.renderHeartsDesire = (string, node) => {
-        let heartsDesire = reduceVowelsToSingleDigit(string)
-        if (heartsDesire === 0) heartsDesire = 9
-        const heartsDesireDiv = renderDiv(node)
-        renderTitle("Herzenswunsch", heartsDesireDiv)
-        const heartsDesireResult = renderHighlightedSpan(heartsDesire, heartsDesireDiv)
-        heartsDesireResult.classList.add("heart-desire")
-        Helper.add("outline-hover", heartsDesireResult)
-        heartsDesireResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/herzenswunsch-${numbersAsText[heartsDesire - 1]}/", "_blank")`)
-      }
-      it.renderPersona = (string, node) => {
-        let persona = reduceConsonantsToSingleDigit(string)
-        if (persona === 0) persona = 9
-        const personaDiv = renderDiv(node)
-        renderTitle("Persona", personaDiv)
-        const personaResult = renderHighlightedSpan(persona, personaDiv)
-        personaResult.classList.add("persona")
-        Helper.add("outline-hover", personaResult)
-        personaResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/persona-${numbersAsText[persona - 1]}/", "_blank")`)
-      }
-      it.renderDoubleLetterEnergies = (string, node) => {
-        const doubleLetters = findDoubleLetters(string)
-        const doubleLettersDiv = renderDiv(node)
-        doubleLettersDiv.classList.add("double-letters")
-        if (doubleLetters.length > 0) {
-          doubleLettersDiv.style.display = "block"
-          doubleLettersDiv.textContent = ""
-          renderTitle("Doppelte Buchstaben", doubleLettersDiv)
-          for (let i = 0; i < doubleLetters.length; i++) {
-            const number = doubleLetters[i]
-            const div = renderDoubleLettersValue(number, doubleLetters)
-            doubleLettersDiv.appendChild(div)
-          }
-        } else {
-          renderTitle("Doppelte Buchstaben", doubleLettersDiv)
-          doubleLettersDiv.style.display = "none"
-        }
-      }
-      it.renderPhysicalLevel = (string, node) => {
-        let physicalLevel = countFourAndFive(string)
-        if (physicalLevel === 0) physicalLevel = 9
-        const physicalLevelDiv = renderDiv(node)
-        renderTitle("Körperliche Ebene", physicalLevelDiv)
-        const physicalLevelResult = renderHighlightedSpan(physicalLevel, physicalLevelDiv)
-        physicalLevelResult.classList.add("physical-level")
-        Helper.add("outline-hover", physicalLevelResult)
-        physicalLevelResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/koerperliche-ebene-${numbersAsText[physicalLevel - 1]}/", "_blank")`)
-      }
-      it.renderEmotionalLevel = (string, node) => {
-        let emotionalLevel = countTwoThreeAndSix(string)
-        if (emotionalLevel === 0) emotionalLevel = 9
-        const emotionalLevelDiv = renderDiv(node)
-        renderTitle("Emotionale Ebene", emotionalLevelDiv)
-        const emotionalLevelResult = renderHighlightedSpan(emotionalLevel, emotionalLevelDiv)
-        emotionalLevelResult.classList.add("emotional-level")
-        Helper.add("outline-hover", emotionalLevelResult)
-        emotionalLevelResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/emotionale-ebene-${numbersAsText[emotionalLevel - 1]}/", "_blank")`)
-      }
-      it.renderMentalLevel = (string, node) => {
-        let mentalLevel = countOneAndEight(string)
-        if (mentalLevel === 0) mentalLevel = 9
-        const mentalLevelDiv = renderDiv(node)
-        renderTitle("Mentale Ebene", mentalLevelDiv)
-        const mentalLevelResult = renderHighlightedSpan(mentalLevel, mentalLevelDiv)
-        mentalLevelResult.classList.add("mental-level")
-        Helper.add("outline-hover", mentalLevelResult)
-        mentalLevelResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/mental-ebene-${numbersAsText[mentalLevel - 1]}/", "_blank")`)
-      }
-      it.renderIntuitiveLevel = (string, node) => {
-        let intuitiveLevel = countSevenAndNine(string)
-        if (intuitiveLevel === 0) intuitiveLevel = 9
-        const intuitiveLevelDiv = renderDiv(node)
-        renderTitle("Intuitive Ebene", intuitiveLevelDiv)
-        const intuitiveLevelResult = renderHighlightedSpan(intuitiveLevel, intuitiveLevelDiv)
-        intuitiveLevelResult.classList.add("intuitive-level")
-        Helper.add("outline-hover", intuitiveLevelResult)
-        intuitiveLevelResult.setAttribute("onclick", `window.open("https://www.get-your.de/entwicklung/numerologie/intuitive-ebene-${numbersAsText[intuitiveLevel - 1]}/", "_blank")`)
-      }
-      it.renderBirthNameFunctions = (birthname, node) => {
-        it.renderBirthNameEnergies(birthname, node)
-        it.renderDeterminationEnergy(birthname, node)
-        it.renderHeartsDesire(birthname, node)
-        it.renderPersona(birthname, node)
-        it.renderDoubleLetterEnergies(birthname, node)
-        it.renderPhysicalLevel(birthname, node)
-        it.renderEmotionalLevel(birthname, node)
-        it.renderMentalLevel(birthname, node)
-        it.renderIntuitiveLevel(birthname, node)
-      }
-      it.updateBirthNameFunctions = (birthname) => {
-
-        const birthNameNumbers = getBirthNameNumbers(birthname)
-        const birthnameDiv = document.querySelector(".birth-name")
-        birthnameDiv.textContent = ""
-        renderTitle("Geburtsname", birthnameDiv)
-        renderBirthNameEnergy(birthNameNumbers, birthnameDiv)
-
-        let determinationNumber = reduceStringToSingleDigit(birthname)
-        if (determinationNumber === 0) determinationNumber = 9
-        document.querySelector(".determination").textContent = determinationNumber
-
-        let heartsDesire = reduceVowelsToSingleDigit(birthname)
-        if (heartsDesire === 0) heartsDesire = 9
-        document.querySelector(".heart-desire").textContent = heartsDesire
-
-        let persona = reduceConsonantsToSingleDigit(birthname)
-        if (persona === 0) persona = 9
-        document.querySelector(".persona").textContent = persona
-
-        const doubleLettersDiv = document.querySelector(".double-letters")
-        const doubleLettersValue = doubleLettersDiv.querySelector(".double-letters-value")
-        const doubleLetters = findDoubleLetters(birthname)
-        if (doubleLetters.length > 0) {
-          doubleLettersDiv.style.display = "block"
-          doubleLettersDiv.textContent = ""
-          renderTitle("Doppelte Buchstaben", doubleLettersDiv)
-          for (let i = 0; i < doubleLetters.length; i++) {
-            const number = doubleLetters[i]
-            const div = renderDoubleLettersValue(number, doubleLetters)
-            doubleLettersDiv.appendChild(div)
-          }
-        } else {
-          doubleLettersDiv.style.display = "none"
-        }
-
-        let intuitiveLevel = countSevenAndNine(birthname)
-        if (intuitiveLevel === 0) intuitiveLevel = 9
-        document.querySelector(".intuitive-level").textContent = intuitiveLevel
-
-        let mentalLevel = countOneAndEight(birthname)
-        if (mentalLevel === 0) mentalLevel = 9
-        document.querySelector(".mental-level").textContent = mentalLevel
-
-        let emotionalLevel = countTwoThreeAndSix(birthname)
-        if (emotionalLevel === 0) emotionalLevel = 9
-        document.querySelector(".emotional-level").textContent = emotionalLevel
-
-        let physicalLevel = countFourAndFive(birthname)
-        if (physicalLevel === 0) physicalLevel = 9
-        document.querySelector(".physical-level").textContent = physicalLevel
-
-      }
-      return it
-    }
-
     if (event === "openAudiosOverlay") {
 
       return (node) => {
@@ -14033,7 +11062,7 @@ await Helper.add("event/click-funnel")
           o1.it = "audios"
           o1.filter = "title"
           o1.input = searchField.input
-          o1.rerender = this.create("info/loading", content)
+          o1.rerender = this.create("div/loading", content)
           o1.createItButton = async it => {
 
             const box = this.div("box sans-serif relative dark-light flex between align wrap m8")
@@ -14075,7 +11104,7 @@ await Helper.add("event/click-funnel")
     if (event === "openFunnelOverlay") {
 
       function createDataButton() {
-        const button = Helper.create("toolbox/left-right")
+        const button = Helper.create("button/left-right")
         button.className = "data-button"
         button.left.textContent = ".data"
         button.right.textContent = "Datenfelder definieren"
@@ -14216,7 +11245,7 @@ await Helper.add("event/click-funnel")
           }
           const options = []
           const object = {}
-          const submit = Helper.create("toolbox/action", funnel)
+          const submit = Helper.create("button/action", funnel)
           submit.textContent = "Datenfeld erstellen"
           submit.onclick = async () => {
             submitData(idField, typeField, it)
@@ -14347,7 +11376,7 @@ await Helper.add("event/click-funnel")
           }
           o1.createItButton = async it => {
 
-            const button = Helper.create("toolbox/left-right")
+            const button = Helper.create("button/left-right")
             if (it.id && it.type) {
               if (it.query) {
                 const id = await Helper.convert("text/purified", it.query)
@@ -14373,14 +11402,14 @@ await Helper.add("event/click-funnel")
           }
           function openButtons(it, o) {
             if (node) {
-              const button = Helper.create("toolbox/left-right", o.content)
+              const button = Helper.create("button/left-right", o.content)
               button.left.textContent = ".append"
               button.right.textContent = "Funnel anhängen"
               button.onclick = async () => {
 
                 Helper.overlay("pop", o2 => {
                   {
-                    const button = Helper.create("toolbox/left-right", o2.content)
+                    const button = Helper.create("button/left-right", o2.content)
                     button.left.textContent = ".form"
                     button.right.textContent = "Als HTML Form anhängen"
                     button.addEventListener("click", async ev => {
@@ -14397,7 +11426,7 @@ await Helper.add("event/click-funnel")
               }
             }
             {
-              const button = Helper.create("toolbox/left-right", o.content)
+              const button = Helper.create("button/left-right", o.content)
               button.left.textContent = ".copy"
               button.right.textContent = "Speicher deinen Funnel in deiner Zwischenablage"
               button.onclick = () => {
@@ -14405,7 +11434,7 @@ await Helper.add("event/click-funnel")
               }
             }
             {
-              const button = Helper.create("toolbox/left-right", o.content)
+              const button = Helper.create("button/left-right", o.content)
               button.left.textContent = ".email"
               button.right.textContent = "Versende deinen Funnel per E-Mail"
               button.onclick = async () => {
@@ -14424,17 +11453,17 @@ await Helper.add("event/click-funnel")
               openButtons(it, o2)
 
               if (type === "expert") {
-                const button = Helper.create("toolbox/left-right", content)
+                const button = Helper.create("button/left-right", content)
                 button.left.textContent = ".field-funnel-sign-support"
                 button.right.textContent = "Unterstütze deine Nutzer bei der Eingabe mit Symbole und Farben"
                 button.onclick = () => {
-                  const script = Helper.create("script", {id: "field-funnel-sign-support", js: 'Helper.add("field-funnel-sign-support")'})
+                  const script = Helper.create("script/id", "field-funnel-sign-support")
                   Helper.add("script-onbody", script)
                   window.alert("Skript wurde erfolgreich angehängt.")
                 }
               }
               if (type === "expert") {
-                const button = Helper.create("toolbox/left-right", content)
+                const button = Helper.create("button/left-right", content)
                 button.left.textContent = ".next"
                 button.right.textContent = "Nach Abschluss, zur Werteinheit"
                 button.addEventListener("click", () => {
@@ -14445,21 +11474,21 @@ await Helper.add("event/click-funnel")
                 })
               }
               if (type === "expert") {
-                const button = Helper.create("toolbox/left-right", content)
+                const button = Helper.create("button/left-right", content)
                 button.left.textContent = ".on-info-click"
                 button.right.textContent = "Dieses Skript sucht und öffnet deine Tags im Field Funnel"
                 button.onclick = () => {
-                  const script = Helper.create("script", {id: "on-info-click", js: 'Helper.add("on-info-click")'})
+                  const script = Helper.create("script/id", "on-info-click")
                   Helper.add("script-onbody", script)
                   window.alert("Skript wurde erfolgreich angehängt.")
                 }
               }
               if (type === "expert") {
-                const button = Helper.create("toolbox/left-right", content)
+                const button = Helper.create("button/left-right", content)
                 button.left.textContent = ".prefill-field-funnel"
                 button.right.textContent = "Fülle die Datenfelder mit den eigenen Nutzerdaten"
                 button.onclick = () => {
-                  const script = Helper.create("script", {id: "prefill-field-funnel", js: `await Helper.add("prefill-field-funnel")`})
+                  const script = Helper.create("script/id", "prefill-field-funnel")
                   Helper.add("script-onbody", script)
                   window.alert("Skript wurde erfolgreich angehängt.")
                 }
@@ -14468,7 +11497,7 @@ await Helper.add("event/click-funnel")
                 await o1.removeIt(it, o2)
               }
               if (type === "expert") {
-                const button = Helper.create("toolbox/left-right", content)
+                const button = Helper.create("button/left-right", content)
                 button.left.textContent = ".reset"
                 button.right.textContent = "Klick Funnel zurücksetzen"
                 button.addEventListener("click", () => {
@@ -14484,11 +11513,11 @@ await Helper.add("event/click-funnel")
                 })
               }
               if (type === "expert") {
-                const button = Helper.create("toolbox/left-right", content)
+                const button = Helper.create("button/left-right", content)
                 button.left.textContent = ".submit-field-funnel"
                 button.right.textContent = "Field Funnel Submit Skript anhängen"
                 button.onclick = () => {
-                  const script = Helper.create("script", {id: "submit-field-funnel", js: 'Helper.add("submit-field-funnel")'})
+                  const script = Helper.create("script/id", "submit-field-funnel")
                   Helper.add("script-onbody", script)
                   window.alert("Skript wurde erfolgreich angehängt.")
                 }
@@ -14510,7 +11539,7 @@ await Helper.add("event/click-funnel")
           o1.it = "funnel"
           o1.filter = "id"
           o1.input = searchField.input
-          const content = this.create("info/loading", o1.content)
+          const content = this.create("div/loading", o1.content)
           o1.rerender = content
 
         })
@@ -14538,7 +11567,7 @@ await Helper.add("event/click-funnel")
           o1.it = "images"
           o1.filter = "alias"
           o1.input = searchField.input
-          o1.rerender = this.create("info/loading", content)
+          o1.rerender = this.create("div/loading", content)
           o1.rerenderStyle = it => {
             this.convert("parent/flex-around", it)
             it.style.margin = "21px 34px"
@@ -14583,12 +11612,12 @@ await Helper.add("event/click-funnel")
     if (event === "openLayerOverlay") {
 
       return (layer, node) => {
-        this.overlay("popup", async layerOverlay => {
+        this.overlay("pop", async layerOverlay => {
           this.render("text/title", "Wähle einen Layer aus", layerOverlay)
           const buttons = this.create("div/scrollable", layerOverlay)
           const fatherButton = this.create("button/left-right", buttons)
           fatherButton.classList.add("father-button")
-          this.add("outline-hover", fatherButton)
+          this.add("hover-outline", fatherButton)
 
           let selectedNode
           if (node.classList.contains("layer")) {
@@ -14614,7 +11643,7 @@ await Helper.add("event/click-funnel")
               const button = this.create("button/left-right")
               button.left.textContent = "Ebene " + child.style.zIndex
               button.right.textContent = this.convert("node/selector", child)
-              this.add("outline-hover", button)
+              this.add("hover-outline", button)
 
               button.onclick = async () => {
                 await layer(child)
@@ -14635,7 +11664,7 @@ await Helper.add("event/click-funnel")
     if (event === "openMediaQueriesOverlay") {
 
       return () => {
-        this.overlay("toolbox", queriesOverlay => {
+        this.overlay("pop", queriesOverlay => {
           const content = this.create("div/scrollable", queriesOverlay)
           document.head.querySelectorAll("style").forEach((style, i) => {
             if (style.id === "large-device") this.render("text/hr", "Für Bildschirme breiter als 1025 Pixel", content)
@@ -14646,23 +11675,23 @@ await Helper.add("event/click-funnel")
             for (var i = 0; i < queries.length; i++) {
               const query = queries[i]
               if (query.trim() === "") continue
-              const queryButton = this.create("toolbox/left-right", content)
+              const queryButton = this.create("button/left-right", content)
               queryButton.left.textContent = this.convert("query/selector", query)
               queryButton.right.textContent = `Media Query ${i}`
               queryButton.onclick = () => {
-                this.overlay("toolbox", queryOverlay => {
+                this.overlay("pop", queryOverlay => {
                   queryOverlay.info.textContent = currentSelector
                   const buttons = this.create("div/scrollable", queryOverlay)
                   const currentSelector = this.convert("query/selector", query)
                   const cssSplit = this.convert("query/css", query).split(" ")
                   const currentCss = cssSplit[0] + " " + cssSplit[1]
                   {
-                    const button = this.create("toolbox/left-right", buttons)
-                    this.add("outline-hover", button)
+                    const button = this.create("button/left-right", buttons)
+                    this.add("hover-outline", button)
                     button.left.textContent = ".selector"
                     button.right.textContent = "Ziel Element ändern"
                     button.onclick = () => {
-                      this.overlay("toolbox", selectorOverlay => {
+                      this.overlay("pop", selectorOverlay => {
                         selectorOverlay.info.textContent = `${currentSelector}.selector`
                         const funnel = this.create("div/scrollable", selectorOverlay)
                         const selectorField = this.create("field/textarea", funnel)
@@ -14689,11 +11718,11 @@ await Helper.add("event/click-funnel")
                     }
                   }
                   {
-                    const button = this.create("toolbox/left-right", buttons)
+                    const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".css"
                     button.right.textContent = "Style anpassen"
                     button.onclick = () => {
-                      this.overlay("toolbox", cssOverlay => {
+                      this.overlay("pop", cssOverlay => {
                         cssOverlay.info.textContent = `${currentSelector}.css`
                         const funnel = this.create("div/scrollable", cssOverlay)
                         const cssField = this.create("field/textarea", funnel)
@@ -14720,7 +11749,7 @@ await Helper.add("event/click-funnel")
                     }
                   }
                   {
-                    const button = this.create("toolbox/left-right", buttons)
+                    const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".remove"
                     button.right.textContent = "Media Query entfernen"
                     button.onclick = () => {
@@ -14749,13 +11778,13 @@ await Helper.add("event/click-funnel")
         const result = await this.verifyIs("class/found", {node: node, class: "layer" })
         if (result === true) {
 
-          this.overlay("popup", async layerOverlay => {
+          this.overlay("pop", async layerOverlay => {
             this.render("text/title", "Wähle einen Layer aus", layerOverlay)
 
             const layers = this.create("div/scrollable", layerOverlay)
 
             const fatherButton = this.create("button/left-right", layers)
-            this.add("outline-hover", fatherButton)
+            this.add("hover-outline", fatherButton)
             fatherButton.classList.add("father-button")
 
             let fatherZIndex = 0
@@ -14779,7 +11808,7 @@ await Helper.add("event/click-funnel")
                 const selector = await this.convert("element/selector", item)
 
                 const button = this.create("button/left-right")
-                this.add("outline-hover", button)
+                this.add("hover-outline", button)
                 button.left.textContent = "Ebene " + item.style.zIndex
                 button.right.textContent = selector
                 button.onclick = async () => {
@@ -14827,7 +11856,7 @@ await Helper.add("event/click-funnel")
           o1.it = "pdf"
           o1.filter = "alias"
           o1.input = searchField.input
-          o1.rerender = this.create("info/loading", o1.content)
+          o1.rerender = this.create("div/loading", o1.content)
           o1.addButton.onclick = ev => {
 
             Helper.overlay("pop", async o2 => {
@@ -14907,7 +11936,7 @@ await Helper.add("event/click-funnel")
               const funnel = o2.content
               const idField = this.create("input/id", funnel)
               const scriptField = this.create("input/script", funnel)
-              const submit = this.create("toolbox/action", funnel)
+              const submit = this.create("button/action", funnel)
               submit.textContent = "Skript jetzt speichern"
               submit.onclick = async () => {
                 await this.verify("funnel", funnel)
@@ -14921,7 +11950,7 @@ await Helper.add("event/click-funnel")
           const searchField = this.create("input/text", o1.content)
           searchField.input.placeholder = "Suche nach Titel"
           o1.createItButton = async it => {
-            const button = Helper.create("toolbox/left-right")
+            const button = Helper.create("button/left-right")
             button.left.style.flex = "1 1 0"
             Helper.render("text/node/bottom-right-onhover", it.visibility, button)
             this.render("text/pre", it.html, button.right)
@@ -14940,7 +11969,7 @@ await Helper.add("event/click-funnel")
               openButtons(it, o2)
               await o1.removeIt(it, o2)
               {
-                const button = this.create("toolbox/left-right", content)
+                const button = this.create("button/left-right", content)
                 button.left.textContent = ".update"
                 button.right.textContent = "Skript bearbeiten"
                 button.onclick = () => {
@@ -14954,7 +11983,7 @@ await Helper.add("event/click-funnel")
                     const scriptField = this.create("input/script", funnel)
                     scriptField.input.value = it.html
                     this.verify("input/value", scriptField.input)
-                    const submit = this.create("toolbox/action", funnel)
+                    const submit = this.create("button/action", funnel)
                     submit.textContent = "Skript jetzt speichern"
                     submit.onclick = async () => {
                       await this.verify("funnel", funnel)
@@ -14974,7 +12003,7 @@ await Helper.add("event/click-funnel")
           function openButtons(it, o) {
             o1.appendScript(it, selectedNode, o)
             {
-              const button = Helper.create("toolbox/left-right", o.content)
+              const button = Helper.create("button/left-right", o.content)
               button.left.textContent = ".execute"
               button.right.textContent = "Skript ausführen"
               button.addEventListener("click", async ev => {
@@ -14994,7 +12023,7 @@ await Helper.add("event/click-funnel")
           o1.it = "scripts"
           o1.filter = "id"
           o1.input = searchField.input
-          const content = this.create("info/loading", o1.content)
+          const content = this.create("div/loading", o1.content)
           o1.rerender = content
         })
       }
@@ -15023,7 +12052,7 @@ await Helper.add("event/click-funnel")
                   filterTitleField.input.placeholder = "Filter genauer nach Titel"
                   filterTitleField.style.margin = "0 34px"
                   this.verify("input/value", filterTitleField.input)
-                  const buttons = this.create("info/loading", o3.content)
+                  const buttons = this.create("div/loading", o3.content)
                   this.convert("text/sources", ev.target.value).then(async sources => {
                     if (sources.length === 0) {
                       window.alert("Es wurden keine Quellen gefunden.")
@@ -15072,7 +12101,7 @@ await Helper.add("event/click-funnel")
             })
           }
           if (type === "expert") {
-            const button = Helper.create("toolbox/left-right", o1.content)
+            const button = Helper.create("button/left-right", o1.content)
             button.left.textContent = ".cite-button"
             button.right.textContent = "Erlaube deinen Nutzern dieses Dokument zu zitieren"
             button.onclick = () => {
@@ -15113,7 +12142,7 @@ await Helper.add("event/click-funnel")
               const year = extractYear()
               const requested = createRequested()
               const fullCite = `${authors}, "${title}", getyour-plattform, ${year}, https://www.get-your.de${window.location.pathname}${requested.textContent}`
-              const script = Helper.create("script", {id: "cite-button", js: `Helper.add('cite-button', '${fullCite}')`})
+              const script = Helper.create("script/id", "cite-button")
               Helper.add("script-onbody", script)
               window.alert("Dein Zitier-Button wurde erfolgreich im <body> angehängt.")
               Helper.remove("overlays")
@@ -15125,7 +12154,7 @@ await Helper.add("event/click-funnel")
             return span
           }
           {
-            const button = Helper.create("toolbox/left-right", o1.content)
+            const button = Helper.create("button/left-right", o1.content)
             button.left.textContent = ".requested"
             button.right.textContent = "Aktuell abgerufen Markierung anhängen"
             button.onclick = () => {
@@ -15134,7 +12163,7 @@ await Helper.add("event/click-funnel")
               o1.remove()
             }
           }
-          const timestampButton = this.create("toolbox/left-right", o1.content)
+          const timestampButton = this.create("button/left-right", o1.content)
           timestampButton.left.textContent = ".timestamp"
           timestampButton.right.textContent = "Füge einen Zeitstempel ein"
           timestampButton.onclick = () => {
@@ -15149,7 +12178,7 @@ await Helper.add("event/click-funnel")
           searchField.input.placeholder = "Suche nach Titel"
           o1.createItButton = async it => {
 
-            const button = Helper.create("toolbox/left-right")
+            const button = Helper.create("button/left-right")
             Helper.render("text/node/bottom-right-onhover", it.visibility, button)
             const title = Helper.create("div", button.left)
             title.style.fontSize = "34px"
@@ -15204,7 +12233,7 @@ await Helper.add("event/click-funnel")
               const buttons = o2.content
               openButtons(source, o2)
               await o1.removeIt(it, o2)
-              const updateButton = this.create("toolbox/left-right", buttons)
+              const updateButton = this.create("button/left-right", buttons)
               updateButton.left.textContent = ".update"
               updateButton.right.textContent = "Quelle aktualisieren"
               updateButton.onclick = () => {
@@ -15240,11 +12269,11 @@ await Helper.add("event/click-funnel")
           o1.it = "sources"
           o1.filter = "title"
           o1.input = searchField.input
-          const content = this.create("info/loading", o1.content)
+          const content = this.create("div/loading", o1.content)
           o1.rerender = content
           function openButtons(source, o) {
 
-            const authorsButton = Helper.create("toolbox/left-right", o.content)
+            const authorsButton = Helper.create("button/left-right", o.content)
             authorsButton.left.textContent = ".authors"
             authorsButton.right.textContent = "Füge die Authoren ein"
             authorsButton.onclick = () => {
@@ -15257,7 +12286,7 @@ await Helper.add("event/click-funnel")
               o1.remove()
             }
 
-            const fullButton = Helper.create("toolbox/left-right", o.content)
+            const fullButton = Helper.create("button/left-right", o.content)
             fullButton.left.textContent = ".full-cite"
             fullButton.right.textContent = "Füge einen Block Verweis ein"
             fullButton.onclick = () => {
@@ -15285,7 +12314,7 @@ await Helper.add("event/click-funnel")
               o1.remove()
             }
 
-            const inlineButton = Helper.create("toolbox/left-right", o.content)
+            const inlineButton = Helper.create("button/left-right", o.content)
             inlineButton.left.textContent = ".inline-cite"
             inlineButton.right.textContent = "Füge einen Verweis im Text ein"
             inlineButton.onclick = () => {
@@ -15353,7 +12382,7 @@ await Helper.add("event/click-funnel")
           }
           o1.createItButton = async it => {
 
-            const button = this.create("toolbox/left-right")
+            const button = this.create("button/left-right")
             button.style.width = "610px"
             button.style.margin = "21px 34px"
             let html = await Helper.convert("text/purified", it.html)
@@ -15377,7 +12406,7 @@ await Helper.add("event/click-funnel")
           o1.it = "templates"
           o1.filter = "html"
           o1.input = searchField.input
-          o1.rerender = this.create("info/loading", o1.content)
+          o1.rerender = this.create("div/loading", o1.content)
           o1.rerenderStyle = it => this.convert("parent/flex-around", it)
           o1.openOptions = it => {
 
@@ -15435,10 +12464,10 @@ await Helper.add("event/click-funnel")
           o1.it = "videos"
           o1.filter = "title"
           o1.input = searchField.input
-          o1.rerender = this.create("info/loading", content)
+          o1.rerender = this.create("div/loading", content)
           o1.createItButton = async it => {
 
-            const button = this.create("toolbox/left-right")
+            const button = this.create("button/left-right")
             let title
             if (it.title) {
               const titleDiv = this.div("", button.left)
@@ -15591,7 +12620,7 @@ await Helper.add("event/click-funnel")
       const it = {}
 
       it.icons = async (node, callback) => {
-        Helper.create("info/loading", node)
+        Helper.create("div/loading", node)
         const fragment = document.createDocumentFragment()
         const res = await Helper.request("/get/svg/list-open/")
         if (res.status === 200) {
@@ -15811,7 +12840,7 @@ await Helper.add("event/click-funnel")
           if (typeof value === "string") {
             if (!Helper.verifyIs("text/empty", value)) {
               const button = Helper.create("button/key-value-color", {key, value})
-              Helper.add("outline-hover", button)
+              Helper.add("hover-outline", button)
               button.onclick = () => callback(value)
               node.appendChild(button)
             }
@@ -15822,7 +12851,7 @@ await Helper.add("event/click-funnel")
               if (typeof val === "string") {
                 if (!Helper.verifyIs("text/empty", val)) {
                   const button = Helper.create("button/key-value-color", {key, value: val})
-                  Helper.add("outline-hover", button)
+                  Helper.add("hover-outline", button)
                   button.onclick = () => callback(val)
                   node.appendChild(button)
                 }
@@ -15990,7 +13019,299 @@ await Helper.add("event/click-funnel")
     }
 
   }
+  static funnel(tree, input) {
 
+    const key = this.convert("tree/key", tree)
+    const it = document.createElement("div")
+    it.id = key
+
+    it.submit = this.create("button/action")
+    it.submit.classList.add("submit")
+    it.submit.textContent = "Daten jetzt speichern"
+
+
+    if (tree === "alias") {
+
+      it.alias = this.create("input/alias", it)
+      this.append(it.submit, it)
+    }
+
+    if (tree === "condition") {
+
+      it.left = this.create("input/tree", it)
+      it.operator = this.create("input/operator", it)
+      it.right = this.create("input/text", it)
+      it.right.input.maxLength = "55"
+      it.right.input.placeholder = "Vergleichswert (text/any)"
+      it.right.input.setAttribute("required", "true")
+      it.right.input.setAttribute("accept", "text/length")
+      this.verify("input/value", it.right.input)
+      it.right.input.oninput = () => this.verify("input/value", it.right.input)
+      this.append(it.submit, it)
+    }
+
+    if (tree === "conflict") {
+
+      it.environment = this.create("input/textarea", it)
+      it.environment.input.setAttribute("required", "true")
+      it.environment.input.setAttribute("accept", "text/length")
+      it.environment.input.maxLength = "987"
+      it.environment.input.placeholder = `Environments: Beschreibe deine Umgebung ?
+
+- URL Link
+- Browser
+- App
+      `
+      it.environment.input.style.height = "144px"
+      it.environment.input.style.fontSize = "13px"
+      this.verify("input/value", it.environment.input)
+      it.reproduce = this.create("input/textarea", it)
+      it.reproduce.input.setAttribute("required", "true")
+      it.reproduce.input.setAttribute("accept", "text/length")
+      it.reproduce.input.maxLength = "987"
+      it.reproduce.input.placeholder = `Steps to reproduce: Reproduziere den Konflikt ?`
+      it.reproduce.input.style.height = "144px"
+      it.reproduce.input.style.fontSize = "13px"
+      this.verify("input/value", it.reproduce.input)
+      it.expected = this.create("input/textarea", it)
+      it.expected.input.setAttribute("required", "true")
+      it.expected.input.setAttribute("accept", "text/length")
+      it.expected.input.maxLength = "987"
+      it.expected.input.placeholder = `Expected behavior: Erwartetes Verhalten ?`
+      it.expected.input.style.height = "144px"
+      it.expected.input.style.fontSize = "13px"
+      this.verify("input/value", it.expected.input)
+      it.actual = this.create("input/textarea", it)
+      it.actual.input.setAttribute("required", "true")
+      it.actual.input.setAttribute("accept", "text/length")
+      it.actual.input.maxLength = "987"
+      it.actual.input.placeholder = `Actual behavior: Wirkliches Verhalten ?`
+      it.actual.input.style.height = "144px"
+      it.actual.input.style.fontSize = "13px"
+      this.verify("input/value", it.actual.input)
+      it.visibility = this.create("input/visibility", it)
+      this.append(it.submit, it)
+    }
+
+    if (tree === "description") {
+
+      it.description = this.create("input/description", it)
+      this.append(it.submit, it)
+    }
+
+    if (tree === "email") {
+
+      it.email = this.create("input/email", it)
+      this.append(it.submit, it)
+    }
+
+    if (tree === "feedback") {
+
+      it.feedback = this.create("input/feedback", it)
+      it.importance = this.create("input/importance", it)
+      this.append(it.submit, it)
+    }
+
+    if (tree === "name") {
+
+      it.name = this.create("input/tag", it)
+      this.append(it.submit, it)
+    }
+
+    if (tree === "platform") {
+
+      it.platform = this.create("input/tag", it)
+      it.platform.input.placeholder = "Plattform (text/tag)"
+      this.append(it.submit, it)
+    }
+
+    if (tree === "getyour.web-entwickler") {
+
+      it.alias = this.create("input/alias", it)
+      it.type = this.create("input/text", it)
+      it.type.input.id = "type"
+      it.type.input.value = "role"
+      it.type.input.disabled = true
+      it.image = this.create("input/image", it)
+      this.append(it.submit, it)
+    }
+
+    if (tree === "getyour.web-entwickler.alias") {
+
+      it.alias = this.create("input/alias", it)
+      this.append(it.submit, it)
+    }
+
+    if (tree === "image") {
+
+      it.image = this.create("input/image", it)
+      this.append(it.submit, it)
+    }
+
+    if (tree === "login") {
+
+      it.email = this.create("input/email", it)
+      it.email.input.id = "email"
+      it.dsgvo = this.create("input/checkbox", it)
+      it.dsgvo.input.id = "dsgvo"
+      it.dsgvo.input.classList.add("dsgvo")
+      it.dsgvo.input.setAttribute("required", "true")
+      it.label = this.div("sans-serif mtb21 mlr34", it)
+      this.render("text/span", {text: "Ich habe die"}, it.label)
+      const a1 = this.render("a", {text: "Nutzervereinbarungen", href: "/nutzervereinbarung/"}, it.label)
+      this.render("text/span", {text: "und die"}, it.label)
+      const a2 = this.render("a", {text: "Datenschutz Richtlinien", href: "/datenschutz/"}, it.label)
+      this.render("text/span", {text: "gelesen und verstanden. Durch meine Anmeldung stimme ich ihnen zu."}, it.label)
+      it.submit.textContent = "Jetzt anmelden"
+      this.append(it.submit, it)
+      it.info = this.create("info/success", it)
+      const div1 = this.render("text/div", "Unser Login Prozess ist intuitiv gestaltet und erfordert nur wenige Klicks. Du musst lediglich Deine E-Mail Adresse eingeben, um dich einzuloggen. Wir möchten, dass Du den Login Prozess als einfach und stressfrei erlebst.", it.info)
+      const mailto = this.render("a", {text: " Wenn Du Probleme hast oder Hilfe benötigst, stehen wir Dir jederzeit zur Verfügung, um Dir schnell und effektiv weiter zu helfen.", href: "mailto:datenschutz@get-your.de"}, div1)
+      mailto.classList.remove("link-theme")
+      const div2 = this.render("text/div", "Die Plattform von getyour soll ein sicheres und vertrauenswürdiges Umfeld bieten, damit Du dich auf Deine Daten verlassen kannst.", it.info)
+      div2.classList.add("mt13")
+    }
+
+    if (tree === "notes") {
+
+      it.notes = this.create("input/textarea")
+      it.notes.input.id = "notes"
+      it.notes.input.className = "vh55 fs13"
+      it.notes.input.placeholder = `next:email(Meine Notizen)
+next:tel(Meine Notizen)
+next:webcall(Meine Notizen)
+      `
+      this.append(it.submit, it)
+    }
+
+    if (tree === "platform.value") {
+
+      it.alias = this.create("input/alias", it)
+      it.alias.input.setAttribute("required", "true")
+      it.path = this.create("input/tag", it)
+      it.path.input.placeholder = "Pfad (text/tag)"
+      this.append(it.submit, it)
+    }
+
+    if (tree === "profile") {
+
+      it.aboutYou = this.create("input/textarea", it)
+      it.aboutYou.input.placeholder = `Erzähl etwas über dich ?
+
+- was du gerade machst (beruflich oder privat)
+- etwas was dem anderen hilft
+- von jetzt sprechen
+- praktische Beispiele (beruflich oder privat)
+- Schlüsselwörter benutzen (IT, Beratung)
+
+z.b., ich bin ... (deine Person), das heißt ... (Vorteil), das bedeutet für dich ... (Nutzen für den anderen).
+      `
+      it.aboutYou.input.style.height = "144px"
+      this.add("style/valid", it.aboutYou.input)
+      it.aboutYou.input.style.fontSize = "13px"
+      it.aboutYou.input.setAttribute("accept", "text/length")
+      it.aboutYou.input.maxLength = "987"
+      it.whyThis = this.create("input/textarea", it)
+      it.whyThis.input.placeholder = `Was kannst du besonders gut ?
+
+- Nicht in Bullet Points schreiben
+- Vollständige Sätze formulieren
+
+z.b., mit der STAR Methode:
+
+1. Situation
+2. Task
+3. Action
+4. Result
+      `
+      it.whyThis.input.style.height = "144px"
+      this.add("style/valid", it.whyThis.input)
+      it.whyThis.input.style.fontSize = "13px"
+      it.whyThis.input.setAttribute("accept", "text/length")
+      it.whyThis.input.maxLength = "987"
+      it.motivation = this.create("input/textarea", it)
+      it.motivation.input.placeholder = `Wie motivierst du dich ?
+
+z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, ..
+      `
+      it.motivation.input.style.height = "144px"
+      this.add("style/valid", it.motivation.input)
+      it.motivation.input.style.fontSize = "13px"
+      it.motivation.input.setAttribute("accept", "text/length")
+      it.motivation.input.maxLength = "987"
+      it.visibility = this.create("input/text", it)
+      it.visibility.input.placeholder = "Sichtbarkeit (open/closed)"
+      it.visibility.input.value = "closed"
+      it.visibility.input.setAttribute("required", "true")
+      it.visibility.input.oninput = () => this.verify("input/value", it.visibility.input)
+      it.visibility.input.setAttribute("accept", "text/length")
+      it.visibility.input.maxLength = "6"
+      this.verify("input/value", it.visibility.input)
+      this.append(it.submit, it)
+      this.request("/jwt/get/tree/", {tree: "profile"}).then(async res => {
+        if (res.status === 200) {
+          const profile = JSON.parse(res.response)
+
+          const messagesDiv = document.createElement("div")
+          this.style(messagesDiv, {display: "flex", flexWrap: "wrap", justifyContent: "space-around"})
+          it.prepend(messagesDiv)
+
+          if (profile.messages !== undefined) {
+            for (let i = 0; i < profile.messages.length; i++) {
+              const message = profile.messages[i]
+              const box = this.create("box", messagesDiv)
+              this.style(box, {fontFamily: "sans-serif", fontSize: "21px"})
+              box.innerHTML = await this.convert("text/purified", message.html)
+              box.onclick = () => {
+
+                this.overlay("pop", o1 => {
+                  const content = this.create("div/scrollable", o1)
+                  const remove = this.render("button/left-right", {left: ".remove", right: "Nachricht entfernen"}, content)
+                  remove.onclick = () => {
+
+                    const confirm = window.confirm("Möchtest du diese Nachricht wirklich entfernen?")
+                    if (confirm === true) {
+                      this.overlay("lock", async o2 => {
+                        const res = await this.request("/remove/profile/message/", {created: message.created})
+                        if (res.status === 200) {
+                          o2.alert.ok()
+                          box.remove()
+                          o1.remove()
+                        } else {
+                          o2.alert.nok()
+                        }
+                        o2.remove()
+                      })
+                    }
+                  }
+                })
+              }
+            }
+          }
+          const title = this.render("text/h2", "Meine Nachrichten")
+          it.prepend(title)
+          it.aboutYou.input.value = profile.aboutYou
+          it.whyThis.input.value = profile.whyThis
+          it.motivation.input.value = profile.motivation
+          it.visibility.input.value = profile.visibility
+        }
+      })
+    }
+
+    if (tree === "role") {
+
+      it.name = this.create("input/tag", it)
+      it.name.input.placeholder = "Rolle (text/tag)"
+      this.render("label", {for: "home", text: "Startseite auswählen"}, it)
+      it.home = this.create("input/select", it)
+      it.home.input.id = "home"
+      this.append(it.submit, it)
+    }
+
+    this.verify("funnel", it)
+    if (input) this.append(it, input)
+    return it
+  }
   static get(event, parent, input) {
     // event = thing/from/algorithm
 
@@ -16075,7 +13396,7 @@ await Helper.add("event/click-funnel")
 
             button.right.append(this.convert("element/alias", fieldInput))
             button.addEventListener("click", () => {
-              this.overlay("toolbox", overlay => {
+              this.overlay("pop", overlay => {
                 overlay.info.append(this.convert("element/alias", fieldInput))
                 const content = this.create("div/scrollable", overlay)
                 if (fieldInput.tagName === "SELECT") {
@@ -16084,7 +13405,7 @@ await Helper.add("event/click-funnel")
                     button.left.textContent = ".options"
                     button.right.textContent = "Antwortmöglichkeiten definieren"
                     button.addEventListener("click", () => {
-                      this.overlay("toolbox", overlay => {
+                      this.overlay("pop", overlay => {
                         this.removeOverlayButton(overlay)
 
                         const info = this.create("header/info", overlay)
@@ -16097,7 +13418,7 @@ await Helper.add("event/click-funnel")
                           button.right.textContent = "Neue Antwortmöglichkeit anhängen"
                           button.addEventListener("click", () => {
 
-                            this.overlay("toolbox", overlay => {
+                            this.overlay("pop", overlay => {
                               this.removeOverlayButton(overlay)
 
                               const info = this.create("header/info", overlay)
@@ -16248,7 +13569,7 @@ await Helper.add("event/click-funnel")
       infoField.input.addEventListener("input", () => {
         const info = infoField.input.value
 
-        const script = this.create("script", {id: "on-info-click", js: 'Helper.add("on-info-click")'})
+        const script = this.create("script/id", "on-info-click")
         this.add("script-onbody", script)
 
         if (this.verifyIs("text/empty", info)) return input.removeAttribute("on-info-click")
@@ -16355,7 +13676,7 @@ await Helper.add("event/click-funnel")
 
               if (!this.verifyIs("text/empty", info)) {
                 field.setAttribute("on-info-click", info)
-                const script = this.create("script", {id: "on-info-click", js: 'Helper.add("on-info-click")'})
+                const script = this.create("script/id", "on-info-click")
                 this.add("script-onbody", script)
               }
 
@@ -16390,129 +13711,54 @@ await Helper.add("event/click-funnel")
 
     }
 
-    if (event === "role-apps/closed") {
+    if (event === "path/id") {
 
-      return new Promise(async (resolve, reject) => {
-
-        const content = this.create("info/loading", parent)
-
-        const res = await this.request("/verify/user/closed/")
-        if (res.status === 200) {
-
-          const res = await this.request("/get/platform/role-apps/", {id: input})
-          if (res.status === 200) {
-            const apps = JSON.parse(res.response)
-
-            this.convert("parent/scrollable", content)
-
-            for (let i = 0; i < apps.length; i++) {
-              const app = apps[i]
-
-              const button = this.create("button/left-right", content)
-              button.left.textContent = `.${app}`
-
-              if (app === "scripts") {
-                button.right.textContent = "Meine HTML Skripte"
-
-
-                button.addEventListener("click", () => {
-                  this.overlay("toolbox", async overlay => {
-
-                    this.removeOverlayButton(overlay)
-                    const info = this.create("header/info", overlay)
-                    info.textContent = `.scripts`
-
-                    const create = this.create("button/left-right", overlay)
-                    create.left.textContent = ".create"
-                    create.right.textContent = "Neues Skript hochladen"
-                    create.addEventListener("click", () => {
-
-                      this.overlay("toolbox", overlay => {
-                        this.removeOverlayButton(overlay)
-                        const info = this.create("header/info", overlay)
-                        info.append(this.convert("text/span", ".script"))
-
-                        const funnel = this.create("div/scrollable", overlay)
-
-                        const nameField = this.create("field/tag", funnel)
-                        nameField.input.placeholder = "mein-skript"
-                        this.verify("input/value", nameField.input)
-                        nameField.input.addEventListener("input", () => this.verify("input/value", nameField.input))
-
-                        const scriptField = this.create("field/script", funnel)
-                        scriptField.input.style.height = "100vh"
-                        this.verify("input/value", scriptField.input)
-                        scriptField.input.addEventListener("input", () => this.verify("input/value", scriptField.input))
-
-                        const button = this.create("button/action", funnel)
-                        button.textContent = "Skript jetzt speichern"
-                        button.addEventListener("click", async () => {
-
-                          await this.verify("field-funnel", funnel)
-
-                          const map = {}
-                          map.script = scriptField.input.value
-                          map.id = nameField.input.value
-
-                          this.overlay("security", async securityOverlay => {
-
-                            const res = await this.request("/register/script/closed", map)
-
-                            if (res.status === 200) {
-
-                              this.convert("parent/loading", content)
-                              await this.render("scripts/update-buttons", content)
-
-                              securityOverlay.remove()
-                              overlay.remove()
-
-                            }
-
-                            if (res.status !== 200) {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
-                            }
-
-                          })
-
-                        })
-
-                      })
-
-                    })
-
-                    this.render("text/hr", "Meine Skripte", overlay)
-
-                    const content = this.create("info/loading", overlay)
-
-                    await this.render("scripts/update-buttons", content)
-
-
-                  })
-                })
-
-              }
-
-
-            }
-
-            return resolve(content)
-
+      const {path, id} = input
+      return new Promise(async(resolve, reject) => {
+        try {
+          const ids = await Helper.convert("path/ids", path)
+          if (ids.length <= 0) {
+            window.alert(`Fehler: Pfad enthält kein Ids. Bitte kontaktiere deinen Ansprechpartner.\n\nPfad: '${path}'`)
+            o2.remove()
+            return
           }
-
-          if (res.status !== 200) {
-            this.convert("element/reset", content)
-            this.render("nav/open", content)
-          }
-        } else {
-          this.convert("element/reset", content)
-          this.render("nav/open", content)
+          const node = ids.find(it => it.id === id)
+          if (!node) throw new Error(`id: '${tag}' not found in path`)
+          resolve(node)
+        } catch (error) {
+          reject(error)
         }
       })
     }
 
   }
+  static goBack() {
 
+    let lastPage = document.referrer
+    if (window.history.length === 1) {
+      window.close()
+      return
+    }
+    if (Helper.verifyIs("text/empty", document.referrer)) {
+      window.history.back()
+    }
+    if (lastPage === window.location.href) {
+      window.close()
+      return
+    }
+    window.history.back()
+    setTimeout(() => {
+      window.close()
+    }, 34)
+  }
+  static async groups() {
+
+    if (!this._groups) {
+      const module = await import("/js/groups.js")
+      this._groups = module.groups
+    }
+    return this._groups
+  }
   static lorem(length) {
     const words = [
       "Lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit",
@@ -16531,7 +13777,6 @@ await Helper.add("event/click-funnel")
     }
     return text.trim()
   }
-
   static map(event, input) {
 
     if (event === "source") {
@@ -16544,7 +13789,38 @@ await Helper.add("event/click-funnel")
       return input
     }
   }
+  static mock(it) {
 
+    it.alias = "Anakin Skywalker"
+    it.status = "Bereit"
+    it.description = this.lorem(144)
+    it.image = "/public/image.svg"
+  }
+  static async nextSteps() {
+
+    if (!this._nextSteps) {
+      const module = await import("/js/next-steps.js")
+      this._nextSteps = module.nextSteps
+    }
+    return this._nextSteps
+  }
+  static async numerology() {
+
+    if (!this._numerology) {
+      const module = await import("/js/numerology.js")
+      this._numerology = module.numerology
+    }
+    return this._numerology
+  }
+  static async purify() {
+
+    if (!this._purify) {
+      const module = await import("/js/purify.min.js")
+      // console.log(module.DOMPurify);
+      this._purify = module.DOMPurify
+    }
+    return this._purify
+  }
   static on(event, input, callback) {
 
     if (event === "click") {
@@ -16594,15 +13870,22 @@ await Helper.add("event/click-funnel")
     }
 
   }
-
   static overlay(event, callback) {
 
     if (event === "children") {
 
       if (!callback) callback = {}
-      this.overlay("toolbox", overlay => {
-        if (callback.info) overlay.info.textContent = callback.info
-        const childrenContainer = this.create("div/scrollable", overlay)
+      this.overlay("pop", overlay => {
+        if (callback.info) overlay.addInfo(callback.info)
+        const childrenContainer = overlay.content
+
+        function addScript(id) {
+
+          const script = Helper.create("script/id", id)
+          Helper.add("script-onbody", script)
+          window.alert("Skript erfolgreich angehängt.")
+          Helper.remove("overlays")
+        }
 
         childrenLoop: for (let i = 0; i < callback.node.children.length; i++) {
           let child = callback.node.children[i]
@@ -16616,9 +13899,14 @@ await Helper.add("event/click-funnel")
             if (child.classList[i].startsWith("overlay")) continue childrenLoop
           }
 
-          const childrenButton = this.create("toolbox/left-right", childrenContainer)
+          const childrenButton = this.create("button/left-right", childrenContainer)
           childrenButton.left.append(this.convert("element/alias", child))
           childrenButton.right.textContent = "Element bearbeiten"
+          function updateNodeAlias(node) {
+
+            childrenButton.left.textContent = ""
+            childrenButton.left.append(Helper.convert("element/alias", node))
+          }
 
           if (child.tagName === "SCRIPT") {
             this.render("left-right/local-script-toggle", child.id, childrenButton)
@@ -16626,73 +13914,14 @@ await Helper.add("event/click-funnel")
 
           childrenButton.onclick = () => {
 
-            this.overlay("toolbox", async overlay => {
-              overlay.info.textContent = `<${this.convert("node/selector", child)}`
+            this.overlay("pop", async o1 => {
+              o1.addInfo(`<${this.convert("node/selector", child)}`)
+              const buttons = o1.content
 
               {
-                const buttons = this.create("div/scrollable", overlay)
-
-                if (child.closest("svg") !== null) {
-                  const button = this.create("toolbox/left-right", buttons)
-                  button.left.textContent = ".animate"
-                  button.right.textContent = "Animiere dein SVG Element"
-                  button.onclick = () => {
-                    this.overlay("toolbox", animateSvgOverlay => {
-                      animateSvgOverlay.info.textContent = this.convert("node/selector", child)
-                      const buttons = this.create("div/scrollable", animateSvgOverlay)
-                      {
-                        const button = this.create("toolbox/left-right", buttons)
-                        button.left.textContent = ".up-and-down"
-                        button.right.textContent = "Bewegt dein SVG Element hoch und runter"
-                        button.onclick = () => {
-                          const animateTransform = document.createElementNS('http://www.w3.org/2000/svg', 'animateTransform')
-                          animateTransform.setAttribute('attributeName', 'transform')
-                          animateTransform.setAttribute('attributeType', 'XML')
-                          animateTransform.setAttribute('type', 'translate')
-                          animateTransform.setAttribute('values', '0 0; 0 8; 0 0')
-                          animateTransform.setAttribute('dur', '2s')
-                          animateTransform.setAttribute('repeatCount', 'indefinite')
-                          animateTransform.setAttribute('calcMode', 'spline')
-                          animateTransform.setAttribute('keySplines', '0.5 0 0.5 1; 0.5 0 0.5 1')
-                          child.appendChild(animateTransform)
-                          window.alert("Animation wurde erfolgreich angehängt.")
-                          this.remove("overlays")
-                        }
-                      }
-                    })
-                  }
-                }
-
-                if (child.tagName === "BODY") {
-                  if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".back-button"
-                    button.right.textContent = "Hänge eine Zurück Taste an"
-                    button.onclick = () => {
-                      const script = this.create("script", {id: "back-button", js: 'Helper.create("back-button", document.body)'})
-                      this.add("script-onbody", script)
-                      window.alert("Zurück Taste wurde erfolgreich angehängt.")
-                    }
-                  }
-                }
-
-                if (child.tagName === "BODY") {
-                  if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".cite-checker"
-                    button.right.textContent = "Lass deine Nutzer, Zitate selber prüfen"
-                    button.onclick = () => {
-                      const script = this.create("script", {id: "cite-checker", js: `await Helper.add("cite-checker")`})
-                      this.add("script-onbody", script)
-                      window.alert("Skript wurde erfolgreich angehängt.")
-                    }
-                  }
-                }
 
                 if (child.tagName !== "SCRIPT") {
-                  const button = this.create("toolbox/left-right", buttons)
-                  button.left.textContent = ".children"
-                  button.right.textContent = "Element Inhalt"
+                  const button = this.render("button/left-right", {left: ".children", right: "Element Inhalt"}, buttons)
                   button.onclick = async () => {
 
                     if (child.children.length > 0) {
@@ -16702,21 +13931,20 @@ await Helper.add("event/click-funnel")
                 }
 
                 {
-                  const button = this.create("toolbox/left-right", buttons)
-                  button.left.textContent = ".class"
-                  button.right.textContent = "Klassen definieren"
+                  const button = this.render("button/left-right", {left: ".class", right: "Klassen definieren"}, buttons)
                   button.onclick = () => {
 
-                    this.overlay("toolbox", overlay => {
-                      overlay.info.textContent = `<${this.convert("node/selector", child)}.class`
-                      const classField = this.create("input/textarea", overlay)
+                    this.overlay("pop", o2 => {
+                      o2.addInfo(`<${this.convert("node/selector", child)}`)
+                      const content = o2.content
+                      const classField = this.create("input/textarea", content)
                       classField.input.placeholder = "mehrere klassen werden mit einem leerzeichen getrennt"
                       classField.input.style.fontFamily = "monospace"
                       classField.input.style.height = "34vh"
                       if (child.hasAttribute("class")) {
                         classField.input.value = child.getAttribute("class")
                       }
-                      this.add("outline-hover", classField.input)
+                      this.add("hover-outline", classField.input)
                       this.verify("input/value", classField.input)
                       classField.input.oninput = () => {
                         const value = classField.input.value
@@ -16725,93 +13953,37 @@ await Helper.add("event/click-funnel")
                         } else {
                           child.setAttribute("class", value)
                         }
-                        overlay.info.textContent = `<${this.convert("node/selector", child)}.class`
-                        this.render(event, input, parent)
+                        o2.info.textContent = `<${this.convert("node/selector", child)}`
+                        updateNodeAlias(child)
                       }
                     })
                   }
                 }
 
                 if (!["BODY"].includes(child.tagName)) {
-                  const button = this.create("toolbox/left-right", buttons)
-                  button.left.textContent = ".copy"
-                  button.right.textContent = "Element kopieren"
+                  const button = this.render("button/left-right", {left: ".copy", right: "Element kopieren"}, buttons)
                   button.onclick = async () => {
+
                     await this.convert("text/clipboard", child.outerHTML)
                     window.alert(`${child.tagName} wurde erfolgreich in deine Zwischenablage kopiert.`)
                   }
                 }
 
-                if (child.tagName === "BODY") {
-
-                  if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".contact-location-expert"
-                    button.right.textContent = "Nutzer dürfen dir Kontaktanfragen per E-Mail senden"
-                    button.onclick = () => {
-                      const script = this.create("script/contact-location-expert")
-                      const exist = document.getElementById(script.id)
-                      if (exist === null) {
-                        document.body.append(script)
-                      } else {
-                        exist.remove()
-                        document.body.append(script)
-                      }
-                      window.alert("Skript erfolgreich angehängt.")
-                    }
-                  }
-
-                  if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".creator-button"
-                    button.right.textContent = "Erlaube Nutzer deine Werteinheit zu bearbeiten"
-                    button.onclick = async () => {
-
-                      const prompt = window.prompt("Gebe den Typ an: (open/closed/expert)")
-                      if (!this.verifyIs("text/empty", prompt)) {
-                        if (["open", "closed", "expert"].includes(prompt)) {
-                          const script = this.create("script", {id: `${prompt}-creator`, js: `await Helper.add('${prompt}-creator')`})
-                          this.add("script-onbody", script)
-                          window.alert("Creator wurde erfolgreich angehängt.")
-                          this.remove("overlays")
-                        }
-                      } else {
-                        window.alert("Kein gültiger Creator-Typ")
-                      }
-
-
-                    }
-                  }
-                }
-
                 if (!["SCRIPT", "HEAD"].includes(child.tagName)) {
-                  const button = this.create("toolbox/left-right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".dark-light"
                   button.right.textContent = "Dark Light Modus umschalten"
                   button.onclick = () => {
+
                     this.convert("node/dark-light-toggle", child)
                     window.alert("Dark Light Modus erfolgreich umgeschaltet.")
                     this.remove("overlays")
                   }
                 }
 
-                if (["BODY", "DIV"].includes(child.tagName)) {
-                  if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".dark-light-aware"
-                    button.right.textContent = "Dark Light Skript für dein Element anhängen"
-                    button.onclick = async () => {
-                      const selector = await this.convert("element/selector", child)
-                      const script = this.create("script", {id: "sdark-light-aware", js: `Helper.convert("selector/dark-light", "${selector}")`})
-                      this.add("script-onbody", script)
-                      window.alert("Dark Light Skript erfolgreich angehängt.")
-                    }
-                  }
-                }
-
                 if (child.tagName === "SCRIPT") {
                   {
-                    const button = this.create("toolbox/left-right", buttons)
+                    const button = this.create("button/left-right", buttons)
                     this.render("left-right/disable-script-local", {script: child, ok: () => {
                       this.render("left-right/local-script-toggle", child.id, childrenButton)
                       overlay.remove()
@@ -16833,12 +14005,12 @@ await Helper.add("event/click-funnel")
                 }
 
                 if (["BODY", "DIV"].includes(child.tagName)) {
-                  const button = this.create("toolbox/left-right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".div"
                   button.right.textContent = "DIV-Element anhängen"
                   button.onclick = () => {
+
                     this.render("text/div", "DIV", child)
-                    window.alert("DIV Element wurde erfolgreich angehängt.")
                     this.remove("overlays")
                   }
                 }
@@ -16846,12 +14018,12 @@ await Helper.add("event/click-funnel")
                 if (child.tagName === "DIV") {
 
                   if (["closed", "expert"].includes(callback.type)) {
-                    const button = this.create("toolbox/left-right", buttons)
+                    const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".div-creator"
                     button.right.textContent = "Bearbeite dein Element schnell und einfach"
                     button.onclick = () => {
 
-                      this.overlay("toolbox", async overlay => {
+                      this.overlay("pop", async overlay => {
 
                         if (callback.type === "expert") {
                           overlay.registerHtmlButton = this.registerHtmlButton(overlay)
@@ -17288,15 +14460,14 @@ await Helper.add("event/click-funnel")
                 if (child.closest("svg") !== null) {
 
                   {
-                    const button = this.create("toolbox/left-right", buttons)
+                    const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".fill"
                     button.right.textContent = "Passe die Farbe deine SVG Elements an"
                     button.onclick = () => {
-                      this.overlay("toolbox", colorsOverlay => {
-                        colorsOverlay.info.textContent = ".fill.colors"
-                        const container = this.create("div/flex-row", colorsOverlay)
-                        container.style.overflow = "auto"
-                        container.style.paddingBottom = "144px"
+
+                      this.overlay("pop", colorsOverlay => {
+                        colorsOverlay.addInfo(".fill.colors")
+                        const container = this.div("flex wrap pb144 of-auto", colorsOverlay)
                         this.fn("renderColors")(container, (value) => {
                           child.setAttribute("fill", value)
                           window.alert(`Das 'fill'-Attribut wurde erfolgreich im ${child.tagName.toUpperCase()} gesetzt.`)
@@ -17307,12 +14478,13 @@ await Helper.add("event/click-funnel")
                   }
 
                   {
-                    const button = this.create("toolbox/left-right", buttons)
+                    const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".fixed-bottom-center"
                     button.right.textContent = "Positioniere dein SVG fixiert-unten-mittig"
                     button.onclick = () => {
-                      this.style(child, {position: "fixed", bottom: "0", left: "50%", transform: "translateX(-50%)"})
-                      window.alert("Dein SVG wurde erfolgreich positioniert.")
+
+                      child.className += " fixed bottom left50p translateX-50p"
+                      this.remove("overlays")
                     }
                   }
 
@@ -17320,14 +14492,14 @@ await Helper.add("event/click-funnel")
                 }
 
                 {
-                  const button = this.create("toolbox/left-right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".html"
                   button.right.textContent = "HTML anhängen"
                   button.onclick = () => {
 
-                    this.overlay("toolbox", overlay => {
-                      overlay.info.textContent = `<${this.convert("node/selector", child)}.html`
-                      const funnel = this.create("div/scrollable", overlay)
+                    this.overlay("pop", overlay => {
+                      overlay.addInfo(`<${this.convert("node/selector", child)}.html`)
+                      const funnel = overlay.content
                       const field = this.create("input/textarea", funnel)
                       field.input.placeholder = `<div>..</div>`
                       field.input.style.fontSize = "13px"
@@ -17336,12 +14508,13 @@ await Helper.add("event/click-funnel")
                       field.input.setAttribute("required", "true")
                       this.verify("input/value", field.input)
                       field.input.oninput = () => this.verify("input/value", field.input)
-                      const submit = this.create("toolbox/action", funnel)
+                      const submit = this.create("button/action", funnel)
                       submit.textContent = "HTML jetzt anhängen"
                       submit.onclick = async () => {
+
                         const html = await this.convert("text/purified", field.input.value)
                         if (!this.verifyIs("text/empty", html)) {
-                          child.append(html)
+                          this.append(html, child)
                           this.remove("overlays")
                         } else {
                           window.alert("Kein gültiges HTML.")
@@ -17351,58 +14524,25 @@ await Helper.add("event/click-funnel")
                   }
                 }
 
-                if (child.tagName === "BODY") {
-                  if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".html-feedback"
-                    button.right.textContent = "Lass dir Feedback für deine Werteinheiten geben"
-                    button.onclick = () => {
-                      const script = this.create("script", {id: "html-feedback", js: 'Helper.add("html-feedback")'})
-                      this.add("script-onbody", script)
-                      window.alert("Feedback Taste wurde erfolgreich angehängt.")
-                    }
-                  }
-
-                  if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".html-statistics"
-                    button.right.textContent = "Entscheide welche Statistiken du, für deine Werteinheit, anwenden möchtest"
-                    button.onclick = () => {
-                      this.overlay("toolbox", overlay => {
-                        overlay.info.textContent = ".html-statistics"
-                        const buttons = this.create("div/scrollable", overlay)
-                        {
-                          const button = this.create("toolbox/left-right", buttons)
-                          button.right.textContent = ".html-requested"
-                          button.left.textContent = "Speichert, wie oft deine Werteinheit angefordert wird"
-                          button.onclick = () => {
-                            const script = this.create("script", {id: "html-requested", js: 'Helper.request("/register/location/html-requested/")'})
-                            this.add("script-onbody", script)
-                            window.alert("HTML Requested Skript wurde erfolgreich angehängt.")
-                          }
-                        }
-                      })
-                    }
-                  }
-                }
-
                 {
-                  const button = this.create("toolbox/left-right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".id"
                   button.right.textContent = "Element Id definieren"
                   button.onclick = async () => {
 
-                    this.overlay("toolbox", async overlay => {
-                      overlay.info.textContent = `<${this.convert("node/selector", child)}.id`
-                      const idField = this.create("input/text", overlay)
+                    this.overlay("pop", async overlay => {
+                      overlay.addInfo(`<${this.convert("node/selector", child)}`)
+                      const content = overlay.content
+                      const idField = this.create("input/text", content)
                       idField.input.setAttribute("accept", "text/tag")
-                      idField.input.placeholder = "Identifikationsname (text/tag)"
+                      idField.input.placeholder = "Id (text/tag)"
                       if (child.hasAttribute("id")) {
                         idField.input.value = child.getAttribute("id")
                       }
-                      this.add("outline-hover", idField.input)
+                      this.add("hover-outline", idField.input)
                       this.verify("input/value", idField.input)
                       idField.input.oninput = async () => {
+
                         await this.verify("input/value", idField.input)
                         const value = idField.input.value
                         if (this.verifyIs("text/empty", value)) {
@@ -17414,7 +14554,8 @@ await Helper.add("event/click-funnel")
                             this.add("style/not-valid", idField.input)
                           }
                         }
-                        overlay.info.textContent = `<${this.convert("node/selector", child)}.id`
+                        overlay.info.textContent = `<${this.convert("node/selector", child)}`
+                        updateNodeAlias(child)
                       }
                     })
 
@@ -17424,30 +14565,27 @@ await Helper.add("event/click-funnel")
                 }
 
                 {
-                  const button = this.create("toolbox/left-right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".innerHTML"
                   button.right.textContent = "HTML Inhalt ersetzen"
                   button.onclick = async () => {
-                    this.overlay("toolbox", overlay => {
-                      overlay.info.append(this.convert("element/alias", document.body))
-                      overlay.info.append(this.convert("text/span", ".innerHTML"))
-                      const funnel = this.create("div/scrollable", overlay)
+
+                    this.overlay("pop", overlay => {
+                      overlay.addInfo(this.convert("element/alias", document.body))
+                      const funnel = overlay.content
                       const htmlField = this.create("input/textarea", funnel)
                       htmlField.input.style.height = "55vh"
                       htmlField.input.style.fontFamily = "monospace"
                       htmlField.input.style.fontSize = "13px"
                       htmlField.input.placeholder = "<body>..</body>"
                       this.verify("input/value", htmlField.input)
-                      const submit = this.create("toolbox/action", funnel)
+                      const submit = this.create("button/action", funnel)
                       submit.textContent = "Inhalte jetzt ersetzen"
                       submit.onclick = async () => {
+
                         const purified = await Helper.convert("text/purified", htmlField.input.value)
                         if (!this.verifyIs("text/emtpy", purified)) {
-                          const s1 = child.querySelector("script#html-creator")
-                          const s2 = child.querySelector("script#toolbox-getter")
                           child.innerHTML = purified
-                          if (s1) this.add("html-creator")
-                          if (s2) this.add("toolbox-getter")
                           this.remove("overlays")
                         } else {
                           window.alert("Kein gültiges HTML.")
@@ -17459,24 +14597,72 @@ await Helper.add("event/click-funnel")
 
                 if (child.tagName === "BODY") {
                   if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".location-list-funnel-button"
-                    button.right.textContent = "Definiere Listen, mit der sich deine Nutzer selber markieren können"
+                    const button = this.create("button/left-right", buttons)
+                    button.left.textContent = ".location-list"
+                    button.right.textContent = "Definiere eine Liste, für deine Nutzer"
                     button.onclick = () => {
-                      this.overlay("toolbox", async overlay => {
-                        const funnel = this.create("div/scrollable", overlay)
-                        const pathField = await this.create("field/open-expert-values-path-select", funnel)
-                        const submitButton = this.create("button/action", funnel)
-                        submitButton.textContent = "Button jetzt anhängen"
-                        submitButton.onclick = async () => {
-                          const fieldFunnel = await this.convert("path/field-funnel", pathField.input.value)
-                          const script = this.create("script", {id: `${fieldFunnel.id}-location-list`, js: `await Helper.add("location-list-funnel", {tag: "${fieldFunnel.id}", path: "${pathField.input.value}"})`})
+
+                      this.overlay("pop", async o1 => {
+                        const content = o1.content
+                        const funnel = this.div("", content)
+                        funnel.idField = this.create("input/id", funnel)
+                        this.render("label", {for: "path", text: "Funnel wählen"}, funnel)
+                        funnel.path = this.create("input/select", funnel)
+                        funnel.path.input.id = "path"
+                        const tree = "getyour.expert.platforms"
+                        this.request("/get/users/trees/", {trees: [tree]}).then(res => {
+
+                          if (res.status === 200) {
+                            const users = JSON.parse(res.response)
+                            funnel.path.input.textContent = ""
+                            for (let i = 0; i < users.length; i++) {
+                              const user = users[i]
+                              const platforms = user[tree] || []
+                              const values = platforms.flatMap(it => it.values || [])
+                              for (let i = 0; i < values.length; i++) {
+                                const value = values[i]
+                                const option = document.createElement("option")
+                                option.text = value.path
+                                option.value = value.path
+                                this.append(option, funnel.path.input)
+                              }
+                            }
+                          }
+                        })
+                        this.add("style/valid", funnel.path.input)
+                        funnel.path.input.oninput = async ev => {
+
+                          const path = ev.target.value
+                          const funnels = await this.convert("path/funnels", path)
+                          this.overlay("pop", o2 => {
+                            const content = o2.content
+                            this.render("text/h1", "Verfügbare Funnel Ids", content)
+                            const buttons = this.create("div", content)
+                            for (let i = 0; i < funnels.length; i++) {
+                              const it = funnels[i]
+                              const button = this.render("button/left-right", {left: it.id, right: "Auswählen"}, buttons)
+                              button.onclick = () => {
+
+                                funnel.idField.input.value = it.id
+                                this.verify("input/value", funnel.idField.input)
+                                o2.remove()
+                              }
+                            }
+                          })
+                        }
+                        funnel.submit = this.create("button/action", funnel)
+                        funnel.submit.textContent = "Skript jetzt anhängen"
+                        funnel.submit.onclick = async () => {
+
+                          await this.verify("input/value", funnel.idField.input)
+                          const tag = funnel.idField.input.value
+                          const path = funnel.path.input.value
+                          const script = this.create("script/id", `location-list`)
+                          script.setAttribute("tag", tag)
+                          script.setAttribute("path", path)
                           this.add("script-onbody", script)
-                          const button = this.create("button/image-text", document.body)
-                          button.text.textContent = this.convert("text/capital-first-letter", fieldFunnel.id)
-                          button.id = `${fieldFunnel.id}-location-list-button`
+                          window.alert("Skript wurde erfolgreich angehängt.")
                           this.remove("overlays")
-                          window.alert("Location List Funnel Button wurde erfolgreich angehängt.")
                         }
                       })
                     }
@@ -17485,75 +14671,63 @@ await Helper.add("event/click-funnel")
 
                 if (child.tagName === "BODY") {
                   if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".match-maker"
-                    button.right.textContent = "Match Maker Skripte anhängen"
+                    const button = this.render("button/left-right", {left: ".match-maker", right: "Match Maker Skripte anhängen"}, buttons)
                     button.onclick = () => {
-                      this.overlay("toolbox", async overlay => {
-                        overlay.info.textContent = ".match-maker"
 
-                        const content = this.create("info/loading", overlay)
-
-                        const res = await this.request("/get/platform/match-maker-location-expert/")
-
+                      this.overlay("pop", async o2 => {
+                        o2.addInfo(".match-maker")
+                        o2.load()
+                        const content = o2.content
+                        const res = await this.request("/get/match-maker/location-expert/")
                         if (res.status === 200) {
                           const matchMaker = JSON.parse(res.response)
+                          // console.log(matchMaker);
 
-                          this.convert("parent/scrollable", content)
-
+                          // this.convert("parent/scrollable", content)
                           this.render("match-maker/buttons", matchMaker, content)
-                        }
-
-                        if (res.status !== 200) {
-                          const res = await this.request("/get/platform/match-maker-location-writable/")
-
+                        } else {
+                          const res = await this.request("/get/match-maker/location-writable/")
                           if (res.status === 200) {
                             const matchMaker = JSON.parse(res.response)
-
-                            this.convert("parent/scrollable", content)
-
+                            // this.convert("parent/scrollable", content)
                             this.render("match-maker/buttons", matchMaker, content)
-                          }
-
-                          if (res.status !== 200) {
-                            this.convert("parent/info", content)
-                            content.textContent = "Es wurden keine Match Maker gefunden."
-                            throw new Error("match maker not found")
+                          } else {
+                            this.convert("parent/note", content)
+                            content.textContent = "Keine Match Maker gefunden"
                           }
                         }
-
-
                       })
                     }
                   }
                 }
 
                 if (["BODY", "DIV"].includes(child.tagName)) {
-                  const button = this.create("toolbox/left-right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".md"
                   button.right.textContent = "Markdown konvertieren und anhängen"
                   button.onclick = async () => {
-                    this.overlay("toolbox", markdownToHtmlOverlay => {
-                      markdownToHtmlOverlay.info.textContent = ".md-to-div"
-                      const funnel = this.create("div/scrollable", markdownToHtmlOverlay)
-                      const markdownField = this.create("input/textarea", funnel)
-                      markdownField.input.placeholder = "Markdown zu HTML konvertieren (md/html)\n\n# Hello, Markdown! .. "
-                      markdownField.input.style.fontSize = "13px"
-                      markdownField.input.style.height = "55vh"
-                      markdownField.input.setAttribute("required", "true")
-                      markdownField.input.oninput = () => this.verify("input/value", markdownField.input)
-                      this.verify("input/value", markdownField.input)
-                      const submit = this.create("toolbox/action", funnel)
+
+                    this.overlay("pop", o2 => {
+                      o2.addInfo(".md-to-div")
+                      const funnel = o2.content
+                      const field = this.create("input/textarea", funnel)
+                      field.input.placeholder = "Markdown zu HTML konvertieren (md/html)\n\n# Hello, Markdown! .. "
+                      field.input.style.fontSize = "13px"
+                      field.input.style.height = "55vh"
+                      field.input.setAttribute("required", "true")
+                      field.input.oninput = () => this.verify("input/value", field.input)
+                      this.verify("input/value", field.input)
+                      const submit = this.create("button/action", funnel)
                       submit.textContent = "Markdown jetzt anhängen"
                       submit.onclick = async () => {
-                        await this.verify("input/value", markdownField.input)
-                        const markdown = markdownField.input.value
+
+                        await this.verify("input/value", field.input)
+                        const markdown = field.input.value
                         const html = this.convert("markdown/html", markdown)
-                        const markdownDiv = document.createElement("div")
-                        markdownDiv.classList.add("markdown-container")
-                        markdownDiv.innerHTML = await this.convert("text/purified", html)
-                        child.appendChild(markdownDiv)
-                        window.alert(`Markdown erfolgreich konvertiert und im ${child.tagName} angehängt.`)
+                        const purified = await this.convert("text/purified", html)
+                        const div = this.div("markdown")
+                        div.innerHTML = purified
+                        this.append(div, child)
                         this.remove("overlays")
                       }
                     })
@@ -17561,7 +14735,7 @@ await Helper.add("event/click-funnel")
                 }
 
                 if (!["SCRIPT", "HEAD", "BODY"].includes(child.tagName)) {
-                  const button = this.create("toolbox/left-right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".paste"
                   button.right.textContent = "Kopiertes Element anhängen"
                   button.onclick = async () => {
@@ -17581,107 +14755,55 @@ await Helper.add("event/click-funnel")
                   }
                 }
 
-                if (child.tagName === "BODY") {
-                  if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".role-apps"
-                    button.right.textContent = "Rollenapps Freigabe Button anhängen"
-                    button.addEventListener("click", () => {
-
-                      this.overlay("toolbox", async overlay => {
-                        this.render("text/title", "Für welche Rolle möchtest du den Button anhängen?", overlay)
-
-                        const content = this.create("info/loading", overlay)
-
-                        const res = await this.request("/get/platform/roles-location-expert/")
-
-                        if (res.status === 200) {
-                          const roles = JSON.parse(res.response)
-
-                          this.convert("parent/scrollable", content)
-
-                          for (let i = 0; i < roles.length; i++) {
-                            const role = roles[i]
-
-                            this.render("role/role-apps-button-onbody", role, content)
-
-                          }
-                        }
-
-                        if (res.status !== 200) {
-                          const res = await this.request("/get/platform/roles-location-writable/")
-
-                          if (res.status === 200) {
-                            const roles = JSON.parse(res.response)
-
-                            this.convert("parent/scrollable", content)
-
-                            for (let i = 0; i < roles.length; i++) {
-                              const role = roles[i]
-
-                              this.render("role/role-apps-button-onbody", role, content)
-
-                            }
-
-                          }
-
-                          if (res.status !== 200) {
-                            this.convert("parent/info", content)
-                            content.textContent = "Keine Rollen gefunden."
-                          }
-                        }
-
-
-                      })
-                    })
-                  }
-                }
-
                 if (["BODY", "DIV"].includes(child.tagName)) {
 
                   if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".role-login"
-                    button.right.textContent = "Rollen Zugang anhängen"
+                    const button = this.render("button/left-right", {left: ".role-login", right: "Rollen Zugang anhängen"}, buttons)
                     button.onclick = () => {
-                      this.overlay("toolbox", async overlay => {
-                        overlay.info.textContent = `<${this.convert("node/selector", child)}.access`
-                        this.render("text/title", "Für welche Rolle möchtest du einen Zugang anhängen?", overlay)
-                        const content = this.create("info/loading", overlay)
 
-                        function renderRoleButtons(roles, child, node) {
-                          Helper.convert("parent/scrollable", node)
+                      this.overlay("pop", async o2 => {
+                        o2.addInfo(`<${this.convert("node/selector", child)}`)
+                        const content = o2.content
+                        this.render("text/h1", "Rolle wählen", content)
+                        const loading = this.create("div/loading", content)
+                        function updateRoles(roles, node) {
+
+                          Helper.reset("node", node)
                           for (let i = 0; i < roles.length; i++) {
                             const role = roles[i]
                             const button = Helper.create("button/left-right", node)
                             button.left.textContent = role.name
-                            button.right.textContent = `Rolle ${i + 1}`
-                            Helper.add("outline-hover", button)
+                            Helper.render("div", {text: role.home, classes: "fs13 color-theme"}, button.left)
+                            button.right.textContent = `vor ${Helper.convert("millis/since", role.created)}`
+                            Helper.add("hover-outline", button)
                             button.onclick = () => {
-                              Helper.create("field-funnel/login", child)
-                              const script = Helper.create("script", {id: "role-login", js: `Helper.add("role-login", {"id":${role.created},"name":"${role.name}"})`})
+
+                              const script = document.createElement("script")
+                              script.id = "role-login"
+                              script.type = "module"
+                              script.src = "/js/role-login.js"
+                              script.setAttribute("role-created", role.created)
+                              script.setAttribute("role-name", role.name)
                               Helper.add("script-onbody", script)
                               window.alert("Zugang wurde erfolgreich angehängt.")
                               Helper.remove("overlays")
                             }
                           }
                         }
-
-                        const res = await this.request("/get/platform/roles-location-expert/")
+                        const res = await this.request("/get/platform/roles/location-expert/")
                         if (res.status === 200) {
                           const roles = JSON.parse(res.response)
-                          renderRoleButtons(roles, input, content)
+                          updateRoles(roles, loading)
                         } else {
                           const res = await this.request("/get/platform/roles-location-writable/")
                           if (res.status === 200) {
                             const roles = JSON.parse(res.response)
-                            renderRoleButtons(roles, input, content)
+                            updateRoles(roles, loading)
                           } else {
-                            this.convert("parent/info", content)
-                            content.textContent = "Es wurden keine Rollen gefunden."
+                            this.convert("parent/note", loading)
+                            content.textContent = "Keine Rollen gefunden."
                           }
                         }
-
                       })
                     }
                   }
@@ -17690,7 +14812,7 @@ await Helper.add("event/click-funnel")
                 if (!["BODY", "HEAD"].includes(child.tagName)) {
 
                   {
-                    const button = this.create("toolbox/left-right", buttons)
+                    const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".remove"
                     button.right.textContent = "Element entfernen"
                     button.onclick = async () => {
@@ -17700,61 +14822,53 @@ await Helper.add("event/click-funnel")
                   }
                 }
 
-                if (child.tagName === "BODY") {
-                  if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".script"
-                    button.right.textContent = "JavaScript anhängen"
-                    button.onclick = () => {
-                      this.overlay("toolbox", overlay => {
-                        const funnel = this.create("div/scrollable", overlay)
-                        const nameField = this.create("field/id", funnel)
-                        const jsField = this.create("field/js", funnel)
-                        jsField.label.textContent = "JavaScript Browser Funktionen + Plattform Helper Funktionen"
-                        jsField.input.oninput = () => this.verify("input/value", jsField.input)
-                        this.verifyIs("field-funnel/valid", funnel)
-                        const submit = this.create("button/action", funnel)
-                        submit.textContent = "Skript jetzt anhängen"
-                        submit.onclick = async () => {
-                          await this.verify("field-funnel", funnel)
-                          const script = this.create("script", {id: nameField.input.value, js: jsField.input.value})
-                          if (!this.verifyIs("id/unique", script.id)) {
-                            this.add("style/not-valid", nameField.input)
-                          }
-                          this.add("id-onbody", script)
+                if (callback.type === "expert") {
+
+                  const scriptButton = this.render("button/left-right", {left: ".script", right: "Lade ein Skript mit einer Id"}, buttons)
+                  scriptButton.onclick = async () => {
+
+                    this.overlay("pop", o2 => {
+                      const content = o2.content
+                      const prompt = this.render("button/left-right", {left: ".prompt", right: "Id eingeben"}, content)
+                      prompt.onclick = ev => {
+                        const prompt = window.prompt("Gebe eine Skript Id ein: (text/tag)")
+                        if (!this.verifyIs("text/empty", prompt)) {
+                          const id = this.convert("text/tag", prompt)
+                          addScript(id)
+                        } else {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                        }
+                      }
+                      this.render("text/hr", "Verfügbare Skripte", content)
+                      const div = this.create("div/note", content)
+                      this.request("/expert/get/js/paths/").then(res => {
+                        try {
+                          const paths = JSON.parse(res.response)
+                          paths.forEach(path => {
+                            const id = this.convert("path/id", path)
+                            const button = this.render("button/left-right", {left: `.${id}`, right: "Skript wählen"}, div)
+                            button.onclick = ev => addScript(id)
+                          })
+                        } catch (error) {
+                          div.textContent = "Keine Skripte gefunden"
                         }
                       })
-                    }
-                  }
-                }
-
-                if (["BODY", "DIV"].includes(child.tagName)) {
-
-                  if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
-                    button.left.textContent = ".session-login"
-                    button.right.textContent = "Anmelde Zugang anhängen"
-                    button.onclick = () => {
-                      this.create("session-login", child)
-                      const script = this.create("script", {id: "session-login", js: `Helper.add("session-login", document.body)`})
-                      this.add("script-onbody", script)
-                      window.alert("Zugang wurde erfolgreich angehängt.")
-                      this.remove("overlays")
-                    }
+                    })
                   }
                 }
 
                 {
-                  const button = this.create("toolbox/left-right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".setAttribute"
                   button.right.textContent = "Neues Attribut setzen"
                   button.onclick = () => {
+
                     const attribute = window.prompt("Gebe dein neues Attribut ein: (z.B., width)")
                     if (!this.verifyIs("text/empty", attribute)) {
                       const value = window.prompt("Gebe den Wert ein: (z.B., 100%)")
                       if (!this.verifyIs("text/empty", value)) {
                         child.setAttribute(attribute, value)
-                        window.alert(`"Dein neues Attribut wurde erfolgreich im ${child.tagName} gesetzt`)
+                        window.alert(`Attribut erfolgreich gesetzt.`)
                       }
                     }
                   }
@@ -17763,14 +14877,14 @@ await Helper.add("event/click-funnel")
                 if (child.tagName === "BODY") {
 
                   if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
+                    const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".scripts"
                     button.right.textContent = "Nutze geprüfte HTML Skripte"
                     button.onclick = () => {
 
-                      this.overlay("toolbox", async overlay => {
-                        overlay.info.textContent = ".scripts"
-                        const content = this.create("info/loading", overlay)
+                      this.overlay("pop", async overlay => {
+                        overlay.addInfo(".scripts")
+                        const content = overlay.content
                         const res = await this.request("/get/scripts/toolbox/")
                         if (res.status === 200) {
                           const scripts = JSON.parse(res.response)
@@ -17796,14 +14910,14 @@ await Helper.add("event/click-funnel")
 
 
                   {
-                    const button = this.create("toolbox/left-right", buttons)
+                    const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".style"
                     button.right.textContent = "Design als Style Tag anhängen"
                     button.onclick = () => {
 
-                      this.overlay("toolbox", overlay => {
-                        overlay.info.textContent = `<${this.convert("node/selector", child)}.style`
-                        const funnel = this.create("div/scrollable", overlay)
+                      this.overlay("pop", overlay => {
+                        overlay.addInfo(`<${this.convert("node/selector", child)}.style`)
+                        const funnel = overlay.content
                         const cssField = this.create("input/textarea", funnel)
                         cssField.input.placeholder = `.class {..}`
                         cssField.input.style.fontFamily = "monospace"
@@ -17811,13 +14925,14 @@ await Helper.add("event/click-funnel")
                         cssField.input.style.height = "55vh"
                         cssField.input.setAttribute("required", "true")
                         cssField.input.oninput = () => this.verify("input/value", cssField.input)
-                        const submit = this.create("toolbox/action", funnel)
+                        const submit = this.create("button/action", funnel)
                         submit.textContent = "Style jetzt anhängen"
                         submit.onclick = async () => {
+
                           await this.verify("input/value", cssField.input)
                           const style = document.createElement("style")
                           style.textContent = cssField.input.value
-                          child.appendChild(style)
+                          this.append(style, child)
                           this.remove("overlays")
                         }
                       })
@@ -17828,14 +14943,14 @@ await Helper.add("event/click-funnel")
 
                 if (!["SCRIPT", "BODY", "HEAD"].includes(child.tagName)) {
 
-                  const button = this.create("toolbox/left-right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".style"
                   button.right.textContent = "CSS Import mit Vorschau bearbeiten"
                   button.onclick = () => {
 
-                    this.overlay("toolbox", overlay => {
-                      overlay.info.textContent = `<${this.convert("node/selector", child)}.style`
-                      const content = this.create("div/scrollable", overlay)
+                    this.overlay("pop", overlay => {
+                      overlay.addInfo(`<${this.convert("node/selector", child)}.style`)
+                      const content = overlay.content
                       const preview = document.createElement("div")
                       preview.style.height = `${window.innerHeight * 0.4}px`
                       preview.style.overflow = "auto"
@@ -17851,12 +14966,13 @@ await Helper.add("event/click-funnel")
                       cssField.input.style.fontFamily = "monospace"
                       cssField.input.style.fontSize = "13px"
                       cssField.input.placeholder = "color: blue;\nborder: 1px solid black;\n\n  ..\n\nkey: value;"
-                      this.add("outline-hover", cssField.input)
+                      this.add("hover-outline", cssField.input)
                       if (child.hasAttribute("style")) {
                         cssField.input.value = this.convert("styles/text", child)
                       }
                       this.verify("input/value", cssField.input)
                       cssField.input.oninput = () => {
+
                         const css = cssField.input.value
                         clone.setAttribute("style", css)
                         child.setAttribute("style", css)
@@ -17868,14 +14984,14 @@ await Helper.add("event/click-funnel")
 
                 if (child.tagName === "BODY") {
 
-                  const button = this.create("toolbox/left-right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".style"
                   button.right.textContent = "CSS Import"
-                  button.addEventListener("click", () => {
+                  button.onclick = () => {
 
-                    this.overlay("toolbox", overlay => {
-                      overlay.info.textContent = `${this.convert("element/alias", child).textContent}.style`
-                      const content = this.create("div/scrollable", overlay)
+                    this.overlay("pop", overlay => {
+                      overlay.addInfo(`${this.convert("element/alias", child).textContent}.style`)
+                      const content = overlay.content
                       const cssField = this.create("input/textarea", content)
                       cssField.input.style.height = "55vh"
                       cssField.input.style.fontFamily = "monospace"
@@ -17888,37 +15004,35 @@ await Helper.add("event/click-funnel")
                       cssField.input.oninput = async () => {
 
                         await this.verify("input/value", cssField.input)
-
                         const css = cssField.input.value
-
                         if (this.verifyIs("text/empty", css)) {
                           child.removeAttribute("style")
                         } else {
                           child.setAttribute("style", css)
                         }
-
-
                       }
                     })
-                  })
+                  }
 
                 }
 
                 if (!["SCRIPT", "HEAD"].includes(child.tagName)) {
-                  const button = this.create("toolbox/left-right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".svg"
                   button.right.textContent = "Bringe deine Kreativität zum Ausdruck"
                   button.onclick = () => {
+
                     const svg = this.fn("svg")
-                    this.overlay("toolbox", svgOptionsOverlay => {
-                      svgOptionsOverlay.info.textContent = ".svg.options"
-                      const buttons = this.create("div", svgOptionsOverlay)
+                    this.overlay("pop", o2 => {
+                      o2.addInfo(".svg.options")
+                      const buttons = o2.content
                       {
-                        const button = this.create("toolbox/left-right", buttons)
+                        const button = this.create("button/left-right", buttons)
                         button.left.textContent = ".icons"
                         button.right.textContent = "Füge vorgefertigte Icons deinem Element hinzu"
                         button.onclick = () => {
-                          this.overlay("toolbox", async svgIconsOverlay => {
+
+                          this.overlay("pop", async svgIconsOverlay => {
                             svgIconsOverlay.info.textContent = ".svg.icons"
                             const container = this.create("div/flex-row", svgIconsOverlay)
                             container.style.overflow = "auto"
@@ -17934,11 +15048,12 @@ await Helper.add("event/click-funnel")
                       }
 
                       {
-                        const button = this.create("toolbox/left-right", buttons)
+                        const button = this.create("button/left-right", buttons)
                         button.left.textContent = ".upload"
                         button.right.textContent = "Lade dein eigenes SVG und füge es deinem Element hinzu"
                         button.onclick = () => {
-                          this.overlay("popup", overlay => {
+
+                          this.overlay("pop", overlay => {
                             const inputField = this.create("input/file", overlay)
                             inputField.input.setAttribute("accept", "image/svg+xml")
                             this.add("style/not-valid", inputField.input)
@@ -17966,7 +15081,7 @@ await Helper.add("event/click-funnel")
 
 
                   {
-                    const button = this.create("toolbox/left-right", buttons)
+                    const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".textContent"
                     button.right.textContent = "Text Inhalt aktualisieren"
                     button.onclick = () => {
@@ -17981,8 +15096,7 @@ await Helper.add("event/click-funnel")
                         { name: 'beautifier.io', url: 'https://beautifier.io/' },
                       ]
 
-
-                      this.overlay("toolbox", overlay => {
+                      this.overlay("pop", overlay => {
                         overlay.info.textContent = `<${this.convert("node/selector", child)}.textContent`
                         const content = this.create("div/scrollable", overlay)
                         const htmlField = this.create("input/textarea", content)
@@ -17991,7 +15105,7 @@ await Helper.add("event/click-funnel")
                         htmlField.input.style.fontSize = "13px"
                         htmlField.input.placeholder = "Mein Text Inhalt"
                         htmlField.input.value = child.textContent
-                        this.add("outline-hover", htmlField.input)
+                        this.add("hover-outline", htmlField.input)
                         this.verify("input/value", htmlField.input)
                         htmlField.input.oninput = () => {
                           child.textContent = htmlField.input.value
@@ -17999,7 +15113,7 @@ await Helper.add("event/click-funnel")
 
                         for (let i = 0; i < editors.length; i++) {
                           const editor = editors[i]
-                          const button = this.create("toolbox/left-right", content)
+                          const button = this.create("button/left-right", content)
                           button.left.textContent = `.${editor.name}`
                           button.right.textContent = "Öffnet einen Editor in einem neuen Fenster"
                           button.onclick = () => window.open(editor.url, "_blank")
@@ -18013,14 +15127,14 @@ await Helper.add("event/click-funnel")
                 }
 
                 if (child.tagName === "HEAD") {
-                  const button = this.create("toolbox/left-right", buttons)
+                  const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".title"
                   button.right.textContent = "Dokument Titel definieren"
                   button.onclick = async () => {
 
-                    this.overlay("toolbox", async overlay => {
-                      overlay.info.textContent = `<${this.convert("node/selector", child)}.title`
-                      const funnel = this.create("div/scrollable", overlay)
+                    this.overlay("pop", async overlay => {
+                      overlay.addInfo(`<${this.convert("node/selector", child)}.title`)
+                      const funnel = overlay.content
                       const titleField = this.create("input/text", funnel)
                       titleField.input.placeholder = "<title>..</title>"
                       titleField.input.addEventListener("input", ev => {
@@ -18044,17 +15158,24 @@ await Helper.add("event/click-funnel")
                 }
 
                 if (child.tagName === "BODY") {
+
+
+                  // das muss irgendwie anders passieren ??
+                  // ein skript mit einem tag ??
+                  // kombiniert mit dem design tree?
+                  // ddas ist das skript das individuelle designs mit daten füllen kann
                   if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
+                    const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".users-trees-open"
                     button.right.textContent = "Hol dir eine Liste mit Nutzern"
                     button.onclick = () => {
-                      this.overlay("toolbox", overlay => {
+
+                      this.overlay("pop", overlay => {
                         const funnel = this.create("div/scrollable", overlay)
                         createIdTreesFunnel(funnel)
                         funnel.submit.onclick = async () => {
                           await this.verify("field-funnel", funnel)
-                          const script = this.create("script", {id: funnel.idField.input.value, js: `await Helper.render("users-trees-open", ${funnel.treesField.input.value}, ".${funnel.idField.input.value}")`})
+                          const script = this.create("script/id", funnel.idField.input.value)
                           if (!this.verifyIs("id/unique", script.id)) {
                             this.add("style/not-valid", funnel.idField.input)
                           }
@@ -18069,34 +15190,34 @@ await Helper.add("event/click-funnel")
                     node.idField = Helper.create("field/tag", fragment)
                     node.idField.label.textContent = "Vordefiniertes Design mit einer Id finden"
                     node.idField.input.placeholder = "meine-element"
-                    Helper.add("outline-hover", node.idField.input)
+                    Helper.add("hover-outline", node.idField.input)
                     Helper.verify("input/value", node.idField.input)
                     node.idField.input.oninput = () => Helper.verify("input/value", node.idField.input)
                     node.treesField = Helper.create("field/trees", fragment)
                     node.treesField.label.textContent = "Liste mit Datenstrukturen eingeben"
                     node.treesField.input.placeholder = `[\n  "getyour.expert.name",\n  "platform.company.name",\n  "email"\n]`
                     node.treesField.input.style.height = "144px"
-                    Helper.add("outline-hover", node.treesField.input)
+                    Helper.add("hover-outline", node.treesField.input)
                     Helper.verify("input/value", node.treesField.input)
                     node.treesField.input.oninput = () => Helper.verify("input/value", node.treesField.input)
-                    node.submit = Helper.create("toolbox/action", fragment)
+                    node.submit = Helper.create("button/action", fragment)
                     node.submit.textContent = "Skript jetzt anhängen"
                     node?.appendChild(fragment)
                     return node
                   }
 
                   if (callback.type === "expert") {
-                    const button = this.create("toolbox/left-right", buttons)
+                    const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".user-trees-closed"
                     button.right.textContent = "Hol dir Datensätze vom Nutzer"
                     button.onclick = () => {
-                      this.overlay("toolbox", overlay => {
+                      this.overlay("pop", overlay => {
                         overlay.info.textContent = "script.user-trees-closed"
                         const funnel = this.create("div/scrollable", overlay)
                         createIdTreesFunnel(funnel)
                         funnel.submit.onclick = async () => {
                           await this.verify("field-funnel", funnel)
-                          const script = this.create("script", {id: funnel.idField.input.value, js: `await Helper.render("user-trees-closed", ${funnel.treesField.input.value}, ".${funnel.idField.input.value}")`})
+                          const script = this.create("script/id", funnel.idField.input.value)
                           if (!this.verifyIs("id/unique", script.id)) {
                             this.add("style/not-valid", funnel.idField.input)
                           }
@@ -18115,831 +15236,91 @@ await Helper.add("event/click-funnel")
         }
 
       })
-
-
-
-    }
-
-    if (event === "community") {
-
-      this.overlay("pop", communityOverlay => {
-        communityOverlay.onlyClosedUser()
-        const searchField = this.create("input/text", communityOverlay.content)
-        searchField.input.placeholder = "Suche nach Alias"
-
-        const flex = this.create("div/flex", communityOverlay.content)
-        const allButton = this.render("text/link", "Alle", flex)
-        allButton.onclick = () => send({type: "community"})
-
-        const blockButton = this.render("text/link", "Blockiert", flex)
-        blockButton.onclick = () => send({type: "blocked"})
-
-        const communityDiv = this.create("info/loading", communityOverlay.content)
-
-        let socket
-        if (window.location.host === "localhost:9999") {
-          socket = new WebSocket(`ws://${window.location.host}/`)
-        } else {
-          socket = new WebSocket(`wss://${window.location.host}/`)
-        }
-        communityOverlay.closeSocket(socket)
-        function send(data) {
-          socket.send(JSON.stringify(data))
-        }
-        socket.onopen = () => {
-          send({type: "community"})
-        }
-        socket.onerror = (error) => {
-          console.error('WebSocket error:', error)
-          socket.close()
-        }
-
-        socket.addEventListener("message", ev => {
-          const data = JSON.parse(ev.data)
-          if (data.type === "blocked") {
-            renderBlocked(data.blocked)
-          }
-          if (data.type === "community") {
-            renderOpen(data.community)
-          }
-          if (data.type === "unblock") {
-            renderBlocked(data.blocked)
-          }
-        })
-
-        socket.addEventListener("close", () => {
-          communityOverlay.remove()
-        })
-
-        function renderMessagesBox(community) {
-          Helper.convert("parent/scrollable", communityDiv)
-          communityDiv.style.padding = "8px"
-          Helper.sort("flag-true", {flag: "highlight", array: community})
-          for (let i = 0; i < community.length; i++) {
-            const user = community[i]
-            const box = Helper.render("user-box", user, communityDiv)
-            box.onclick = () => {
-              user.socket = socket
-              Helper.overlay("messages", user)
-            }
-          }
-        }
-
-        function renderBlockedBox(community) {
-          Helper.convert("parent/scrollable", communityDiv)
-          communityDiv.style.padding = "8px"
-          Helper.sort("flag-true", {flag: "highlight", array: community})
-          for (let i = 0; i < community.length; i++) {
-            const user = community[i]
-            const box = Helper.render("user-box", user, communityDiv)
-            box.created.textContent = `Blockiert seit: ${Helper.convert("millis/since", user.created)}`
-            box.onclick = () => {
-              Helper.overlay("pop", optionsOverlay => {
-                {
-                  const button = Helper.create("toolbox/left-right", optionsOverlay.content)
-                  button.left.textContent = ".unblock"
-                  button.right.textContent = "Entferne diesen Nutzer aus deiner Blockliste"
-                  button.onclick = () => {
-                    let message = "Möchtest du diesen Nutzer wirklich aus deiner Blockliste entfernen?"
-                    if (user.alias) message = `Möchtest du ${user.alias} wirklich aus deiner Blockliste entfernen?`
-                    const confirm = window.confirm(message)
-                    if (confirm === true) {
-                      send({type: "unblock", id: user.id})
-                      let message = "Dieser Nutzer wurde erfolgreich aus deiner Blockliste entfernt."
-                      if (user.alias) message = `${user.alias} wurde erfolgreich aus deiner Blockliste entfernt.`
-                      window.alert(message)
-                      optionsOverlay.remove()
-                      send({type: "community-to", to: user.id})
-                    }
-                  }
-                }
-              })
-            }
-          }
-        }
-
-        function renderOpen(community) {
-          if (Helper.verifyIs("array/empty", community)) {
-            userNotFound()
-            return
-          }
-          searchField.input.oninput = (ev) => {
-            if (Helper.verifyIs("text/empty", ev.target.value)) {
-              renderMessagesBox(community)
-              return
-            }
-            const filtered = community.filter(it => it.alias && it.alias.toLowerCase().includes(ev.target.value.toLowerCase()))
-            const highlighted = filtered.map(it => {
-              const highlightedAlias = it.alias.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
-              return { ...it, alias: highlightedAlias }
-            })
-            renderMessagesBox(highlighted)
-          }
-          renderMessagesBox(community)
-        }
-
-        function renderBlocked(community) {
-          if (Helper.verifyIs("array/empty", community)) {
-            userNotFound()
-            return
-          }
-          searchField.input.oninput = (ev) => {
-            if (Helper.verifyIs("text/empty", ev.target.value)) {
-              renderBlockedBox(community)
-              return
-            }
-            const filtered = community.filter(it => it.alias && it.alias.toLowerCase().includes(ev.target.value.toLowerCase()))
-            const highlighted = filtered.map(it => {
-              const highlightedAlias = it.alias.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
-              return { ...it, alias: highlightedAlias }
-            })
-            renderBlockedBox(highlighted)
-          }
-          renderBlockedBox(community)
-        }
-
-        function userNotFound() {
-          Helper.convert("parent/info", communityDiv)
-          communityDiv.textContent = "Keine Mitglieder gefunden"
-        }
-
-      })
     }
 
     if (event === "conflicts") {
 
-      return this.overlay("popup", overlay => {
-        overlay.onlyClosedUser()
-        overlay.appendChild(overlay.addButton)
-        overlay.addButton.onclick = () => {
-          this.overlay("popup", addOverlay => {
-            const content = this.create("div/scrollable", addOverlay)
-            const funnel = this.create("funnel/conflict", content)
-            funnel.submit.onclick = () => {
-              this.overlay("security", async securityOverlay => {
-                const res = await this.request("/register/user/conflict/", {trigger: callback.created, environment: funnel.environment.input.value, reproduce: funnel.reproduce.input.value, expected: funnel.expected.input.value, actual: funnel.actual.input.value, visibility: funnel.visibility.input.value})
-                if (res.status === 200) {
-                  window.alert("Dein Konflikt wurde erfolgreich gespeichert.")
-                  renderOpenConflicts()
-                  overlay.remove()
-                  addOverlay.remove()
-                  securityOverlay.remove()
-                } else {
-                  window.alert("Fehler.. Bitte wiederholen.")
-                  securityOverlay.remove()
-                }
-              })
-            }
-          })
-        }
-        const content = this.create("div/scrollable", overlay)
-
-        this.render("text/h1", "Konflikte", content)
-        const flexRow = this.create("div/flex", content)
-        const allButton = this.render("text/link", "Alle", flexRow)
-        const myButton = this.render("text/link", "Meine", flexRow)
-
-        const conflictsDiv = this.create("div", content)
-
-        function renderOpenConflicts() {
-          Helper.request("/get/user/conflicts-open/").then(res => {
-            if (res.status === 200) {
-              const conflicts = JSON.parse(res.response)
-              conflictsDiv.textContent = ""
-              for (let i = 0; i < conflicts.length; i++) {
-                const conflict = conflicts[i]
-                const button = Helper.create("toolbox/left-right", conflictsDiv)
-                button.left.textContent = Helper.convert("millis/dd.mm.yyyy hh:mm", conflict.created)
-                button.right.textContent = conflict.visibility
-              }
-            }
-          })
-        }
-
-        function renderClosedConflicts() {
-          Helper.request("/get/user/conflicts-closed/").then(res => {
-            if (res.status === 200) {
-              const conflicts = JSON.parse(res.response)
-              conflictsDiv.textContent = ""
-              for (let i = 0; i < conflicts.length; i++) {
-                const conflict = conflicts[i]
-                const button = Helper.create("toolbox/left-right", conflictsDiv)
-                button.left.textContent = Helper.convert("millis/dd.mm.yyyy hh:mm", conflict.created)
-                button.right.textContent = conflict.visibility
-              }
-            }
-          })
-        }
-
-        renderOpenConflicts()
-
-        allButton.onclick = () => {
-          renderOpenConflicts()
-        }
-
-        myButton.onclick = () => {
-          renderClosedConflicts()
-        }
-
-      })
-    }
-
-    if (event === "contacts") {
-
-      this.overlay("pop", async o1 => {
-        o1.onlyClosedUser()
-        o1.info.textContent = ".contacts"
+      if (!callback) throw new Error("no trigger found")
+      return this.overlay("pop", o1 => {
         const content = o1.content
-        const searchField = this.create("input/text", content)
-        searchField.input.placeholder = "Filter nach E-Mail oder Notizen"
-        const container = this.create("div/flex-row", content)
-        container.style.justifyContent = "flex-start"
-        const exportButton = this.render("text/link", "Exportieren", container)
-        const importButton = this.render("text/link", "Importieren", container)
-        importButton.onclick = () => {
-
-          this.overlay("pop", o2 => {
-            const funnel = o2.content
-            const field = this.create("input/textarea", funnel)
-            this.style(field.input, {fontFamily: "monospace", height: "55vh", fontSize: "8px"})
-            field.input.setAttribute("required", "true")
-            this.verify("input/value", field.input)
-            field.input.placeholder = `[
-  {
-    email: "neuer@kontakt.de", // id
-    alias: "Kontakt Name",  // optional
-    birthday: "1999-03-21", // optional
-    status: "kontakt status", // optional
-    notes: "Kontakt Notizen", // optional
-    phone: "+123456789", // optional
-    website: "https://www.kontakt-webseite.de/" // optional
-  },
-
-  .
-  .
-
-]
-            `
-            const submit = this.create("toolbox/action", funnel)
-            submit.textContent = "Kontakte jetzt importieren"
-            submit.onclick = async () => {
-              await this.verify("input/value", field.input)
-              try {
-                const contacts = JSON.parse(field.input.value)
-                if (this.verifyIs("array/empty", contacts)) throw new Error("contacts is empty")
-                for (let i = 0; i < contacts.length; i++) {
-                  const contact = contacts[i]
-                  if (!contact.email) {
-                    throw new Error("'contact.email' is missing")
-                  }
-                }
-                this.overlay("lock", async o3 => {
-                  const res = await this.request("/register/contacts/import/", {contacts})
-                  if (res.status === 200) {
-                    window.alert("Deine Kontakte wurden erfolgreich importiert.")
-                    await getAndRenderContactsClosed()
-                    o2.remove()
-                    o3.remove()
-                  }
-                })
-              } catch (error) {
-                console.error(error)
-                window.alert("Deine Kontaktliste ist in einem ungültigen Format.")
-                this.add("style/not-valid", field.input)
-              }
-
-
-            }
-          })
-        }
-        const contactsDiv = this.create("info/loading", content)
-        function concatEmailAndNotes(array, key) {
-          return array.map(it => {
-            if (it.email && it.notes) {
-              return { ...it, [key]: `${it.email}<br>${it.notes}` }
-            } else {
-              return { ...it, [key]: it.email }
-            }
-          })
-        }
-        const websiteIcon = await this.convert("path/icon", "/public/website.svg")
-        const phoneIcon = await this.convert("path/icon", "/public/phone-out.svg")
-        const emailIcon = await this.convert("path/icon", "/public/email-out.svg")
-        async function renderContactButtons(contacts, parent, query) {
-
-          const numerology = Helper.fn("numerology")
-          const fragment = document.createDocumentFragment()
-          Helper.convert("parent/scrollable", parent)
-          for (let i = 0; i < contacts.length; i++) {
-            const contact = contacts[i]
-            const contactButton = Helper.create("toolbox/left-right", fragment)
-            Helper.style(contactButton.left, {width: "55%", margin: "21px"})
-            if (contact.birthday){
-              const birthdate = new Date(contact.birthday)
-              const lifepath = numerology.dateToLifePath(birthdate)
-              const div = Helper.div("flex align center circle bg-green w34 h34", contactButton.left)
-              div.textContent = lifepath
-            }
-            if (contact.alias) {
-              const alias = Helper.div("fs-21")
-              alias.textContent = contact.alias
-              Helper.render("node", alias, contactButton.left)
-            }
-            const query = Helper.div("fs-13 mtb8")
-            Helper.render("node", query, contactButton.left)
-            if (contact.query) {
-              let text = await Helper.convert("text/purified", contact.query)
-              query.innerHTML = text
-            } else {
-              query.textContent = contact.email
-            }
-
-            if (contact.website) {
-              const clone = websiteIcon.cloneNode(true)
-              clone.style.padding = "5px"
-              contactButton.right.appendChild(clone)
-              Helper.add("outline-hover", clone)
-              clone.onclick = ev => {
-                ev.stopPropagation()
-                window.open(contact.website, "_blank")
-                openNotes(contact)
-              }
-            }
-            if (contact.phone) {
-              const clone = phoneIcon.cloneNode(true)
-              clone.style.padding = "5px"
-              contactButton.right.appendChild(clone)
-              Helper.add("outline-hover", clone)
-              clone.onclick = ev => {
-                ev.stopPropagation()
-                window.location.href = `tel:${contact.phone}`
-                openNotes(contact)
-              }
-            }
-            if (contact.email) {
-              const clone = emailIcon.cloneNode(true)
-              clone.style.padding = "5px"
-              contactButton.right.appendChild(clone)
-              Helper.add("outline-hover", clone)
-              clone.onclick = ev => {
-                ev.stopPropagation()
-                window.location.href = `mailto:${contact.email}`
-                openNotes(contact)
-              }
-            }
-
-            function openNotes(contact, o){
-
-              Helper.overlay("pop", o1 => {
-                o1.info.textContent = contact.email
-                const funnel = o1.content
-                const notes = Helper.create("input/textarea", funnel)
-                notes.input.placeholder = `next:email(Meine Notizen)
-next:tel(Meine Notizen)
-next:webcall(Meine Notizen)
-                `
-                Helper.style(notes.input, {height: "55vh", fontSize: "13px"})
-                notes.input.style.height = "55vh"
-                if (contact.notes) {
-                  notes.input.value = contact.notes
-                }
-                const submit = Helper.create("toolbox/action", funnel)
-                submit.textContent = "Notizen jetzt speichern"
-                submit.onclick = async () => {
-
-                  await Helper.verify("input/value", notes.input)
-                  Helper.overlay("lock", async o2 => {
-                    const res = await Helper.request("/register/contacts/notes/", {created: contact.created, notes: notes.input.value})
-                    if (res.status === 200) {
-                      window.alert("Notizen erfolgreich gespeichert.")
-                      await getAndRenderContactsClosed()
-                      o1.remove()
-                      if (o) o.remove()
-                    } else {
-                      window.alert("Fehler.. Bitte wiederholen.")
-                    }
-                    o2.remove()
-                  })
-                }
-              })
-            }
-
-            contactButton.onclick = () => {
-              Helper.overlay("pop", async o2 => {
-                o2.info.textContent = contact.email
-                const buttons = o2.content
-                function createButton(left, right){
-
-                  const button = Helper.create("toolbox/left-right", buttons)
-                  button.left.textContent = left
-                  button.right.textContent = right
-                  return button
-                }
-                function registerKey(it, o, object){
-
-                  const key = Object.keys(object)[0]
-                  Helper.overlay("lock", async o4 => {
-                    const res = await Helper.request(`/register/contacts/${key}/`, {created: it.created, [key]: object[key]})
-                    if (res.status === 200) {
-                      window.alert("Daten erfolgreich gespeichert.")
-                      await getAndRenderContactsClosed()
-                      o.remove()
-                      o2.remove()
-                    } else {
-                      window.alert("Fehler.. Bitte wiederholen.")
-                    }
-                    o4.remove()
-                  })
-                }
-                {
-                  const button = createButton(".email", "Aktualisiere die E-Mail Adresse deines Kontakts")
-                  button.onclick = () => {
-
-                    Helper.overlay("pop", o3 => {
-                      o3.info.textContent = contact.email
-                      const funnel = o3.content
-                      const email = Helper.create("input/email", funnel)
-                      if (contact.email) {
-                        email.input.value = contact.email
-                      }
-                      Helper.verify("input/value", email.input)
-                      const submit = Helper.create("toolbox/action", funnel)
-                      submit.textContent = "E-Mail jetzt speichern"
-                      submit.onclick = async () => {
-                        await Helper.verify("input/value", email.input)
-                        registerKey(contact, o3, {email: email.input.value})
-                      }
-                    })
-                  }
-                }
-                {
-                  const button = createButton(".alias", "Gib deinem Kontakt einen alternativen Namen")
-                  button.onclick = () => {
-
-                    Helper.overlay("pop", o3 => {
-                      o3.info.textContent = contact.email
-                      const funnel = o3.content
-                      const alias = Helper.create("input/alias", funnel)
-                      if (contact.alias) {
-                        alias.input.value = contact.alias
-                      }
-                      Helper.verify("input/value", alias.input)
-                      const submit = Helper.create("toolbox/action", funnel)
-                      submit.textContent = "Alias jetzt speichern"
-                      submit.onclick = async () => {
-                        await Helper.verify("input/value", alias.input)
-                        registerKey(contact, o3, {alias: alias.input.value})
-                      }
-
-                    })
-                  }
-                }
-                {
-                  const button = createButton(".character", "Erfahre mehr über deinen Kontakt")
-                  button.onclick = () => {
-
-                    const dateField = Helper.create("field/date")
-                    dateField.label.textContent = "Gebe das Geburtsdatum deines Kontakts ein"
-                    dateField.input.placeholder = "yyyy-mm-dd"
-                    Helper.add("outline-hover", dateField.input)
-                    let birthday
-                    if (contact.birthday) {
-                      const split = contact.birthday.split("T")
-                      dateField.input.value = split[0]
-                      birthday = split[0]
-                    }
-                    dateField.input.setAttribute("required", "true")
-                    Helper.verify("input/value", dateField.input)
-                    Helper.overlay("popup", overlay => {
-                      overlay.info.textContent = contact.email
-                      dateField.input.oninput = async () => {
-                        await Helper.verify("input/value", dateField.input)
-                        const date = new Date(dateField.input.value)
-                        Helper.overlay("security", async securityOverlay => {
-                          const res = await Helper.request("/register/contacts/birthday/", {created: contact.created, birthday: date.toISOString()})
-                          if (res.status === 200) {
-                            window.alert("Geburtsdatum erfolgreich gespeichert.")
-                            await getAndRenderContactsClosed(parent)
-                            overlay.remove()
-                            o2.remove()
-                            securityOverlay.remove()
-                          } else {
-                            window.alert("Fehler.. Bitte wiederholen.")
-                            securityOverlay.remove()
-                          }
-                        })
-                      }
-                      const content = Helper.create("div/scrollable", overlay)
-                      content.style.marginTop = "21px"
-                      if (!Helper.verifyIs("text/empty", birthday)) {
-                        if (contact.alias) {
-                          Helper.render("text/hr", `Numerologie von ${contact.alias}`, content)
-                        } else {
-                          Helper.render("text/hr", `Numerologie von ${contact.email}`, content)
-                        }
-                        const date = new Date(birthday)
-                        numerology.renderBirthDate(date, content)
-                        numerology.renderBirthName(contact.alias, content)
-                        const toLoginButton = Helper.render("login-button", "https://www.get-your.de/entwicklung/numerologie/login/", content)
-                        toLoginButton.left.textContent = ".login"
-                        toLoginButton.right.textContent = "Jetzt schnell und einfach anmelden"
-                        content.appendChild(dateField)
-                        function removeFieldsAndButtons() {
-                          dateField.remove()
-                          shareButton.remove()
-                          downloadHtmlButton.remove()
-                        }
-                        function addFieldsAndButtons() {
-                          content.appendChild(dateField)
-                          content.appendChild(shareButton)
-                          content.appendChild(downloadHtmlButton)
-                        }
-                        const downloadHtmlButton = Helper.create("toolbox/left-right", content)
-                        downloadHtmlButton.left.textContent = ".download"
-                        downloadHtmlButton.right.textContent = "Lade die Numerologie Rechnung als .html Datei herunter"
-                        downloadHtmlButton.onclick = () => {
-                          removeFieldsAndButtons()
-                          Helper.downloadFile(content.outerHTML, "text/html")
-                          addFieldsAndButtons()
-                        }
-                        const shareButton = Helper.create("toolbox/left-right", content)
-                        shareButton.left.textContent = ".share"
-                        shareButton.right.textContent = "Sende die Numerologie Rechnung an dein Netzwerk"
-                        shareButton.onclick = async () => {
-
-                          if (navigator.share) {
-                            removeFieldsAndButtons()
-                            try {
-                              const blob = new Blob([content.outerHTML], { type: 'text/html' })
-                              const file = new File([blob], `numerologie-von-${contact.email}.html`, { type: 'text/html' })
-                              await navigator.share({
-                                files: [file]
-                              })
-                              console.log("Numerology share successfully")
-                            } catch (err) {
-                              console.error(err)
-                            }
-                            addFieldsAndButtons()
-                          } else {
-                            window.alert("Dein Browser unterstützt diese Funktion leider nicht. Versuche es mit einem anderen Browser.")
-                          }
-                        }
-                      } else {
-                        content.appendChild(dateField)
-                      }
-                    })
-                  }
-                }
-
-                {
-                  const button = createButton(".status", "Gib deinem Kontakt einen Status")
-                  button.onclick = () => {
-
-                    Helper.overlay("pop", o3 => {
-                      o3.info.textContent = contact.email
-                      const funnel = o3.content
-                      const status = Helper.create("input/text", funnel)
-                      status.input.placeholder = "Status"
-                      status.input.setAttribute("required", "true")
-                      if (contact.status) {
-                        status.input.value = contact.status
-                      }
-                      Helper.verify("input/value", status.input)
-                      const submit = Helper.create("toolbox/action", funnel)
-                      submit.textContent = "Status jetzt speichern"
-                      submit.onclick = async () => {
-                        await Helper.verify("input/value", status.input)
-                        registerKey(contact, o3, {status: status.input.value})
-                      }
-                    })
-                  }
-                }
-
-                {
-                  const button = createButton(".notes", "Mache dir Notizen zu deinem Kontakt")
-                  button.onclick = () => {
-
-                    openNotes(contact, o2)
-                  }
-                }
-
-                {
-                  const button = createButton(".phone", "Gib die Telefon Nummer deines Kontakts ein")
-                  button.onclick = () => {
-
-                    Helper.overlay("pop", o3 => {
-                      o3.info.textContent = contact.email
-                      const funnel = o3.content
-                      const phone = Helper.create("input/phone", funnel)
-                      if (contact.phone) {
-                        phone.input.value = contact.phone
-                      }
-                      Helper.verify("input/value", phone.input)
-                      const submit = Helper.create("toolbox/action", funnel)
-                      submit.textContent = "Nummer jetzt speichern"
-                      submit.onclick = async () => {
-                        await Helper.verify("input/value", phone.input)
-                        registerKey(contact, o3, {phone: phone.input.value})
-                      }
-                    })
-                  }
-                }
-
-                {
-                  const button = createButton(".website", "Gib die Webseite deines Kontakts ein")
-                  button.onclick = () => {
-
-                    Helper.overlay("pop", o3 => {
-                      o3.info.textContent = contact.email
-                      const funnel = o3.content
-                      const website = Helper.create("input/url", funnel)
-                      if (contact.website) {
-                        website.input.value = contact.website
-                      }
-                      Helper.verify("input/value", website.input)
-                      const submit = Helper.create("toolbox/action", funnel)
-                      submit.textContent = "Webseite jetzt speichern"
-                      submit.onclick = async () => {
-                        await Helper.verify("input/value", website.input)
-                        registerKey(contact, o3, {website: website.input.value})
-                      }
-                    })
-                  }
-                }
-
-                {
-                  const res = await Helper.request("/verify/user/expert/")
-                  if (res.status === 200) {
-                    const button = createButton(".promote", "Erhalte Zugang zu unendlich vielen Möglichkeiten")
-                    button.onclick = () => {
-                      Helper.overlay("popup", async overlay => {
-                        if (contact.alias) {
-                          Helper.render("text/h1", `Promote ${contact.email}`, overlay)
-                        } else {
-                          Helper.render("text/h1", `Promote ${contact.email}`, overlay)
-                        }
-                        const funnel = Helper.create("div/scrollable", overlay)
-                        const searchField = Helper.create("field/text", funnel)
-                        searchField.label.textContent = "Suche nach Text im Pfad"
-                        searchField.input.placeholder = "/experte/plattform/pfad"
-                        searchField.style.margin = "0 34px"
-                        Helper.verify("input/value", searchField.input)
-                        Helper.add("outline-hover", searchField.input)
-                        const pathField = await Helper.create("field/open-expert-values-path-select", funnel)
-                        const originalOptions = Array.from(pathField.input.options).map(option => option.cloneNode(true))
-                        searchField.input.oninput = (ev) => {
-                          const searchTerm = ev.target.value.toLowerCase()
-                          const options = originalOptions.map(it => it.value)
-                          const filtered = options.filter(it => it.toLowerCase().includes(searchTerm))
-                          pathField.input.add(filtered)
-                        }
-                        pathField.input.style.height = "55vh"
-                        pathField.input.setAttribute("multiple", "true")
-                        for (let i = 0; i < pathField.input.options.length; i++) {
-                          const option = pathField.input.options[i]
-                          option.selected = false
-                        }
-                        pathField.input.oninput = async () => {
-                          const fieldFunnel = await Helper.convert("path/field-funnel", pathField.input.value)
-                          if (fieldFunnel.id) {
-                            Helper.overlay("popup", async overlay => {
-                              overlay.info.textContent = contact.email + "." + fieldFunnel.id
-                              const create = Helper.create("button/left-right", overlay)
-                              create.left.textContent = ".create"
-                              create.right.textContent = Helper.convert("text/capital-first-letter", fieldFunnel.id) + " definieren"
-                              create.onclick = () => {
-                                Helper.overlay("popup", async overlay => {
-                                  Helper.create("header/info", overlay).textContent = contact.email + "." + fieldFunnel.id + ".create"
-                                  overlay.append(fieldFunnel)
-                                  Helper.verifyIs("field-funnel/valid", fieldFunnel)
-                                  Helper.add("outline-hover/field-funnel", fieldFunnel)
-                                  const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
-                                  if (submitButton) {
-                                    submitButton.textContent = `${Helper.convert("text/capital-first-letter", fieldFunnel.id)} jetzt speichern`
-                                    submitButton.onclick = async () => {
-                                      const path = pathField.input.value
-                                      await Helper.verify("field-funnel", fieldFunnel)
-                                      const map = await Helper.convert("field-funnel/map", fieldFunnel)
-                                      Helper.overlay("security", async securityOverlay => {
-                                        const register = {}
-                                        register.email = contact.email
-                                        register.map = map
-                                        register.path = path
-                                        register.id = fieldFunnel.id
-                                        const res = await Helper.request("/register/location/email-expert", register)
-                                        if (res.status === 200) {
-                                          window.alert("Daten erfolgreich gespeichert.")
-                                          await Helper.render("location-list/node/email-expert", {tag: fieldFunnel.id, email: contact.email, path: pathField.input.value}, locationList)
-                                          securityOverlay.remove()
-                                        } else {
-                                          window.alert("Fehler.. Bitte wiederholen.")
-                                          securityOverlay.remove()
-                                        }
-                                      })
-                                    }
-                                  } else {
-                                    window.alert("Field Funnel besitzt keinen Button mit der Klasse 'submit-field-funnel-button'")
-                                  }
-                                })
-                              }
-                              if (contact.alias) {
-                                Helper.render("text/hr", Helper.convert("text/capital-first-letter", fieldFunnel.id) + " von " + contact.alias, overlay)
-                              } else {
-                                Helper.render("text/hr", Helper.convert("text/capital-first-letter", fieldFunnel.id) + " von " + contact.email, overlay)
-                              }
-                              const locationList = Helper.create("info/loading", overlay)
-                              await Helper.render("location-list/node/email-expert", {tag: fieldFunnel.id, email: contact.email, path: pathField.input.value}, locationList)
-                            })
-                          }
-                        }
-                      })
-                    }
-                  }
-                }
-
-                {
-                  const button = createButton(".remove", "Kontakt entfernen")
-                  button.onclick = () => {
-
-                    const confirm = window.confirm("Möchtest du deinen Kontakt wirklich entfernen?")
-                    if (confirm === true) {
-                      Helper.overlay("lock", async o3 => {
-                        const res = await Helper.request("/remove/user/contacts/", {created: contact.created})
-                        if (res.status === 200) {
-                          window.alert("Kontakt erfolgreich entfernt.")
-                          await getAndRenderContactsClosed()
-                          o2.remove()
-                        } else {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                        }
-                        o3.remove()
-                      })
-                    }
-                  }
-                }
-              })
-            }
-          }
-
-          parent?.appendChild(fragment)
-        }
-        async function getAndRenderContactsClosed(){
-
-          Helper.convert("parent/loading", contactsDiv)
-          const res = await Helper.request("/get/user/contacts/")
-          let filtered
-          if (res.status === 200) {
-            const contacts = JSON.parse(res.response)
-            exportButton.onclick = () => {
-              if (filtered) {
-                Helper.convert("text/clipboard", JSON.stringify(filtered))
-                .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
-              } else {
-                Helper.convert("text/clipboard", JSON.stringify(contacts))
-                .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
-              }
-            }
-            searchField.input.oninput = async ev => {
-              const query = ev.target.value
-              if (!Helper.verifyIs("text/empty", query)) {
-                const prepared = concatEmailAndNotes(contacts, "query")
-                const highlighted = Helper.sort("query", {array: prepared, query, filter: "query"})
-                await renderContactButtons(highlighted, contactsDiv)
-              } else {
-                await renderContactButtons(contacts, contactsDiv)
-              }
-            }
-            await renderContactButtons(contacts, contactsDiv)
-          } else {
-            Helper.convert("parent/info", contactsDiv)
-            parent.textContent = "Keine Kontakte gefunden"
-          }
-        }
-        getAndRenderContactsClosed()
-        o1.append(o1.addButton)
+        o1.onlyClosedUser()
+        o1.appendAddButton()
         o1.addButton.onclick = () => {
 
           this.overlay("pop", o2 => {
-            const funnel = o2.content
-            this.render("text/h1", "Neuer Kontakt", funnel)
-            const email = this.create("input/email", funnel)
-            const submit = this.create("toolbox/action", funnel)
-            submit.textContent = "Kontakt jetzt speichern"
-            submit.onclick = async () => {
-              await this.verify("input/value", email.input)
+            const content = o2.content
+            const funnel = this.funnel("conflict", content)
+            funnel.submit.onclick = async () => {
+
+              const trigger = {
+                created: Date.now(),
+                id: callback.id,
+                keys: Object.keys(callback),
+              }
+              const environment = funnel.environment.input.value
+              const reproduce = funnel.reproduce.input.value
+              const expected = funnel.expected.input.value
+              const actual = funnel.actual.input.value
+              const visibility = funnel.visibility.input.value
+              await this.verify("funnel", funnel)
               this.overlay("lock", async o3 => {
-                const res = await this.request("/register/contacts/email/", {email: email.input.value})
+                const res = await this.request("/register/user/conflict/", {trigger, environment, reproduce, expected, actual, visibility})
                 if (res.status === 200) {
-                  window.alert("Kontakt erfolgreich gespeichert.")
-                  await getAndRenderContactsClosed()
+                  o3.alert.ok()
+                  renderOpenConflicts()
+                  o1.remove()
                   o2.remove()
                 } else {
-                  window.alert("Fehler.. Bitte wiederholen.")
+                  o3.alert.nok()
                 }
                 o3.remove()
               })
             }
           })
+        }
+        this.render("text/h1", "Konflikte", content)
+        const flexRow = this.create("div/flex", content)
+        const allButton = this.render("text/link", "Alle", flexRow)
+        const myButton = this.render("text/link", "Meine", flexRow)
+        const conflictsDiv = this.create("div", content)
+        function renderOpenConflicts() {
+
+          Helper.request("/jwt/get/conflicts-open/").then(res => {
+            if (res.status === 200) {
+              const conflicts = JSON.parse(res.response)
+              conflictsDiv.textContent = ""
+              for (let i = 0; i < conflicts.length; i++) {
+                const conflict = conflicts[i]
+                const button = Helper.create("button/left-right", conflictsDiv)
+                button.left.textContent = Helper.convert("millis/dd.mm.yyyy hh:mm", conflict.created)
+                button.right.textContent = conflict.visibility
+              }
+            }
+          })
+        }
+        function renderClosedConflicts() {
+
+          Helper.request("/jwt/get/conflicts-closed/").then(res => {
+            if (res.status === 200) {
+              const conflicts = JSON.parse(res.response)
+              conflictsDiv.textContent = ""
+              for (let i = 0; i < conflicts.length; i++) {
+                const conflict = conflicts[i]
+                const button = Helper.create("button/left-right", conflictsDiv)
+                button.left.textContent = Helper.convert("millis/dd.mm.yyyy hh:mm", conflict.created)
+                button.right.textContent = conflict.visibility
+              }
+            }
+          })
+        }
+        renderOpenConflicts()
+        allButton.onclick = () => {
+
+          renderOpenConflicts()
+        }
+        myButton.onclick = () => {
+
+          renderClosedConflicts()
         }
       })
     }
@@ -18947,6 +15328,7 @@ next:webcall(Meine Notizen)
     if (event === "html-creator") {
 
       const overlay = document.createElement("div")
+      overlay.className = "overlay fade-up"
       overlay.classList.add("overlay")
       overlay.style.height = "55vh"
       overlay.style.overscrollBehavior = "none"
@@ -18965,14 +15347,12 @@ next:webcall(Meine Notizen)
       this.removeOverlayButton(overlay)
       if (callback) callback(overlay)
       document.body.append(overlay)
-      this.animate("fade-up", overlay)
       return overlay
     }
 
     if (event === "messages") {
 
       const user = callback
-
       this.overlay("pop", overlay => {
         overlay.onlyClosedUser()
         if (user.alias) overlay.info.textContent = user.alias
@@ -18989,7 +15369,7 @@ next:webcall(Meine Notizen)
         messageField.input.oninput = () => this.verify("input/value", messageField.input)
         this.verify("input/value", messageField.input)
         this.on("shift+enter", messageField.input, async () => await submitMessage())
-        const submit = this.create("toolbox/action", funnel)
+        const submit = this.create("button/action", funnel)
         submit.textContent = "↑"
         this.style(submit, {borderRadius: "50%", width: "55px", height: "34px", fontSize: "21px"})
         async function submitMessage() {
@@ -19105,44 +15485,25 @@ next:webcall(Meine Notizen)
       })
     }
 
-    if (event === "toolbox") {
-
-      const overlay = this.create("div/overlay")
-      overlay.removeOverlayButton = this.removeOverlayButton(overlay)
-      overlay.removeOverlayButton.removeAttribute("class")
-      overlay.removeOverlayButton.onclick = () => overlay.remove()
-      this.add("outline-hover", overlay.removeOverlayButton)
-      overlay.info = this.create("header/info", overlay)
-      overlay.style.opacity = 0
-      if (callback) callback(overlay)
-      document.body.append(overlay)
-      this.animate("fade-up", overlay)
-      return overlay
-    }
-
     if (event === "tools") {
 
       if (!callback) callback = {}
-      return this.overlay("toolbox", async overlay => {
-        if (callback.save === true) overlay.registerHtmlButton = this.registerHtmlButton(overlay)
-
-        const buttons = this.create("div/scrollable", overlay)
+      return this.overlay("pop", async o1 => {
+        if (callback.type === "expert") o1.registerHtmlButton()
+        const buttons = o1.content
 
         {
-          const button = this.create("toolbox/left-right", buttons)
-          button.left.textContent = "convert.text"
-          button.right.textContent = "Mehr Infos"
-          this.add("outline-hover", button.right)
+          const button = this.render("button/left-right", {left: "convert.text", right: "Mehr Infos"}, buttons)
+          this.add("hover-outline", button.right)
           button.right.onclick = (ev) => {
             ev.stopPropagation()
-            this.overlay("popup", overlay => {
-              const content = this.create("div/scrollable", overlay)
-              this.render("text/h3", "Konvertiere Texte schnell und einfach", content)
+            this.overlay("pop", o2 => {
+              this.render("text/h3", "Konvertiere Texte schnell und einfach", o2.content)
             })
           }
           button.onclick = () => {
-            this.overlay("popup", overlay => {
-              const content = this.create("div/scrollable", overlay)
+            this.overlay("pop", o2 => {
+              const content = o2.content
 
               function createInputField(placeholder) {
                 const field = Helper.create("input/textarea", content)
@@ -19215,23 +15576,23 @@ next:webcall(Meine Notizen)
         }
 
         {
-          const button = this.create("toolbox/left-right", buttons)
+          const button = this.create("button/left-right", buttons)
           button.left.textContent = "document.backup"
           button.right.textContent = "Lade dein HTML Dokument herunter"
           button.onclick = async ev => await this.downloadFile(document.documentElement.outerHTML, "text/html")
         }
 
         {
-          const button = this.create("toolbox/left-right", buttons)
+          const button = this.create("button/left-right", buttons)
           button.left.textContent = "document.children"
           button.right.textContent = "Dokumenten Inhalt"
-          button.addEventListener("click", () => {
+          button.onclick = () => {
             this.overlay("children", {node: document.documentElement, type: callback.type, info: ".children"})
-          })
+          }
         }
 
         {
-          const button = this.create("toolbox/left-right", buttons)
+          const button = this.create("button/left-right", buttons)
           button.left.textContent = "document.copy"
           button.right.textContent = "Aktuelles Dokument kopieren"
           button.onclick = () => {
@@ -19241,7 +15602,7 @@ next:webcall(Meine Notizen)
         }
 
         {
-          const button = this.create("toolbox/left-right", buttons)
+          const button = this.create("button/left-right", buttons)
           button.left.textContent = "document.designMode"
           if (document.designMode === "on") {
             const green = this.create("div/green-flag", button.right)
@@ -19257,14 +15618,14 @@ next:webcall(Meine Notizen)
         }
 
         if (callback.type === "expert") {
-          const button = this.create("toolbox/left-right", buttons)
+          const button = this.create("button/left-right", buttons)
           button.left.textContent = "document.write"
           button.right.textContent = "Aktuelles Dokument ersetzen"
           button.right.textContent = "Mehr Infos"
-          this.add("outline-hover", button.right)
+          this.add("hover-outline", button.right)
           button.right.addEventListener("click", ev => {
             ev.stopPropagation()
-            this.overlay("popup", overlay => {
+            this.overlay("pop", overlay => {
               const content = this.create("div/scrollable", overlay)
               this.render("text/h3", "Aktuelles Dokument ersetzen", content)
               const a = document.createElement("a")
@@ -19272,29 +15633,24 @@ next:webcall(Meine Notizen)
               a.href = "https://developer.mozilla.org/en-US/docs/Web/API/Document/write"
               a.textContent = "Mozilla Developer Network write() Methode"
               a.target = "_blank"
-              this.add("outline-hover", a)
+              this.add("hover-outline", a)
               this.convert("dark-light", a)
               content.appendChild(a)
             })
           })
           button.addEventListener("click", () => {
 
-            this.overlay("toolbox", overlay => {
+            this.overlay("pop", overlay => {
               const funnel = this.create("div/scrollable", overlay)
-              const htmlField = this.create("input/textarea", funnel)
-              htmlField.input.style.fontFamily = "monospace"
-              htmlField.input.style.fontSize = "13px"
-              htmlField.input.style.height = "55vh"
-              htmlField.input.placeholder = `<html>..</html>`
-              this.verify("input/value", htmlField.input)
-              const button = this.create("toolbox/action", funnel)
+              const html = this.create("input/html", funnel)
+              const button = this.create("button/action", funnel)
               button.textContent = "Dokument jetzt ersetzen"
               button.addEventListener("click", async () => {
-                const text = await this.convert("text/purified", htmlField.input.value)
+
                 const confirm = window.confirm("Achtung! Diese Funktion wird dein aktuelles HTML Dokument mit deinem neuen HTML Import ersetzen. Der Inhalt deines aktuellen Dokuments wird unwideruflich gelöscht, sobald du deine Werteinheit abspeicherst.\n\nMöchtest du dein aktuelles HTML Dokument wirklich ersetzen?")
                 if (confirm === true) {
                   document.open()
-                  document.write(text)
+                  document.write(html.input.value)
                   document.close()
                   await this.add("script/toolbox-getter")
                   this.remove("overlays")
@@ -19305,7 +15661,7 @@ next:webcall(Meine Notizen)
         }
 
         {
-          const button = this.create("toolbox/left-right", buttons)
+          const button = this.create("button/left-right", buttons)
           button.left.textContent = "navigator.share"
           button.right.textContent = "Sende diese URL an dein Netzwerk"
           button.onclick = async () => {
@@ -19321,7 +15677,7 @@ next:webcall(Meine Notizen)
         }
 
         {
-          const button = this.create("toolbox/left-right", buttons)
+          const button = this.create("button/left-right", buttons)
           button.left.textContent = ".open"
           button.right.textContent = "Ein Platz für Open Innovation"
           button.onclick = () => {
@@ -19330,7 +15686,7 @@ next:webcall(Meine Notizen)
 
               function createIntegration(type, integrations) {
 
-                const button = Helper.create("toolbox/left-right", o2.content)
+                const button = Helper.create("button/left-right", o2.content)
                 button.left.textContent = type
                 button.addEventListener("click", () => {
                   integrations.sort((a, b) => a.name.localeCompare(b.name))
@@ -19338,7 +15694,7 @@ next:webcall(Meine Notizen)
                     const content = o3.content
                     for (let i = 0; i < integrations.length; i++) {
                       const integration = integrations[i]
-                      const button = Helper.create("toolbox/left-right", content)
+                      const button = Helper.create("button/left-right", content)
                       button.left.textContent = integration.name
                       button.right.remove()
                       button.onclick = () => window.open(integration.url, "_blank")
@@ -19349,6 +15705,7 @@ next:webcall(Meine Notizen)
 
               const aiIntegrations = [
                 {name: "blackbox.ai", url: "https://www.blackbox.ai/"},
+                {name: "chatgpt.com", url: "https://chatgpt.com"},
                 {name: "deepai.org", url: "https://www.deepai.org/chat/text-generator"},
                 {name: "futurepedia.io", url: "https://www.futurepedia.io"},
                 {name: "textsynth.com", url: "https://www.textsynth.com/completion.html"},
@@ -19410,196 +15767,397 @@ next:webcall(Meine Notizen)
         }
 
         {
-          async function recordAudioScreen() {
+          const controls = Helper.div("controls fixed top right z3")
+          const cameraDiv = Helper.div("fullscreen flex align center z2")
+          function animateCameraDiv() {
 
-            try {
-              let mediaRecorder
-              let chunks = []
-              let timerInterval
-              let seconds = 0
-              const controls = Helper.create("div")
-              controls.className = "controls"
-              Helper.style(controls, { position: "fixed", top: "0", right: "0" })
-              if (!document.querySelector("div.controls")) document.body.appendChild(controls)
-              const timerDisplay = Helper.render("text/link", "Aufnahmezeit: 0s", controls)
-              function updateTimer() {
-                seconds++
-                timerDisplay.textContent = `Aufnahmezeit: ${seconds}s`
-              }
-              const pauseBtn = Helper.render("text/link", "Pause", controls)
-              const stopBtn = Helper.render("text/link", "Stop", controls)
-              pauseBtn.addEventListener("click", () => {
-                if (mediaRecorder.state === "recording") {
-                  mediaRecorder.pause()
-                  clearInterval(timerInterval)
-                  Helper.add("style/green", pauseBtn)
-                  return
-                }
-                if (mediaRecorder.state === "paused") {
-                  mediaRecorder.resume()
-                  timerInterval = setInterval(updateTimer, 1000)
-                  Helper.add("style/dark-light", pauseBtn)
-                  return
-                }
-              })
-              stopBtn.addEventListener('click', () => {
-                mediaRecorder.stop()
-              })
-              Helper.remove("overlays")
-              async function startRecording() {
-
-                const screenStream = await navigator.mediaDevices.getDisplayMedia({video: true})
-                const audioStream = await navigator.mediaDevices.getUserMedia({audio: true})
-                const combinedStream = new MediaStream([
-                  ...screenStream.getVideoTracks(),
-                  ...audioStream.getAudioTracks(),
-                ])
-                mediaRecorder = new MediaRecorder(combinedStream)
-                chunks = []
-                mediaRecorder.ondataavailable = function (event) {
-                  if (event.data.size > 0) {
-                    chunks.push(event.data)
-                  }
-                }
-                mediaRecorder.onstop = async () => {
-                  clearInterval(timerInterval)
-                  const blob = new Blob(chunks, { type: 'video/webm' })
-                  const hashHex = await Helper.digest(blob)
-                  const url = URL.createObjectURL(blob)
-                  const a = document.createElement('a')
-                  a.href = url
-                  a.download = `${hashHex}.webm`
-                  document.body.appendChild(a)
-                  a.click()
-                  setTimeout(() => {
-                    document.body.removeChild(a)
-                    URL.revokeObjectURL(url)
-                    combinedStream.getTracks().forEach(track => track.stop())
-                    controls.remove()
-                  }, 100)
-                }
-                mediaRecorder.start()
-                timerInterval = setInterval(updateTimer, 1000)
-                Helper.add("style/red", timerDisplay)
-              }
-              await startRecording()
-            } catch (error) {
-              console.error(error)
-              window.alert("Fehler.. Bitte wiederholen.")
-            }
+            Helper.classes(cameraDiv, {remove: "fullscreen", add: "to-bottom-right"})
           }
-          async function recordScreen() {
+          const button = this.render("button/left-right", {left: ".record", right: "Beginne eine Aufnahme"}, buttons)
+          button.onclick = ev => {
 
-            try {
-
-
-              let mediaRecorder
-              let chunks = []
-              let timerInterval
-              let seconds = 0
-              const controls = Helper.create("div")
-              controls.className = "controls"
-              Helper.style(controls, {position: "fixed", top: "0", right: "0"})
-              if (!document.querySelector("div.controls")) document.body.appendChild(controls)
-              const timerDisplay = Helper.render("text/link", "Aufnahmezeit: 0s", controls)
-              const pauseBtn = Helper.render("text/link", "Pause", controls)
-              const stopBtn = Helper.render("text/link", "Stop", controls)
-              function updateTimer() {
-                seconds++
-                timerDisplay.textContent = `Aufnahmezeit: ${seconds}s`
-              }
-              async function startRecording() {
-                const stream = await navigator.mediaDevices.getDisplayMedia({ video: true })
-                mediaRecorder = new MediaRecorder(stream)
-                chunks = []
-                mediaRecorder.ondataavailable = (event) => {
-                  if (event.data.size > 0) {
-                    chunks.push(event.data)
-                  }
-                }
-                mediaRecorder.onstop = async () => {
-                  clearInterval(timerInterval)
-                  const blob = new Blob(chunks, { type: 'video/webm' })
-                  const hashHex = await Helper.digest(blob)
-                  const url = URL.createObjectURL(blob)
-                  const a = document.createElement('a')
-                  a.href = url
-                  a.download = `${hashHex}.webm`
-                  document.body.appendChild(a)
-                  a.click()
-                  setTimeout(() => {
-                    document.body.removeChild(a)
-                    URL.revokeObjectURL(url)
-                    stream.getTracks().forEach(track => track.stop())
-                    controls.remove()
-                  }, 100)
-                }
-                mediaRecorder.start()
-                timerInterval = setInterval(updateTimer, 1000)
-                Helper.add("style/red", timerDisplay)
-              }
-              pauseBtn.addEventListener('click', () => {
-                if (mediaRecorder.state === 'recording') {
-                  mediaRecorder.pause()
-                  clearInterval(timerInterval)
-                  Helper.add("style/green", pauseBtn)
-                  return
-                }
-
-                if (mediaRecorder.state === 'paused') {
-                  mediaRecorder.resume()
-                  timerInterval = setInterval(updateTimer, 1000)
-                  Helper.add("style/dark-light", pauseBtn)
-                  return
-                }
-
-              })
-              stopBtn.addEventListener('click', () => {
-                mediaRecorder.stop()
-              })
-
-
-
-              Helper.remove("overlays")
-              await startRecording()
-            } catch (error) {
-              console.error(error)
-              window.alert("Fehler.. Bitte wiederholen.")
-            }
-          }
-          const button = this.create("toolbox/left-right", buttons)
-          button.left.textContent = ".record-screen"
-          button.right.textContent = "Beginne eine Bildschirmaufnahme"
-          button.addEventListener("click", ev => {
             this.overlay("pop", o => {
-              {
-                const button = this.create("toolbox/left-right", o.content)
-                button.left.textContent = ".with-mic"
-                button.right.textContent = "Mit Ton"
-                button.onclick = async () => await recordAudioScreen()
+              const content = o.content
+              const screenWithMic = this.render("button/left-right", {left: ".screen-with-mic", right: "Bildschirmaufnahme mit Ton"}, content)
+              screenWithMic.onclick = async () => {
+
+                try {
+                  let mediaRecorder
+                  let chunks = []
+                  let timerInterval
+                  let seconds = 0
+                  if (!document.querySelector("div.controls")) document.body.appendChild(controls)
+                  const timerDisplay = Helper.render("text/link", "Aufnahmezeit: 0s", controls)
+                  function updateTimer() {
+
+                    seconds++
+                    timerDisplay.textContent = `Aufnahmezeit: ${seconds}s`
+                  }
+                  const pauseBtn = Helper.render("text/link", "Pause", controls)
+                  const stopBtn = Helper.render("text/link", "Stop", controls)
+                  pauseBtn.addEventListener("click", () => {
+
+                    if (mediaRecorder.state === "recording") {
+                      mediaRecorder.pause()
+                      clearInterval(timerInterval)
+                      Helper.add("style/green", pauseBtn)
+                      return
+                    }
+                    if (mediaRecorder.state === "paused") {
+                      mediaRecorder.resume()
+                      timerInterval = setInterval(updateTimer, 1000)
+                      Helper.add("style/dark-light", pauseBtn)
+                      return
+                    }
+                  })
+                  stopBtn.addEventListener('click', () => {
+
+                    mediaRecorder.stop()
+                  })
+                  Helper.remove("overlays")
+                  async function startRecording() {
+
+                    const screenStream = await navigator.mediaDevices.getDisplayMedia({video: true})
+                    const audioStream = await navigator.mediaDevices.getUserMedia({audio: true})
+                    const combinedStream = new MediaStream([
+                      ...screenStream.getVideoTracks(),
+                      ...audioStream.getAudioTracks(),
+                    ])
+                    mediaRecorder = new MediaRecorder(combinedStream)
+                    chunks = []
+                    mediaRecorder.ondataavailable = function (event) {
+                      if (event.data.size > 0) {
+                        chunks.push(event.data)
+                      }
+                    }
+                    mediaRecorder.onstop = async () => {
+                      clearInterval(timerInterval)
+                      const blob = new Blob(chunks, { type: 'video/webm' })
+                      const hashHex = await Helper.digest(blob)
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `${hashHex}.webm`
+                      document.body.appendChild(a)
+                      a.click()
+                      setTimeout(() => {
+                        document.body.removeChild(a)
+                        URL.revokeObjectURL(url)
+                        combinedStream.getTracks().forEach(track => track.stop())
+                        controls.remove()
+                        window.location.reload()
+                      }, 100)
+                    }
+                    mediaRecorder.start()
+                    timerInterval = setInterval(updateTimer, 1000)
+                    Helper.add("style/red", timerDisplay)
+                  }
+                  await startRecording()
+                } catch (error) {
+                  window.alert("Fehler.. Bitte wiederholen.")
+                  console.error(error)
+                  controls.remove()
+                }
               }
-              {
-                const button = this.create("toolbox/left-right", o.content)
-                button.left.textContent = ".without-mic"
-                button.right.textContent = "Ohne Ton"
-                button.onclick = async () => await recordScreen()
+              const screenWithoutMic = this.render("button/left-right", {left: ".screen-without-mic", right: "Bildschirmaufnahme ohne Ton"}, content)
+              screenWithoutMic.onclick = async () => {
+
+                try {
+                  let mediaRecorder
+                  let chunks = []
+                  let timerInterval
+                  let seconds = 0
+                  if (!document.querySelector("div.controls")) document.body.appendChild(controls)
+                  const timerDisplay = Helper.render("text/link", "Aufnahmezeit: 0s", controls)
+                  const pauseBtn = Helper.render("text/link", "Pause", controls)
+                  const stopBtn = Helper.render("text/link", "Stop", controls)
+                  function updateTimer() {
+
+                    seconds++
+                    timerDisplay.textContent = `Aufnahmezeit: ${seconds}s`
+                  }
+                  async function startRecording() {
+
+                    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true })
+                    mediaRecorder = new MediaRecorder(stream)
+                    chunks = []
+                    mediaRecorder.ondataavailable = (event) => {
+                      if (event.data.size > 0) {
+                        chunks.push(event.data)
+                      }
+                    }
+                    mediaRecorder.onstop = async () => {
+                      clearInterval(timerInterval)
+                      const blob = new Blob(chunks, { type: 'video/webm' })
+                      const hashHex = await Helper.digest(blob)
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `${hashHex}.webm`
+                      document.body.appendChild(a)
+                      a.click()
+                      setTimeout(() => {
+                        document.body.removeChild(a)
+                        URL.revokeObjectURL(url)
+                        stream.getTracks().forEach(track => track.stop())
+                        controls.remove()
+                        window.location.reload()
+                      }, 100)
+                    }
+                    mediaRecorder.start()
+                    timerInterval = setInterval(updateTimer, 1000)
+                    Helper.add("style/red", timerDisplay)
+                  }
+                  pauseBtn.addEventListener('click', () => {
+
+                    if (mediaRecorder.state === 'recording') {
+                      mediaRecorder.pause()
+                      clearInterval(timerInterval)
+                      Helper.add("style/green", pauseBtn)
+                      return
+                    }
+
+                    if (mediaRecorder.state === 'paused') {
+                      mediaRecorder.resume()
+                      timerInterval = setInterval(updateTimer, 1000)
+                      Helper.add("style/dark-light", pauseBtn)
+                      return
+                    }
+
+                  })
+                  stopBtn.addEventListener('click', () => {
+
+                    mediaRecorder.stop()
+                  })
+                  Helper.remove("overlays")
+                  await startRecording()
+                } catch (error) {
+                  window.alert("Fehler.. Bitte wiederholen.")
+                  console.error(error)
+                  controls.remove()
+                }
+              }
+              const selfie = this.render("button/left-right", {left: ".selfie", right: "Frontkameraaufnahme mit Ton"}, content)
+              selfie.onclick = async () => {
+
+                try {
+                  let mediaRecorder
+                  let chunks = []
+                  let timerInterval
+                  let seconds = 0
+
+                  if (!document.querySelector("div.controls")) document.body.appendChild(controls)
+                  const timerDisplay = Helper.render("text/link", "Aufnahmezeit: 0s", controls)
+                  function updateTimer() {
+
+                    seconds++
+                    timerDisplay.textContent = `Aufnahmezeit: ${seconds}s`
+                  }
+                  const pauseBtn = Helper.render("text/link", "Pause", controls)
+                  const stopBtn = Helper.render("text/link", "Stop", controls)
+                  pauseBtn.addEventListener("click", () => {
+
+                    if (mediaRecorder.state === "recording") {
+                      mediaRecorder.pause()
+                      clearInterval(timerInterval)
+                      Helper.add("style/green", pauseBtn)
+                      return
+                    }
+                    if (mediaRecorder.state === "paused") {
+                      mediaRecorder.resume()
+                      timerInterval = setInterval(updateTimer, 1000)
+                      Helper.add("style/dark-light", pauseBtn)
+                      return
+                    }
+                  })
+                  stopBtn.addEventListener('click', () => {
+
+                    mediaRecorder.stop()
+                  })
+                  Helper.remove("overlays")
+                  async function startRecording() {
+
+                    const audioStream = await navigator.mediaDevices.getUserMedia({audio: true})
+                    const cameraStream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "user"}})
+                    const combinedStream = new MediaStream([
+                      ...cameraStream.getVideoTracks(),
+                      ...audioStream.getAudioTracks(),
+                    ])
+                    mediaRecorder = new MediaRecorder(combinedStream)
+                    chunks = []
+
+                    Helper.append(cameraDiv, document.body)
+                    const cameraVideo = document.createElement("video")
+                    cameraVideo.srcObject = cameraStream
+                    cameraVideo.autoplay = true
+                    Helper.append(cameraVideo, cameraDiv)
+
+                    mediaRecorder.ondataavailable = function (event) {
+
+                      if (event.data.size > 0) {
+                        chunks.push(event.data)
+                      }
+                    }
+                    mediaRecorder.onstop = async () => {
+
+                      clearInterval(timerInterval)
+                      const blob = new Blob(chunks, { type: 'video/webm' })
+                      const hashHex = await Helper.digest(blob)
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `${hashHex}.webm`
+                      document.body.appendChild(a)
+                      a.click()
+                      setTimeout(() => {
+                        document.body.removeChild(a)
+                        URL.revokeObjectURL(url)
+                        combinedStream.getTracks().forEach(track => track.stop())
+                        controls.remove()
+                        cameraDiv.remove()
+                        window.location.reload()
+                      }, 100)
+                    }
+                    mediaRecorder.start()
+                    timerInterval = setInterval(updateTimer, 1000)
+                    Helper.add("style/red", timerDisplay)
+                  }
+                  await startRecording()
+                } catch (error) {
+                  window.alert("Fehler.. Bitte wiederholen.")
+                  console.error(error)
+                  controls.remove()
+                }
+              }
+              const screenWithZoom = this.render("button/left-right", {left: ".zoom-to-screen", right: "Bildschirmaufnahme mit Ton und Frontkamera"}, content)
+              screenWithZoom.onclick = async () => {
+
+                try {
+                  const prompt = window.prompt("Nach wieviel Sekunden soll dein Bildschirm angezeigt werden: (text/number)")
+                  if (!Helper.verifyIs("text/number", prompt)) return window.alert("Nummer ungültig.")
+                  const duration = Helper.convert("seconds/millis", prompt)
+
+                  let timeoutId
+                  let startTime
+                  let remainingTime = duration
+
+
+
+                  let mediaRecorder
+                  let chunks = []
+                  let timerInterval
+                  let seconds = 0
+
+                  if (!document.querySelector("div.controls")) document.body.appendChild(controls)
+                  const timerDisplay = Helper.render("text/link", "Aufnahmezeit: 0s", controls)
+                  function updateTimer() {
+
+                    seconds++
+                    timerDisplay.textContent = `Aufnahmezeit: ${seconds}s`
+                  }
+                  const pauseBtn = Helper.render("text/link", "Pause", controls)
+                  const stopBtn = Helper.render("text/link", "Stop", controls)
+                  pauseBtn.addEventListener("click", () => {
+
+                    if (mediaRecorder.state === "recording") {
+                      mediaRecorder.pause()
+                      clearInterval(timerInterval)
+                      clearTimeout(timeoutId)
+                      remainingTime -= Date.now() - startTime
+                      Helper.add("style/green", pauseBtn)
+                      return
+                    }
+                    if (mediaRecorder.state === "paused") {
+                      mediaRecorder.resume()
+                      timerInterval = setInterval(updateTimer, 1000)
+                      startTime = Date.now()
+                      timeoutId = setTimeout(animateCameraDiv, remainingTime)
+                      Helper.add("style/dark-light", pauseBtn)
+                      return
+                    }
+                  })
+                  stopBtn.addEventListener('click', () => {
+
+                    mediaRecorder.stop()
+                  })
+                  Helper.remove("overlays")
+                  async function startRecording() {
+
+                    const screenStream = await navigator.mediaDevices.getDisplayMedia({video: true})
+                    const audioStream = await navigator.mediaDevices.getUserMedia({audio: true})
+                    const cameraStream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "user"}})
+                    const combinedStream = new MediaStream([
+                      ...screenStream.getVideoTracks(),
+                      ...audioStream.getAudioTracks(),
+                    ])
+                    mediaRecorder = new MediaRecorder(combinedStream)
+                    chunks = []
+
+                    Helper.append(cameraDiv, document.body)
+                    const cameraVideo = document.createElement("video")
+                    cameraVideo.srcObject = cameraStream
+                    cameraVideo.autoplay = true
+                    Helper.append(cameraVideo, cameraDiv)
+
+
+                    startTime = Date.now()
+                    timeoutId = setTimeout(animateCameraDiv, duration)
+
+
+
+                    mediaRecorder.ondataavailable = function (event) {
+
+                      if (event.data.size > 0) {
+                        chunks.push(event.data)
+                      }
+                    }
+                    mediaRecorder.onstop = async () => {
+
+                      clearInterval(timerInterval)
+                      const blob = new Blob(chunks, { type: 'video/webm' })
+                      const hashHex = await Helper.digest(blob)
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `${hashHex}.webm`
+                      document.body.appendChild(a)
+                      a.click()
+                      setTimeout(() => {
+                        document.body.removeChild(a)
+                        URL.revokeObjectURL(url)
+                        combinedStream.getTracks().forEach(track => track.stop())
+                        cameraStream.getTracks().forEach(track => track.stop())
+                        controls.remove()
+                        cameraDiv.remove()
+                        window.location.reload()
+                      }, 100)
+                    }
+                    mediaRecorder.start()
+                    timerInterval = setInterval(updateTimer, 1000)
+                    Helper.add("style/red", timerDisplay)
+                  }
+                  await startRecording()
+                } catch (error) {
+                  window.alert("Fehler.. Bitte wiederholen.")
+                  console.error(error)
+                  controls.remove()
+                }
               }
             })
-          })
+          }
         }
 
         {
-          const button = this.create("toolbox/left-right", buttons)
-          button.left.textContent = ".start"
-          button.right.textContent = "Schnell zum Start zurück"
+          const button = this.render("button/left-right", {left: ".start", right: "Schnell zum Start zurück"}, buttons)
           button.addEventListener("click", async () => window.open("/", "_blank"))
         }
 
         if (callback.updateToolbox === true) {
-          const button = this.create("toolbox/left-right", buttons)
+          const button = this.create("button/left-right", buttons)
           button.left.textContent = "update.toolbox"
           button.right.textContent = "Mit nur einem Klick erhälst du die aktuellste Version unserer Toolbox"
           button.addEventListener("click", async () => {
+
             await this.update("toolbox-getter", document.body)
             window.alert("Deine Toolbox ist jetzt auf dem neuesten Stand.\n\nUm sicherzustellen, dass Deine wertvollen Änderungen nicht verloren gehen und dauerhaft im Dokument gespeichert werden, vergiss bitte nicht, den Speichervorgang durchzuführen. Das Speichern Deiner Arbeit ist wie das Bewahren eines Kunstwerks. Denke daran, auf die 'Speichern'-Schaltfläche in Deiner Anwendungssoftware zu klicken. Andernfalls könnten Deine Anpassungen beim Schließen des Fensters verschwinden.")
           })
@@ -19613,10 +16171,25 @@ next:webcall(Meine Notizen)
     if (event === "pop") {
 
       const overlay = this.create("div/overlay")
-      overlay.addButton = this.create("toolbox/add")
+      overlay.addButton = button.div("add")
+      overlay.addInfo = text => {
+
+        overlay.info.textContent = text
+        this.append(overlay.info, overlay)
+      }
+      overlay.alert = {}
+      overlay.alert.nok = () => window.alert("Fehler.. Bitte wiederholen.")
+      overlay.alert.ok = (msg) => {
+
+        let message = "Daten erfolgreich gespeichert."
+        if (msg) message = msg
+        window.alert(message)
+      }
+      overlay.alert.removed = () => window.alert("Daten erfolgreich entfernt.")
+      overlay.alert.saved = () => window.alert("Daten erfolgreich gespeichert.")
       overlay.aliasIt = (it, o) => {
         const fragment = document.createDocumentFragment()
-        const button = this.create("toolbox/left-right", fragment)
+        const button = this.create("button/left-right", fragment)
         button.left.textContent = ".alias"
         button.right.textContent = "Verwende einen alternativen Namen"
         button.onclick = () => {
@@ -19634,7 +16207,7 @@ next:webcall(Meine Notizen)
             this.verify("input/value", aliasField.input)
             aliasField.input.oninput = () => this.verify("input/value", aliasField.input)
             const submit = this.create("button/action", funnel)
-            this.add("outline-hover", submit)
+            this.add("hover-outline", submit)
             submit.textContent = "Alias jetzt speichern"
             submit.onclick = async () => {
               await this.verify("input/value", aliasField.input)
@@ -19648,9 +16221,14 @@ next:webcall(Meine Notizen)
         o.content.appendChild(fragment)
         return button
       }
+      overlay.appendAddButton = () => {
+
+        button.addOutlineOnHover(overlay.addButton)
+        this.append(overlay.addButton, overlay)
+      }
       overlay.appendHtml = (it, node, o) => {
         const fragment = document.createDocumentFragment()
-        const button = this.create("toolbox/left-right", fragment)
+        const button = this.create("button/left-right", fragment)
         button.left.textContent = ".append"
         button.right.textContent = "HTML anhängen"
         button.onclick = async () => {
@@ -19666,7 +16244,7 @@ next:webcall(Meine Notizen)
       }
       overlay.appendPdf = (it, node, o) => {
         const fragment = document.createDocumentFragment()
-        const button = this.create("toolbox/left-right", fragment)
+        const button = this.create("button/left-right", fragment)
         button.left.textContent = ".append"
         button.right.textContent = "PDF anhängen"
         button.onclick = async () => {
@@ -19681,7 +16259,7 @@ next:webcall(Meine Notizen)
       }
       overlay.appendText = (it, node, o) => {
         const fragment = document.createDocumentFragment()
-        const button = this.create("toolbox/left-right", fragment)
+        const button = this.create("button/left-right", fragment)
         button.left.textContent = ".appendTextContent"
         button.right.textContent = "Inhalt anhängen"
         button.onclick = async () => {
@@ -19697,7 +16275,7 @@ next:webcall(Meine Notizen)
       }
       overlay.appendScript = (it, node, o) => {
 
-        const button = this.create("toolbox/left-right", o.content)
+        const button = this.create("button/left-right", o.content)
         button.left.textContent = ".append-once"
         button.right.textContent = "Element wird überschrieben oder angehängt"
         button.addEventListener("click", async ev => {
@@ -19712,14 +16290,12 @@ next:webcall(Meine Notizen)
       overlay.content = this.create("div/scrollable", overlay)
       overlay.append = node => {
 
-        const fragment = document.createDocumentFragment()
-        fragment.appendChild(node)
-        overlay.content.appendChild(fragment)
+        if (node) this.append(node, overlay.content)
       }
       overlay.appendButton = (it, node, o) => {
 
         const fragment = document.createDocumentFragment()
-        const button = this.create("toolbox/left-right", fragment)
+        const button = this.create("button/left-right", fragment)
         button.left.textContent = ".append"
         button.right.textContent = "Daten anhängen"
         button.onclick = async ev => {
@@ -19734,7 +16310,7 @@ next:webcall(Meine Notizen)
       overlay.appendImage = (it, node, o) => {
 
         const fragment = document.createDocumentFragment()
-        const button = this.create("toolbox/left-right", fragment)
+        const button = this.create("button/left-right", fragment)
         button.left.textContent = ".append"
         button.right.textContent = "Image anhängen"
         button.onclick = async () => {
@@ -19748,13 +16324,13 @@ next:webcall(Meine Notizen)
       }
       overlay.appendIt = (it, node, o, ok) => {
 
-        const button = this.create("toolbox/left-right")
+        const button = this.create("button/left-right")
         o.append(button)
         button.left.textContent = ".append"
         button.right.textContent = "Datei anhängen"
         button.onclick = () => {
 
-          this.render("node", it, node)
+          this.append(it, node)
           o.remove()
           if (ok) ok()
         }
@@ -19773,7 +16349,7 @@ next:webcall(Meine Notizen)
       }
       overlay.copyHtml = (it, o) => {
         const fragment = document.createDocumentFragment()
-        const button = this.create("toolbox/left-right", fragment)
+        const button = this.create("button/left-right", fragment)
         button.left.textContent = ".copy"
         button.right.textContent = "HTML in deiner Zwischenablage speichern"
         button.onclick = async () => {
@@ -19787,7 +16363,7 @@ next:webcall(Meine Notizen)
       }
       overlay.copyText = (it, o) => {
         const fragment = document.createDocumentFragment()
-        const button = this.create("toolbox/left-right", fragment)
+        const button = this.create("button/left-right", fragment)
         button.left.textContent = ".copyTextContent"
         button.right.textContent = "Inhalt in deiner Zwischenablage speichern"
         button.onclick = async () => {
@@ -19801,7 +16377,7 @@ next:webcall(Meine Notizen)
       }
       overlay.download = (file, o, ok) => {
 
-        const button = this.create("toolbox/left-right", o.content)
+        const button = this.create("button/left-right", o.content)
         button.right.textContent = "Speicher auf deinem Gerät"
         button.left.textContent = ".download"
         button.onclick = () => {
@@ -19821,7 +16397,7 @@ next:webcall(Meine Notizen)
       overlay.emailHtml = (it, o) => {
 
         const fragment = document.createDocumentFragment()
-        const button = this.create("toolbox/left-right", fragment)
+        const button = this.create("button/left-right", fragment)
         button.left.textContent = ".email"
         button.right.textContent = "Versende HTML per E-Mail"
         button.onclick = async () => {
@@ -19839,7 +16415,7 @@ next:webcall(Meine Notizen)
       overlay.emailText = (it, o) => {
 
         const fragment = document.createDocumentFragment()
-        const button = Helper.create("toolbox/left-right", fragment)
+        const button = Helper.create("button/left-right", fragment)
         button.left.textContent = ".emailTextContent"
         button.right.textContent = "Versende den Text Inhalt per E-Mail"
         button.onclick = async () => {
@@ -19854,9 +16430,10 @@ next:webcall(Meine Notizen)
         o.content.appendChild(fragment)
         return button
       }
-      overlay.loading = () => {
+      overlay.loading = this.create("div/loading")
+      overlay.load = () => {
 
-        this.convert("parent/loading", overlay.content)
+        this.append(overlay.loading, overlay.content)
       }
       overlay.ocr = (canvas, node, o, ok) => {
 
@@ -19876,7 +16453,7 @@ next:webcall(Meine Notizen)
             window.alert(`Fehler bei der Texterkennung:\n\n${error}`)
           }
         }
-        const button = Helper.create("toolbox/left-right")
+        const button = Helper.create("button/left-right")
         o.append(button)
         button.right.textContent = "Exportiere Text aus deinem Bild in dein ausgewähltes Element"
         button.left.textContent = ".tesseract-ocr"
@@ -19892,7 +16469,7 @@ next:webcall(Meine Notizen)
       }
       overlay.openCam = (node, o) => {
 
-        const button = this.create("toolbox/left-right")
+        const button = this.create("button/left-right")
         o.append(button)
         button.left.textContent = ".camera"
         button.right.textContent = "Erschaffe einzigartige Bilder"
@@ -19942,7 +16519,7 @@ next:webcall(Meine Notizen)
       }
       overlay.openMic = (node, o) => {
 
-        const button = this.create("toolbox/left-right")
+        const button = this.create("button/left-right")
         o.append(button)
         button.left.textContent = ".microfon"
         button.right.textContent = "Web Audio Recorder"
@@ -19964,7 +16541,7 @@ next:webcall(Meine Notizen)
       }
       overlay.openVid = (node, o) => {
 
-        const button = this.create("toolbox/left-right")
+        const button = this.create("button/left-right")
         o.append(button)
         button.left.textContent = ".video"
         button.right.textContent = "Nehme den Moment auf"
@@ -19993,7 +16570,7 @@ next:webcall(Meine Notizen)
       }
       overlay.openWindow = (it, o) => {
 
-        const button = this.create("toolbox/left-right")
+        const button = this.create("button/left-right")
         o.append(button)
         button.left.textContent = ".open"
         button.right.textContent = "Im neuen Tab öffnen"
@@ -20012,7 +16589,7 @@ next:webcall(Meine Notizen)
       }
       overlay.titleIt = (it, o) => {
         const fragment = document.createDocumentFragment()
-        const button = this.create("toolbox/left-right", fragment)
+        const button = this.create("button/left-right", fragment)
         button.left.textContent = ".title"
         button.right.textContent = "Titel eingeben"
         button.onclick = () => {
@@ -20029,7 +16606,7 @@ next:webcall(Meine Notizen)
             }
             this.verify("input/value", titleField.input)
             titleField.input.oninput = () => this.verify("input/value", titleField.input)
-            const submit = this.create("toolbox/action", funnel)
+            const submit = this.create("button/action", funnel)
             submit.textContent = "Titel jetzt speichern"
             submit.onclick = async () => {
               await this.verify("input/value", titleField.input)
@@ -20046,7 +16623,7 @@ next:webcall(Meine Notizen)
       overlay.translateText = (it, o) => {
 
         const fragment = document.createDocumentFragment()
-        const button = this.create("toolbox/left-right", fragment)
+        const button = this.create("button/left-right", fragment)
         button.left.textContent = ".translate"
         button.right.textContent = "Sende deinen Inhalt an eine Übersetzungsmaschine"
         button.onclick = async () => {
@@ -20063,7 +16640,7 @@ next:webcall(Meine Notizen)
             ]
             for (let i = 0; i < translations.length; i++) {
               const it = translations[i]
-              const button = this.create("toolbox/left-right", o1.content)
+              const button = this.create("button/left-right", o1.content)
               button.left.textContent = it.name
               button.onclick = () => {
                 window.open(it.url, "_blank")
@@ -20077,7 +16654,7 @@ next:webcall(Meine Notizen)
       overlay.shebang = (it, o) => {
 
         const fragment = document.createDocumentFragment()
-        const button = this.create("toolbox/left-right", fragment)
+        const button = this.create("button/left-right", fragment)
         button.left.textContent = "#!/bin/bash"
         button.right.textContent = "Lade eine .sh Datei herunter"
         button.onclick = async () => {
@@ -20100,7 +16677,7 @@ next:webcall(Meine Notizen)
             return match[1]
           }
         }
-        const button = this.create("toolbox/left-right", fragment)
+        const button = this.create("button/left-right", fragment)
         button.left.textContent = ".share"
         button.right.textContent = "Teile dein PDF mit deinem Netzwerk"
         button.onclick = async () => {
@@ -20163,7 +16740,7 @@ next:webcall(Meine Notizen)
         }
       }
       overlay.style.opacity = 0
-      overlay.info = this.create("header/info", overlay)
+      overlay.info = this.create("div/info")
       overlay.closeSocket = (socket) => {
         overlay.removeOverlayButton.addEventListener("click", () => {
           socket.close()
@@ -20182,11 +16759,20 @@ next:webcall(Meine Notizen)
           }
         })
       }
+      overlay.registerHtmlButton = () => {
+
+        const button = this.create("button/bottom-right")
+        this.convert("path/icon", "/public/disk-floppy.svg").then(icon => button.appendChild(icon))
+        this.add("hover-outline", button)
+        button.onclick = () => this.add("register-html")
+        this.append(button, overlay)
+        return button
+      }
       overlay.registerIt = (update) => {
 
         return new Promise(async(resolve, reject) => {
           try {
-            this.overlay("security", async securityOverlay => {
+            this.overlay("lock", async securityOverlay => {
               const res = await this.request(`/register/user/${overlay.it}/`, {[overlay.it]: update})
               if (res.status === 200) {
                 window.alert("Daten erfolgreich gespeichert.")
@@ -20207,7 +16793,7 @@ next:webcall(Meine Notizen)
 
         return new Promise(async(resolve, reject) => {
           try {
-            this.overlay("security", async securityOverlay => {
+            this.overlay("lock", async securityOverlay => {
               const keyName = Object.keys(key)[0]
               const keyValue = key[keyName]
               const res = await this.request(`/register/${overlay.it}/${keyName}/`, {created: it.created, [keyName]: keyValue})
@@ -20229,13 +16815,13 @@ next:webcall(Meine Notizen)
       overlay.removeIt = (it, o) => {
 
         const fragment = document.createDocumentFragment()
-        const button = this.create("toolbox/left-right", fragment)
+        const button = this.create("button/left-right", fragment)
         button.left.textContent = ".remove"
         button.right.textContent = "Daten entfernen"
         button.onclick = ev => {
           const confirm = window.confirm("Möchtest du deine Daten wirklich entfernen?")
           if (confirm === true) {
-            this.overlay("security", async securityOverlay => {
+            this.overlay("lock", async securityOverlay => {
               const res = await this.request(`/remove/user/${overlay.it}/`, {created: it.created})
               if (res.status === 200) {
                 window.alert("Deine Daten wurden erfolgreich entfernt.")
@@ -20252,7 +16838,8 @@ next:webcall(Meine Notizen)
         o.content.appendChild(fragment)
         return button
       }
-      overlay.removeOverlayButton = this.removeOverlayButton(overlay)
+      overlay.removeOverlayButton = button.append("remove-overlay", overlay)
+      overlay.removeOverlayButton.onclick = () => overlay.remove()
       overlay.renderTabs = () => {
         overlay.tabs = this.render("tabs", "Alle Meine", overlay.content)
       }
@@ -20272,7 +16859,7 @@ next:webcall(Meine Notizen)
             this.add("style/valid", field.input)
             field.input.addEventListener("input", ev => {
               const visibility = field.input.value
-              this.overlay("security", async securityOverlay => {
+              this.overlay("lock", async securityOverlay => {
                 const res = await this.request(`/register/${overlay.it}/visibility/`, {created: it.created, visibility})
                 if (res.status === 200) {
                   window.alert("Sichtbarkeit wurde erfolgreich gespeichert.")
@@ -20298,7 +16885,7 @@ next:webcall(Meine Notizen)
       }
       callback(overlay)
       document.body.appendChild(overlay)
-      this.animate("fade-up", overlay)
+      overlay.classList.add("fade-up")
       if (overlay.tabs) {
         overlay.tabs.meine.addEventListener("click", () => {
           overlay.updateItClosed()
@@ -20329,7 +16916,7 @@ next:webcall(Meine Notizen)
 
         return new Promise(async(resolve, reject) => {
           try {
-            this.overlay("security", async securityOverlay => {
+            this.overlay("lock", async securityOverlay => {
               const res = await this.request(`/update/user/${overlay.it}/`, {created: it.created, [overlay.it]: update})
               if (res.status === 200) {
                 window.alert("Daten erfolgreich gespeichert.")
@@ -20350,7 +16937,7 @@ next:webcall(Meine Notizen)
       overlay.updateItClosed = async () => {
         if (overlay.it && overlay.rerender) {
           Helper.convert("parent/loading", overlay.rerender)
-          const res = await Helper.request(`/get/user/${overlay.it}/`)
+          const res = await Helper.request(`/jwt/get/${overlay.it}/`)
           if (res.status === 200) {
             const it = JSON.parse(res.response)
             updateSearchField(it, overlay.rerender)
@@ -20363,7 +16950,7 @@ next:webcall(Meine Notizen)
       }
       overlay.upload = (type, o) => {
 
-        const button = this.create("toolbox/left-right")
+        const button = this.create("button/left-right")
         o.append(button)
         button.left.textContent = ".upload"
         button.right.textContent = "Lade eine URL-Datei hoch"
@@ -20387,92 +16974,19 @@ next:webcall(Meine Notizen)
       return overlay
     }
 
-    if (event === "popup") {
-
-      const overlay = this.create("div/overlay")
-      overlay.style.opacity = 0
-      overlay.info = this.create("header/info", overlay)
-      overlay.addButton = this.create("toolbox/add")
-      overlay.onlyClosedUser = () => {
-        this.request("/verify/user/closed/").then(res => {
-          if (res.status !== 200) {
-            const confirm = window.confirm("Um die folgenden Funktionen nutzen zu können, musst du dich anmelden.\n\nMöchtest du dich jetzt anmelden?")
-            if (confirm === true) {
-              overlay.remove()
-              window.open("/login/", "_blank")
-            } else {
-              overlay.remove()
-            }
-          }
-        })
-      }
-      overlay.removeOverlayButton = this.removeOverlayButton(overlay)
-      callback(overlay)
-      document.body.appendChild(overlay)
-      this.animate("fade-up", overlay)
-      return overlay
-    }
-
-    if (event === "info") {
-
-      const overlay = document.createElement("div")
-      overlay.classList.add("overlay")
-      overlay.style.height = "100%"
-      overlay.style.overscrollBehavior = "none"
-      overlay.style.width = "100%"
-      overlay.style.zIndex = "99999999999999"
-      overlay.style.position = "fixed"
-      overlay.style.top = "0"
-      overlay.style.left = "0"
-      overlay.style.background = this.colors.light.background
-      overlay.style.display = "flex"
-      overlay.style.flexDirection = "column"
-      overlay.style.opacity = 0
-
-      this.removeOverlayButton(overlay)
-
-      if (callback) callback(overlay)
-
-      document.body.append(overlay)
-
-      this.animate("fade-up", overlay)
-
-      // const animation = overlay.animate([
-      //   { opacity: 0, transform: 'translateY(13px)' },
-      //   { opacity: 1, transform: 'translateY(0)' },
-      // ], {
-      //   duration: 344,
-      //   easing: 'ease-in-out',
-      //   fill: "forwards"
-      // })
-
-      return overlay
-
-    }
-
     if (event === "lock") {
 
       return this.overlay("pop", async o1 => {
+        o1.load()
         o1.removeOverlayButton.remove()
         o1.className = "overlay flex align center"
-        this.create("info/loading", o1.content)
         if (callback) await callback(o1)
       })
     }
 
-    if (event === "security") {
-
-      const overlay = this.create("div/overlay")
-      overlay.info = this.create("info/loading", overlay)
-      if (callback) callback(overlay)
-      document.body.append(overlay)
-      return overlay
-
-    }
-
     if (event === "select-template") {
 
-      this.overlay("popup", async overlay => {
+      this.overlay("pop", async overlay => {
         async function renderTemplates(templates, node) {
           Helper.convert("parent/scrollable", node)
           for (let i = 0; i < templates.length; i++) {
@@ -20493,7 +17007,7 @@ next:webcall(Meine Notizen)
         searchField.input.placeholder = "Suche nach Text in deinem Template"
         searchField.style.margin = "21px 34px"
         this.verify("input/value", searchField.input)
-        this.add("outline-hover", searchField.input)
+        this.add("hover-outline", searchField.input)
         const contactsDiv = this.create("div/scrollable", overlay)
         const res = await this.request("/get/templates/closed/")
         if (res.status === 200) {
@@ -20516,17 +17030,175 @@ next:webcall(Meine Notizen)
     }
 
   }
-
   static render(event, input, parent) {
 
     if (event === "audio") {
 
       const audio = document.createElement("audio")
-      this.render("node", audio, parent)
+      this.append(audio, parent)
       audio.width = "100%"
       audio.controls = true
       audio.src = input
       return audio
+    }
+
+    if (event === "button/action") {
+
+      const button = this.create("button/action")
+      button.textContent = input
+      if (parent) this.append(button, parent)
+      return button
+    }
+
+    if (event === "button/feedback") {
+
+      const {it, i} = input
+      const div = Helper.div("flex align space-between")
+      Helper.add("hover-outline", div)
+      const isOdd = i % 2 === 0
+      const isEven = i % 2 === 1
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        if (isOdd) {
+          div.style.background = Helper.colors.light.foreground
+          div.style.color = Helper.colors.light.text
+        } else {
+          div.style.background = Helper.colors.dark.foreground
+          div.style.color = Helper.colors.dark.text
+        }
+      } else {
+        if (isEven) {
+          div.style.background = Helper.colors.light.foreground
+          div.style.color = Helper.colors.light.text
+        } else {
+          div.style.background = Helper.colors.dark.foreground
+          div.style.color = Helper.colors.dark.text
+        }
+      }
+      const left = document.createElement("span")
+      left.textContent = `${Helper.convert("millis/dd.mm.yyyy hh:mm", it.created)}`
+      this.append(left, div)
+      const nextToLeft = document.createElement("span")
+      nextToLeft.style.width = "100%"
+      nextToLeft.style.padding = "8px"
+      nextToLeft.textContent = it.text
+      this.append(nextToLeft, div)
+      const right = document.createElement("span")
+      right.style.padding = "13px"
+      right.textContent = it.importance
+      this.append(right, div)
+      if (parent) this.append(div, parent)
+      return div
+    }
+
+    if (event === "button/login") {
+
+      const button = this.create("button/left-right")
+      button.left.textContent = ".login"
+      button.right.textContent = "Dein Zugang zur personalisierten Erfahrung"
+      button.onclick = () => {
+        window.open(input, "_blank")
+      }
+      if (parent) this.append(button, parent)
+      return button
+    }
+
+    if (event === "button/left-right") {
+
+      const button = this.create("button/left-right")
+      button.left.textContent = input.left
+      button.right.textContent = input.right
+      if (parent) this.append(button, parent)
+      return button
+    }
+
+    if (event === "button/role") {
+
+      const {name} = input
+      const button = this.create("button/left-right")
+      button.classList.add("role-button")
+      button.left.textContent = name
+      button.left.classList.add("left")
+      button.right.textContent = "Auswählen"
+      button.right.classList.add("right")
+      button.onclick = () => {
+
+        parent.querySelectorAll(".role-button").forEach(button => {
+
+          const right = button.querySelector(".right")
+          this.convert("element/button-right", right)
+          right.textContent = "Rolle"
+        })
+        this.convert("element/checked", button.right)
+        const script = document.createElement("script")
+        script.id = "role-apps"
+        script.type = "module"
+        script.src = "/js/role-apps.js"
+        script.setAttribute("role-id", input.created)
+        script.setAttribute("role-name", input.name)
+        this.add("script-onbody", script)
+        this.remove("overlays")
+      }
+      if (parent) this.append(button, parent)
+      return button
+    }
+
+    if (event === "box/video") {
+
+      const box = this.div("fs21 sans-serif relative br13 m8 p8 min-w55 btn-theme")
+      box.video = document.createElement("video")
+      box.video.id = escapeCSSId(input)
+      box.video.autoplay = true
+      box.video.controls = true
+      box.video.style.width = "100%"
+      this.append(box.video, box)
+      box.info = this.div("flex align between", box)
+      box.text = this.div("nowrap of-auto", box.info)
+      box.text.textContent = input
+      box.status = this.div("flex align center w34 h34 br50p", box.info)
+      box.updateStatus = () => {
+
+        if (box.video.srcObject) {
+          box.status.textContent = "on"
+          this.classes(box.status, {add: "bg-green"})
+        } else {
+          box.status.textContent = "off"
+          this.classes(box.status, {add: "bg-red"})
+        }
+      }
+      if (parent) this.append(box, parent)
+      return box
+    }
+
+    if (event === "class/once") {
+
+      const classes = Array.from(input.classList)
+      const classExist = Array.from(parent.querySelectorAll("*")).some(node => {
+        classes.some(className => node.classList.contains(className))
+      })
+      if (!classExist) this.append(input, parent)
+    }
+
+    if (event === "classes") {
+
+      input.split(" ").forEach(name => parent.classList.add(name))
+    }
+
+    if (event === "div/mailto") {
+
+      const regex = /mailto:(.*)\?/
+      const match = input.match(regex)
+      if (match && match[1]) {
+        const email = match[1]
+        const div = this.div("mtb21 mlr34")
+        div.a = document.createElement("a")
+        this.append(div.a, div)
+        div.a.className = "link-theme"
+        div.a.textContent = email
+        div.a.href = input
+        this.add("hover-outline", div.a)
+        if (parent) this.append(div, parent)
+        return div
+      }
     }
 
     if (event === "upload") {
@@ -20539,7 +17211,7 @@ next:webcall(Meine Notizen)
       funnel.url.input.placeholder = "https://www.meine-domain.de/mein/pfad.."
       funnel.url.input.oninput = () => this.verify("input/value", funnel.url.input)
       this.verify("input/value", funnel.url.input)
-      funnel.submit = this.create("toolbox/action", funnel)
+      funnel.submit = this.create("button/action", funnel)
       funnel.submit.textContent = "Datei jetzt speichern"
       funnel.file = this.create("input/file", funnel)
       funnel.file.input.setAttribute("accept", input)
@@ -20649,118 +17321,6 @@ next:webcall(Meine Notizen)
       return parent
     }
 
-    if (event === "location-list/node/closed") {
-
-      this.convert("parent/scrollable", parent)
-      for (let i = 0; i < input.list.length; i++) {
-        const item = input.list[i]
-
-        const itemButton = this.create("button/left-right", parent)
-        itemButton.left.textContent = item.titel
-        itemButton.right.textContent = item.created
-        itemButton.addEventListener("click", () => {
-
-          this.overlay("toolbox", overlay => {
-
-            this.removeOverlayButton(overlay)
-
-            const buttons = this.create("div/scrollable", overlay)
-
-            {
-              const button = this.create("button/left-right", buttons)
-              button.left.textContent = ".update"
-              button.onclick = () => {
-
-                this.overlay("toolbox", async overlay => {
-                  this.removeOverlayButton(overlay)
-
-                  this.render("text/title", `${this.convert("text/capital-first-letter", input.tag)}-${i + 1}`, overlay)
-
-                  const fieldFunnel = await this.convert("path/field-funnel", input.path)
-                  overlay.append(fieldFunnel)
-
-                  fieldFunnel.querySelectorAll(".field").forEach(field => {
-                    Object.entries(item).forEach(([key, value]) => {
-                      if (field.id === key) {
-                        field.querySelector(".field-input").value = value
-                      }
-                    })
-                  })
-
-                  this.verify("field-funnel", fieldFunnel)
-
-                  const submitButton = fieldFunnel.querySelector(".submit-field-funnel-button")
-                  submitButton.textContent = `${this.convert("text/capital-first-letter", input.tag)} jetzt speichern`
-                  submitButton.onclick = async () => {
-
-                    await this.verify("field-funnel", fieldFunnel)
-
-                    const map = await this.convert("field-funnel/map", fieldFunnel)
-
-                    this.overlay("security", async securityOverlay => {
-
-                      const res = await this.request("/update/location/list-self/", {id: item.created, tag: input.tag, map})
-                      if (res.status === 200) {
-                        window.alert("Daten erfolgreich gespeichert.")
-
-                        const res = await this.request("/get/location/tag-self/", {tag: input.tag})
-                        if (res.status === 200) {
-                          const tag = JSON.parse(res.response)
-                          this.render("location-list/node/closed", {list: tag[input.tag], tag: input.tag, path: input.path}, parent)
-                        }
-                        if (res.status !== 200) {
-                          this.convert("parent/info", parent)
-                          parent.textContent = `Keine ${this.comvert("text/capital-first-letter", input.tag)} gefunden`
-                        }
-
-                        securityOverlay.remove()
-                      }
-
-                      if (res.status !== 200) {
-                        window.alert("Fehler.. Bitte wiederholen.")
-                        securityOverlay.remove()
-                      }
-
-                    })
-
-                  }
-
-
-                })
-              }
-            }
-
-            {
-              const button = this.create("button/left-right", buttons)
-              button.left.textContent = ".delete"
-              button.onclick = () => {
-                this.overlay("security", async securityOverlay => {
-
-                  const res = await this.request("/remove/location/tag-self/", {id: item.created, tag: input.tag})
-                  if (res.status === 200) {
-                    window.alert("Daten erfolgreich entfernt.")
-                    itemButton.remove()
-                    overlay.remove()
-                    securityOverlay.remove()
-                  }
-                  if (res.status !== 200) {
-                    window.alert("Fehler.. Bitte wiederholen.")
-                    securityOverlay.remove()
-                  }
-
-                })
-              }
-            }
-
-
-          })
-
-        })
-
-      }
-
-    }
-
     if (event === "location-list/node/email-expert") {
 
       return new Promise(async(resolve, reject) => {
@@ -20775,13 +17335,13 @@ next:webcall(Meine Notizen)
               itemButton.left.textContent = `${input.tag}-${i + 1}`
               itemButton.right.textContent = item.created
               itemButton.onclick = () => {
-                this.overlay("popup", updateButtonsOverlay => {
+                this.overlay("pop", updateButtonsOverlay => {
                   const buttons = this.create("div/scrollable", updateButtonsOverlay)
                   {
                     const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".update"
                     button.onclick = () => {
-                      this.overlay("popup", async overlay => {
+                      this.overlay("pop", async overlay => {
                         this.render("text/title", `${this.convert("text/capital-first-letter", input.tag)}-${i + 1}`, overlay)
                         const fieldFunnel = await this.convert("path/field-funnel", input.path)
                         overlay.append(fieldFunnel)
@@ -20798,7 +17358,7 @@ next:webcall(Meine Notizen)
                         submitButton.onclick = async () => {
                           await this.verify("field-funnel", fieldFunnel)
                           const map = await this.convert("field-funnel/map", fieldFunnel)
-                          this.overlay("security", async securityOverlay => {
+                          this.overlay("lock", async securityOverlay => {
                             const update = {}
                             update.email = input.email
                             update.id = item.created
@@ -20825,7 +17385,7 @@ next:webcall(Meine Notizen)
                     const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".delete"
                     button.onclick = () => {
-                      this.overlay("security", async securityOverlay => {
+                      this.overlay("lock", async securityOverlay => {
                         const res = await this.request("/remove/location/email-expert/", {id: item.created, tag: input.tag, path: input.path, email: input.email})
                         if (res.status === 200) {
                           window.alert("Daten erfolgreich entfernt.")
@@ -20956,7 +17516,7 @@ next:webcall(Meine Notizen)
         const quantity = this.create("div", tools)
 
         const select = this.create("input/select", quantity)
-        this.add("outline-hover", select)
+        this.add("hover-outline", select)
 
 
         if (Number(item.quantity) >= 10) {
@@ -21019,7 +17579,7 @@ next:webcall(Meine Notizen)
             quantity.style.justifyContent = "center"
             quantity.style.alignItems = "center"
             const tel = this.create("input/tel", quantity)
-            this.add("outline-hover", tel)
+            this.add("hover-outline", tel)
 
             const cart = JSON.parse(window.localStorage.getItem("cart"))
             for (let i = 0; i < cart.length; i++) {
@@ -21221,130 +17781,36 @@ next:webcall(Meine Notizen)
 
     }
 
-    if (event === "contacts/node/next-list") {
-      if (arguments.length === 2) {
-        parent = input
-      }
+    if (event === "html/div") {
 
-      return new Promise(async(resolve, reject) => {
-        try {
-
-          const res = await this.request("/get/contacts/self/")
-          if (res.status === 200) {
-            const contacts = JSON.parse(res.response)
-
-            parent.textContent = ""
-
-            for (let i = 0; i < contacts.length; i++) {
-              const contact = contacts[i]
-
-              if (contact.notes) {
-                const regex = /next:(\w+)(?:\+(\d+[dm]))?\(([^)]+)\)/g
-                let match
-
-                while ((match = regex.exec(contact.notes)) !== null) {
-                  const action = match[1]
-                  const duration = match[2] || ''
-                  const content = match[3]
-
-                  const button = this.create("button/left-right", parent)
-
-                  if (contact.status === "lead-new") {
-                    button.style.border = `3px solid ${this.colors.matte.green}`
-                    this.animate("node/border-ripple-out", button)
-                    this.render("text/node/bottom-right-onhover", "Neuer Kontakt", button)
-                  }
-
-                  if (contact.status === "lead-update") {
-                    button.style.border = `3px solid ${this.colors.matte.sunflower}`
-                    this.animate("node/border-ripple-out", button)
-                    this.render("text/node/bottom-right-onhover", "Neue Kontaktanfrage", button)
-                  }
-
-
-                  if (action === "tel" || action === "webcall") {
-                    let title
-                    if (contact.alias) {
-                      title = this.render("text/div", `${contact.alias} anrufen.`, button.left)
-                    } else {
-                      title = this.render("text/div", `${contact.email} anrufen.`, button.left)
-                    }
-
-                    if (contact.phone) {
-                      this.render("icon/node/path", "/public/phone-out.svg", button.right).then(icon => {
-                        icon.style.width = "34px"
-                        icon.style.padding = "0 13px"
-                      })
-                      button.onclick = () => {
-                        window.location.href = `tel:${contact.phone}`
-                      }
-                    }
-
-                  }
-
-                  if (action === "email") {
-                    let title
-                    if (contact.alias) {
-                      title = this.render("text/div", `${contact.alias} schreiben.`, button.left)
-                    } else {
-                      title = this.render("text/div", `${contact.email} schreiben.`, button.left)
-                    }
-
-                    if (contact.email) {
-                      this.render("icon/node/path", "/public/email-out.svg", button.right).then(icon => {
-                        icon.style.width = "34px"
-                        icon.style.padding = "0 13px"
-                      })
-                      button.onclick = () => {
-                        window.location.href = `mailto:${contact.email}`
-                      }
-                    }
-                  }
-
-                  const contentDiv = this.create("div")
-                  contentDiv.textContent = content
-                  contentDiv.style.fontSize = "13px"
-                  button.left.appendChild(contentDiv)
-
-
-                }
-              }
-            }
-            resolve(parent)
-          }
-
-        } catch (error) {
-          reject(error)
-        }
-      })
-
-
-
-
+      const div = document.createElement("div")
+      this.convert("text/purified", input).then(purified => div.innerHTML = purified)
+      if (parent) this.append(div, parent)
+      return div
     }
 
     if (event === "html/h1") {
 
-      const fragment = document.createDocumentFragment()
       const h1 = document.createElement("h1")
-      fragment.appendChild(h1)
-      this.convert("text/purified", input).then(purified => {
-        h1.innerHTML = purified
-      })
-      parent?.appendChild(fragment)
+      this.convert("text/purified", input).then(purified => h1.innerHTML = purified)
+      if (parent) this.append(h1, parent)
       return h1
     }
 
     if (event === "html/p") {
 
-      const fragment = document.createDocumentFragment()
       const p = document.createElement("p")
-      fragment.appendChild(p)
-      this.convert("text/purified", input).then(purified => {
-        p.innerHTML = purified
-      })
-      parent?.appendChild(fragment)
+      this.convert("text/purified", input).then(purified => p.innerHTML = purified)
+      if (parent) this.append(p, parent)
       return p
+    }
+
+    if (event === "html/span") {
+
+      const span = document.createElement("span")
+      this.convert("text/purified", input).then(purified => span.innerHTML = purified)
+      if (parent) this.append(span, parent)
+      return span
     }
 
     if (event === "icon/path") {
@@ -21389,9 +17855,9 @@ next:webcall(Meine Notizen)
     if (event === "img") {
 
       const img = document.createElement("img")
-      if (parent) this.render("node", img, parent)
+      img.className = "image"
       img.src = input
-      img.style.width = "100%"
+      if (parent) this.append(img, parent)
       return img
     }
 
@@ -21412,7 +17878,7 @@ next:webcall(Meine Notizen)
         try {
           const parentNode = document.querySelector(parent)
           if (parentNode === null) throw new Error("selector not found")
-          const res = await this.request("/get/user/tree-closed/", {tree: input})
+          const res = await this.request("/jwt/get/tree/", {tree: input})
           if (res.status === 200) {
             const oldHtml = parentNode.innerHTML
             parentNode.innerHTML = ""
@@ -21539,7 +18005,7 @@ next:webcall(Meine Notizen)
 
         await this.verify("field-funnel", funnel)
 
-        this.overlay("security", async securityOverlay => {
+        this.overlay("lock", async securityOverlay => {
 
           const map = {}
           map.firstname = firstnameField.input.value
@@ -21600,7 +18066,7 @@ next:webcall(Meine Notizen)
               if (websiteNode) {
                 websiteNode.style.cursor = "pointer"
                 websiteNode.onclick = () => window.open(value, "_blank")
-                Helper.add("outline-hover", websiteNode)
+                Helper.add("hover-outline", websiteNode)
               }
             }
 
@@ -21634,342 +18100,195 @@ next:webcall(Meine Notizen)
 
     if (event === "user-keys/update-buttons") {
 
-
-      parent.textContent = ""
-      for (let i = 0; i < input.keys.length; i++) {
-        const key = input.keys[i]
-
-        const keysButton = this.create("button/left-right", parent)
-        keysButton.left.textContent = `.${key}`
-
+      const {user, keys} = input
+      this.convert("parent/scrollable", parent)
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i]
+        const keysButton = this.render("button/left-right", {left: `.${key}`}, parent)
         keysButton.onclick = () => {
-          this.overlay("popup", overlay => {
 
-            const info = this.create("header/info", overlay)
-            info.textContent = input.user.email
-            info.append(this.convert("text/span", `/keys/${key}`))
+          this.overlay("pop", o1 => {
+            o1.info.textContent = `${user.email}/keys/${key}`
+            const content = o1.content
 
-            const content = this.create("div/scrollable", overlay)
+            const bodyButton = this.render("button/left-right", {left: ".body", right: "Datensatz Inhalt"}, content)
+            bodyButton.onclick = () => {
 
-            {
+              this.overlay("pop", async o2 => {
+                o2.load()
+                o1.info.textContent = `${user.email}/keys/${key}/body`
+                const content = o2.content
+                const res = await this.request("/jwt/get/key-admin/", {id: user.id, key})
+                if (res.status === 200) {
 
-              const button = this.create("button/left-right", content)
-              button.left.textContent = ".body"
-              button.right.textContent = "Datensatz Inhalt"
-              button.onclick = () => {
-
-
-                this.overlay("popup", async overlay => {
-
-                  const info = this.create("header/info", overlay)
-                  info.textContent = input.user.email
-                  info.append(this.convert("text/span", `/keys/${key}/body`))
-
-                  const content = this.create("info/loading", overlay)
-
-                  const res = await this.request("/get/user/key-admin/", {id: input.user.id, key})
-
-                  if (res.status === 200) {
-
-                    let body
-                    try {
-                      body = JSON.parse(res.response)
-                    } catch (error) {
-                      body = res.response
-                    }
-
-
-
-                    if (typeof body === "number") {
-
-                      this.convert("parent/scrollable", content)
-
-                      const numberField = this.create("field/tel", content)
-                      numberField.label.textContent = "Dieser Datensatz enthält eine Nummer"
-                      numberField.input.style.fontFamily = "monospace"
-                      numberField.input.style.fontSize = "13px"
-                      numberField.input.setAttribute("required", "true")
-                      numberField.input.setAttribute("accept", "text/number")
-                      numberField.input.value = body
-                      this.verify("input/value", numberField.input)
-                      numberField.oninput = () => this.verify("input/value", numberField.input)
-
-                      const submit = this.create("button/action", content)
-                      submit.textContent = "Zeichenkette jetzt speichern"
-                      submit.onclick = async () => {
-
-                        await this.verify("input/value", numberField.input)
-
-                        const number = numberField.input.value
-
-                        this.overlay("security", async securityOverlay => {
-
-                          const res = await this.request("/update/user/number-tree-admin/", {number, id: input.user.id, tree: key})
-
-                          if (res.status === 200) {
-                            window.alert("Datensatz erfolgreich gespeichert.")
-                            overlay.remove()
-                            securityOverlay.remove()
-                          }
-
-                          if (res.status !== 200) {
-                            window.alert("Fehler.. Bitte wiederholen.")
-                            securityOverlay.remove()
-                          }
-
-                        })
-
-
-                      }
-                    }
-
-                    if (typeof body === "string") {
-
-                      this.convert("parent/scrollable", content)
-
-                      const textField = this.create("field/textarea", content)
-                      textField.label.textContent = "Dieser Datensatz enthält eine Zeichenkette"
-                      textField.input.style.height = "55vh"
-                      textField.input.style.fontFamily = "monospace"
-                      textField.input.style.fontSize = "13px"
-                      textField.input.value = body
-                      this.verify("input/value", textField.input)
-
-                      const submit = this.create("button/action", content)
-                      submit.textContent = "Zeichenkette jetzt speichern"
-                      submit.onclick = () => {
-
-                        const text = textField.input.value
-
-                        this.overlay("security", async securityOverlay => {
-
-                          const res = await this.request("/update/user/text-tree-admin/", {text, id: input.user.id, tree: key})
-                          if (res.status === 200) {
-                            window.alert("Datensatz erfolgreich gespeichert.")
-                            overlay.remove()
-                            securityOverlay.remove()
-                          }
-
-                          if (res.status !== 200) {
-                            window.alert("Fehler.. Bitte wiederholen.")
-                            securityOverlay.remove()
-                          }
-
-                        })
-
-
-                      }
-                    }
-
-                    if (typeof body === "object") {
-
-                      this.convert("parent/scrollable", content)
-
-                      const keys = []
-                      for (let i = 0; i < Object.keys(body).length; i++) {
-                        const item = Object.keys(body)[i]
-                        keys.push(`${key}.${item}`)
-                      }
-
-                      this.render(event, {user: input.user, keys}, content)
-
-                    }
-
+                  let body
+                  try {
+                    body = JSON.parse(res.response)
+                  } catch (error) {
+                    body = res.response
                   }
+                  this.convert("parent/scrollable", content)
 
-                  if (res.status !== 200) {
-                    this.convert("parent/info", content)
-                    content.textContent = "Dieser Datensatz ist leer."
-                  }
+                  if (typeof body === "boolean") {
 
-                })
+                    const boolField = this.create("input/bool", content)
+                    boolField.setInput(body)
+                    boolField.input.addEventListener("input", () => {
 
-
-
-
-              }
-
-            }
-
-            {
-
-              const button = this.create("button/left-right", content)
-              button.left.textContent = ".key"
-              button.right.textContent = "Schlüssel Name ändern"
-              button.onclick = () => {
-
-                this.overlay("popup", async keyOverlay => {
-
-                  const info = this.create("header/info", keyOverlay)
-                  info.textContent = input.user.email
-                  info.append(this.convert("text/span", `/${key}`))
-
-                  const content = this.create("div/scrollable", keyOverlay)
-
-                  const textField = this.create("field/text", content)
-                  textField.label.textContent = "Schlüssel Name"
-                  textField.input.style.fontFamily = "monospace"
-                  textField.input.style.fontSize = "13px"
-                  textField.input.setAttribute("required", "true")
-                  textField.input.setAttribute("accept", "text/tag")
-                  textField.input.value = key.split(".")[key.split(".").length - 1]
-                  this.verify("input/value", textField.input)
-
-                  const submit = this.create("button/action", content)
-                  submit.textContent = "Name jetzt speichern"
-                  submit.onclick = async () => {
-
-                    await this.verify("input/value", textField.input)
-
-                    this.overlay("security", async securityOverlay => {
-
-                      const res = await this.request("/update/user/key-name-tree-admin/", {name: textField.input.value, id: input.user.id, tree: key})
-
-                      if (res.status === 200) {
-                        window.alert("Datensatz erfolgreich gespeichert.")
-                        overlay.previousSibling.remove()
-                        overlay.remove()
-                        keyOverlay.remove()
-                        securityOverlay.remove()
-                      }
-
-                      if (res.status !== 200) {
-                        window.alert("Fehler.. Bitte wiederholen.")
-                        securityOverlay.remove()
-                      }
-
+                      this.overlay("lock", async o5 => {
+                        const bool = boolField.input.value === "true"
+                        const res = await this.request("/update/user/bool-tree-admin/", {bool, id: user.id, tree: key})
+                        if (res.status === 200) {
+                          window.alert("Daten erfolgreich gespeichert.")
+                        } else {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                        }
+                        o5.remove()
+                      })
                     })
-
-
                   }
 
-                })
+                  if (typeof body === "number") {
 
-              }
+                    const numberField = this.create("input/tel", content)
+                    numberField.input.placeholder = "Dieser Datensatz enthält eine Nummer"
+                    numberField.input.style.fontFamily = "monospace"
+                    numberField.input.style.fontSize = "13px"
+                    numberField.input.setAttribute("required", "true")
+                    numberField.input.setAttribute("accept", "text/number")
+                    numberField.input.value = body
+                    this.verify("input/value", numberField.input)
+                    const submit = this.create("button/action", content)
+                    submit.textContent = "Nummer jetzt speichern"
+                    submit.onclick = async () => {
 
-            }
-
-            {
-
-              const button = this.create("button/left-right", content)
-              button.left.textContent = ".delete"
-              button.right.textContent = "Datensatz entfernen"
-
-              button.onclick = () => {
-
-                const confirm = window.confirm("Du bist gerade dabei einen Datensatz aus der persönlichen Datenbank des Nuzters zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden.\n\nMöchtest du diesen Datensatz wirklich löschen?")
-                if (confirm === true) {
-
-                  this.overlay("security", async securityOverlay => {
-
-                    const res = await this.request("/remove/user/tree-admin/", {tree: key, id: input.user.id})
-                    if (res.status === 200) {
-                      alert("Datensatz erfolgreich gelöscht.")
-                      keysButton.remove()
-                      overlay.remove()
-                      securityOverlay.remove()
-                    } else {
-                      alert("Fehler.. Bitte wiederholen.")
-                      overlay.remove()
-                      securityOverlay.remove()
+                      await this.verify("input/value", numberField.input)
+                      const number = numberField.input.value
+                      this.overlay("lock", async o3 => {
+                        const res = await this.request("/update/user/number-tree-admin/", {number, id: user.id, tree: key})
+                        if (res.status === 200) {
+                          window.alert("Datensatz erfolgreich gespeichert.")
+                          o2.remove()
+                        }
+                        if (res.status !== 200) {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                        }
+                        o3.remove()
+                      })
                     }
+                  }
 
-                  })
+                  if (typeof body === "string") {
 
+                    const textField = this.create("input/textarea", content)
+                    textField.input.placeholder = "Dieser Datensatz enthält eine Zeichenkette"
+                    textField.input.style.height = "55vh"
+                    textField.input.style.fontFamily = "monospace"
+                    textField.input.style.fontSize = "13px"
+                    textField.input.value = body
+                    this.verify("input/value", textField.input)
+                    const submit = this.create("button/action", content)
+                    submit.textContent = "Datensatz jetzt speichern"
+                    submit.onclick = () => {
+
+                      const text = textField.input.value
+                      this.overlay("lock", async o3 => {
+                        const res = await this.request("/update/user/text-tree-admin/", {text, id: user.id, tree: key})
+                        if (res.status === 200) {
+                          window.alert("Datensatz erfolgreich gespeichert.")
+                          o2.remove()
+                        }
+                        if (res.status !== 200) {
+                          window.alert("Fehler.. Bitte wiederholen.")
+                        }
+                        o3.remove()
+                      })
+                    }
+                  }
+
+                  if (typeof body === "object") {
+
+                    const keys = []
+                    for (let i = 0; i < Object.keys(body).length; i++) {
+                      const item = Object.keys(body)[i]
+                      keys.push(`${key}.${item}`)
+                    }
+                    this.render(event, {user: user, keys}, content)
+                  }
+
+                } else {
+                  this.convert("parent/info", content)
+                  content.textContent = "Dieser Datensatz ist leer."
                 }
-
-              }
-
+              })
             }
 
+            const keyButton = this.render("button/left-right", {left: ".key", right: "Schlüssel Name ändern"}, content)
+            keyButton.onclick = () => {
+
+              this.overlay("pop", async o2 => {
+                o2.info.textContent = `${user.email}/${key}`
+                const content = o2.content
+                const textField = this.create("field/text", content)
+                textField.label.textContent = "Schlüssel Name"
+                textField.input.style.fontFamily = "monospace"
+                textField.input.style.fontSize = "13px"
+                textField.input.setAttribute("required", "true")
+                textField.input.setAttribute("accept", "text/tag")
+                textField.input.value = key.split(".")[key.split(".").length - 1]
+                this.verify("input/value", textField.input)
+                const submit = this.create("button/action", content)
+                submit.textContent = "Name jetzt speichern"
+                submit.onclick = async () => {
+
+                  await this.verify("input/value", textField.input)
+                  this.overlay("lock", async o3 => {
+                    const res = await this.request("/update/user/key-name-tree-admin/", {name: textField.input.value, id: user.id, tree: key})
+                    if (res.status === 200) {
+                      window.alert("Datensatz erfolgreich gespeichert.")
+                      o1.previousSibling.remove()
+                      o1.remove()
+                      o2.remove()
+                    } else {
+                      window.alert("Fehler.. Bitte wiederholen.")
+                    }
+                    o3.remove()
+                  })
+                }
+              })
+            }
+
+            const removeButton = this.render("button/left-right", {left: ".remove", right: "Datensatz entfernen"}, content)
+            removeButton.onclick = () => {
+
+              const confirm = window.confirm("Du bist gerade dabei einen Datensatz aus der persönlichen Datenbank des Nuzters zu löschen. Diese Daten werden gelöscht und können nicht mehr wiederhergestellt werden.\n\nMöchtest du diesen Datensatz wirklich löschen?")
+              if (confirm === true) {
+                this.overlay("lock", async o2 => {
+                  const res = await this.request("/remove/user/tree-admin/", {tree: key, id: user.id})
+                  if (res.status === 200) {
+                    alert("Datensatz erfolgreich gelöscht.")
+                    keysButton.remove()
+                  } else {
+                    alert("Fehler.. Bitte wiederholen.")
+                  }
+                  o1.remove()
+                  o2.remove()
+                })
+              }
+            }
 
           })
         }
-
       }
-
-
-
     }
 
-    if (event === "role/role-apps-button-onbody") {
+    if (event === "label") {
 
-      const button = this.create("button/left-right")
-      button.classList.add("role-button")
-      button.left.textContent = input.name
-      button.left.classList.add("left")
-      button.right.textContent = "Rolle"
-      button.right.classList.add("right")
-      button.onclick = () => {
-
-        parent.querySelectorAll(".role-button").forEach(button => {
-
-          const right = button.querySelector(".right")
-          this.convert("element/button-right", right)
-          right.textContent = "Rolle"
-
-        })
-
-        this.convert("element/checked", button.right)
-
-        this.create("button/role-apps", document.body)
-
-        this.render("script/role-apps-event", input, document.body)
-
-      }
-
-      if (parent) parent.append(button)
-      return button
-
-    }
-
-    if (event === "script/role-apps-event") {
-
-      if (input !== undefined) {
-
-        const text = /*html*/`
-        <script id="role-apps-event" type="module">
-          import {Helper} from "/js/Helper.js"
-
-          await Helper.add("event/role-apps", {id: ${input.id}, tag: "${input.name}"})
-        </script>
-        `
-
-        const script = this.convert("text/first-child", text)
-
-        const create = document.createElement("script")
-        create.id = script.id
-        create.type = script.type
-        create.textContent = script.textContent
-
-        if (parent !== undefined) {
-
-          if (parent.querySelector(`#${create.id}`) !== null) {
-            parent.querySelector(`#${create.id}`).remove()
-          }
-
-          if (parent.querySelector(`#${create.id}`) === null) {
-            parent.append(create)
-          }
-
-        }
-
-        return create
-      }
-
-    }
-
-    if (event === "login-button") {
-
-      const fragment = document.createDocumentFragment()
-      const it = this.create("toolbox/left-right")
-      fragment.appendChild(it)
-      it.left.textContent = ".login"
-      it.right.textContent = "Dein Zugang zur personalisierten Erfahrung"
-      it.addEventListener("click", () => {
-        window.open(input, "_blank")
-      })
-      parent?.appendChild(fragment)
+      const it = document.createElement("label")
+      it.className = "mlr34 sans-serif fs21 color-theme block break-word"
+      it.setAttribute("for", input.for)
+      it.textContent = input.text
+      if (parent) this.append(it, parent)
       return it
     }
 
@@ -21978,23 +18297,21 @@ next:webcall(Meine Notizen)
       parent.textContent = ""
       for (let i = 0; i < input.length; i++) {
         const matchMaker = input[i]
-
-        const button = this.create("button/left-right", parent)
-        button.right.textContent = matchMaker.id
-        button.left.textContent = matchMaker.name
-
+        console.log(matchMaker);
+        const button = this.render("button/left-right", {left: matchMaker.name, right: `vor ${this.convert("millis/since", matchMaker.created)}`}, parent)
         button.onclick = () => {
 
-          this.overlay("toolbox", async overlay => {
-            overlay.info.textContent = `.match-maker.${matchMaker.name}`
+          this.overlay("pop", async o1 => {
+            o1.addInfo(matchMaker.name)
+            const content = o1.content
 
             {
-              const button = this.create("button/left-right", overlay)
+              const button = this.create("button/left-right", content)
               button.left.textContent = ".action"
               button.right.textContent = "Optimiere deinen Match Maker"
-
               button.onclick = () => {
-                this.overlay("toolbox", overlay => {
+
+                this.overlay("pop", overlay => {
                   overlay.info.textContent = `.${matchMaker.name}.action`
 
                   const content = this.create("div/scrollable", overlay)
@@ -22181,13 +18498,13 @@ next:webcall(Meine Notizen)
 
                 })
               }
-
-
             }
 
-            const conditionsContainer = this.create("info/loading", overlay)
 
-            const res = await this.request("/get/match-maker/conditions-expert/", {id: matchMaker.created})
+            // add hr
+            const conditionsContainer = this.create("div/loading", content)
+
+            const res = await this.request("/location-expert/get/match-maker/conditions/", {created: matchMaker.created})
 
             let conditions
             if (res.status === 200) {
@@ -22223,186 +18540,10 @@ next:webcall(Meine Notizen)
                 throw new Error("conditions not found")
               }
             }
-
-
-
-
           })
 
         }
-
-
       }
-
-    }
-
-    if (event === "match-maker/conditions-expert") {
-
-      return new Promise(async(resolve, reject) => {
-        try {
-          this.convert("element/reset", parent)
-          const res = await this.request("/get/match-maker/conditions-expert/", {id: input})
-          if (res.status === 200) {
-            const array = JSON.parse(res.response)
-            for (let i = 0; i < array.length; i++) {
-              const condition = array[i]
-              const conditionButton = this.create("button/left-right", parent)
-              conditionButton.left.textContent = `condition-${array.length - i}`
-              conditionButton.right.textContent = condition.created
-              conditionButton.onclick = () => {
-                this.overlay("popup", buttonsOverlay => {
-                  buttonsOverlay.info.textContent = `.condition.${condition.created}`
-                  const buttons = this.create("div/scrollable", buttonsOverlay)
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.left.textContent = ".update"
-                    button.right.textContent = "Bedingungen ändern"
-                    button.onclick = () => {
-                      this.overlay("popup", async overlay => {
-                        overlay.info.textContent = `.update.${condition.created}`
-                        const funnel = this.create("funnel/condition", overlay)
-                        funnel.leftField.input.value = condition.left
-                        funnel.operatorField.input.value = condition.operator
-                        funnel.rightField.input.value = condition.right
-                        this.verifyIs("field-funnel/valid", funnel)
-                        funnel.submit.onclick = async () => {
-                          await this.verify("field-funnel", funnel)
-                          this.overlay("security", async securityOverlay => {
-                            const res = await this.request("/update/match-maker/condition/", {id: condition.created, left: funnel.leftField.input.value, operator: funnel.operatorField.input.value, right: funnel.rightField.input.value})
-                            if (res.status === 200) {
-                              window.alert("Bedingung erfolgreich gespeichert.")
-                              await this.render(event, input, parent)
-                              buttonsOverlay.remove()
-                              overlay.remove()
-                              securityOverlay.remove()
-                            } else {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
-                            }
-                          })
-                        }
-                      })
-                    }
-                  }
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.left.textContent = ".delete"
-                    button.right.textContent = "Bedingung entfernen"
-                    button.onclick = () => {
-                      this.overlay("security", async securityOverlay => {
-                        const res = await this.request("/remove/match-maker/condition/", {id: condition.created})
-                        if (res.status === 200) {
-                          window.alert("Bedingung erfolgreich entfernt.")
-                          await this.render(event, input, parent)
-                          buttonsOverlay.remove()
-                          securityOverlay.remove()
-                        }
-                        if (res.status !== 200) {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          securityOverlay.remove()
-                        }
-                      })
-                    }
-                  }
-                })
-              }
-            }
-          } else {
-            this.convert("parent/info", parent)
-            parent.textContent = "Keine Bedingungen gefunden"
-          }
-          resolve()
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-
-    if (event === "match-maker/expert") {
-
-      return new Promise(async(resolve, reject) => {
-        try {
-          this.convert("element/reset", parent)
-          const res = await this.request("/get/match-maker/expert-self/", {platform: input})
-          if (res.status === 200) {
-            const array = JSON.parse(res.response)
-            for (let i = 0; i < array.length; i++) {
-              const matchMaker = array[i]
-              const matchMakerButton = this.create("button/left-right", parent)
-              matchMakerButton.right.textContent = `match-maker-${array.length - i}`
-              matchMakerButton.left.textContent = matchMaker.name
-              matchMakerButton.onclick = () => {
-                this.overlay("popup", overlay => {
-                  overlay.info.textContent = `.${matchMaker.name}`
-                  const buttons = this.create("div/scrollable", overlay)
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.left.textContent = ".conditions"
-                    button.right.textContent = "Bedingungen hinzufügen"
-                    button.onclick = () => {
-                      this.overlay("popup", async overlay => {
-                        overlay.info.textContent = `.conditions`
-                        const create = this.create("button/left-right", overlay)
-                        create.left.textContent = ".create"
-                        create.right.textContent = "Neue Bedingung definieren"
-                        create.onclick = () => {
-                          this.overlay("popup", async overlay => {
-                            overlay.info.textContent = ".condition"
-                            const funnel = this.create("funnel/condition", overlay)
-                            funnel.submit.onclick = async () => {
-                              await this.verify("field-funnel", funnel)
-                              this.overlay("security", async securityOverlay => {
-                                const res = await this.request("/register/match-maker/condition/", {id: matchMaker.created, left: funnel.leftField.input.value, operator: funnel.operatorField.input.value, right: funnel.rightField.input.value})
-                                if (res.status === 200) {
-                                  window.alert("Deine Bedingung wurde erfolgreich gespeichert.")
-                                  await this.render("match-maker/conditions-expert",  matchMaker.created, conditionsContainer)
-                                  overlay.remove()
-                                  securityOverlay.remove()
-                                } else {
-                                  window.alert("Fehler.. Bitte wiederholen.")
-                                  securityOverlay.remove()
-                                }
-                              })
-                            }
-                          })
-                        }
-                        this.render("text/hr", "Meine Bedingungen", overlay)
-                        const conditionsContainer = this.create("div/scrollable", overlay)
-                        await this.render("match-maker/conditions-expert",  matchMaker.created, conditionsContainer)
-                      })
-                    }
-                  }
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.left.textContent = ".delete"
-                    button.right.textContent = "Match Maker entfernen"
-                    button.onclick = () => {
-                      this.overlay("security", async securityOverlay => {
-                        const res = await this.request("/remove/match-maker/expert/", {id: matchMaker.created})
-                        if (res.status === 200) {
-                          window.alert("Match Maker erfolgreich entfernt.")
-                          matchMakerButton.remove()
-                          overlay.remove()
-                          securityOverlay.remove()
-                        } else {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          securityOverlay.remove()
-                        }
-                      })
-                    }
-                  }
-                })
-              }
-            }
-          } else {
-            this.convert("parent/info", parent)
-            parent.textContent = "Keine Match Maker gefunden"
-          }
-          resolve()
-        } catch (error) {
-          reject(error)
-        }
-      })
     }
 
     if (event === "value/input") {
@@ -22535,7 +18676,7 @@ next:webcall(Meine Notizen)
 
                   if (design === null) {
 
-                    this.overlay("toolbox", overlay => {
+                    this.overlay("pop", overlay => {
 
                       this.removeOverlayButton(overlay)
 
@@ -22592,7 +18733,7 @@ next:webcall(Meine Notizen)
 
                   if (design !== null) {
 
-                    this.overlay("popup", overlay => {
+                    this.overlay("pop", overlay => {
 
                       this.removeOverlayButton(overlay)
 
@@ -22726,11 +18867,6 @@ next:webcall(Meine Notizen)
         }
 
       })
-
-
-
-
-
     }
 
     if (event === "object/node/svg") {
@@ -22739,94 +18875,6 @@ next:webcall(Meine Notizen)
       object.data = input
       parent?.appendChild(object)
       return object
-    }
-
-    if (event === "open-profiles") {
-
-      parent.textContent = ""
-      this.convert("parent/flex-row", parent)
-      parent.style.paddingBottom = "144px"
-      for (let i = 0; i < input.length; i++) {
-        const profile = input[i]
-        const button = this.create("toolbox/left-right", parent)
-        button.style.maxWidth = "610px"
-        button.right.remove()
-
-        const questions = [
-          {question: "Erzähl etwas über dich ?", answer: profile.aboutYou},
-          {question: "Was kannst du besonders gut ?", answer: profile.whyThis},
-          {question: "Warum sollten wir dich wählen ?", answer: profile.whyYou},
-          {question: "Wie motivierst du dich ?", answer: profile.motivation},
-        ]
-
-        for (let i = 0; i < questions.length; i++) {
-          const it = questions[i]
-          const h2 = this.render("text/h2", it.question, button.left)
-          h2.style.margin = "0"
-          const content = this.render("html/p", it.answer, button.left)
-          content.style.height = "144px"
-          content.style.overflow = "auto"
-        }
-
-        button.onclick = () => {
-          this.overlay("popup", overlay => {
-            const content = this.create("div/scrollable", overlay)
-            {
-              const button = this.create("toolbox/left-right", content)
-              button.left.textContent = ".message"
-              button.right.textContent = "Sende eine Nachricht an dieses Profil"
-              button.onclick = () => {
-
-                this.overlay("popup", htmlOverlay => {
-                  const content = this.create("div/scrollable", htmlOverlay)
-                  const htmlField = this.create("input/textarea", content)
-                  htmlField.input.placeholder = `Text oder HTML Nachricht hier rein kopieren
-
-Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu kontaktieren.
-                  `
-                  htmlField.input.style.height = "233px"
-                  htmlField.input.setAttribute("required", "true")
-                  this.verify("input/value", htmlField.input)
-                  htmlField.input.oninput = () => this.verify("input/value", htmlField.input)
-                  const submit = this.create("toolbox/action", content)
-                  submit.textContent = "Nachricht jetzt senden"
-                  submit.onclick = async () => {
-                    await this.verify("input/value", htmlField.input)
-                    const message = await this.convert("text/purified", htmlField.input.value)
-                    if (this.verifyIs("text/empty", message)) {
-                      window.alert("Fehler.. Bitte wiederholen.")
-                      this.add("style/not-valid", htmlField.input)
-                      return
-                    }
-                    this.overlay("security", async securityOverlay => {
-                      const res = await this.request("/register/user/profile-message/", {id: profile.created, message})
-                      if (res.status === 200) {
-                        window.alert("Deine Nachricht wurde erfolgreich gesendet.")
-                        htmlOverlay.remove()
-                        overlay.remove()
-                        securityOverlay.remove()
-                      } else {
-                        window.alert("Fehler.. Bitte wiederholen.")
-                        securityOverlay.remove()
-                      }
-                    })
-                  }
-                })
-              }
-            }
-            {
-              const button = this.create("toolbox/left-right", content)
-              button.left.textContent = ".conflicts"
-              button.right.textContent = "Melde einen Konflikt"
-              button.onclick = () => {
-                this.overlay("conflicts", profile)
-              }
-            }
-
-          })
-        }
-
-      }
     }
 
     if (event === "id-map/field-funnel") {
@@ -22878,142 +18926,6 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
     }
 
-    if (event === "tree/node") {
-
-      const container = this.create("info/loading", parent)
-      this.request("/get/users/tree-open/", {tree: input}).then(res => {
-        if (res.status === 200) {
-          const users = JSON.parse(res.response)
-          this.convert("style/flex-row", container)
-          container.style.paddingBottom = "144px"
-          container.style.justifyContent = "space-around"
-          for (let i = 0; i < users.length; i++) {
-            const user = users[i]
-            if (user.verified === true) {
-              render(user, container)
-            }
-          }
-        } else {
-          this.convert("dark-light", container)
-          this.style(container, {margin: "21px 34px", fontFamily: "sans-serif", background: "transparent"})
-          container.textContent = `Keine Ergebnisse gefunden`
-          container.style.paddingBottom = "144px"
-        }
-      })
-
-      function render(user, node) {
-
-        const box = Helper.create("button/left-right", node)
-        Helper.style(box, {width: "610px", margin: "8px", wordBreak: "break-word"})
-
-        const treeObj = Helper.convert("user-tree", {user, tree: input})
-
-        if (!Helper.verifyIs("text/empty", user.alias)) {
-          const h1 = document.createElement("h1")
-          h1.textContent = user.alias
-          box.left.appendChild(h1)
-        }
-
-        if (!Helper.verifyIs("text/empty", user.status)) {
-          const p = document.createElement("p")
-          p.textContent = user.status
-          box.left.appendChild(p)
-        }
-
-        if (!Helper.verifyIs("text/empty", user.image)) {
-          const image = document.createElement("img")
-          image.src = user.image
-          image.style.width = "100%"
-          image.style.borderRadius = "5px"
-          box.left.appendChild(image)
-        }
-
-        if (!Helper.verifyIs("text/empty", treeObj.description)) {
-          const p = document.createElement("p")
-          p.textContent = treeObj.description
-          box.left.appendChild(p)
-        }
-
-        if (!Helper.verifyIs("text/empty", treeObj.platforms)) {
-          const container = Helper.create("div", box.left)
-          Helper.style(container, {fontFamily: "sans-serif", display: "flex"})
-          const platformDiv = document.createElement("div")
-          Helper.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
-          platformDiv.textContent = `Plattformen:`
-          container.appendChild(platformDiv)
-          const platformLengthDiv = document.createElement("div")
-          Helper.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
-          if (!Helper.verifyIs("number/empty", treeObj.platforms.length)) {
-            platformLengthDiv.textContent = treeObj.platforms.length
-          }
-          container.appendChild(platformLengthDiv)
-        }
-
-        if (!Helper.verifyIs("text/empty", treeObj.platforms)) {
-          const container = Helper.create("div", box.left)
-          Helper.style(container, {fontFamily: "sans-serif", display: "flex"})
-          const platformDiv = document.createElement("div")
-          Helper.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
-          platformDiv.textContent = `Werteinheiten:`
-          container.appendChild(platformDiv)
-          const platformLengthDiv = document.createElement("div")
-          Helper.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
-          let counter = 0
-          try {
-            for (let i = 0; i < treeObj.platforms.length; i++) {
-              const platform = treeObj.platforms[i]
-              if (platform.values) {
-                for (let i = 0; i < platform.values.length; i++) {
-                  const value = platform.values[i]
-                  counter++
-                }
-              }
-            }
-            platformLengthDiv.textContent = counter
-          } catch (error) {
-            console.log(error)
-            platformLengthDiv.textContent = 0
-          }
-          container.appendChild(platformLengthDiv)
-        }
-
-        {
-          const container = Helper.create("div", box.left)
-          Helper.style(container, {fontFamily: "sans-serif", display: "flex", margin: "21px 0"})
-          const platformDiv = document.createElement("div")
-          Helper.style(platformDiv, {display: "flex", justifyContent: "center", alignItems: "center"})
-          platformDiv.textContent = `Erfahrung:`
-          container.appendChild(platformDiv)
-          const platformLengthDiv = document.createElement("div")
-          Helper.style(platformLengthDiv, {marginLeft: "8px", fontSize: "32px"})
-          if (!Helper.verifyIs("number/empty", user.xp)) {
-            platformLengthDiv.textContent = user.xp
-          }
-          if (user.xp === undefined) {
-            platformLengthDiv.textContent = "Keine"
-            platformLengthDiv.style.color = "red"
-          }
-
-          if (user.xp > 0) {
-            platformLengthDiv.textContent = "Beginner"
-            platformLengthDiv.style.color = "orange"
-          }
-
-          if (user.xp > 89) {
-            platformLengthDiv.textContent = "Fortgeschritten"
-            platformLengthDiv.style.color = "green"
-          }
-          container.appendChild(platformLengthDiv)
-        }
-
-        const reputation = Helper.render("user-reputation", user.reputation, box.left)
-        Helper.style(reputation, {fontSize: "21px", margin: "21px 0"})
-
-        return box
-      }
-
-    }
-
     if (event === "map/field-funnel") {
 
       Object.entries(input).forEach(([key, value]) => {
@@ -23028,117 +18940,21 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       this.verifyIs("field-funnel/valid", parent)
     }
 
-    if (event === "map/div") {
+    if (event === "map/funnel") {
 
-      return new Promise(async(resolve, reject) => {
-
-        const div = this.create("div", parent)
-        div.classList.add("json")
-        div.style.margin = "21px 34px"
-
-        const buttons = document.createElement("div")
-        buttons.classList.add("buttons")
-        buttons.style.display = "flex"
-        buttons.style.justifyContent = "space-between"
-        buttons.style.alignItems = "center"
-        div.append(buttons)
-
-        const foldAllButton = this.create("div/action", buttons)
-        foldAllButton.textContent = "fold"
-
-        foldAllButton.addEventListener("click", function() {
-          toggleAllValues("none");
-        });
-
-        const unfoldAllButton = this.create("div/action", buttons)
-        unfoldAllButton.textContent = "unfold"
-        unfoldAllButton.addEventListener("click", function() {
-          toggleAllValues("block");
-        });
-
-        function toggleAllValues(displayValue) {
-          const valueElements = div.querySelectorAll(".key-value");
-          valueElements.forEach(element => {
-            element.style.display = displayValue;
-          });
-        }
-
-        function toggleValue(event) {
-          const element = event.target.nextSibling
-          if (element !== null) {
-            element.style.display = element.style.display === "none" ? "block" : "none";
-          }
-        }
-
-        function processObject(container, obj) {
-          for (const key in obj) {
-            const value = obj[key];
-
-            const keyElement = Helper.convert("key/div", key)
-            const valueElement = Helper.convert("value/div", value)
-
-
-            if (Helper.verifyIs("string", value)) {
-              valueElement.setAttribute("value-type", "string")
-            }
-
-
-            if (Helper.verifyIs("boolean", value)) {
-              valueElement.setAttribute("value-type", "boolean")
-            }
-
-            const keyName = document.createElement("div")
-            keyName.classList.add("key-name")
-            keyName.textContent = key
-
-            keyElement.appendChild(keyName)
-            container.appendChild(keyElement);
-            keyElement.appendChild(valueElement);
-
-            keyElement.addEventListener("click", toggleValue);
-
-            if (typeof value === "object") {
-              processObject(valueElement, value);
-              valueElement.addEventListener("click", toggleValue);
-
-            } else {
-              valueElement.textContent = JSON.stringify(value);
-            }
-          }
-        }
-
-
-        try {
-
-          processObject(div, input);
-
-          return resolve(div)
-        } catch (error) {
-          await this.add("ms/timeout", 3000)
-          await this.render(event, input, parent)
-        }
-
-      })
-
-
+      for (const [key, value] of Object.entries(input)) {
+        if (key === "created") continue
+        const node = parent.querySelector(`#${key}`)
+        if (!node) continue
+        this.render("value/input", value, node)
+      }
+      this.verify("funnel", parent)
     }
 
     if (event === "nav/open") {
 
-      this.create("start-button", input)
-      Helper.render("login-button", "/login/", input)
-      {
-        const button = this.create("button/left-right", input)
-        button.left.textContent = ".user-agreement"
-        button.right.textContent = "Für Klarheit und Fairness im Umgang miteinander"
-        button.addEventListener("click", () => window.open("/nutzervereinbarung/", "_blank"))
-      }
-      {
-        const button = this.create("button/left-right", input)
-        button.left.textContent = ".data-protection"
-        button.right.textContent = "Fördert Vertrauen in digitale Interaktionen"
-        button.addEventListener("click", () => window.open("/datenschutz/", "_blank"))
-      }
+      this.convert("parent/scrollable", input)
+      this.add(event, input)
     }
 
     if (event === "next/path") {
@@ -23291,19 +19107,19 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
             this.convert("parent/scrollable", parent)
             for (let i = 0; i < scripts.length; i++) {
               const script = scripts[i]
-              const scriptButton = this.create("toolbox/left-right", parent)
+              const scriptButton = this.create("button/left-right", parent)
               scriptButton.right.textContent = script.name
               scriptButton.left.textContent = `Skript ${scripts.length - i}`
               scriptButton.onclick = () => {
-                this.overlay("popup", overlay => {
+                this.overlay("pop", overlay => {
                   overlay.info.textContent = `.${script.name}`
                   const content = this.create("div/scrollable", overlay)
                   {
-                    const button = this.create("toolbox/left-right", content)
+                    const button = this.create("button/left-right", content)
                     button.left.textContent = ".update"
                     button.right.textContent = "Skript bearbeiten"
                     button.onclick = () => {
-                      this.overlay("popup", overlay => {
+                      this.overlay("pop", overlay => {
                         overlay.info.textContent = `.${script.name}.update`
                         const funnel = this.create("div/scrollable", overlay)
                         const nameField = this.create("field/tag", funnel)
@@ -23316,11 +19132,11 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
                         scriptField.input.value = script.html
                         this.verify("input/value", scriptField.input)
                         scriptField.input.oninput = () => this.verify("input/value", scriptField.input)
-                        const button = this.create("toolbox/action", funnel)
+                        const button = this.create("button/action", funnel)
                         button.textContent = "Skript jetzt speichern"
                         button.onclick = async () => {
                           await this.verify("field-funnel", funnel)
-                          this.overlay("security", async securityOverlay => {
+                          this.overlay("lock", async securityOverlay => {
                             const res = await this.request("/update/scripts/closed", {id: script.created, html: scriptField.input.value, name: nameField.input.value})
                             if (res.status === 200) {
                               window.alert("Skript erfolgreich gespeichert.")
@@ -23339,11 +19155,11 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
                     }
                   }
                   {
-                    const button = this.create("toolbox/left-right", content)
+                    const button = this.create("button/left-right", content)
                     button.left.textContent = ".remove"
                     button.right.textContent = "Skript entfernen"
                     button.onclick = () => {
-                      this.overlay("security", async securityOverlay => {
+                      this.overlay("lock", async securityOverlay => {
                         const res = await this.request("/remove/scripts/closed/", {id: script.created})
                         if (res.status === 200) {
                           window.alert("Skript erfolgreich entfernt.")
@@ -23380,12 +19196,12 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
           const executeAlwaysIcon = await this.convert("path/icon", "/public/arrow-repeat.svg")
           executeAlwaysIcon.style.width = "55px"
           const feedback = this.fn("feedback")
-          const feedbackIcon = await feedback.icon()
+          const feedbackButton = this.create("button/branch")
           const fragment = document.createDocumentFragment()
           this.convert("parent/scrollable", parent)
           for (let i = 0; i < input.length; i++) {
             const script = input[i]
-            const scriptButton = this.create("toolbox/left-right", fragment)
+            const scriptButton = this.create("button/left-right", fragment)
             scriptButton.left.textContent = script.name
             if (document.getElementById(script.name) !== null) {
               scriptButton.style.border = `3px solid ${Helper.colors.matte.orange}`
@@ -23398,7 +19214,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
             {
               const button = executeOnceIcon.cloneNode(true)
               buttons.appendChild(button)
-              this.add("outline-hover", button)
+              this.add("hover-outline", button)
               button.onclick = () => {
                 const executer = document.createElement("script")
                 const clone = this.convert("text/script", script.html)
@@ -23412,26 +19228,26 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
             {
               const button = executeAlwaysIcon.cloneNode(true)
               buttons.appendChild(button)
-              this.add("outline-hover", button)
+              this.add("hover-outline", button)
               button.onclick = async () => {
                 if (document.getElementById(script.name) !== null) {
                   window.alert("Skript existiert bereits.")
                   return
                 }
                 const clone = this.convert("text/script", script.html)
-                const executer = this.create("script", {id: script.name, js: clone.textContent})
+                const executer = this.create("script/id", script.name)
                 document.body.appendChild(executer)
                 updateBorder(scriptButton)
                 scriptButton.style.border = `3px solid ${Helper.colors.matte.orange}`
               }
             }
             {
-              const button = feedbackIcon.cloneNode(true)
+              const button = feedbackButton.cloneNode(true)
               button.style.position = "relative"
               Helper.create("counter", button)
               feedback.initScriptCounter(script.created, button)
               buttons.appendChild(button)
-              this.add("outline-hover", button)
+              this.add("hover-outline", button)
               button.onclick = () => feedback.openScriptOverlay(button, script)
             }
           }
@@ -23468,7 +19284,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
         button.right.textContent = option.value
 
         button.addEventListener("click", () => {
-          this.overlay("toolbox", overlay => {
+          this.overlay("pop", overlay => {
             overlay.info.append(this.convert("element/alias", option))
 
             option.ok = () => {
@@ -23506,20 +19322,32 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       return tabButtons
     }
 
+    if (event === "a") {
+
+      const {href, target, text} = input
+      const a = document.createElement("a")
+      a.className = "link-theme mlr5"
+      a.textContent = text
+      a.href = href
+      a.target = target
+      this.add("hover-outline", a)
+      if (parent) this.append(a, parent)
+      return a
+    }
+
     if (event === "text/a") {
 
-      const fragment = document.createDocumentFragment()
-      const a = document.createElement("a")
-      a.textContent = input.textContent
-      a.href = input.href
-      a.style.margin = "0 34px"
-      a.style.fontFamily = "sans-serif"
-      a.style.display = "inline-block"
-      this.convert("link/dark-light", a)
-      this.add("pointer", a)
-      fragment.appendChild(a)
-      parent?.appendChild(fragment)
-      return a
+      const {href, target, text} = input
+      const div = this.div("mtb21 mlr34")
+      div.a = document.createElement("a")
+      this.append(div.a, div)
+      div.a.className = "link-theme"
+      div.a.textContent = text
+      div.a.href = href
+      div.a.target = target
+      this.add("hover-outline", div.a)
+      if (parent) this.append(div, parent)
+      return div
     }
 
     if (event === "text/bottom-left") {
@@ -23562,6 +19390,14 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       return div
     }
 
+    if (event === "div") {
+
+      const div = this.div(input.classes)
+      div.textContent = input.text
+      if (parent) this.append(div, parent)
+      return div
+    }
+
     if (event === "text/info") {
       this.convert("parent/info", parent)
       parent.textContent = input
@@ -23591,62 +19427,51 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       link.style.display = "flex"
       link.style.justifyContent = "center"
       link.style.alignItems = "center"
-      this.add("outline-hover", link)
+      this.add("hover-outline", link)
       parent?.appendChild(link)
       return link
     }
 
+    if (event === "text/note") {
+
+      const note = this.create("div/note")
+      note.textContent = input
+      if (parent) this.append(note, parent)
+      return note
+    }
+
     if (event === "text/div") {
 
-      const fragment = document.createDocumentFragment()
-      const div = document.createElement("div")
-      fragment.appendChild(div)
+      const div = this.div("sans-serif")
       div.textContent = input
-      div.style.margin = "0 34px"
-      div.style.fontFamily = "sans-serif"
-      parent?.appendChild(fragment)
+      if (parent) this.append(div, parent)
       return div
     }
 
     if (event === "text/h3") {
 
-      const h3 = this.create("h3")
+      const h3 = document.createElement("h3")
+      h3.className = "mtb21 mlr34 sans-serif color-theme fw-normal"
       h3.textContent = input
-
-      h3.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        h3.style.color = this.colors.dark.text
-      }
-
-      if (parent !== undefined) parent.append(h3)
+      if (parent) this.append(h3, parent)
       return h3
     }
 
     if (event === "text/h2") {
 
-      const h2 = this.create("h2")
+      const h2 = document.createElement("h2")
+      h2.className = "mtb21 mlr34 sans-serif color-theme fw-normal"
       h2.textContent = input
-
-      h2.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        h2.style.color = this.colors.dark.text
-      }
-
-      if (parent !== undefined) parent.append(h2)
+      if (parent) this.append(h2, parent)
       return h2
     }
 
     if (event === "text/h1") {
 
-      const h1 = this.create("h1")
+      const h1 = document.createElement("h1")
+      h1.className = "mtb21 mlr34 sans-serif color-theme fw-normal"
       h1.textContent = input
-
-      h1.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        h1.style.color = this.colors.dark.text
-      }
-
-      if (parent !== undefined) parent.append(h1)
+      if (parent) this.append(h1, parent)
       return h1
     }
 
@@ -23711,29 +19536,19 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
     if (event === "text/p") {
 
-      const fragment = document.createDocumentFragment()
       const p = document.createElement("p")
+      p.className = "mtb21 mlr34 sans-serif color-theme"
       p.textContent = input
-      p.style.margin = "21px 34px"
-      p.style.fontFamily = "sans-serif"
-      p.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        p.style.color = this.colors.dark.text
-      }
-      fragment.appendChild(p)
-      parent?.appendChild(fragment)
+      if (parent) this.append(p, parent)
       return p
     }
 
     if (event === "text/pre") {
 
-      const fragment = document.createDocumentFragment()
       const pre = document.createElement("pre")
       pre.textContent = input
-      this.style(pre, {margin: "21px 34px", fontFamily: "monospace", fontSize: "8px"})
-      this.convert("color/dark-light", pre)
-      fragment.appendChild(pre)
-      parent?.appendChild(fragment)
+      pre.className = "monospace fs13"
+      if (parent) this.append(pre, parent)
       return pre
     }
 
@@ -23770,14 +19585,11 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
     if (event === "text/span") {
 
-      const fragment = document.createDocumentFragment()
+      const {text} = input
       const span = document.createElement("span")
-      span.textContent = input
-      span.style.margin = "21px 34px"
-      span.style.fontFamily = "sans-serif"
-      this.convert("color/dark-light")
-      fragment.appendChild(span)
-      parent?.appendChild(fragment)
+      span.className = "color-theme sans-serif"
+      span.textContent = text
+      if (parent) this.append(span, parent)
       return span
     }
 
@@ -23811,6 +19623,23 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       fragment.appendChild(text)
       parent?.appendChild(fragment)
       return text
+    }
+
+    if (event === "tree/funnel") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const res = await this.request("/jwt/get/tree/", {tree: input})
+          if (res.status === 200) {
+            const map = this.convert("it/map", {tree: input, it: res.response})
+            this.render("map/funnel", map, parent)
+          }
+          this.verify("funnel", parent)
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      })
     }
 
     if (event === "pdf") {
@@ -23884,1196 +19713,6 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       })
     }
 
-    if (event === "platform-values/closed") {
-
-      new Promise(async(resolve, reject) => {
-        try {
-          const copyPathIcon = await this.convert("path/icon", "/public/chain.svg")
-          copyPathIcon.style.width = "55px"
-          const openPathIcon = await this.convert("path/icon", "/public/window-layout-14.svg")
-          openPathIcon.style.width = "55px"
-          const pathProtectedIcon = await this.convert("path/icon", "/public/shield-locked.svg")
-          pathProtectedIcon.children[0].style.fill = this.colors.light.text
-          const pathOpenIcon = await this.convert("path/icon", "/public/eye-open.svg")
-          const pathClosedIcon = await this.convert("path/icon", "/public/eye-crossed.svg")
-          this.convert("parent/flex-row", parent)
-          parent.style.overflow = "auto"
-          parent.style.justifyContent = "space-around"
-          const fragment = document.createDocumentFragment()
-          for (let i = 0; i < input.length; i++) {
-            const value = input[i]
-            const item = document.createElement("div")
-            item.classList.add("checklist-item")
-            item.style.padding = "8px"
-            item.style.width = "377px"
-            const itemHeader = document.createElement("div")
-            itemHeader.classList.add("item-header")
-            this.add("outline-hover", itemHeader)
-            itemHeader.style.display = "flex"
-            itemHeader.style.borderTopRightRadius = "21px"
-            itemHeader.style.borderTopLeftRadius = "21px"
-            itemHeader.style.borderBottomLeftRadius = "21px"
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              itemHeader.style.backgroundColor = this.colors.matte.charcoal
-            } else {
-              itemHeader.style.backgroundColor = this.colors.gray[1]
-            }
-            itemHeader.style.cursor = "pointer"
-            itemHeader.onclick = async () => {
-
-              this.overlay("popup", buttonsOverlay => {
-                buttonsOverlay.info.textContent = value.path
-
-                const buttons = this.create("div/scrollable", buttonsOverlay)
-                {
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.left.textContent = ".path"
-                    button.right.textContent = "Pfad ändern"
-                    button.onclick = () => {
-
-                      this.overlay("popup", async overlay => {
-                        overlay.info.textContent = ".value.path"
-                        const funnel = this. create("div/scrollable", overlay)
-                        {
-                          const pathField = this.create("field/tag", funnel)
-                          pathField.input.value = value.path.split("/")[3]
-                          pathField.label.textContent = "Pfad"
-                          pathField.input.maxLength = "144"
-                          pathField.input.placeholder = "Meine Werteinheit"
-                          pathField.input.addEventListener("input", (event) => this.verify("input/value", pathField.input))
-                          this.verify("input/value", pathField.input)
-
-                          const button = this.create("button/action", funnel)
-                          button.textContent = "Pfad jetzt ändern"
-                          button.addEventListener("click", async () => {
-
-                            await this.verify("input/value", pathField.input)
-                            const path = pathField.input.value
-
-                            this.overlay("security", async securityOverlay => {
-
-                              {
-                                const res = await this.request("/verify/platform/value-path-exist/", {path: `/${value.path.split("/")[1]}/${value.path.split("/")[2]}/${path}/`})
-                                if (res.status === 200) {
-                                  window.alert("Pfad existiert bereits.")
-                                  this.add("style/not-valid", pathField.input)
-                                  pathField.scrollIntoView({behavior: "smooth"})
-                                  securityOverlay.remove()
-                                  throw new Error("path exist")
-                                }
-                              }
-
-                              const res = await this.request("/register/platform/value-path-location-expert/", {old: value.path, new: path})
-                              if (res.status === 200) {
-                                window.alert("Pfad erfolgreich geändert.")
-                                overlay.previousSibling.previousSibling.remove()
-                                overlay.previousSibling.remove()
-                                overlay.remove()
-                                securityOverlay.remove()
-                              } else {
-                                window.alert("Fehler.. Bitte wiederholen.")
-                                securityOverlay.remove()
-                              }
-                            })
-
-                          })
-
-                        }
-
-                      })
-                    }
-                  }
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.left.textContent = ".alias"
-                    button.right.textContent = "Alias ändern"
-                    button.onclick = () => {
-
-                      this.overlay("popup", async overlay => {
-                        overlay.info.textContent = ".value.alias"
-                        {
-                          const funnel = this.create("div/scrollable", overlay)
-
-                          const valueAliasField = this.create("field/text", funnel)
-                          if (value.alias.includes("<mark>")) {
-                            const cleanAlias = value.alias.replace(/<mark>(.*?)<\/mark>/gi, "$1")
-                            const convertedAlias = this.convert("text/capital-first-letter", cleanAlias)
-                            valueAliasField.input.value = convertedAlias
-                          } else {
-                            valueAliasField.input.value = value.alias
-                          }
-                          valueAliasField.label.textContent = "Alias"
-                          valueAliasField.input.maxLength = "144"
-                          valueAliasField.input.setAttribute("required", "true")
-                          valueAliasField.input.placeholder = "Meine Werteinheit"
-                          valueAliasField.input.oninput = () => this.verify("input/value", valueAliasField.input)
-                          this.verify("input/value", valueAliasField.input)
-
-                          const button = this.create("button/action", funnel)
-                          button.textContent = "Alias jetzt ändern"
-                          button.onclick = async () => {
-
-                            await this.verify("input/value", valueAliasField.input)
-                            const alias = valueAliasField.input.value
-
-                            this.overlay("security", async securityOverlay => {
-
-                              const res = await this.request("/register/platform/value-alias-location-expert/", {alias, path: value.path})
-                              if (res.status === 200) {
-                                window.alert("Alias erfolgreich geändert..")
-                                overlay.previousSibling.previousSibling.remove()
-                                overlay.previousSibling.remove()
-                                overlay.remove()
-                                securityOverlay.remove()
-                              } else {
-                                alert("Fehler.. Bitte wiederholen.")
-                                securityOverlay.remove()
-                              }
-                            })
-
-
-                          }
-                        }
-
-                      })
-                    }
-                  }
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.left.textContent = ".image"
-                    button.right.textContent = "Bild ändern"
-                    button.onclick = () => {
-
-                      this.overlay("popup", overlay => {
-                        overlay.info.append(this.convert("text/span", ".value.image"))
-                        const funnel = this.create("div/scrollable", overlay)
-                        const urlField = this.create("field/url", funnel)
-                        urlField.input.setAttribute("required", "true")
-                        urlField.input.accept = "text/https"
-                        urlField.label.textContent = "Gebe hier die Quell-Url für dein Bild ein"
-                        urlField.input.placeholder = "https://www.meine-quelle.de/mein-bild.svg"
-                        urlField.input.value = value.image ?? "";
-                        this.verify("input/value", urlField.input)
-                        urlField.input.addEventListener("input", () => this.verify("input/value", urlField.input))
-                        const submit = this.create("button/action", funnel)
-                        submit.textContent = "Bild jetzt ändern"
-                        submit.onclick = async () => {
-                          await this.verify("input/value", urlField.input)
-                          this.overlay("security", async securityOverlay => {
-                            const res = await this.request("/register/platform/value-image-expert", {path: value.path, image: urlField.input.value})
-                            if (res.status === 200) {
-                              window.alert("Bild erfolgreich gespeichert..")
-                              overlay.previousSibling.previousSibling.remove()
-                              overlay.previousSibling.remove()
-                              overlay.remove()
-                              securityOverlay.remove()
-                            } else {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
-                            }
-                          })
-                        }
-
-                      })
-
-                    }
-                  }
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.left.textContent = ".lang"
-                    button.right.textContent = "Sprache ändern"
-                    button.onclick = () => {
-
-                      this.overlay("popup", async overlay => {
-                        overlay.info.textContent = ".value.lang"
-                        const funnel = this.create("div/scrollable", overlay)
-                        const langField = this.create("field/lang", funnel)
-                        langField.input.value = value.lang ?? "";
-                        const button = this.create("button/action", funnel)
-                        button.textContent = "Sprache jetzt ändern"
-                        button.addEventListener("click", async () => {
-                          await this.verify("input/value", langField.input)
-                          this.overlay("security", async securityOverlay => {
-                            const res = await this.request("/register/platform/value-lang-location-expert/", {lang: langField.input.value, path: value.path})
-                            if (res.status === 200) {
-                              window.alert("Sprache erfolgreich geändert..")
-                              overlay.previousSibling.previousSibling.remove()
-                              overlay.previousSibling.remove()
-                              overlay.remove()
-                              securityOverlay.remove()
-                            } else {
-                              window.alert("Fehler.. Bitte wiederholen.")
-                              securityOverlay.remove()
-                            }
-                          })
-                        })
-                      })
-                    }
-                  }
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.left.textContent = ".visibility"
-                    button.right.textContent = "Sichtbarkeit der Werteinheit"
-                    button.onclick = () => {
-                      this.overlay("popup", async overlay => {
-                        overlay.info.textContent = `${value.path}.visibility`
-                        const funnel = this.create("info/loading", overlay)
-                        const res = await this.request("/get/platform/value-visibility-location-expert/", {path: value.path})
-                        if (res.status === 200) {
-                          const map = JSON.parse(res.response)
-                          map.path = value.path
-                          renderVisibilityFunnel(map, funnel)
-                          function renderVisibilityFunnel(input, parent) {
-                            Helper.convert("parent/scrollable", parent)
-                            const openClosedField = Helper.create("field/select", parent)
-                            openClosedField.label.textContent = "Sichtbarkeit"
-                            Helper.verify("input/value", openClosedField.input)
-                            openClosedField.input.oninput = () => {
-                              const value = openClosedField.input.value
-                              input.visibility = value
-                              renderVisibilityFunnel(input, parent)
-                            }
-                            if (input.visibility === "open") {
-                              openClosedField.input.add(["open", "closed"])
-                              const button = Helper.create("button/action", parent)
-                              button.textContent = "Sichtbarkeit jetzt ändern"
-                              button.onclick = async () => {
-                                const visibility = openClosedField.input.value
-                                Helper.overlay("security", async securityOverlay => {
-                                  const res = await Helper.request("/register/platform/value-visibility-location-expert/", {path: input.path, visibility})
-                                  if (res.status === 200) {
-                                    window.alert("Sichtbarkeit erfolgreich geändert.")
-                                    parent.parentElement.previousSibling.previousSibling.remove()
-                                    parent.parentElement.previousSibling.remove()
-                                    parent.parentElement.remove()
-                                    securityOverlay.remove()
-                                  } else {
-                                    window.alert("Fehler.. Bitte wiederholen.")
-                                    securityOverlay.remove()
-                                  }
-                                })
-                              }
-                            }
-
-                            if (input.visibility === "closed") {
-                              openClosedField.input.add(["closed", "open"])
-                              const rolesField = Helper.create("field/select", parent)
-                              rolesField.label.textContent = "Nutzer mit diesen Rollen dürfen mit deiner Werteinheit interagieren"
-                              rolesField.input.multiple = true
-                              const array = []
-                              if (input.roles !== undefined) {
-                                if (input.roles.available !== undefined) {
-                                  for (let i = 0; i < input.roles.available.length; i++) {
-                                    const role = input.roles.available[i]
-                                    array.push(role.name)
-                                  }
-                                }
-                              }
-                              rolesField.input.add(array)
-                              Helper.verify("input/value", rolesField.input)
-                              const selected = []
-                              for (let i = 0; i < input.roles.selected.length; i++) {
-                                const roleId = input.roles.selected[i]
-                                if (input.roles !== undefined) {
-                                  if (input.roles.available !== undefined) {
-                                    for (let i = 0; i < input.roles.available.length; i++) {
-                                      const role = input.roles.available[i]
-                                      if (role.created === roleId) {
-                                        selected.push(role.name)
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                              for (let i = 0; i < selected.length; i++) {
-                                const value = selected[i]
-                                for (let i = 0; i < rolesField.input.options.length; i++) {
-                                  const option = rolesField.input.options[i]
-                                  if (option.value === value) {
-                                    option.selected = true
-                                  }
-                                }
-                              }
-                              const authorizedField = Helper.create("field/emails", parent)
-                              authorizedField.label.textContent = "Nutzer mit diesen E-Mail Adressen dürfen mit deiner Werteinheit interagieren"
-                              authorizedField.input.value = JSON.stringify(input.authorized)
-                              Helper.verify("input/value", authorizedField.input)
-                              authorizedField.input.addEventListener("input", () => Helper.verify("input/value", authorizedField.input))
-                              const button = Helper.create("button/action", parent)
-                              button.textContent = "Sichtbarkeit jetzt ändern"
-                              button.addEventListener("click", async () => {
-                                await Helper.verify("field-funnel", parent)
-                                const visibility = openClosedField.input.value
-                                const roles = []
-                                for (let i = 0; i < rolesField.input.options.length; i++) {
-                                  const option = rolesField.input.options[i]
-                                  if (option.selected === true) {
-                                    if (input.roles !== undefined) {
-                                      if (input.roles.available !== undefined) {
-                                        for (let i = 0; i < input.roles.available.length; i++) {
-                                          const role = input.roles.available[i]
-                                          if (role.name === option.value) {
-                                            roles.push(role.created)
-                                          }
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                                const authorized = JSON.parse(authorizedField.input.value)
-                                Helper.overlay("security", async securityOverlay => {
-                                  const res = await Helper.request("/register/platform/value-visibility-location-expert/", {visibility, roles, authorized, path: input.path})
-                                  if (res.status === 200) {
-                                    window.alert("Sichtbarkeit erfolgreich geändert.")
-                                    parent.parentElement.previousSibling.previousSibling.remove()
-                                    parent.parentElement.previousSibling.remove()
-                                    parent.parentElement.remove()
-                                    securityOverlay.remove()
-                                  } else {
-                                    window.alert("Fehler.. Bitte wiederholen.")
-                                    securityOverlay.remove()
-                                  }
-                                })
-                              })
-                            }
-                          }
-                        }
-                      })
-                    }
-                  }
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.right.textContent = "Schreibrechte an Teammitglieder vergeben"
-                    button.left.textContent = ".writability"
-                    button.onclick = () => {
-                      this.overlay("popup", async overlay => {
-                        overlay.info.textContent = `.${value.path}.writability`
-                        const funnel = this.create("div/scrollable", overlay)
-                        const searchField = this.create("field/text", funnel)
-                        searchField.label.textContent = "Suche nach E-Mail Adressen"
-                        searchField.input.placeholder = "get-your.de"
-                        searchField.style.margin = "21px 34px"
-                        this.verify("input/value", searchField.input)
-                        this.add("outline-hover", searchField.input)
-                        const emailsField = await this.create("field/closed-contacts-email-select", funnel)
-                        const originalOptions = Array.from(emailsField.input.options).map(option => option.cloneNode(true))
-                        searchField.input.oninput = (ev) => {
-                          const searchTerm = ev.target.value.toLowerCase()
-                          const options = originalOptions.map(it => it.value)
-                          const filtered = options.filter(it => it.toLowerCase().includes(searchTerm))
-                          emailsField.input.add(filtered)
-                        }
-                        emailsField.input.style.height = "21vh"
-                        emailsField.input.setAttribute("multiple", "true")
-                        for (let i = 0; i < emailsField.input.options.length; i++) {
-                          const option = emailsField.input.options[i]
-                          option.selected = false
-                          if (value.writability) {
-                            for (let i = 0; i < value.writability.length; i++) {
-                              const writableEmail = value.writability[i]
-                              if (option.value === writableEmail) option.selected = true
-                            }
-                          }
-                        }
-                        const submit = this.create("button/action", funnel)
-                        submit.textContent = "Schreibrechte jetzt vergeben"
-                        let clickCounter = 0
-                        submit.onclick = () => {
-                          try {
-                            const array = Array.from(emailsField.input.selectedOptions).map(it => it.value)
-                            for (let i = 0; i < array.length; i++) {
-                              const item = array[i]
-                              if (!this.verifyIs("text/email", item)) throw new Error("not an email")
-                            }
-                            this.add("style/valid", emailsField.input)
-                            this.overlay("security", async securityOverlay => {
-                              const res = await this.request("/register/platform/value-writability-location-expert/", {path: value.path, writability: array})
-                              if (res.status === 200) {
-                                window.alert("Schreibrechte erfolgreich gespeichert.")
-                                overlay.previousSibling.previousSibling.remove()
-                                overlay.previousSibling.remove()
-                                overlay.remove()
-                                securityOverlay.remove()
-                              }
-                              if (res.status !== 200) {
-                                window.alert("Fehler.. Bitte wiederholen.")
-                                securityOverlay.remove()
-                              }
-                            })
-                          } catch (error) {
-                            this.add("style/not-valid", emailsField.input)
-                            if (clickCounter === 3) {
-                              window.alert("Deine E-Mail Liste ist ungültig.")
-                              clickCounter = 0
-                            }
-                            clickCounter++
-                          }
-                        }
-                      })
-                    }
-                  }
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.right.textContent = "Aktualisiere deine Toolbox"
-                    button.left.textContent = ".update-toolbox"
-                    button.onclick = async () => {
-                      const res = await this.request("/update/toolbox/path-location-expert/", {path: value.path})
-                      if (res.status === 200) {
-                        window.alert("Toolbox wurde erfolgreich aktualisiert.")
-                      } else {
-                        window.alert("Fehler.. Bitte wiederholen.")
-                      }
-                    }
-                  }
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.left.textContent = ".remove"
-                    button.right.textContent = "Werteinheit entfernen"
-                    button.onclick = async () => {
-
-                      const confirm = window.confirm("Möchtest du deine Werteinheit wirklich löschen? Alle enthaltenen Daten werden ebenfalls gelöscht.")
-                      if (confirm === true) {
-                        this.overlay("security", async securityOverlay => {
-                          const res = await this.request("/remove/platform/value-expert/", {path: value.path})
-                          if (res.status === 200) {
-                            window.alert("Werteinheit erfolgreich entfernt.")
-                            buttonsOverlay.previousSibling.remove()
-                            buttonsOverlay.remove()
-                            securityOverlay.remove()
-                          } else {
-                            window.alert("Fehler.. Bitte wiederholen.")
-                            securityOverlay.remove()
-                          }
-                        })
-                      }
-                    }
-                  }
-                }
-              })
-            }
-            const itemState = document.createElement("div")
-            itemState.classList.add("item-state")
-            itemState.style.display = "flex"
-            itemState.style.justifyContent = "center"
-            itemState.style.alignItems = "center"
-            itemState.style.width = "89px"
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              itemState.style.backgroundColor = this.colors.matte.black
-            } else {
-              itemState.style.backgroundColor = this.colors.gray[2]
-            }
-            if (value.visibility === "closed") {
-              if (value.roles.length === 0) {
-                if (value.authorized.length === 0) {
-                  itemState.appendChild(pathClosedIcon.cloneNode(true))
-                }
-              }
-            }
-            if (value.visibility === "open") {
-              if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                itemState.style.backgroundColor = this.colors.matte.seaGreen
-              } else {
-                itemState.style.backgroundColor = this.colors.matte.lime
-              }
-              itemState.appendChild(pathOpenIcon.cloneNode(true))
-            }
-            if (value.visibility === "closed") {
-              if (value.roles.length !== 0 || value.authorized.length !== 0) {
-                itemState.style.backgroundColor = "#eed202"
-                itemState.appendChild(pathProtectedIcon.cloneNode(true))
-              }
-            }
-            itemState.style.borderTopLeftRadius = "21px"
-            itemState.style.borderBottomLeftRadius = "21px"
-            const itemTitle = document.createElement("div")
-            itemTitle.classList.add("item-title")
-            itemTitle.style.padding = "21px 34px"
-            itemTitle.style.fontSize = "21px"
-            itemTitle.style.overflow = "auto"
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              itemTitle.style.color = this.colors.dark.text
-            } else {
-              itemTitle.style.color = this.colors.light.text
-            }
-            {
-              const alias = document.createElement("div")
-              alias.innerHTML = await this.convert("text/purified", value.alias)
-              alias.style.fontSize = "21px"
-              itemTitle.append(alias)
-            }
-            {
-              const path = document.createElement("div")
-              path.textContent = `${value.path}`
-              path.style.fontSize = "13px"
-              itemTitle.append(path)
-            }
-            itemHeader.append(itemState, itemTitle)
-            item.append(itemHeader)
-            const itemBody = document.createElement("div")
-            itemBody.classList.add("item-body")
-            itemBody.style.marginLeft = "8%"
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-              itemBody.style.backgroundColor = this.colors.matte.slate
-              itemBody.style.boxShadow = `0 1px ${this.colors.gray[4]}`
-            } else {
-              itemBody.style.boxShadow = `0 1px ${this.colors.gray[2]}`
-              itemBody.style.backgroundColor = this.colors.gray[0]
-            }
-            itemBody.style.borderBottomRightRadius = "21px"
-            itemBody.style.borderBottomLeftRadius = "21px"
-            itemBody.style.padding = "21px"
-            itemBody.style.display = "flex"
-            itemBody.style.flexDirection = "column"
-            const buttons = document.createElement("div")
-            buttons.style.display = "flex"
-            buttons.style.alignItems = "center"
-            {
-              const button = this.create("div", buttons)
-              button.appendChild(openPathIcon.cloneNode(true))
-              button.className = "button"
-              button.style.margin = "8px"
-              button.style.cursor = "pointer"
-              button.onclick = () => window.open(value.path, "_blank")
-            }
-            {
-              const button = this.create("div")
-              button.className = "button"
-              button.style.margin = "8px"
-              button.appendChild(copyPathIcon.cloneNode(true))
-              buttons.appendChild(button)
-              button.style.cursor = "pointer"
-              button.onclick = () => {
-
-                navigator.clipboard.writeText(value.path)
-                .then(() => window.alert(`Der Pfad '${value.path}' wurde erfolgreich in den Zwischenspeicher kopiert.`))
-                .catch(() => window.alert("Fehler.. Bitte wiederholen."))
-
-              }
-            }
-            itemBody.appendChild(buttons)
-            if (value.requested) {
-              const requested = document.createElement("div")
-              requested.textContent = `Angefordert: ${this.convert("number/k-M", value.requested.length)} Mal`
-              requested.style.fontSize = "21px"
-              requested.style.color = this.colors.matte.orange
-              itemBody.append(requested)
-            }
-            if (value.writability) {
-              const writability = document.createElement("div")
-              writability.textContent = `Schreibrechte: ${value.writability.join(", ")}`
-              writability.style.fontSize = "21px"
-              writability.style.color = this.colors.matte.orange
-              itemBody.append(writability)
-            }
-            item.appendChild(itemBody)
-            fragment.appendChild(item)
-          }
-          parent.appendChild(fragment)
-          resolve()
-        } catch (error) {
-          reject(error)
-        }
-      })
-
-    }
-
-    if (event === "platform-values/location") {
-
-      this.convert("parent/scrollable", parent)
-      for (let i = 0; i < input.length; i++) {
-        const value = input[i]
-        const button = this.create("button/image-text", parent)
-        button.text.textContent = this.convert("text/capital-first-letter", value.alias)
-        if (!this.verifyIs("text/empty", value.image)) {
-          button.image.style.maxHeight = "89vh"
-          button.image.style.objectFit = "cover"
-          button.image.src = value.image
-        } else {
-          button.image.remove()
-        }
-        button.onclick = () => window.open(value.path, "_blank")
-      }
-
-    }
-
-    if (event === "platforms/closed") {
-
-      this.convert("element/reset", parent)
-      for (let i = 0; i < input.length; i++) {
-        const platform = input[i]
-        const button = this.create("button/image-text", parent)
-        button.text.textContent = this.convert("tag/capital-first-letter", platform.name)
-        if (!this.verifyIs("text/empty", platform.image)) {
-          button.image.style.maxHeight = "89vh"
-          button.image.style.objectFit = "cover"
-          button.image.src = platform.image
-        } else {
-          button.image.remove()
-        }
-        button.onclick = () => {
-          this.overlay("popup", async buttonsOverlay => {
-            buttonsOverlay.info.textContent = platform.name
-            const buttons = this.create("div/scrollable", buttonsOverlay)
-            {
-              const button = this.create("button/left-right", buttons)
-              button.left.textContent = ".create"
-              button.right.textContent = "Neue Werteinheit erstellen"
-              button.onclick = () => {
-                this.overlay("popup", overlay => {
-                  overlay.info.textContent = `${platform.name}.value`
-                  const funnel = this.create("div/scrollable", overlay)
-                  const valuePathField = this.create("field/tag", funnel)
-                  valuePathField.label.textContent = "Pfad"
-                  valuePathField.input.maxLength = "144"
-                  valuePathField.input.placeholder = "meine-werteinheit"
-                  this.verify("input/value", valuePathField.input)
-                  valuePathField.input.addEventListener("input", () => this.verify("input/value", valuePathField.input))
-                  const valueAliasField = this.create("field/text", funnel)
-                  valueAliasField.label.textContent = "Alias"
-                  valueAliasField.input.maxLength = "144"
-                  valueAliasField.input.setAttribute("required", "true")
-                  valueAliasField.input.placeholder = "Meine Werteinheit"
-                  valueAliasField.input.addEventListener("input", () => this.verify("input/value", valueAliasField.input))
-                  this.verify("input/value", valueAliasField.input)
-                  const button = this.create("button/action", funnel)
-                  button.textContent = "Werteinheit jetzt speichern"
-                  button.onclick = async () => {
-                    await this.verify("field-funnel", funnel)
-                    const path = valuePathField.input.value
-                    const alias = valueAliasField.input.value
-                    const res = await this.request("/verify/platform/value-path-exist/", {path: `/${window.location.pathname.split("/")[1]}/${platform.name}/${path}/`})
-                    if (res.status === 200) {
-                      window.alert("Pfad existiert bereits.")
-                      this.add("style/not-valid", valuePathField.input)
-                      valuePathField.scrollIntoView({behavior: "smooth"})
-                      throw new Error("path exist")
-                    }
-                    this.overlay("security", async securityOverlay => {
-                      const res = await this.request("/register/platform/value-expert/", {path, alias, platform: platform.name})
-                      if (res.status === 200) {
-                        alert("Werteinheit erfolgreich gespeichert. +1 XP")
-                        overlay.remove()
-                        securityOverlay.remove()
-                      } else {
-                        alert("Fehler.. Bitte wiederholen.")
-                        securityOverlay.remove()
-                      }
-                    })
-                  }
-                })
-              }
-            }
-            {
-              const button = this.create("button/left-right", buttons)
-              button.left.textContent = ".values"
-              button.right.textContent = "Meine HTML Werteinheiten"
-              button.onclick = () => {
-                this.overlay("popup", async overlay => {
-                  overlay.info.textContent = `${platform.name}.values`
-                  const searchField = this.create("input/text", overlay)
-                  searchField.input.placeholder = "Suche nach Alias"
-                  this.verify("input/value", searchField.input)
-                  const units = this.create("info/loading", overlay)
-                  const res = await this.request("/get/platform/values-self/", {platform: platform.name})
-                  if (res.status === 200) {
-                    const values = JSON.parse(res.response)
-                    searchField.input.oninput = (ev) => {
-                      const filtered = values.filter(it => it.alias.toLowerCase().includes(ev.target.value.toLowerCase()))
-                      const highlighted = filtered.map(it => {
-                        const highlightedAlias = it.alias.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
-                        return { ...it, alias: highlightedAlias }
-                      })
-                      this.render("platform-values/closed", highlighted, units)
-                    }
-                    this.render("platform-values/closed", values, units)
-                  } else {
-                    this.convert("parent/info", units)
-                    searchField.remove()
-                    units.textContent = `Es wurden keine Werteinheiten gefunden.`
-                    throw new Error("platform values is empty")
-                  }
-                })
-              }
-            }
-            {
-              const button = this.create("button/left-right", buttons)
-              button.left.textContent = ".bulk-values"
-              button.right.textContent = "Massen Funktionen für ausgewählte Werteinheiten"
-              button.onclick = () => {
-                this.overlay("popup", async overlay => {
-                  overlay.info.textContent = `${platform.name}.bulk-values`
-
-                  const content = this.create("info/loading", overlay)
-
-                  const res = await this.request("/get/platform/paths-location-expert/", {platform: platform.name})
-                  if (res.status === 200) {
-                    const paths = JSON.parse(res.response)
-                    this.convert("parent/scrollable", content)
-                    content.style.marginTop = "21px"
-                    this.render("text/hr", "Wähle deine Pfade", content)
-
-                    const select = this.create("input/select", content)
-                    select.input.multiple = true
-                    select.input.required = true
-                    this.verify("input/value", select.input)
-                    select.input.oninput = () => this.verify("input/value", select.input)
-
-                    let height = 0
-                    select.input.textContent = ""
-                    for (let i = 0; i < paths.length; i++) {
-                      const option = document.createElement("option")
-                      height += 34
-                      option.value = paths[i]
-                      option.text = paths[i].split("/")[3]
-                      select.input.appendChild(option)
-                    }
-
-                    select.input.style.height = `${height}px`
-
-                    this.render("text/hr", "Wähle eine Funktion", content)
-                    const buttons = this.create("div/flex-row", content)
-                    const addFeedbackButton = this.render("text/link", "Feedback Button anhängen", buttons)
-                    addFeedbackButton.onclick = async () => {
-                      await this.verify("input/value", select.input)
-                      const selectedPaths = Array.from(select.input.selectedOptions).map(it => it.value)
-                      this.overlay("security", async securityOverlay => {
-                        const res = await this.request("/update/paths/html-add-feedback-script/", {paths: selectedPaths})
-                        if (res.status === 200) {
-                          window.alert("Pfad wurden erfolgreich aktualisiert.")
-                          overlay.remove()
-                          securityOverlay.remove()
-                        } else {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          securityOverlay.remove()
-                        }
-                      })
-                    }
-
-                    const addRequestedButton = this.render("text/link", "Requested Statistik anhängen", buttons)
-                    addRequestedButton.onclick = async () => {
-                      await this.verify("input/value", select.input)
-                      const selectedPaths = Array.from(select.input.selectedOptions).map(it => it.value)
-                      this.overlay("security", async securityOverlay => {
-                        const res = await this.request("/update/paths/html-add-requested-script/", {paths: selectedPaths})
-                        if (res.status === 200) {
-                          window.alert("Pfad wurden erfolgreich aktualisiert.")
-                          overlay.remove()
-                          securityOverlay.remove()
-                        } else {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          securityOverlay.remove()
-                        }
-                      })
-                    }
-
-                  } else {
-                    this.convert("parent/info", content)
-                    content.textContent = "Keine Pfade gefunden"
-                  }
-
-                })
-              }
-            }
-            {
-              const button = this.create("button/left-right", buttons)
-              button.left.textContent = ".roles"
-              button.right.textContent = "Rollen definieren"
-              button.onclick = () => {
-                this.overlay("popup", async overlay => {
-                  overlay.info.textContent = `${platform.name}.roles`
-                  const create = this.create("button/left-right", overlay)
-                  create.left.textContent = ".create"
-                  create.right.textContent = "Neue Rolle definieren"
-                  create.onclick = () => {
-                    this.overlay("popup", async overlay => {
-                      overlay.info.textContent = "create.role"
-                      const funnel = this.create("field-funnel/role", overlay)
-                      const res = await this.request("/get/platform/value-paths-location-expert/", {platform: platform.name})
-                      if (res.status === 200) {
-                        const paths = JSON.parse(res.response)
-                        funnel.homeField.input.add(paths)
-                        this.verify("input/value", funnel.homeField.input)
-                      } else {
-                        window.alert("Es wurden keine Werteinheiten definiert")
-                        this.add("style/not-valid", funnel.homeField.input)
-                      }
-                      funnel.submit.onclick = async () => {
-                        await this.verify("field-funnel", funnel)
-                        const name = funnel.nameField.input.value
-                        const home = funnel.homeField.input.value
-                        const apps = JSON.parse(funnel.appsField.input.value)
-                        const res = await this.request("/verify/platform/role-name/", {platform: platform.name, name})
-                        if (res.status === 200) {
-                          window.alert("Diese Rolle existiert bereits.")
-                          this.add("style/not-valid", funnel.nameField.input)
-                          throw new Error("name exist")
-                        }
-                        this.overlay("security", async securityOverlay => {
-                          const res = await this.request("/register/platform/role-expert/", {platform: platform.name, name, apps, home})
-                          if (res.status === 200) {
-                            window.alert("Rolle erfolgreich gespeichert.")
-                            await this.render("roles-expert", platform.name, roleList)
-                            overlay.remove()
-                            securityOverlay.remove()
-                          }
-                        })
-                      }
-                    })
-                  }
-                  this.render("text/hr", "Meine Rollen", overlay)
-                  const roleList = this.create("info/loading", overlay)
-                  await this.render("roles-expert", platform.name, roleList)
-                })
-              }
-            }
-            {
-              const button = this.create("button/left-right", buttons)
-              button.left.textContent = ".match-maker"
-              button.right.textContent = "Match Maker definieren"
-              button.onclick = () => {
-                this.overlay("popup", async overlay => {
-                  overlay.info.textContent = `.match-maker`
-
-                  const create = this.create("button/left-right", overlay)
-                  create.left.textContent = ".create"
-                  create.right.textContent = "Neuen Match Maker definieren"
-                  create.addEventListener("click", () => {
-                    this.overlay("popup", async overlay => {
-                      overlay.info.textContent = `.${platform.name}.match-maker`
-                      const funnel = this.create("div/scrollable", overlay)
-                      funnel.nameField = this.create("field/tag", funnel)
-                      funnel.nameField.label.textContent = "Gebe deinem Match Maker einen einzigartigen Namen (text/tag)"
-                      funnel.nameField.input.placeholder = "mein-match-maker"
-                      this.verify("input/value", funnel.nameField.input)
-                      funnel.nameField.input.oninput = () => this.verify("input/value", funnel.nameField.input)
-                      funnel.submit = this.create("button/action", funnel)
-                      funnel.submit.textContent = "Match Maker jetzt speichern"
-                      funnel.submit.onclick = async () => {
-                        await this.verify("input/value", funnel.nameField.input)
-                        const name = funnel.nameField.input.value
-                        const res = await this.request("/verify/match-maker/name/", {name})
-                        if (res.status === 200) {
-                          window.alert("Name existiert bereits.")
-                          this.add("style/not-valid", funnel.nameField.input)
-                          throw new Error("name exist")
-                        }
-                        this.overlay("security", async securityOverlay => {
-                          const res = await this.request("/register/platform/match-maker-location-expert/", {platform: platform.name, name})
-                          if (res.status === 200) {
-                            window.alert("Match Maker wurde erfolgreich gespeichert.")
-                            await this.render("match-maker/expert", platform.name, matchMakerContainer)
-                            overlay.remove()
-                            securityOverlay.remove()
-                          } else {
-                            window.alert("Fehler.. Bitte wiederholen")
-                            securityOverlay.remove()
-                          }
-                        })
-                      }
-                    })
-                  })
-                  this.render("text/hr", "Meine Match Maker", overlay)
-                  const matchMakerContainer = this.create("div/scrollable", overlay)
-                  await this.render("match-maker/expert", platform.name, matchMakerContainer)
-                })
-              }
-            }
-            {
-              const button = this.create("button/left-right", buttons)
-              button.right.textContent = "Namen ändern"
-              button.left.textContent = ".name"
-              button.onclick = () => {
-                this.overlay("popup", async overlay => {
-                  overlay.info.textContent = `${platform.name}.name`
-                  const funnel = this.create("div/scrollable", overlay)
-                  const platformNameField = this.create("field/tag", funnel)
-                  platformNameField.input.value = platform.name
-                  platformNameField.label.textContent = "Plattform"
-                  platformNameField.input.maxLength = "21"
-                  platformNameField.input.placeholder = "meine-plattform"
-                  platformNameField.input.oninput = () => this.verify("input/value", platformNameField.input)
-                  this.verify("input/value", platformNameField.input)
-                  const button = this.create("button/action", funnel)
-                  button.textContent = "Namen jetzt speichern"
-                  button.onclick = async () => {
-                    await this.verify("input/value", platformNameField.input)
-                    const platformName = platformNameField.input.value
-                    this.overlay("security", async securityOverlay => {
-                      {
-                        const res = await this.request("/verify/platform/exist/", {platform: platformName})
-                        if (res.status === 200) {
-                          window.alert("Plattform existiert bereits.")
-                          this.add("style/not-valid", platformNameField.input)
-                          securityOverlay.remove()
-                          throw new Error("platform exist")
-                        }
-                      }
-                      const res = await this.request("/register/platform/name-location-expert/", {old: platform.name, new: platformName})
-                      if (res.status === 200) {
-                        window.alert("Plattform Name erfolgreich gespeichert.")
-                        window.location.reload()
-                      } else {
-                        window.alert("Fehler.. Bitte wiederholen.")
-                        securityOverlay.remove()
-                      }
-                    })
-                  }
-                })
-              }
-            }
-            {
-              const button = this.create("button/left-right", buttons)
-              button.right.textContent = "Definiere einen Startpunkt für deine Plattform"
-              button.left.textContent = ".start"
-              button.onclick = () => {
-                this.overlay("popup", async overlay => {
-                  overlay.info.textContent = `.${platform.name}.start`
-                  const content = this.create("div/scrollable", overlay)
-                  const startField = this.create("field/select", content)
-                  startField.label.textContent = "Wähle einen Start Pfad für deine Plattform"
-                  const res = await this.request("/get/platform/value-paths-location-expert/", {platform: platform.name})
-                  if (res.status === 200) {
-                    const paths = JSON.parse(res.response)
-                    this.add("select-options", {select: startField.input, options: paths})
-                  }
-                  if (platform.start) {
-                    for (let i = 0; i < startField.input.options.length; i++) {
-                      const option = startField.input.options[i]
-                      if (option.value === platform.start) option.selected = true
-                    }
-                  }
-                  const submit = this.create("toolbox/action", content)
-                  submit.textContent = "Pfad jetzt speichern"
-                  submit.onclick = () => {
-                    const platformStart = startField.input.value
-                    if (this.verifyIs("text/empty", platformStart)) {
-                      this.add("style/not-valid", startField.input)
-                      return
-                    }
-                    this.overlay("security", async securityOverlay => {
-                      const res = await this.request("/register/platform/start-location-expert/", {platform: platform.name, start: platformStart})
-                      if (res.status === 200) {
-                        window.alert("Daten wurden erfolgreich gespeichert.")
-                      } else {
-                        window.alert("Fehler.. Bitte wiederholen.")
-                      }
-                      securityOverlay.remove()
-                    })
-                  }
-
-                })
-              }
-            }
-            {
-              const button = this.create("button/left-right", buttons)
-              button.right.textContent = "Bild ändern"
-              button.left.textContent = ".image"
-              button.onclick = () => {
-                this.overlay("popup", async overlay => {
-                  overlay.info.textContent = `${platform.name}.image`
-                  const funnel = this.create("div/scrollable", overlay)
-                  const urlField = this.create("field/text", funnel)
-                  urlField.label.textContent = "Gebe hier die Quell-Url für dein Bild ein"
-                  urlField.input.placeholder = "https://www.meine-quelle.de/mein-bild.svg"
-                  urlField.input.value = platform.image
-                  this.verify("input/value", urlField.input)
-                  urlField.input.addEventListener("input", () => this.verify("input/value", urlField.input))
-                  const submit = this.create("button/action", funnel)
-                  submit.textContent = "Bild jetzt speichern"
-                  submit.onclick = async () => {
-                    await this.verify("input/value", urlField.input)
-                    this.overlay("security", async securityOverlay => {
-                      const res = await this.request("/register/platform/image-expert/", {platform: platform.name, image: urlField.input.value})
-                      if (res.status === 200) {
-                        window.alert("Bild erfolgreich gespeichert.")
-                        window.location.reload()
-                      } else {
-                        window.alert("Fehler.. Bitte wiederholen.")
-                        securityOverlay.remove()
-                      }
-                    })
-
-                  }
-
-                })
-              }
-            }
-            {
-              const button = this.create("button/left-right", buttons)
-              button.right.textContent = "Sichtbarkeit der Plattform"
-              button.left.textContent = ".visibility"
-              button.onclick = () => {
-                this.overlay("popup", async overlay => {
-                  overlay.info.textContent = `${platform.name}.visibility`
-                  const funnel = this.create("div/scrollable", overlay)
-                  {
-                    const visibilityField = this.create("field/select", funnel)
-                    visibilityField.label.textContent = "Sichtbarkeit"
-                    if (platform.visibility === "open") {
-                      visibilityField.input.add(["open", "closed"])
-                    }
-                    if (platform.visibility === "closed") {
-                      visibilityField.input.add(["closed", "open"])
-                    }
-                    this.verify("input/value", visibilityField.input)
-                    const button = this.create("button/action", funnel)
-                    button.textContent = "Sichtbarkeit jetzt speichern"
-                    button.onclick = async () => {
-                      const visibility = visibilityField.input.value
-                      this.overlay("security", async securityOverlay => {
-                        const res = await this.request("/register/platform/visibility-location-expert/", {platform: platform.name, visibility})
-                        if (res.status === 200) {
-                          window.alert("Sichtbarkeit erfolgreich geändert.")
-                          window.location.reload()
-                        } else {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                          securityOverlay.remove()
-                        }
-                      })
-                    }
-                  }
-                })
-              }
-            }
-            {
-              const button = this.create("button/left-right", buttons)
-              button.right.textContent = "Plattform entfernen"
-              button.left.textContent = ".remove"
-              button.onclick = () => {
-                const confirm = window.confirm("Möchtest du deine Plattform wirklich entfernen? Alle enthaltenen Werteinheiten werden ebenfalls gelöscht.")
-                if (confirm === true) {
-                  this.overlay("security", async securityOverlay => {
-                    const res = await this.request("/remove/platform/expert/", {platform: platform.name})
-                    if (res.status === 200) {
-                      window.alert("Plattform erfolgreich entfernt.")
-                      window.location.reload()
-                    } else {
-                      window.alert("Fehler.. Bitte wiederholen.")
-                      securityOverlay.remove()
-                    }
-                  })
-                }
-              }
-            }
-          })
-        }
-      }
-    }
-
-    if (event === "platforms/location") {
-
-      this.convert("element/reset", parent)
-      for (let i = 0; i < input.length; i++) {
-        const platform = input[i]
-        const button = this.create("button/image-text", parent)
-        button.text.textContent = this.convert("tag/capital-first-letter", platform.name)
-        if (!this.verifyIs("text/empty", platform.image)) {
-          button.image.style.maxHeight = "89vh"
-          button.image.style.objectFit = "cover"
-          button.image.src = platform.image
-        } else {
-          button.image.remove()
-        }
-        button.onclick = () => {
-          this.overlay("popup", async overlay => {
-            const content = this.create("info/loading", overlay)
-            const res = await this.request("/get/platform/values-location-expert/", {platform: platform.name})
-            if (res.status === 200) {
-              const values = JSON.parse(res.response)
-              this.render("platform-values/location", values, content)
-            }
-          })
-        }
-      }
-    }
-
-    if (event === "roles-expert") {
-
-      return new Promise(async(resolve, reject) => {
-        try {
-          const res = await this.request("/get/platform/roles-expert/", {platform: input})
-          if (res.status === 200) {
-            const roles = JSON.parse(res.response)
-            this.convert("parent/scrollable", parent)
-            for (let i = 0; i < roles.length; i++) {
-              const role = roles[i]
-              const button = this.create("button/left-right", parent)
-              button.left.textContent = role.name
-              button.right.textContent = "Rolle bearbeiten"
-              button.onclick = () => {
-                this.overlay("popup", async roleButtons => {
-                  roleButtons.info.textContent = `${input}.roles.${role.name}`
-                  const buttons = this.create("div/scrollable", roleButtons)
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.left.textContent = ".update"
-                    button.right.textContent = "Aktualisiere deine Rolle"
-                    button.onclick = () => {
-                      this.overlay("popup", async overlay => {
-                        const funnel = this.create("field-funnel/role", overlay)
-                        funnel.nameField.input.value = role.name
-                        const res = await this.request("/get/platform/value-paths-location-expert/", {platform: input})
-                        if (res.status === 200) {
-                          const paths = JSON.parse(res.response)
-                          funnel.homeField.input.add(paths)
-                          funnel.homeField.input.select([role.home])
-                          this.verify("input/value", funnel.homeField.input)
-                        } else {
-                          window.alert("Es wurden keine Werteinheiten definiert")
-                          this.add("style/not-valid", funnel.homeField.input)
-                        }
-                        funnel.appsField.input.value = JSON.stringify(role.apps)
-                        this.verify("field-funnel", funnel)
-                        funnel.submit.onclick = async () => {
-                          await this.verify("field-funnel", funnel)
-                          const name = funnel.nameField.input.value
-                          const home = funnel.homeField.input.value
-                          const apps = JSON.parse(funnel.appsField.input.value)
-                          this.overlay("security", async securityOverlay => {
-                            const res = await this.request("/update/platform/role-expert/", {id: role.created, platform: input, name, apps, home})
-                            if (res.status === 200) {
-                              window.alert("Rolle erfolgreich gespeichert.")
-                              await this.render(event, input, parent)
-                              roleButtons.remove()
-                              overlay.remove()
-                              securityOverlay.remove()
-                            }
-                          })
-                        }
-                      })
-                    }
-                  }
-                  {
-                    const button = this.create("button/left-right", buttons)
-                    button.left.textContent = ".remove"
-                    button.right.textContent = "Entferne deine Rolle"
-                    button.onclick = () => {
-                      this.overlay("security", async securityOverlay => {
-                        const res = await this.request("/remove/platform/role-expert/", {platform: input, id: role.created})
-                        if (res.status === 200) {
-                          window.alert("Deine Rolle wurde erfolgreich entfernt.")
-                          await this.render(event, input, parent)
-                          roleButtons.remove()
-                          securityOverlay.remove()
-                        }
-                      })
-                    }
-                  }
-                })
-              }
-            }
-          } else {
-            this.convert("parent/info", parent)
-            parent.textContent = "Keine Rollen gefunden"
-          }
-          resolve()
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-
     if (event === "funnel/source") {
 
       if (input.authors) parent.authors.input.value = input.authors.join(", ")
@@ -25102,18 +19741,18 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
             const button = this.create("button/left-right", parent)
             button.left.textContent = field.id
             button.right.append(this.convert("element/alias", fieldInput))
-            this.add("outline-hover", button)
+            this.add("hover-outline", button)
             button.onclick = () => {
-              this.overlay("toolbox", overlay => {
+              this.overlay("pop", overlay => {
                 overlay.info.append(this.convert("element/alias", fieldInput))
                 const buttons = this.create("div/scrollable", overlay)
                 {
                   const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".id"
                   button.right.textContent = "Datenfeld Id aktualisieren"
-                  this.add("outline-hover", button)
+                  this.add("hover-outline", button)
                   button.onclick = () => {
-                    this.overlay("toolbox", overlay => {
+                    this.overlay("pop", overlay => {
                       overlay.info.textContent = `${this.convert("element/alias", fieldInput)}.id`
                       const idField = this.create("field/id", overlay)
                       idField.input.value = field.id
@@ -25134,9 +19773,9 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
                   const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".on-info-click"
                   button.right.textContent = "Erweitere dein Datenfeld mit mehr Informationen"
-                  this.add("outline-hover", button)
+                  this.add("hover-outline", button)
                   button.onclick = () => {
-                    this.overlay("toolbox", overlay => {
+                    this.overlay("pop", overlay => {
                       overlay.info.append(this.convert("element/alias", fieldInput))
                       overlay.info.append(".on-info-click")
                       const infoField = this.create("field/textarea", overlay)
@@ -25151,7 +19790,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
                       this.verify("input/value", infoField.input)
                       infoField.input.oninput = () => {
                         field.setAttribute("on-info-click", infoField.input.value)
-                        const script = this.create("script", {id: "on-info-click", js: 'Helper.add("on-info-click")'})
+                        const script = this.create("script/id", "on-info-click")
                         this.add("script-onbody", script)
                       }
                     })
@@ -25161,7 +19800,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
                   const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".remove"
                   button.right.textContent = "Datenfeld entfernen"
-                  this.add("outline-hover", button)
+                  this.add("hover-outline", button)
                   button.onclick = () => {
                     try {
                       field.remove()
@@ -25216,7 +19855,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
             button.right.append(this.convert("element/alias", fieldInput))
             button.addEventListener("click", () => {
-              this.overlay("toolbox", overlay => {
+              this.overlay("pop", overlay => {
                 overlay.info.append(this.convert("element/alias", fieldInput))
                 const content = this.create("div/scrollable", overlay)
 
@@ -25264,7 +19903,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
               button.left.textContent = `Option ${i + 1}`
               button.right.textContent = answer.textContent
               button.addEventListener("click", () => {
-                this.overlay("toolbox", answersFunnelOverlay => {
+                this.overlay("pop", answersFunnelOverlay => {
                   overlay.info.append(this.convert("element/alias", child))
                   const answerFunnel = this.create("div/scrollable", answersFunnelOverlay)
                   const answerField = this.create("field/textarea", answerFunnel)
@@ -25286,7 +19925,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
                   selectedConditionButton.left.textContent = ".onclick"
                   selectedConditionButton.right.textContent = "Klick Bedingung definieren"
                   selectedConditionButton.addEventListener("click", () => {
-                    this.overlay("toolbox", conditionFunnelOverlay => {
+                    this.overlay("pop", conditionFunnelOverlay => {
                       overlay.info.append(this.convert("element/alias", child))
                       overlay.info.append(".onclick")
                       const content = this.create("div/scrollable", conditionFunnelOverlay)
@@ -25416,7 +20055,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
             button.left.textContent = child.id
             button.right.textContent = "Frage bearbeiten"
             button.addEventListener("click", () => {
-              this.overlay("toolbox", questionsFunnelOverlay => {
+              this.overlay("pop", questionsFunnelOverlay => {
                 overlay.info.append(this.convert("element/alias", child))
                 const questionsFunnel = this.create("div/scrollable", questionsFunnelOverlay)
                 const idField = this.create("field/tag", questionsFunnel)
@@ -25468,7 +20107,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
                 button.left.textContent = ".options"
                 button.right.textContent = "Antworten bearbeiten"
                 button.addEventListener("click", () => {
-                  this.overlay("toolbox", answersOverlay => {
+                  this.overlay("pop", answersOverlay => {
                     overlay.info.textContent = `${this.convert("element/alias", child)}.options`
 
                     {
@@ -25477,7 +20116,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
                       button.right.textContent = "Neue Antwortmöglichkeit anhängen"
                       button.addEventListener("click", () => {
                         const answerBox = this.create("answer-box")
-                        this.overlay("toolbox", appendAnswerOverlay => {
+                        this.overlay("pop", appendAnswerOverlay => {
                           overlay.info.append(this.convert("element/alias", child))
                           overlay.info.append(".append")
                           const answerFunnel = this.create("div/scrollable", appendAnswerOverlay)
@@ -25491,7 +20130,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
                           selectedConditionButton.left.textContent = ".onclick"
                           selectedConditionButton.right.textContent = "Klick Bedingung definieren"
                           selectedConditionButton.addEventListener("click", () => {
-                            this.overlay("toolbox", conditionFunnelOverlay => {
+                            this.overlay("pop", conditionFunnelOverlay => {
                               overlay.info.append(this.convert("element/alias", child))
                               overlay.info.append(".onclick")
                               const content = this.create("div/scrollable", conditionFunnelOverlay)
@@ -25692,14 +20331,14 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
             button.right.textContent = "Antwortmöglichkeiten definieren"
             button.addEventListener("click", () => {
               const fieldInput = input.field.querySelector(".field-input")
-              this.overlay("toolbox", overlay => {
+              this.overlay("pop", overlay => {
                 overlay.info.textContent = `${this.convert("element/alias", input.field)}.options`
                 {
                   const button = this.create("button/left-right", overlay)
                   button.left.textContent = ".append"
                   button.right.textContent = "Neue Antwortmöglichkeit anhängen"
                   button.addEventListener("click", () => {
-                    this.overlay("toolbox", overlay => {
+                    this.overlay("pop", overlay => {
                       overlay.info.append(this.convert("element/alias", fieldInput))
                       overlay.info.append(this.convert("text/span", ".option.append"))
 
@@ -25764,7 +20403,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       link.href = input
       link.type = "text/css"
       if (!document.getElementById(input)) {
-        this.render("node", link, document.head)
+        this.append(link, document.head)
       }
     }
 
@@ -25776,7 +20415,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       script.type = "module"
       script.setAttribute("async", "true")
       if (!document.getElementById(input)) {
-        this.render("node", script, document.head)
+        this.append(script, document.head)
       }
     }
 
@@ -25790,13 +20429,6 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
         const button = this.design(tree, it[key], parent.content)
         this.fn(type, {it, node: button, overlay: parent})
       }
-    }
-
-    if (event === "node") {
-
-      const fragment = document.createDocumentFragment()
-      fragment.appendChild(input)
-      parent?.appendChild(fragment)
     }
 
     if (event === "object/selector/write-details") {
@@ -25889,7 +20521,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
         parent.style.cursor = "pointer"
         parent.onclick = () => {
-          this.overlay("popup", overlay => {
+          this.overlay("pop", overlay => {
             this.render("text/title", "Detailansicht", overlay)
 
             const content = this.create("div/scrollable", overlay)
@@ -26030,65 +20662,8 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       return node
     }
 
-    if (event === "html-values-writable") {
+    if (event === "reputation") {
 
-      function renderHtmlValuesOverlay(values) {
-        Helper.overlay("popup", async overlay => {
-          const searchField = Helper.create("field/text", overlay)
-          searchField.label.textContent = "Suche nach Alias"
-          searchField.input.placeholder = "Werteinheiten mit Schreibrechte"
-          Helper.verify("input/value", searchField.input)
-          Helper.add("outline-hover", searchField.input)
-          const buttons = Helper.create("div/scrollable", overlay)
-          searchField.input.oninput = async (ev) => {
-            const filtered = values.filter(it => it.alias.toLowerCase().includes(ev.target.value.toLowerCase()))
-            const highlighted = filtered.map(it => {
-              const highlightedAlias = it.alias.replace(new RegExp(ev.target.value, 'i'), `<mark>${ev.target.value}</mark>`)
-              return { ...it, alias: highlightedAlias }
-            })
-            await renderHtmlValueButtons(highlighted, buttons)
-          }
-          await renderHtmlValueButtons(values, buttons)
-        })
-      }
-
-      function renderHtmlValueButtons(values, node) {
-        return new Promise(async(resolve, reject) => {
-          try {
-            const icon = await Helper.convert("path/icon", "/public/window-chain.svg")
-            icon.style.width = "55px"
-            icon.style.margin = "0 5px"
-            Helper.convert("parent/scrollable", node)
-            for (let i = 0; i < values.length; i++) {
-              const value = values[i]
-              const iconClone = icon.cloneNode(true)
-              Helper.add("outline-hover", iconClone)
-              const button = Helper.create("button/left-right", node)
-              button.right.style.display = "flex"
-              button.right.appendChild(iconClone)
-              Helper.createNode("span", button.left, value.alias)
-              Helper.createNode("br", button.left)
-              Helper.createNode("span", button.left, value.path)
-              button.onclick = () => window.open(value.path, "_blank")
-              iconClone.onclick = (ev) => {
-                ev.stopPropagation()
-                navigator.clipboard.writeText(value.path)
-                .then(() => window.alert(`Der Pfad '${value.path}' wurde erfolgreich in deinen Zwischenspeicher kopiert.`))
-                .catch(() => window.alert("Fehler.. Bitte wiederholen."))
-              }
-            }
-            resolve()
-          } catch (error) {
-            reject(error)
-          }
-        })
-      }
-      renderHtmlValuesOverlay(input)
-    }
-
-    if (event === "user-reputation") {
-
-      const fragment = document.createDocumentFragment()
       function getRecommendation(reputation) {
         if (reputation < -610) {
           return "Es scheint, dass es ernsthafte Probleme gibt, die gelöst werden müssen. Wir empfehlen eine umfassende Überprüfung der Aktivitäten und möglicherweise professionelle Unterstützung, um Verhaltensänderungen herbeizuführen."
@@ -26118,10 +20693,20 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       }
 
       const recommendation = getRecommendation(input)
-      const text = this.render("text/p", `Reputation: ${recommendation}`, fragment)
-      text.style.fontSize = "13px"
-      parent.appendChild(fragment)
-      return text
+      const container = Helper.div("flex mtb21 mlr34")
+      const leftDiv = Helper.div("flex align center", container)
+      leftDiv.textContent = `Reputation:`
+      const rightDiv = Helper.div("ml8 fs21", container)
+      rightDiv.textContent = recommendation
+      if (parent) this.append(container, parent)
+      return container
+    }
+
+    if (event === "ul") {
+
+      const ul = document.createElement("ul")
+      if (parent) this.append(ul, parent)
+      return ul
     }
 
     if (event === "user/selector/all") {
@@ -26184,12 +20769,12 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
             const child = item.querySelectorAll("*")[i]
 
             if (child.tagName === "INPUT") {
-              this.add("outline-hover", child)
+              this.add("hover-outline", child)
             }
 
             if (child.hasAttribute("popup-details")) {
 
-              this.add("outline-hover", child)
+              this.add("hover-outline", child)
               Object.entries(input).forEach(([key, value]) => {
                 if (this.verifyIs("array", value)) {
                   for (let i = 0; i < value.length; i++) {
@@ -26209,7 +20794,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
             if (child.hasAttribute("open-cart")) {
 
-              this.add("outline-hover", child)
+              this.add("hover-outline", child)
               child.onclick = () => {
 
                 const quantityInput = item.querySelector("input.quantity")
@@ -26240,7 +20825,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
                   }
                   window.localStorage.setItem("cart", JSON.stringify(cart))
 
-                  this.overlay("popup", overlay => {
+                  this.overlay("pop", overlay => {
                     this.render("text/h1", "Mein Angebot", overlay)
                     this.render("text/right-hr", "Preis", overlay)
                     const cart = JSON.parse(window.localStorage.getItem("cart")) || []
@@ -26264,6 +20849,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     if (event === "user-trees-closed") {
 
       function renderUserInNode(user, node) {
+
         for (let i = 0; i < Object.keys(user).length; i++) {
           const key = Object.keys(user)[i]
           if (node.classList.contains(key)) {
@@ -26278,7 +20864,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
       return new Promise(async(resolve, reject) => {
         try {
-          const res = await this.request("/get/user/trees-closed/", {trees: input})
+          const res = await this.request("/jwt/get/trees/", {trees: input})
           if (res.status === 200) {
             const user = JSON.parse(res.response)
             const nodes = document.querySelectorAll(parent)
@@ -26304,7 +20890,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
       return new Promise(async(resolve, reject) => {
         try {
-          const res = await this.request("/get/user/trees-open/", {trees: input})
+          const res = await this.request("/get/users/trees/", {trees: input})
           if (res.status === 200) {
             const users = JSON.parse(res.response)
             for (let i = 0; i < users.length; i++) {
@@ -26325,7 +20911,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
       return new Promise(async(resolve, reject) => {
         try {
-          const res = await this.request("/get/user/trees-open/", {trees: input})
+          const res = await this.request("/get/users/trees/", {trees: input})
           if (res.status === 200) {
             const users = JSON.parse(res.response)
             const parentNode = document.querySelector(parent)
@@ -26351,7 +20937,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     if (event === "user-box") {
 
       const fragment = document.createDocumentFragment()
-      const it = this.create("toolbox/left-right", fragment)
+      const it = this.create("button/left-right", fragment)
       this.style(it, {margin: "8px", justifyContent: "center"})
       this.style(it.right, {fontSize: "21px"})
 
@@ -26380,7 +20966,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
       let reputation
       if (!this.verifyIs("number/empty", input.reputation)) {
-        it.reputation = this.render("user-reputation", input.reputation, it.right)
+        it.reputation = this.render("reputation", input.reputation, it.right)
       }
 
       if (input.highlight === true) {
@@ -26400,7 +20986,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     if (event === "video") {
 
       const video = document.createElement("video")
-      this.render("node", video, parent)
+      this.append(video, parent)
       video.style.width = "100%"
       video.controls = true
       video.src = input
@@ -26408,7 +20994,6 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     }
 
   }
-
   static remove(event, input) {
 
     if (event === ";") {
@@ -26427,6 +21012,17 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
         .split(event)
         .filter(it => it.trim() !== "")
         .join(event)
+    }
+
+    if (event === "attributes") {
+
+      while(input.attributes.length > 0) input.removeAttribute(input.attributes[0].name)
+    }
+
+    if (event === "class/dark-light") {
+
+      input.classList.remove("bg-dark", "bs-dark", "border-dark", "color-dark")
+      input.classList.remove("bg-light", "bs-light", "border-light", "color-light")
     }
 
     if (event === "element/selector") {
@@ -26448,6 +21044,33 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
         } catch (error) {
           reject(error)
         }
+      })
+    }
+
+    if (event === "exif") {
+
+      const file = input
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = ev => {
+
+          const img = new Image()
+          img.onload = () => {
+
+            const canvas = document.createElement('canvas')
+            canvas.width = img.width
+            canvas.height = img.height
+            const ctx = canvas.getContext('2d')
+            ctx.drawImage(img, 0, 0)
+            canvas.toBlob(blob => {
+              const stripped = new File([blob], file.name, { type: file.type })
+              resolve(stripped)
+            }, file.type)
+          }
+          img.src = ev.target.result
+        }
+        reader.onerror = e => reject(e)
+        reader.readAsDataURL(file)
       })
     }
 
@@ -26558,7 +21181,12 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     }
 
   }
+  static classes(node, input) {
 
+    const {add, remove} = input
+    if (remove) remove.split(" ").forEach(name => node.classList.remove(name))
+    if (add) add.split(" ").forEach(name => node.classList.add(name))
+  }
   static request(event, input, type = "json") {
 
     if (type === "json") {
@@ -26591,7 +21219,6 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     }
 
   }
-
   static requestWith(event, input) {
 
     if (type === "beacon") {
@@ -26628,7 +21255,15 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     }
 
   }
+  static reset(event, input) {
 
+    if (event === "node") {
+
+      this.remove("attributes", input)
+      input.textContent = ""
+      return input
+    }
+  }
   static sort(event, input) {
     // event = input/by/algorithm
 
@@ -26677,7 +21312,6 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     }
 
   }
-
   static style(node, input) {
     if (node) {
       if (input.letterSpacing) node.style.letterSpacing = input.letterSpacing
@@ -26733,7 +21367,6 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       if (input.whiteSpace) node.style.whiteSpace = input.whiteSpace
     }
   }
-
   static update(event, parent, input) {
     // event = tag/on/algorithm
 
@@ -26811,7 +21444,6 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     }
 
   }
-
   static skipSiblings(index, sibling) {
 
     let count = 0
@@ -26839,7 +21471,6 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     if (count < index) throw new Error("out of bounds")
 
   }
-
   static verify(event, input, check) {
     // promises only
     // event = input/algo
@@ -26864,32 +21495,52 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       return new Promise(async(resolve, reject) => {
         try {
           const observer = new MutationObserver((mutationsList, observer) => {
+
             for (const mutation of mutationsList) {
               if (mutation.type === 'attributes') {
-                if (mutation.attributeName === 'accept' || mutation.attributeName === 'maxlength') {
+                const lockedAttributes = [
+                  "accept",
+                  "maxlength",
+                  "required",
+                  "min",
+                  "max",
+                  "pattern",
+                  "step",
+                  "type",
+                  "value",
+                  "disabled",
+                  "readonly",
+                  "minlength",
+                ]
+                if (lockedAttributes.includes(mutation.attributeName)) {
                   window.location.reload()
                 }
               }
             }
           })
-          const allNodes = []
+          const allNodes = new Set()
           if (typeof input === "object") {
             for (const key in input) {
               if (input.hasOwnProperty(key)) {
                 const div = input[key]
-                const nodes = [...div.querySelectorAll("input"), ...div.querySelectorAll("textarea"), ...div.querySelectorAll("select")]
-                allNodes.push(...nodes)
+                const nodes = input.querySelectorAll("input, textarea, select")
+                nodes.forEach(node => allNodes.add(node))
               }
             }
           }
           if (input instanceof Node) {
-            const nodes = [...input.querySelectorAll("input"), ...input.querySelectorAll("textarea"), ...input.querySelectorAll("select")]
-            allNodes.push(...nodes)
+            const nodes = input.querySelectorAll("input, textarea, select")
+            nodes.forEach(node => allNodes.add(node))
           }
 
-          for (const node of allNodes) {
+          allNodes.forEach(node => {
             observer.observe(node, { attributes: true, childList: true, subtree: true })
+          })
+          allNodes.forEach(node => {
             node.oninput = () => this.verifyIs("input/valid", node)
+          })
+
+          for (const node of allNodes) {
             const isValid = await this.verifyIs("input/valid", node)
             if (!isValid) {
               node.scrollIntoView({ behavior: "smooth", block: "start" })
@@ -26897,6 +21548,21 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
             }
           }
           observer.disconnect()
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "funnel/ids") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const nodes = input.querySelectorAll("input, textarea, select")
+          nodes.forEach(node => {
+            if (!node.id) reject(`input has no id: ${node.outerHTML}`)
+          })
           resolve()
         } catch (error) {
           reject(error)
@@ -26951,8 +21617,28 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       })
     }
 
-  }
+    if (event === "path/exist") {
 
+      const path = input
+      const field = check
+      return new Promise(async(resolve, reject) => {
+        try {
+          const res = await this.request("/verify/path/exist/", {path})
+          if (res.status === 200) {
+            window.alert("Pfad existiert bereits.")
+            this.add("style/not-valid", field.input)
+            field.scrollIntoView({behavior: "smooth"})
+            throw new Error("path exist")
+          } else {
+            resolve()
+          }
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+  }
   static verifyIs(event, input) {
     // return boolean only
 
@@ -26985,6 +21671,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     }
 
     if (event === "object/empty") {
+
       return typeof input !== "object" ||
       input === undefined ||
       input === null ||
@@ -27214,6 +21901,24 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       return false
     }
 
+    if (event === "millis/future") {
+
+      if (input > Date.now()) {
+        return true
+      } else {
+        return false
+      }
+    }
+
+    if (event === "millis/past") {
+
+      if (input < Date.now()) {
+        return true
+      } else {
+        return false
+      }
+    }
+
     if (event === "number/empty") {
       return input === undefined ||
       input === null ||
@@ -27262,6 +21967,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     }
 
     if (event === "text/operator") {
+
       if (input === "=") return true
       if (input === ">=") return true
       if (input === "<=") return true
@@ -27286,6 +21992,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     }
 
     if (event === "text/empty") {
+
       return typeof input !== "string" ||
         input === "undefined" ||
         input === undefined ||
@@ -27379,12 +22086,13 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
     if (event === "text/number") {
 
-      try {
-        return !isNaN(Number(input))
-      } catch (error) {
-        return false
-      }
 
+      if (typeof input === "number") return isFinite(input)
+      if (typeof input === "string" && input.trim() !== "") {
+        const number = Number(input)
+        return !isNaN(number) && isFinite(number)
+      }
+      return false
     }
 
     if (event === "text/int") {
@@ -27553,6 +22261,7 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
       }
 
       if (accept && accept.includes("text/operator")) {
+
         array.push(this.verifyIs("text/operator", input.value))
       }
 
@@ -27725,25 +22434,20 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
 
       // input required
-      if (
+      const inputIsRequired = (
         input.hasAttribute("required") ||
         input.getAttribute("required") === "true" ||
         input.required === true
-      ) {
-
+      )
+      if (inputIsRequired) {
         if (input.getAttribute("type") === "checkbox") {
-
           if (input.getAttribute("checked") === "true") return true
           if (input.checked === true) return true
-
           return false
         }
-
-        if (!this.verifyIs("text/empty", input.value)) return true
+        if (input.value.trim() !== "") return true
         return false
-
       }
-
       // select required
       if (input.requiredIndex !== undefined) {
         for (let i = 0; i < input.options.length; i++) {
@@ -27760,6 +22464,17 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
 
     if (event === "id/unique") {
       return document.getElementById(input) === null
+    }
+
+    if (event === "it/primitive") {
+
+      return input === null ||
+        typeof input === "string" ||
+        typeof input === "number" ||
+        typeof input === "boolean" ||
+        typeof input === "bigint" ||
+        typeof input === "symbol" ||
+        typeof input === "undefined"
     }
 
     if (event === "text/id") {
@@ -27960,31 +22675,10 @@ Bitte beachte, dass der Empfänger der Nachricht, keine Möglichkeit hat dich zu
     }
 
   }
-
 }
 
-Helper.registerHtmlButton = await Helper.create("toolbox/register-html")
-Helper.removeOverlayButton = await Helper.create("button/remove-overlay")
 Helper.createNode = Helper.fn("createNode")
 
-let lastPage = document.referrer
-window.goBack = () => {
-  if (window.history.length === 1) {
-    window.close()
-    return
-  }
-  if (Helper.verifyIs("text/empty", document.referrer)) {
-    window.history.back()
-  }
-  if (lastPage === window.location.href) {
-    window.close()
-    return
-  }
-  window.history.back()
-  setTimeout(() => {
-    window.close()
-  }, 34)
-}
+document.querySelectorAll(".go-back").forEach(node => node.onclick = Helper.goBack)
 
 Helper.render("link/css", "/public/classes.css", document.head)
-Helper.render("link/js", "/public/functions.js", document.head)

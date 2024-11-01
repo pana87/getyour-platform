@@ -45,7 +45,7 @@
 
   <script type="module">
 
-    import {Request} from "/js/Request.js"
+    import {Request} from "/js/Helper.js"
     import {DivField} from "/js/DivField.js"
     import {FileField} from "/js/FileField.js"
     import {HeaderField} from "/js/HeaderField.js"
@@ -61,9 +61,9 @@
     getOffer.url = "/consumer/1/closed/"
     getOffer.method = "get"
     getOffer.type = "offer"
-    getOffer.email = await Request.email()
+    getOffer.email = await Helper.email()
     getOffer.referer = document.referrer
-    getOffer.localStorageId = await Request.localStorageId()
+    getOffer.localStorageId = await Helper.localStorageId()
     const res = await this.request("json", getOffer)
 
     if (res.status !== 200) {
@@ -182,9 +182,9 @@
         registerLead.contactType = contactType[0].value
         registerLead.phone = phone
         registerLead.date = date
-        registerLead.email = await Request.email()
+        registerLead.email = await Helper.email()
         registerLead.referer = document.referrer
-        registerLead.localStorageId = await Request.localStorageId()
+        registerLead.localStorageId = await Helper.localStorageId()
         await this.request("json", registerLead)
         alert("Ihre Anfrage wurde erfolgreich weitergeleitet.\n\nSobald Ihr neuer persönlicher Ansprechpartner Ihren Terminvorschlag bestätigt, erhalten Sie eine Benachrichtigung per E-Mail.")
         Helper.setDefaultCursor()
@@ -358,16 +358,16 @@
               throw new Error("pdf too large")
             }
 
-            const email = await Request.email()
+            const email = await Helper.email()
             //
-            // await Request.withVerifiedEmail(email, async () => {
+            // await Helper.withVerifiedEmail(email, async () => {
             //   const registerOffer = {}
             //   registerOffer.url = "/consumer/1/closed/"
             //   registerOffer.method = "register"
             //   registerOffer.type = "offer"
             //   registerOffer.email = email
             //   registerOffer.referer = document.referrer
-            //   registerOffer.localStorageId = await Request.localStorageId()
+            //   registerOffer.localStorageId = await Helper.localStorageId()
             //   registerOffer.offer = offer
             //   registerOffer.offer.value.file = {}
             //   registerOffer.offer.value.file.name = `${offer.producer.name}-${Date.now()}.pdf`
@@ -384,7 +384,7 @@
             //   getChecklist.urlId = urlId
             //   getChecklist.email = email
             //   getChecklist.referer = document.referrer
-            //   getChecklist.localStorageId = await Request.localStorageId()
+            //   getChecklist.localStorageId = await Helper.localStorageId()
             //   const res = await this.request("json", getChecklist)
             //
             //   const checklist = JSON.parse(res.response)
@@ -399,7 +399,7 @@
             //   registerChecklist.type = "checklist"
             //   registerChecklist.email = email
             //   registerChecklist.referer = document.referrer
-            //   registerChecklist.localStorageId = await Request.localStorageId()
+            //   registerChecklist.localStorageId = await Helper.localStorageId()
             //   registerChecklist.checklist = checklist
             //   await this.request("json", registerChecklist)
             //
