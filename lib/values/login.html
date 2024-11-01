@@ -5,21 +5,10 @@
     <meta name="viewport" content="initial-scale=1, width=device-width">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="shortcut icon" href="/public/logo-getyour-red.svg">
+    <link rel="stylesheet" href="/public/remove-flash.css" media="all">
     <title>Login</title>
-    <style>
-      body {
-        line-height: 1.2;
-        font-family: sans-serif;
-        padding-bottom: 144px;
-        overscroll-behavior: none;
-      }
-    </style>
   </head>
   <body>
-  <script type="module">
-import {Helper} from "/js/Helper.js"
-Helper.create("session-login", document.body)
-Helper.add("session-login", document.body)
-  </script>
+  <script type="module" src="/js/login.js"></script>
 </body>
 </html>

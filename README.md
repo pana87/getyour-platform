@@ -14,7 +14,6 @@ You need a [couch db instance](https://docs.couchdb.org/en/stable/install/index.
 .env
 ```bash
 COUCHDB_LOCATION=http://user:password@localhost:5984/
-DATABASE_NAME=my-database
 
 JWT_SECRET=my-jwt-secret
 
@@ -22,9 +21,16 @@ DROID_EMAIL_HOST=my-email-host
 DROID_EMAIL_ADDRESS=my-email
 DROID_EMAIL_PASSWORD=my-email-password
 
-ADMINS=first.email@my-domain.de,second.email@my-domain.de,n.email@my-domain.de, ..
-DOMAIN=@my-domain.de
+ADMINS=first.email@my-domain.de, .. ,n.email@my-domain.de
 
+```
+
+# Database Migration
+
+If you have problems log in to your local platform you propably have the old datastructure. For that you need to trigger the migration process on this api endpoint: '/db/migration'. Then try to login again. [If this does not solve your problem please contact us.](mailto:datenschutz@get-your.de)
+
+```js
+fetch('http://localhost:9999/db/migration/')
 ```
 
 ## Start

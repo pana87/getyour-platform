@@ -3,102 +3,10 @@
 <head>
   <meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <link rel="shortcut icon" href="/public/logo-getyour-red.svg" />
-  <title>Getyour Plattform Release Notes</title>
-
-	<style>
-		body {
-			font-family: sans-serif;
-			margin: 21px 34px;
-      line-height: 1.2;
-      padding-bottom: 144px;
-		}
-	</style>
+  <title>Plattform Release Notes</title>
 </head>
 <body>
-
-  <h1>Release Notes</h1>
-
-  <h2>Plattform Version <span id="version"></span></h2>
-  <p><strong>Neue Funktionen:</strong></p>
-  <ul>
-    <li>Standard CSS Design Klassen sind ab jetzt global verfügbar.</li>
-    <li>Bildschirmaufnahmen sind ab jetzt in der Toolbox verfügbar.</li>
-    <li>Toolbox ist jetzt für alle Web-Entwickler frei verfügbar.</li>
-    <li>In-App Messanger ist ab jetzt für alle registrierte Nutzer verfügbar</li>
-    <li>Meine Bilder sind ab jetzt in der Toolbox verfügbar</li>
-    <li>IPFS Node für Experten ab jetzt verfügbar</li>
-    <li>Zitat Prüfer ist ab jetzt in der Toolbox verfügbar</li>
-    <li>Bulk Funktionen sind jetzt für Werteinheiten verfügbar</li>
-    <li>Alle registrierte Nutzer haben ab jetzt Zugang zur Gruppen Funktion: WebRTC Peer to Peer WebCall</li>
-    <li>Experten können ab jetzt Statistiken für ihre Werteinheiten auswählen</li>
-    <li>Experten können jetzt Kontakte promoten</li>
-    <li>Registrierte Nutzer können jetzt Kontakte erstellen</li>
-    <li>Web-Entwickler können ab jetzt den HTML Creator nutzen</li>
-    <li>DIV Elemente können ab jetzt mit der DIV Creator App in der Toolbox bearbeitet werden</li>
-    <li>Soundbox ist ab jetzt für Experten verfügbar</li>
-    <li>Experten können ab jetzt Schreibrechte für ihre Werteinheiten vergeben</li>
-    <li>Experten Match Maker ist ab jetzt verfügbar</li>
-    <li>Zurück Button ist ab jetzt als Skript verfügbar</li>
-    <li>Feedback Button ist ab jetzt auch, als Skript, für HTML Werteinheiheiten verfügbar</li>
-    <li>Experte kann ab jetzt, seinen Nutzern erlauben, Listen zu erstellen</li>
-    <li>Experten Name kann jetzt geändert werden</li>
-    <li>Rollen App: "scripts" ist jetzt verfügbar</li>
-    <li>Web-Entwickler können ab jetzt Experten mit HTML Skripte unterstützen</li>
-    <li>Bildupload ist ab jetzt in der Toolbox verfügbar</li>
-    <li>Field Funnel ist ab jetzt in der Toolbox verfügbar</li>
-    <li>Klick Funnel ist ab jetzt in der Toolbox verfügbar</li>
-    <li>Rollen Apps Button kann jetzt über die Toolbox angehängt werden</li>
-    <li>Rollen App: "services" ist jetzt verfügbar</li>
-    <li>Rollen App: "offer" ist jetzt verfügbar</li>
-    <li>Zugänge für bestimmte Rollen können jetzt mit der Toolbox gelegt werden</li>
-    <li>Copy und Paste Funktion für HTML Elemente ist in der Toolbox ab jetzt verfügbar</li>
-    <li>Experten können jetzt Rollen definieren</li>
-    <li>Element Alias wird ab jetzt in der Toolbox für die Orientierung angezeigt</li>
-    <li>Elemente können in der Toolbox ab jetzt mit Drag & Drop verschoben werden</li>
-    <li>Style für jedes Element kann ab jetzt in der Toolbox angepasst werden</li>
-    <li>Element id kann in der Toolbox ab jetzt gesetzt werden</li>
-    <li>Rekursive Children Funktion ist in der Toolbox ab jetzt verfügbar</li>
-    <li>HTML Import ist in der Toolbox unter 'document.write()' ab jetzt verfügbar</li>
-    <li>Experte erhält nun neue Version der Toolbox bei jeder Anfrage</li>
-    <li>Toolbox ist jetzt verfügbar</li>
-    <li>Werteinheitverwaltungssystem ist jetzt verfügbar</li>
-    <li>Multi-Level Netzwerk jetzt verfügbar</li>
-    <li>Registrierung als Experte nun möglich</li>
-    <li>Ladeanimation ist ab jetzt verfügbar</li>
-    <li>Direktes Matching ist ab sofort verfügbar</li>
-    <li>Lazy Loading ist nun verfügbar</li>
-    <li>Session Storage Sync ist nun verfügbar</li>
-    <li>Nutzer erhält jetzt bei jeder Request die neueste Version der Plattform</li>
-    <li>Release notes sind jetzt unter <a href="/docs/release-notes/">/docs/release-notes/</a> verfügbar</li>
-    <li>Login ab jetzt verfügbar</li>
-    <li>Major Release der Plattform</li>
-  </ul>
-  <p><strong>Sicherheitsrelevante Updates:</strong></p>
-  <ul>
-    <li>WebSocket mit SSL verschlüsselt</li>
-    <li>Listen sind begrenzt auf 5MB pro Nutzer</li>
-    <li>Es können ab jetzt keine Super Admins mehr entfernt werden</li>
-    <li>Nutzer können ab jetzt vom Admin aktiviert/deaktiviert werden</li>
-    <li>Location und Referer werden ab jetzt überprüft</li>
-    <li>Konto kann jetzt gelöscht werden</li>
-    <li>Einzelne Datensätze können jetzt gelöscht werden</li>
-    <li>Login ist jetzt auch über Tablets möglich</li>
-    <li>Alle Cookies werden jetzt vor der Session gelöscht</li>
-    <li>Erweiterte Fehlerlogs sind ab jetzt verfügbar</li>
-    <li>PIN Abfrage blockt jetzt Funktionen nach Fehler</li>
-    <li>Loggerfunktion loggt jetzt in die Datenbank</li>
-    <li>Uploads werden jetzt serverseitig überprüft</li>
-  </ul>
-
-  <script type="module">
-    import {Helper} from "/js/Helper.js"
-    const back = Helper.create("back-button", document.body)
-    Helper.convert("dark-light", back)
-    const version = document.querySelector("span#version")
-    version.textContent = Helper.convert("millis/dd.mm.yyyy", Date.now())
-  </script>
-
+  <script type="module" src="/js/release-notes.js"></script>
 </body>
 </html>
