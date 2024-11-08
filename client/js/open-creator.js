@@ -1,14 +1,10 @@
+import {button} from "/js/button.js"
 import {Helper} from "/js/Helper.js"
 
-let button = document.querySelector(`.open-creator`)
-if (!button) {
-  button = Helper.create("button/bottom-right", document.body)
-  button.classList.add("open-creator")
-  Helper.convert("path/icon", "/public/pencil-ruler.svg").then(icon => {
-    Helper.append(icon, button)
-  })
+let openCreatorButton = document.querySelector(`.open-creator`)
+if (!openCreatorButton) {
+  openCreatorButton = button.append("toolbox", document.body)
+  openCreatorButton.classList.add("open-creator")
 }
-Helper.add("hover-outline", button)
-button.onclick = () => {
-  Helper.overlay("tools")
-}
+button.addOutlineOnHover(openCreatorButton)
+openCreatorButton.onclick = () => Helper.overlay("tools")

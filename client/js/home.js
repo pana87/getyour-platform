@@ -71,33 +71,30 @@ function renderDomainNames(node) {
 function renderGetyourWebEntwickler(node) {
 
   node.textContent = ""
-  const title = Helper.render("text/h2", "Entwickler", node)
-  const list = Helper.div("flex wrap around", node)
   const loading = Helper.create("div/loading", node)
   Helper.request("/get/users/getyour/web-entwickler/").then(res => {
     loading.remove()
     if (res.status === 200) {
       const users = JSON.parse(res.response)
+      Helper.render("text/h2", "Entwickler", node)
+      const list = Helper.div("flex wrap around", node)
       for (let i = 0; i < users.length; i++) {
         const user = users[i]
         renderUserBox(user, list)
       }
     } else {
-      title.remove()
       node.remove()
     }
   })
 }
 function renderParentButton(node) {
 
-  const title = Helper.render("text/h2", "Dein Ansprechpartner", node)
   Helper.request("/jwt/get/parent/").then(res => {
-
     if (res.status === 200) {
       const user = JSON.parse(res.response)
+      Helper.render("text/h2", "Dein Ansprechpartner", node)
       const box = createParentBox(user, node)
     } else {
-      title.remove()
       node.remove()
     }
   })

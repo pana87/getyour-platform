@@ -813,12 +813,15 @@ export class Helper {
 
     if (event === "toolbox/buttons") {
 
-      const back = this.create("button/goback")
-      const toolbox = this.create("button/getyour")
+      let back = document.querySelector("div.go-back")
+      if (!back) back = button.div("go-back")
+      button.addEvent("go-back", back)
+      const toolbox = button.div("toolbox")
       back.setAttribute("data-id", "toolbox")
       toolbox.setAttribute("data-id", "toolbox")
       document.body.insertBefore(back, document.querySelector("#toolbox"))
       document.body.insertBefore(toolbox, document.querySelector("#toolbox"))
+      button.addOutlineOnHover(toolbox)
       toolbox.addEventListener("click", () => {
         this.overlay("tools", {type: "expert"})
       })
@@ -1280,29 +1283,6 @@ export class Helper {
       observer.observe(input)
     }
 
-    if (event === "closed-creator") {
-
-      return new Promise(async(resolve, reject) => {
-        try {
-
-          let button = document.querySelector(`.${event}`)
-          if (!button) {
-            button = this.create("button/bottom-right", document.body)
-            button.classList.add(event)
-            const icon = await this.convert("path/icon", "/public/pencil-ruler.svg")
-            button.appendChild(icon)
-          }
-          this.add("hover-outline", button)
-          button.onclick = () => {
-            this.overlay("tools", {type: "closed"})
-          }
-          resolve()
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-
     if (event === "event/click-funnel") {
 
       document.querySelectorAll(".click-funnel").forEach(funnel => {
@@ -1611,7 +1591,7 @@ export class Helper {
       }
       function updateTimer() {
         seconds++
-        controls.timer.textContent = `Aufnahmezeit: ${seconds}s`
+        controls.timer.textContent = `Aufnahmezeit: ${Helper.convert("seconds/hh:mm:ss", seconds)}`
       }
       return {controls, pause, start, stop}
     }
@@ -2431,7 +2411,7 @@ export class Helper {
 
       const div = this.div("mtb21 mlr34 relative")
       div.input = document.createElement("textarea")
-      div.input.className = "w89p fs21 dark-light"
+      div.input.className = "w89p dark-light"
       this.append(div.input, div)
       div.input.oninput = ev => this.verify("input/value", div.input)
       this.add("hover-outline", div.input)
@@ -2528,9 +2508,10 @@ export class Helper {
     if (event === "input/html") {
 
       const div = this.create("input/textarea")
-      div.input.className = "monospace fs13 vh55"
+      div.input.className += " monospace fs13 vh55"
       div.input.placeholder = `<html>..</html>`
       this.verify("input/value", div.input)
+      if (input) this.append(div, input)
       return div
     }
 
@@ -8579,6 +8560,27 @@ export class Helper {
         }
       }
 
+    }
+
+    if (event === "seconds/hh:mm:ss") {
+
+      function formatTime(input) {
+
+        const totalSeconds = Math.floor(input)
+        const hours = Math.floor(totalSeconds / 3600)
+        const minutes = Math.floor((totalSeconds % 3600) / 60)
+        const seconds = totalSeconds % 60
+        const formattedHours = hours > 0 ? hours : ''
+        const formattedMinutes = hours > 0 || minutes > 0 ? minutes : ''
+        let timeString = ''
+        if (formattedHours) {
+          timeString += formattedHours + ':'
+        }
+        timeString += (formattedMinutes > 0 ? formattedMinutes.toString().padStart(2, '0') : '00') + ':'
+        timeString += seconds.toString().padStart(2, '0')
+        return timeString
+      }
+      return formatTime(input)
     }
 
     if (event === "seconds/millis") {
@@ -15613,7 +15615,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           }
           button.onclick = () => {
             this.convert("doc/design-mode")
-            overlay.remove()
+            this.remove("overlays")
           }
         }
 
@@ -15626,24 +15628,17 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           button.right.addEventListener("click", ev => {
             ev.stopPropagation()
             this.overlay("pop", overlay => {
-              const content = this.create("div/scrollable", overlay)
+              const content = overlay.content
               this.render("text/h3", "Aktuelles Dokument ersetzen", content)
-              const a = document.createElement("a")
-              a.style.margin = "0 34px"
-              a.href = "https://developer.mozilla.org/en-US/docs/Web/API/Document/write"
-              a.textContent = "Mozilla Developer Network write() Methode"
-              a.target = "_blank"
-              this.add("hover-outline", a)
-              this.convert("dark-light", a)
-              content.appendChild(a)
+              this.render("a", {className: "mlr34 link-theme sans-serif fs21", href: "https://developer.mozilla.org/en-US/docs/Web/API/Document/write", text: "Mozilla Developer Network write() Methode", target: "_blank"}, content)
             })
           })
           button.addEventListener("click", () => {
 
             this.overlay("pop", overlay => {
-              const funnel = this.create("div/scrollable", overlay)
-              const html = this.create("input/html", funnel)
-              const button = this.create("button/action", funnel)
+              const content = overlay.content
+              const html = this.create("input/html", content)
+              const button = this.create("button/action", content)
               button.textContent = "Dokument jetzt ersetzen"
               button.addEventListener("click", async () => {
 
@@ -15662,27 +15657,12 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
         {
           const button = this.create("button/left-right", buttons)
-          button.left.textContent = "navigator.share"
-          button.right.textContent = "Sende diese URL an dein Netzwerk"
-          button.onclick = async () => {
-            try {
-              await navigator.share({
-                url: window.location.href
-              })
-              console.log("URL share successfully");
-            } catch (err) {
-              console.error(err)
-            }
-          }
-        }
-
-        {
-          const button = this.create("button/left-right", buttons)
           button.left.textContent = ".open"
-          button.right.textContent = "Ein Platz für Open Innovation"
+          button.right.textContent = "Ein Platz für Integrationen"
           button.onclick = () => {
 
             this.overlay("pop", o2 => {
+              o2.addInfo(".open")
 
               function createIntegration(type, integrations) {
 
@@ -15691,6 +15671,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                 button.addEventListener("click", () => {
                   integrations.sort((a, b) => a.name.localeCompare(b.name))
                   Helper.overlay("pop", o3 => {
+                    o3.addInfo(`.open${type}`)
                     const content = o3.content
                     for (let i = 0; i < integrations.length; i++) {
                       const integration = integrations[i]
@@ -15768,10 +15749,23 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
         {
           const controls = Helper.div("controls fixed top right z3")
+          const pauseBtn = Helper.render("text/link", "Pause", controls)
+          const stopBtn = Helper.render("text/link", "Stop", controls)
+          const timerDisplay = Helper.render("text/link", "Aufnahmezeit: 00:00", controls)
           const cameraDiv = Helper.div("fullscreen flex align center z2")
+          let seconds = 0
+          // function addLoadingIcon(node) {
+          //
+          //
+          // }
+          function updateControlsTimer() {
+
+            seconds++
+            timerDisplay.textContent = `Aufnahmezeit: ${Helper.convert("seconds/hh:mm:ss", seconds)}`
+          }
           function animateCameraDiv() {
 
-            Helper.classes(cameraDiv, {remove: "fullscreen", add: "to-bottom-right"})
+            Helper.classes(cameraDiv, {remove: "fullscreen", add: "to-bottom-left"})
           }
           const button = this.render("button/left-right", {left: ".record", right: "Beginne eine Aufnahme"}, buttons)
           button.onclick = ev => {
@@ -15785,16 +15779,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   let mediaRecorder
                   let chunks = []
                   let timerInterval
-                  let seconds = 0
                   if (!document.querySelector("div.controls")) document.body.appendChild(controls)
-                  const timerDisplay = Helper.render("text/link", "Aufnahmezeit: 0s", controls)
-                  function updateTimer() {
-
-                    seconds++
-                    timerDisplay.textContent = `Aufnahmezeit: ${seconds}s`
-                  }
-                  const pauseBtn = Helper.render("text/link", "Pause", controls)
-                  const stopBtn = Helper.render("text/link", "Stop", controls)
                   pauseBtn.addEventListener("click", () => {
 
                     if (mediaRecorder.state === "recording") {
@@ -15805,7 +15790,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     }
                     if (mediaRecorder.state === "paused") {
                       mediaRecorder.resume()
-                      timerInterval = setInterval(updateTimer, 1000)
+                      timerInterval = setInterval(updateControlsTimer, 1000)
                       Helper.add("style/dark-light", pauseBtn)
                       return
                     }
@@ -15831,6 +15816,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                       }
                     }
                     mediaRecorder.onstop = async () => {
+                      Helper.create("div/loading", stopBtn)
                       clearInterval(timerInterval)
                       const blob = new Blob(chunks, { type: 'video/webm' })
                       const hashHex = await Helper.digest(blob)
@@ -15849,7 +15835,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                       }, 100)
                     }
                     mediaRecorder.start()
-                    timerInterval = setInterval(updateTimer, 1000)
+                    timerInterval = setInterval(updateControlsTimer, 1000)
                     Helper.add("style/red", timerDisplay)
                   }
                   await startRecording()
@@ -15866,16 +15852,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   let mediaRecorder
                   let chunks = []
                   let timerInterval
-                  let seconds = 0
                   if (!document.querySelector("div.controls")) document.body.appendChild(controls)
-                  const timerDisplay = Helper.render("text/link", "Aufnahmezeit: 0s", controls)
-                  const pauseBtn = Helper.render("text/link", "Pause", controls)
-                  const stopBtn = Helper.render("text/link", "Stop", controls)
-                  function updateTimer() {
-
-                    seconds++
-                    timerDisplay.textContent = `Aufnahmezeit: ${seconds}s`
-                  }
                   async function startRecording() {
 
                     const stream = await navigator.mediaDevices.getDisplayMedia({ video: true })
@@ -15887,6 +15864,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                       }
                     }
                     mediaRecorder.onstop = async () => {
+                      Helper.create("div/loading", stopBtn)
                       clearInterval(timerInterval)
                       const blob = new Blob(chunks, { type: 'video/webm' })
                       const hashHex = await Helper.digest(blob)
@@ -15905,7 +15883,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                       }, 100)
                     }
                     mediaRecorder.start()
-                    timerInterval = setInterval(updateTimer, 1000)
+                    timerInterval = setInterval(updateControlsTimer, 1000)
                     Helper.add("style/red", timerDisplay)
                   }
                   pauseBtn.addEventListener('click', () => {
@@ -15919,7 +15897,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
                     if (mediaRecorder.state === 'paused') {
                       mediaRecorder.resume()
-                      timerInterval = setInterval(updateTimer, 1000)
+                      timerInterval = setInterval(updateControlsTimer, 1000)
                       Helper.add("style/dark-light", pauseBtn)
                       return
                     }
@@ -15944,17 +15922,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   let mediaRecorder
                   let chunks = []
                   let timerInterval
-                  let seconds = 0
-
                   if (!document.querySelector("div.controls")) document.body.appendChild(controls)
-                  const timerDisplay = Helper.render("text/link", "Aufnahmezeit: 0s", controls)
-                  function updateTimer() {
-
-                    seconds++
-                    timerDisplay.textContent = `Aufnahmezeit: ${seconds}s`
-                  }
-                  const pauseBtn = Helper.render("text/link", "Pause", controls)
-                  const stopBtn = Helper.render("text/link", "Stop", controls)
                   pauseBtn.addEventListener("click", () => {
 
                     if (mediaRecorder.state === "recording") {
@@ -15965,7 +15933,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     }
                     if (mediaRecorder.state === "paused") {
                       mediaRecorder.resume()
-                      timerInterval = setInterval(updateTimer, 1000)
+                      timerInterval = setInterval(updateControlsTimer, 1000)
                       Helper.add("style/dark-light", pauseBtn)
                       return
                     }
@@ -16000,6 +15968,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     }
                     mediaRecorder.onstop = async () => {
 
+                      Helper.create("div/loading", stopBtn)
                       clearInterval(timerInterval)
                       const blob = new Blob(chunks, { type: 'video/webm' })
                       const hashHex = await Helper.digest(blob)
@@ -16019,7 +15988,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                       }, 100)
                     }
                     mediaRecorder.start()
-                    timerInterval = setInterval(updateTimer, 1000)
+                    timerInterval = setInterval(updateControlsTimer, 1000)
                     Helper.add("style/red", timerDisplay)
                   }
                   await startRecording()
@@ -16036,27 +16005,13 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   const prompt = window.prompt("Nach wieviel Sekunden soll dein Bildschirm angezeigt werden: (text/number)")
                   if (!Helper.verifyIs("text/number", prompt)) return window.alert("Nummer ungültig.")
                   const duration = Helper.convert("seconds/millis", prompt)
-
                   let timeoutId
                   let startTime
                   let remainingTime = duration
-
-
-
                   let mediaRecorder
                   let chunks = []
                   let timerInterval
-                  let seconds = 0
-
                   if (!document.querySelector("div.controls")) document.body.appendChild(controls)
-                  const timerDisplay = Helper.render("text/link", "Aufnahmezeit: 0s", controls)
-                  function updateTimer() {
-
-                    seconds++
-                    timerDisplay.textContent = `Aufnahmezeit: ${seconds}s`
-                  }
-                  const pauseBtn = Helper.render("text/link", "Pause", controls)
-                  const stopBtn = Helper.render("text/link", "Stop", controls)
                   pauseBtn.addEventListener("click", () => {
 
                     if (mediaRecorder.state === "recording") {
@@ -16069,7 +16024,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     }
                     if (mediaRecorder.state === "paused") {
                       mediaRecorder.resume()
-                      timerInterval = setInterval(updateTimer, 1000)
+                      timerInterval = setInterval(updateControlsTimer, 1000)
                       startTime = Date.now()
                       timeoutId = setTimeout(animateCameraDiv, remainingTime)
                       Helper.add("style/dark-light", pauseBtn)
@@ -16098,12 +16053,12 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     cameraVideo.srcObject = cameraStream
                     cameraVideo.autoplay = true
                     Helper.append(cameraVideo, cameraDiv)
-
+                    if (Number(prompt) === 0) {
+                      Helper.classes(cameraDiv, {remove: "fullscreen", add: "bottom-left"})
+                    }
 
                     startTime = Date.now()
                     timeoutId = setTimeout(animateCameraDiv, duration)
-
-
 
                     mediaRecorder.ondataavailable = function (event) {
 
@@ -16113,6 +16068,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     }
                     mediaRecorder.onstop = async () => {
 
+                      Helper.create("div/loading", stopBtn)
                       clearInterval(timerInterval)
                       const blob = new Blob(chunks, { type: 'video/webm' })
                       const hashHex = await Helper.digest(blob)
@@ -16133,7 +16089,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                       }, 100)
                     }
                     mediaRecorder.start()
-                    timerInterval = setInterval(updateTimer, 1000)
+                    timerInterval = setInterval(updateControlsTimer, 1000)
                     Helper.add("style/red", timerDisplay)
                   }
                   await startRecording()
@@ -16144,6 +16100,22 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                 }
               }
             })
+          }
+        }
+
+        {
+          const button = this.create("button/left-right", buttons)
+          button.left.textContent = ".share"
+          button.right.textContent = "Sende diese URL an dein Netzwerk"
+          button.onclick = async () => {
+            try {
+              await navigator.share({
+                url: window.location.href
+              })
+              console.log("URL share successfully");
+            } catch (err) {
+              console.error(err)
+            }
           }
         }
 
@@ -16162,8 +16134,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             window.alert("Deine Toolbox ist jetzt auf dem neuesten Stand.\n\nUm sicherzustellen, dass Deine wertvollen Änderungen nicht verloren gehen und dauerhaft im Dokument gespeichert werden, vergiss bitte nicht, den Speichervorgang durchzuführen. Das Speichern Deiner Arbeit ist wie das Bewahren eines Kunstwerks. Denke daran, auf die 'Speichern'-Schaltfläche in Deiner Anwendungssoftware zu klicken. Andernfalls könnten Deine Anpassungen beim Schließen des Fensters verschwinden.")
           })
         }
-
-
 
       })
     }
@@ -17031,6 +17001,19 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
   }
   static render(event, input, parent) {
+
+    if (event === "a") {
+
+      const {className, href, target, text} = input
+      const a = document.createElement("a")
+      a.className = className
+      a.textContent = text
+      a.href = href
+      a.target = target
+      this.add("hover-outline", a)
+      if (parent) this.append(a, parent)
+      return a
+    }
 
     if (event === "audio") {
 
@@ -19320,19 +19303,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         })
       })
       return tabButtons
-    }
-
-    if (event === "a") {
-
-      const {href, target, text} = input
-      const a = document.createElement("a")
-      a.className = "link-theme mlr5"
-      a.textContent = text
-      a.href = href
-      a.target = target
-      this.add("hover-outline", a)
-      if (parent) this.append(a, parent)
-      return a
     }
 
     if (event === "text/a") {
@@ -22678,7 +22648,4 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 }
 
 Helper.createNode = Helper.fn("createNode")
-
-document.querySelectorAll(".go-back").forEach(node => node.onclick = Helper.goBack)
-
 Helper.render("link/css", "/public/classes.css", document.head)
