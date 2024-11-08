@@ -226,6 +226,13 @@ it.div = name => {
     button.textContent = "↓"
     return button
   }
+  if (name === "toolbox") {
+
+    const button = it.div("bottom-right")
+    button.className += " flex align center fs13 btn-theme color-theme monospace"
+    button.textContent = "toolbox"
+    return button
+  }
   if (name === "up") {
 
     const button = it.div("bottom-right")

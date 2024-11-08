@@ -1,5 +1,5 @@
 import {Helper} from "/js/Helper.js"
-import {Request} from "/js/Request.js"
+import {text} from "/js/request.js"
 
 export const numerology = {}
 const numbersAsText = ['eins', 'zwei', 'drei', 'vier', 'fuenf', 'sechs', 'sieben', 'acht', 'neun']
@@ -928,7 +928,7 @@ if (numerogyOverlay) {
   })
   const lifepathNode = document.querySelector("[lifepath='content']")
   if (!lifepathNode) return
-  const text = await Request.text(`/entwicklung/numerologie/geburtsenergie-${numbersAsText[lifepath - 1]}/`)
+  const text = await text(`/entwicklung/numerologie/geburtsenergie-${numbersAsText[lifepath - 1]}/`)
   if (!text) return
   const purified = await Helper.convert("text/purified", text)
   const doc = Helper.convert("text/doc", purified)
