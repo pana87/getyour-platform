@@ -1134,7 +1134,6 @@ async function renderValueButtons(values, node) {
           Helper.overlay("pop", async o2 => {
             o2.addInfo(value.path)
             const content = o2.content
-
             function valueVisibilityFunnel(type, value) {
 
               funnelDiv.textContent = ""
@@ -1160,12 +1159,12 @@ async function renderValueButtons(values, node) {
                   Helper.overlay("lock", async o3 => {
                     const res = await Helper.request("/location-expert/register/platform/value/visibility/", {path, visibility})
                     if (res.status === 200) {
-                      window.alert("Sichtbarkeit erfolgreich geändert.")
-                      parent.parentElement?.parentElement?.remove()
+                      o3.alert.saved()
                       o1.remove()
+                      o2.previousSibling.remove()
                       o2.remove()
                     } else {
-                      window.alert("Fehler.. Bitte wiederholen.")
+                      o3.alert.nok()
                     }
                     o3.remove()
                   })
@@ -1181,7 +1180,6 @@ async function renderValueButtons(values, node) {
                   window.alert("Fehler.. Bitte wiederholen.")
                   o2.remove()
                 }
-
                 Helper.request("/expert/get/platform/roles/").then(res => {
                   if (res.status === 200) {
                     try {
@@ -1213,11 +1211,14 @@ async function renderValueButtons(values, node) {
                     notFound()
                   }
                 })
-
-
                 Helper.verify("input/value", authorizedSelect.input)
                 const submit = Helper.create("button/action", funnelDiv)
                 submit.textContent = "Daten jetzt speichern"
+
+
+
+
+
                 submit.onclick = async () => {
 
                   const path = value.path
@@ -1227,12 +1228,12 @@ async function renderValueButtons(values, node) {
                   Helper.overlay("lock", async o3 => {
                     const res = await Helper.request("/location-expert/register/platform/value/visibility/", {visibility, roles, authorized, path})
                     if (res.status === 200) {
-                      window.alert("Sichtbarkeit erfolgreich gespeichert.")
-                      parent.parentElement?.parentElement?.remove()
+                      o3.alert.saved()
                       o1.remove()
+                      o2.previousSibling.remove()
                       o2.remove()
                     } else {
-                      window.alert("Fehler.. Bitte wiederholen.")
+                      o3.alert.nok()
                     }
                     o3.remove()
                   })

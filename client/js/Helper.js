@@ -16124,14 +16124,21 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           button.addEventListener("click", async () => window.open("/", "_blank"))
         }
 
-        if (callback.updateToolbox === true) {
-          const button = this.create("button/left-right", buttons)
-          button.left.textContent = "update.toolbox"
-          button.right.textContent = "Mit nur einem Klick erhälst du die aktuellste Version unserer Toolbox"
-          button.addEventListener("click", async () => {
+        const videoButton = this.render("button/left-right", {left: ".video", right: "Schnell und einfach Videos bearbeiten"}, buttons)
+        videoButton.onclick = () => {
 
-            await this.update("toolbox-getter", document.body)
-            window.alert("Deine Toolbox ist jetzt auf dem neuesten Stand.\n\nUm sicherzustellen, dass Deine wertvollen Änderungen nicht verloren gehen und dauerhaft im Dokument gespeichert werden, vergiss bitte nicht, den Speichervorgang durchzuführen. Das Speichern Deiner Arbeit ist wie das Bewahren eines Kunstwerks. Denke daran, auf die 'Speichern'-Schaltfläche in Deiner Anwendungssoftware zu klicken. Andernfalls könnten Deine Anpassungen beim Schließen des Fensters verschwinden.")
+          this.overlay("pop", async o2 => {
+            const content = o2.content
+            const fileInput = this.create("input/file", content)
+            const videoDiv = this.div("mlr34 mtb21", content)
+            const video = document.createElement("video")
+            video.controls = true
+            video.className = "w100p"
+            fileInput.oninput = ev => {
+              const file = ev.target.files[0]
+              video.src = URL.createObjectURL(file)
+              this.append(video, videoDiv)
+            }
           })
         }
 
