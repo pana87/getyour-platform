@@ -1,4 +1,4 @@
-export const beacon = (path, input) {
+export const beacon = (path, input) => {
 
   const url = new URL(path, window.location.origin)
   url.searchParams.append("id", input)
@@ -26,11 +26,11 @@ export const post = (path, input) => {
     }
   })
 }
-export const text = url => {
+export const text = path => {
 
   return new Promise(async(resolve, reject) => {
     try {
-      fetch(url).then(res => res.text()).then(text => resolve(text))
+      fetch(path).then(res => res.text()).then(text => resolve(text))
     } catch (error) {
       reject(error)
     }
