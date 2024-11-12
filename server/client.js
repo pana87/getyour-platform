@@ -74,13 +74,38 @@ if (process.env.NODE_ENV === "dev") {
 }
 if (!server) server = http.createServer(app)
 
+process.on('uncaughtException', async (err) => {
+  await Helper.logInput(err)
+  // console.log(err);
+
+  // logger.error('Uncaught Exception:', { message: err.message, stack: err.stack });
+  // Hier kannst du einen externen Fehlerreporting-Service (z.B. Sentry) anrufen
+  // Sentry.captureException(err);
+  // Schließe die Anwendung nach dem Fehler
+  // process.exit(1);  // Beende den Prozess
+});
+
+// Unhandled Promise Rejections (für Fehler, die durch nicht abgefangene Promise-Rejections entstehen)
+process.on('unhandledRejection', async (reason, promise) => {
+  await Helper.logInput(reason)
+  // await Helper.logError(error, req)
+  // console.log(reason, promise);
+  // logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Optional: Sende den Fehler an einen externen Fehlerreporting-Service
+  // Sentry.captureException(reason);
+  // process.exit(1);  // Beende den Prozess
+});
+
+
+
+
 app.use(helmet())
 app.use(cookieParser())
 app.use(express.json({limit: "50mb"}))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
 app.use(removeCookies)
 app.use((req, res, next) => {
-  res.setHeader("Content-Security-Policy", "script-src 'self' https://www.get-your.de;");
+
   res.setHeader('X-Frame-Options', 'DENY')
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.setHeader('Pragma', 'no-cache')
