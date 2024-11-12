@@ -2532,7 +2532,6 @@ export class Helper {
       const image = this.create("input/text")
       image.input.id = "image"
       image.input.setAttribute("required", "true")
-      image.input.setAttribute("accept", "text/url")
       image.input.placeholder = "Bild-URL (text/url)"
       image.input.oninput = () => this.verify("input/value", image.input)
       this.verify("input/value", image.input)
