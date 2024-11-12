@@ -7,10 +7,8 @@ button.append("home", document.body)
 const logoDiv = Helper.div("flex center vh89", document.body)
 const logo = Helper.render("img", "/public/logo-getyour-red.svg", logoDiv)
 
-Helper.render("icon/path", "/public/arrow-down-without-line.svg", document.body).then(icon => {
-
-  icon.className = "bounce absolute bottom21 left45p w34"
-})
+const arrowDown = Helper.div("bounce absolute bottom21 left45p w34", document.body)
+arrowDown.textContent = "▽"
 
 const parent = Helper.div("pb144", document.body)
 renderParentButton(parent)
