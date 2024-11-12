@@ -1,4 +1,5 @@
 import {button} from "/js/button.js"
+import {text} from "/js/request.js"
 
 export class Helper {
 
@@ -7742,8 +7743,8 @@ export class Helper {
       return new Promise(async(resolve, reject) => {
         try {
           const funnels = []
-          const text = await this.convert("path/text", input)
-          const doc = this.convert("text/doc", text)
+          const requestedText = await text(input)
+          const doc = this.convert("text/doc", requestedText)
           const divs = Array.from(doc.querySelectorAll("div"))
           resolve(divs)
         } catch (error) {
@@ -7757,8 +7758,8 @@ export class Helper {
       return new Promise(async(resolve, reject) => {
         try {
           const funnels = []
-          const text = await this.convert("path/text", input)
-          const doc = this.convert("text/doc", text)
+          const requestedText = await text(input)
+          const doc = this.convert("text/doc", requestedText)
           const ids = Array.from(doc.querySelectorAll("[id]"))
           resolve(ids)
         } catch (error) {
@@ -7770,8 +7771,8 @@ export class Helper {
     if (event === "path/field-funnel") {
       return new Promise(async(resolve, reject) => {
         try {
-          const text = await this.convert("path/text", input)
-          const doc = this.convert("text/doc", text)
+          const requestedText = await text(input)
+          const doc = this.convert("text/doc", requestedText)
           const fieldFunnel = doc.querySelector(".field-funnel")
           if (fieldFunnel) {
             resolve(fieldFunnel)
@@ -7819,8 +7820,8 @@ export class Helper {
       return new Promise(async(resolve, reject) => {
         try {
           const funnels = []
-          const text = await this.convert("path/text", input)
-          const doc = this.convert("text/doc", text)
+          const requestedText = await text(input)
+          const doc = this.convert("text/doc", requestedText)
           const divs = doc.querySelectorAll("div[id]")
           divs.forEach(div => {
             const isFunnel = div.querySelector("input, select, textarea")
@@ -7837,9 +7838,9 @@ export class Helper {
 
       return new Promise(async(resolve, reject) => {
         try {
-          const text = await this.convert("path/text", input)
+          const requestedText = await text(input)
           const icon = this.div("icon flex align center")
-          const svg = await this.convert("text/first-child", text)
+          const svg = await this.convert("text/first-child", requestedText)
           svg.setAttribute("width", "100%")
           this.convert("svg/dark-light", svg)
           this.append(svg, icon)
@@ -7854,21 +7855,6 @@ export class Helper {
 
       const it = input.split("/").pop()
       return it.split(".")[0]
-    }
-
-    if (event === "path/text") {
-      return new Promise(async(resolve, reject) => {
-        try {
-          const response = await fetch(input)
-          if (!response.ok) {
-            throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`)
-          }
-          const result = await response.text()
-          resolve(result)
-        } catch (error) {
-          reject(error)
-        }
-      })
     }
 
     if (event === "stroke/reverse") {
@@ -12629,8 +12615,8 @@ export class Helper {
           for (let i = 0; i < list.length; i++) {
             const svgName = list[i]
             const button = Helper.create("toolbox/icon", fragment)
-            const text = await Helper.convert("path/text", `/public/${svgName}`)
-            const svgFragment = Helper.convert("text/fragment", text)
+            const requestedText = await text(`/public/${svgName}`)
+            const svgFragment = Helper.convert("text/fragment", requestedText)
             Helper.convert("svg/dark-light", svgFragment.firstChild)
             svgFragment.firstChild.setAttribute("width", "100%")
             if (typeof callback === "function") callback(button, svgFragment.firstChild)
