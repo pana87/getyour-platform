@@ -1,5 +1,5 @@
 import {button} from "/js/button.js"
-import {text} from "/js/request.js"
+import {post, text} from "/js/request.js"
 
 export class Helper {
 
@@ -871,9 +871,6 @@ export class Helper {
               }
             }
           }
-
-          reject()
-
         } catch (error) {
           reject(error)
         }
@@ -14013,8 +14010,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                       this.overlay("pop", async overlay => {
 
                         if (callback.type === "expert") {
-                          overlay.registerHtmlButton = this.registerHtmlButton(overlay)
-                          overlay.registerHtmlButton.onclick = async () => {
+                          const registerHtmlButton = overlay.registerHtmlButton()
+                          registerHtmlButton.onclick = async () => {
                             this.remove("contenteditable", clone)
                             this.remove("selected-node", clone)
                             child.replaceWith(clone)
@@ -14022,11 +14019,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                           }
                         }
 
-                        overlay.info.append(this.convert("element/alias", child))
-                        overlay.info.append(this.convert("text/span", ".clone"))
-
-                        const content = this.create("div", overlay)
-                        content.style.height = "100vh"
+                        const content = overlay.content
+                        content.className = "vh100p"
                         content.style.touchAction = "manipulation"
 
                         const preview = document.createElement("div")
