@@ -9710,6 +9710,9 @@ export class Helper {
       it.profileSurveysButton = this.render("text/link", "Profile Umfragen", it.templateOptions)
       it.createProfileSurveysBox = this.fn("createProfileSurveysBox")
 
+      it.videoSeriesButton = this.render("text/link", "Video Serien Button", it.templateOptions)
+      it.createVideoSeriesBox = this.fn("createVideoSeriesBox")
+
       it.imageTextAndActionButton = this.render("text/link", "Bild-Text-Action Box", it.templateOptions)
       it.createImageTextAndActionBox = this.fn("createImageTextAndActionBox")
       it.backgroundImageWithTitlesButton = this.render("text/link", "Hintergrund Bild mit Titel", it.templateOptions)
@@ -10669,7 +10672,15 @@ export class Helper {
       }
     }
 
+    if (event === "createVideoSeriesBox") {
+
+      return node => {
+
+      }
+    }
+
     if (event === "convertTextContentToDuckDuckGoLink") {
+      
       return (node) => {
         const duckDuckGoUrl = "https://duckduckgo.com/?q="
         const textContent = node.textContent
@@ -14206,7 +14217,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                           selectedNode = h3
                         }
 
-
+                        buttons.videoSeriesButton.onclick = () => buttons.createVideoSeriesBox(selectedNode)
                         buttons.openVideosOverlayButton.onclick = () => buttons.openVideosOverlay(selectedNode, callback.type)
                         buttons.openAudiosOverlayButton.onclick = () => buttons.openAudiosOverlay(selectedNode, callback.type)
                         buttons.openPdfOverlayButton.onclick = () => buttons.openPdfOverlay(selectedNode, callback.type)
@@ -15730,13 +15741,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           const controls = Helper.div("controls fixed top right z3")
           const pauseBtn = Helper.render("text/link", "Pause", controls)
           const stopBtn = Helper.render("text/link", "Stop", controls)
+          const resetBtn = Helper.render("text/link", "Reset Cam", controls)
           const timerDisplay = Helper.render("text/link", "Aufnahmezeit: 00:00", controls)
           const cameraDiv = Helper.div("fullscreen flex align center z2")
           let seconds = 0
-          // function addLoadingIcon(node) {
-          //
-          //
-          // }
           function updateControlsTimer() {
 
             seconds++
@@ -16018,8 +16026,11 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   async function startRecording() {
 
                     const screenStream = await navigator.mediaDevices.getDisplayMedia({video: true})
-                    const audioStream = await navigator.mediaDevices.getUserMedia({audio: true})
-                    const cameraStream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "user"}})
+                    const audioStream = await navigator.mediaDevices.getUserMedia({audio: {
+                      noiseSuppression: true,
+                      echoCancellation: true
+                    }})
+                    let cameraStream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "user"}})
                     const combinedStream = new MediaStream([
                       ...screenStream.getVideoTracks(),
                       ...audioStream.getAudioTracks(),
@@ -16070,6 +16081,22 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     mediaRecorder.start()
                     timerInterval = setInterval(updateControlsTimer, 1000)
                     Helper.add("style/red", timerDisplay)
+                    async function resetCamera() {
+                      try {
+                        if (cameraStream) {
+                          cameraStream.getTracks().forEach(track => track.stop())
+                        }
+                        cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+                        const cameraVideo = document.querySelector("video")
+                        if (cameraVideo) {
+                          cameraVideo.srcObject = cameraStream
+                        }
+                        console.log("Kamera zurückgesetzt")
+                      } catch (error) {
+                        console.error("Fehler beim Zurücksetzen der Kamera:", error)
+                      }
+                    }
+                    resetBtn.addEventListener("click", resetCamera)
                   }
                   await startRecording()
                 } catch (error) {
@@ -16485,7 +16512,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             o1.removeOverlayButton.addEventListener("click", ev => {
               recorder.stop()
             })
-            o1.info.textContent = `.record.audio`
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
             const recorder = this.add("recorder", {type: "audio/ogg"})
             this.style(recorder.controls, {position: "fixed", top: "0", right: "0"})
