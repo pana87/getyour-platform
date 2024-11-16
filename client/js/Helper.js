@@ -1,5 +1,4 @@
 import {button} from "/js/button.js"
-import {toolboxGetter} from "/js/toolbox-getter.js"
 import {post, text} from "/js/request.js"
 
 export class Helper {
@@ -838,9 +837,7 @@ export class Helper {
     if (event === "toolbox/onbody") {
 
       return new Promise(async(resolve, reject) => {
-
         try {
-
           function addToolbox(){
 
             if (Helper.verifyIs("path/valid")) {
@@ -855,7 +852,6 @@ export class Helper {
               window.addEventListener('keydown', save)
             }
           }
-
           const res = await this.request("/verify/user/closed/")
           if (res.status === 200) {
             const res = await this.request("/verify/user/location-expert/")
@@ -863,7 +859,6 @@ export class Helper {
               addToolbox()
               resolve()
             }
-
             if (res.status !== 200) {
               const res = await this.request("/verify/user/location-writable/")
               if (res.status === 200) {
@@ -875,9 +870,7 @@ export class Helper {
         } catch (error) {
           reject(error)
         }
-
       })
-
     }
 
     if (event === "field-funnel/oninput-sign-support") {
@@ -13771,6 +13764,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     return this._groups
   }
   static lorem(length) {
+
     const words = [
       "Lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit",
       "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore",
@@ -15654,6 +15648,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   document.open()
                   document.write(html.input.value)
                   document.close()
+                  const toolboxGetter = await this.toolboxGetter()
                   await toolboxGetter.addToolboxOnBody()
                   this.remove("overlays")
                 }
@@ -21370,6 +21365,14 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (input.wordBreak) node.style.wordBreak = input.wordBreak
       if (input.whiteSpace) node.style.whiteSpace = input.whiteSpace
     }
+  }
+  static async toolboxGetter() {
+
+    if (!this._toolboxGetter) {
+      const module = await import("/js/toolbox-getter.js")
+      this._toolboxGetter = module.toolboxGetter
+    }
+    return this._toolboxGetter
   }
   static update(event, parent, input) {
     // event = tag/on/algorithm

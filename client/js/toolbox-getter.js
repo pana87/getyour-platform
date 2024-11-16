@@ -12,5 +12,7 @@ it.addToolboxOnBody = async () => {
     await it.addToolboxOnBody()
   }
 }
-await it.addToolboxOnBody()
+
+(async () => await it.addToolboxOnBody())();
+
 export const toolboxGetter = it
