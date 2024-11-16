@@ -866,27 +866,17 @@ app.post("/get/open/:list/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
-  Helper.verifySession,
   async (req, res, next) => {
 
-    // closedOnly ??
-
-    if (req.jwt !== undefined) {
-      const array = []
+    try {
       const doc = await nano.db.use("getyour").get("user")
-      for (const key in doc.user) {
-        const user = doc.user[key]
-        if (user[req.params.list] !== undefined) {
-          for (let i = 0; i < user[req.params.list].length; i++) {
-            const it = user[req.params.list][i]
-            if (it.visibility === "open") {
-              array.push(it)
-            }
-          }
-        }
-      }
-      if (array.length > 0) return res.send(array)
+      const openList = Object.values(doc.user)
+      .flatMap(it => it[req.params.list] || [])
+      .filter(it => it.visibility === "open")
+      if (!openList || openList.length <= 0) return res.sendStatus(404)
+      return res.send(openList)
+    } catch (error) {
+      return res.sendStatus(404)
     }
   }
 )
@@ -4044,7 +4034,7 @@ app.post("/jwt/register/:list/:map/",
   async (req, res, next) => {
 
     try {
-      if (isReserved(req.params.list)) throw new Error(`${req.params.list} is not reserved`)
+      if (!isReserved(req.params.list)) throw new Error(`${req.params.list} is not reserved`)
       if (!req.body[req.params.map]) throw new Error(`req.body.${req.params.map} is empty`)
       const doc = await nano.db.use("getyour").get("user")
       const user = doc.user[req.jwt.id]
@@ -4059,6 +4049,7 @@ app.post("/jwt/register/:list/:map/",
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
     } catch (error) {
+      console.log(error);
       return res.sendStatus(404)
     }
   }
@@ -5781,7 +5772,7 @@ app.post("/verify/user/url-id/",
 
 startWebSocket(server)
 const port = 9999
-server.listen(port, () => console.log(`[client] is running on port :${port}`))
+server.listen(port, () => console.log(`[getyour] is running on port :${port}`))
 
 async function addJwt(req, res, next) {
 

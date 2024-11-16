@@ -662,6 +662,9 @@
 .ofy-visible {overflow-y: visible;}
 .ofy-scroll {overflow-y: scroll;}
 
+.op0 {opacity: 0;}
+.op1 {opacity: 1;}
+
 .outline {
   outline: 3px solid #999;
 }

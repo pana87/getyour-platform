@@ -10675,12 +10675,20 @@ export class Helper {
     if (event === "createVideoSeriesBox") {
 
       return node => {
-
+        const box = this.create("div/box", node)
+        box.className += " p5"
+        const title = this.div("fs21", box)
+        title.textContent = "Meine neue Serie"
+        const video = document.createElement("video")
+        video.controls = true
+        box.appendChild(video)
+        const next = this.div("fs13 pt21", box)
+        next.textContent = "Weiter zur Serie"
       }
     }
 
     if (event === "convertTextContentToDuckDuckGoLink") {
-      
+
       return (node) => {
         const duckDuckGoUrl = "https://duckduckgo.com/?q="
         const textContent = node.textContent
@@ -12446,7 +12454,7 @@ export class Helper {
           const content = o1.content
           const searchField = this.create("input/text", content)
           searchField.input.placeholder = "Suche nach dem Titel"
-          o1.appendChild(o1.addButton)
+          o1.appendAddButton()
           o1.addButton.onclick = ev => {
 
             this.overlay("pop", o2 => {
@@ -12459,13 +12467,15 @@ export class Helper {
           o1.it = "videos"
           o1.filter = "title"
           o1.input = searchField.input
-          o1.rerender = this.create("div/loading", content)
+          o1.rerender = this.div("", content)
           o1.createItButton = async it => {
 
-            const button = this.create("button/left-right")
+            const videoButton = button.div("dark-light")
+            button.addOutlineOnHover(videoButton)
+            videoButton.className += " p13 of-hidden flex column"
             let title
             if (it.title) {
-              const titleDiv = this.div("", button.left)
+              const titleDiv = this.div("", videoButton)
               title = await this.convert("text/purified", it.title)
               if (it.query) {
                 title = await Helper.convert("text/purified", it.query)
@@ -12474,12 +12484,16 @@ export class Helper {
                 titleDiv.textContent = title
               }
             }
-            this.render("video", it.url, button.right)
-            this.style(button.right, {margin: "21px 34px", display: "flex"})
-            this.render("text/hover-bottom-right", it.visibility, button)
-            return button
+            const video = document.createElement("video")
+            video.controls = true
+            video.src = it.url
+            video.className = "w144"
+            videoButton.appendChild(video)
+            this.render("text/hover-bottom-right", it.visibility, videoButton)
+            return videoButton
           }
           o1.closedOptions = it => {
+
             this.overlay("pop", o2 => {
               if (it.title) o2.info.textContent = it.title
               o1.appendButton(it, node, o2)
@@ -12490,6 +12504,7 @@ export class Helper {
             })
           }
           o1.openOptions = it => {
+
             this.overlay("pop", o2 => {
               if (it.title) o2.info.textContent = it.title
               o1.appendButton(it, node, o2)
@@ -16575,6 +16590,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         button.left.textContent = ".title"
         button.right.textContent = "Titel eingeben"
         button.onclick = () => {
+
           this.overlay("pop", o1 => {
             if (it.title) o1.info.textContent = it.title
             const funnel = o1.content
@@ -16689,17 +16705,18 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       }
       overlay.updateItOpen = async () => {
-        if (overlay.it && overlay.rerender) {
-          Helper.convert("parent/loading", overlay.rerender)
-          const res = await Helper.request(`/get/open/${overlay.it}/`)
-          if (res.status === 200) {
-            const it = JSON.parse(res.response)
-            updateSearchField(it, overlay.rerender)
-            renderItOpen(it, overlay.rerender)
-          } else {
-            Helper.convert("parent/note", overlay.rerender)
-            overlay.rerender.textContent = "Keine Daten gefunden"
-          }
+
+        if (!overlay.it || !overlay.rerender) return
+        this.reset("node", overlay.rerender)
+        const loader = this.create("div/loading", overlay.rerender)
+        const res = await this.request(`/get/open/${overlay.it}/`)
+        loader.remove()
+        if (res.status === 200) {
+          const it = JSON.parse(res.response)
+          updateSearchField(it, overlay.rerender)
+          renderItOpen(it, overlay.rerender)
+        } else {
+          this.render("text/note", "Keine Daten gefunden", overlay.rerender)
         }
       }
       function styleDefaultList(node) {
@@ -16778,7 +16795,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             this.overlay("lock", async securityOverlay => {
               const keyName = Object.keys(key)[0]
               const keyValue = key[keyName]
-              const res = await this.request(`/register/${overlay.it}/${keyName}/`, {created: it.created, [keyName]: keyValue})
+              const res = await this.request(`/jwt/update/${overlay.it}/${keyName}/`, {created: it.created, [keyName]: keyValue})
               if (res.status === 200) {
                 window.alert("Daten erfolgreich gespeichert.")
                 overlay.tabs.meine.click()
@@ -16803,17 +16820,16 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         button.onclick = ev => {
           const confirm = window.confirm("Möchtest du deine Daten wirklich entfernen?")
           if (confirm === true) {
-            this.overlay("lock", async securityOverlay => {
-              const res = await this.request(`/remove/user/${overlay.it}/`, {created: it.created})
+            this.overlay("lock", async o1 => {
+              const res = await this.request(`/jwt/remove/user/${overlay.it}/item/`, {created: it.created})
               if (res.status === 200) {
-                window.alert("Deine Daten wurden erfolgreich entfernt.")
+                o1.alert.removed()
                 overlay.tabs.meine.click()
                 o.remove()
-                securityOverlay.remove()
               } else {
-                window.alert("Fehler.. Bitte wiederholen.")
-                securityOverlay.remove()
+                o1.alert.nok()
               }
+              o1.remove()
             })
           }
         }
@@ -16823,6 +16839,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       overlay.removeOverlayButton = button.append("remove-overlay", overlay)
       overlay.removeOverlayButton.onclick = () => overlay.remove()
       overlay.renderTabs = () => {
+
         overlay.tabs = this.render("tabs", "Alle Meine", overlay.content)
       }
       overlay.visibility = (it, o) => {
@@ -16841,10 +16858,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             this.add("style/valid", field.input)
             field.input.addEventListener("input", ev => {
               const visibility = field.input.value
-              this.overlay("lock", async securityOverlay => {
-                const res = await this.request(`/register/${overlay.it}/visibility/`, {created: it.created, visibility})
+              this.overlay("lock", async o2 => {
+                const res = await this.request(`/jwt/update/${overlay.it}/visibility/`, {created: it.created, visibility})
                 if (res.status === 200) {
-                  window.alert("Sichtbarkeit wurde erfolgreich gespeichert.")
+                  o2.alert.saved()
                   if (it.visibility === "closed") {
                     overlay.tabs.alle.click()
                   } else {
@@ -16853,9 +16870,9 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   o1.remove()
                   o.remove()
                 } else {
-                  window.alert("Fehler.. Bitte wiederholen.")
+                  o2.alert.nok()
                 }
-                securityOverlay.remove()
+                o2.remove()
               })
 
             })
@@ -16917,17 +16934,18 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       overlay.updateItOpen()
       overlay.updateItClosed = async () => {
-        if (overlay.it && overlay.rerender) {
-          Helper.convert("parent/loading", overlay.rerender)
-          const res = await Helper.request(`/jwt/get/${overlay.it}/`)
-          if (res.status === 200) {
-            const it = JSON.parse(res.response)
-            updateSearchField(it, overlay.rerender)
-            await renderItClosed(it, overlay.rerender)
-          } else {
-            Helper.convert("parent/note", overlay.rerender)
-            overlay.rerender.textContent = "Keine Daten gefunden"
-          }
+
+        if (!overlay.it || !overlay.rerender) return
+        this.reset("node", overlay.rerender)
+        const loader = this.create("div/loading", overlay.rerender)
+        const res = await this.request(`/jwt/get/user/${overlay.it}/`)
+        loader.remove()
+        if (res.status === 200) {
+          const it = JSON.parse(res.response)
+          updateSearchField(it, overlay.rerender)
+          await renderItClosed(it, overlay.rerender)
+        } else {
+          this.render("text/note", "Keine Daten gefunden", overlay.rerender)
         }
       }
       overlay.upload = (type, o) => {
@@ -17215,6 +17233,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         window.alert(`Achtung! Wenn du eine Datei hochlädst, werden deine Daten auf unserem IPFS-Node gespeichert und durch einen öffentlichen Link verfügbar gemacht. Auf diesen Link haben dann alle Zugriff. Bitte überlege dir genau, ob du deine Datei veröffentlichen möchtest. Mehr Infos über IPFS findest du unter: https://www.ipfs.tech/`)
       }
       funnel.file.input.oninput = async ev => {
+
+        const securityOverlay = this.overlay("lock")
         const file = ev.target.files[0]
         const formdata = new FormData()
         formdata.append("file", file, file.name)
@@ -17247,6 +17267,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           this.render("style/not-valid", funnel.file.input)
           console.error('Error uploading file:', error)
         })
+        .finally(() => securityOverlay.remove())
         function preparePreview() {
           funnel.preview.textContent = ""
           funnel.preview.style.margin = "21px 34px"
@@ -19460,10 +19481,9 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     if (event === "text/hover-bottom-right") {
 
       const text = this.render("text/bottom-right", input, parent)
-      text.className = "text-hover"
-      text.style.opacity = "0"
-      this.add("onmouseover", {type: "this.querySelector('.text-hover').style.opacity = 1;", node: parent})
-      this.add("onmouseout", {type: "this.querySelector('.text-hover').style.opacity = 0;", node: parent})
+      text.className = "op0"
+      parent.onmouseover = () => this.classes(text, {remove: "op0", add: "op1"})
+      parent.onmouseout = () => this.classes(text, {remove: "op1", add: "op0"})
       return text
     }
 

@@ -180,7 +180,7 @@ it.div = name => {
   if (name === "add") {
 
     const button = it.div("bottom-right")
-    button.className += " flex align center fs21 btn-theme"
+    button.className += " flex align center fs21 btn-theme color-theme"
     button.textContent = "+"
     return button
   }
