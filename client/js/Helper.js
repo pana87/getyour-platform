@@ -1,4 +1,5 @@
 import {button} from "/js/button.js"
+import {toolboxGetter} from "/js/toolbox-getter.js"
 import {post, text} from "/js/request.js"
 
 export class Helper {
@@ -15631,6 +15632,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           button.right.textContent = "Mehr Infos"
           this.add("hover-outline", button.right)
           button.right.addEventListener("click", ev => {
+
             ev.stopPropagation()
             this.overlay("pop", overlay => {
               const content = overlay.content
@@ -15652,7 +15654,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   document.open()
                   document.write(html.input.value)
                   document.close()
-                  await this.add("script/toolbox-getter")
+                  await toolboxGetter.addToolboxOnBody()
                   this.remove("overlays")
                 }
               })

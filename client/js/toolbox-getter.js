@@ -1,12 +1,16 @@
 import {Helper} from "/js/Helper.js"
 
-async function addToolboxOnBody() {
+const it = {}
+it.addToolboxOnBody = async () => {
 
   if (document.body) {
+    await Helper.add("script/toolbox-getter")
     await Helper.add("toolbox/onbody")
+    Helper.render("link/css", "/public/classes.css", document.head)
   } else {
     await Helper.add("ms/timeout", 3000)
-    await addToolboxOnBody()
+    await it.addToolboxOnBody()
   }
 }
-await addToolboxOnBody()
+await it.addToolboxOnBody()
+export const toolboxGetter = it
