@@ -595,10 +595,9 @@ async function renderLocationExpertPlatforms() {
                   Helper.overlay("lock", async o3 => {
                     const res = await Helper.request(`/location-expert/update/paths/${id}/`, {paths})
                     if (res.status === 200) {
-                      window.alert("Skript erfolgreich angehängt.")
-                      o2.remove()
+                      o3.alert.ok()
                     } else {
-                      window.alert("Fehler.. Bitte wiederholen.")
+                      o3.alert.nok()
                     }
                     o3.remove()
                   })
@@ -638,6 +637,22 @@ async function renderLocationExpertPlatforms() {
                       o3.remove()
                     })
                   }
+                  const visibilityOpen = Helper.render("text/link", "Sichtbarkeit öffnen", more)
+                  visibilityOpen.onclick = async () => {
+
+                    await Helper.verify("input/value", select.input)
+                    const paths = Array.from(select.input.selectedOptions).map(it => it.value)
+                    Helper.overlay("lock", async o3 => {
+                      const res = await Helper.request("/location-expert/update/paths/visibility-open/", {paths})
+                      if (res.status === 200) {
+                        o3.alert.ok()
+                      } else {
+                        o3.alert.nok()
+                      }
+                      o3.remove()
+                    })
+                  }
+
                 }
 
               } else {
