@@ -4304,8 +4304,7 @@ app.post("/location-expert/remove/paths/scripts/",
   Helper.verifyReferer,
   Helper.addJwt,
   Helper.verifySession,
-  Helper.verifyClosed,
-  Helper.locationExpertOnly,
+  locationExpertOnly,
   async (req, res, next) => {
 
     try {
@@ -4318,6 +4317,35 @@ app.post("/location-expert/remove/paths/scripts/",
           const value = platform.values?.find(value => value.path === path)
           if (value) {
             value.html = removeScripts(value.html)
+          }
+        })
+      })
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-expert/update/paths/visibility-open/",
+
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+
+    try {
+      const paths = req.body.paths
+      if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      paths.forEach(path => {
+        user.getyour?.expert?.platforms?.forEach(platform => {
+          const value = platform.values?.find(value => value.path === path)
+          if (value) {
+            value.visibility = "open"
           }
         })
       })
