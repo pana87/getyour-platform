@@ -15757,10 +15757,26 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           const timerDisplay = Helper.render("text/link", "Aufnahmezeit: 00:00", controls)
           const cameraDiv = Helper.div("fullscreen flex align center z2")
           let seconds = 0
+          function playSound() {
+
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+            const oscillator = audioContext.createOscillator()
+            const gainNode = audioContext.createGain()
+            oscillator.type = 'sine'
+            oscillator.frequency.setValueAtTime(528, audioContext.currentTime)
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime)
+            gainNode.gain.linearRampToValueAtTime(0.008, audioContext.currentTime + 1)
+            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 4)
+            oscillator.connect(gainNode)
+            gainNode.connect(audioContext.destination)
+            oscillator.start()
+            oscillator.stop(audioContext.currentTime + 5)
+          }
           function updateControlsTimer() {
 
             seconds++
             timerDisplay.textContent = `Aufnahmezeit: ${Helper.convert("seconds/hh:mm:ss", seconds)}`
+            if (seconds === 300) playSound()
           }
           function animateCameraDiv() {
 

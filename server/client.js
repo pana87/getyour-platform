@@ -5409,10 +5409,9 @@ app.post("/jwt/update/:list/:map/",
 )
 app.post('/upload/ipfs/file/',
 
-upload.single('file'),
-
+  upload.single('file'),
   async (req, res) => {
-
+    
     try {
       if (!req.file) return res.sendStatus(404)
       const fileBuffer = req.file.buffer
@@ -5967,7 +5966,7 @@ function getLocationPlatform(doc, req) {
 function getOpenParamsHtml(doc, req) {
 
   const value = findValueByParams(doc, req)
-  if (value.visibility !== "open") return
+  if (!value || value.visibility !== "open") return
   return value.html
 }
 function getParamsExpertHtml(doc, req) {
