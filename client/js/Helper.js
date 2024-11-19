@@ -12480,6 +12480,7 @@ export class Helper {
             }
             const video = document.createElement("video")
             video.controls = true
+            video.preload = "none"
             video.src = it.url
             video.className = "w144"
             videoButton.appendChild(video)
