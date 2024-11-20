@@ -2607,7 +2607,7 @@ app.post("/register/email/location/",
         user[req.location.platform][req.body.name].type = "role"
         user.roles.push(req.body.created)
         for (const key in doc.user) {
-          const user = doc.user[key]
+          const parent = doc.user[key]
           if (parent.getyour !== undefined) {
             if (parent.getyour.expert !== undefined) {
               if (parent.getyour.expert.name === req.location.expert) {

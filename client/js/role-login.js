@@ -3,7 +3,8 @@ import {Helper} from "/js/Helper.js"
 function stop() {throw new Error("404 Not Found")}
 const script = document.querySelector("script#role-login")
 if (!script) stop()
-const roleCreated = script.getAttribute("role-created")
+const roleCreatedText = script.getAttribute("role-created")
+const roleCreated = Number(roleCreatedText)
 const roleName = script.getAttribute("role-name")
 if (!roleCreated || !roleName) stop()
 
