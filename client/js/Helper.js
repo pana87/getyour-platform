@@ -14769,15 +14769,16 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                         const content = o2.content
                         this.render("text/h1", "Rolle wählen", content)
                         const loading = this.create("div/loading", content)
+                        const rolesDiv = this.div("", content)
                         function updateRoles(roles, node) {
 
+                          loading.remove()
                           Helper.reset("node", node)
                           for (let i = 0; i < roles.length; i++) {
                             const role = roles[i]
                             const button = Helper.create("button/left-right", node)
-                            button.left.textContent = role.name
-                            Helper.render("div", {text: role.home, classes: "fs13 color-theme"}, button.left)
-                            button.right.textContent = `vor ${Helper.convert("millis/since", role.created)}`
+                            button.left.textContent = role.text
+                            button.right.textContent = `vor ${Helper.convert("millis/since", role.value)}`
                             Helper.add("hover-outline", button)
                             button.onclick = () => {
 
@@ -14785,26 +14786,25 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                               script.id = "role-login"
                               script.type = "module"
                               script.src = "/js/role-login.js"
-                              script.setAttribute("role-created", role.created)
-                              script.setAttribute("role-name", role.name)
+                              script.setAttribute("role-created", role.value)
+                              script.setAttribute("role-name", role.text)
                               Helper.add("script-onbody", script)
                               window.alert("Zugang wurde erfolgreich angehängt.")
                               Helper.remove("overlays")
                             }
                           }
                         }
-                        const res = await this.request("/get/platform/roles/location-expert/")
+                        const res = await this.request("/location-expert/get/platform/roles/text-value/")
                         if (res.status === 200) {
                           const roles = JSON.parse(res.response)
-                          updateRoles(roles, loading)
+                          updateRoles(roles, rolesDiv)
                         } else {
-                          const res = await this.request("/get/platform/roles-location-writable/")
+                          const res = await this.request("/location-writable/get/platform/roles/text-value/")
                           if (res.status === 200) {
                             const roles = JSON.parse(res.response)
-                            updateRoles(roles, loading)
+                            updateRoles(roles, rolesDiv)
                           } else {
-                            this.convert("parent/note", loading)
-                            content.textContent = "Keine Rollen gefunden."
+                            this.render("text/note", "Keine Rollen gefunden.", rolesDiv)
                           }
                         }
                       })

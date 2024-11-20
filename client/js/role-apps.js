@@ -151,7 +151,7 @@ roleAppsButton.onclick = () => {
     const content = overlay.content
     Helper.render("text/title", "Für welche Rolle möchtest du den Button anhängen?", content)
     const div = Helper.create("div/loading", content)
-    const res = await Helper.request("/get/platform/roles/location-expert/")
+    const res = await Helper.request("/location-expert/get/platform/roles/")
     overlay.loading.remove()
     if (res.status === 200) {
       const roles = JSON.parse(res.response)
@@ -161,7 +161,7 @@ roleAppsButton.onclick = () => {
         Helper.render("button/role", role, div)
       }
     } else {
-      const res = await Helper.request("/get/platform/roles-location-writable/")
+      const res = await Helper.request("/location-writable/get/platform/roles/text-value/")
       if (res.status === 200) {
         const roles = JSON.parse(res.response)
         Helper.convert("parent/scrollable", div)

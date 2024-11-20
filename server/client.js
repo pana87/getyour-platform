@@ -275,25 +275,20 @@ app.get("/:expert/:platform/:path/:id/",
     return res.sendStatus(404)
   }
 )
-app.post("/get/platform/roles/location-expert/",
+app.post("/location-expert/get/platform/roles/text-value/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
   Helper.addJwt,
   Helper.verifySession,
+  locationExpertOnly,
   async (req, res, next) => {
 
     try {
       const user = req.jwt.user
-      if (!isLocationExpert(user, req)) return res.sendStatus(404)
-      const platforms = user.getyour?.expert?.platforms
-      if (!platforms) return res.sendStatus(404)
-      const roles = platforms.flatMap(it => it.roles)
-      if (!roles || roles.length <= 0) return res.sendStatus(404)
-      const available = roles
-        .filter(it => it && it.name && it.created)
-        .map(it => ({text: it.name, value: it.created}))
-      return res.send(available)
+      const roles = getUserRoles(user)
+      .map(it => ({text: it.name, value: it.created}))
+      return res.send(roles)
     } catch (error) {
       return res.sendStatus(404)
     }
@@ -1155,44 +1150,22 @@ app.post("/get/platform/role-apps/",
     }
   }
 )
-app.post("/get/platform/roles-location-writable/",
+app.post("/location-writable/get/platform/roles/text-value/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
   Helper.addJwt,
   Helper.verifySession,
+  locationWritableOnly,
   async (req, res, next) => {
 
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        const array = []
-        const doc = await nano.db.use("getyour").get("user")
-        const jwtUser = doc.user[req.jwt.id]
-        if (jwtUser.id === req.jwt.id) {
-          const isUserWritable = await Helper.verifyIs("user/location-writable", {user: jwtUser, req})
-          if (isUserWritable) {
-            for (const key in doc.user) {
-              const user = doc.user[key]
-              if (user.getyour !== undefined) {
-                if (user.getyour.expert !== undefined) {
-                  if (user.getyour.expert.name === req.location.expert) {
-                    if (user.getyour.expert.platforms !== undefined) {
-                      for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                        const platform = user.getyour.expert.platforms[i]
-                        if (platform.name === req.location.platform) {
-                          if (platform.roles !== undefined) {
-                            if (platform.roles.length > 0) return res.send(platform.roles)
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+    try {
+      const doc = await nano.db.use("getyour").get("user")
+      const roles = getLocationRoles(doc, req)
+      .map(it => ({text: it.name, value: it.created}))
+      return res.send(roles)
+    } catch (error) {
+      return res.sendStatus(404)
     }
   }
 )
@@ -1231,16 +1204,16 @@ app.post("/get/platform/role-home-self/",
     }
   }
 )
-app.post("/get/platform/roles/location-expert/",
+app.post("/location-expert/get/location-platform/roles/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
   Helper.addJwt,
   Helper.verifySession,
+  locationExpertOnly,
   async (req, res, next) => {
 
     try {
-      if (!Helper.verifyIs("user/location-expert", {user: req.jwt.user, req})) return res.sendStatus(404)
       const roles = req.jwt.user.getyour.expert.platforms.find(it => it.name === req.location.platform).roles
       if (!roles || roles.length <= 0) return res.sendStatus(404)
       return res.send(roles)
@@ -5411,7 +5384,7 @@ app.post('/upload/ipfs/file/',
 
   upload.single('file'),
   async (req, res) => {
-    
+
     try {
       if (!req.file) return res.sendStatus(404)
       const fileBuffer = req.file.buffer
@@ -5963,6 +5936,11 @@ function getLocationPlatform(doc, req) {
   const locationExpert = users.find(user => isLocationExpert(user, req))
   return locationExpert.getyour.expert.platforms.find(it => it.name === req.location.platform)
 }
+function getLocationRoles(doc, req) {
+
+  const platform = getLocationPlatform(doc, req)
+  return platform.roles
+}
 function getOpenParamsHtml(doc, req) {
 
   const value = findValueByParams(doc, req)
@@ -6008,6 +5986,12 @@ function getTreeValue(map, tree) {
     current = current[keys[i]]
   }
   return current
+}
+function getUserRoles(user) {
+
+  return user.getyour?.expert?.platforms
+  ?.flatMap(it => it.roles || [])
+  .filter(it => it && it.name && it.created)
 }
 function getUsersValueByTree(doc, tree) {
 
