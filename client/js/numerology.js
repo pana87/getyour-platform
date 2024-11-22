@@ -861,16 +861,17 @@ if (numerogyOverlay) {
             o2.remove()
           })
         }
-        const toProfile = Helper.create("button", content)
+        const toProfile = Helper.div("box flex align center mlr34 color-theme sans-serif", content)
+        Helper.add("hover-outline", toProfile)
         toProfile.textContent = "Zu deinem Profil"
         toProfile.onclick = () => {
 
           Helper.overlay("lock", async o2 => {
             const res = await Helper.request("/jwt/get/tree/", {tree: "id"})
             if (res.status === 200) {
-              window.open(`/entwicklung/numerologie/profil/${res.response}/`, "_blank")
+              window.open(`/entwicklung/numerologie/profil/${res.response}/`, "_self")
             } else {
-              window.alert("Fehler.. Bitte wiederholen.")
+              o2.alert.nok()
             }
             o2.remove()
           })

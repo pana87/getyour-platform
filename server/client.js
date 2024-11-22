@@ -2130,52 +2130,25 @@ app.post("/redirect/user/",
   Helper.verifyReferer,
   Helper.addJwt,
   Helper.verifySession,
+  closedOnly,
   async (req, res, next) => {
 
     try {
-      if (req.jwt !== undefined) {
-
-        const id = req.jwt.id
-        const doc = await nano.db.use("getyour").get("user")
-        const user = doc.user[id]
-        if (user.id === id) {
-          if (Helper.verifyIs("user/admin", {user})) {
-            return res.send("/admin/")
-          }
-          if (Helper.verifyIs("user/expert", user)) {
-            return res.send(`/${user["getyour"].expert.name}/`)
-          }
-          if (user.roles !== undefined) {
-            for (let i = 0; i < user.roles.length; i++) {
-              const roleId = user.roles[i]
-              if (roleId === UserRole.ADMIN) continue
-              if (roleId === UserRole.EXPERT) continue
-              for (const key in doc.user) {
-                const user = doc.user[key]
-                if (user.getyour !== undefined) {
-                  if (user.getyour.expert !== undefined) {
-                    if (user.getyour.expert.platforms !== undefined) {
-                      for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                        const platform = user.getyour.expert.platforms[i]
-                        if (platform.roles !== undefined) {
-                          for (let i = 0; i < platform.roles.length; i++) {
-                            const role = platform.roles[i]
-                            if (role.created === roleId) {
-                              return res.send(role.home)
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      if (!user || !user.roles || user.roles.length <= 0) return res.sendStatus(404)
+      if (isAdmin(user)) return res.send("/admin/")
+      if (isExpert(user)) return res.send(`/${user.getyour.expert.name}/`)
+      for (let i = 0; i < user.roles.length; i++) {
+        const roleId = user.roles[i]
+        if (roleId === UserRole.ADMIN) continue
+        if (roleId === UserRole.EXPERT) continue
+        const role = getRoleByCreated(doc, roleId)
+        return res.send(role.home)
       }
+      return res.sendStatus(404)
     } catch (error) {
-      console.log(error)
+      return res.sendStatus(404)
     }
   }
 )
@@ -5974,6 +5947,13 @@ function getPlatformsByName(doc, name) {
   return Object.values(doc.user)
   .flatMap(it => it.getyour?.expert?.platforms || [])
   .filter(it => it.name === name)
+}
+function getRoleByCreated(doc, created) {
+
+  return Object.values(doc.user)
+  .flatMap(it => it.getyour?.expert?.platforms || [])
+  .flatMap(it => it.roles || [])
+  .find(it => it.created === created)
 }
 function getTreeValue(map, tree) {
 
