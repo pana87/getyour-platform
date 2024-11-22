@@ -19,6 +19,11 @@ async function registerUser(email, created, name) {
     const res1 = await Helper.request("/register/email/location/", {created, email, name})
     const res2 = await Helper.request("/register/session/")
     if (res2.status === 200) {
+      if (!document.referrer) {
+        const res = await Helper.request("/redirect/user/")
+        if (res.status === 200) window.open(res.response, "_self")
+        return
+      }
       Helper.goBack()
       window.opener?.location?.reload()
     } else {

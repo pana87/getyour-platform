@@ -1,5 +1,6 @@
 import {Helper} from "/js/Helper.js"
 import {button} from "/js/button.js"
+console.log(document.referrer);
 
 button.append("go-back", document.body)
 const domain = window.location.pathname.split("/")[1]
@@ -506,7 +507,7 @@ async function renderLocationExpertPlatformRoles(platform, node) {
               const res = await Helper.request("/location-expert/update/platform/role/", {created: role.created, platform, name, home})
               if (res.status === 200) {
                 o2.alert.saved()
-                await Helper.render(event, input, parent)
+                await renderLocationExpertPlatformRoles(platform, node)
                 o1.remove()
               } else {
                 o2.alert.nok()
