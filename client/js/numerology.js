@@ -929,16 +929,17 @@ if (numerogyOverlay) {
   })
   const lifepathNode = document.querySelector("[lifepath='content']")
   if (!lifepathNode) return
-  const text = await text(`/entwicklung/numerologie/geburtsenergie-${numbersAsText[lifepath - 1]}/`)
-  if (!text) return
-  const purified = await Helper.convert("text/purified", text)
-  const doc = Helper.convert("text/doc", purified)
-  const contentNodes = Array.from(doc.body.querySelectorAll(".content"))
-  if (contentNodes.length > 0) {
-    const randomIndex = Math.floor(Math.random() * contentNodes.length)
-    const randomText = contentNodes[randomIndex].textContent
-    lifepathNode.textContent = randomText
-  }
+  text(`/entwicklung/numerologie/geburtsenergie-${numbersAsText[lifepath - 1]}/`).then(async text => {
+    if (!text) return
+    const purified = await Helper.convert("text/purified", text)
+    const doc = Helper.convert("text/doc", purified)
+    const contentNodes = Array.from(doc.body.querySelectorAll(".content"))
+    if (contentNodes.length > 0) {
+      const randomIndex = Math.floor(Math.random() * contentNodes.length)
+      const randomText = contentNodes[randomIndex].textContent
+      lifepathNode.textContent = randomText
+    }
+  })
 })();
 
 (() => {
