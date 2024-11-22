@@ -5884,6 +5884,7 @@ function findValueByParams(doc, req) {
 }
 function findValueByPath(doc, path) {
 
+  if (!doc || !doc.user) return
   return Object.values(doc.user)
   .flatMap(it => it.getyour?.expert?.platforms || [])
   .flatMap(it => it.values || [])
@@ -6058,6 +6059,7 @@ function isUserAuthorized(value, user) {
 }
 function isValueWritableByUser(value, user) {
 
+  if (!value) return false
   return Array.isArray(value.writability) && value.writability.includes(user.email)
 }
 function isVerified(user) {
@@ -6086,6 +6088,7 @@ async function locationWritableOnly(req, res, next) {
 }
 function paramsToPath(req) {
 
+  if (!req || !req.params) return
   return `/${req.params.expert}/${req.params.platform}/${req.params.path}/`
 }
 function parsePrimitive(value) {
