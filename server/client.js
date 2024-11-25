@@ -81,7 +81,18 @@ process.on('unhandledRejection', async (reason, promise) => {
   await Helper.logInput(reason)
 })
 
-app.use(helmet())
+
+app.use(helmet({
+
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      fontSrc: ["'self'", "https://*"],
+      imgSrc: ["'self'", "https://*"],
+      mediaSrc: ["'self'", "https://*"],
+    },
+  },
+}))
 app.use(cookieParser())
 app.use(express.json({limit: "50mb"}))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
@@ -4842,6 +4853,59 @@ app.post("/send/email/with/pin/",
         html: `<p>PIN: ${login.pin}</p>`
       })
       loginQueue.push(login)
+      return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/send/map/to/email/ids/",
+
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  async (req, res) => {
+
+    try {
+      const map = req.body.map
+      const ids = req.body.ids.split(",")
+      if (!Array.isArray(ids)) throw new Error("req.body.ids is empty")
+      if (Helper.verifyIs("object/empty", map)) throw new Error("req.body.map is empty")
+      const mapText = mapToText(map)
+
+      function mapToText(map) {
+        if (!map || typeof map !== 'object' || Object.keys(map).length === 0) {
+          return 'Keine Daten verfügbar.';
+        }
+
+        let text = '<ul>';
+
+        for (const [key, value] of Object.entries(map)) {
+          text += `<li><strong>${key}:</strong> ${value}</li>`;
+        }
+
+        text += '</ul>';
+
+        return text;
+      }
+      const doc = await nano.db.use("getyour").get("user")
+      for (let i = 0; i < ids.length; i++) {
+        const id = ids[i]
+        id.trim()
+        const user = doc.user[id]
+        if (!user) continue
+        await Helper.sendEmailFromDroid({
+          from: "<droid@get-your.de>",
+          to: user.email,
+          subject: "[getyour] Funnel",
+          html: `
+<p>Jemand hat deinen Funnel, mit folgenden Daten, ausgefüllt:</p>
+
+${mapText}
+
+Location: ${locationToPath(req)}
+          `
+        })
+      }
       return res.sendStatus(200)
     } catch (error) {
       return res.sendStatus(404)

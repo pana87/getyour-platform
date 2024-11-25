@@ -27,14 +27,7 @@ groups.openOverlay = () => {
 
       Helper.overlay("pop", async o2 => {
         const content = o2.content
-        const emailSelect = Helper.create("select/emails", content)
-        Helper.request("/jwt/get/user/contacts/").then(res => {
-          if (res.status === 200) {
-            const contacts = JSON.parse(res.response)
-            emailSelect.input.add(contacts)
-          }
-        })
-
+        const emailSelect = Helper.create("input/contacts", content)
         const submit = Helper.create("button/action", content)
         submit.textContent = "Gruppe jetzt speichern"
         submit.onclick = () => {
@@ -166,7 +159,6 @@ groups.openOverlay = () => {
               emailsButton.onclick = () => {
 
                 Helper.overlay("pop", async o3 => {
-
                   const content = o3.content
                   const emailSelect = Helper.create("select/emails", content)
                   Helper.request("/jwt/get/user/contacts/").then(res => {

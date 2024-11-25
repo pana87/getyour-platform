@@ -13,6 +13,38 @@ export class Helper {
       input.node.setAttribute("accept", `${accept}, ${input.type}`)
     }
 
+    if (event === "attributes-observer") {
+
+      const observer = new MutationObserver((mutationsList, observer) => {
+        for (const mutation of mutationsList) {
+          if (mutation.type === 'attributes') {
+            const lockedAttributes = [
+              "accept",
+              "id",
+              "maxlength",
+              "required",
+              "min",
+              "max",
+              "pattern",
+              "step",
+              "type",
+              "value",
+              "disabled",
+              "readonly",
+              "minlength",
+            ]
+            if (lockedAttributes.includes(mutation.attributeName)) {
+              window.location.reload()
+            }
+          }
+        }
+      })
+      input.forEach(node => {
+        observer.observe(node, { attributes: true })
+      })
+      return observer
+    }
+
     if (event === "cite-button") {
 
       let citeButton = document.querySelector("div.cite-button")
@@ -2430,6 +2462,18 @@ export class Helper {
       }
       if (input) this.append(div, input)
       return div
+    }
+
+    if (event === "input/contacts") {
+
+      const select = Helper.create("select/emails", input)
+      Helper.request("/jwt/get/user/contacts/").then(res => {
+        if (res.status === 200) {
+          const contacts = JSON.parse(res.response)
+          select.input.add(contacts)
+        }
+      })
+      return select
     }
 
     if (event === "input/date") {
@@ -7713,6 +7757,40 @@ export class Helper {
 
     }
 
+    if (event === "nodelist/map") {
+
+      function convertNodeListToMap(nodeList) {
+        const map = {};
+
+        for (const node of nodeList) {
+          const tagName = node.tagName.toLowerCase();
+          const id = node.id;
+          if (!id || Helper.verifyIs("text/empty", id)) continue
+          const type = node.type;
+          const name = node.name;
+
+          if (tagName === "input") {
+            if (type === "checkbox") {
+              map[id] = node.checked;
+            } else if (type === "radio") {
+              if (node.checked) {
+                map[name] = node.value;
+              }
+            } else {
+              map[id] = node.value;
+            }
+          } else if (tagName === "textarea") {
+            map[id] = node.value;
+          } else if (tagName === "select") {
+            map[id] = Array.from(node.selectedOptions).map(option => option.value);
+          }
+        }
+
+        return map;
+      }
+      return convertNodeListToMap(input)
+    }
+
     if (event === "number/de") {
 
       const de = {
@@ -11510,13 +11588,51 @@ export class Helper {
                 })
               }
               if (type === "expert") {
-                const button = Helper.create("button/left-right", content)
-                button.left.textContent = ".submit-field-funnel"
-                button.right.textContent = "Field Funnel Submit Skript anhängen"
-                button.onclick = () => {
+                const submitFieldFunnel = Helper.create("button/left-right", content)
+                submitFieldFunnel.left.textContent = ".submit-field-funnel"
+                submitFieldFunnel.right.textContent = "Field Funnel Submit Skript anhängen"
+                submitFieldFunnel.onclick = () => {
+
                   const script = Helper.create("script/id", "submit-field-funnel")
                   Helper.add("script-onbody", script)
                   window.alert("Skript wurde erfolgreich angehängt.")
+                }
+
+                const submitToIds = Helper.create("button/left-right", content)
+                submitToIds.left.textContent = ".submit-to-ids"
+                submitToIds.right.textContent = "Funnel an Ids senden"
+                submitToIds.onclick = () => {
+
+                  Helper.overlay("pop", o3 => {
+                    const content = o3.content
+                    const selectorField = Helper.create("input/text", content)
+                    selectorField.input.placeholder = "Selector zu deinem Funnel"
+                    selectorField.input.setAttribute("required", "true")
+                    Helper.verify("input/value", selectorField.input)
+                    const contactsSelect = Helper.create("input/contacts", content)
+                    Helper.add("style/not-valid", contactsSelect.input)
+                    const submit = button.append("action", content)
+                    submit.textContent = "Skript jetzt anhängen"
+                    submit.onclick = async () => {
+
+                      await Helper.verify("input/value", selectorField.input)
+                      const selector = selectorField.input.value
+                      const ids = contactsSelect.selectedIds()
+                      if (ids.length <= 0) {
+                        Helper.add("style/not-valid", contactsSelect.input)
+                        return
+                      }
+                      const script = document.createElement("script")
+                      script.id = "submit-to-ids"
+                      script.src = `/js/${script.id}.js`
+                      script.type = "module"
+                      script.setAttribute("funnel", selector)
+                      script.setAttribute("ids", ids.join(","))
+                      Helper.add("script-onbody", script)
+                      window.alert("Skript wurde erfolgreich angehängt.")
+                      Helper.remove("overlays")
+                    }
+                  })
                 }
               }
               if (["closed", "expert"].includes(type)) {
@@ -16199,6 +16315,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       overlay.alert.removed = () => window.alert("Daten erfolgreich entfernt.")
       overlay.alert.saved = () => window.alert("Daten erfolgreich gespeichert.")
+      overlay.alert.sent = () => window.alert("Daten erfolgreich gesendet.")
       overlay.aliasIt = (it, o) => {
         const fragment = document.createDocumentFragment()
         const button = this.create("button/left-right", fragment)
@@ -21514,6 +21631,45 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
     }
 
+    if (event === "form") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const observer = new MutationObserver((mutationsList, observer) => {
+            for (const mutation of mutationsList) {
+              if (mutation.type === 'attributes') {
+                const lockedAttributes = [
+                  "accept",
+                  "id",
+                  "maxlength",
+                  "required",
+                  "min",
+                  "max",
+                  "pattern",
+                  "step",
+                  "type",
+                  "value",
+                  "disabled",
+                  "readonly",
+                  "minlength",
+                ]
+                if (lockedAttributes.includes(mutation.attributeName)) {
+                  window.location.reload()
+                }
+              }
+            }
+          })
+          const nodes = input.querySelectorAll("input, textarea, select")
+          nodes.forEach(node => {
+            observer.observe(node, { attributes: true })
+          })
+          resolve(nodes)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
     if (event === "funnel") {
 
       return new Promise(async(resolve, reject) => {
@@ -21524,6 +21680,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
               if (mutation.type === 'attributes') {
                 const lockedAttributes = [
                   "accept",
+                  "id",
                   "maxlength",
                   "required",
                   "min",
@@ -21556,7 +21713,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             const nodes = input.querySelectorAll("input, textarea, select")
             nodes.forEach(node => allNodes.add(node))
           }
-
           allNodes.forEach(node => {
             observer.observe(node, { attributes: true, childList: true, subtree: true })
           })
@@ -21635,6 +21791,24 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           const res = await this.verifyIs("input/valid", input)
           if (res === true) resolve()
           if (res === false) throw new Error("input invalid")
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+
+    if (event === "inputs") {
+
+      return new Promise(async(resolve, reject) => {
+        try {
+          const results = await Promise.all(Array.from(input).map(node => this.verifyIs("input/valid", node)))
+          const allValid = results.every(isValid => isValid)
+          if (!allValid) {
+            const first = input[results.findIndex(isValid => !isValid)]
+            first.scrollIntoView({ behavior: "smooth", block: "start" })
+            throw new Error("funnel invalid")
+          }
+          resolve()
         } catch (error) {
           reject(error)
         }
@@ -22155,10 +22329,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     if (event === "input/valid") {
 
       return new Promise((resolve) => {
-
+        const isRequired = input.hasAttribute("required") || input.hasAttribute("aria-required")
 
         // required, no accept
-        if (input.hasAttribute("required") && !input.hasAttribute("accept")) {
+        if (isRequired && !input.hasAttribute("accept")) {
           if (this.verifyIs("input/required", input)) {
             this.add("style/valid", input)
             return resolve(true)
@@ -22170,7 +22344,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
 
         // accept, no required
-        if (input.hasAttribute("accept") && !input.hasAttribute("required")) {
+        if (input.hasAttribute("accept") && !isRequired) {
 
           if (input.value === "") {
 
@@ -22195,13 +22369,13 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
 
         // no accept, no required
-        if (!input.hasAttribute("accept") && !input.hasAttribute("required")) {
+        if (!input.hasAttribute("accept") && !isRequired) {
           this.add("style/valid", input)
           return resolve(true)
         }
 
         // accept and required
-        if (input.hasAttribute("required") && input.hasAttribute("accept")) {
+        if (isRequired && input.hasAttribute("accept")) {
           if (this.verifyIs("input/required", input)) {
             if (this.verifyIs("input/accepted", input)) {
               this.add("style/valid", input)
@@ -22459,6 +22633,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
       // input required
       const inputIsRequired = (
+        input.hasAttribute("aria-required") ||
         input.hasAttribute("required") ||
         input.getAttribute("required") === "true" ||
         input.required === true
