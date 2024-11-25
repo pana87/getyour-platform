@@ -396,6 +396,7 @@
 .h89p {height: 89%;}
 .h100p {height: 100%;}
 
+.hidden {visibility: hidden;}
 .highlight {
   background-color: yellow;
   font-weight: bold;
