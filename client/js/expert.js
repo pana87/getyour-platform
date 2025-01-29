@@ -1,6 +1,5 @@
 import {Helper} from "/js/Helper.js"
 import {button} from "/js/button.js"
-console.log(document.referrer);
 
 button.append("go-back", document.body)
 const domain = window.location.pathname.split("/")[1]
@@ -522,7 +521,7 @@ async function renderLocationExpertPlatformRoles(platform, node) {
               const res = await Helper.request("/location-expert/remove/platform/role/", {platform, created: role.created})
               if (res.status === 200) {
                 o2.alert.removed()
-                await Helper.render(event, input, parent)
+                await renderLocationExpertPlatformRoles(platform, node)
                 o1.remove()
               } else {
                 o2.alert.nok()
@@ -1008,7 +1007,6 @@ async function renderValueButtons(values, node) {
       Helper.overlay("pop", o1 => {
         o1.addInfo(value.path)
         const buttons = o1.content
-
         const alias = Helper.render("button/left-right", {left: ".alias", right: "Alias ändern"}, buttons)
         alias.onclick = () => {
 
@@ -1030,12 +1028,12 @@ async function renderValueButtons(values, node) {
               Helper.overlay("lock", async o3 => {
                 const res = await Helper.request("/location-expert/register/platform/value/alias/", {alias, path: value.path})
                 if (res.status === 200) {
-                  o2.alert.ok()
-                  o2.previousSibling.previousSibling.remove()
-                  o2.previousSibling.remove()
+                  o3.alert.ok()
                   o2.remove()
+                  o1.remove()
+                  o1.previousSibling.remove()
                 } else {
-                  o2.alert.nok()
+                  o3.alert.nok()
                 }
                 o3.remove()
               })
@@ -1059,10 +1057,10 @@ async function renderValueButtons(values, node) {
               Helper.overlay("lock", async o3 => {
                 const res = await Helper.request("/location-expert/register/platform/value/image/", {path: value.path, image})
                 if (res.status === 200) {
-                  o2.alert.ok()
-                  o2.previousSibling.previousSibling.remove()
-                  o2.previousSibling.remove()
+                  o3.alert.ok()
                   o2.remove()
+                  o1.previousSibling.remove()
+                  o1.remove()
                 } else {
                   o2.alert.nok()
                 }
@@ -1098,12 +1096,12 @@ async function renderValueButtons(values, node) {
               Helper.overlay("lock", async o3 => {
                 const res = await Helper.request("/location-expert/register/platform/value/path/", {old: value.path, new: path})
                 if (res.status === 200) {
-                  o2.alert.ok()
-                  o2.previousSibling.previousSibling.remove()
-                  o2.previousSibling.remove()
+                  o3.alert.ok()
                   o2.remove()
+                  o1.previousSibling.remove()
+                  o1.remove()
                 } else {
-                  o2.alert.nok()
+                  o3.alert.nok()
                 }
                 o3.remove()
               })
@@ -1176,9 +1174,9 @@ async function renderValueButtons(values, node) {
                     const res = await Helper.request("/location-expert/register/platform/value/visibility/", {path, visibility})
                     if (res.status === 200) {
                       o3.alert.saved()
-                      o1.remove()
-                      o2.previousSibling.remove()
                       o2.remove()
+                      o1.previousSibling.remove()
+                      o1.remove()
                     } else {
                       o3.alert.nok()
                     }
@@ -1230,11 +1228,6 @@ async function renderValueButtons(values, node) {
                 Helper.verify("input/value", authorizedSelect.input)
                 const submit = Helper.create("button/action", funnelDiv)
                 submit.textContent = "Daten jetzt speichern"
-
-
-
-
-
                 submit.onclick = async () => {
 
                   const path = value.path
@@ -1245,9 +1238,9 @@ async function renderValueButtons(values, node) {
                     const res = await Helper.request("/location-expert/register/platform/value/visibility/", {visibility, roles, authorized, path})
                     if (res.status === 200) {
                       o3.alert.saved()
-                      o1.remove()
-                      o2.previousSibling.remove()
                       o2.remove()
+                      o1.previousSibling.remove()
+                      o1.remove()
                     } else {
                       o3.alert.nok()
                     }
@@ -1296,9 +1289,9 @@ async function renderValueButtons(values, node) {
                 const res = await Helper.request("/location-expert/register/platform/value/writability/", {path, writability})
                 if (res.status === 200) {
                   o3.alert.saved()
-                  parent.parentElement?.parentElement?.remove()
-                  o1.remove()
                   o2.remove()
+                  o1.previousSibling.remove()
+                  o1.remove()
                 } else {
                   o3.alert.nok()
                 }
