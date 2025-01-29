@@ -60,6 +60,18 @@ function calculateAge(date) {
   }
   return age
 }
+function digitalRoot(number) {
+  while (number >= 10) {
+    number = sumOf(number)
+  }
+  return number
+}
+function sumOf(number) {
+  return number.toString()
+    .split("")
+    .map(Number)
+    .reduce((acc, digit) => acc + digit, 0)
+}
 function renderDiv(node) {
 
   return Helper.div("mtb21 mlr34", node)
@@ -410,6 +422,44 @@ function countSevenAndNine(str) {
   }
   return count
 }
+function isSingleDigit(number) {
+  return number.toString().length === 1
+}
+numerology.birthDayEnergy = date => {
+  return digitalRoot(date.getDate())
+}
+numerology.birthMonth = date => {
+  const month = date.getMonth() + 1
+  if (month < 10) { 
+    return `0${month}`
+  } else {
+    return month
+  }
+}
+numerology.birthMonthEnergy = date => {
+  return digitalRoot(date.getMonth() + 1)
+}
+numerology.leftPath = date => {
+  return digitalRoot(numerology.birthDayEnergy(date) + numerology.birthMonthEnergy(date))
+}
+numerology.leftYear = date => {
+  return splitYear(date.getFullYear())[0]
+}
+numerology.leftYearEnergy = date => {
+  return digitalRoot(numerology.leftYear(date))
+}
+numerology.lifepath = date => {
+  return numerology.dateToLifePath(date)
+}
+numerology.rightPath = date => {
+  return digitalRoot(numerology.leftYearEnergy(date) + numerology.rightYearEnergy(date))
+}
+numerology.rightYear = date => {
+  return splitYear(date.getFullYear())[1]
+}
+numerology.rightYearEnergy = date => {
+  return digitalRoot(numerology.rightYear(date))
+}
 numerology.renderAge = (date, node) => {
 
   const age = calculateAge(date)
@@ -706,6 +756,26 @@ numerology.renderIntuitiveLevel = (string, node) => {
   intuitiveLevelResult.onclick = () => window.open(`https://www.get-your.de/entwicklung/numerologie/intuitive-ebene-${numbersAsText[intuitiveLevel - 1]}/`, "_blank")
 }
 
+async function registerUser(email, created, name, date) {
+
+  await Helper.callback("email/pin-verified", email, async () => {
+    const res1 = await Helper.request("/register/email/numerology/", {created, email, name, date})
+    const res2 = await Helper.request("/register/session/")
+    if (res2.status === 200) {
+      if (!document.referrer) {
+        const res = await Helper.request("/redirect/user/")
+        if (res.status === 200) window.open(res.response, "_self")
+        return
+      }
+      Helper.goBack()
+      window.opener?.location?.reload()
+    } else {
+      window.alert("Fehler.. Bitte wiederholen.")
+      window.location.reload()
+    }
+  })
+}
+
 const res = await Helper.request("/verify/user/closed/")
 const userIsClosed = res.status === 200
 
@@ -758,9 +828,9 @@ if (!userIsClosed) {
 }
 
 numerology.renderDateContent = (date, node) => {
-
   const div = Helper.div("color-theme sans-serif", node)
   Helper.render("text/h1", `Numerologie Rechner vom ${Helper.convert("millis/dd.mm.yyyy", date.getTime())}`, div)
+  numerology.renderTriangle(date, div)
   numerology.renderAge(date, div)
   numerology.renderLifePath(date, div)
   numerology.renderMaster(date, div)
@@ -793,6 +863,58 @@ numerology.renderNameContent = (name, node) => {
   numerology.renderIntuitiveLevel(name, div)
   return div
 }
+numerology.renderTriangle = (date, node) => {
+  const html = `
+    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="395" height="400" viewBox="0 0 671 608">
+      <defs>
+        <clipPath id="clip-grafik">
+          <rect width="671" height="608"></rect>
+        </clipPath>
+      </defs>
+      <g id="grafik" clip-path="url(#clip-grafik)">
+        <g id="Gruppe_1" data-name="Gruppe 1" transform="translate(-72 -28)">
+          <g id="Ellipse_1" data-name="Ellipse 1" transform="translate(365 464)" fill="none" stroke="#aa3ec6" stroke-width="6" opacity="0.704">
+            <circle cx="37.5" cy="37.5" r="37.5" stroke="none"></circle>
+            <circle cx="37.5" cy="37.5" r="34.5" fill="none"></circle>
+          </g>
+          <g id="Pfad_5" data-name="Pfad 5" transform="translate(737 631) rotate(180)" fill="none">
+            <path d="M332.5,0,665,543H0Z" stroke="none"></path>
+            <path d="M 332.5 9.57470703125 L 8.9246826171875 538 L 656.0753173828125 538 L 332.5 9.57470703125 M 332.5 0 L 665 543 L 0 543 L 332.5 0 Z" stroke="none" fill="#a943c4"></path>
+          </g>
+          <text id="_08" data-name="08" transform="translate(185 148)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0" class="birthday">${date.getDate()}</tspan></text>
+          <text id="_8" data-name="8" transform="translate(221 264)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0" class="birthdayenergy">${numerology.birthDayEnergy(date)}</tspan></text>
+          <text id="_8-2" data-name="8" transform="translate(508 362)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0" class="rightpath">${numerology.rightPath(date)}</tspan></text>
+          <text id="_9" data-name="9" transform="translate(391 518)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue-Bold, Helvetica Neue" font-weight="700"><tspan x="0" y="0" class="lifepath">${numerology.lifepath(date)}</tspan></text>
+          <text id="_1" data-name="1" transform="translate(289 362)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0" class="leftpath">${numerology.leftPath(date)}</tspan></text>
+          <text id="_2" data-name="2" transform="translate(329.5 264)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0" class="birthmonthenergy">${numerology.birthMonthEnergy(date)}</tspan></text>
+          <text id="_1-2" data-name="1" transform="translate(466.5 264)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0" class="leftyearenergy">${numerology.leftYearEnergy(date)}</tspan></text>
+          <text id="_7" data-name="7" transform="translate(575 264)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0" class="rightyearenergy">${numerology.rightYearEnergy(date)}</tspan></text>
+          <text id="Tag" transform="translate(171 66)" fill="#aa3ec6" font-size="40" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0">Tag</tspan></text>
+          <text id="Monat" transform="translate(280 66)" fill="#aa3ec6" font-size="40" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0">Monat</tspan></text>
+          <text id="Jahr" transform="translate(508 66)" fill="#aa3ec6" font-size="40" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0">Jahr</tspan></text>
+          <text id="_11" data-name="11" transform="translate(322 148)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0" class="birthmonth">${numerology.birthMonth(date)}</tspan></text>
+          <text id="_19" data-name="19" transform="translate(459 148)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0" class="leftyear">${numerology.leftYear(date)}</tspan></text>
+          <text id="_88" data-name="88" transform="translate(596 148)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0" class="rightyear">${numerology.rightYear(date)}</tspan></text>
+          <line id="Linie_5" data-name="Linie 5" y2="33" transform="translate(213.5 169)" fill="none" stroke="#aa3ec6" stroke-width="1"></line>
+          <line id="Linie_51" data-name="Linie 51" y2="33" transform="translate(478.5 169)" fill="none" stroke="#aa3ec6" stroke-width="1"></line>
+          <line id="Linie_9" data-name="Linie 9" x2="40" y2="30" transform="translate(235 285)" fill="none" stroke="#aa3ec6" stroke-width="1"></line>
+          <line id="Linie_13" data-name="Linie 13" x2="101" y2="63" transform="translate(306 383)" fill="none" stroke="#aa3ec6" stroke-width="1"></line>
+          <line id="Linie_12" data-name="Linie 12" x1="40" y2="30" transform="translate(537 285)" fill="none" stroke="#aa3ec6" stroke-width="1"></line>
+          <line id="Linie_10" data-name="Linie 10" x1="58" y2="30" transform="translate(275 285)" fill="none" stroke="#aa3ec6" stroke-width="1"></line>
+          <line id="Linie_14" data-name="Linie 14" x1="103" y2="63" transform="translate(407 383)" fill="none" stroke="#aa3ec6" stroke-width="1"></line>
+          <line id="Linie_11" data-name="Linie 11" x2="58" y2="30" transform="translate(479 285)" fill="none" stroke="#aa3ec6" stroke-width="1"></line>
+          <line id="Linie_6" data-name="Linie 6" y2="33" transform="translate(342 169)" fill="none" stroke="#aa3ec6" stroke-width="1"></line>
+          <line id="Linie_50" data-name="Linie 50" y2="33" transform="translate(607 169)" fill="none" stroke="#aa3ec6" stroke-width="1"></line>
+        </g>
+      </g>
+    </svg>
+  `
+  const div = document.createElement("div")
+  div.innerHTML = html
+  div.className = "numerologie triangle flex align center"
+  if (node) Helper.append(div, node)
+  return div 
+}
 function updateDateContent(date, node) {
 
   Helper.reset("node", node)
@@ -819,7 +941,8 @@ if (numerogyOverlay) {
     } else {
       Helper.add("style/valid", birthdateInput)
     }
-
+    const birthdate = new Date(birthdateValue).toISOString()
+    window.sessionStorage.setItem("birthdate", birthdate)
     Helper.overlay("pop", async o1 => {
       const date = new Date(birthdateValue)
       const content = o1.content
@@ -848,7 +971,7 @@ if (numerogyOverlay) {
         toSave.onclick = () => {
 
           const map = {
-            birthdate: new Date(birthdateValue).toISOString(),
+            birthdate,
             birthname: birthNameField.input.value,
           }
           Helper.overlay("lock", async o2 => {
@@ -909,6 +1032,13 @@ if (numerogyOverlay) {
         numerology.renderDateContent(date, content)
       })
     }
+    document.querySelectorAll(".numerologie.triangle").forEach(el => {
+      const triangle = numerology.renderTriangle(date)
+      el.parentNode.replaceChild(triangle, el)
+    })
+  })
+  document.querySelectorAll(".lifepath.content").forEach(node => {
+    node.textContent = lifepath
   })
   document.querySelectorAll(".numerologie.birthname").forEach(node => {
     Helper.add("hover-outline", node)
@@ -923,9 +1053,6 @@ if (numerogyOverlay) {
   })
   document.querySelectorAll(".numerologie.lifepath").forEach(node => {
     node.textContent = numerology.dateToLifePath(date)
-  })
-  document.querySelectorAll(".lifepath.content").forEach(node => {
-    node.textContent = lifepath
   })
   const lifepathNode = document.querySelector("[lifepath='content']")
   if (!lifepathNode) return
@@ -943,7 +1070,6 @@ if (numerogyOverlay) {
 })();
 
 (() => {
-
   const tree = "numerologie"
   const algo = "shuffle"
   const list = document.querySelectorAll(`[list='${tree} ${algo}']`)
@@ -960,12 +1086,13 @@ if (numerogyOverlay) {
           if (res.status === 200) {
             const list = JSON.parse(res.response)
             const buttons = Helper.div("", content)
+            console.log(list)
             for (const user of list) {
               const birthdate = user.birthdate
               if (!birthdate) continue
               const date = new Date(birthdate)
-              const birthname = user.birthname
-              if (!birthname) continue
+              let birthname = user.birthname
+              if (!birthname) birthname = ""
               const button = Helper.create("button/left-right", buttons)
               Helper.classes(button, {remove: "between"})
               button.left.className = "flex align center circle bg-green w55 h55 m13"
@@ -983,3 +1110,49 @@ if (numerogyOverlay) {
     }
   })
 })();
+
+(() => {
+  const script = document.querySelector("script#numerology")
+  if (!script) return
+  const roleCreatedText = script.getAttribute("role-created")
+  const roleCreated = Number(roleCreatedText)
+  const roleName = script.getAttribute("role-name")
+  if (!roleCreated || !roleName) return
+  const birthdate = window.sessionStorage.getItem("birthdate")
+  if (!birthdate) return
+  let funnel = document.querySelector("#login")
+  if (!funnel) {
+    Helper.render("text/h1", `Login ${Helper.convert("tag/capital-first-letter", roleName)}`, content)
+    funnel = Helper.funnel("login", content)
+    if (window.localStorage.getItem("email")) {
+      funnel.email.input.value = window.localStorage.getItem("email")
+    }
+    funnel.submit.onclick = async () => {
+
+      await Helper.verify("funnel", funnel)
+      const email = funnel.email.input.value
+      await registerUser(email, roleCreated, roleName, birthdate)
+    }
+  } else {
+    Helper.verify("funnel", funnel)
+    const emailInput = funnel.querySelector("input.email")
+    if (window.localStorage.getItem("email")) {
+      emailInput.value = window.localStorage.getItem("email")
+      Helper.verify("input/value", emailInput)
+    }
+    emailInput.oninput = () => Helper.verify("input/value", emailInput)
+    const dsgvoInput = funnel.querySelector("input.dsgvo")
+    dsgvoInput.oninput = () => Helper.verify("input/value", dsgvoInput)
+    const submit = funnel.querySelector("div.submit")
+    Helper.add("hover-outline", emailInput)
+    Helper.add("hover-outline", submit)
+    submit.onclick = async () => {
+
+      await Helper.verify("input/value", emailInput)
+      await Helper.verify("input/value", dsgvoInput)
+      const email = emailInput.value
+      await registerUser(email, roleCreated, roleName, birthdate)
+    }
+  }
+})();
+

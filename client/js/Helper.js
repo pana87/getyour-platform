@@ -2567,45 +2567,10 @@ export class Helper {
 
       const image = this.create("input/text")
       image.input.id = "image"
-      image.input.setAttribute("required", "true")
       image.input.placeholder = "Bild-URL (text/url)"
       image.input.oninput = () => this.verify("input/value", image.input)
       this.verify("input/value", image.input)
-      image.file = this.create("input/file")
-      image.file.input.setAttribute("accept", "image/*")
-      this.add("style/not-valid", image.file.input)
-      image.file.input.onclick = () => {
-        window.alert(`Achtung! Wenn du eine Datei hochlädst, werden deine Daten auf unserem IPFS-Node gespeichert und durch einen öffentlichen Link verfügbar gemacht. Auf diesen Link haben dann alle Zugriff. Bitte überlege dir genau, ob du deine Datei veröffentlichen möchtest.`)
-      }
-      image.file.input.oninput = async ev => {
-
-        const file = ev.target.files[0]
-        const isImage = file && file.type.startsWith("image/")
-        if (isImage) {
-          const stripped = await this.remove("exif", file)
-          const formdata = new FormData()
-          formdata.append("file", stripped, stripped.name)
-          this.add("style/valid", image.input)
-          this.add("style/valid", image.file.input)
-          fetch('/upload/ipfs/file/', {
-            method: 'POST',
-            body: formdata,
-          })
-          .then(response => response.text())
-          .then(data => {
-            image.input.value = data
-            console.log('Successfully uploaded:', data)
-          })
-          .catch(error => {
-            this.render("style/not-valid", image.input)
-            console.error('Error uploading file:', error)
-          })
-        }
-      }
-      if (input) {
-        this.append(image, input)
-        this.append(image.file, input)
-      }
+      if (input) this.append(image, input)
       return image
     }
 
@@ -16882,7 +16847,12 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             const confirm = window.confirm("Um die folgenden Funktionen nutzen zu können, musst du dich anmelden.\n\nMöchtest du dich jetzt anmelden?")
             if (confirm === true) {
               overlay.remove()
-              window.open("/login/", "_blank")
+              const a = document.createElement("a")
+              a.href = "/login/"
+              a.target = "_blank"
+              //a.rel = "noopener noreferrer"
+              a.click()
+              //window.open("/login/", "_blank")
             } else {
               overlay.remove()
             }

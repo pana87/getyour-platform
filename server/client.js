@@ -24,11 +24,6 @@ const {UserRole} = require('../lib/UserRole.js')
 const {startWebSocket} = require("./websocket.js")
 let randomPin
 const loginQueue = []
-let ipfs
-(async () => {
-  const {create} = await import('ipfs-core')
-  ipfs = await create()
-})()
 let CID
 (async () => {
   const multiformats = await import('multiformats')
@@ -75,10 +70,10 @@ if (process.env.NODE_ENV === "dev") {
 if (!server) server = http.createServer(app)
 
 process.on('uncaughtException', async (err) => {
-  await Helper.logInput(err)
+  await Helper.logError(err)
 })
 process.on('unhandledRejection', async (reason, promise) => {
-  await Helper.logInput(reason)
+  await Helper.logError(reason)
 })
 
 
@@ -159,28 +154,6 @@ app.get("/get/cookies/",
       return res.send(req.cookies)
     } catch (error) {
       return res.sendStatus(404)
-    }
-  }
-)
-app.get("/ipfs/:cid/",
-
-  async (req, res) => {
-
-    try {
-      const cid = req.params.cid
-      const cidObject = CID.parse(cid)
-      const chunks = ipfs.cat(cidObject)
-      const file = []
-      for await (const chunk of chunks) {
-        file.push(chunk)
-      }
-      const buffer = Buffer.concat(file)
-      const type = await fileType.fileTypeFromBuffer(buffer)
-      res.header("Content-Type", type.mime)
-      res.send(buffer)
-    } catch (err) {
-      console.error('Error retrieving file:', err)
-      res.status(500).send('Error retrieving file')
     }
   }
 )
@@ -2082,8 +2055,7 @@ app.post("/get/users/numerologie/",
     try {
       const doc = await nano.db.use("getyour").get("user")
       const users = Object.values(doc.user)
-      .filter(it => isVerified(it))
-      .filter(it => it.numerologie)
+      .filter(it => it.numerologie && it.numerologie.birthdate)
       .flatMap(it => ({id: it.id, ...it.numerologie}))
       shuffle(users)
       if (!users || users.length <= 0) return res.sendStatus(404)
@@ -2589,6 +2561,78 @@ app.post("/register/email/location/",
         user[req.location.platform] = {}
         user[req.location.platform][req.body.name] = {}
         user[req.location.platform][req.body.name].type = "role"
+        user.roles.push(req.body.created)
+        for (const key in doc.user) {
+          const parent = doc.user[key]
+          if (parent.getyour !== undefined) {
+            if (parent.getyour.expert !== undefined) {
+              if (parent.getyour.expert.name === req.location.expert) {
+                user.parent = parent.id
+                if (parent.children === undefined) parent.children = []
+                for (let i = 0; i < parent.children.length; i++) {
+                  const expertChild = parent.children[i]
+                  if (expertChild === user.id) throw new Error("child exist")
+                }
+                parent.children.unshift({created: Date.now(), id: user.id})
+                break
+              }
+            }
+          }
+        }
+        doc.user[user.id] = user
+      }
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/register/email/numerology/",
+
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  async (req, res, next) => {
+
+    try {
+      if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
+      if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
+      if (Helper.verifyIs("text/empty", req.body.name)) throw new Error("req.body.name is empty")
+      if (Helper.verifyIs("text/empty", req.body.date)) throw new Error("req.body.date is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      for (const key in doc.user) {
+        const user = doc.user[key]
+        if (user.email === req.body.email) {
+          let foundRole = false
+          const roles = new Set(user.roles)
+          if (roles.includes(req.body.created)) {
+            foundRole = true
+            break
+          }
+          if (foundRole === true) return res.sendStatus(200)
+          if (foundRole === false) {
+            if (user[req.location.platform] === undefined) user[req.location.platform] = {}
+            if (user[req.location.platform][req.body.name] === undefined) user[req.location.platform][req.body.name] = {}
+            user[req.location.platform][req.body.name].type = "role"
+            user[req.location.platform].birthdate = req.body.date
+            user.roles.push(req.body.created)
+            await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+            return res.sendStatus(200)
+          }
+        }
+      }
+      {
+        const user = {}
+        user.id = Helper.digestId(req.body.email)
+        user.email = req.body.email
+        user.verified =  false
+        user.created =  Date.now()
+        user.reputation = 0
+        user.roles =  []
+        user[req.location.platform] = {}
+        user[req.location.platform][req.body.name] = {}
+        user[req.location.platform][req.body.name].type = "role"
+        user[req.location.platform].birthdate = req.body.date
         user.roles.push(req.body.created)
         for (const key in doc.user) {
           const parent = doc.user[key]
@@ -3343,7 +3387,6 @@ app.post("/location-expert/register/platform/value/image/",
 
     try {
       if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
-      if (Helper.verifyIs("text/empty", req.body.image)) throw new Error("req.body.image is empty")
       const doc = await nano.db.use("getyour").get("user")
       const user = doc.user[req.jwt.id]
       const value = findUserPlatformValueByPath(req.body.path, user)
@@ -5414,30 +5457,6 @@ app.post("/jwt/update/:list/:map/",
       return res.sendStatus(404)
     } catch (error) {
       return res.sendStatus(404)
-    }
-  }
-)
-app.post('/upload/ipfs/file/',
-
-  upload.single('file'),
-  async (req, res) => {
-
-    try {
-      if (!req.file) return res.sendStatus(404)
-      const fileBuffer = req.file.buffer
-      const cid = await ipfs.add(fileBuffer)
-      const cidString = cid.cid.toString()
-      if (Helper.verifyIs("text/empty", cidString)) throw new Error("cid is empty")
-      if (req.hostname === "localhost") {
-        return res.send(`https://${req.hostname}:9999/ipfs/${cidString}/`)
-      } else if (req.hostname === "get-your.de" || req.hostname === "www.get-your.de") {
-        return res.send(`https://${req.hostname}/ipfs/${cidString}/`)
-      }
-      return res.sendStatus(404)
-    } catch (error) {
-      await Helper.logError(error, req)
-      console.error('Error uploading file:', error)
-      res.status(500).send('Error uploading file')
     }
   }
 )
