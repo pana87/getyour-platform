@@ -428,6 +428,14 @@ function isSingleDigit(number) {
 numerology.birthDayEnergy = date => {
   return digitalRoot(date.getDate())
 }
+numerology.birthDay = date => {
+  const day = date.getDate()
+  if (day < 10) { 
+    return `0${day}`
+  } else {
+    return day
+  }
+}
 numerology.birthMonth = date => {
   const month = date.getMonth() + 1
   if (month < 10) { 
@@ -881,7 +889,7 @@ numerology.renderTriangle = (date, node) => {
             <path d="M332.5,0,665,543H0Z" stroke="none"></path>
             <path d="M 332.5 9.57470703125 L 8.9246826171875 538 L 656.0753173828125 538 L 332.5 9.57470703125 M 332.5 0 L 665 543 L 0 543 L 332.5 0 Z" stroke="none" fill="#a943c4"></path>
           </g>
-          <text id="_08" data-name="08" transform="translate(185 148)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0" class="birthday">${date.getDate()}</tspan></text>
+          <text id="_08" data-name="08" transform="translate(185 148)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0" class="birthday">${numerology.birthDay(date)}</tspan></text>
           <text id="_8" data-name="8" transform="translate(221 264)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0" class="birthdayenergy">${numerology.birthDayEnergy(date)}</tspan></text>
           <text id="_8-2" data-name="8" transform="translate(508 362)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue, Helvetica Neue"><tspan x="0" y="0" class="rightpath">${numerology.rightPath(date)}</tspan></text>
           <text id="_9" data-name="9" transform="translate(391 518)" fill="#aa3ec6" font-size="44" font-family="HelveticaNeue-Bold, Helvetica Neue" font-weight="700"><tspan x="0" y="0" class="lifepath">${numerology.lifepath(date)}</tspan></text>
@@ -1086,7 +1094,6 @@ if (numerogyOverlay) {
           if (res.status === 200) {
             const list = JSON.parse(res.response)
             const buttons = Helper.div("", content)
-            console.log(list)
             for (const user of list) {
               const birthdate = user.birthdate
               if (!birthdate) continue
