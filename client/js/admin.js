@@ -1,5 +1,6 @@
 import {Helper} from "/js/Helper.js"
 import {button} from "/js/button.js"
+import {post} from "/js/request.js"
 
 if (!isValidURL()) throw new Error("unknown location")
 Helper.render("text/h1", "Admin", document.body)
@@ -148,6 +149,31 @@ app.onclick = () => {
         })
       }
       Helper.create("button/start", buttons)
+      const terminal = Helper.render("button/left-right", {left: ".terminal", right: "Dein Terminal von überall"}, buttons)
+      terminal.onclick = () => {
+        Helper.overlay("pop", async o2 => {
+          const content = o2.content
+          const text = Helper.create("input/text", content)
+          text.input.placeholder = "command"
+          const runBtn = Helper.render("button/action", ">>", content)
+          const output = Helper.div("m34", content)
+          function sendCommand() {
+            let command = text.input.value
+            if (command === "") command = "ls"
+            const resDiv = Helper.div("mtb21 fs13 monospace", output)
+            Helper.create("div/loading", resDiv)
+            post('/admin/exec/command/', {command})
+            .then(res => {
+              resDiv.textContent = res.response
+              output.insertBefore(resDiv, output.firstChild)
+            })
+            .catch(err => console.error(err))
+            text.input.focus()
+          }
+          Helper.on('click', runBtn, sendCommand)
+          Helper.on('enter', text.input, sendCommand)
+        })
+      }
       const users = Helper.render("button/left-right", {left: ".users", right: "Nutzer Liste"}, buttons)
       users.onclick = () => {
 
