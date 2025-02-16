@@ -12,6 +12,9 @@ app.onclick = () => {
     const buttons = o1.content
     const res = await Helper.request("/verify/user/admin/")
     if (res && res.status === 200) {
+      const deployProd = Helper.render("button/left-right", {left: ".deploy-prod.sh", right: "Plattform aktualisieren"}, buttons)
+      deployProd.onclick = () => Helper.overlay("lock", o => post("/admin/deploy/prod/"))
+
       const dbMigration = Helper.render("button/left-right", {left: ".db-migration"}, buttons)
       dbMigration.onclick = () => {
 
@@ -182,7 +185,7 @@ app.onclick = () => {
           if (res.status === 200) {
             const users = JSON.parse(res.response)
             users.sort((a, b) => b.counter - a.counter)
-            o2.info.textContent = users.length
+            o2.addInfo(users.length)
             const buttons = o2.content
             const icon = await Helper.render("icon/node/path", "/public/delete.svg")
             icon.style.width = "34px"

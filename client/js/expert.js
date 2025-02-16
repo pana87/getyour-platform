@@ -696,7 +696,6 @@ async function renderLocationExpertPlatforms() {
 
           const htmlValues = Helper.render("button/left-right", {left: ".html-values", right: "Meine HTML Werteinheiten"}, buttons)
           htmlValues.onclick = () => {
-
             Helper.overlay("pop", async o2 => {
               o2.addInfo(platform.name)
               const content = o2.content
