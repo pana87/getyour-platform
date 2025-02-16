@@ -620,6 +620,19 @@ async function renderLocationExpertPlatforms() {
                 })
 
                 {
+                  async function requestPaths(path) {
+                    await Helper.verify("input/value", select.input)
+                    const paths = Array.from(select.input.selectedOptions).map(it => it.value)
+                    Helper.overlay("lock", async o3 => {
+                      const res = await Helper.request(path, {paths})
+                      if (res.status === 200) {
+                        o3.alert.ok()
+                      } else {
+                        o3.alert.nok()
+                      }
+                      o3.remove()
+                    })
+                  }
                   Helper.render("text/hr", "Weitere Funktionen", content)
                   const more = Helper.create("div/flex-around", content)
                   const removeScripts = Helper.render("text/link", "Alle Skripte entfernen", more)
@@ -638,23 +651,14 @@ async function renderLocationExpertPlatforms() {
                     })
                   }
                   const visibilityOpen = Helper.render("text/link", "Sichtbarkeit öffnen", more)
-                  visibilityOpen.onclick = async () => {
-
-                    await Helper.verify("input/value", select.input)
-                    const paths = Array.from(select.input.selectedOptions).map(it => it.value)
-                    Helper.overlay("lock", async o3 => {
-                      const res = await Helper.request("/location-expert/update/paths/visibility-open/", {paths})
-                      if (res.status === 200) {
-                        o3.alert.ok()
-                      } else {
-                        o3.alert.nok()
-                      }
-                      o3.remove()
-                    })
-                  }
-
+                  visibilityOpen.onclick = async () => await requestPaths("/location-expert/tag/paths/visibility-open/")
+                  const visibilityClosed = Helper.render("text/link", "Sichtbarkeit schließen", more)
+                  visibilityClosed.onclick = async () => await requestPaths("/location-expert/tag/paths/visibility-closed/")
+                  const automatedTrue = Helper.render("text/link", "Automatisierter Inhalt aktivieren", more)
+                  automatedTrue.onclick = async () => await requestPaths("/location-expert/tag/paths/automated-true/")
+                  const automatedFalse = Helper.render("text/link", "Automatisierter Inhalt ausschalten", more)
+                  automatedFalse.onclick = async () => await requestPaths("/location-expert/tag/paths/automated-false/")
                 }
-
               } else {
                 o2.alert.nok()
                 o2.remove()
@@ -1347,6 +1351,10 @@ async function renderValueButtons(values, node) {
       navigator.clipboard.writeText(value.path)
       .then(() => window.alert(`Der Pfad '${value.path}' wurde erfolgreich in deiner Zwischenablage gespeichert.`))
       .catch(() => window.alert("Fehler.. Bitte wiederholen."))
+    }
+    if (value.automated) {
+      const automated = Helper.div("fs21 color-orange", div.body.content)
+      automated.textContent = `Automatisierter Inhalt aktiviert`
     }
     if (value.requested) {
       const requested = Helper.div("fs21 color-orange", div.body.content)

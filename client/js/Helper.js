@@ -1,5 +1,5 @@
 import {button} from "/js/button.js"
-import {post, text} from "/js/request.js"
+import {postFormData, post, text} from "/js/request.js"
 
 export class Helper {
 
@@ -2100,6 +2100,7 @@ export class Helper {
 
     const div = document.createElement("div")
     div.className = className
+    if (this.verifyIs("text/empty", div.className)) div.removeAttribute("class")
     if (node) this.append(div, node)
     return div
   }
@@ -11627,33 +11628,39 @@ export class Helper {
     if (event === "openImagesOverlay") {
 
       return (node) => {
+        if (!node) node = document.body
         this.overlay("pop", async o1 => {
-          o1.info.textContent = ".images"
+          o1.addInfo(".images")
           const content = o1.content
           const searchField = this.create("input/text", content)
-          searchField.input.placeholder = "Suche nach deinem Alias"
+          searchField.input.placeholder = "Suche nach Alias"
           o1.renderTabs()
           o1.appendChild(o1.addButton)
+          this.add("hover-outline", o1.addButton)
           o1.addButton.onclick = ev => {
-
-            this.overlay("pop", o2 => {
-              o2.info.textContent = `.create.image`
-              o1.openCam(node, o2)
-              o1.upload("image/*", o2)
+            this.overlay("pop", async o2 => {
+              o2.addInfo(`.upload`)
+              const funnel = this.render("upload", "image/*", o2)
+              funnel.submit.onclick = async () => {
+                await this.verify("input/value", funnel.url.input)
+                const res = await o1.registerIt({url: funnel.url.input.value})
+                if (res.status === 200) {
+                  o2.remove()
+                }
+              }
             })
           }
           o1.it = "images"
           o1.filter = "alias"
           o1.input = searchField.input
-          o1.rerender = this.create("div/loading", content)
+          o1.rerender = this.div("", content)
           o1.rerenderStyle = it => {
             this.convert("parent/flex-around", it)
             it.style.margin = "21px 34px"
           }
           o1.createItButton = async it => {
-
-            const box = this.div("box sans-serif relative dark-light w21")
-            this.on("hover", {node: box, class: "pointer outline"})
+            const box = this.div("color-theme w89 m21 p21 br5")
+            this.add("hover-outline", box)
             let alias
             if (it.alias) {
               alias = await this.convert("text/purified", it.alias)
@@ -11664,23 +11671,25 @@ export class Helper {
                 box.textContent = alias
               }
             }
-            this.render("img", it.url, box)
+            this.render("img", {src: it.url, className: "image"}, box)
             this.render("text/hover-bottom-right", it.visibility, box)
             return box
           }
           o1.closedOptions = it => {
             this.overlay("pop", o2 => {
-              if (it.alias) o2.info.textContent = `.image.${it.alias}`
+              if (it.alias) o2.addInfo(it.alias)
               o1.aliasIt(it, o2)
-              o1.appendImage(it, node, o2)
+              o1.appendImageSrcToBody(it.url, o2)
+              o1.copyToClipboard(it.url, o2)
               o1.removeIt(it, o2)
               o1.visibility(it, o2)
             })
           }
           o1.openOptions = it => {
             this.overlay("pop", o2 => {
-              if (it.alias) o2.info.textContent = `.image.${it.alias}`
-              o1.appendImage(it, node, o2)
+              if (it.alias) o2.addInfo(it.alias)
+              o1.appendImageSrcToBody(it.url, o2)
+              o1.copyToClipboard(it.url, o2)
             })
           }
         })
@@ -15177,6 +15186,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                         { name: 'jsbin.com', url: 'https://jsbin.com/?js' },
                         { name: 'playcode.io', url: 'https://playcode.io/javascript' },
                         { name: 'blackbox.ai', url: 'https://blackbox.ai/' },
+                        { name: 'duck.ai', url: 'https://duck.ai/' },
                         { name: 'beautifier.io', url: 'https://beautifier.io/' },
                       ]
 
@@ -15739,6 +15749,49 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           })
         }
 
+          const imageButton = this.render("button/left-right", {left: ".image", right: "Für die Bildbearbeitung"}, buttons)
+          imageButton.onclick = () => {
+            this.overlay("pop", o2 => {
+              const content = o2.content
+              o2.addInfo(".image")
+              const myImages = this.render("button/left-right", {left: ".images", right: "Meine Bilder"}, content)
+              myImages.onclick = () => this.fn("openImagesOverlay")(document.body)
+              this.render("text/hr", "Bildbearbeitung", content)
+              const image = this.create("input/file", content)
+              image.input.setAttribute("accept", "image/*")
+              image.input.oninput = () => this.verify("input/value", image.input)
+              const imageToDataUrl = this.render("text/link", "DataURL", content)
+              imageToDataUrl.onclick = async () => {
+                const imageFile = image.input.files[0]
+                if (!imageFile) {
+                  this.add("style/not-valid", image.input)
+                  return
+                }
+                const reader = new FileReader()
+                reader.onload = ev => {
+                  const dataUrl = ev.target.result
+                  img.src = dataUrl
+                  output.textContent = dataUrl
+                  output.onclick = () => {
+                    navigator?.clipboard?.writeText(dataUrl).then(() => {
+                      window.alert("Data URL wurde erfolgreich in die Zwischenablage gespeichert.")  
+                    })
+                    .catch(e => {
+                      window.alert("Fehler.. Bitte wiederholen.")
+                      console.error(e)
+                    })
+                  }
+                    
+                }
+                reader.readAsDataURL(imageFile)
+              }
+              const imagePreview = this.div("btn-theme color-theme m21 p8 break-word", content)
+              const img = document.createElement("img")
+              imagePreview.appendChild(img)
+              const output = this.div("btn-theme color-theme m21 p8 break-word", content)
+              this.add("hover-outline", output)
+            })
+          }
         {
           const button = this.create("button/left-right", buttons)
           button.left.textContent = ".open"
@@ -15770,6 +15823,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
               const aiIntegrations = [
                 {name: "blackbox.ai", url: "https://www.blackbox.ai/"},
+                {name: 'duck.ai', url: 'https://duck.ai/'},
                 {name: "chatgpt.com", url: "https://chatgpt.com"},
                 {name: "deepai.org", url: "https://www.deepai.org/chat/text-generator"},
                 {name: "futurepedia.io", url: "https://www.futurepedia.io"},
@@ -16266,14 +16320,12 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       const overlay = this.create("div/overlay")
       overlay.addButton = button.div("add")
       overlay.addInfo = text => {
-
         overlay.info.textContent = text
         this.append(overlay.info, overlay)
       }
       overlay.alert = {}
       overlay.alert.nok = () => window.alert("Fehler.. Bitte wiederholen.")
       overlay.alert.ok = (msg) => {
-
         let message = "Daten erfolgreich gespeichert."
         if (msg) message = msg
         window.alert(message)
@@ -16316,7 +16368,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       overlay.appendAddButton = () => {
-
         button.addOutlineOnHover(overlay.addButton)
         this.append(overlay.addButton, overlay)
       }
@@ -16368,7 +16419,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       overlay.appendScript = (it, node, o) => {
-
         const button = this.create("button/left-right", o.content)
         button.left.textContent = ".append-once"
         button.right.textContent = "Element wird überschrieben oder angehängt"
@@ -16383,11 +16433,9 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       overlay.content = this.create("div/scrollable", overlay)
       overlay.append = node => {
-
         if (node) this.append(node, overlay.content)
       }
       overlay.appendButton = (it, node, o) => {
-
         const fragment = document.createDocumentFragment()
         const button = this.create("button/left-right", fragment)
         button.left.textContent = ".append"
@@ -16402,7 +16450,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       overlay.appendImage = (it, node, o) => {
-
         const fragment = document.createDocumentFragment()
         const button = this.create("button/left-right", fragment)
         button.left.textContent = ".append"
@@ -16416,8 +16463,15 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         o.content.appendChild(fragment)
         return button
       }
+      overlay.appendImageSrcToBody = (src, o) => {
+        const button = this.render("button/left-right", {left: ".append", right: "Bild anhängen"}, o.content)
+        button.onclick = () => {
+          const div = this.div("", document.body)
+          this.render("img", {src, className: "image"}, div)
+          this.remove("overlays")
+        }
+      }
       overlay.appendIt = (it, node, o, ok) => {
-
         const button = this.create("button/left-right")
         o.append(button)
         button.left.textContent = ".append"
@@ -16431,14 +16485,12 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       overlay.closeStream = stream => {
-
         if (stream) {
           const tracks = stream.getTracks()
           tracks.forEach(track => track.stop())
         }
       }
       overlay.closeVideoStream = video => {
-
         overlay.closeStream(video.srcObject)
       }
       overlay.copyHtml = (it, o) => {
@@ -16469,6 +16521,12 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         o.content.appendChild(fragment)
         return button
       }
+      overlay.copyToClipboard = (text, o) => {
+        const button = this.render("button/left-right", {left: ".copy", right: "Pfad kopieren"}, o.content)
+        button.onclick = () => {
+          navigator.clipboard.writeText(text).then(overlay.alert.saved).catch(overlay.alert.nok)
+        }
+      }
       overlay.download = (file, o, ok) => {
 
         const button = this.create("button/left-right", o.content)
@@ -16489,7 +16547,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       }
       overlay.emailHtml = (it, o) => {
-
         const fragment = document.createDocumentFragment()
         const button = this.create("button/left-right", fragment)
         button.left.textContent = ".email"
@@ -16507,7 +16564,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       overlay.emailText = (it, o) => {
-
         const fragment = document.createDocumentFragment()
         const button = Helper.create("button/left-right", fragment)
         button.left.textContent = ".emailTextContent"
@@ -16526,11 +16582,9 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       overlay.loading = this.create("div/loading")
       overlay.load = () => {
-
         this.append(overlay.loading, overlay.content)
       }
       overlay.ocr = (canvas, node, o, ok) => {
-
         async function convertCanvasToText(canvas) {
           try {
             const prompt = window.prompt("Gebe die Sprachen ein: (z.B., deu, eng, ..) - Drücke einfach Enter für Deutsch")
@@ -16562,7 +16616,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       }
       overlay.openCam = (node, o) => {
-
         const button = this.create("button/left-right")
         o.append(button)
         button.left.textContent = ".camera"
@@ -16612,7 +16665,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       overlay.openMic = (node, o) => {
-
         const button = this.create("button/left-right")
         o.append(button)
         button.left.textContent = ".microfon"
@@ -16633,7 +16685,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       overlay.openVid = (node, o) => {
-
         const button = this.create("button/left-right")
         o.append(button)
         button.left.textContent = ".video"
@@ -16662,7 +16713,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       overlay.openWindow = (it, o) => {
-
         const button = this.create("button/left-right")
         o.append(button)
         button.left.textContent = ".open"
@@ -16715,7 +16765,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       overlay.translateText = (it, o) => {
-
         const fragment = document.createDocumentFragment()
         const button = this.create("button/left-right", fragment)
         button.left.textContent = ".translate"
@@ -16746,7 +16795,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       overlay.shebang = (it, o) => {
-
         const fragment = document.createDocumentFragment()
         const button = this.create("button/left-right", fragment)
         button.left.textContent = "#!/bin/bash"
@@ -16762,7 +16810,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       overlay.sharePdf = (it, o) => {
-
         const fragment = document.createDocumentFragment()
         function extractCid(url) {
           const cidPattern = /ipfs\/([^/]+)/
@@ -16786,7 +16833,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       function updateSearchField(array, node){
-
         if (overlay.input && overlay.filter) {
           let filtered
           overlay.input.oninput = async ev => {
@@ -16801,7 +16847,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       }
       overlay.updateItOpen = async () => {
-
         if (!overlay.it || !overlay.rerender) return
         this.reset("node", overlay.rerender)
         const loader = this.create("div/loading", overlay.rerender)
@@ -16860,7 +16905,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         })
       }
       overlay.registerHtmlButton = () => {
-
         const button = this.create("button/bottom-right")
         this.convert("path/icon", "/public/disk-floppy.svg").then(icon => button.appendChild(icon))
         this.add("hover-outline", button)
@@ -16869,19 +16913,17 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       overlay.registerIt = (update) => {
-
         return new Promise(async(resolve, reject) => {
           try {
-            this.overlay("lock", async securityOverlay => {
-              const res = await this.request(`/register/user/${overlay.it}/`, {[overlay.it]: update})
+            this.overlay("lock", async o => {
+              const res = await this.request(`/jwt/register/user/${overlay.it}/`, {[overlay.it]: update})
               if (res.status === 200) {
-                window.alert("Daten erfolgreich gespeichert.")
+                o.alert.saved()
                 overlay.tabs.meine.click()
-                securityOverlay.remove()
               } else {
-                window.alert("Fehler.. Bitte wiederholen.")
-                securityOverlay.remove()
+                o.alert.nok()
               }
+              o.remove()
               resolve(res)
             })
           } catch (error) {
@@ -16890,7 +16932,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         })
       }
       overlay.registerKey = (it, key) => {
-
         return new Promise(async(resolve, reject) => {
           try {
             this.overlay("lock", async securityOverlay => {
@@ -16913,7 +16954,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         })
       }
       overlay.removeIt = (it, o) => {
-
         const fragment = document.createDocumentFragment()
         const button = this.create("button/left-right", fragment)
         button.left.textContent = ".remove"
@@ -16940,11 +16980,9 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       overlay.removeOverlayButton = button.append("remove-overlay", overlay)
       overlay.removeOverlayButton.onclick = () => overlay.remove()
       overlay.renderTabs = () => {
-
         overlay.tabs = this.render("tabs", "Alle Meine", overlay.content)
       }
       overlay.visibility = (it, o) => {
-
         const button = this.create("visibility-button", o.content)
         button.addEventListener("click", ev => {
 
@@ -17013,7 +17051,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       }
       overlay.updateIt = (it, update) => {
-
         return new Promise(async(resolve, reject) => {
           try {
             this.overlay("lock", async securityOverlay => {
@@ -17035,7 +17072,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       overlay.updateItOpen()
       overlay.updateItClosed = async () => {
-
         if (!overlay.it || !overlay.rerender) return
         this.reset("node", overlay.rerender)
         const loader = this.create("div/loading", overlay.rerender)
@@ -17050,7 +17086,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       }
       overlay.upload = (type, o) => {
-
         const button = this.create("button/left-right")
         o.append(button)
         button.left.textContent = ".upload"
@@ -17330,8 +17365,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       funnel.file = this.create("input/file", funnel)
       funnel.file.input.setAttribute("accept", input)
       this.add("style/not-valid", funnel.file.input)
-      funnel.file.input.onclick = () => {
-        window.alert(`Achtung! Wenn du eine Datei hochlädst, werden deine Daten auf unserem IPFS-Node gespeichert und durch einen öffentlichen Link verfügbar gemacht. Auf diesen Link haben dann alle Zugriff. Bitte überlege dir genau, ob du deine Datei veröffentlichen möchtest. Mehr Infos über IPFS findest du unter: https://www.ipfs.tech/`)
+      funnel.file.input.onclick = ev => {
+        window.alert("Achtung!!!\n\nSobald du eine Datei hochlädst, ist sie über einen öffentlichen CID Link zugänglich. Wer den CID deiner Datei kennt, kann die Datei abrufen. Bitte lade keine Dateien hoch, die nicht für die Öffentlichkeit gedacht sind.")
       }
       funnel.file.input.oninput = async ev => {
 
@@ -17340,13 +17375,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         const formdata = new FormData()
         formdata.append("file", file, file.name)
         this.add("style/valid", funnel.file.input)
-        fetch('/upload/ipfs/file/', {
-          method: 'POST',
-          body: formdata,
-        })
-        .then(response => response.text())
-        .then(async data => {
-          console.log('Successfully uploaded:', data)
+        const res = await postFormData("/upload/file/", formdata)
+        securityOverlay.remove()
+        if (res.status === 200) {
+          const data = res.response
           funnel.url.input.value = data
           this.verify("input/value", funnel.url.input)
           if (input === "application/pdf") {
@@ -17363,12 +17395,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             funnel.preview.appendChild(img)
             return
           }
-        })
-        .catch(error => {
+        } else {
           this.render("style/not-valid", funnel.file.input)
           console.error('Error uploading file:', error)
-        })
-        .finally(() => securityOverlay.remove())
+        }
         function preparePreview() {
           funnel.preview.textContent = ""
           funnel.preview.style.margin = "21px 34px"
@@ -17963,7 +17993,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       const box = this.create("div", fragment)
       this.style(box, {width: "233px", height: "144px", margin: "21px"})
       this.convert("parent/box", box)
-      const img = this.render("img", input, box)
+      const img = this.render("img", {src: input, className: "image"}, box)
       this.style(img, {borderRadius: "5px", width: "100%"})
       parent?.appendChild(fragment)
       return box
@@ -17972,8 +18002,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     if (event === "img") {
 
       const img = document.createElement("img")
-      img.className = "image"
-      img.src = input
+      img.className = input.className
+      img.src = input.src
       if (parent) this.append(img, parent)
       return img
     }
@@ -17983,7 +18013,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       const fragment = document.createDocumentFragment()
       const box = this.create("div", fragment)
       this.style(box, {margin: "21px 34px"})
-      const img = this.render("img", input, box)
+      const img = this.render("img", {src: input, className: "image"}, box)
       this.style(img, {borderRadius: "5px", width: "100%"})
       parent?.appendChild(fragment)
       return box
@@ -22845,6 +22875,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
   }
 }
-
+Helper.sleep = ms => {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
 Helper.createNode = Helper.fn("createNode")
 Helper.render("link/css", "/public/classes.css", document.head)

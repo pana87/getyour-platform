@@ -5,7 +5,7 @@ button.append("go-back", document.body)
 button.append("home", document.body)
 
 const logoDiv = Helper.div("flex center vh89", document.body)
-const logo = Helper.render("img", "/public/logo-getyour-red.svg", logoDiv)
+const logo = Helper.render("img", {src: "/public/logo-getyour-red.svg", className: "image"}, logoDiv)
 
 const arrowDown = Helper.div("bounce absolute bottom21 left45p w34", document.body)
 arrowDown.textContent = "▽"
@@ -70,11 +70,11 @@ function renderGetyourWebEntwickler(node) {
 
   node.textContent = ""
   const loading = Helper.create("div/loading", node)
-  Helper.request("/get/users/getyour/web-entwickler/").then(res => {
+  Helper.request("/get/users/getyour/expert/").then(res => {
     loading.remove()
     if (res.status === 200) {
       const users = JSON.parse(res.response)
-      Helper.render("text/h2", "Entwickler", node)
+      Helper.render("text/h2", "Experten", node)
       const list = Helper.div("flex wrap around", node)
       for (let i = 0; i < users.length; i++) {
         const user = users[i]
@@ -125,7 +125,7 @@ function renderUserBox(user, node) {
     Helper.render("text/h1", user.alias, box)
   }
   if (!Helper.verifyIs("text/empty", user.image)) {
-    Helper.render("img", user.image, box)
+    Helper.render("img", {src: user.image, className: "image"}, box)
   }
   {
     const container = Helper.div("flex mtb21 mlr34", box)

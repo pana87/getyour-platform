@@ -103,44 +103,7 @@ it.addEvent = (name, node) => {
                 button.onclick = () => window.open("/admin/", "_blank")
               }
             })
-
-
-            {
-              const tree = "getyour.web-entwickler"
-              const key = Helper.convert("tree/key", tree)
-              Helper.request("/jwt/verify/tree/exist/", {tree}).then(res => {
-                if (res.status === 200) {
-                  const button = Helper.render("button/left-right", {left: `.${key}`, right: "Stammdaten ändern"}, content)
-                  button.onclick = () => {
-
-                    Helper.overlay("pop", async o2 => {
-                      o2.addInfo(tree)
-                      const content = o2.content
-                      const funnel = Helper.funnel(tree, content)
-                      await Helper.render("tree/funnel", tree, funnel)
-                      funnel.submit.onclick = async () => {
-
-                        await Helper.verify("funnel", funnel)
-                        const map = Helper.convert("funnel/map", funnel)
-                        Helper.overlay("lock", async o3 => {
-                          const res = await Helper.request("/jwt/update/tree/map/", {tree, map})
-                          if (res.status === 200) {
-                            o3.alert.saved()
-                            o2.remove()
-                          } else {
-                            o3.alert.nok()
-                          }
-                          o3.remove()
-                        })
-                      }
-                    })
-                  }
-                }
-              })
-            }
-
           }
-
         })
       })
     }

@@ -14,6 +14,7 @@ it.openOverlay = () => {
     const container = Helper.create("div/flex-row", content)
     const exportButton = Helper.render("text/link", "Exportieren", container)
     const importButton = Helper.render("text/link", "Importieren", container)
+    const retellButton = Helper.render("text/link", "Retell AI", container)
     importButton.onclick = () => {
 
       Helper.overlay("pop", o2 => {
@@ -290,15 +291,19 @@ website: "https://www.kontakt-webseite.de/" // optional
               Helper.overlay("pop", o3 => {
                 o3.addInfo(contact.email)
                 const content = o3.content
-                const f1 = funnel.div("phone", content)
+                const tel = Helper.create("input/tel", content)
+                tel.input.setAttribute("accept", "text/tel")
+                tel.input.placeholder = "Telefon Nummer (text/tel)"
                 if (contact.phone) {
-                  f1.phone.input.value = contact.phone
+                  tel.input.value = contact.phone
                 }
-                Helper.verify("input/value", f1.phone.input)
-                f1.submit.onclick = async () => {
+                Helper.verify("input/value", tel.input)
+                const submit = Helper.create("button/action", content)
+                submit.textContent = "Daten jetzt speichern"
+                submit.onclick = async () => {
 
-                  await Helper.verify("input/value", f1.phone.input)
-                  const phone = f1.phone.input.value
+                  await Helper.verify("input/value", tel.input)
+                  const phone = tel.input.value
                   Helper.overlay("lock", async lock => {
                     const res = await Helper.request("/jwt/update/contacts/phone/", {created: contact.created, phone})
                     if (res.status === 200) {
@@ -518,18 +523,117 @@ website: "https://www.kontakt-webseite.de/" // optional
       if (res.status === 200) {
         const contacts = JSON.parse(res.response)
         exportButton.onclick = () => {
-          const dataToExport = (contacts || filtered).map(contact => {
-            const {id, created, ...rest} = contact
-            return rest
-          })
+          let dataToExport
+          if (filtered) {
+            dataToExport = filtered.map(it => {
+              const {id, created, ...rest} = it
+              return rest
+            })
+          } else {
+            dataToExport = contacts.map(it => {
+              const {id, created, ...rest} = it
+              return rest
+            })
+          }
           Helper.convert("text/clipboard", JSON.stringify(dataToExport))
           .then(() => window.alert("JavaScript Kontaktliste wurde erfolgreich in die Zwischenablage gespeichert."))
+        }
+        retellButton.onclick = async () => {
+          let dataToRetell 
+          if (filtered) {
+            dataToRetell = filtered
+          } else {
+            dataToRetell = contacts
+          }
+          async function verifyRetellApi() {
+            const res = await Helper.request("/jwt/verify/retell/api-key/")
+            if (res.status !== 200) {
+              const apiKey = window.prompt("Für diese Anwendung wird ein API KEY benötigt. Mehr Informationen auf https://retellai.com\n\nRetell API KEY:")
+              if (!Helper.verifyIs("text/empty", apiKey)) {
+                const res = await Helper.request("/jwt/register/retell/api-key/", {apiKey})
+                if (res.status === 200) {
+                  window.alert("Daten erfolgreich gespeichert.")
+                } else {
+                  window.alert("Fehler.. Bitte wiederholen.")
+                }
+              }
+              return
+            }
+          }
+          await verifyRetellApi()
+          const res = await Helper.request("/jwt/get/retell/api-key/")
+          if (res.status === 200) {
+            const retellApiKey = res.response
+            Helper.overlay("pop", o1 => {
+              const content = o1.content
+              const title = Helper.render("text/h1", "Retell AI API", content)
+              const subTitle = document.createElement("a")
+              subTitle.href = "https://www.retellai.com"
+              subTitle.textContent = "Mehr Informationen zu Retell AI findest du hier."
+              subTitle.className = "link-theme monospace mlr34 mtb21"
+              content.appendChild(subTitle)
+              const number = Helper.create("input/tel", content)
+              number.input.placeholder = "Anrufende Telefon Nummer (text/tel)"
+              number.input.setAttribute("required", "true")
+              number.input.setAttribute("accept", "text/tel")
+              Helper.verify("input/value", number.input)
+              number.input.oninput = () => Helper.verify("input/value", number.input)
+              Helper.render("text/p", "Folgende Nummern werden angerufen:", content)
+              const phonesDiv = Helper.div("mtb21 mlr34 color-theme", content)
+              const contactsWithPhone = dataToRetell.filter(it => it && it.phone)
+              contactsWithPhone.forEach(contact => {
+                const phoneDiv = Helper.div("", phonesDiv)
+                phoneDiv.textContent = contact.phone
+              })
+              const submit = Helper.create("button/action", content)
+              submit.textContent = "Nummern jetzt anrufen"
+              submit.onclick = async () => {
+                await Helper.verify("input/value", number.input)
+                const fromNumber = number.input.value
+                const promises = {}
+                const resultDiv = Helper.div("", content)
+                contactsWithPhone.forEach(contact => {
+                  const promise = Helper.request("/jwt/retell/call/contact/", {contact, fromNumber})
+                  promises[contact.phone] = promise
+                  const responseButton = Helper.render("button/left-right", {left: `${contact.alias} wird angerufen`, right: ""}, resultDiv)
+                  threePointsAnimation(responseButton.right)
+                  responseButton.onclick = () => {
+                    window.alert("Es sind noch keine Daten verfügbar. Der Agent telefoniert noch.")
+                  }
+                  promise.then(res => {
+                    responseButton.onclick = () => {
+                      console.log(res.response)
+                    }
+                  }).catch(err => {
+                    responseButton.right.textContent = "Fehler.."
+                  })
+                })
+                async function threePointsAnimation(node) {
+                  const div = Helper.div("fs21", node);
+                  while (true) {
+                    for (let i = 0; i < 3; i++) {
+                      div.textContent += "."
+                      await Helper.sleep(1000)
+                    }
+                    div.textContent = ""
+                  }
+                }
+              }
+              const log = Helper.div("monospace color-theme fs13", content)
+            })
+          } else {
+            window.alert("Fehler.. Bitte wiederholen.")
+          }
         }
         searchField.input.oninput = async ev => {
           const query = ev.target.value
           if (!Helper.verifyIs("text/empty", query)) {
             const prepared = concatEmailAndNotes(contacts, "query")
             const highlighted = Helper.sort("query", {array: prepared, query, filter: "query"})
+            filtered = highlighted.map(it => {
+              const {query, ...rest} = it
+              return rest
+            })
             await renderContactButtons(highlighted, contactsDiv)
           } else {
             await renderContactButtons(contacts, contactsDiv)
