@@ -13285,6 +13285,7 @@ next:webcall(Meine Notizen)
       it.alias.input.setAttribute("required", "true")
       it.path = this.create("input/tag", it)
       it.path.input.placeholder = "Pfad (text/tag)"
+      it.path.input.maxLength = "89"
       this.append(it.submit, it)
     }
 

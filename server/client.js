@@ -295,6 +295,30 @@ app.get("/:expert/:platform/:path/:id/",
     return res.sendStatus(404)
   }
 )
+app.post('/admin/deploy/prod/', 
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  adminOnly,
+  (req, res) => {
+    try {
+      exec("./../scripts/deploy-prod.sh", (error, stdout, stderr) => {
+        if (error) {
+          res.status(500).send(error.message)
+          return
+        }
+        if (stderr) {
+          res.status(500).send(stderr)
+          return
+        }
+        res.sendStatus(200)
+      })
+    } catch (e) {
+      res.sendStatus(404)
+    }
+  }
+)
 app.post('/admin/exec/command/', 
   Helper.verifyLocation,
   Helper.verifyReferer,
