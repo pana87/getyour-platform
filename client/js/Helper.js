@@ -15754,8 +15754,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             this.overlay("pop", o2 => {
               const content = o2.content
               o2.addInfo(".image")
-              const myImages = this.render("button/left-right", {left: ".images", right: "Meine Bilder"}, content)
-              myImages.onclick = () => this.fn("openImagesOverlay")(document.body)
+              if (callback.type === "expert") {
+                const myImages = this.render("button/left-right", {left: ".images", right: "Meine Bilder"}, content)
+                myImages.onclick = () => this.fn("openImagesOverlay")(document.body)
+              }
               this.render("text/hr", "Bildbearbeitung", content)
               const image = this.create("input/file", content)
               image.input.setAttribute("accept", "image/*")
