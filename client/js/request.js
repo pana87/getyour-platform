@@ -26,6 +26,27 @@ export const post = (path, input) => {
     }
   })
 }
+export const postFormData = (path, formData) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (formData === undefined) formData = new FormData()
+      const body = {}
+      body.location = window.location.href
+      body.referer = document.referrer
+      body.localStorageEmail = window.localStorage.getItem("email")
+      body.localStorageId = window.localStorage.getItem("localStorageId")
+      const jsonBlob = new Blob([JSON.stringify(body)], { type: "application/json" })
+      formData.append("file", jsonBlob) 
+      const xhr = new XMLHttpRequest()
+      xhr.open("POST", path)
+      xhr.withCredentials = true
+      xhr.onload = () => resolve(xhr)
+      xhr.send(formData)
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
 export const text = path => {
 
   return new Promise(async(resolve, reject) => {

@@ -1,12 +1,12 @@
 const allowedOrigins = [
-  "http://localhost:9999",
   "https://localhost:9999",
   "https://get-your.de",
   "https://www.get-your.de",
 ]
+const cron = require("node-cron")
 const crypto = require("crypto")
 const cookieParser = require('cookie-parser')
-const { exec } = require('child_process')
+const { exec, spawn } = require('child_process')
 const express = require('express')
 const fs = require('fs')
 const helmet = require('helmet')
@@ -19,21 +19,42 @@ const nano = require("nano")(process.env.COUCHDB_LOCATION)
 const path = require("path")
 const storage = multer.memoryStorage()
 const redirectToLoginHtml = Helper.readFileSyncToString("../lib/values/redirect-to-login.html")
-
+let fileType
+Helper.import("file-type").then(it => fileType = it)
 const upload = multer({storage})
 const {UserRole} = require('../lib/UserRole.js')
 const {startWebSocket} = require("./websocket.js")
 let randomPin
 const loginQueue = []
-let CID
-(async () => {
-  const multiformats = await import('multiformats')
-  CID = multiformats.CID
-})()
-let fileType
-Helper.import("file-type").then(it => {
-  fileType = it
-})
+
+//cron.schedule("* * * * *", async () => {
+//  console.log("I am running every minute.")
+//  const doc = await nano.db.use("getyour").get("user")
+//  const automatedValues = getPlatformValues(doc)
+//  .filter(it => it.automated)
+//  .forEach(value => {
+//    let html = value.html.replace(/\n/g, "")
+//    let lang = value.lang
+//    if (!lang) lang = "de"
+//    const subshell = spawn("python3", ["agents/html-creator.py", value.alias, value.path, lang])
+//    subshell.stdin.write(value.html)
+//    subshell.stdin.end()
+//    subshell.stdout.on('data', async data => {
+//      const result = data.toString().replace(/```html/g, "").replace(/```/g, "")
+//      console.log(result)
+//      value.html = result
+//      try {
+//        await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+//      } catch (e) {
+//        if (e.message === "Document update conflict") {
+//          console.log("conflict detacted")
+//          const latestDoc = await nano.db.get(doc._id)
+//          await nano.db.use("getyour").insert({ _id: doc._id, _rev: latestDoc._rev, user: doc.user })
+//        }
+//      }
+//    });
+//  })
+//})
 
 Helper.createDatabase("getyour")
 Helper.createUser("getyour")
@@ -131,6 +152,20 @@ app.get("/admin/",
     return res.sendStatus(404)
   }
 )
+app.get("/cid/:cid/", 
+  verifyOrigin,
+  (req, res, next) => {
+    const cid = req.params.cid
+    const filePath = `./cid/${cid}`
+    fs.access(filePath, fs.constants.F_OK, async err => {
+      if (err) return res.sendStatus(404)
+      const fileBuffer = fs.readFileSync(filePath)
+      const {mime} = await fileType.fileTypeFromBuffer(fileBuffer)
+      res.set("Content-Type", mime)
+      fs.createReadStream(filePath).pipe(res)
+    })
+  }
+)
 app.get("/db/migration/",
 
   async (req, res) => {
@@ -178,7 +213,7 @@ app.get("/:expert/",
   async (req, res, next) => {
 
     try {
-      if (Helper.verifyIs("text/empty", req.params.expert)) throw new Error("req.params.expert is empty")
+      if (Helper.verifyIs("text/empty", req.params.expert)) return res.sendStatus(404)
       if (req.params.expert === "login") return res.send(Helper.readFileSyncToString("../lib/values/login.html"))
       if (req.params.expert === "nutzervereinbarung") return res.send(Helper.readFileSyncToString(`../lib/values/nutzervereinbarung.html`))
       if (req.params.expert === "datenschutz") return res.send(Helper.readFileSyncToString(`../lib/values/datenschutz.html`))
@@ -299,6 +334,56 @@ app.post("/location-expert/get/platform/roles/text-value/",
       const roles = getUserRoles(user)
       .map(it => ({text: it.name, value: it.created}))
       return res.send(roles)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/jwt/retell/call/contact/",
+
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  closedOnly,
+  async (req, res, next) => {
+
+    try {
+      const apiKey = req.jwt.user.retell?.apiKey
+      if (!apiKey) return res.sendStatus(404)
+      const fromNumber = req.body.fromNumber
+      if (Helper.verifyIs("text/empty", fromNumber)) throw new Error("req.body.fromNumber is empty")
+      const contact = req.body.contact
+      if (Helper.verifyIs("object/empty", contact)) throw new Error("req.body.contact is empty")
+      const {Retell} = await import("retell-sdk")
+      const retellClient = new Retell({apiKey})
+      const response = await retellClient.call.createPhoneCall({
+        from_number: fromNumber, 
+        to_number: contact.phone, 
+        retell_llm_dynamic_variables: contact
+      })
+      const callId = response.call_id
+      const result = await retellClient.call.retrieve(call_id)
+      return res.send(result)
+    } catch (error) {
+      console.log(error)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/jwt/get/retell/api-key/",
+
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  closedOnly,
+  async (req, res, next) => {
+
+    try {
+      const retellApiKey = req.jwt.user.retell?.apiKey
+      if (!retellApiKey) return res.sendStatus(404)
+      return res.send(retellApiKey)
     } catch (error) {
       return res.sendStatus(404)
     }
@@ -2048,7 +2133,7 @@ app.post("/admin/get/users/",
     }
   }
 )
-app.post("/get/users/getyour/web-entwickler/",
+app.post("/get/users/getyour/expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
@@ -2058,10 +2143,10 @@ app.post("/get/users/getyour/web-entwickler/",
       const doc = await nano.db.use("getyour").get("user")
       const users = Object.values(doc.user)
       .filter(it => isVerified(it))
-      .filter(it => it.getyour && it.getyour["web-entwickler"])
+      .filter(it => it.getyour && it.getyour.expert)
       .map(it => ({
-        alias: it.getyour["web-entwickler"].alias,
-        image: it.getyour["web-entwickler"].image,
+        alias: it.getyour.expert.alias,
+        image: it.getyour.expert.image,
         reputation: it.reputation,
         xp: it.xp
       }))
@@ -2280,6 +2365,27 @@ app.post("/register/contacts/lead-location-expert/",
           }
         }
       }
+    }
+  }
+)
+app.post("/jwt/register/retell/api-key/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  closedOnly,
+  async (req, res, next) => {
+    try {
+      if (Helper.verifyIs("text/empty", req.body.apiKey)) throw new Error("req.body.apiKey is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      if (!isJwt(user, req)) return res.sendStatus(404)
+      if (!user.retell) user.retell = {}
+      user.retell.apiKey = req.body.apiKey
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
     }
   }
 )
@@ -3994,15 +4100,16 @@ app.post("/admin/register/tree/value/",
     }
   }
 )
-app.post("/register/user/:list/",
+app.post("/jwt/register/user/:list/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
   Helper.addJwt,
   Helper.verifySession,
+  closedOnly,
   async (req, res, next) => {
 
-    if (req.jwt !== undefined) {
+    try {
       if (!Helper.isReserved(req.params.list)) throw new Error(`${req.params.list} is not reserved`)
       if (Helper.verifyIs("object/empty", req.body[req.params.list])) throw new Error(`req.body.${req.params.list} is empty`)
       const doc = await nano.db.use("getyour").get("user")
@@ -4017,6 +4124,8 @@ app.post("/register/user/:list/",
         await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
         return res.sendStatus(200)
       }
+    } catch (e) {
+      return res.sendStatus(404)
     }
   }
 )
@@ -4353,8 +4462,91 @@ app.post("/location-expert/remove/paths/scripts/",
     }
   }
 )
-app.post("/location-expert/update/paths/visibility-open/",
+app.post("/location-expert/tag/paths/automated-true/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
 
+    try {
+      const paths = req.body.paths
+      if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      paths.forEach(path => {
+        user.getyour?.expert?.platforms?.forEach(platform => {
+          const value = platform.values?.find(value => value.path === path)
+          if (value) {
+            value.automated = true
+          }
+        })
+      })
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-expert/tag/paths/automated-false/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+
+    try {
+      const paths = req.body.paths
+      if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      paths.forEach(path => {
+        user.getyour?.expert?.platforms?.forEach(platform => {
+          const value = platform.values?.find(value => value.path === path)
+          if (value) {
+            value.automated = false
+          }
+        })
+      })
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-expert/tag/paths/visibility-closed/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+
+    try {
+      const paths = req.body.paths
+      if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      paths.forEach(path => {
+        user.getyour?.expert?.platforms?.forEach(platform => {
+          const value = platform.values?.find(value => value.path === path)
+          if (value) {
+            value.visibility = "closed"
+          }
+        })
+      })
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-expert/tag/paths/visibility-open/",
   Helper.verifyLocation,
   Helper.verifyReferer,
   Helper.addJwt,
@@ -4383,7 +4575,6 @@ app.post("/location-expert/update/paths/visibility-open/",
   }
 )
 app.post("/location-expert/remove/platform/role/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   Helper.addJwt,
@@ -5453,6 +5644,42 @@ app.post("/update/user/:list/",
     }
   }
 )
+function prepareFormData(req, res, next) {
+  req.file = req.files[0]
+  if (!req.file) return res.sendStatus(404) 
+  const jsonFile = req.files.find(file => file.mimetype === 'application/json')
+  if (!jsonFile) return res.sendStatus(404) 
+  const jsonString = jsonFile.buffer.toString()
+  const jsonData = JSON.parse(jsonString)
+  req.body.location = jsonData.location
+  req.body.referer = jsonData.referer
+  req.body.locationStorageEmail = jsonData.localStorageEmail
+  req.body.localStorageId = jsonData.localStorageId
+  return next()
+}
+app.post("/upload/file/",
+
+  upload.array("file"),
+  prepareFormData,
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  closedOnly,
+  async (req, res, next) => {
+    try {
+      const dir = "./cid"
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir)
+      const cid = Helper.digest(req.file.buffer)
+      const filePath = `./cid/${cid}`
+      fs.writeFileSync(filePath, req.file.buffer)
+      const cidLink = `https://${req.get("host")}/cid/${cid}`
+      return res.send(cidLink)
+    } catch (e) {
+      return res.sendStatus(404)
+    }
+  }
+)
 app.post("/jwt/update/:list/:map/",
 
   Helper.verifyLocation,
@@ -5498,6 +5725,28 @@ app.post("/jwt/verify/email/",
     try {
       if (req.jwt.user.email !== req.body.email) return res.sendStatus(404)
       return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/jwt/verify/retell/api-key/",
+
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  closedOnly,
+  async (req, res, next) => {
+
+    try {
+      const doc = await nano.db.use("getyour").get("user")
+      const jwtUser = doc.user[req.jwt.id]
+      const exist = jwtUser.retell.apiKey
+      if (exist) {
+        return res.sendStatus(200)
+      }
+      return res.sendStatus(404)
     } catch (error) {
       return res.sendStatus(404)
     }
@@ -6052,6 +6301,11 @@ function getPlatforms(user) {
 
   return user?.getyour?.expert?.platforms || []
 }
+function getPlatformValues(doc) {
+  return Object.values(doc.user)
+  .flatMap(it => it.getyour?.expert?.platforms || [])
+  .flatMap(it => it.values || [])
+}
 function getPlatformsByName(doc, name) {
 
   return Object.values(doc.user)
@@ -6269,7 +6523,6 @@ async function removeUserById(id) {
   await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
 }
 function replaceScript(input, id) {
-
   const regex = new RegExp(`<script id="${id}" type="module"[\\s\\S]*?<\\/script>`, 's')
   const newScript = `<script id="${id}" type="module" src="/js/${id}.js"></script>`
   if (regex.test(input)) {
@@ -6279,13 +6532,11 @@ function replaceScript(input, id) {
   }
 }
 function sendStatus(code) {
-
   return (req, res, next) => {
     return res.sendStatus(code)
   }
 }
 function shuffle(array) {
-
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
@@ -6293,7 +6544,6 @@ function shuffle(array) {
   return array
 }
 function treeExist(user, tree) {
-
   const value = getTreeValue(user, tree)
   if (value) {
     return true
@@ -6302,7 +6552,6 @@ function treeExist(user, tree) {
   }
 }
 function treeToKey(tree) {
-
   const keys = tree.split(".")
   if (keys.length > 0) {
     return keys[keys.length - 1]
@@ -6311,7 +6560,6 @@ function treeToKey(tree) {
   }
 }
 function updateContact(alt, neu){
-
   if (!alt.id) alt.id = Helper.digestId(alt.email)
   if (neu.alias) alt.alias = neu.alias
   if (neu.birthday) alt.birthday = neu.birthday
@@ -6319,4 +6567,12 @@ function updateContact(alt, neu){
   if (neu.notes) alt.notes = neu.notes
   if (neu.phone) alt.phone = neu.phone
   if (neu.website) alt.website = neu.website
+}
+function verifyOrigin(req, res, next) {
+  const origin = `https://${req.headers.host}`
+  if (allowedOrigins.includes(origin)) {
+    return next()
+  } else {
+    return res.sendStatus(404)
+  }
 }
