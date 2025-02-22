@@ -1,6 +1,7 @@
 import {button} from "/js/button.js"
 import {funnel} from "/js/funnel.js"
-import {Helper} from "/js/Helper.js"
+import {renderTag, Helper} from "/js/Helper.js"
+import {post} from "/js/request.js"
 
 const it = {}
 it.openOverlay = () => {
@@ -571,6 +572,7 @@ website: "https://www.kontakt-webseite.de/" // optional
               subTitle.href = "https://www.retellai.com"
               subTitle.textContent = "Mehr Informationen zu Retell AI findest du hier."
               subTitle.className = "link-theme monospace mlr34 mtb21"
+              subTitle.target = "_blank"
               content.appendChild(subTitle)
               const number = Helper.create("input/tel", content)
               number.input.placeholder = "Anrufende Telefon Nummer (text/tel)"
@@ -585,27 +587,43 @@ website: "https://www.kontakt-webseite.de/" // optional
                 const phoneDiv = Helper.div("", phonesDiv)
                 phoneDiv.textContent = contact.phone
               })
+              Helper.render("text/p", "Folgende Felder können in Retell als Post-Call-Analysis genutzt werden:", content)
+              const retellFields = Helper.div("monospace", content)
+              Helper.render("key-value", {key: "scheduled - ", value: "boolean - ob ein Termin vereinbart wurde"}, retellFields)
+              Helper.render("key-value", {key: "summary - ", value: "text - eine kurze Termin Zusammenfassung"}, retellFields)
+              Helper.render("key-value", {key: "start - ", value: "Datumsformat: yyyymmddThhmmssZ"}, retellFields)
+              Helper.render("key-value", {key: "end - ", value: "Datumsformat: yyyymmddThhmmssZ"}, retellFields)
+              Helper.render("key-value", {key: "location - ", value: "text - Treffpunkt des Termins"}, retellFields)
+              Helper.render("key-value", {key: "description - ", value: "text - Beschreibung des Termins"}, retellFields)
+              Helper.render("text/p", "An welche E-Mail Adresse sollen die Terminbestätigungen geschickt werden?", content)
+              const email = Helper.create("input/email", content)
+              email.input.value = window.localStorage.getItem("email")
+              Helper.verify("input/value", email.input)
               const submit = Helper.create("button/action", content)
               submit.textContent = "Nummern jetzt anrufen"
               submit.onclick = async () => {
                 await Helper.verify("input/value", number.input)
+                await Helper.verify("input/value", email.input)
+                const emailReceiver = email.input.value
                 const fromNumber = number.input.value
                 const promises = {}
                 const resultDiv = Helper.div("", content)
                 contactsWithPhone.forEach(contact => {
-                  const promise = Helper.request("/jwt/retell/call/contact/", {contact, fromNumber})
+                  const promise = Helper.request("/jwt/retell/call/contact/", {contact, fromNumber, emailReceiver})
                   promises[contact.phone] = promise
                   const responseButton = Helper.render("button/left-right", {left: `${contact.alias} wird angerufen`, right: ""}, resultDiv)
                   threePointsAnimation(responseButton.right)
-                  responseButton.onclick = () => {
-                    window.alert("Es sind noch keine Daten verfügbar. Der Agent telefoniert noch.")
-                  }
                   promise.then(res => {
-                    responseButton.onclick = () => {
-                      console.log(res.response)
+                    if (res.status === 200) {
+                      responseButton.right.textContent = "Anfruf erfolgreich beendet"
+                      responseButton.onclick = () => {
+                        console.log(res.response)
+                      }
+                    } else {
+                      responseButton.right.textContent = "Anruf fehlgeschlagen"
                     }
                   }).catch(err => {
-                    responseButton.right.textContent = "Fehler.."
+                    responseButton.right.textContent = err.message
                   })
                 })
                 async function threePointsAnimation(node) {

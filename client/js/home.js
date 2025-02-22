@@ -148,6 +148,7 @@ function renderUserBox(user, node) {
       rightDiv.classList.add("color-green")
     }
   }
-  const reputation = Helper.render("reputation", user.reputation, box)
+  Helper.render("key-value", {key: "Plattformen:", value: user.platforms}, box)
+  Helper.render("key-value", {key: "Webseiten:", value: user.values}, box)
   return box
 }
