@@ -176,6 +176,7 @@ it.div = name => {
 
     const button = it.div("back")
     button.classList.add("go-back")
+    button.classList.add("no-save")
     return button
   }
   if (name === "home") {
@@ -189,10 +190,15 @@ it.div = name => {
     button.textContent = "↓"
     return button
   }
+  if (name === "save") {
+    const btn = it.div("toolbox")
+    btn.textContent = "save"
+    Helper.add("hover-outline", btn)
+    return btn
+  }
   if (name === "toolbox") {
-
     const button = it.div("bottom-right")
-    button.className += " flex align center fs13 btn-theme color-theme monospace"
+    button.className += " flex align center fs13 btn-theme color-theme monospace no-save"
     button.textContent = "toolbox"
     return button
   }

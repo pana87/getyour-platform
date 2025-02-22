@@ -13970,103 +13970,89 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
   static overlay(event, callback) {
 
     if (event === "children") {
-
       if (!callback) callback = {}
       this.overlay("pop", overlay => {
+        overlay.registerHtmlButton(callback.type)
         if (callback.info) overlay.addInfo(callback.info)
         const childrenContainer = overlay.content
-
         function addScript(id) {
-
           const script = Helper.create("script/id", id)
           Helper.add("script-onbody", script)
           window.alert("Skript erfolgreich angehängt.")
           Helper.remove("overlays")
         }
-
         childrenLoop: for (let i = 0; i < callback.node.children.length; i++) {
           let child = callback.node.children[i]
-
           if (child.id === "toolbox") continue
           if (child.id === "toolbox-getter") continue
           if (child.getAttribute("data-id") === "toolbox") continue
           if (child.classList.contains("overlay")) continue
-
           for (let i = 0; i < child.classList.length; i++) {
             if (child.classList[i].startsWith("overlay")) continue childrenLoop
           }
-
           const childrenButton = this.create("button/left-right", childrenContainer)
           childrenButton.left.append(this.convert("element/alias", child))
           childrenButton.right.textContent = "Element bearbeiten"
           function updateNodeAlias(node) {
-
             childrenButton.left.textContent = ""
             childrenButton.left.append(Helper.convert("element/alias", node))
           }
-
           if (child.tagName === "SCRIPT") {
             this.render("left-right/local-script-toggle", child.id, childrenButton)
           }
-
           childrenButton.onclick = () => {
-
             this.overlay("pop", async o1 => {
+              o1.registerHtmlButton(callback.type)
               o1.addInfo(`<${this.convert("node/selector", child)}`)
               const buttons = o1.content
-
+              if (child.tagName !== "SCRIPT") {
+                const childrenBtn = this.render("button/left-right", {left: ".children", right: "Element Inhalt"}, buttons)
+                childrenBtn.onclick = async () => {
+                  const realLength = Array.from(child.children).filter(it => !it.classList.contains("no-save") && !it.classList.contains("overlay") && it.id !== "toolbox-getter").length
+                  if (realLength > 0) {
+                    this.overlay("children", {node: child, type: callback.type, info: `${this.convert("element/alias", child).textContent}.children`})
+                  } else alert("Das HTML Element ist leer.")
+                }
+              }
+              const classBtn = this.render("button/left-right", {left: ".class", right: "Klassen definieren"}, buttons)
+              classBtn.onclick = () => {
+                this.overlay("pop", o2 => {
+                  o2.registerHtmlButton(callback.type)
+                  o2.addInfo(`<${this.convert("node/selector", child)}`)
+                  const content = o2.content
+                  const classField = this.create("input/textarea", content)
+                  classField.input.placeholder = "mehrere klassen werden mit einem leerzeichen getrennt"
+                  classField.input.style.fontFamily = "monospace"
+                  classField.input.style.height = "34vh"
+                  if (child.hasAttribute("class")) {
+                    classField.input.value = child.getAttribute("class")
+                  }
+                  this.add("hover-outline", classField.input)
+                  this.verify("input/value", classField.input)
+                  classField.input.oninput = () => {
+                    const value = classField.input.value
+                    if (this.verifyIs("text/empty", value)) {
+                      child.removeAttribute("class")
+                    } else {
+                      child.setAttribute("class", value)
+                    }
+                    o2.info.textContent = `<${this.convert("node/selector", child)}`
+                    updateNodeAlias(child)
+                  }
+                })
+              }
+              if (!["BODY"].includes(child.tagName)) {
+                const copyBtn = this.render("button/left-right", {left: ".copy", right: "Element kopieren"}, buttons)
+                copyBtn.onclick = async () => {
+                  await this.convert("text/clipboard", child.outerHTML)
+                  window.alert(`${child.tagName} wurde erfolgreich in deine Zwischenablage kopiert.`)
+                }
+              }
               {
 
-                if (child.tagName !== "SCRIPT") {
-                  const button = this.render("button/left-right", {left: ".children", right: "Element Inhalt"}, buttons)
-                  button.onclick = async () => {
-
-                    if (child.children.length > 0) {
-                      this.overlay("children", {node: child, type: callback.type, info: `${this.convert("element/alias", child).textContent}.children`})
-                    } else alert("Das HTML Element ist leer.")
-                  }
-                }
-
-                {
-                  const button = this.render("button/left-right", {left: ".class", right: "Klassen definieren"}, buttons)
-                  button.onclick = () => {
-
-                    this.overlay("pop", o2 => {
-                      o2.addInfo(`<${this.convert("node/selector", child)}`)
-                      const content = o2.content
-                      const classField = this.create("input/textarea", content)
-                      classField.input.placeholder = "mehrere klassen werden mit einem leerzeichen getrennt"
-                      classField.input.style.fontFamily = "monospace"
-                      classField.input.style.height = "34vh"
-                      if (child.hasAttribute("class")) {
-                        classField.input.value = child.getAttribute("class")
-                      }
-                      this.add("hover-outline", classField.input)
-                      this.verify("input/value", classField.input)
-                      classField.input.oninput = () => {
-                        const value = classField.input.value
-                        if (this.verifyIs("text/empty", value)) {
-                          child.removeAttribute("class")
-                        } else {
-                          child.setAttribute("class", value)
-                        }
-                        o2.info.textContent = `<${this.convert("node/selector", child)}`
-                        updateNodeAlias(child)
-                      }
-                    })
-                  }
-                }
-
-                if (!["BODY"].includes(child.tagName)) {
-                  const button = this.render("button/left-right", {left: ".copy", right: "Element kopieren"}, buttons)
-                  button.onclick = async () => {
-
-                    await this.convert("text/clipboard", child.outerHTML)
-                    window.alert(`${child.tagName} wurde erfolgreich in deine Zwischenablage kopiert.`)
-                  }
-                }
 
                 if (!["SCRIPT", "HEAD"].includes(child.tagName)) {
+                  const darkLightBtn = this.render("button/left-right", {left: ".dark-light", right: "Dark Light Modus umschalten"}, buttons)
                   const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".dark-light"
                   button.right.textContent = "Dark Light Modus umschalten"
@@ -14121,9 +14107,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     button.onclick = () => {
 
                       this.overlay("pop", async overlay => {
-
-                        if (callback.type === "expert") {
-                          const registerHtmlButton = overlay.registerHtmlButton()
+                        const registerHtmlButton = overlay.registerHtmlButton(callback.type)
+                        if (registerHtmlButton) {
                           registerHtmlButton.onclick = async () => {
                             this.remove("contenteditable", clone)
                             this.remove("selected-node", clone)
@@ -14617,7 +14602,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     })
                   }
                 }
-
                 {
                   const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".id"
@@ -14657,7 +14641,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
                   }
                 }
-
                 {
                   const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".innerHTML"
@@ -14688,7 +14671,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     })
                   }
                 }
-
                 if (child.tagName === "BODY") {
                   if (callback.type === "expert") {
                     const button = this.create("button/left-right", buttons)
@@ -14762,7 +14744,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     }
                   }
                 }
-
                 if (child.tagName === "BODY") {
                   if (callback.type === "expert") {
                     const button = this.render("button/left-right", {left: ".match-maker", right: "Match Maker Skripte anhängen"}, buttons)
@@ -14794,7 +14775,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     }
                   }
                 }
-
                 if (["BODY", "DIV"].includes(child.tagName)) {
                   const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".md"
@@ -14827,7 +14807,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     })
                   }
                 }
-
                 if (!["SCRIPT", "HEAD", "BODY"].includes(child.tagName)) {
                   const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".paste"
@@ -14848,9 +14827,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     this.remove("overlays")
                   }
                 }
-
                 if (["BODY", "DIV"].includes(child.tagName)) {
-
                   if (callback.type === "expert") {
                     const button = this.render("button/left-right", {left: ".role-login", right: "Rollen Zugang anhängen"}, buttons)
                     button.onclick = () => {
@@ -14902,9 +14879,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     }
                   }
                 }
-
                 if (!["BODY", "HEAD"].includes(child.tagName)) {
-
                   {
                     const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".remove"
@@ -14915,9 +14890,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     }
                   }
                 }
-
                 if (callback.type === "expert") {
-
                   const scriptButton = this.render("button/left-right", {left: ".script", right: "Lade ein Skript mit einer Id"}, buttons)
                   scriptButton.onclick = async () => {
 
@@ -14950,7 +14923,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     })
                   }
                 }
-
                 {
                   const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".setAttribute"
@@ -14967,9 +14939,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     }
                   }
                 }
-
                 if (child.tagName === "BODY") {
-
                   if (callback.type === "expert") {
                     const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".scripts"
@@ -14999,10 +14969,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     }
                   }
                 }
-
                 if (child.tagName === "HEAD") {
-
-
                   {
                     const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".style"
@@ -15032,11 +14999,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                       })
                     }
                   }
-
                 }
-
                 if (!["SCRIPT", "BODY", "HEAD"].includes(child.tagName)) {
-
                   const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".style"
                   button.right.textContent = "CSS Import mit Vorschau bearbeiten"
@@ -15073,11 +15037,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                       }
                     })
                   }
-
                 }
-
                 if (child.tagName === "BODY") {
-
                   const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".style"
                   button.right.textContent = "CSS Import"
@@ -15107,9 +15068,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                       }
                     })
                   }
-
                 }
-
                 if (!["SCRIPT", "HEAD"].includes(child.tagName)) {
                   const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".svg"
@@ -15169,11 +15128,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     })
                   }
                 }
-
                 if (child.tagName !== "BODY") {
-
-
-
                   {
                     const button = this.create("button/left-right", buttons)
                     button.left.textContent = ".textContent"
@@ -15217,10 +15172,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                       })
                     }
                   }
-
-
                 }
-
                 if (child.tagName === "HEAD") {
                   const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".title"
@@ -15251,10 +15203,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     })
                   }
                 }
-
                 if (child.tagName === "BODY") {
-
-
                   // das muss irgendwie anders passieren ??
                   // ein skript mit einem tag ??
                   // kombiniert mit dem design tree?
@@ -15323,13 +15272,9 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   }
                 }
               }
-
             })
-
           }
-
         }
-
       })
     }
 
@@ -15584,20 +15529,14 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
       if (!callback) callback = {}
       return this.overlay("pop", async o1 => {
-        if (callback.type === "expert") o1.registerHtmlButton()
+        o1.registerHtmlButton(callback.type)
         const buttons = o1.content
 
         {
-          const button = this.render("button/left-right", {left: "convert.text", right: "Mehr Infos"}, buttons)
-          this.add("hover-outline", button.right)
-          button.right.onclick = (ev) => {
-            ev.stopPropagation()
-            this.overlay("pop", o2 => {
-              this.render("text/h3", "Konvertiere Texte schnell und einfach", o2.content)
-            })
-          }
+          const button = this.render("button/left-right", {left: "convert.text", right: "Konvertiere Texte schnell und einfach"}, buttons)
           button.onclick = () => {
             this.overlay("pop", o2 => {
+              o2.registerHtmlButton(callback.type)
               const content = o2.content
 
               function createInputField(placeholder) {
@@ -15669,7 +15608,18 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             })
           }
         }
-
+        const documentBtn = this.render("button/left-right", {left: ".document", right: "Ein schneller Überblick"}, buttons)
+        documentBtn.onclick = () => {
+          this.overlay("pop", o2 => {
+            o1.registerHtmlButton(callback.type)
+            const content = o2.content
+            const pre = document.createElement("pre")
+            pre.className = "p8 pre-wrap monospace color-theme fs13"
+            const prettified = this.prettifyHtml(document.documentElement.outerHTML)
+            pre.textContent = prettified
+            this.append(pre, content)
+          })
+        }
         {
           const button = this.create("button/left-right", buttons)
           button.left.textContent = "document.backup"
@@ -16907,13 +16857,13 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           }
         })
       }
-      overlay.registerHtmlButton = () => {
-        const button = this.create("button/bottom-right")
-        this.convert("path/icon", "/public/disk-floppy.svg").then(icon => button.appendChild(icon))
-        this.add("hover-outline", button)
-        button.onclick = () => this.add("register-html")
-        this.append(button, overlay)
-        return button
+      overlay.registerHtmlButton = type => {
+        if (type === "expert") {
+          const btn = button.div("save")
+          btn.onclick = () => this.add("register-html")
+          this.append(btn, overlay)
+          return btn
+        }
       }
       overlay.registerIt = (update) => {
         return new Promise(async(resolve, reject) => {
@@ -17374,7 +17324,9 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       funnel.file.input.oninput = async ev => {
 
         const securityOverlay = this.overlay("lock")
-        const file = ev.target.files[0]
+        let file = ev.target.files[0]
+        if (file.type.startsWith("image/")) file = await this.remove("exif", file)
+        console.log(file)
         const formdata = new FormData()
         formdata.append("file", file, file.name)
         this.add("style/valid", funnel.file.input)
@@ -18189,6 +18141,16 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       const image = this.create("div/image", input)
       parent?.appendChild(image)
       return image
+    }
+
+    if (event === "key-value") {
+      const div = Helper.div("flex mtb21 mlr34")
+      div.key = Helper.div("flex align center", div)
+      div.key.textContent = input.key
+      div.value = Helper.div("ml8 fs21", div)
+      div.value.textContent = input.value
+      if (parent) this.append(div, parent)
+      return div
     }
 
     if (event === "object-node") {
@@ -21128,7 +21090,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       video.src = input
       return video
     }
-
   }
   static remove(event, input) {
 
@@ -21189,10 +21150,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       return new Promise((resolve, reject) => {
         const reader = new FileReader()
         reader.onload = ev => {
-
           const img = new Image()
           img.onload = () => {
-
             const canvas = document.createElement('canvas')
             canvas.width = img.width
             canvas.height = img.height
@@ -22882,4 +22841,20 @@ Helper.sleep = ms => {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 Helper.createNode = Helper.fn("createNode")
+Helper.prettifyHtml = text => {
+  return text
+  .replace(/\n/g, "")
+  .replace(/>/g, ">\n  ")
+  .replace(/</g, "\n<")
+}
 Helper.render("link/css", "/public/classes.css", document.head)
+export const renderTag = (tag, input, parent) => {
+  const element = document.createElement(tag)
+  if (!element) {
+    throw new Error("renderTag: no valid html element tag")
+  }
+  element.textContent = input.textContent
+  element.className = input.className
+  if (parent) Helper.append(element, parent)
+  return element
+}

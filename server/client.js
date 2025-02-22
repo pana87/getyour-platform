@@ -105,7 +105,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       fontSrc: ["'self'", "https://*"],
-      imgSrc: ["'self'", "https://*"],
+      imgSrc: ["'self'", "https://*", "data:"],
       mediaSrc: ["'self'", "https://*"],
     },
   },
@@ -364,19 +364,19 @@ app.post("/location-expert/get/platform/roles/text-value/",
   }
 )
 app.post("/jwt/retell/call/contact/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   Helper.addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const apiKey = req.jwt.user.retell?.apiKey
       if (!apiKey) return res.sendStatus(404)
       const fromNumber = req.body.fromNumber
       if (Helper.verifyIs("text/empty", fromNumber)) throw new Error("req.body.fromNumber is empty")
+      const emailReceiver = req.body.emailReceiver
+      if (Helper.verifyIs("text/empty", emailReceiver)) throw new Error("req.body.emailReceiver is empty")
       const contact = req.body.contact
       if (Helper.verifyIs("object/empty", contact)) throw new Error("req.body.contact is empty")
       const {Retell} = await import("retell-sdk")
@@ -388,6 +388,23 @@ app.post("/jwt/retell/call/contact/",
       })
       const callId = response.call_id
       const result = await retellClient.call.retrieve(call_id)
+      const callAnalysis = result.call_analysis
+      if (callAnalysis.scheduled) {
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (!user) return res.sendStatus(404)
+        await sendIcsEmail(user.email, emailReceiver, {
+          summary: callAnalysis.summary,
+          start: callAnalysis.start,
+          end: callAnalysis.end,
+          location: callAnalysis.location,
+          description: callAnalysis.description
+        })
+        if (!user.retell.counter) user.retell.counter = {}
+        if (!user.retell.counter[emailReceiver]) user.retell.counter[emailReceiver] = 0
+        user.retell.counter[emailReceiver]++
+        await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      }
       return res.send(result)
     } catch (error) {
       console.log(error)
@@ -2171,6 +2188,8 @@ app.post("/get/users/getyour/expert/",
       .map(it => ({
         alias: it.getyour.expert.alias,
         image: it.getyour.expert.image,
+        platforms: it.getyour.expert.platforms.length,
+        values: it.getyour.expert.platforms.flatMap(it => it.values || []).length,
         reputation: it.reputation,
         xp: it.xp
       }))
@@ -4124,6 +4143,30 @@ app.post("/admin/register/tree/value/",
     }
   }
 )
+app.post("/jwt/register/user/key/:key/",
+
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  closedOnly,
+  async (req, res, next) => {
+
+    try {
+      const key = req.params.key
+      if (Helper.verifyIs("text/empty", key)) throw new Error("req.params.key is empty")
+      const value = req.body.value
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      if (!user) return res.sendStatus(404)
+      user[key] = value
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (e) {
+      return res.sendStatus(404)
+    }
+  }
+)
 app.post("/jwt/register/user/:list/",
 
   Helper.verifyLocation,
@@ -5003,6 +5046,78 @@ app.post("/jwt/remove/user/:list/item/",
         }
       }
       return res.sendStatus(404)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+async function sendIcsEmail(from, to, ics) {
+  let content = 'BEGIN:VCALENDAR\n' +
+  'VERSION:2.0\n' +
+  'BEGIN:VEVENT\n' +
+  `SUMMARY:${ics.summary}\n` +
+  `DTSTART;VALUE=DATE:${ics.start}\n` +
+  `DTEND;VALUE=DATE:${ics.end}\n` + // 20201030T113000Z
+  `LOCATION:${ics.location} \n` +
+  `DESCRIPTION:${ics.description}\n` +
+  'STATUS:CONFIRMED\n' +
+  'SEQUENCE:3\n' +
+  'BEGIN:VALARM\n' +
+  'TRIGGER:-PT10M\n' +
+  `DESCRIPTION:${ics.description}\n` +
+  'ACTION:DISPLAY\n' +
+  'END:VALARM\n' +
+  'END:VEVENT\n' +
+  'END:VCALENDAR'
+  await Helper.sendEmailFromDroid({
+    from,
+    to,
+    subject: "[getyour] Neuer Termin",
+    text: "Ein neuer Interessent für dich.",
+    icalEvent: {
+      filename: "neuer_termin.ics",
+      method: "request",
+      content,
+    }
+  })
+}
+app.post("/jwt/send/email/retell-ics/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  closedOnly,
+  async (req, res, next) => {
+    try {
+      if (Helper.verifyIs("text/empty", req.body.to)) throw new Error("req.body.to is empty")
+      const ics = req.body.ics
+      if (Helper.verifyIs("object/empty", ics)) throw new Error("req.body.ics is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      if (!isJwt(user, req)) return res.sendStatus(404)
+      await sendIcsEmail(user.email, req.body.to, ics) 
+      return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/jwt/send/email/ics/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  closedOnly,
+  async (req, res, next) => {
+    try {
+      if (Helper.verifyIs("text/empty", req.body.to)) throw new Error("req.body.to is empty")
+      const ics = req.body.ics
+      if (Helper.verifyIs("object/empty", ics)) throw new Error("req.body.ics is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      if (!isJwt(user, req)) return res.sendStatus(404)
+      await sendIcsEmail(user.email, req.body.to, ics) 
+      return res.sendStatus(200)
     } catch (error) {
       return res.sendStatus(404)
     }
