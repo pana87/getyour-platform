@@ -333,32 +333,10 @@ app.post('/admin/deploy/prod/',
   async (req, res) => {
     try {
       const scriptPath = path.resolve(`${__dirname}/../../scripts/deploy-getyour.sh`)
-      const scriptProcess = spawn(scriptPath, { shell: true })
-      let stdout = ''
-      let stderr = ''
-      scriptProcess.stdout.on('data', (data) => {
-        stdout += data.toString()
-      })
-      scriptProcess.stderr.on('data', (data) => {
-        stderr += data.toString()
-      })
-      scriptProcess.on('close', async (code) => {
-        if (code !== 0) {
-          console.log(`Script exited with code ${code}`)
-          console.log(`Script stderr: ${stderr}`)
-          res.status(500).send(stderr)
-          return
-        }
-        console.log(`Script stdout: ${stdout}`)
-        res.sendStatus(200)
-      })
-      scriptProcess.on('error', (err) => {
-        console.log(`Failed to start script process: ${err.message}`)
-        res.status(500).send(err.message)
-      })
+      exec(scriptPath)
+      return res.sendStatus(200)
     } catch (e) {
-      console.log(`Caught exception: ${e.message}`)
-      res.sendStatus(404)
+      return res.sendStatus(404)
     }
   }
 )
