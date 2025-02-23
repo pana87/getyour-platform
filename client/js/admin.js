@@ -14,10 +14,8 @@ app.onclick = () => {
     if (res && res.status === 200) {
       const deployProd = Helper.render("button/left-right", {left: ".deploy-prod.sh", right: "Plattform aktualisieren"}, buttons)
       deployProd.onclick = () => Helper.overlay("lock", o => post("/admin/deploy/prod/"))
-
       const dbMigration = Helper.render("button/left-right", {left: ".db-migration"}, buttons)
       dbMigration.onclick = () => {
-
         Helper.overlay("lock", o2 => {
           fetch("/db/migration/").then(res => {
             if (res.status === 200) {
@@ -32,7 +30,6 @@ app.onclick = () => {
       Helper.render("button/login", "/login/", buttons)
       const logs = Helper.render("button/left-right", {left: ".logs", right: "Logbuch"}, buttons)
       logs.onclick = () => {
-
         Helper.overlay("pop", o4 => {
           const content = o4.content
 
@@ -49,17 +46,12 @@ app.onclick = () => {
                 for (let i = 0; i < infos.length; i++) {
                   const info = infos[i]
                   const button = Helper.create("button/left-right", content)
-                  if (typeof info.input === "object") {
-                    info.input = JSON.stringify(info.input, null, 2)
+                  if (typeof info.it === "object") {
+                    info.it = JSON.stringify(info.it, null, 2)
                   }
-                  Helper.render("text/div", "Input:", button.left)
-                  Helper.render("text/div", info.input, button.left)
-                  Helper.render("text/div", `ist ein ${info.is}`, button.left)
-                  Helper.render("text/div", "Anfrage:", button.right)
-                  Helper.render("text/div", info.method, button.right)
-                  Helper.render("text/div", `an: ${info.endpoint}`, button.right)
-                  Helper.render("text/div", `von: ${info.location}`, button.right)
-                  Helper.render("text/div", `ursprung: ${info.referer}`, button.right)
+                  Helper.render("text/div", info.it, button.left)
+                  Helper.render("text/div", `ist ein ${info.typeof}`, button.left)
+                  Helper.render("text/div", Helper.convert("millis/since", info.created), button.right)
                 }
               } else {
                 Helper.render("text/note", "Keine Infos gefunden", content)
