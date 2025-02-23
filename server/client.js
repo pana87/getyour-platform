@@ -296,7 +296,7 @@ app.get("/:expert/:platform/:path/:id/",
   }
 )
 function reboot() {
-  setTimeout(() => spawn('sudo', ['reboot']), 5000)
+  setTimeout(() => exec("sudo reboot"), 5000)
 }
 async function log(it, type = "info") {
   const log = {}
