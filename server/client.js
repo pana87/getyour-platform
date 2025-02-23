@@ -297,14 +297,18 @@ app.get("/:expert/:platform/:path/:id/",
 )
 function reboot() {
   setTimeout(() => {
-    exec("sudo reboot", (error, stdout, stderr) => {
-      if (error) {
-        console.log(`Error executing reboot: ${error.message}`)
-      } else if (stderr) {
-        console.log(`Reboot stderr: ${stderr}`)
-      } else {
-        console.log(`Reboot stdout: ${stdout}`)
-      }
+    const rebootProcess = spawn('sudo', ['reboot'])
+    rebootProcess.stdout.on('data', (data) => {
+      console.log(`Reboot stdout: ${data}`)
+    })
+    rebootProcess.stderr.on('data', (data) => {
+      console.log(`Reboot stderr: ${data}`)
+    })
+    rebootProcess.on('close', (code) => {
+      console.log(`Reboot process exited with code ${code}`)
+    })
+    rebootProcess.on('error', (err) => {
+      console.log(`Failed to start reboot process: ${err.message}`)
     })
   }, 5000)
 }
@@ -328,16 +332,23 @@ app.post('/admin/deploy/prod/',
   async (req, res) => {
     try {
       const scriptPath = path.resolve(`${__dirname}/../../scripts/deploy-getyour.sh`)
-      exec(scriptPath, async (error, stdout, stderr) => {
-        if (error) {
-          console.log(`Error executing script: ${error.message}`)
-          await log(error)
-          res.status(500).send(error.message)
-          return
-        }
-        if (stderr) {
+      const scriptProcess = spawn(scriptPath, { shell: true })
+      let stdout = ''
+      let stderr = ''
+
+      scriptProcess.stdout.on('data', (data) => {
+        stdout += data.toString()
+      })
+
+      scriptProcess.stderr.on('data', (data) => {
+        stderr += data.toString()
+      })
+
+      scriptProcess.on('close', async (code) => {
+        if (code !== 0) {
+          console.log(`Script exited with code ${code}`)
           console.log(`Script stderr: ${stderr}`)
-          await log(stderr)
+          await log(stderr, "error")
           res.status(500).send(stderr)
           return
         }
@@ -345,6 +356,12 @@ app.post('/admin/deploy/prod/',
         await log(stdout)
         res.sendStatus(200)
         reboot()
+      })
+
+      scriptProcess.on('error', (err) => {
+        console.log(`Failed to start script process: ${err.message}`)
+        log(err, "error")
+        res.status(500).send(err.message)
       })
     } catch (e) {
       console.log(`Caught exception: ${e.message}`)
