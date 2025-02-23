@@ -13,7 +13,14 @@ app.onclick = () => {
     const res = await Helper.request("/verify/user/admin/")
     if (res && res.status === 200) {
       const deployProd = Helper.render("button/left-right", {left: ".deploy-prod.sh", right: "Plattform aktualisieren"}, buttons)
-      deployProd.onclick = () => Helper.overlay("lock", o => post("/admin/deploy/prod/"))
+      deployProd.onclick = () => Helper.overlay("lock", async lock => {
+        const res = await post("/admin/deploy/prod/")
+        if (res.status === 200) {
+          post("/admin/reboot/")
+          window.alert("Neustart wird ausgeführt.")
+        }
+        lock.remove()
+      })
       const dbMigration = Helper.render("button/left-right", {left: ".db-migration"}, buttons)
       dbMigration.onclick = () => {
         Helper.overlay("lock", o2 => {
