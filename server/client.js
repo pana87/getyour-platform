@@ -295,6 +295,9 @@ app.get("/:expert/:platform/:path/:id/",
     return res.sendStatus(404)
   }
 )
+function shutdown(){
+  exec('shutdown -r now')
+}
 function reboot() {
   setTimeout(() => {
     const rebootProcess = spawn('sudo', ['reboot'])
@@ -355,7 +358,7 @@ app.post('/admin/deploy/prod/',
         console.log(`Script stdout: ${stdout}`)
         await log(stdout)
         res.sendStatus(200)
-        reboot()
+        shutdown()
       })
 
       scriptProcess.on('error', (err) => {
