@@ -295,26 +295,46 @@ app.get("/:expert/:platform/:path/:id/",
     return res.sendStatus(404)
   }
 )
+async function log(it) {
+  const log = {}
+  log.type = "info"
+  log.typeof = typeof it
+  log.created = Date.now()
+  log.it = it
+  const doc = await nano.db.use("getyour").get("logs")
+  doc.logs.unshift(log)
+  console.log(log)
+  await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, logs: doc.logs })
+}
 app.post('/admin/deploy/prod/', 
   Helper.verifyLocation,
   Helper.verifyReferer,
   Helper.addJwt,
   Helper.verifySession,
   adminOnly,
-  (req, res) => {
+  async (req, res) => {
     try {
-      exec("./../scripts/deploy-prod.sh", (error, stdout, stderr) => {
+      const scriptPath = path.resolve(`${__dirname}/../../scripts/deploy-prod.sh`)
+      exec(scriptPath, async (error, stdout, stderr) => {
         if (error) {
+          console.error(`Error executing script: ${error.message}`)
+          await log(error)
           res.status(500).send(error.message)
           return
         }
         if (stderr) {
+          console.error(`Script stderr: ${stderr}`)
+          await log(stderr)
           res.status(500).send(stderr)
           return
         }
+        console.log(`Script stdout: ${stdout}`)
+        await log(stdout)
         res.sendStatus(200)
       })
     } catch (e) {
+      console.error(`Caught exception: ${e.message}`)
+      await log(e)
       res.sendStatus(404)
     }
   }
