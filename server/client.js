@@ -295,6 +295,9 @@ app.get("/:expert/:platform/:path/:id/",
     return res.sendStatus(404)
   }
 )
+function reboot() {
+  setTimeout(() => exec("sudo reboot"), 5000)
+}
 async function log(it) {
   const log = {}
   log.type = "info"
@@ -314,7 +317,7 @@ app.post('/admin/deploy/prod/',
   adminOnly,
   async (req, res) => {
     try {
-      const scriptPath = path.resolve(`${__dirname}/../../scripts/deploy-prod.sh`)
+      const scriptPath = path.resolve(`${__dirname}/../../scripts/deploy-getyour.sh`)
       exec(scriptPath, async (error, stdout, stderr) => {
         if (error) {
           console.error(`Error executing script: ${error.message}`)
@@ -330,6 +333,7 @@ app.post('/admin/deploy/prod/',
         }
         console.log(`Script stdout: ${stdout}`)
         await log(stdout)
+        reboot()
         res.sendStatus(200)
       })
     } catch (e) {
