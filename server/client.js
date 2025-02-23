@@ -296,11 +296,21 @@ app.get("/:expert/:platform/:path/:id/",
   }
 )
 function reboot() {
-  setTimeout(() => exec("sudo reboot"), 5000)
+  setTimeout(() => {
+    exec("sudo reboot", (error, stdout, stderr) => {
+      if (error) {
+        console.log(`Error executing reboot: ${error.message}`)
+      } else if (stderr) {
+        console.log(`Reboot stderr: ${stderr}`)
+      } else {
+        console.log(`Reboot stdout: ${stdout}`)
+      }
+    })
+  }, 5000)
 }
-async function log(it) {
+async function log(it, type = "info") {
   const log = {}
-  log.type = "info"
+  log.type = type
   log.typeof = typeof it
   log.created = Date.now()
   log.it = it
@@ -320,24 +330,24 @@ app.post('/admin/deploy/prod/',
       const scriptPath = path.resolve(`${__dirname}/../../scripts/deploy-getyour.sh`)
       exec(scriptPath, async (error, stdout, stderr) => {
         if (error) {
-          console.error(`Error executing script: ${error.message}`)
+          console.log(`Error executing script: ${error.message}`)
           await log(error)
           res.status(500).send(error.message)
           return
         }
         if (stderr) {
-          console.error(`Script stderr: ${stderr}`)
+          console.log(`Script stderr: ${stderr}`)
           await log(stderr)
           res.status(500).send(stderr)
           return
         }
         console.log(`Script stdout: ${stdout}`)
         await log(stdout)
-        reboot()
         res.sendStatus(200)
+        reboot()
       })
     } catch (e) {
-      console.error(`Caught exception: ${e.message}`)
+      console.log(`Caught exception: ${e.message}`)
       await log(e)
       res.sendStatus(404)
     }
