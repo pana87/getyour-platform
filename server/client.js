@@ -17,7 +17,6 @@ const jwt = require('jsonwebtoken')
 const multer = require('multer')
 const nano = require("nano")(process.env.COUCHDB_LOCATION)
 const path = require("path")
-const pm2 = require('pm2')
 const storage = multer.memoryStorage()
 const redirectToLoginHtml = Helper.readFileSyncToString("../lib/values/redirect-to-login.html")
 let fileType
@@ -27,6 +26,11 @@ const {UserRole} = require('../lib/UserRole.js')
 const {startWebSocket} = require("./websocket.js")
 let randomPin
 const loginQueue = []
+
+cron.schedule("0 0 0 * * *", () => {
+  const scriptPath = path.resolve(`${__dirname}/../../scripts/deploy-getyour-and-reboot.sh`)
+  exec(scriptPath)
+})
 
 //cron.schedule("* * * * *", async () => {
 //  console.log("I am running every minute.")
@@ -296,19 +300,6 @@ app.get("/:expert/:platform/:path/:id/",
     return res.sendStatus(404)
   }
 )
-function restartService(name) {
-  pm2.connect(err => {
-    console.log(err)
-    pm2.restart(name, (err, proc) => {
-      console.log(err)
-      console.log(proc)
-      pm2.disconnect()
-    })
-  })
-}
-function reboot() {
-  setTimeout(() => exec("sudo reboot"), 5000)
-}
 async function log(it, type = "info") {
   const log = {}
   log.type = type
@@ -320,38 +311,6 @@ async function log(it, type = "info") {
   console.log(log)
   await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, logs: doc.logs })
 }
-app.post('/admin/reboot/', 
-  Helper.verifyLocation,
-  Helper.verifyReferer,
-  Helper.addJwt,
-  Helper.verifySession,
-  adminOnly,
-  async (req, res) => {
-    try {
-      res.sendStatus(200)
-      restartService("getyour.service")
-    } catch (e) {
-      console.log(e)
-      res.sendStatus(404)
-    }
-  }
-)
-app.post('/admin/deploy/prod/', 
-  Helper.verifyLocation,
-  Helper.verifyReferer,
-  Helper.addJwt,
-  Helper.verifySession,
-  adminOnly,
-  async (req, res) => {
-    try {
-      const scriptPath = path.resolve(`${__dirname}/../../scripts/deploy-getyour.sh`)
-      exec(scriptPath)
-      return res.sendStatus(200)
-    } catch (e) {
-      return res.sendStatus(404)
-    }
-  }
-)
 app.post('/admin/exec/command/', 
   Helper.verifyLocation,
   Helper.verifyReferer,
