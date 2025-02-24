@@ -17,6 +17,7 @@ const jwt = require('jsonwebtoken')
 const multer = require('multer')
 const nano = require("nano")(process.env.COUCHDB_LOCATION)
 const path = require("path")
+const pm2 = require('pm2')
 const storage = multer.memoryStorage()
 const redirectToLoginHtml = Helper.readFileSyncToString("../lib/values/redirect-to-login.html")
 let fileType
@@ -295,6 +296,16 @@ app.get("/:expert/:platform/:path/:id/",
     return res.sendStatus(404)
   }
 )
+function restartService(name) {
+  pm2.connect(err => {
+    console.log(err)
+    pm2.restart(name, (err, proc) => {
+      console.log(err)
+      console.log(proc)
+      pm2.disconnect()
+    })
+  })
+}
 function reboot() {
   setTimeout(() => exec("sudo reboot"), 5000)
 }
@@ -317,9 +328,10 @@ app.post('/admin/reboot/',
   adminOnly,
   async (req, res) => {
     try {
-      reboot()
       res.sendStatus(200)
+      restartService("getyour.service")
     } catch (e) {
+      console.log(e)
       res.sendStatus(404)
     }
   }
