@@ -283,7 +283,6 @@ function renderHtmlValuesWritable(values, node) {
   }
 }
 async function renderPlatformValues(platform, node) {
-
   node.textContent = ""
   const loading = Helper.create("div/loading", node)
   const res = await Helper.request("/get/platform/values/", {platform})
@@ -292,6 +291,7 @@ async function renderPlatformValues(platform, node) {
     const values = JSON.parse(res.response)
     for (let i = 0; i < values.length; i++) {
       const value = values[i]
+      console.log(value)
       const button = createValueImageButton(value, node)
       button.onclick = () => window.open(value.path, "_blank")
     }
@@ -299,7 +299,6 @@ async function renderPlatformValues(platform, node) {
   return res
 }
 async function renderPlatforms(node) {
-
   node.textContent = ""
   const loading = Helper.create("div/loading", node)
   const res = await Helper.request("/get/platforms/")
