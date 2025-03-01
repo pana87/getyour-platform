@@ -291,7 +291,6 @@ async function renderPlatformValues(platform, node) {
     const values = JSON.parse(res.response)
     for (let i = 0; i < values.length; i++) {
       const value = values[i]
-      console.log(value)
       const button = createValueImageButton(value, node)
       button.onclick = () => window.open(value.path, "_blank")
     }
