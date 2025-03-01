@@ -167,7 +167,6 @@ export class Helper {
                 copyToClipboardButton.left.textContent = ".copy-to-clipboard"
                 copyToClipboardButton.right.textContent = "Inhalt in die Zwischenablage speichern"
                 copyToClipboardButton.onclick = async () => {
-                  console.log(text);
                   try {
                     await navigator.clipboard.writeText(text)
                     window.alert("Inhalt wurde erfolgreich in die Zwischenablage gespeichert.")
@@ -854,7 +853,7 @@ export class Helper {
       toolbox.setAttribute("data-id", "toolbox")
       document.body.insertBefore(back, document.querySelector("#toolbox"))
       document.body.insertBefore(toolbox, document.querySelector("#toolbox"))
-      button.addOutlineOnHover(toolbox)
+      this.add("hover-outline", toolbox)
       toolbox.addEventListener("click", () => {
         this.overlay("tools", {type: "expert"})
       })
@@ -2325,14 +2324,12 @@ export class Helper {
     }
 
     if (event === "input/select") {
-
       const div = this.div("mtb21 mlr34 relative")
       div.input = document.createElement("select")
       this.append(div.input, div)
       div.search = this.create("input/text")
       div.search.input.placeholder = "Suche nach E-Mail Adresse"
       div.search.input.oninput = ev => {
-
         const query = ev.target.value.toLowerCase()
         let filtered
         if (this.verifyIs("text/empty", query)) {
@@ -2343,12 +2340,10 @@ export class Helper {
         div.input.textValue(filtered)
       }
       div.add = it => {
-
         div.options = it
         div.input.textValue(it)
       }
       div.input.add = options => {
-
         div.input.textContent = ""
         for (let i = 0; i < options.length; i++) {
           const option = document.createElement("option")
@@ -2358,7 +2353,6 @@ export class Helper {
         }
       }
       div.input.select = options => {
-
         const set = new Set(options)
         Array.from(div.input.options).forEach(option => {
           if (set.has(option.textContent.trim())) {
@@ -2369,14 +2363,12 @@ export class Helper {
         })
       }
       div.input.selectAll = () => {
-
         for (let i = 0; i < div.input.options.length; i++) {
           div.input.options[i].selected = true
         }
         this.add("style/valid", div.input)
       }
       div.selectByText = options => {
-
         const set = new Set(options)
         Array.from(div.input.options).forEach(option => {
           if (set.has(option.text)) {
@@ -2387,7 +2379,6 @@ export class Helper {
         })
       }
       div.selectByValue = options => {
-
         const set = new Set(options)
         Array.from(div.input.options).forEach(option => {
           if (set.has(option.value)) {
@@ -2398,18 +2389,15 @@ export class Helper {
         })
       }
       div.input.selectNone = () => {
-
         for (let i = 0; i < div.input.options.length; i++) {
           div.input.options[i].selected = false
         }
         this.add("style/not-valid", div.input)
       }
       div.selectedValues = () => {
-
         return Array.from(div.input.selectedOptions).map(it => it.value)
       }
       div.input.textValue = options => {
-
         div.input.textContent = ""
         for (let i = 0; i < options.length; i++) {
           const it = options[i]
@@ -5020,7 +5008,23 @@ export class Helper {
       field.input.addEventListener("input", ev => this.verify("input/value", field.input))
       return field
     }
-
+    if (event === "select/experts") {
+      const field = this.create("input/select", input)
+      this.request("/jwt/get/experts/").then(res => {
+        if (res.status === 200) {
+          const experts = JSON.parse(res.response)
+          field.input.textContent = ""
+          for (let i = 0; i < experts.length; i++) {
+            const expert = experts[i]
+            const option = document.createElement("option")
+            option.value = expert.id
+            option.text = expert.alias
+            this.append(option, field.input)
+          }
+        }
+      })
+      return field
+    }
     if (event === "toolbox/bottom-right") {
 
       const button = this.create("button/bottom-right")
@@ -12555,7 +12559,7 @@ export class Helper {
           o1.createItButton = async it => {
 
             const videoButton = button.div("dark-light")
-            button.addOutlineOnHover(videoButton)
+            this.add("hover-outline", videoButton)
             videoButton.className += " p13 of-hidden flex column"
             let title
             if (it.title) {
@@ -16321,7 +16325,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       overlay.appendAddButton = () => {
-        button.addOutlineOnHover(overlay.addButton)
+        this.add("hover-outline", overlay.addButton)
         this.append(overlay.addButton, overlay)
       }
       overlay.appendHtml = (it, node, o) => {
@@ -21797,7 +21801,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
   }
   static verifyIs(event, input) {
     // return boolean only
@@ -22834,7 +22837,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (/^[0-9A-Fa-f]+$/.test(input) === true) return true
       return false
     }
-
   }
 }
 Helper.sleep = ms => {

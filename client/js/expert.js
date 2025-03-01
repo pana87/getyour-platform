@@ -1,5 +1,6 @@
-import {Helper} from "/js/Helper.js"
+import {Helper, renderTag} from "/js/Helper.js"
 import {button} from "/js/button.js"
+import {post} from "/js/request.js"
 
 button.append("go-back", document.body)
 const domain = window.location.pathname.split("/")[1]
@@ -23,7 +24,6 @@ app.onclick = () => {
         const keyCapped = Helper.convert("text/capital-first-letter", key)
         const button = Helper.render("button/left-right", {left: `.${tree}`, right: `Alias ändern`}, content)
         button.onclick = () => {
-
           Helper.overlay("pop", async o2 => {
             const content = o2.content
             const funnel = Helper.funnel("alias", content)
@@ -864,6 +864,36 @@ async function renderLocationExpertPlatforms() {
               await renderLocationExpertPlatformRoles(platform.name, roleList)
             })
           }
+          const sharePlatformBtn = Helper.render("button/left-right", {left: ".share", right: "Gebe deine Plattform weiter"}, buttons)
+          sharePlatformBtn.onclick = () => {
+            Helper.overlay("pop", o2 => {
+              o2.onlyClosedUser()
+              o2.addInfo(platform.name)
+              const content = o2.content
+              Helper.render("text/h1", `An welchen Experten möchtest du die Plattform '${platform.name}' senden?`, content)
+              const expert = Helper.create("select/experts", content)
+              Helper.render("text/p", `Es werden ${platform.values} Werteinheiten gesendet.`, content)
+              const submit = Helper.create("button/action", content)
+              submit.textContent = "Plattform jetzt senden"
+              submit.onclick = () => {
+                const id = expert.selectedValues()[0]
+                if (Helper.verifyIs("text/empty", id)) {
+                  Helper.add("style/not-valid", expert.input)
+                  return
+                }
+                console.log(platform)
+                Helper.overlay("lock", async lock => {
+                  const res = await post("/location-expert/send/platform/", {created: platform.created, id})
+                  if (res.status === 200) {
+                    lock.alert.saved()
+                  } else {
+                    lock.alert.nok()
+                  }
+                  lock.remove()
+                })
+              }
+            })
+          }
 
           const startPath = Helper.render("button/left-right", {left: ".start-path", right: "Definiere einen Startpunkt für deine Plattform"}, buttons)
           startPath.onclick = () => {
@@ -1012,7 +1042,6 @@ async function renderValueButtons(values, node) {
         const buttons = o1.content
         const alias = Helper.render("button/left-right", {left: ".alias", right: "Alias ändern"}, buttons)
         alias.onclick = () => {
-
           Helper.overlay("pop", async o2 => {
             o2.addInfo(value.path)
             const content = o2.content
@@ -1033,8 +1062,8 @@ async function renderValueButtons(values, node) {
                 if (res.status === 200) {
                   o3.alert.ok()
                   o2.remove()
-                  o1.remove()
                   o1.previousSibling.remove()
+                  o1.remove()
                 } else {
                   o3.alert.nok()
                 }

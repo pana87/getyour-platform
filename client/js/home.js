@@ -1,26 +1,23 @@
-import {Helper} from "/js/Helper.js"
+import {Helper, renderTag} from "/js/Helper.js"
 import {button} from "/js/button.js"
 
 button.append("go-back", document.body)
 button.append("home", document.body)
 
 const logoDiv = Helper.div("flex center vh89", document.body)
-const logo = Helper.render("img", {src: "/public/logo-getyour-red.svg", className: "image"}, logoDiv)
+const logo = Helper.render("img", {src: "/public/logo-getyour-red.svg"}, logoDiv)
 
-const arrowDown = Helper.div("bounce absolute bottom21 left45p w34", document.body)
+const arrowDown = Helper.div("bounce absolute flex align center bottom21 left45p w34", document.body)
 arrowDown.textContent = "▽"
 
 const parent = Helper.div("pb144", document.body)
 renderParentButton(parent)
-const domain = Helper.div("pb144", document.body)
-renderDomainNames(domain)
 const start = Helper.div("pb144", document.body)
 renderPlatformStart(start)
 const dev = Helper.div("pb144", document.body)
-renderGetyourWebEntwickler(dev)
+renderExperts(dev)
 
 function createParentBox(user, node) {
-
   const {alias, created, image} = user
   const it = Helper.create("button/left-right")
   it.right.className += " fs21"
@@ -43,11 +40,9 @@ function createParentBox(user, node) {
   return it
 }
 function openParentOverlay() {
-
   window.alert("Bald verfügbar.")
 }
 function renderDomainNames(node) {
-
   node.textContent = ""
   const title = Helper.render("text/h2", "Themen", node)
   const loading = Helper.create("div/loading", node)
@@ -66,8 +61,7 @@ function renderDomainNames(node) {
     }
   })
 }
-function renderGetyourWebEntwickler(node) {
-
+function renderExperts(node) {
   node.textContent = ""
   const loading = Helper.create("div/loading", node)
   Helper.request("/get/users/getyour/expert/").then(res => {
@@ -86,7 +80,6 @@ function renderGetyourWebEntwickler(node) {
   })
 }
 function renderParentButton(node) {
-
   Helper.request("/jwt/get/parent/").then(res => {
     if (res.status === 200) {
       const user = JSON.parse(res.response)
@@ -98,7 +91,6 @@ function renderParentButton(node) {
   })
 }
 function renderPlatformStart(node) {
-
   node.textContent = ""
   const title = Helper.render("text/h2", "Plattformen", node)
   const loading = Helper.create("div/loading", node)
@@ -118,7 +110,6 @@ function renderPlatformStart(node) {
   })
 }
 function renderUserBox(user, node) {
-
   const box = Helper.create("div/button", node)
   box.classList.add("w377", "break-word", "m13", "sans-serif")
   if (!Helper.verifyIs("text/empty", user.alias)) {
@@ -126,6 +117,9 @@ function renderUserBox(user, node) {
   }
   if (!Helper.verifyIs("text/empty", user.image)) {
     Helper.render("img", {src: user.image, className: "image"}, box)
+  }
+  if (!Helper.verifyIs("text/empty", user.name)) {
+    box.onclick = () => window.open(`/${user.name}/`, "_blank")
   }
   {
     const container = Helper.div("flex mtb21 mlr34", box)
