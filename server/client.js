@@ -422,6 +422,31 @@ app.post("/jwt/get/retell/api-key/",
     }
   }
 )
+app.post("/jwt/get/experts",
+
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  closedOnly,
+  async (req, res, next) => {
+    try {
+      const doc = await nano.db.use("getyour").get("user")
+      const experts = Object.values(doc.user)
+      .filter(it => !Helper.verifyIs("text/empty", it.getyour?.expert?.alias) && it.id !== req.jwt.id)
+      .map(it => {
+        return {
+          id: it.id, 
+          alias: it.getyour.expert.alias
+        }
+      })
+      if (!experts || experts.length <= 0) return res.sendStatus(404)
+      return res.send(experts)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
 app.post("/jwt/get/expert/name/",
 
   Helper.verifyLocation,
@@ -1495,6 +1520,7 @@ app.post("/location-expert/get/platforms/",
         image: it.image,
         name: it.name,
         start: it.start,
+        values: it.values?.length || 0,
         visibility: it.visibility
       }))
       if (!platforms || platforms.length <= 0) return res.sendStatus(404)
@@ -2180,6 +2206,7 @@ app.post("/get/users/getyour/expert/",
       .map(it => ({
         alias: it.getyour.expert.alias,
         image: it.getyour.expert.image,
+        name: it.getyour.expert.name,
         platforms: it.getyour.expert.platforms.length,
         values: it.getyour.expert.platforms.flatMap(it => it.values || []).length,
         reputation: it.reputation,
@@ -4732,6 +4759,52 @@ app.post("/location-expert/remove/platform/",
     }
   }
 )
+app.post("/location-expert/send/platform/",
+
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  Helper.addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+    try {
+      if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
+      if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      const userPlatform = user.getyour?.expert?.platforms.find(it => it.created === req.body.created)
+      if (!userPlatform) throw new Error("platform not found")
+      const receiver = doc.user[req.body.id]
+      const domain = receiver.getyour?.expert?.name
+      if (!domain) return res.sendStatus(404)
+      if (!receiver.getyour) receiver.getyour = {}
+      if (!receiver.getyour.expert) receiver.getyour.expert = {}
+      if (!receiver.getyour.expert.platforms) receiver.getyour.expert.platforms = []
+      receiver.getyour.expert.platforms.push(JSON.parse(JSON.stringify(userPlatform)))
+      const receiverPlatform = receiver.getyour.expert.platforms.find(it => it.created === req.body.created)
+      if (receiverPlatform.values) {
+        for (let j = 0; j < receiverPlatform.values.length; j++) {
+          const value = receiverPlatform.values[j]
+          const paths = value.path.split("/")
+          const platformName = paths[2]
+          const path = paths[3]
+          value.path = `/${domain}/${platformName}/${path}/`
+        }
+      }
+      if (receiverPlatform.start) {
+        const paths = receiverPlatform.start.split("/")
+        const platformName = paths[2]
+        const path = paths[3]
+        receiverPlatform.start = `/${domain}/${platformName}/${path}/`
+      }
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (error) {
+      console.log(error)
+      return res.sendStatus(404)
+    }
+  }
+)
 app.post("/admin/remove/user/",
 
   Helper.verifyLocation,
@@ -6389,6 +6462,7 @@ function getAllExpertPlatformRoles(doc) {
 function getAuthorizedHtml(doc, req) {
 
   const value = findValueByParams(doc, req)
+  if (!value) return
   if (value.visibility !== "closed") return
   if (!isUserAuthorized(value, req.jwt.user)) return
   return value.html

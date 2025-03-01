@@ -6,5 +6,5 @@ if (!openCreatorButton) {
   openCreatorButton = button.append("toolbox", document.body)
   openCreatorButton.classList.add("open-creator")
 }
-button.addOutlineOnHover(openCreatorButton)
+Helper.add("hover-outline", openCreatorButton)
 openCreatorButton.onclick = () => Helper.overlay("tools")

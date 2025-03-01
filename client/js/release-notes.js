@@ -15,6 +15,7 @@ function appendList(list, ul) {
   }
 }
 const functions = [
+  'Experten können ab jetzt ihre Plattformen an andere Experten versenden',
   'Standard CSS Design Klassen sind ab jetzt global verfügbar.',
   'Bildschirmaufnahmen sind ab jetzt in der Toolbox verfügbar.',
   'Toolbox ist jetzt für alle Web-Entwickler frei verfügbar.',

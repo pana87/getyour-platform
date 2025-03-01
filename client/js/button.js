@@ -3,7 +3,7 @@ import {Helper} from "/js/Helper.js"
 const it = {}
 it.addEvent = (name, node) => {
 
-  it.addOutlineOnHover(node)
+  Helper.add("hover-outline", node)
   if (name === "go-back") {
 
     node.onclick = Helper.goBack
@@ -109,15 +109,6 @@ it.addEvent = (name, node) => {
     }
   }
 }
-it.addOutlineOnHover = node => {
-
-  node.addEventListener("mouseout", ev => {
-    node.classList.remove("outline", "pointer")
-  })
-  node.addEventListener("mouseover", ev => {
-    node.classList.add("outline", "pointer")
-  })
-}
 it.append = (name, node) => {
 
   const button = it.div(name)
@@ -212,10 +203,11 @@ it.div = name => {
 }
 it.render = (name, input, parent) => {
 
-  // nutze div und append
-  // nur wenn parent existiert
-  // buttons werden parametrisierbar gemacht
-
+  const btn = it.div(name)
+  btn.textContent = input.textContent
+  Helper.add("hover-outline", btn)
+  if (parent) Helper.append(btn, parent)
+  return btn
 }
 
 export const button = it
