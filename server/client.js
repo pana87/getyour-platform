@@ -219,6 +219,7 @@ app.get("/:expert/",
 
     try {
       if (Helper.verifyIs("text/empty", req.params.expert)) return res.sendStatus(404)
+      if (req.params.expert === "validation-key.txt") return res.send("169e1e0ce581f384c67717306ed10bb3e9127d43f15b1037f44ac868b78560bcb920c1b27cd26f272da197bb0fcc15458020289f0f492ad7b622a2500f2bbfd8")
       if (req.params.expert === "login") return res.send(Helper.readFileSyncToString("../lib/values/login.html"))
       if (req.params.expert === "nutzervereinbarung") return res.send(Helper.readFileSyncToString(`../lib/values/nutzervereinbarung.html`))
       if (req.params.expert === "datenschutz") return res.send(Helper.readFileSyncToString(`../lib/values/datenschutz.html`))
