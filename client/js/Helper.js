@@ -14894,39 +14894,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     }
                   }
                 }
-                if (callback.type === "expert") {
-                  const scriptButton = this.render("button/left-right", {left: ".script", right: "Lade ein Skript mit einer Id"}, buttons)
-                  scriptButton.onclick = async () => {
-
-                    this.overlay("pop", o2 => {
-                      const content = o2.content
-                      const prompt = this.render("button/left-right", {left: ".prompt", right: "Id eingeben"}, content)
-                      prompt.onclick = ev => {
-                        const prompt = window.prompt("Gebe eine Skript Id ein: (text/tag)")
-                        if (!this.verifyIs("text/empty", prompt)) {
-                          const id = this.convert("text/tag", prompt)
-                          addScript(id)
-                        } else {
-                          window.alert("Fehler.. Bitte wiederholen.")
-                        }
-                      }
-                      this.render("text/hr", "Verfügbare Skripte", content)
-                      const div = this.create("div/note", content)
-                      this.request("/expert/get/js/paths/").then(res => {
-                        try {
-                          const paths = JSON.parse(res.response)
-                          paths.forEach(path => {
-                            const id = this.convert("path/id", path)
-                            const button = this.render("button/left-right", {left: `.${id}`, right: "Skript wählen"}, div)
-                            button.onclick = ev => addScript(id)
-                          })
-                        } catch (error) {
-                          div.textContent = "Keine Skripte gefunden"
-                        }
-                      })
-                    })
-                  }
-                }
                 {
                   const button = this.create("button/left-right", buttons)
                   button.left.textContent = ".setAttribute"
@@ -15182,8 +15149,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   button.left.textContent = ".title"
                   button.right.textContent = "Dokument Titel definieren"
                   button.onclick = async () => {
-
                     this.overlay("pop", async overlay => {
+                      overlay.addRegisterHtmlButton(callback.type)
                       overlay.addInfo(`<${this.convert("node/selector", child)}.title`)
                       const funnel = overlay.content
                       const titleField = this.create("input/text", funnel)
@@ -15194,7 +15161,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                           document.querySelector("title").remove()
                           return
                         }
-
                         let title = document.querySelector("title")
                         if (title) {
                           title.textContent = text
@@ -16229,7 +16195,45 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             })
           }
         }
-
+        if (callback.type === "expert") {
+          const scriptButton = this.render("button/left-right", {left: ".script", right: "Lade ein Skript mit einer Id"}, buttons)
+          scriptButton.onclick = async () => {
+            this.overlay("pop", o2 => {
+              o2.addRegisterHtmlButton(callback.type)
+              const content = o2.content
+              const prompt = this.render("button/left-right", {left: ".prompt", right: "Id eingeben"}, content)
+              prompt.onclick = ev => {
+                const prompt = window.prompt("Gebe eine Skript Id ein: (text/tag)")
+                if (!this.verifyIs("text/empty", prompt)) {
+                  const id = this.convert("text/tag", prompt)
+                  const script = Helper.create("script/id", id)
+                  Helper.add("script-onbody", script)
+                  window.alert("Skript erfolgreich angehängt.")
+                } else {
+                  window.alert("Fehler.. Bitte wiederholen.")
+                }
+              }
+              this.render("text/hr", "Verfügbare Skripte", content)
+              const div = this.div("", content)
+              this.request("/expert/get/js/paths/").then(res => {
+                try {
+                  const paths = JSON.parse(res.response)
+                  paths.forEach(path => {
+                    const id = this.convert("path/id", path)
+                    const button = this.render("button/left-right", {left: `.${id}`, right: "Skript wählen"}, div)
+                    button.onclick = ev => {
+                      const script = Helper.create("script/id", id)
+                      Helper.add("script-onbody", script)
+                      window.alert("Skript erfolgreich angehängt.")
+                    }
+                  })
+                } catch (error) {
+                  div.textContent = "Keine Skripte gefunden"
+                }
+              })
+            })
+          }
+        }
         {
           const button = this.create("button/left-right", buttons)
           button.left.textContent = ".share"
@@ -16860,6 +16864,9 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             }
           }
         })
+      }
+      overlay.addRegisterHtmlButton = type => {
+        return overlay.registerHtmlButton(type)
       }
       overlay.registerHtmlButton = type => {
         if (type === "expert") {
