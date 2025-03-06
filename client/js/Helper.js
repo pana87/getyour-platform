@@ -14009,6 +14009,18 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
               o1.registerHtmlButton(callback.type)
               o1.addInfo(`<${this.convert("node/selector", child)}`)
               const buttons = o1.content
+              const appendChildBtn = this.render("button/left-right", {left: ".appendChild", right: "HTML Element anhängen"}, buttons)
+              appendChildBtn.onclick = () => {
+                const prompt = window.prompt("Gebe ein HTML Element Tag ein:")
+                try {
+                  const element = document.createElement(prompt)
+                  if (!element) throw new Error("HTML Element Tag ist ungültig.")
+                  child.appendChild(element)
+                  this.remove("overlays")
+                } catch (e) {
+                  window.alert(e)
+                }
+              }
               if (child.tagName !== "SCRIPT") {
                 const childrenBtn = this.render("button/left-right", {left: ".children", right: "Element Inhalt"}, buttons)
                 childrenBtn.onclick = async () => {
@@ -14053,8 +14065,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                 }
               }
               {
-
-
                 if (!["SCRIPT", "HEAD"].includes(child.tagName)) {
                   const darkLightBtn = this.render("button/left-right", {left: ".dark-light", right: "Dark Light Modus umschalten"}, buttons)
                   const button = this.create("button/left-right", buttons)
@@ -14809,6 +14819,18 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                         this.remove("overlays")
                       }
                     })
+                  }
+                }
+                const prependChildBtn = this.render("button/left-right", {left: ".prependChild", right: "HTML Element anhängen"}, buttons)
+                prependChildBtn.onclick = () => {
+                  const prompt = window.prompt("Gebe ein HTML Element Tag ein:")
+                  try {
+                    const element = document.createElement(prompt)
+                    if (!element) throw new Error("HTML Element Tag ist ungültig.")
+                    child.prepend(element)
+                    this.remove("overlays")
+                  } catch (e) {
+                    window.alert(e)
                   }
                 }
                 if (!["SCRIPT", "HEAD", "BODY"].includes(child.tagName)) {
@@ -17131,9 +17153,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
   }
   static render(event, input, parent) {
-
     if (event === "a") {
-
       const {className, href, target, text} = input
       const a = document.createElement("a")
       a.className = className
@@ -17144,9 +17164,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (parent) this.append(a, parent)
       return a
     }
-
     if (event === "audio") {
-
       const audio = document.createElement("audio")
       this.append(audio, parent)
       audio.width = "100%"
@@ -17154,17 +17172,13 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       audio.src = input
       return audio
     }
-
     if (event === "button/action") {
-
       const button = this.create("button/action")
       button.textContent = input
       if (parent) this.append(button, parent)
       return button
     }
-
     if (event === "button/feedback") {
-
       const {it, i} = input
       const div = Helper.div("flex align space-between")
       Helper.add("hover-outline", div)
@@ -17202,9 +17216,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (parent) this.append(div, parent)
       return div
     }
-
     if (event === "button/login") {
-
       const button = this.create("button/left-right")
       button.left.textContent = ".login"
       button.right.textContent = "Dein Zugang zur personalisierten Erfahrung"
@@ -17214,18 +17226,14 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (parent) this.append(button, parent)
       return button
     }
-
     if (event === "button/left-right") {
-
       const button = this.create("button/left-right")
       button.left.textContent = input.left
       button.right.textContent = input.right
       if (parent) this.append(button, parent)
       return button
     }
-
     if (event === "button/role") {
-
       const {name} = input
       const button = this.create("button/left-right")
       button.classList.add("role-button")
@@ -17254,9 +17262,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (parent) this.append(button, parent)
       return button
     }
-
     if (event === "box/video") {
-
       const box = this.div("fs21 sans-serif relative br13 m8 p8 min-w55 btn-theme")
       box.video = document.createElement("video")
       box.video.id = escapeCSSId(input)
@@ -17281,23 +17287,17 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (parent) this.append(box, parent)
       return box
     }
-
     if (event === "class/once") {
-
       const classes = Array.from(input.classList)
       const classExist = Array.from(parent.querySelectorAll("*")).some(node => {
         classes.some(className => node.classList.contains(className))
       })
       if (!classExist) this.append(input, parent)
     }
-
     if (event === "classes") {
-
       input.split(" ").forEach(name => parent.classList.add(name))
     }
-
     if (event === "div/mailto") {
-
       const regex = /mailto:(.*)\?/
       const match = input.match(regex)
       if (match && match[1]) {
@@ -17313,9 +17313,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return div
       }
     }
-
     if (event === "upload") {
-
       const fragment = document.createDocumentFragment()
       const funnel = this.create("div", fragment)
       funnel.url = this.create("input/text", funnel)
@@ -17380,16 +17378,13 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       return funnel
     }
-
     if (event === "text/node/action-button") {
       const button = this.create("button/action")
       button.textContent = input
       parent?.append(button)
       return button
     }
-
     if (event === "left-right/local-script-toggle") {
-
       const scripts = JSON.parse(window.localStorage.getItem("scripts")) || []
 
       for (let i = 0; i < scripts.length; i++) {
@@ -17411,7 +17406,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
       return parent
     }
-
     if (event === "left-right/disable-script-local") {
       parent.left.textContent = ".disable"
       parent.right.textContent = "Schalte dein Skript aus"
@@ -17422,7 +17416,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       return parent
     }
-
     if (event === "left-right/enable-script-local") {
       parent.left.textContent = ".enable"
       parent.right.textContent = "Schalte dein Skript an"
@@ -17433,9 +17426,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       return parent
     }
-
     if (event === "location-list/node/email-expert") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const res = await this.request("/get/location/tag-expert/", {tag: input.tag, email: input.email, path: input.path})
@@ -17530,9 +17521,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "color/node/foreground") {
-
       parent.style.position = "relative"
 
       const foreground = parent.cloneNode("true")
@@ -17545,9 +17534,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
       return foreground
     }
-
     if (event === "color/node/border") {
-
       parent.style.position = "relative"
 
       const border = parent.cloneNode("true")
@@ -17558,11 +17545,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       border.style.border = `8px solid ${input}`
       parent.querySelectorAll(".border").forEach(it => it.remove())
       parent.appendChild(border)
-
     }
-
     if (event === "cart/node/open") {
-
       const cart = this.create("div/scrollable")
       cart.className = "cart"
       parent?.append(cart)
@@ -17891,43 +17875,32 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
         rightHr = this.render("text/right-hr", `Zusammenfassung (${totalQuantity} Artikel): ${totalPrice.toFixed(2).replace(".", ",")} €`, cart)
       }
-
     }
-
     if (event === "html/div") {
-
       const div = document.createElement("div")
       this.convert("text/purified", input).then(purified => div.innerHTML = purified)
       if (parent) this.append(div, parent)
       return div
     }
-
     if (event === "html/h1") {
-
       const h1 = document.createElement("h1")
       this.convert("text/purified", input).then(purified => h1.innerHTML = purified)
       if (parent) this.append(h1, parent)
       return h1
     }
-
     if (event === "html/p") {
-
       const p = document.createElement("p")
       this.convert("text/purified", input).then(purified => p.innerHTML = purified)
       if (parent) this.append(p, parent)
       return p
     }
-
     if (event === "html/span") {
-
       const span = document.createElement("span")
       this.convert("text/purified", input).then(purified => span.innerHTML = purified)
       if (parent) this.append(span, parent)
       return span
     }
-
     if (event === "icon/path") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const icon = await this.convert("path/icon", input)
@@ -17938,9 +17911,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "icon/node/path") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const icon = await this.convert("path/icon", input)
@@ -17950,11 +17921,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           reject(error)
         }
       })
-
     }
-
     if (event === "img/box") {
-
       const fragment = document.createDocumentFragment()
       const box = this.create("div", fragment)
       this.style(box, {width: "233px", height: "144px", margin: "21px"})
@@ -17964,18 +17932,14 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.appendChild(fragment)
       return box
     }
-
     if (event === "img") {
-
       const img = document.createElement("img")
       img.className = input.className
       img.src = input.src
       if (parent) this.append(img, parent)
       return img
     }
-
     if (event === "img/div") {
-
       const fragment = document.createDocumentFragment()
       const box = this.create("div", fragment)
       this.style(box, {margin: "21px 34px"})
@@ -17984,9 +17948,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.appendChild(fragment)
       return box
     }
-
     if (event === "image-url/selector/self") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const parentNode = document.querySelector(parent)
@@ -18040,9 +18002,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "field-funnel/owner") {
-
       const funnel = this.create("div/scrollable", parent)
 
       const firstnameField = this.create("field/text", funnel)
@@ -18145,15 +18105,12 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         })
 
       })
-
     }
-
     if (event === "image/node/src") {
       const image = this.create("div/image", input)
       parent?.appendChild(image)
       return image
     }
-
     if (event === "key-value") {
       const div = Helper.div("flex mtb21 mlr34")
       div.key = Helper.div("flex align center", div)
@@ -18163,9 +18120,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (parent) this.append(div, parent)
       return div
     }
-
     if (event === "object-node") {
-
       function getNodeWithClass(name, node) {
         if (node.classList && node.classList.contains(name)) {
           return node
@@ -18218,11 +18173,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         renderObjectInNode(value, parent)
       })
       return parent
-
     }
-
     if (event === "user-keys/update-buttons") {
-
       const {user, keys} = input
       this.convert("parent/scrollable", parent)
       for (let i = 0; i < keys.length; i++) {
@@ -18404,9 +18356,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       }
     }
-
     if (event === "label") {
-
       const it = document.createElement("label")
       it.className = "mlr34 sans-serif fs21 color-theme block break-word"
       it.setAttribute("for", input.for)
@@ -18414,9 +18364,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (parent) this.append(it, parent)
       return it
     }
-
     if (event === "match-maker/buttons") {
-
       parent.textContent = ""
       for (let i = 0; i < input.length; i++) {
         const matchMaker = input[i]
@@ -18668,9 +18616,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       }
     }
-
     if (event === "value/input") {
-
       if (parent.tagName === "INPUT") {
 
         if (parent.type === "text") {
@@ -18723,11 +18669,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
         }
       }
-
     }
-
     if (event === "mirror/match-maker-get-keys") {
-
       return new Promise(async(resolve, reject) => {
 
         try {
@@ -18754,11 +18697,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
 
       })
-
     }
-
     if (event === "mirror/match-maker-get-list") {
-
       return new Promise(async(resolve, reject) => {
 
         try {
@@ -18922,11 +18862,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
 
       })
-
     }
-
     if (event === "mirror/match-maker-get-users") {
-
       return new Promise(async(resolve, reject) => {
 
         try {
@@ -18991,7 +18928,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
       })
     }
-
     if (event === "object/node/svg") {
       const object = document.createElement("object")
       object.type = "image/svg+xml"
@@ -18999,9 +18935,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.appendChild(object)
       return object
     }
-
     if (event === "id-map/field-funnel") {
-
       return new Promise(async(resolve, reject) => {
 
         try {
@@ -19026,11 +18960,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
 
       })
-
     }
-
     if (event === "tree-map/field-funnel") {
-
       return new Promise(async(resolve, reject) => {
         try {
           Object.entries(input).forEach(([key, value]) => {
@@ -19046,11 +18977,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           reject(error)
         }
       })
-
     }
-
     if (event === "map/field-funnel") {
-
       Object.entries(input).forEach(([key, value]) => {
         for (let i = 0; i < parent.querySelectorAll("*").length; i++) {
           const field = parent.querySelectorAll("*")[i]
@@ -19062,9 +18990,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       })
       this.verifyIs("field-funnel/valid", parent)
     }
-
     if (event === "map/funnel") {
-
       for (const [key, value] of Object.entries(input)) {
         if (key === "created") continue
         const node = parent.querySelector(`#${key}`)
@@ -19073,15 +18999,11 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       this.verify("funnel", parent)
     }
-
     if (event === "nav/open") {
-
       this.convert("parent/scrollable", input)
       this.add(event, input)
     }
-
     if (event === "next/path") {
-
       let path = input.getAttribute("next")
       const fragment = document.createDocumentFragment()
       const field = this.create("input/path", fragment)
@@ -19100,9 +19022,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.appendChild(fragment)
       return field
     }
-
     if (event === "script-onbody") {
-
       return new Promise(async resolve => {
 
         if (document.body) {
@@ -19118,9 +19038,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
 
       })
-
     }
-
     if (event === "checklist/items") {
       const checklist = this.create("div/scrollable", parent)
       checklist.id = "checklist"
@@ -19136,9 +19054,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
       return checklist
     }
-
     if (event === "checklist/item") {
-
       const item = document.createElement("div")
       item.classList.add("item")
       item.style.margin = "34px"
@@ -19215,9 +19131,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.append(item)
       return item
     }
-
     if (event === "scripts/update-buttons") {
-
       if (arguments.length === 2) {
         parent = input
       }
@@ -19309,9 +19223,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "toolbox-scripts") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const executeOnceIcon = await this.convert("path/icon", "/public/arrow-repeat-1.svg")
@@ -19380,9 +19292,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "select/options") {
-
       if (parent === undefined) {
         document.querySelectorAll(".select-options").forEach(div => {
           this.render(event, input, div)
@@ -19421,12 +19331,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         })
 
       }
-
-
     }
-
     if (event === "tabs") {
-
       const tabs = input.split(" ")
       const flexRow = Helper.create("div/flex-row", parent)
       flexRow.style.justifyContent = "flex-start"
@@ -19444,9 +19350,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       })
       return tabButtons
     }
-
     if (event === "text/a") {
-
       const {href, target, text} = input
       const div = this.div("mtb21 mlr34")
       div.a = document.createElement("a")
@@ -19459,9 +19363,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (parent) this.append(div, parent)
       return div
     }
-
     if (event === "text/bottom-left") {
-
       const text = document.createElement("div")
       text.textContent = input
       text.style.position = "absolute"
@@ -19473,9 +19375,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.appendChild(text)
       return text
     }
-
     if (event === "text/bottom-right") {
-
       const text = document.createElement("div")
       text.textContent = input
       text.style.position = "absolute"
@@ -19487,9 +19387,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.appendChild(text)
       return text
     }
-
     if (event === "text/dark-light") {
-
       const fragment = document.createDocumentFragment()
       const div = document.createElement("div")
       fragment.appendChild(div)
@@ -19499,22 +19397,17 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.appendChild(fragment)
       return div
     }
-
     if (event === "div") {
-
       const div = this.div(input.classes)
       div.textContent = input.text
       if (parent) this.append(div, parent)
       return div
     }
-
     if (event === "text/info") {
       this.convert("parent/info", parent)
       parent.textContent = input
     }
-
     if (event === "text/code") {
-
       const code = document.createElement("div")
       code.textContent = input
       code.style.fontSize = "21px"
@@ -19525,11 +19418,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       parent?.append(code)
       return code
-
     }
-
     if (event === "text/link") {
-
       const link = this.create("box")
       link.textContent = input
       link.style.fontFamily = "sans-serif"
@@ -19541,61 +19431,47 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.appendChild(link)
       return link
     }
-
     if (event === "text/note") {
-
       const note = this.create("div/note")
       note.textContent = input
       if (parent) this.append(note, parent)
       return note
     }
-
     if (event === "text/div") {
-
       const div = this.div("sans-serif")
       div.textContent = input
       if (parent) this.append(div, parent)
       return div
     }
-
     if (event === "text/h3") {
-
       const h3 = document.createElement("h3")
       h3.className = "mtb21 mlr34 sans-serif color-theme fw-normal"
       h3.textContent = input
       if (parent) this.append(h3, parent)
       return h3
     }
-
     if (event === "text/h2") {
-
       const h2 = document.createElement("h2")
       h2.className = "mtb21 mlr34 sans-serif color-theme fw-normal"
       h2.textContent = input
       if (parent) this.append(h2, parent)
       return h2
     }
-
     if (event === "text/h1") {
-
       const h1 = document.createElement("h1")
       h1.className = "mtb21 mlr34 sans-serif color-theme fw-normal"
       h1.textContent = input
       if (parent) this.append(h1, parent)
       return h1
     }
-
     if (event === "text/hover-bottom-right") {
-
       const text = this.render("text/bottom-right", input, parent)
       text.className = "op0"
       parent.onmouseover = () => this.classes(text, {remove: "op0", add: "op1"})
       parent.onmouseout = () => this.classes(text, {remove: "op1", add: "op0"})
       return text
     }
-
     if (event === "text/hr") {
-
       const container = document.createElement("div")
       const text = document.createElement("div")
       text.textContent = input
@@ -19615,11 +19491,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       parent?.append(container)
       return container
-
     }
-
     if (event === "text/node/bottom-right-onhover") {
-
       const text = this.render("text/bottom-right", input, parent)
       text.style.opacity = "0"
       parent.addEventListener("mouseover", () => {
@@ -19629,11 +19502,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         text.style.opacity = "0"
       })
       return parent
-
     }
-
     if (event === "text/mark") {
-
       const fragment = document.createDocumentFragment()
       const mark = document.createElement("mark")
       mark.textContent = input
@@ -19642,27 +19512,21 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.appendChild(fragment)
       return mark
     }
-
     if (event === "text/p") {
-
       const p = document.createElement("p")
       p.className = "mtb21 mlr34 sans-serif color-theme"
       p.textContent = input
       if (parent) this.append(p, parent)
       return p
     }
-
     if (event === "text/pre") {
-
       const pre = document.createElement("pre")
       pre.textContent = input
       pre.className = "monospace fs13"
       if (parent) this.append(pre, parent)
       return pre
     }
-
     if (event === "text/right-hr") {
-
       const container = document.createElement("div")
 
       container.text = document.createElement("div")
@@ -19691,9 +19555,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.append(container)
       return container
     }
-
     if (event === "text/span") {
-
       const {text} = input
       const span = document.createElement("span")
       span.className = "color-theme sans-serif"
@@ -19701,7 +19563,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (parent) this.append(span, parent)
       return span
     }
-
     if (event === "text/title") {
       const title = document.createElement("div")
       title.textContent = input
@@ -19718,9 +19579,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
       return title
     }
-
     if (event === "text/top-right") {
-
       const fragment = document.createDocumentFragment()
       const text = document.createElement("div")
       text.textContent = input
@@ -19733,9 +19592,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.appendChild(fragment)
       return text
     }
-
     if (event === "tree/funnel") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const res = await this.request("/jwt/get/tree/", {tree: input})
@@ -19750,9 +19607,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "pdf") {
-
       return new Promise(async (resolve, reject) => {
         try {
           const pdfjs = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/+esm')
@@ -19821,9 +19676,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "funnel/source") {
-
       if (input.authors) parent.authors.input.value = input.authors.join(", ")
       if (input.title) parent.titel.input.value = input.title
       if (input.edition) parent.edition.input.value = input.edition
@@ -19837,9 +19690,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (input.description) parent.description.input.value = input.description
       if (input.image) parent.image.input.value = input.image
     }
-
     if (event === "field-funnel-fields-update") {
-
       if (input.classList.contains("field-funnel")) {
         this.convert("parent/scrollable", parent)
         for (let i = 0; i < input.children.length; i++) {
@@ -19928,9 +19779,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       }
     }
-
     if (event === "field-funnel/fields") {
-
       if (parent === undefined) {
         document.querySelectorAll(".field-funnel-fields").forEach(div => {
           this.render(event, input, div)
@@ -19992,13 +19841,9 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
 
       }
-
     }
-
     if (event === "click-field/answers") {
-
       if (input.classList.contains("click-field")) {
-
         const container = input.querySelector(".answers")
         if (container !== null) {
           parent.textContent = ""
@@ -20139,15 +19984,9 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
           }
         }
-
-
-
       }
-
     }
-
     if (event === "click-funnel/questions") {
-
       if (input.classList.contains("click-funnel")) {
 
 
@@ -20359,11 +20198,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
 
       }
-
     }
-
     if (event === "question/answers") {
-
       const output = document.createElement("div")
       for (let i = 0; i < input.length; i++) {
         const element = input[i]
@@ -20375,9 +20211,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.appendChild(output)
       return output
     }
-
     if (event === "funnel/field-input") {
-
       if (parent === undefined) {
         document.querySelectorAll(".funnel-field-input").forEach(div => {
           this.render(event, {type: input.type, field: input.field}, div)
@@ -20477,11 +20311,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
 
       }
-
     }
-
     if (event === "funnel/questions") {
-
       const output = document.createElement("div")
       for (let i = 0; i < input.length; i++) {
         const element = input[i]
@@ -20503,9 +20334,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (parent !== undefined) parent.append(output)
       return output
     }
-
     if (event === "link/css") {
-
       const link = document.createElement("link")
       link.id = input
       link.rel = "stylesheet"
@@ -20515,9 +20344,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         this.append(link, document.head)
       }
     }
-
     if (event === "link/js") {
-
       const script = document.createElement("script")
       script.id = input
       script.src = input
@@ -20527,9 +20354,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         this.append(script, document.head)
       }
     }
-
     if (event === "list") {
-
       const {list, tree, type} = input
       const key = this.convert("tree/key", tree)
       this.convert("parent/scrollable", parent.content)
@@ -20539,9 +20364,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         this.fn(type, {it, node: button, overlay: parent})
       }
     }
-
     if (event === "object/selector/write-details") {
-
       const node = document.querySelector(parent)
 
       for (let i = 0; i < document.querySelectorAll("*").length; i++) {
@@ -20583,11 +20406,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
 
       }
-
     }
-
     if (event === "object/node/write-details") {
-
       if (parent.hasAttribute("write-details")) {
 
         parent.removeAttribute("style")
@@ -20622,9 +20442,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         })
 
       }
-
     }
-
     if (event === "object/node/popup-details") {
       if (parent.hasAttribute("popup-details")) {
 
@@ -20680,11 +20498,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
 
       }
-
     }
-
     if (event === "object/selector/class") {
-
       const node = document.querySelector(parent)
 
       if (node) {
@@ -20700,11 +20515,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         })
 
       }
-
     }
-
     if (event === "object/selector/all") {
-
       const node = document.querySelector(parent)
 
       if (node) {
@@ -20729,11 +20541,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         })
 
       }
-
     }
-
     if (event === "object/node/all") {
-
       Object.entries(input).forEach(([key, value]) => {
         for (let i = 0; i < parent.querySelectorAll("*").length; i++) {
           const child = parent.querySelectorAll("*")[i]
@@ -20752,11 +20561,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           }
         }
       })
-
     }
-
     if (event === "selector") {
-
       let node = document.querySelector(input)
       if (node) return node
       const fragment = document.createDocumentFragment()
@@ -20770,9 +20576,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.appendChild(fragment)
       return node
     }
-
     if (event === "reputation") {
-
       function getRecommendation(reputation) {
         if (reputation < -610) {
           return "Es scheint, dass es ernsthafte Probleme gibt, die gelöst werden müssen. Wir empfehlen eine umfassende Überprüfung der Aktivitäten und möglicherweise professionelle Unterstützung, um Verhaltensänderungen herbeizuführen."
@@ -20810,16 +20614,12 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (parent) this.append(container, parent)
       return container
     }
-
     if (event === "ul") {
-
       const ul = document.createElement("ul")
       if (parent) this.append(ul, parent)
       return ul
     }
-
     if (event === "user/selector/all") {
-
       const node = document.querySelector(parent)
 
       if (node) {
@@ -20954,9 +20754,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
       }
     }
-
     if (event === "user-trees-closed") {
-
       function renderUserInNode(user, node) {
 
         for (let i = 0; i < Object.keys(user).length; i++) {
@@ -20994,9 +20792,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "user-trees-open") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const res = await this.request("/get/users/trees/", {trees: input})
@@ -21012,12 +20808,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           reject(error)
         }
       })
-
-
     }
-
     if (event === "users-trees-open") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const res = await this.request("/get/users/trees/", {trees: input})
@@ -21042,9 +20834,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "user-box") {
-
       const fragment = document.createDocumentFragment()
       const it = this.create("button/left-right", fragment)
       this.style(it, {margin: "8px", justifyContent: "center"})
@@ -21091,9 +20881,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent?.appendChild(fragment)
       return it
     }
-
     if (event === "video") {
-
       const video = document.createElement("video")
       this.append(video, parent)
       video.style.width = "100%"
