@@ -144,7 +144,7 @@ app.get("/",
 )
 app.get("/admin/",
 
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   async(req, res) => {
@@ -257,7 +257,7 @@ app.get("/:expert/:platform/:path/",
 )
 app.get("/:expert/:platform/:path/",
 
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -315,7 +315,7 @@ async function log(it, type = "info") {
 app.post('/admin/exec/command/', 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   (req, res) => {
@@ -341,7 +341,7 @@ app.post("/location-expert/get/platform/roles/text-value/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -359,7 +359,7 @@ app.post("/location-expert/get/platform/roles/text-value/",
 app.post("/jwt/retell/call/contact/",
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -409,7 +409,7 @@ app.post("/jwt/get/retell/api-key/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -427,7 +427,7 @@ app.post("/jwt/get/experts",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -452,7 +452,7 @@ app.post("/jwt/get/expert/name/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -537,7 +537,7 @@ app.post("/get/groups/self/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -569,7 +569,7 @@ app.post("/expert/get/js/paths/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   expertOnly,
   async (req, res, next) => {
@@ -587,7 +587,7 @@ app.post("/get/location/lists/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -627,7 +627,7 @@ app.post("/get/location/tag-expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -665,7 +665,7 @@ app.post("/get/location/tag/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -684,7 +684,7 @@ app.post("/admin/get/logs/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
@@ -706,7 +706,7 @@ app.post("/get/match-maker/condition-expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -745,7 +745,7 @@ app.post("/get/match-maker/conditions-writable/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -795,7 +795,7 @@ app.post("/location-expert/get/match-maker/conditions/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -816,7 +816,7 @@ app.post("/location-expert/get/platform/match-maker/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -836,7 +836,7 @@ app.post("/get/match-maker/keys/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -878,7 +878,7 @@ app.post("/get/match-maker/list/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -921,7 +921,7 @@ app.post("/get/match-maker/mirror/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1033,7 +1033,7 @@ app.post("/get/platform/list-location-writable/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1096,7 +1096,7 @@ app.post("/location-expert/get/platform/values/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -1130,7 +1130,7 @@ app.post("/get/platform/values-writable/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1179,7 +1179,7 @@ app.post("/get/match-maker/location-writable/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1198,7 +1198,7 @@ app.post("/get/match-maker/location-expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1218,7 +1218,7 @@ app.post("/expert/get/platform/paths/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   expertOnly,
   async (req, res, next) => {
@@ -1240,7 +1240,7 @@ app.post("/location-expert/get/platform/paths/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -1260,7 +1260,7 @@ app.post("/get/platform/role-apps/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1308,7 +1308,7 @@ app.post("/location-writable/get/platform/roles/text-value/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationWritableOnly,
   async (req, res, next) => {
@@ -1327,7 +1327,7 @@ app.post("/get/platform/role-home-self/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1362,7 +1362,7 @@ app.post("/location-expert/get/location-platform/roles/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -1380,7 +1380,7 @@ app.post("/location-expert/get/platform/roles/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -1399,7 +1399,7 @@ app.post("/get/platform/visibility-expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1428,7 +1428,7 @@ app.post("/get/platform/role-expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1465,7 +1465,7 @@ app.post("/get/platform/image-location-expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1487,12 +1487,10 @@ app.post("/get/platform/image-location-expert/",
     }
   }
 )
-app.post("/get/location/platform/url-id/",
-
+app.post("/url-id/get/location/platform/",
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.urlId)) throw new Error("req.body.urlId is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -1504,11 +1502,33 @@ app.post("/get/location/platform/url-id/",
     }
   }
 )
+app.post("/url-id/register/location/platform/:key/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  jwtIsUrlId,
+  async (req, res, next) => {
+    try {
+      const key = req.params.key
+      const value = req.body[key]
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      if (!user[req.location.platform]) user[req.location.platform] = {}
+      user[req.location.platform][key] = value
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (error) {
+      console.log(error)
+      return res.sendStatus(404)
+    }
+  }
+)
 app.post("/location-expert/get/platforms/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -1535,7 +1555,7 @@ app.post("/location-expert/get/platform/value/paths/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -1554,7 +1574,7 @@ app.post("/get/platform/value-visibility-location-expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1594,7 +1614,7 @@ app.post("/get/platform/value-writability-location-expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1630,7 +1650,7 @@ app.post("/location-writable/get/platform/values/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1654,7 +1674,7 @@ app.post("/expert/get/platform/roles/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   expertOnly,
   async (req, res, next) => {
@@ -1673,7 +1693,7 @@ app.post("/get/scripts/closed/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1692,7 +1712,7 @@ app.post("/get/scripts/toolbox/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1720,7 +1740,7 @@ app.post("/get/scripts/writable/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1772,7 +1792,7 @@ app.post("/jwt/get/parent/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -1796,7 +1816,7 @@ app.post("/jwt/get/blocked/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1828,7 +1848,7 @@ app.post("/jwt/get/community/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1887,7 +1907,7 @@ app.post("/jwt/get/conflicts-open/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1907,7 +1927,7 @@ app.post("/jwt/get/conflicts-closed/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1924,7 +1944,7 @@ app.post("/jwt/get/funnel/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1943,7 +1963,7 @@ app.post("/jwt/get/id-by-email/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -1961,7 +1981,7 @@ app.post("/admin/get/user/json/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
@@ -1982,7 +2002,7 @@ app.post("/jwt/get/key-admin/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -2019,7 +2039,7 @@ app.post("/admin/get/user/keys/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
@@ -2041,7 +2061,7 @@ app.post("/jwt/get/location/list/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -2064,7 +2084,7 @@ app.post("/jwt/get/location/list/:index/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -2088,7 +2108,7 @@ app.post("/jwt/get/tree/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -2109,7 +2129,7 @@ app.post("/jwt/get/trees/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -2134,7 +2154,7 @@ app.post("/jwt/get/reputation/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -2152,7 +2172,7 @@ app.post("/jwt/get/user/:key/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -2172,7 +2192,7 @@ app.post("/admin/get/users/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
@@ -2285,7 +2305,7 @@ app.post("/redirect/user/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -2313,7 +2333,7 @@ app.post("/register/contacts/lead-location-expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -2434,7 +2454,7 @@ app.post("/register/contacts/lead-location-expert/",
 app.post("/jwt/register/retell/api-key/",
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -2456,7 +2476,7 @@ app.post("/jwt/register/contacts/import/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -2497,7 +2517,7 @@ app.post("/jwt/register/deadline/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -2533,7 +2553,7 @@ app.post("/jwt/update/deadline/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -2613,7 +2633,7 @@ app.post("/jwt/register/email/contacts/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -2642,7 +2662,7 @@ app.post("/admin/register/email/expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
@@ -2859,7 +2879,7 @@ app.post("/location-expert/register/name/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -2950,7 +2970,7 @@ app.post("/register/groups/emails-self/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -2985,7 +3005,7 @@ app.post("/register/groups/self/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -3017,7 +3037,7 @@ app.post("/register/groups/alias/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -3048,7 +3068,7 @@ app.post("/register/location/list/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -3080,7 +3100,7 @@ app.post("/register/location/map/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -3129,7 +3149,7 @@ app.post("/location-expert/register/match-maker/condition/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3161,7 +3181,7 @@ app.post("/location-expert/register/platform/match-maker/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3188,7 +3208,7 @@ app.post("/location-expert/register/platform/role/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3222,7 +3242,7 @@ app.post("/location-expert/register/platform/name/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3258,7 +3278,7 @@ app.post("/location-expert/register/platform/image/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3281,7 +3301,7 @@ app.post("/register/platform/image-location-expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -3313,7 +3333,7 @@ app.post("/location-expert/register/platform/start/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3336,7 +3356,7 @@ app.post("/location-expert/register/platform/visibility/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3360,7 +3380,7 @@ app.post("/location-expert/register/platform/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3391,7 +3411,7 @@ app.post("/location-expert/register/platform/value/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3433,7 +3453,7 @@ app.post("/register/platform/value-html-writable/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -3485,7 +3505,7 @@ app.post("/register/platform/value-html-location-expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -3527,7 +3547,7 @@ app.post("/location-expert/register/platform/value/path/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3552,7 +3572,7 @@ app.post("/location-expert/register/platform/value/alias/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3575,7 +3595,7 @@ app.post("/location-expert/register/platform/value/image/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3597,7 +3617,7 @@ app.post("/location-expert/register/platform/value/visibility/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3631,7 +3651,7 @@ app.post("/register/platform/value-visibility-writable/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -3680,7 +3700,7 @@ app.post("/location-expert/register/platform/value/writability/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3781,7 +3801,7 @@ app.post("/register/templates/alias/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -3809,7 +3829,7 @@ app.post("/register/templates/visibility-self/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -3837,7 +3857,7 @@ app.post("/jwt/update/tree/map/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -3860,7 +3880,7 @@ app.post("/location-expert/register/tree/map/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -3879,7 +3899,7 @@ app.post("/register/user/alias/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -3899,7 +3919,7 @@ app.post("/register/user/blocked/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -3934,7 +3954,7 @@ app.post("/register/user/conflict/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -3969,7 +3989,7 @@ app.post("/register/user/image/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -3989,7 +4009,7 @@ app.post("/register/user/key-visibility/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -4018,7 +4038,7 @@ app.post("/register/user/profile/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -4074,7 +4094,7 @@ app.post("/admin/register/user/verified/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
@@ -4098,7 +4118,7 @@ app.post("/register/user/text-tree-self/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -4129,7 +4149,7 @@ app.post("/admin/register/tree/value/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
@@ -4167,7 +4187,7 @@ app.post("/jwt/register/user/key/:key/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -4191,7 +4211,7 @@ app.post("/jwt/register/user/:list/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -4220,7 +4240,7 @@ app.post("/admin/register/users/verified/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
@@ -4250,7 +4270,7 @@ app.post("/jwt/register/:list/:map/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -4280,7 +4300,7 @@ app.post("/remove/deadline/closed/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -4339,7 +4359,7 @@ app.post("/remove/groups/created/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -4368,7 +4388,7 @@ app.post("/remove/location/email-expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -4408,7 +4428,7 @@ app.post("/remove/location/tag/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -4438,7 +4458,7 @@ app.post("/admin/remove/logs/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
@@ -4457,7 +4477,7 @@ app.post("/location-expert/remove/match-maker/condition/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -4491,7 +4511,7 @@ app.post("/location-expert/remove/match-maker/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -4524,7 +4544,7 @@ app.post("/location-expert/remove/paths/scripts/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -4552,7 +4572,7 @@ app.post("/location-expert/remove/paths/scripts/",
 app.post("/location-expert/tag/paths/automated-true/",
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -4580,7 +4600,7 @@ app.post("/location-expert/tag/paths/automated-true/",
 app.post("/location-expert/tag/paths/automated-false/",
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -4608,7 +4628,7 @@ app.post("/location-expert/tag/paths/automated-false/",
 app.post("/location-expert/tag/paths/visibility-closed/",
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -4636,7 +4656,7 @@ app.post("/location-expert/tag/paths/visibility-closed/",
 app.post("/location-expert/tag/paths/visibility-open/",
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -4664,7 +4684,7 @@ app.post("/location-expert/tag/paths/visibility-open/",
 app.post("/location-expert/remove/platform/role/",
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -4699,7 +4719,7 @@ app.post("/location-expert/remove/platform/value/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -4735,7 +4755,7 @@ app.post("/location-expert/remove/platform/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -4764,7 +4784,7 @@ app.post("/location-expert/send/platform/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -4810,7 +4830,7 @@ app.post("/admin/remove/user/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
@@ -4852,7 +4872,7 @@ app.post("/remove/user/blocked/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -4879,7 +4899,7 @@ app.post("/remove/user/funnel/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -4906,7 +4926,7 @@ app.post("/remove/profile/message/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -4934,7 +4954,7 @@ app.post("/remove/user/tree-admin/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -4994,7 +5014,7 @@ app.post("/remove/user/scripts/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -5021,7 +5041,7 @@ app.post("/jwt/remove/user/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -5038,7 +5058,7 @@ app.post("/remove/user/sources/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -5065,7 +5085,7 @@ app.post("/remove/user/templates/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -5092,7 +5112,7 @@ app.post("/jwt/remove/user/:list/item/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -5150,7 +5170,7 @@ async function sendIcsEmail(from, to, ics) {
 app.post("/jwt/send/email/retell-ics/",
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -5171,7 +5191,7 @@ app.post("/jwt/send/email/retell-ics/",
 app.post("/jwt/send/email/ics/",
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -5193,7 +5213,7 @@ app.post("/send/email/lat-lon/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -5224,7 +5244,7 @@ app.post("/send/email/test-html/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -5250,7 +5270,7 @@ app.post("/send/email/send-html/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -5277,7 +5297,7 @@ app.post("/admin/invite/expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
@@ -5381,7 +5401,7 @@ app.post("/update/location/list/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -5415,7 +5435,7 @@ app.post("/update/location/list-email-expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -5460,7 +5480,7 @@ app.post("/location-expert/update/match-maker/condition/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -5499,7 +5519,7 @@ app.post("/location-expert/update/paths/:id/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -5529,7 +5549,7 @@ app.post("/location-expert/update/toolbox/path/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -5564,7 +5584,7 @@ app.post("/location-writable/update/toolbox/paths/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationWritableOnly,
   async (req, res, next) => {
@@ -5590,7 +5610,7 @@ app.post("/location-expert/update/platform/role/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -5628,7 +5648,7 @@ app.post("/update/user/key-name-tree-admin/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -5676,7 +5696,7 @@ app.post("/update/user/bool-tree-admin/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -5725,7 +5745,7 @@ app.post("/update/user/number-tree-admin/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -5775,7 +5795,7 @@ app.post("/update/user/text-tree-admin/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -5824,7 +5844,7 @@ app.post("/update/user/:list/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -5868,7 +5888,7 @@ app.post("/upload/file/",
   prepareFormData,
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -5889,7 +5909,7 @@ app.post("/jwt/update/:list/:map/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -5922,7 +5942,7 @@ app.post("/jwt/verify/email/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -5939,7 +5959,7 @@ app.post("/jwt/verify/retell/api-key/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -5961,7 +5981,7 @@ app.post("/admin/verify/expert/name/exist/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
@@ -6001,7 +6021,7 @@ app.post("/verify/group/creator/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -6022,7 +6042,7 @@ app.post("/verify/match-maker/conditions/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -6050,7 +6070,7 @@ app.post("/location-expert/verify/match-maker/name/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -6105,7 +6125,7 @@ app.post("/location-expert/verify/platform/role/name/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
@@ -6171,7 +6191,7 @@ app.post("/jwt/verify/tree/exist/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
@@ -6188,10 +6208,9 @@ app.post("/jwt/verify/tree/exist/",
   }
 )
 app.post("/verify/user/closed/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   closedOnly,
   sendStatus(200)
@@ -6200,7 +6219,7 @@ app.post("/verify/user/admin/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   adminOnly,
   sendStatus(200)
@@ -6209,7 +6228,7 @@ app.post("/verify/user/jwt-in-emails/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -6228,7 +6247,7 @@ app.post("/verify/user/location-writable/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationWritableOnly,
   sendStatus(200)
@@ -6237,7 +6256,7 @@ app.post("/verify/user/location-expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   locationExpertOnly,
   sendStatus(200)
@@ -6246,7 +6265,7 @@ app.post("/verify/user/messages/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   async (req, res, next) => {
 
@@ -6278,30 +6297,25 @@ app.post("/verify/user/expert/",
 
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
   expertOnly,
   sendStatus(200)
 )
 app.post("/verify/user/url-id/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
-  Helper.addJwt,
+  addJwt,
   Helper.verifySession,
+  closedOnly,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        const urlId = req.location.url.pathname.split("/")[4]
-        const doc = await nano.db.use("getyour").get("user")
-        const user = doc.user[req.jwt.id]
-        if (user.id === req.jwt.id) {
-          if (req.jwt.id === urlId) {
-            return res.sendStatus(200)
-          }
-        }
-      }
+    try {
+      const urlId = req.location.url.pathname.split("/")[4]
+      if (Helper.verifyIs("text/empty", urlId)) throw new Error("url id is empty")
+      if (urlId !== req.jwt.id) return res.sendStatus(404)
+      return res.sendStatus(200)
+    } catch (e) {
+      return res.sendStatus(404)
     }
   }
 )
@@ -6311,7 +6325,6 @@ const port = 9999
 server.listen(port, () => console.log(`[getyour] is running on port :${port}`))
 
 async function addJwt(req, res, next) {
-
   try {
     if (Helper.verifyIs("object/empty", req.cookies)) throw new Error("jwt is empty")
     const {jwtToken} = req.cookies
@@ -6634,6 +6647,12 @@ function isValueWritableByUser(value, user) {
 function isVerified(user) {
 
   return user.verified === true
+}
+function jwtIsUrlId(req, res, next) {
+  const urlId = req.location.url.pathname.split("/")[4]
+  if (Helper.verifyIs("text/empty", urlId)) return res.sendStatus(404)
+  if (req.jwt.id !== urlId) return res.sendStatus(404)
+  return next()
 }
 function jwtOnly(req, res, next) {
 

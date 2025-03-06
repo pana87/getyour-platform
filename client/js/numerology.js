@@ -1,5 +1,5 @@
 import {Helper} from "/js/Helper.js"
-import {text} from "/js/request.js"
+import {text, post} from "/js/request.js"
 
 const expert = window.location.pathname.split("/")[1]
 export const numerology = {}
@@ -828,14 +828,12 @@ if (numerologyLogin) {
 }
 
 if (!userIsClosed) {
-
   const withLogin = document.querySelector(".with-login")
   if (withLogin && !numerologyLogin) {
     const login = addLoginButton(withLogin)
     login.onclick = openLoginPage
   }
 }
-
 numerology.renderDateContent = (date, node) => {
   const div = Helper.div("color-theme sans-serif", node)
   Helper.render("text/h1", `Numerologie Rechner vom ${Helper.convert("millis/dd.mm.yyyy", date.getTime())}`, div)
@@ -858,7 +856,6 @@ numerology.renderDateContent = (date, node) => {
   return div
 }
 numerology.renderNameContent = (name, node) => {
-
   const div = Helper.div("color-theme sans-serif", node)
   Helper.render("text/h1", `Numerologie Rechner für ${name}`, div)
   numerology.renderBirthNameEnergies(name, div)
@@ -925,22 +922,20 @@ numerology.renderTriangle = (date, node) => {
   return div 
 }
 function updateDateContent(date, node) {
-
   Helper.reset("node", node)
   numerology.renderDateContent(date, node)
   return node
 }
 function updateNameContent(name, node) {
-
   Helper.reset("node", node)
   numerology.renderNameContent(name, node)
   return node
 }
 
-const numerogyOverlay = document.querySelector(".numerology-overlay")
-if (numerogyOverlay) {
-  if (numerogyOverlay) Helper.add("hover-outline", numerogyOverlay)
-  numerogyOverlay.onclick = async () => {
+const numerologyOverlay = document.querySelector(".numerology-overlay")
+if (numerologyOverlay) {
+  Helper.add("hover-outline", numerologyOverlay)
+  numerologyOverlay.onclick = async () => {
 
     const birthdateValue = birthdateInput.value
     if (Helper.verifyIs("text/empty", birthdateValue)) {
@@ -1018,16 +1013,16 @@ if (numerogyOverlay) {
 }
 
 (async() => {
-
   const split = window.location.pathname.split("/")
   const platform = split[2]
   const profil = split[3]
   const urlId = split[4]
   if (Helper.verifyIs("text/empty", profil) || profil !== "profil") return
   if (Helper.verifyIs("text/empty", urlId)) return
-  const res = await Helper.request("/get/location/platform/url-id/", {urlId})
+  const res = await Helper.request("/url-id/get/location/platform/", {urlId})
   if (res.status !== 200) return
   const location = JSON.parse(res.response)
+  console.log(location)
   const date = new Date(location.birthdate)
   const lifepath = numerology.dateToLifePath(date)
   const name = location.birthname
@@ -1060,6 +1055,48 @@ if (numerogyOverlay) {
       })
     }
   })
+  function uploadImageOverlay() {
+    Helper.overlay("pop", o1 => {
+      o1.addInfo(".numerologie.image")
+      const content = o1.content
+      Helper.render("text/h1", "Profilbild", content)
+      const funnel = Helper.render("upload", "image/*", content)
+      funnel.url.input.removeAttribute("required")
+      funnel.submit.onclick = async () => {
+        await Helper.verify("input/value", funnel.url.input)
+        const image = funnel.url.input.value
+        Helper.overlay("lock", async lock => {
+          const res = await post("/url-id/register/location/platform/image/", {image})
+          if (res.status === 200) {
+            lock.alert.saved()
+            window.location.reload()
+          } else {
+            lock.alert.nok()
+            lock.remove()
+          }
+        })
+      }
+    })
+  }
+  const numerologyImages = document.querySelectorAll(".numerologie.image")
+  if (!Helper.verifyIs("text/empty", location.image)) {
+    numerologyImages.forEach(img => {
+      Helper.add("hover-outline", img)
+      img.src = location.image
+      img.onclick = uploadImageOverlay
+    })
+  } else {
+    const res = await post("/verify/user/url-id/")
+    if (res.status === 200) {
+      numerologyImages.forEach(img => {
+        Helper.add("hover-outline", img)
+        img.src = "/public/image.svg"
+        img.onclick = uploadImageOverlay
+      })
+    } else {
+      numerologyImages.forEach(img => img.remove())
+    }
+  }
   document.querySelectorAll(".numerologie.lifepath").forEach(node => {
     node.textContent = numerology.dateToLifePath(date)
   })
@@ -1102,10 +1139,20 @@ if (numerogyOverlay) {
               let birthname = user.birthname
               if (!birthname) birthname = ""
               const button = Helper.create("button/left-right", buttons)
-              Helper.classes(button, {remove: "between"})
-              button.left.className = "flex align center circle bg-green w55 h55 m13"
-              const lifepath = numerology.dateToLifePath(date)
-              button.left.textContent = lifepath
+              button.className = "br13 sans-serif flex align center mtb21 mlr34 color-theme bg-theme"
+              button.left.className = "flex align"
+              button.right.className = "m13"
+              let circle = Helper.div("flex align center circle bg-green w55 h55 m13")
+              if (!Helper.verifyIs("text/empty", user.image)) {
+                const imageDiv = Helper.div("mtb13 ml13 mr0", button.left)
+                const img = document.createElement("img")
+                img.src = user.image
+                img.className = "image br50p obj-cover w55 h55"
+                imageDiv.appendChild(img)
+                circle = Helper.div("flex align center circle bg-green w55 h55 ml0 mr13 mtb13")
+              }
+              circle.textContent = numerology.dateToLifePath(date)
+              button.left.appendChild(circle)
               Helper.render("div", {classes: "fs21", text: birthname}, button.right)
               Helper.render("div", {classes: "fs13", text: Helper.convert("millis/dd.mm.yyyy", date.getTime())}, button.right)
               button.onclick = () => window.open(`/${expert}/numerologie/profil/${user.id}/`, "_blank")
