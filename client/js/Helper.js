@@ -15742,12 +15742,9 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           button.left.textContent = ".open"
           button.right.textContent = "Ein Platz für Integrationen"
           button.onclick = () => {
-
             this.overlay("pop", o2 => {
               o2.addInfo(".open")
-
               function createIntegration(type, integrations) {
-
                 const button = Helper.create("button/left-right", o2.content)
                 button.left.textContent = type
                 button.addEventListener("click", () => {
@@ -15765,8 +15762,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   })
                 })
               }
-
               const aiIntegrations = [
+                {name: "ollama.com", url: "https://ollama.com/"},
+                {name: "huggingface.co", url: "https://huggingface.co/"},
+                {name: "nomic.ai", url: "https://www.nomic.ai/gpt4all"},
                 {name: "blackbox.ai", url: "https://www.blackbox.ai/"},
                 {name: 'duck.ai', url: 'https://duck.ai/'},
                 {name: "chatgpt.com", url: "https://chatgpt.com"},
@@ -15775,7 +15774,11 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                 {name: "textsynth.com", url: "https://www.textsynth.com/completion.html"},
               ]
               createIntegration(".ai", aiIntegrations)
-
+              const currencyIntegrations = [
+                {name: "getmonero.org", url: "https://www.getmonero.org/"},
+                {name: "minepi.com", url: "https://minepi.com/pnts"},
+              ]
+              createIntegration(".currency", currencyIntegrations)
               const mailIntegrations = [
                 {name: "yopmail.com", url: "https://www.yopmail.com/"},
               ]
@@ -15811,6 +15814,11 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                 {name: "svg-path-editor", url: "https://yqnn.github.io/svg-path-editor/"},
               ]
               createIntegration(".svg", svgIntegrations)
+              const translationIntegrations = [
+                {name: "deepl.com", url: "https://www.deepl.com/de/translator"},
+                {name: "libretranslate.com", url: "https://libretranslate.com/"},
+              ]
+              createIntegration(".translation", translationIntegrations)
 
               const uxIntegrations = [
                 {name: "figma.com", url: "https://www.figma.com/"},

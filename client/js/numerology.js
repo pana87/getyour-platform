@@ -771,13 +771,7 @@ async function registerUser(email, created, name, date) {
     const res1 = await Helper.request("/register/email/numerology/", {created, email, name, date})
     const res2 = await Helper.request("/register/session/")
     if (res2.status === 200) {
-      if (!document.referrer) {
-        const res = await Helper.request("/redirect/user/")
-        if (res.status === 200) window.open(res.response, "_self")
-        return
-      }
-      Helper.goBack()
-      window.opener?.location?.reload()
+      window.open(`/${expert}/numerologie/startseite/`)
     } else {
       window.alert("Fehler.. Bitte wiederholen.")
       window.location.reload()
@@ -1183,7 +1177,6 @@ if (numerologyOverlay) {
       funnel.email.input.value = window.localStorage.getItem("email")
     }
     funnel.submit.onclick = async () => {
-
       await Helper.verify("funnel", funnel)
       const email = funnel.email.input.value
       await registerUser(email, roleCreated, roleName, birthdate)
@@ -1202,7 +1195,6 @@ if (numerologyOverlay) {
     Helper.add("hover-outline", emailInput)
     Helper.add("hover-outline", submit)
     submit.onclick = async () => {
-
       await Helper.verify("input/value", emailInput)
       await Helper.verify("input/value", dsgvoInput)
       const email = emailInput.value

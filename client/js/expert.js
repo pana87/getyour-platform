@@ -250,7 +250,6 @@ function openWritableValuesOverlay() {
       const values = JSON.parse(res.response)
       renderWritableValues(values, content)
     } else {
-      window.alert("Es wurden keine Werteinheiten gefunden.")
       o1.remove()
     }
   })
