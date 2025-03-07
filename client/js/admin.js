@@ -167,6 +167,18 @@ app.onclick = () => {
           Helper.on('enter', text.input, sendCommand)
         })
       }
+      const updateChildrenBtn = Helper.render("button/left-right", {left: ".update-children", right: "Beziehungen korrigieren"}, buttons)
+      updateChildrenBtn.onclick = () => {
+        Helper.overlay("lock", async lock => {
+          const res = await post("/admin/update/children/")
+          if (res.status === 200) {
+            lock.alert.ok()
+          } else {
+            lock.alert.nok()
+          }
+          lock.remove()
+        })
+      }
       const users = Helper.render("button/left-right", {left: ".users", right: "Nutzer Liste"}, buttons)
       users.onclick = () => {
 
@@ -177,7 +189,7 @@ app.onclick = () => {
             users.sort((a, b) => b.counter - a.counter)
             o2.addInfo(users.length)
             const buttons = o2.content
-            const icon = await Helper.render("icon/node/path", "/public/delete.svg")
+            const icon = await Helper.render("icon/node/path", "/public/bucket.svg")
             icon.style.width = "34px"
             for (let i = 0; i < users.length; i++) {
               const user = users[i]

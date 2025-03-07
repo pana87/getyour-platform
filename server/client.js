@@ -27,11 +27,6 @@ const {startWebSocket} = require("./websocket.js")
 let randomPin
 const loginQueue = []
 
-cron.schedule("0 0 0 * * *", () => {
-  const scriptPath = path.resolve(`${__dirname}/../../scripts/deploy-getyour-and-reboot.sh`)
-  exec(scriptPath)
-})
-
 //cron.schedule("* * * * *", async () => {
 //  console.log("I am running every minute.")
 //  const doc = await nano.db.use("getyour").get("user")
@@ -1789,24 +1784,22 @@ app.post("/get/scripts/writable/",
   }
 )
 app.post("/jwt/get/parent/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const parent = doc.user[req.jwt.user.parent]
       if (!parent) return res.sendStatus(404)
-      return res.send({
-        alias: parent.alias,
-        created: parent.created,
-        id: parent.id,
-        image: parent.image,
-      })
+      const alias = parent.getyour?.expert?.alias || ""
+      const created = parent.created
+      const id = parent.id
+      const image = parent.getyour?.expert?.image || ""
+      if (!id || !created) return res.sendStatus(404)
+      return res.send({alias, created, id, image})
     } catch (error) {
       return res.sendStatus(404)
     }
@@ -2583,11 +2576,9 @@ app.post("/jwt/update/deadline/",
   }
 )
 app.post("/register/email/admin/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
     if (Helper.verifyIs("email/admin", {email: req.body.email})) {
       const doc = await nano.db.use("getyour").get("user")
@@ -2630,14 +2621,12 @@ app.post("/register/email/admin/",
   }
 )
 app.post("/jwt/register/email/contacts/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const email = req.body.email
       if (Helper.verifyIs("text/empty", email)) throw new Error("req.body.email is empty")
@@ -2659,14 +2648,12 @@ app.post("/jwt/register/email/contacts/",
   }
 )
 app.post("/admin/register/email/expert/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
       if (Helper.verifyIs("text/empty", req.body.name)) throw new Error("req.body.name is empty")
@@ -2733,11 +2720,9 @@ app.post("/admin/register/email/expert/",
   }
 )
 app.post("/register/email/location/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
@@ -2804,11 +2789,9 @@ app.post("/register/email/location/",
   }
 )
 app.post("/register/email/numerology/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
@@ -3205,14 +3188,12 @@ app.post("/location-expert/register/platform/match-maker/",
   }
 )
 app.post("/location-expert/register/platform/role/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
       if (Helper.verifyIs("text/empty", req.body.name)) throw new Error("req.body.name is empty")
@@ -3221,9 +3202,9 @@ app.post("/location-expert/register/platform/role/",
       const user = doc.user[req.jwt.id]
       const platform = user?.getyour?.expert?.platforms?.find(it => it.name === req.body.platform)
       if (!platform) return res.sendStatus(404)
-      const roles = platform.roles || []
-      for (let i = 0; i < roles.length; i++) {
-        const role = roles[i]
+      if (!platform.roles) platform.roles = []
+      for (let i = 0; i < platform.roles.length; i++) {
+        const role = platform.roles[i]
         if (role.name === req.body.name) return res.sendStatus(404)
       }
       platform.roles.unshift({
@@ -3234,6 +3215,7 @@ app.post("/location-expert/register/platform/role/",
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
     } catch (error) {
+      console.log(error)
       return res.sendStatus(404)
     }
   }
@@ -5397,6 +5379,21 @@ Location: ${locationToPath(req)}
     }
   }
 )
+app.post("/admin/update/children/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  adminOnly,
+  async (req, res, next) => {
+    try {
+      await updateChildren()
+      return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
 app.post("/update/location/list/",
 
   Helper.verifyLocation,
@@ -6122,14 +6119,12 @@ app.post("/verify/pin/",
   }
 )
 app.post("/location-expert/verify/platform/role/name/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.name)) throw new Error("req.body.name is empty")
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
@@ -6368,7 +6363,6 @@ async function addJwt(req, res, next) {
   }
 }
 function addLocation(req, res, next) {
-
   try {
     if (req.body.location !== undefined) {
       const location = new URL(req.body.location)
@@ -6394,12 +6388,10 @@ function addOpenData(to, from) {
   to.xp = from.xp
 }
 function adminOnly(req, res, next) {
-
   if (!isAdmin(req.jwt.user)) return res.sendStatus(404)
   return next()
 }
 async function bulkVerified(bool) {
-
   if (Helper.verifyIs("array/empty", req.body.ids)) throw new Error("req.body.ids is empty")
   const doc = await nano.db.use("getyour").get("user")
   const user = doc.user[req.jwt.id]
@@ -6418,17 +6410,14 @@ async function bulkVerified(bool) {
   }
 }
 function closedOnly(req, res, next) {
-
   if (!req.location || !req.jwt || !req.jwt.id || !req.jwt.user) return res.sendStatus(404)
   return next()
 }
 function expertOnly(req, res, next) {
-
   if (!isExpert(req.jwt.user)) return res.sendStatus(404)
   return next()
 }
 function expireLoginAttempts() {
-
   for (let i = 0; i < loginQueue.length; i++) {
     const login = loginQueue[i]
     if (login.expired < Date.now()) {
@@ -6437,7 +6426,6 @@ function expireLoginAttempts() {
   }
 }
 function findPlatform(name, user) {
-
   const platform = user.getyour?.expert?.platforms?.find(platform =>
     platform.name === name
   )
@@ -6445,21 +6433,17 @@ function findPlatform(name, user) {
   return platform
 }
 function findUserPlatformValueByPath(path, user) {
-
   return user.getyour.expert.platforms
   .flatMap(it => it.values || [])
   .find(it => it.path === path)
 }
 function findValueByLocation(doc, req) {
-
   return findValueByPath(doc, locationToPath(req))
 }
 function findValueByParams(doc, req) {
-
   return findValueByPath(doc, paramsToPath(req))
 }
 function findValueByPath(doc, path) {
-
   if (!doc || !doc.user) return
   return Object.values(doc.user)
   .flatMap(it => it.getyour?.expert?.platforms || [])
@@ -6467,14 +6451,12 @@ function findValueByPath(doc, path) {
   .find(it => it.path === path)
 }
 function getAllExpertPlatformRoles(doc) {
-
   return Object.values(doc.user)
   .filter(user => isExpert(user))
   .flatMap(it => it.getyour.expert.platforms || [])
   .flatMap(it => it.roles || [])
 }
 function getAuthorizedHtml(doc, req) {
-
   const value = findValueByParams(doc, req)
   if (!value) return
   if (value.visibility !== "closed") return
@@ -6482,42 +6464,35 @@ function getAuthorizedHtml(doc, req) {
   return value.html
 }
 function getLocationPlatform(doc, req) {
-
   const users = Object.values(doc.user)
   const locationExpert = users.find(user => isLocationExpert(user, req))
   return locationExpert.getyour.expert.platforms.find(it => it.name === req.location.platform)
 }
 function getLocationRoles(doc, req) {
-
   const platform = getLocationPlatform(doc, req)
   return platform.roles
 }
 function getOpenParamsHtml(doc, req) {
-
   const value = findValueByParams(doc, req)
   if (!value || value.visibility !== "open") return
   return value.html
 }
 function getParamsExpertHtml(doc, req) {
-
   if (!isParamsExpert(req.jwt.user, req)) return
   const value = findValueByParams(doc, req)
   return value.html
 }
 function getParamsWritableHtml(doc, req) {
-
   const value = findValueByParams(doc, req)
   if (!isValueWritableByUser(value, req.jwt.user)) return
   return value.html
 }
 function getPlatform(doc, name) {
-
   return Object.values(doc.user)
   .flatMap(it => it.getyour?.expert?.platforms || [])
   .find(it => it.name === name)
 }
 function getPlatforms(user) {
-
   return user?.getyour?.expert?.platforms || []
 }
 function getPlatformValues(doc) {
@@ -6526,20 +6501,17 @@ function getPlatformValues(doc) {
   .flatMap(it => it.values || [])
 }
 function getPlatformsByName(doc, name) {
-
   return Object.values(doc.user)
   .flatMap(it => it.getyour?.expert?.platforms || [])
   .filter(it => it.name === name)
 }
 function getRoleByCreated(doc, created) {
-
   return Object.values(doc.user)
   .flatMap(it => it.getyour?.expert?.platforms || [])
   .flatMap(it => it.roles || [])
   .find(it => it.created === created)
 }
 function getTreeValue(map, tree) {
-
   const keys = tree.split(".")
   let current = map
   for (let i = 0; i < keys.length; i++) {
@@ -6551,13 +6523,11 @@ function getTreeValue(map, tree) {
   return current
 }
 function getUserRoles(user) {
-
   return user.getyour?.expert?.platforms
   ?.flatMap(it => it.roles || [])
   .filter(it => it && it.name && it.created)
 }
 function getUsersValueByTree(doc, tree) {
-
   const users = []
   for (const user of Object.values(doc.user)) {
     const value = getTreeValue(user, tree)
@@ -6568,7 +6538,6 @@ function getUsersValueByTree(doc, tree) {
   return users
 }
 function getUsersByTrees(doc, trees) {
-
   return Object.values(doc.user)
   .map(user => {
     const clone = {}
@@ -6582,12 +6551,10 @@ function getUsersByTrees(doc, trees) {
   }).filter(Boolean)
 }
 function isAdmin(user) {
-
   const admins = process.env.ADMINS.split(",").map(it => it.trim())
   return user.verified && admins.includes(user.email)
 }
 function isChild(user) {
-
   return (
     user &&
     user.created &&
@@ -6595,7 +6562,6 @@ function isChild(user) {
   )
 }
 function isExpert(user) {
-
   if (!user) return false
   if (!user.getyour) return false
   if (!user.getyour.expert) return false
@@ -6605,47 +6571,38 @@ function isExpert(user) {
   return true
 }
 function isJwt(user, req) {
-
   return user && user.id === req.jwt.id
 }
 function isParamsExpert(user, req) {
-
   return user?.getyour?.expert?.name === req.params.expert
 }
 function isLocationExpert(user, req) {
-
   return user?.getyour?.expert?.name === req.location.expert
 }
 function isLocationWritable(doc, req) {
-
   const value = findValueByLocation(doc, req)
   if (!isValueWritableByUser(value, req.jwt.user)) return false
   return true
 }
 function isParamsWritable(doc, req) {
-
   const value = findValueByParams(doc, req)
   if (!isValueWritableByUser(value, req.jwt.user)) return false
   return true
 }
 function isReserved(key) {
-
   return Helper.reservedKeys.has(key)
 }
 function isUserAuthorized(value, user) {
-
   const isAuthorizedByEmail = value.authorized?.some(email => user.email === email)
   const isAuthorizedByRole = value.roles?.some(role => user.roles.includes(role))
   if (isAuthorizedByEmail || isAuthorizedByRole) return true
   return false
 }
 function isValueWritableByUser(value, user) {
-
   if (!value) return false
   return Array.isArray(value.writability) && value.writability.includes(user.email)
 }
 function isVerified(user) {
-
   return user.verified === true
 }
 function jwtIsUrlId(req, res, next) {
@@ -6655,32 +6612,26 @@ function jwtIsUrlId(req, res, next) {
   return next()
 }
 function jwtOnly(req, res, next) {
-
   if (!req.jwt || !req.jwt.id || !req.jwt.user) return res.sendStatus(404)
   return next()
 }
 function locationExpertOnly(req, res, next) {
-
   if (!isLocationExpert(req.jwt.user, req)) return res.sendStatus(404)
   return next()
 }
 function locationToPath(req) {
-
   return `/${req.location.expert}/${req.location.platform}/${req.location.path}/`
 }
 async function locationWritableOnly(req, res, next) {
-
   const doc = await nano.db.use("getyour").get("user")
   if (!isLocationWritable(doc, req)) return res.sendStatus(404)
   return next()
 }
 function paramsToPath(req) {
-
   if (!req || !req.params) return
   return `/${req.params.expert}/${req.params.platform}/${req.params.path}/`
 }
 function parsePrimitive(value) {
-
   if (!isNaN(Number(value))) return Number(value)
   if (value.toLowerCase() === 'true') return true
   if (value.toLowerCase() === 'false') return false
@@ -6689,7 +6640,6 @@ function parsePrimitive(value) {
   return value
 }
 function pathExist(doc, path) {
-
   return Object.values(doc.user).some(user =>
     user.getyour?.expert?.platforms?.some(platform =>
       platform.values?.some(value => value.path === path)
@@ -6697,7 +6647,6 @@ function pathExist(doc, path) {
   )
 }
 async function registerTreeMapById(tree, map, id) {
-
   const doc = await nano.db.use("getyour").get("user")
   const user = doc.user[id]
   if (!user || user.id !== id) throw new Error("id mismatch")
@@ -6715,7 +6664,6 @@ async function registerTreeMapById(tree, map, id) {
   await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
 }
 function removeCookies(req, res, next) {
-
   const cookies = Object.keys(req.cookies)
   for (let i = 0; i < cookies.length; i++) {
     if (cookies[i] === "jwtToken") continue
@@ -6726,12 +6674,10 @@ function removeCookies(req, res, next) {
   next()
 }
 function removeScripts(input) {
-
   const regex = /<script[^>]*>[\s\S]*?<\/script>/gi
   return input.replace(regex, '')
 }
 async function removeUserById(id) {
-
   const doc = await nano.db.use("getyour").get("user")
   const user = doc.user[id]
   if (isAdmin(user)) throw new Error("can not delete admin")
@@ -6783,6 +6729,43 @@ function treeToKey(tree) {
   } else {
     return tree
   }
+}
+function removeDuplicatesById(array) {
+  const set = new Set()
+  return array.filter(it => {
+    if (set.has(it.id)) {
+      return false
+    } else {
+      set.add(it.id)
+      return true
+    }
+  })
+}
+async function updateChildren() {
+  const doc = await nano.db.use("getyour").get("user")
+  for (const user of Object.values(doc.user)) {
+    if (!user.children) user.children = []
+    user.children = user.children
+      .filter(it => it.id && it.created)
+      .filter(it => doc.user[it.id] !== undefined)
+    user.children = removeDuplicatesById(user.children)
+    if (!user.parent) continue
+    const parent = doc.user[user.parent]
+    if (!parent.children) parent.children = []
+    parent.children = parent.children.filter(it => it.id && it.created)
+    let childFound = false
+    for (const child of parent.children) {
+      if (child.id === user.id) {
+        if (!child.created) child.created = Date.now()
+        childFound = true
+        break
+      }
+    }
+    if (!childFound) {
+      parent.children.push({created: Date.now(), id: user.id})
+    }
+  }
+  await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
 }
 function updateContact(alt, neu){
   if (!alt.id) alt.id = Helper.digestId(alt.email)
