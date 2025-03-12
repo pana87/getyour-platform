@@ -1837,62 +1837,62 @@ app.post("/jwt/get/blocked/",
     }
   }
 )
-app.post("/jwt/get/community/",
-
+app.post("/jwt/get/chats/",
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
+  closedOnly,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
+    try {
+      const doc = await nano.db.use("getyour").get("user")
+      const chats = findJwtChats(doc, req.jwt.id)
+      return res.send(chats)
+    } catch (e) {
+      console.log(e)
+      return res.sendStatus(404)
+    }
+  }
+)
+function sortCreatedDesc(array) {
+  return array.sort((a, b) => {
+    const aCreated = a.created ?? -Infinity;
+    const bCreated = b.created ?? -Infinity;
+    return bCreated - aCreated
+  })
+}
+app.post("/jwt/get/chat/messages/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  closedOnly,
+  async (req, res, next) => {
+    try {
+      if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
       const array = []
       const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      if (jwtUser.id === req.jwt.id) {
-        inner: for (const key in doc.user) {
-          const user = doc.user[key]
-          if (user.created === jwtUser.created) continue
-          if (user.blocked !== undefined) {
-            for (let i = 0; i < user.blocked.length; i++) {
-              const blockedUser = user.blocked[i]
-              if (jwtUser.created === blockedUser.id) continue inner
-            }
-          }
-          if (jwtUser.blocked !== undefined) {
-            for (let i = 0; i < jwtUser.blocked.length; i++) {
-              const blockedUser = jwtUser.blocked[i]
-              if (user.id === blockedUser.id) continue inner
-            }
-          }
-          let myMessagesTo = []
-          if (jwtUser.messages !== undefined) {
-            myMessagesTo = jwtUser.messages.filter(it => it.to === user.id)
-          }
-          let toMessagesMe = []
-          if (user.messages !== undefined) {
-            toMessagesMe = user.messages.filter(it => it.to === jwtUser.id)
-          }
-          const chat = [...myMessagesTo, ...toMessagesMe]
-          const sortedMessages = chat.sort((a, b) => {
-            const aCreated = a.created ?? -Infinity;
-            const bCreated = b.created ?? -Infinity;
-            return bCreated - aCreated
-          })
-          const mostRecentMessage = sortedMessages[0]
-          let highlight = false
-          if (mostRecentMessage) {
-            if (mostRecentMessage.to === jwtUser.created) highlight = true
-          }
-          const map = {}
-          map.created = user.created
-          map.alias = user.alias
-          map.highlight = highlight
-          map.image = user.image
-          array.push(map)
+      const idUser = doc.user[req.body.id]
+      if (!idUser) {
+        const chat = collectChatMessagesById(doc, req.body.id)
+        const sortedMessages = sortCreatedDesc(chat)
+        if (sortedMessages.length > 0) return res.send(sortedMessages)
+      } else {
+        let idMessages = []
+        if (idUser.chat && idUser.chat[req.jwt.id]) {
+          idMessages = idUser.chat[req.jwt.id].messages
         }
+        let jwtMessages = []
+        if (doc.user[req.jwt.id] && doc.user[req.jwt.id].chat && doc.user[req.jwt.id].chat[req.body.id]) {
+          jwtMessages = doc.user[req.jwt.id].chat[req.body.id].messages
+        }
+        const chat = [...jwtMessages, ...idMessages]
+        const sortedMessages = sortCreatedDesc(chat)
+        if (sortedMessages.length > 0) return res.send(sortedMessages)
       }
-      if (array.length > 0) return res.send(array)
+      return res.sendStatus(404)
+    } catch (e) {
+      return res.sendStatus(404)
     }
   }
 )
@@ -4248,15 +4248,59 @@ app.post("/admin/register/users/verified/",
     }
   }
 )
-app.post("/jwt/register/:list/:map/",
-
+app.post("/jwt/remove/chat/messages/",
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
+    try {
+      if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      if (!isJwt(user, req)) return res.sendStatus(404)
+      if (!user.chat) return res.sendStatus(404)
+      if (!user.chat[req.body.id]) return res.sendStatus(404)
+      if (!user.chat[req.body.id].messages) return res.sendStatus(404)
+      user.chat[req.body.id].messages = []
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/jwt/register/chat/message/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  closedOnly,
+  async (req, res, next) => {
+    try {
+      if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
+      if (Helper.verifyIs("text/empty", req.body.message)) throw new Error("req.body.message is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      if (!isJwt(user, req)) return res.sendStatus(404)
+      if (!user.chat) user.chat = {}
+      if (!user.chat[req.body.id]) user.chat[req.body.id] = {created: Date.now(), messages: []}
+      user.chat[req.body.id].messages.unshift({created: Date.now(), from: req.jwt.id, text: req.body.message})
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/jwt/register/:list/:map/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  closedOnly,
+  async (req, res, next) => {
     try {
       if (!isReserved(req.params.list)) throw new Error(`${req.params.list} is not reserved`)
       if (!req.body[req.params.map]) throw new Error(`req.body.${req.params.map} is empty`)
@@ -4279,13 +4323,11 @@ app.post("/jwt/register/:list/:map/",
   }
 )
 app.post("/remove/deadline/closed/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     if (req.jwt !== undefined) {
       if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -5020,14 +5062,12 @@ app.post("/remove/user/scripts/",
   }
 )
 app.post("/jwt/remove/user/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       await removeUserById(req.jwt.id)
       return res.sendStatus(200)
@@ -5037,7 +5077,6 @@ app.post("/jwt/remove/user/",
   }
 )
 app.post("/remove/user/sources/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
@@ -5064,7 +5103,6 @@ app.post("/remove/user/sources/",
   }
 )
 app.post("/remove/user/templates/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
@@ -5090,15 +5128,30 @@ app.post("/remove/user/templates/",
     }
   }
 )
+function removeImageCid(image, params) {
+  try {
+    if (params === "images") {
+      const match = image.url.match(/cid\/([^\/]+)/)
+      if (match && match[1]) {
+        const cid = match[1]
+        const cidDirectory = path.join(__dirname, "..", "cid")
+        const filePath = path.join(cidDirectory, cid)
+        fs.unlink(filePath, error => {
+          if (error) throw new Error(error)
+        })
+      }
+    }
+  } catch (e) {
+    console.log(e)
+  }
+}
 app.post("/jwt/remove/user/:list/item/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -5109,6 +5162,7 @@ app.post("/jwt/remove/user/:list/item/",
         const it = list[i]
         if (it.created === req.body.created) {
           list.splice(i, 1)
+          removeImageCid(it, req.params.list)
           await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
           return res.sendStatus(200)
         }
@@ -5935,6 +5989,117 @@ app.post("/jwt/update/:list/:map/",
     }
   }
 )
+function collectChatMessages(userChat) {
+  const chatMessages = []
+  for (const groupId in userChat) {
+    if (userChat.hasOwnProperty(groupId)) {
+      const group = userChat[groupId]
+      for (const message of group.messages) {
+        chatMessages.push(message)
+      }
+    }
+  }
+  return chatMessages
+}
+function collectChatMessagesToJwt(doc, id) {
+  const allChatMessages = []
+  Object.values(doc.user).forEach(user => {
+    if (user.id === id) return
+    if (user.chat) {
+      const chatMessages = collectChatMessages(user.chat)
+      allChatMessages.push(...chatMessages)
+    }
+  })
+  return allChatMessages
+}
+function collectChatMessagesById(doc, id) {
+  const chats = []
+  Object.values(doc.user).forEach(user => {
+    if (user.chat) {
+      for (const groupId in user.chat) {
+        if (user.chat.hasOwnProperty(groupId)) {
+          const group = user.chat[groupId]
+          if (groupId === id) {
+            if (group.messages) {
+              group.messages.forEach(message => chats.push(message))
+            }
+          }
+        }
+      }
+    }
+  })
+  return chats
+}
+function findJwtChats(doc, id) {
+  const chats = []
+  const idUser = doc.user[id]
+  Object.values(doc.user).forEach(user => {
+    if (user.id === id) return
+    if (user.chat) {
+      for (const groupId in user.chat) {
+        if (user.chat.hasOwnProperty(groupId)) {
+          const group = user.chat[groupId]
+          if (groupId === id) {
+            let latest = false
+            let latestIdUserMessage
+            if (idUser.chat && idUser.chat[user.id] && idUser.chat[user.id].messages) {
+              latestIdUserMessage = idUser.chat[user.id].messages[0]
+            }
+            let latestGroupMessage
+            if (group.messages) {
+              latestGroupMessage = group.messages[0]
+            }
+            if (latestIdUserMessage && !latestGroupMessage) latest = true
+            if (latestIdUserMessage && latestGroupMessage) {
+              if (latestIdUserMessage.created > latestGroupMessage.created) latest = true
+            }
+            chats.push({alias: group.alias, id: user.id, latest})
+          }
+        }
+      }
+    }
+  })
+  return chats
+}
+function findLatestMessage(messages) {
+  if (messages.length === 0) return null
+  let latestMessage = messages[0]
+  for (let i = 1; i < messages.length; i++) {
+    if (messages[i].created > latestMessage.created) {
+      latestMessage = messages[i]
+    }
+  }
+  return latestMessage
+}
+app.post("/jwt/verify/chat/message/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  closedOnly,
+  async (req, res, next) => {
+    try {
+      const doc = await nano.db.use("getyour").get("user")
+      const jwtUser = doc.user[req.jwt.id]
+      if (!isJwt(jwtUser, req)) return res.sendStatus(404)
+      let jwtLatestMessage
+      if (jwtUser.chat) {
+        const jwtMessages = collectChatMessages(jwtUser.chat)
+        jwtLatestMessage = findLatestMessage(jwtMessages)
+      }
+      const allChatMessagesToJwt = collectChatMessagesToJwt(doc, req.jwt.id)
+      if (!allChatMessagesToJwt) return res.sendStatus(404)
+      const userLatestMessage = findLatestMessage(allChatMessagesToJwt)
+      if (!userLatestMessage) return res.sendStatus(404)
+      if (!jwtLatestMessage) return res.sendStatus(200)
+      if (userLatestMessage.created > jwtLatestMessage.created) return res.sendStatus(200)
+      return res.sendStatus(404)
+    } catch (error) {
+      console.log(error)
+      return res.sendStatus(404)
+    }
+  }
+)
 app.post("/jwt/verify/email/",
 
   Helper.verifyLocation,
@@ -6257,7 +6422,6 @@ app.post("/verify/user/location-expert/",
   sendStatus(200)
 )
 app.post("/verify/user/messages/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,

@@ -2,7 +2,6 @@ import {Helper} from "/js/Helper.js"
 
 const it = {}
 it.addEvent = (name, node) => {
-
   Helper.add("hover-outline", node)
   if (name === "go-back") {
 
@@ -110,72 +109,59 @@ it.addEvent = (name, node) => {
   }
 }
 it.append = (name, node) => {
-
   const button = it.div(name)
   it.addEvent(name, button)
   node.appendChild(button)
   return button
 }
 it.map = name => {
-
   const map = {}
   map[name] = it.div(name)
   return map
 }
-
 it.div = name => {
-
   if (name === "action") {
-
     const button = document.createElement("div")
     button.className = "fs21 sans-serif br13 mtb21 mlr34 flex align center ptb21 plr34 bs-light color-light bg-sunflower"
     return button
   }
   if (name === "add") {
-
     const button = it.div("bottom-right")
     button.className += " flex align center fs21 btn-theme color-theme"
     button.textContent = "+"
     return button
   }
   if (name === "back") {
-
     const button = it.div("bottom-left")
     button.className += " flex align center fs21 dark-light-reverse"
     button.textContent = "<<"
     return button
   }
   if (name === "bottom-left") {
-
     const button = document.createElement("div")
     button.className = "fixed bottom left w34 h34 br55 m34 p21"
     return button
   }
   if (name === "bottom-right") {
-
     const button = document.createElement("div")
     button.className = "fixed bottom right w34 h34 br55 m34 p21"
     return button
   }
   if (name === "dark-light") {
-
     const button = document.createElement("div")
     button.className = "sans-serif btn-theme color-theme flex align center wrap mtb21 mlr34 br13"
     return button
   }
   if (name === "go-back") {
-
     const button = it.div("back")
     button.classList.add("go-back")
     button.classList.add("no-save")
     return button
   }
   if (name === "home") {
-
     return it.div("up")
   }
   if (name === "remove-overlay") {
-
     const button = it.div("bottom-left")
     button.className += " flex align center fs21 dark-light-reverse"
     button.textContent = "↓"
@@ -194,7 +180,6 @@ it.div = name => {
     return button
   }
   if (name === "up") {
-
     const button = it.div("bottom-right")
     button.className += " flex align center fs21 btn-theme"
     button.textContent = "↑"
@@ -202,12 +187,10 @@ it.div = name => {
   }
 }
 it.render = (name, input, parent) => {
-
   const btn = it.div(name)
   btn.textContent = input.textContent
   Helper.add("hover-outline", btn)
   if (parent) Helper.append(btn, parent)
   return btn
 }
-
 export const button = it
