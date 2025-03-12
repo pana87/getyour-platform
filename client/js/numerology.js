@@ -1016,10 +1016,15 @@ if (numerologyOverlay) {
   const res = await Helper.request("/url-id/get/location/platform/", {urlId})
   if (res.status !== 200) return
   const location = JSON.parse(res.response)
-  console.log(location)
   const date = new Date(location.birthdate)
   const lifepath = numerology.dateToLifePath(date)
   const name = location.birthname
+  const chatBtn = document.querySelector(".lifepath.chat")
+  if (chatBtn) {
+    chatBtn.textContent = `${lifepath}er Chat`
+    Helper.add("hover-outline", chatBtn)
+    chatBtn.onclick = () => Helper.fn("openChatOverlay")(`${lifepath}`)
+  }
   document.querySelectorAll(".numerologie.birthdate").forEach(node => {
     Helper.add("hover-outline", node)
     node.textContent = Helper.convert("millis/dd.mm.yyyy", date.getTime())
@@ -1095,18 +1100,19 @@ if (numerologyOverlay) {
     node.textContent = numerology.dateToLifePath(date)
   })
   const lifepathNode = document.querySelector("[lifepath='content']")
-  if (!lifepathNode) return
-  text(`/${expert}/numerologie/geburtsenergie-${numbersAsText[lifepath - 1]}/`).then(async text => {
-    if (!text) return
-    const purified = await Helper.convert("text/purified", text)
-    const doc = Helper.convert("text/doc", purified)
-    const contentNodes = Array.from(doc.body.querySelectorAll(".content"))
-    if (contentNodes.length > 0) {
-      const randomIndex = Math.floor(Math.random() * contentNodes.length)
-      const randomText = contentNodes[randomIndex].textContent
-      lifepathNode.textContent = randomText
-    }
-  })
+  if (lifepathNode) {
+    text(`/${expert}/numerologie/geburtsenergie-${numbersAsText[lifepath - 1]}/`).then(async text => {
+      if (!text) return
+      const purified = await Helper.convert("text/purified", text)
+      const doc = Helper.convert("text/doc", purified)
+      const contentNodes = Array.from(doc.body.querySelectorAll(".content"))
+      if (contentNodes.length > 0) {
+        const randomIndex = Math.floor(Math.random() * contentNodes.length)
+        const randomText = contentNodes[randomIndex].textContent
+        lifepathNode.textContent = randomText
+      }
+    })
+  }
 })();
 
 (() => {
@@ -1116,7 +1122,6 @@ if (numerologyOverlay) {
   list.forEach(node => {
     Helper.add("hover-outline", node)
     node.onclick = ev => {
-
       Helper.overlay("pop", o1 => {
         const content = o1.content
         Helper.render("text/h1", node.textContent, content)
@@ -1149,7 +1154,16 @@ if (numerologyOverlay) {
               button.left.appendChild(circle)
               Helper.render("div", {classes: "fs21", text: birthname}, button.right)
               Helper.render("div", {classes: "fs13", text: Helper.convert("millis/dd.mm.yyyy", date.getTime())}, button.right)
-              button.onclick = () => window.open(`/${expert}/numerologie/profil/${user.id}/`, "_blank")
+              button.onclick = () => {
+                Helper.overlay("pop", o2 => {
+                  if (birthname) o2.addInfo(birthname)
+                  const content = o2.content
+                  const chatBtn = Helper.render("button/left-right", {left: ".chat", right: "Starte eine Unterhaltung"}, content)
+                  chatBtn.onclick = () => Helper.fn("openChatOverlay")(user.id)
+                  const profileBtn = Helper.render("button/left-right", {left: ".profile", right: "Zum Profil"}, content)
+                  profileBtn.onclick = () => window.open(`/${expert}/numerologie/profil/${user.id}/`, "_blank")
+                })
+              }
             }
           } else {
             Helper.render("text/note", "Keine Daten gefunden", content)
@@ -1202,4 +1216,3 @@ if (numerologyOverlay) {
     }
   }
 })();
-

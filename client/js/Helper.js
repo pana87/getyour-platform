@@ -2,19 +2,14 @@ import {button} from "/js/button.js"
 import {postFormData, post, text} from "/js/request.js"
 
 export class Helper {
-
   static add(event, input) {
     // add event to input
     // no dom creation, events only
-
     if (event === "accept") {
-
       const accept = input.node.getAttribute("accept")
       input.node.setAttribute("accept", `${accept}, ${input.type}`)
     }
-
     if (event === "attributes-observer") {
-
       const observer = new MutationObserver((mutationsList, observer) => {
         for (const mutation of mutationsList) {
           if (mutation.type === 'attributes') {
@@ -44,9 +39,7 @@ export class Helper {
       })
       return observer
     }
-
     if (event === "cite-button") {
-
       let citeButton = document.querySelector("div.cite-button")
       if (!citeButton) {
         citeButton = this.create("cite-button", document.body)
@@ -57,9 +50,7 @@ export class Helper {
         navigator.clipboard.writeText(input).then(() => window.alert(`${input}\n\nQuelle wurde erfolgreich in deiner Zwischenablage gespeichert.`))
       })
     }
-
     if (event === "background/node/hover") {
-
       input.addEventListener("mouseover", () => {
         input.style.backgroundColor = "#999"
       })
@@ -67,11 +58,8 @@ export class Helper {
       input.addEventListener("mouseout", () => {
         input.style.backgroundColor = null
       })
-
     }
-
     if (event === "cite-checker") {
-
       const cites = document.querySelectorAll(`[class*="cite"]`)
       cites.forEach(cite => {
         this.add("hover-outline", cite)
@@ -225,18 +213,14 @@ export class Helper {
         }
       })
     }
-
     if (event === "class/dark-light") {
-
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         input.classList.add("bg-dark", "bs-dark", "border-dark", "color-dark")
       } else {
         input.classList.add("bg-light", "bs-light", "border-light", "color-light")
       }
     }
-
     if (event === "id/total-amount") {
-
       return new Promise(async(resolve, reject) => {
         try {
 
@@ -265,11 +249,8 @@ export class Helper {
           reject(error)
         }
       })
-
     }
-
     if (event === "select-options") {
-
       input.select.textContent = ""
       for (let i = 0; i < input.options.length; i++) {
         const option = document.createElement("option")
@@ -278,12 +259,10 @@ export class Helper {
         input.select.appendChild(option)
       }
     }
-
     if (event === "selected/node") {
       input.setAttribute("selected-node", "true")
       input.style.outline = "3px solid #777"
     }
-
     if (event === "selector/reputation-self") {
       const node = document.querySelector(input)
 
@@ -304,16 +283,12 @@ export class Helper {
         }).catch(() => node.textContent = 0)
 
       }
-
     }
-
     if (event === "element/selected-node") {
       input.setAttribute("selected-node", "true")
       input.style.outline = "3px solid #777"
     }
-
     if (event === "loading") {
-
       input.info = this.div("fs13 color-error sans-serif")
       input.info.textContent = "Das kann einen Moment dauern .."
       input.loading = this.render("icon/node/path", "/public/loading.svg").then(icon => {
@@ -324,9 +299,7 @@ export class Helper {
         this.append(input.info, input)
       })
     }
-
     if (event === "my-value-units") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const valueUnitsDiv = document.querySelector(".my-value-units")
@@ -438,9 +411,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "node/onbody") {
-
       return new Promise(async(resolve, reject) => {
 
         try {
@@ -455,11 +426,8 @@ export class Helper {
         }
 
       })
-
     }
-
     if (event === "oninput/verify-positive-integer") {
-
       input.addEventListener("input", () => {
         if (this.verifyIs("text/+int", input.value)) {
           this.add("style/valid", input)
@@ -467,11 +435,8 @@ export class Helper {
           this.add("style/not-valid", input)
         }
       })
-
     }
-
     if (event === "onclick/overlay-owner-funnel") {
-
       input.addEventListener("click", () => {
 
         this.overlay("pop", async overlay => {
@@ -491,9 +456,7 @@ export class Helper {
         })
 
       })
-
     }
-
     if (event === "onclick/selector/contact-location-expert") {
       document.querySelectorAll(input).forEach(node => {
         this.add("hover-outline", node)
@@ -581,9 +544,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "observer/id-mutation") {
-
       const cache = {}
 
       const observer = new MutationObserver((mutations, observer) => {
@@ -773,11 +734,8 @@ export class Helper {
         subtree: true,
         attributes: true,
       })
-
     }
-
     if (event === "open-toolbox") {
-
       const back = this.create("button/back")
       const toolbox = this.create("button/getyour")
 
@@ -793,9 +751,7 @@ export class Helper {
         this.overlay("tools")
       })
     }
-
     if (event === "oscillator") {
-
       const audioContext = new (window.AudioContext || window.webkitAudioContext)()
       const source = audioContext.createMediaStreamSource(input.stream)
       const analyser = audioContext.createAnalyser()
@@ -836,15 +792,11 @@ export class Helper {
       }
       return {draw}
     }
-
     if (event === "pointer") {
-
       input.setAttribute("onmouseover", "this.style.cursor = 'pointer'; this.style.outline = '3px solid #999'")
       input.setAttribute("onmouseout", "this.style.cursor = null; this.style.outline = null")
     }
-
     if (event === "toolbox/buttons") {
-
       let back = document.querySelector("div.go-back")
       if (!back) back = button.div("go-back")
       button.addEvent("go-back", back)
@@ -858,15 +810,11 @@ export class Helper {
         this.overlay("tools", {type: "expert"})
       })
     }
-
     if (event === "toolbox-getter") {
-
       const script = this.create("script/id", "toolbox-getter")
       this.add("script-onbody", script)
     }
-
     if (event === "toolbox/onbody") {
-
       return new Promise(async(resolve, reject) => {
         try {
           function addToolbox(){
@@ -903,14 +851,12 @@ export class Helper {
         }
       })
     }
-
     if (event === "field-funnel/oninput-sign-support") {
       input.querySelectorAll(".field").forEach(field => {
         const input = field.querySelector(".field-input")
         input.oninput = () => this.verify("input/value", input)
       })
     }
-
     if (event === "ms/timeout") {
       return new Promise(resolve => {
         setTimeout(() => {
@@ -918,9 +864,7 @@ export class Helper {
         }, input)
       })
     }
-
     if (event === "event/service-creator") {
-
       return new Promise(async(resolve, reject) => {
         try {
 
@@ -1140,12 +1084,8 @@ export class Helper {
           reject(error)
         }
       })
-
-
     }
-
     if (event === "prefill-field-funnel") {
-
       return new Promise(async(resolve, reject) => {
         try {
           for (let i = 0; i < document.querySelectorAll(".field-funnel").length; i++) {
@@ -1161,9 +1101,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "submit-field-funnel") {
-
       document.querySelectorAll(".field-funnel").forEach(funnel => {
         this.add("outline-hover/field-funnel", funnel)
         const submitButton = funnel.querySelector(".submit-field-funnel-button")
@@ -1195,16 +1133,13 @@ export class Helper {
         }
       })
     }
-
     if (event === "on-info-click") {
-
       document.querySelectorAll(".field").forEach(field => {
         if (field.hasAttribute("on-info-click")) {
           this.convert("field/on-info-click", field)
         }
       })
     }
-
     if (event === "event/dbltouch") {
       let lastTapTime = 0
 
@@ -1219,9 +1154,7 @@ export class Helper {
         lastTapTime = currentTime
       })
     }
-
     if (event === "field-funnel-sign-support") {
-
       document.querySelectorAll(".field-funnel").forEach(funnel => {
         this.verifyIs("field-funnel/valid", funnel)
       })
@@ -1232,11 +1165,8 @@ export class Helper {
           input.addEventListener("input", () => this.verify("input/value", input))
         })
       })
-
     }
-
     if (event === "funnel/hover") {
-
       input.querySelectorAll("*").forEach(node => {
         const shouldHover = (
           node.classList.contains("submit") ||
@@ -1249,52 +1179,47 @@ export class Helper {
           this.add("hover-outline", node)
         }
       })
-
     }
-
     if (event === "register-html") {
-
       this.overlay("lock", async securityOverlay => {
-
         // prepare html state
         this.remove("element/selector", {element: document, selector: "[data-id]"})
         this.remove("element/selector", {element: document, selector: "#toolbox"})
         this.remove("element/selector", {element: document, selector: ".overlay"})
+        this.remove("element/selector", {element: document, selector: ".no-save"})
         const html = document.documentElement.outerHTML.replace(/<html>/, "<!DOCTYPE html><html>")
-
         const successMessage = "Dokument erfolgreich gespeichert. +1 XP"
-
         // save html state
         const res = await this.request("/register/platform/value-html-location-expert/", {html})
         if (res.status === 200) {
           window.alert(successMessage)
           window.location.reload()
         }
-
         if (res.status !== 200) {
-
           const res = await this.request("/register/platform/value-html-writable/", {html})
           if (res.status === 200) {
             window.alert(successMessage)
             window.location.reload()
           }
-
           if (res.status !== 200) {
-
             window.alert("Fehler.. Bitte wiederholen.")
             await this.add("toolbox/onbody")
             securityOverlay.remove()
-
           }
-
         }
-
       })
-
     }
-
+    if (event === "length-counter") {
+      const length = input.maxLength
+      const parent = input.parentElement
+      const preview = this.div("monospace fs13", parent)
+      preview.textContent = `0/${length}`
+      input.addEventListener("input", ev => {
+        const actualLength = ev.target.value.length
+        preview.textContent = `${actualLength}/${length}`
+      })
+    }
     if (event === "lazy-loading") {
-
       const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
@@ -1305,9 +1230,7 @@ export class Helper {
       }, { threshold: 0 })
       observer.observe(input)
     }
-
     if (event === "event/click-funnel") {
-
       document.querySelectorAll(".click-funnel").forEach(funnel => {
 
         const startButton = funnel.querySelector(".start-click-funnel-button")
@@ -1398,9 +1321,7 @@ export class Helper {
         }
 
       })
-
     }
-
     if (event === "underline-hover/node") {
       input.addEventListener("mouseover", () => {
         input.style.textDecoration = "underline"
@@ -1410,9 +1331,7 @@ export class Helper {
         input.style.textDecoration = null
       })
     }
-
     if (event === "click-funnel/end") {
-
       const endButton = input.querySelector(".end-click-funnel-button")
       const buttonIcon = endButton.children[0]
       const buttonText = endButton.children[1]
@@ -1478,9 +1397,7 @@ export class Helper {
       }
 
       endButton.style.display = "flex"
-
     }
-
     if (event === "icon/touch") {
       this.render("icon/node/path", "/public/touch.svg").then(icon => {
         icon.classList.add("touch")
@@ -1489,7 +1406,6 @@ export class Helper {
         input?.append(icon)
       })
     }
-
     if (event === "id-onbody") {
       const node = document.getElementById(input.id)
       if (!node) {
@@ -1499,9 +1415,7 @@ export class Helper {
         window.alert("Element existiert bereits.")
       }
     }
-
     if (event === "nav/open") {
-
       {
         const button = this.create("button/left-right", input)
         button.left.textContent = ".data-protection"
@@ -1517,32 +1431,22 @@ export class Helper {
         button.addEventListener("click", () => window.open("/nutzervereinbarung/", "_blank"))
       }
     }
-
     if (event === "onbody") {
-
       document.body.appendChild(input)
     }
-
     if (event === "onbody-once") {
-
       if (input.id) document.querySelectorAll(`#${input.id}`).forEach(node => node.remove())
       this.append(input, document.body)
     }
-
     if (event === "onmouseout") {
-
       const onmouseout = input.node.getAttribute("onmouseout")
       input.node.setAttribute("onmouseout", `${onmouseout}; ${input.type}`)
     }
-
     if (event === "onmouseover") {
-
       const onmouseover = input.node.getAttribute("onmouseover")
       input.node.setAttribute("onmouseover", `${onmouseover}; ${input.type}`)
     }
-
     if (event === "recorder") {
-
       let mediaRecorder
       let chunks = []
       let timerInterval
@@ -1618,9 +1522,7 @@ export class Helper {
       }
       return {controls, pause, start, stop}
     }
-
     if (event === "role-login") {
-
       const submit = document.querySelector(".start-login-event")
       const emailInput = document.querySelector(".email-input")
       const dsgvoInput = document.querySelector(".dsgvo-input")
@@ -1661,9 +1563,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "script/toolbox-getter") {
-
       return new Promise(async(resolve) => {
         const script = this.create("script/id", "toolbox-getter")
         if (document.body) {
@@ -1676,27 +1576,21 @@ export class Helper {
         }
       })
     }
-
     if (event === "script-onbody") {
-
       const exist = document.getElementById(input.id)
       if (exist) {
         exist.remove()
       }
       document.body.appendChild(input)
     }
-
     if (event === "signs") {
-
       input.querySelectorAll("input, select, textarea").forEach(node => {
         // console.log(node);
         this.verify("input/value", node)
         // this.addd("style/not-valid", node)
       })
     }
-
     if (event === "stream/cam") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const {deviceId, video} = input
@@ -1710,9 +1604,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "stream/vid") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const {deviceId, video} = input
@@ -1727,25 +1619,19 @@ export class Helper {
         }
       })
     }
-
     if (event === "style/dark") {
-
       input.style.color = this.colors.dark.text
       input.style.background = this.colors.dark.background
       return input
     }
-
     if (event === "style/dark-light") {
-
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         this.add("style/dark", input)
       } else {
         this.add("style/light", input)
       }
     }
-
     if (event === "style/not-valid") {
-
       const color = this.colors.light.error
       input.style.border = `2px solid ${color}`
       if (input.type === "checkbox") {
@@ -1754,40 +1640,37 @@ export class Helper {
       const signs = input.parentNode.querySelectorAll("div[class='sign']")
       signs.forEach(sign => sign.remove())
       if (signs.length === 0) {
-        const sign = document.createElement("div")
-        sign.classList.add("sign")
-        sign.textContent = "x"
-        sign.style.position = "absolute"
-        sign.style.right = "0"
-        sign.style.top = "-5px"
-        sign.style.color = color
-        sign.style.fontSize = "34px"
-        sign.style.fontFamily = "sans-serif"
-        input.parentNode.append(sign)
+        input.sign = document.createElement("div")
+        input.sign.classList.add("sign")
+        input.sign.textContent = "x"
+        input.sign.style.position = "absolute"
+        input.sign.style.right = "0"
+        input.sign.style.top = "-5px"
+        input.sign.style.color = color
+        input.sign.style.fontSize = "34px"
+        input.sign.style.fontFamily = "sans-serif"
+        input.parentNode.append(input.sign)
         return input
       }
       if (signs.length > 0) {
-        const sign = document.createElement("div")
-        sign.classList.add("sign")
-        sign.textContent = "x"
-        sign.style.position = "absolute"
-        sign.style.right = "0"
-        sign.style.top = "-5px"
-        sign.style.color = color
-        sign.style.fontSize = "34px"
-        sign.style.fontFamily = "sans-serif"
-        input.parentNode.append(sign)
+        input.sign = document.createElement("div")
+        input.sign.classList.add("sign")
+        input.sign.textContent = "x"
+        input.sign.style.position = "absolute"
+        input.sign.style.right = "0"
+        input.sign.style.top = "-5px"
+        input.sign.style.color = color
+        input.sign.style.fontSize = "34px"
+        input.sign.style.fontFamily = "sans-serif"
+        input.parentNode.append(input.sign)
         return input
       }
       return input
     }
-
     if (event === "style/selected") {
-
       this.add("style/circle", input)
       this.add("style/green", input)
     }
-
     if (event === "style/valid") {
       input.style.border = "2px solid #00c853"
       if (input.type === "checkbox") {
@@ -1796,54 +1679,46 @@ export class Helper {
       input.style.borderRadius = "3px"
       const signs = input.parentNode.querySelectorAll("div[class='sign']")
       if (signs.length === 0) {
-        const sign = document.createElement("div")
-        sign.classList.add("sign")
-
-        sign.textContent = "✓"
-        sign.style.position = "absolute"
-        sign.style.right = "0"
-        sign.style.top = "-5px"
-        sign.style.color = "#00c853"
-        sign.style.fontSize = "34px"
-        sign.style.fontFamily = "sans-serif"
-        input.parentNode.append(sign)
+        input.sign = document.createElement("div")
+        input.sign.classList.add("sign")
+        input.sign.textContent = "✓"
+        input.sign.style.position = "absolute"
+        input.sign.style.right = "0"
+        input.sign.style.top = "-5px"
+        input.sign.style.color = "#00c853"
+        input.sign.style.fontSize = "34px"
+        input.sign.style.fontFamily = "sans-serif"
+        input.parentNode.append(input.sign)
         return input
       }
       if (signs.length > 0) {
         signs.forEach(sign => sign.remove())
-        const sign = document.createElement("div")
-        sign.classList.add("sign")
-
-        sign.textContent = "✓"
-        sign.style.position = "absolute"
-        sign.style.right = "0"
-        sign.style.top = "-5px"
-        sign.style.color = "#00c853"
-        sign.style.fontSize = "34px"
-        sign.style.fontFamily = "sans-serif"
-        input.parentNode.append(sign)
+        input.sign = document.createElement("div")
+        input.sign.classList.add("sign")
+        input.sign.textContent = "✓"
+        input.sign.style.position = "absolute"
+        input.sign.style.right = "0"
+        input.sign.style.top = "-5px"
+        input.sign.style.color = "#00c853"
+        input.sign.style.fontSize = "34px"
+        input.sign.style.fontFamily = "sans-serif"
+        input.parentNode.append(input.sign)
         return input
       }
       return input
     }
-
     if (event === "style/green") {
-
       input.style.background = "#71EEB8"
       input.style.color = this.colors.dark.background
       input.style.border = `3px solid ${this.colors.dark.background}`
       return input
     }
-
     if (event === "style/light") {
-
       input.style.color = this.colors.light.text
       input.style.background = this.colors.light.background
       return input
     }
-
     if (event === "style/new-message") {
-
       this.render("text/node/bottom-right-onhover", "Neue Nachrichten gefunden", input)
       const dot = this.render("text/top-right", "●", input)
       dot.style.color = "green"
@@ -1851,29 +1726,22 @@ export class Helper {
       this.add("style/green", input)
       return input
     }
-
     if (event === "style/red") {
-
       input.style.background = "#FA503D"
       input.style.color = this.colors.dark.background
       input.style.border = `3px solid ${this.colors.dark.background}`
       return input
     }
-
     if (event === "style/circle") {
-
       this.style(input, {borderRadius: "50%", border: "3px solid black", width: "34px", height: "34px", backgroundColor: "black"})
     }
-
     if (event === "style/yellow") {
       input.style.background = "#EAC07F"
       input.style.color = this.colors.dark.background
       input.style.border = `3px solid ${this.colors.dark.background}`
       return input
     }
-
     if (event === "admin-login") {
-
       const emailInput = document.querySelector(".email-input")
       const dsgvoInput = document.querySelector(".dsgvo-input")
       const submit = document.querySelector(".start-login-event")
@@ -1892,9 +1760,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "oninput/verify-input") {
-
       if (input.type === "email") {
         input.addEventListener("input", (ev) => {
           this.verify("input/value", ev.target)
@@ -1911,12 +1777,9 @@ export class Helper {
         })
       }
     }
-
     if (event === "hover-outline") {
-
       this.on("hover", {node: input, class: "outline pointer"})
     }
-
     if (event === "outline-hover/field-funnel") {
       for (let i = 0; i < input.querySelectorAll("*").length; i++) {
         const node = input.querySelectorAll("*")[i]
@@ -1925,9 +1788,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "user-json/keydown-event") {
-
       if (input.classList.contains("user-json")) {
 
         input.onkeydown = (ev) => {
@@ -1938,18 +1799,14 @@ export class Helper {
         }
 
       }
-
     }
-
   }
   static append(node, to) {
-
     const fragment = document.createDocumentFragment()
     fragment.appendChild(node)
     to?.appendChild(fragment)
   }
   static async button() {
-
     if (!this._button) {
       const module = await import("/js/button.js")
       console.log(module);
@@ -2031,10 +1888,8 @@ export class Helper {
       })
 
     }
-
   }
   static async community() {
-
     if (!this._community) {
       const module = await import("/js/community.js")
       this._community = module.community
@@ -2042,7 +1897,6 @@ export class Helper {
     return this._community
   }
   static design(tree, input, parent) {
-
     if (tree === "getyour.expert.platforms") {
 
       const key = Helper.convert("tree/key", tree)
@@ -2092,11 +1946,8 @@ export class Helper {
       }
 
     }
-
-
   }
   static div(className, node) {
-
     const div = document.createElement("div")
     div.className = className
     if (this.verifyIs("text/empty", div.className)) div.removeAttribute("class")
@@ -2104,12 +1955,9 @@ export class Helper {
     return div
   }
   static create(event, input) {
-
     // no events, only creation
     // event = thing/algo
-
     if (event === "arrow-down") {
-
       const fragment = document.createDocumentFragment()
       const img = document.createElement("img")
       img.src = "/public/arrow-down-without-line.svg"
@@ -2118,9 +1966,7 @@ export class Helper {
       input?.appendChild(fragment)
       return img
     }
-
     if (event === "cite-button") {
-
       const it = document.createElement("div")
       it.className = "cite-button"
       it.textContent = "Dieses Dokument zitieren."
@@ -2130,9 +1976,7 @@ export class Helper {
       input?.appendChild(it)
       return it
     }
-
     if (event === "email-select") {
-
       function renderEmails(array, select) {
         const fragment = document.createDocumentFragment()
         field.input.textContent = ""
@@ -2175,7 +2019,6 @@ export class Helper {
       field.input.oninput = () => this.verify("input/value", field.input)
       return {field, renderEmails, filterEmailsOnSearch, selectedEmails}
     }
-
     if (event === "overlay/security") {
       const overlay = document.createElement("div")
       overlay.classList.add("overlay")
@@ -2195,9 +2038,7 @@ export class Helper {
       input?.append(overlay)
       return overlay
     }
-
     if (event === "template/checklist") {
-
       const items = []
       items.push({title: "Angebotsübersicht", description: "Hier können Sie ihr Angebot prüfen und anpassen, nähere Produktinformationen erhalten, Allgemeine Geschäftsbedingungen aufrufen und mehr über den Hersteller erfahren."})
       items.push({title: "Angebot hochladen", description: "Wenn Sie noch Fragen haben, finden Sie hier einen kompetenten Ansprechpartner. Haben Sie ihr Angebot geprüft und ggf. geändert, können Sie es hier drucken, hochladen und somit zur Prüfung freigeben."})
@@ -2226,11 +2067,8 @@ export class Helper {
       const checklist = this.render("checklist/items", items, input)
 
       return checklist
-
     }
-
     if (event === "input/alias"){
-
       const alias = this.create("input/text")
       alias.input.id = "alias"
       alias.input.maxLength = "55"
@@ -2239,9 +2077,7 @@ export class Helper {
       if (input) this.append(alias, input)
       return alias
     }
-
     if (event === "input/description") {
-
       const it = this.create("input/textarea")
       it.input.maxLength = "233"
       it.input.setAttribute("accept", "text/length")
@@ -2249,9 +2085,7 @@ export class Helper {
       if (input) this.append(it, input)
       return it
     }
-
     if (event === "input/bool") {
-
       const select = this.create("input/select")
       select.setInput = bool => {
         if (bool === true) {
@@ -2265,9 +2099,7 @@ export class Helper {
       if (input) this.append(select, input)
       return select
     }
-
     if (event === "input/feedback") {
-
       const it = this.create("input/textarea")
       it.input.setAttribute("required", "true")
       it.input.setAttribute("accept", "text/length")
@@ -2279,9 +2111,7 @@ export class Helper {
       if (input) this.append(it, input)
       return it
     }
-
     if (event === "input/importance") {
-
       const it = this.create("field/range")
       it.input.min = "0"
       it.input.max = "13"
@@ -2298,9 +2128,7 @@ export class Helper {
       if (input) this.append(it, input)
       return it
     }
-
     if (event === "input/path") {
-
       const fragment = document.createDocumentFragment()
       const field = this.create("input/text", fragment)
       field.input.placeholder = "/mein/pfad/../ (text/path)"
@@ -2309,9 +2137,7 @@ export class Helper {
       input?.appendChild(fragment)
       return field
     }
-
     if (event === "input/script") {
-
       const field = this.create("input/textarea")
       field.input.placeholder = "<script>..</script>"
       this.style(field.input, {height: "55px", fontSize: "13px", fontFamily: "monospace"})
@@ -2322,7 +2148,6 @@ export class Helper {
       input?.appendChild(field)
       return field
     }
-
     if (event === "input/select") {
       const div = this.div("mtb21 mlr34 relative")
       div.input = document.createElement("select")
@@ -2419,9 +2244,7 @@ export class Helper {
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "input/textarea") {
-
       const div = this.div("mtb21 mlr34 relative")
       div.input = document.createElement("textarea")
       div.input.className = "w89p dark-light"
@@ -2432,9 +2255,7 @@ export class Helper {
       input?.appendChild(div)
       return div
     }
-
     if (event === "input/checkbox") {
-
       const div = document.createElement("div")
       div.className = "flex align start relative h34 w89 mtb21 mlr34"
       div.input = document.createElement("input")
@@ -2452,9 +2273,7 @@ export class Helper {
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "input/contacts") {
-
       const select = Helper.create("select/emails", input)
       Helper.request("/jwt/get/user/contacts/").then(res => {
         if (res.status === 200) {
@@ -2464,9 +2283,7 @@ export class Helper {
       })
       return select
     }
-
     if (event === "input/date") {
-
       const div = this.div("mtb21 mlr34 relative")
       div.input = document.createElement("input")
       this.append(div.input, div)
@@ -2479,9 +2296,7 @@ export class Helper {
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "input/date-time") {
-
       const div = this.div("mtb21 mlr34 relative")
       div.input = document.createElement("input")
       this.append(div.input, div)
@@ -2494,9 +2309,7 @@ export class Helper {
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "input/email") {
-
       const div = document.createElement("div")
       div.className = "relative mtb21 mlr34"
       div.input = document.createElement("input")
@@ -2514,9 +2327,7 @@ export class Helper {
       input?.appendChild(div)
       return div
     }
-
     if (event === "input/file") {
-
       const div = document.createElement("div")
       this.style(div, {margin: "21px 34px", position: "relative"})
       div.input = document.createElement("input")
@@ -2529,9 +2340,7 @@ export class Helper {
       input?.appendChild(div)
       return div
     }
-
     if (event === "input/html") {
-
       const div = this.create("input/textarea")
       div.input.className += " monospace fs13 vh55"
       div.input.placeholder = `<html>..</html>`
@@ -2539,9 +2348,7 @@ export class Helper {
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "input/id") {
-
       const id = this.create("input/text", input)
       id.input.placeholder = "Id eingeben (text/tag)"
       id.input.setAttribute("required", "true")
@@ -2551,9 +2358,7 @@ export class Helper {
       this.verify("input/value", id.input)
       return id
     }
-
     if (event === "input/image") {
-
       const image = this.create("input/text")
       image.input.id = "image"
       image.input.placeholder = "Bild-URL (text/url)"
@@ -2562,9 +2367,7 @@ export class Helper {
       if (input) this.append(image, input)
       return image
     }
-
     if (event === "input/number") {
-
       const div = document.createElement("div")
       this.style(div, {margin: "21px 34px", position: "relative"})
       div.input = document.createElement("input")
@@ -2577,9 +2380,7 @@ export class Helper {
       input?.appendChild(div)
       return div
     }
-
     if (event === "input/operator") {
-
       const it = this.create("input/text")
       it.input.placeholder = "Operator (text/operator)"
       it.input.maxLength = "2"
@@ -2589,9 +2390,7 @@ export class Helper {
       if (input) this.append(it, input)
       return it
     }
-
     if (event === "input/password") {
-
       const div = document.createElement("div")
       this.style(div, {margin: "21px 34px", position: "relative"})
       div.input = document.createElement("input")
@@ -2604,9 +2403,7 @@ export class Helper {
       input?.appendChild(div)
       return div
     }
-
     if (event === "input/range") {
-
       const div = document.createElement("div")
       this.style(div, {margin: "21px 34px", position: "relative"})
       div.input = document.createElement("input")
@@ -2619,9 +2416,7 @@ export class Helper {
       input?.appendChild(div)
       return div
     }
-
     if (event === "input/phone") {
-
       const div = document.createElement("div")
       this.style(div, {margin: "21px 34px", position: "relative"})
       div.input = document.createElement("input")
@@ -2638,9 +2433,7 @@ export class Helper {
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "input/tag") {
-
       const tag = this.create("input/text")
       tag.input.maxLength = "21"
       tag.input.setAttribute("accept", "text/tag, text/length")
@@ -2649,9 +2442,7 @@ export class Helper {
       if (input) this.append(tag, input)
       return tag
     }
-
     if (event === "input/tel") {
-
       const div = document.createElement("div")
       this.style(div, {margin: "21px 34px", position: "relative"})
       div.input = document.createElement("input")
@@ -2665,9 +2456,7 @@ export class Helper {
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "input/text") {
-
       const div = document.createElement("div")
       div.className = "mtb21 mlr34 relative"
       div.input = document.createElement("input")
@@ -2680,9 +2469,7 @@ export class Helper {
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "input/tree"){
-
       const div = this.create("input/text")
       div.input.maxLength = "34"
       div.input.placeholder = "Datenstruktur (text/tree)"
@@ -2692,9 +2479,7 @@ export class Helper {
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "input/url"){
-
       const div = this.create("input/text")
       div.input.placeholder = "Webseiten URL (text/url)"
       div.input.setAttribute("required", "true")
@@ -2703,9 +2488,7 @@ export class Helper {
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "input/visibility") {
-
       const label = this.create("label", {for: "visibility", text: "Sichtbarkeit auswählen"})
       const field = this.create("input/select", input)
       field.prepend(label)
@@ -2715,9 +2498,7 @@ export class Helper {
       this.verify("input/value", field.input)
       return field
     }
-
     if (event === "img") {
-
       const img = document.createElement("img")
       img.src = "/public/image-placeholder.svg"
       img.style.width = "34px"
@@ -2726,9 +2507,7 @@ export class Helper {
       input?.append(img)
       return img
     }
-
     if (event === "p") {
-
       const p = document.createElement("p")
       p.style.margin = "21px 34px"
       p.style.fontFamily = "sans-serif"
@@ -2736,11 +2515,8 @@ export class Helper {
       p.style.fontSize = "21px"
       input?.appendChild(p)
       return p
-
     }
-
     if (event === "h3") {
-
       const h3 = document.createElement("h3")
       h3.style.margin = "21px 34px"
       h3.style.fontFamily = "sans-serif"
@@ -2749,9 +2525,7 @@ export class Helper {
       input?.append(h3)
       return h3
     }
-
     if (event === "h2") {
-
       const h2 = document.createElement("h2")
       h2.style.margin = "21px 34px"
       h2.style.fontFamily = "sans-serif"
@@ -2760,25 +2534,19 @@ export class Helper {
       input?.append(h2)
       return h2
     }
-
     if (event === "h1") {
-
       const h1 = document.createElement("h1")
       h1.className = "mtb21 mlr34 sans-serif fw-normal color-theme"
       if (input) this.append(h1, input)
       return h1
     }
-
     if (event === "hr") {
-
       const hr = document.createElement("hr")
 
       if (input) input.append(hr)
       return hr
     }
-
     if (event === "funnel/source") {
-
       const fragment = document.createDocumentFragment()
       const funnel = this.create("div/scrollable", fragment)
       funnel.id = "source"
@@ -2854,9 +2622,7 @@ export class Helper {
       input?.appendChild(fragment)
       return funnel
     }
-
     if (event === "field-funnel/source") {
-
       const funnel = this.create("div/scrollable", input)
       funnel.id = "source"
 
@@ -2967,11 +2733,8 @@ export class Helper {
       this.add("hover-outline", funnel.submit)
       funnel.submit.textContent = "Quelle jetzt speichern"
       return funnel
-
     }
-
     if (event === "funnel/condition") {
-
       const funnel = this.create("div/scrollable")
 
       funnel.leftField = this.create("field/tree", funnel)
@@ -3000,9 +2763,7 @@ export class Helper {
       if (input !== undefined) input.append(funnel)
       return funnel
     }
-
     if (event === "header/sticky-nav") {
-
       const header = document.createElement("header")
       header.style.display = "flex"
       header.style.flexDirection = "column"
@@ -3185,11 +2946,8 @@ export class Helper {
 
       input?.append(header)
       return header
-
     }
-
     if (event === "header/info") {
-
       const header = document.createElement("div")
       header.style.fontFamily = "monospace"
       header.style.fontSize = "13px"
@@ -3213,11 +2971,8 @@ export class Helper {
       }
       input?.append(header)
       return header
-
     }
-
     if (event === "header/nav") {
-
       const header = document.createElement("div")
       header.style.display = "flex"
       header.style.justifyContent = "space-around"
@@ -3254,9 +3009,7 @@ export class Helper {
       if (input !== undefined) input.append(header)
       return header
     }
-
     if (event === "header/left-right") {
-
       const header = document.createElement("div")
       header.style.display = "flex"
       header.style.justifyContent = "space-between"
@@ -3284,9 +3037,7 @@ export class Helper {
       if (input !== undefined) input.append(header)
       return header
     }
-
     if (event === "header/right") {
-
       const header = document.createElement("div")
       header.classList.add("header")
       header.style.display = "flex"
@@ -3301,9 +3052,7 @@ export class Helper {
       if (input !== undefined) input.append(header)
       return header
     }
-
     if (event === "header/left") {
-
       const header = document.createElement("header")
       header.style.display = "flex"
       header.style.boxShadow = "0 3px 5px rgba(0, 0, 0, 0.13)"
@@ -3320,20 +3069,15 @@ export class Helper {
       header.left.append(header.left.image)
       input?.append(header)
       return header
-
     }
-
     if (event === "div/box") {
-
       const div = document.createElement("div")
       div.className = "btn-theme color-theme br13 mtb21 mlr34"
       this.add("hover-outline", div)
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "div/timer") {
-
       var timer = duration, minutes, seconds
       const timerDiv = document.createElement("div")
       const interval = setInterval(function () {
@@ -3353,9 +3097,7 @@ export class Helper {
 
       return interval
     }
-
     if (event === "div/item-template") {
-
       const item = document.createElement("div")
       item.classList.add("checklist-item")
       item.style.margin = "34px"
@@ -3451,12 +3193,8 @@ export class Helper {
 
       input?.append(item)
       return item
-
-
     }
-
     if (event === "div/offer-template") {
-
       const div = this.create("div/scrollable")
       console.log(div);
 
@@ -3626,11 +3364,8 @@ export class Helper {
 
       input?.append(div)
       return div
-
     }
-
     if (event === "div/bottom-left") {
-
       const div = document.createElement("div")
       div.style.fontFamily = "monospace"
       div.style.fontSize = "13px"
@@ -3657,9 +3392,7 @@ export class Helper {
       if (input !== undefined) input.append(div)
       return div
     }
-
     if (event === "div/progress-bar") {
-
       const progress = document.createElement("div")
       progress.classList.add("progress-container")
       progress.style.display = "flex"
@@ -3678,11 +3411,8 @@ export class Helper {
       progress.append(progress.bar)
 
       return progress
-
     }
-
     if (event === "div/top-bottom") {
-
       const field = document.createElement("div")
       field.style.position = "relative"
       field.style.borderRadius = "13px"
@@ -3721,9 +3451,7 @@ export class Helper {
       if (input !== undefined) input.append(field)
       return field
     }
-
     if (event === "div/match-maker-list") {
-
       return new Promise(async(resolve, reject) => {
         try {
 
@@ -3831,12 +3559,8 @@ export class Helper {
           reject(error)
         }
       })
-
-
     }
-
     if (event === "div/key-value") {
-
       const div = document.createElement("div")
       div.classList.add("key-value")
       div.style.display = "flex"
@@ -3855,9 +3579,7 @@ export class Helper {
       div.append(div.value)
       input?.appendChild(div)
       return div
-
     }
-
     if (event === "div/image") {
       const div = document.createElement("div")
       div.className = "image"
@@ -3868,7 +3590,6 @@ export class Helper {
       div.appendChild(div.image)
       return div
     }
-
     if (event === "div/image-text") {
       const div = document.createElement("div")
       div.classList.add("image-text")
@@ -3887,9 +3608,7 @@ export class Helper {
       input?.appendChild(div)
       return div
     }
-
     if (event === "div/flex") {
-
       const div = document.createElement("div")
       div.style.display = "flex"
       div.style.flexWrap = "wrap"
@@ -3897,16 +3616,12 @@ export class Helper {
       input?.appendChild(div)
       return div
     }
-
     if (event === "div/flex-around") {
-
       const div = this.div("flex wrap align space-around mtb21 mlr34")
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "div/flex-between") {
-
       const div = document.createElement("div")
       div.style.display = "flex"
       div.style.flexWrap = "wrap"
@@ -3915,16 +3630,12 @@ export class Helper {
       input?.appendChild(div)
       return div
     }
-
     if (event === "div/flex-row") {
-
       const div = this.div("flex wrap mtb21 mlr34")
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "div/box-overview") {
-
       const offer = document.createElement("div")
       offer.classList.add("box")
       offer.style.backgroundColor = "white"
@@ -4087,13 +3798,8 @@ export class Helper {
       if (input !== undefined) input.append(offer)
 
       return offer
-
-
-
     }
-
     if (event === "div/user-list") {
-
       return new Promise(async(resolve, reject) => {
         try {
 
@@ -4128,10 +3834,7 @@ export class Helper {
           reject(error)
         }
       })
-
-
     }
-
     if (event === "div/action") {
       const div = document.createElement("div")
 
@@ -4152,15 +3855,12 @@ export class Helper {
       if (input !== undefined) input.append(div)
       return div
     }
-
     if (event === "div") {
       const div = document.createElement("div")
       input?.appendChild(div)
       return div
     }
-
     if (event === "div/green-flag") {
-
       const div = document.createElement("div")
       div.style.width = "34px"
       div.style.padding = "8px 34px"
@@ -4171,25 +3871,18 @@ export class Helper {
       div.style.background = "green"
       input?.appendChild(div)
       return div
-
     }
-
     if (event === "div/info") {
-
       const div = this.div("dark-light monospace fs13 fixed bottom left z1 max-w100p max-h21 of-auto btn-theme")
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "div/note") {
-
       const div = this.div("ptb144 flex align center color-theme sans-serif")
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "div/red-flag") {
-
       const div = document.createElement("div")
       div.style.width = "34px"
       div.style.padding = "8px 34px"
@@ -4200,9 +3893,7 @@ export class Helper {
       div.style.background = "red"
       input?.appendChild(div)
       return div
-
     }
-
     if (event === "div/overlay") {
       const div = document.createElement("div")
       div.classList.add("overlay")
@@ -4222,17 +3913,13 @@ export class Helper {
       input?.append(div)
       return div
     }
-
     if (event === "div/scrollable") {
-
       const div = document.createElement("div")
       this.convert("parent/scrollable", div)
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "div/service-box") {
-
       const div = document.createElement("div")
       div.className = "service-box"
       div.style.display = "flex"
@@ -4300,9 +3987,7 @@ export class Helper {
       input?.append(div)
       return div
     }
-
     if (event === "div/video") {
-
       const fragment = document.createDocumentFragment()
       const div = document.createElement("div")
       fragment.appendChild(div)
@@ -4314,35 +3999,27 @@ export class Helper {
       input?.appendChild(fragment)
       return div
     }
-
     if (event === "div/button") {
-
       const div = document.createElement("div")
       div.className = "btn-theme color-theme br13"
       this.add("hover-outline", div)
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "button") {
-
       const div = this.div("btn-theme color-theme flex align center mtb21 mlr34")
       this.add("hover-outline", div)
       input?.appendChild(div)
       return div
     }
-
     if (event === "button/goback") {
-
       const button = this.create("button/back")
       button.classList.add("go-back")
       button.onclick = ev => this.goBack()
       if (input && !document.querySelector('div.go.back')) this.append(button, input)
       return button
     }
-
     if (event === "button/back") {
-
       const button = this.create("button/bottom-left")
       button.classList.add("back-button")
       this.render("icon/node/path", "/public/arrow-back.svg", button).then(icon => {
@@ -4351,17 +4028,13 @@ export class Helper {
       if (input) this.append(button, input)
       return button
     }
-
     if (event === "box") {
-
       const box = document.createElement("span")
       this.convert("parent/box", box)
       input?.appendChild(box)
       return box
     }
-
     if (event === "button/key-value-color") {
-
       const button = this.create("div")
       button.classList.add("color")
       button.style.display = "flex"
@@ -4390,9 +4063,7 @@ export class Helper {
 
       return button
     }
-
     if (event === "button/thumb-down") {
-
       const button = document.createElement("div")
       button.textContent = "👎"
       button.style.display = "flex"
@@ -4407,9 +4078,7 @@ export class Helper {
       input?.append(button)
       return button
     }
-
     if (event === "button/thumb-up") {
-
       const button = document.createElement("div")
       button.textContent = "👍"
       button.style.background = "rgb(45,201,55)"
@@ -4425,27 +4094,21 @@ export class Helper {
       input?.append(button)
       return button
     }
-
     if (event === "button/bottom-left") {
-
       const button = document.createElement("div")
       button.className = "fixed bottom left w34 h34 br55 m34 p21 z1"
       this.add("hover-outline", button)
       if (input) this.append(button, input)
       return button
     }
-
     if (event === "button/bottom-right") {
-
       const button = document.createElement("div")
       button.className = "fixed bottom right w34 h34 br55 m34 p21 z2"
       this.add("hover-outline", button)
       if (input) this.append(button, input)
       return button
     }
-
     if (event === "button/icon") {
-
       const button = this.create("div")
       button.classList.add("button")
       button.style.display = "flex"
@@ -4467,11 +4130,8 @@ export class Helper {
       }
       input?.appendChild(button)
       return button
-
     }
-
     if (event === "button/icon-text") {
-
       const button = document.createElement("div")
       button.style.display = "flex"
       button.style.flexDirection = "column"
@@ -4505,38 +4165,29 @@ export class Helper {
       button.append(button.text)
       input?.append(button)
       return button
-
     }
-
     if (event === "button/getyour") {
-
       const button = this.create("button/bottom-right")
       this.render("icon/node/path", "/public/logo-getyour-red.svg", button)
       this.add("hover-outline", button)
       if (input) this.append(button, input)
       return button
     }
-
     if (event === "button/add") {
-
       const button = this.create("button/bottom-right")
       button.classList.add("add-button")
       this.render("icon/node/path", "/public/add.svg", button)
       if (input) this.append(button, input)
       return button
     }
-
     if (event === "button/action") {
-
       const div = document.createElement("div")
       div.className = "fs21 sans-serif br13 mtb21 mlr34 flex align center ptb21 plr34 bs-light color-light bg-sunflower"
       this.add("hover-outline", div)
       input?.appendChild(div)
       return div
     }
-
     if (event === "button/top-bottom") {
-
       const button = this.create("div/button")
       button.classList.add("flex", "column", "mtb21", "mlr34", "of-hidden")
       button.top = document.createElement("div")
@@ -4546,9 +4197,7 @@ export class Helper {
       if (input) this.append(button, input)
       return button
     }
-
     if (event === "button/left-right") {
-
       const button = document.createElement("div")
       button.left = document.createElement("div")
       button.right = document.createElement("div")
@@ -4559,17 +4208,13 @@ export class Helper {
       if (input) this.append(button, input)
       return button
     }
-
     if (event === "counter") {
-
       input.counter = this.div("counter absolute flex align center monospace fs34 br50p p8 z1 dark-light top-21 right btn-theme")
       input.counter.textContent = "0"
       this.append(input.counter, input)
       return input
     }
-
     if (event === "icon/branch") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const icon = await this.convert("path/icon", "/public/branch.svg")
@@ -4588,9 +4233,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "button/branch") {
-
       const button = this.create("button/bottom-right")
       button.className += " flex align center"
       this.convert("path/icon", "/public/branch.svg").then(icon => {
@@ -4610,10 +4253,7 @@ export class Helper {
       if (input) this.append(button, input)
       return button
     }
-
     if (event === "button/role-apps") {
-
-
       const button = document.createElement("div")
       button.classList.add("role-apps-button")
       button.style.position = "fixed"
@@ -4637,9 +4277,7 @@ export class Helper {
 
       return button
     }
-
     if (event === "field-funnel/login") {
-
       const funnel = this.create("div/scrollable")
       funnel.emailField = this.create("field/email", funnel)
       funnel.dsgvoField = this.create("field/dsgvo", funnel)
@@ -4650,11 +4288,8 @@ export class Helper {
       this.add("hover-outline", funnel.submit)
       input?.appendChild(funnel)
       return funnel
-
     }
-
     if (event === "pdf-preview") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const pdfjs = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/+esm')
@@ -4681,11 +4316,8 @@ export class Helper {
           reject(error)
         }
       })
-
     }
-
     if (event === "script/match-maker-onload") {
-
       const conditionsString = JSON.stringify(input.conditions)
 
       const text = /*html*/`
@@ -4712,9 +4344,7 @@ export class Helper {
 
       return create
     }
-
     if (event === "script/match-maker-onclick") {
-
       const conditionsString = JSON.stringify(input.conditions)
 
       const text = /*html*/`
@@ -4749,9 +4379,7 @@ export class Helper {
 
       return create
     }
-
     if (event === "script/match-maker-show") {
-
       const conditionsString = JSON.stringify(input.conditions)
 
       const text = /*html*/`
@@ -4786,9 +4414,7 @@ export class Helper {
 
       return create
     }
-
     if (event === "script/match-maker-get-list") {
-
       const conditionsString = JSON.stringify(input.conditions)
 
       const text = /*html*/`
@@ -4818,9 +4444,7 @@ export class Helper {
 
       return create
     }
-
     if (event === "script/match-maker-get-keys") {
-
       const conditionsString = JSON.stringify(input.conditions)
       const mirrorString = JSON.stringify(input.mirror)
 
@@ -4853,9 +4477,7 @@ export class Helper {
 
       return create
     }
-
     if (event === "script/match-maker-get-users") {
-
       const conditionsString = JSON.stringify(input.conditions)
       const mirrorString = JSON.stringify(input.mirror)
 
@@ -4885,9 +4507,7 @@ export class Helper {
 
       return create
     }
-
     if (event === "script/match-maker-remove") {
-
       const conditionsString = JSON.stringify(input.conditions)
 
       const text = /*html*/`
@@ -4916,18 +4536,14 @@ export class Helper {
 
       return create
     }
-
     if (event === "script/id") {
-
       const script = document.createElement("script")
       script.id = input
       script.src = `/js/${input}.js`
       script.type = "module"
       return script
     }
-
     if (event === "select/cam") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const select = this.create("input/select")
@@ -4947,9 +4563,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "select/emails") {
-
       const searchField = this.create("input/text", input)
       searchField.input.placeholder = "Suche nach E-Mail Adresse"
       const field = this.create("input/select", input)
@@ -5026,7 +4640,6 @@ export class Helper {
       return field
     }
     if (event === "toolbox/bottom-right") {
-
       const button = this.create("button/bottom-right")
       button.removeAttribute("class")
       this.add("hover-outline", button)
@@ -5034,9 +4647,7 @@ export class Helper {
       input?.appendChild(button)
       return button
     }
-
     if (event === "toolbox/icon") {
-
       const button = this.create("button/icon")
       button.removeAttribute("class")
       this.add("hover-outline", button)
@@ -5044,9 +4655,7 @@ export class Helper {
       input?.appendChild(button)
       return button
     }
-
     if (event === "field/closed-contacts-email-select") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const field = this.create("field/select", input)
@@ -5074,9 +4683,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "field/select") {
-
       const field = document.createElement("div")
       field.classList.add("field")
       field.style.position = "relative"
@@ -5140,11 +4747,8 @@ export class Helper {
       }
       input?.appendChild(field)
       return field
-
     }
-
     if (event === "field/operator") {
-
       const field = this.create("field/text")
 
       field.label.textContent = "Operator"
@@ -5157,9 +4761,7 @@ export class Helper {
       if (input !== undefined) input.append(field)
       return field
     }
-
     if (event === "field/name") {
-
       const field = this.create("field/text")
 
       field.label.textContent = "Name"
@@ -5170,9 +4772,7 @@ export class Helper {
       if (input !== undefined) input.append(field)
       return field
     }
-
     if (event === "field/js") {
-
       const field = this.create("field/textarea")
 
       field.input.style.fontSize = "13px"
@@ -5185,9 +4785,7 @@ export class Helper {
       if (input !== undefined) input.append(field)
       return field
     }
-
     if (event === "field/script") {
-
       const field = this.create("field/textarea")
 
       field.label.textContent = "HTML Skript"
@@ -5200,9 +4798,7 @@ export class Helper {
       if (input !== undefined) input.append(field)
       return field
     }
-
     if (event === "field/field-funnel") {
-
       const field = this.create("field/textarea")
 
       field.label.textContent = "Welche Daten soll dein Nutzer, in die Liste, speichern können (field-funnel)"
@@ -5215,9 +4811,7 @@ export class Helper {
       if (input !== undefined) input.append(field)
       return field
     }
-
     if (event === "field/textarea") {
-
       const field = document.createElement("div")
       field.classList.add("field")
       field.style.position = "relative"
@@ -5250,9 +4844,7 @@ export class Helper {
       input?.append(field)
       return field
     }
-
     if (event === "field/url") {
-
       const field = document.createElement("div")
       field.classList.add("field")
       field.style.position = "relative"
@@ -5309,9 +4901,7 @@ export class Helper {
       if (input !== undefined) input.append(field)
       return field
     }
-
     if (event === "field/checkbox") {
-
       const field = this.create("field")
       const checkboxInput = this.create("input/checkbox", field)
       field.input = checkboxInput.input
@@ -5319,9 +4909,7 @@ export class Helper {
       input?.appendChild(field)
       return field
     }
-
     if (event === "field/dsgvo") {
-
       const field = this.create("field/checkbox")
       field.input.classList.add("dsgvo-input")
       const label = this.createNode("div", field.label)
@@ -5346,20 +4934,15 @@ export class Helper {
       field.input.setAttribute("required", "true")
       input?.appendChild(field)
       return field
-
     }
-
     if (event === "field/trees") {
-
       const field = this.create("field/textarea")
       field.input.setAttribute("required", "true")
       field.input.setAttribute("accept", "text/trees")
       input?.appendChild(field)
       return field
     }
-
     if (event === "field/tree") {
-
       const field = this.create("field/text")
 
       field.input.setAttribute("accept", "text/tree")
@@ -5368,9 +4951,7 @@ export class Helper {
       if (input !== undefined) input.append(field)
       return field
     }
-
     if (event === "field/path") {
-
       const field = this.create("field/text")
 
       field.input.setAttribute("accept", "text/path")
@@ -5379,9 +4960,7 @@ export class Helper {
       if (input !== undefined) input.append(field)
       return field
     }
-
     if (event === "field/hex") {
-
       const field = this.create("field/text")
 
       field.input.setAttribute("accept", "text/hex")
@@ -5390,29 +4969,22 @@ export class Helper {
       if (input !== undefined) input.append(field)
       return field
     }
-
     if (event === "field/tag") {
-
       const field = this.create("field/text")
       field.input.setAttribute("accept", "text/tag")
       field.input.setAttribute("required", "true")
       input?.appendChild(field)
       return field
     }
-
     if (event === "field/pdf-file") {
-
       const field = this.create("field/file")
       field.input.setAttribute("required", "true")
       field.input.setAttribute("accept", "application/pdf")
 
       input?.append(field)
       return field
-
     }
-
     if (event === "field/file") {
-
       const field = this.create("field")
       const fileInput = this.create("input/file", field)
       field.input = fileInput.input
@@ -5420,9 +4992,7 @@ export class Helper {
       input?.appendChild(field)
       return field
     }
-
     if (event === "field/tel") {
-
       const field = this.create("field")
       const telInput = this.create("input/tel", field)
       field.input = telInput.input
@@ -5430,9 +5000,7 @@ export class Helper {
       input?.appendChild(field)
       return field
     }
-
     if (event === "field/date") {
-
       const field = this.create("field")
       const dateInput = this.create("input/date", field)
       field.input = dateInput.input
@@ -5440,9 +5008,7 @@ export class Helper {
       input?.appendChild(field)
       return field
     }
-
     if (event === "field/number") {
-
       const field = this.create("field")
       const numberInput = this.create("input/number", field)
       field.input = numberInput.input
@@ -5450,9 +5016,7 @@ export class Helper {
       input?.appendChild(field)
       return field
     }
-
     if (event === "field/password") {
-
       const field = this.create("field")
       const passwordInput = this.create("input/password", field)
       field.input = passwordInput.input
@@ -5460,9 +5024,7 @@ export class Helper {
       input?.appendChild(field)
       return field
     }
-
     if (event === "field/range") {
-
       const field = this.create("field")
       const rangeInput = this.create("input/range", field)
       field.input = rangeInput.input
@@ -5470,9 +5032,7 @@ export class Helper {
       input?.appendChild(field)
       return field
     }
-
     if (event === "field/text") {
-
       const field = this.create("field")
       const textInput = this.create("input/text", field)
       field.input = textInput.input
@@ -5480,9 +5040,7 @@ export class Helper {
       input?.appendChild(field)
       return field
     }
-
     if (event === "field") {
-
       const field = document.createElement("div")
       field.classList.add("field")
       field.style.position = "relative"
@@ -5507,9 +5065,7 @@ export class Helper {
       input?.appendChild(field)
       return field
     }
-
     if (event === "field/emails") {
-
       const field = this.create("field/textarea")
       field.input.style.fontFamily = "monospace"
       field.input.style.fontSize = "13px"
@@ -5522,9 +5078,7 @@ export class Helper {
       input?.append(field)
       return field
     }
-
     if (event === "field/email") {
-
       const field = this.create("field")
       field.label.textContent = "E-Mail Adresse"
       const emailInput = this.create("input/email", field)
@@ -5533,9 +5087,7 @@ export class Helper {
       input?.appendChild(field)
       return field
     }
-
     if (event === "field/id") {
-
       const field = this.create("field/tag")
       field.label.textContent = "Identifikationsname (text/tag)"
       field.input.placeholder = "meine-id"
@@ -5552,9 +5104,7 @@ export class Helper {
       input?.appendChild(field)
       return field
     }
-
     if (event === "field/lang") {
-
       const langField = this.create("field/select")
       langField.label.textContent = "Sprache"
       const options = ["aa","ab","ae","af","ak","am","an","ar","as","av","ay","az","ba","be","bg","bh","bi","bm","bn","bo","br","bs","ca","ce","ch","co","cr","cs","cu","cv","cy","da","de","dv","dz","ee","el","en","eo","es","et","eu","fa","ff","fi","fj","fo","fr","fy","ga","gd","gl","gn","gu","gv","ha","he","hi","ho","hr","ht","hu","hy","hz","ia","id","ie","ig","ii","ik","io","is","it","iu","ja","jv","ka","kg","ki","kj","kk","kl","km","kn","ko","kr","ks","ku","kv","kw","ky","la","lb","lg","li","ln","lo","lt","lu","lv","mg","mh","mi","mk","ml","mn","mr","ms","mt","my","na","nb","nd","ne","ng","nl","nn","no","nr","nv","ny","oc","oj","om","or","os","pa","pi","pl","ps","pt","qu","rm","rn","ro","ru","rw","sa","sc","sd","se","sg","si","sk","sl","sm","sn","so","sq","sr","ss","st","su","sv","sw","ta","te","tg","th","ti","tk","tl","tn","to","tr","ts","tt","tw","ty","ug","uk","ur","uz","ve","vi","vo","wa","wo","xh","yi","yo","za","zh","zu"]
@@ -5569,9 +5119,7 @@ export class Helper {
 
       input?.append(langField)
       return langField
-
     }
-
     if (event === "field-funnel") {
       const fieldFunnel = this.create("div/scrollable")
       fieldFunnel.classList.add("field-funnel")
@@ -5584,9 +5132,7 @@ export class Helper {
 
       return fieldFunnel
     }
-
     if (event === "field/audio") {
-
       const field = document.createElement("div")
       field.classList.add("field")
       field.style.position = "relative"
@@ -5630,9 +5176,7 @@ export class Helper {
       input?.append(field)
       return field
     }
-
     if (event === "field-funnel/role") {
-
       const funnel = this.create("div/scrollable")
       funnel.nameField = this.create("field/tag", funnel)
       funnel.nameField.label.textContent = "Rolle"
@@ -5655,9 +5199,7 @@ export class Helper {
       input?.appendChild(funnel)
       return funnel
     }
-
     if (event === "answer-box") {
-
       const answerBox = document.createElement("div")
       answerBox.classList.add("answer-box")
 
@@ -5684,7 +5226,6 @@ export class Helper {
 
       return answerBox
     }
-
     if (event === "title") {
       const title = document.createElement("div")
       title.style.margin = "21px 34px"
@@ -5701,7 +5242,6 @@ export class Helper {
 
       return title
     }
-
     if (event === "click-funnel") {
       const clickFunnel = this.create("div/scrollable")
       clickFunnel.classList.add("click-funnel")
@@ -5730,9 +5270,7 @@ export class Helper {
 
       return clickFunnel
     }
-
     if (event === "image-left/text-right") {
-
       const box = document.createElement("div")
       box.style.display = "flex"
       box.style.borderRadius = "13px"
@@ -5764,11 +5302,8 @@ export class Helper {
       if (input !== undefined) input.append(box)
 
       return box
-
     }
-
     if (event === "click-field") {
-
       const field = document.createElement("div")
       field.classList.add("click-field")
 
@@ -5821,10 +5356,7 @@ export class Helper {
 
       return field
     }
-
     if (event === "click/field") {
-
-
       const field = document.createElement("div")
       field.classList.add("click-field")
       field.style.borderRadius = "13px"
@@ -5869,9 +5401,7 @@ export class Helper {
 
       return field
     }
-
     if (event === "div/loading") {
-
       const div = this.div("flex column align")
       div.info = this.div("fs13 color-error sans-serif", div)
       div.info.textContent = "Das kann einen Moment dauern .."
@@ -5883,7 +5413,6 @@ export class Helper {
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "info/warning") {
       const element = document.createElement("div")
       element.style.fontSize = "13px"
@@ -5899,43 +5428,33 @@ export class Helper {
 
       return element
     }
-
     if (event === "info/success") {
       const div = document.createElement("div")
       div.className = "fs13 sans-serif p13 br13 mtb21 mlr34 dark-text bg-success"
       if (input) this.append(div, input)
       return div
     }
-
     if (event === "button/start") {
-
       const button = this.create("button/left-right")
       button.left.textContent = ".start"
       button.right.textContent = "Beginne deine Reise in die digitale Freiheit"
       button.onclick = () => window.open("/", "_blank")
       if (input) this.append(button, input)
       return button
-
     }
-
     if (event === "label") {
-
       const it = document.createElement("label")
       it.className = "sans-serif fs21 color-theme block break-word"
       it.setAttribute("for", input.for)
       it.textContent = input.text
       return it
     }
-
     if (event === "ul") {
-
       const ul = document.createElement("ul")
       if (input) this.append(ul, input)
       return ul
     }
-
     if (event === "video") {
-
       const fragment = document.createDocumentFragment()
       const video = document.createElement("video")
       fragment.appendChild(video)
@@ -5944,9 +5463,7 @@ export class Helper {
       input?.appendChild(fragment)
       return video
     }
-
     if (event === "visibility-button") {
-
       const fragment = document.createDocumentFragment()
       const button = Helper.create("button/left-right", fragment)
       button.left.textContent = ".visibility"
@@ -5954,7 +5471,6 @@ export class Helper {
       input?.appendChild(fragment)
       return button
     }
-
   }
   static colors = {
     white: "#FFF",
@@ -6042,7 +5558,6 @@ export class Helper {
     value: "#CE9178",
   }
   static async contacts() {
-
     if (!this._contacts) {
       const module = await import("/js/contacts.js")
       this._contacts = module.contacts
@@ -6051,25 +5566,20 @@ export class Helper {
   }
   static convert(event, input) {
     // event = input/to
-
     if (event === "query/css") {
       const match = input.match(/{([^{}]*)}/)
 
       if (match && match[1]) {
         return match[1].trim()
       }
-
     }
-
     if (event === "query/selector") {
       const match = input.match(/{(.*?){/)
 
       if (match && match[1]) {
         return match[1].trim()
       }
-
     }
-
     if (event === "api/sources") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -6375,13 +5885,10 @@ export class Helper {
         }
       })
     }
-
     if (event === "array/reduce-selected-price") {
       return input.filter(it => it.selected === true).reduce((prev, curr) => prev + curr.price, 0)
     }
-
     if (event === "array/table") {
-
       const table = document.createElement('table')
       table.setAttribute('border', '1')
       const thead = document.createElement('thead')
@@ -6406,9 +5913,7 @@ export class Helper {
       table.appendChild(tbody)
       return table
     }
-
     if (event === "button/back") {
-
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         input.style.boxShadow = this.colors.light.boxShadow
         input.style.border = this.colors.light.border
@@ -6429,21 +5934,15 @@ export class Helper {
           }
         }
       })
-
-
     }
-
     if (event === "border/dark-light") {
-
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         input.style.border = this.colors.dark.border
       } else {
         input.style.border = this.colors.light.border
       }
     }
-
     if (event === "box/dark-light") {
-
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         input.style.backgroundColor = this.colors.dark.background
         input.style.border = this.colors.dark.border
@@ -6456,9 +5955,7 @@ export class Helper {
         input.style.color = this.colors.light.text
       }
     }
-
     if (event === "button/dark-light") {
-
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         input.style.backgroundColor = this.colors.dark.foreground
         input.style.border = this.colors.dark.border
@@ -6471,7 +5968,6 @@ export class Helper {
         input.style.boxShadow = this.colors.light.boxShadow
       }
     }
-
     if (event === "canvas/file") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -6488,9 +5984,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "canvas/image") {
-
       return new Promise((resolve, reject) => {
         try {
           input.toBlob(async blob => {
@@ -6504,9 +5998,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "dark-light") {
-
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         input.style.color = this.colors.dark.text
         input.style.background = this.colors.dark.background
@@ -6560,11 +6052,8 @@ export class Helper {
       // if (input.classList.contains("back") && input.classList.contains("button")) {
       //   this.convert("button/back", input)
       // }
-
     }
-
     if (event === "doc/inline") {
-
       function mergeStyles(it, dummy) {
         const result = {}
         for (let i = 0; i < it.length; i++) {
@@ -6596,13 +6085,11 @@ export class Helper {
       })
       return input
     }
-
     if (event === "rgb/luminance") {
       const rgb = input.match(/\d+/g).map(Number)
       const luminance = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255
       return luminance
     }
-
     if (event === "hex/rgba") {
       const hex = input.hex.replace('#', '')
 
@@ -6618,9 +6105,7 @@ export class Helper {
 
       return rgba
     }
-
     if (event === "markdown/html") {
-
       // Convert '#' at the beginning of a line to <h1> tag
       input = input.replace(/^# (.+)$/gm, '<h1>$1</h1>')
 
@@ -6694,9 +6179,7 @@ export class Helper {
 
       return input
     }
-
     if (event === "tag/capital-first-letter") {
-
       if (input.includes("-")) {
         const array = input.split("-")
 
@@ -6713,9 +6196,7 @@ export class Helper {
       } else {
         return this.convert("text/capital-first-letter", input)
       }
-
     }
-
     if (event === "file/data-url") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -6731,7 +6212,6 @@ export class Helper {
         }
       })
     }
-
     if (event === "file/image-size") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -6758,7 +6238,6 @@ export class Helper {
         }
       })
     }
-
     if (event === "file/pdf") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -6786,7 +6265,6 @@ export class Helper {
         }
       })
     }
-
     if (event === "file/html") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -6810,7 +6288,6 @@ export class Helper {
         }
       })
     }
-
     if (event === "file/svg+xml") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -6834,7 +6311,6 @@ export class Helper {
         }
       })
     }
-
     if (event === "file/svg") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -6850,7 +6326,6 @@ export class Helper {
         }
       })
     }
-
     if (event === "file/binary") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -6864,7 +6339,6 @@ export class Helper {
         }
       })
     }
-
     if (event === "files/binaries") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -6885,20 +6359,15 @@ export class Helper {
         }
       })
     }
-
     if (event === "select/selected") {
-
       for (let i = 0; i < input.options.length; i++) {
         const option = input.options[i]
         if (option.selected === true) {
           return option.value
         }
       }
-
     }
-
     if (event === "icon/dark-light") {
-
       if (input.classList.contains("icon")) {
         input.querySelectorAll("*").forEach((child, i) => {
           if (child.hasAttribute("stroke")) {
@@ -6911,9 +6380,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "input/image") {
-
       return new Promise(async(resolve, reject) => {
         const file = input.files[0]
 
@@ -6956,12 +6423,8 @@ export class Helper {
         return resolve(image)
 
       })
-
-
     }
-
     if (event === "it/map") {
-
       const {tree, it} = input
       let map
       const key = this.convert("tree/key", tree)
@@ -6972,9 +6435,7 @@ export class Helper {
       }
       return map
     }
-
     if (event === "text/line") {
-
       let text = input
       text = text.replace(/\s+/g, " ").trim()
       text = text.slice(1, -1).trim()
@@ -6983,9 +6444,7 @@ export class Helper {
       const singleLine = filtered.join(", ")
       return `{${singleLine}}`
     }
-
     if (event === "map/form") {
-
       const form = document.createElement("form")
       form.setAttribute("role", "form")
       function createFormElements(it, node) {
@@ -7030,13 +6489,10 @@ export class Helper {
       createFormElements(input, form)
       return form
     }
-
     if (event === "html/blob") {
       return new Blob([input], { type: 'text/html' })
     }
-
     if (event === "json/div") {
-
       function blockAll(element) {
         element.classList.add("block")
         element.querySelectorAll(".key-value").forEach(node => {
@@ -7134,11 +6590,9 @@ export class Helper {
       processObject(div, jsonObject)
       return div
     }
-
     if (event === "map/json") {
       return JSON.stringify(input, null, 2)
     }
-
     if (event === "field/value") {
       return new Promise(async(resolve, reject) => {
 
@@ -7232,9 +6686,7 @@ export class Helper {
 
       })
     }
-
     if (event === "field/on-info-click") {
-
       const labelContainer = input.querySelector(".field-label-container")
       this.add("hover-outline", labelContainer)
       const label = input.querySelector(".field-label")
@@ -7256,7 +6708,6 @@ export class Helper {
         })
       }
     }
-
     if (event === "field-input/key-value") {
       return new Promise(async(resolve, reject) => {
 
@@ -7350,7 +6801,6 @@ export class Helper {
 
       })
     }
-
     if (event === "field-funnel/trees") {
       return new Promise(async(resolve, reject) => {
 
@@ -7382,7 +6832,6 @@ export class Helper {
 
       })
     }
-
     if (event === "field-funnel/map") {
       return new Promise(async(resolve, reject) => {
 
@@ -7432,9 +6881,7 @@ export class Helper {
 
       })
     }
-
     if (event === "file/type") {
-
       if (input.type === "image/png") {
         return new Promise(async (resolve, reject) => {
           const allowedMimeTypes = ["image/png"]
@@ -7623,9 +7070,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "funnel/map") {
-
       if (input.id) {
         const map = {}
         map[input.id] = {}
@@ -7649,9 +7094,7 @@ export class Helper {
         window.alert("Funnel Id ist ungültig.")
       }
     }
-
     if (event === "funnel/values") {
-
       const it = {}
       const nodes = input.querySelectorAll("*")
       for (let i = 0; i < nodes.length; i++) {
@@ -7671,15 +7114,11 @@ export class Helper {
       }
       return it
     }
-
     if (event === "doc/design-mode") {
-
       const currentMode = document.designMode
       document.designMode = currentMode === "on" ? "off" : "on"
       window.alert("Design Modus wurde erfolgreich umgeschaltet.")
-
     }
-
     if (event === "styles/text") {
       const styles = input.style
       const div = document.createElement("div")
@@ -7689,13 +7128,10 @@ export class Helper {
         div.append(`${key}: ${value};\n`)
       }
       return div.textContent
-
     }
-
     if (event === "clipboard/text") {
       return navigator.clipboard.readText()
     }
-
     if (event === "node-text/width") {
       const canvas = document.createElement("canvas")
       const context = canvas.getContext("2d")
@@ -7703,9 +7139,7 @@ export class Helper {
       const metrics = context.measureText(input.text)
       return metrics.width
     }
-
     if (event === "node-text/slice-width") {
-
       let node = input.node
       let text = input.text
       let width = this.convert("node-text/width", {node, text})
@@ -7724,11 +7158,8 @@ export class Helper {
         node.textContent = text
       }
       return text
-
     }
-
     if (event === "nodelist/map") {
-
       function convertNodeListToMap(nodeList) {
         const map = {};
 
@@ -7760,9 +7191,7 @@ export class Helper {
       }
       return convertNodeListToMap(input)
     }
-
     if (event === "number/de") {
-
       const de = {
         1: "eins",
         2: "zwei",
@@ -7776,9 +7205,7 @@ export class Helper {
       }
       return de[input] || undefined
     }
-
     if (event === "path/divs") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const funnels = []
@@ -7791,9 +7218,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "path/ids") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const funnels = []
@@ -7806,7 +7231,6 @@ export class Helper {
         }
       })
     }
-
     if (event === "path/field-funnel") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -7822,9 +7246,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "path/funnel") {
-
       const {path, tag} = input
       return new Promise(async(resolve, reject) => {
         try {
@@ -7853,9 +7275,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "path/funnels") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const funnels = []
@@ -7872,9 +7292,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "path/icon") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const requestedText = await text(input)
@@ -7889,48 +7307,36 @@ export class Helper {
         }
       })
     }
-
     if (event === "path/id") {
-
       const it = input.split("/").pop()
       return it.split(".")[0]
     }
-
     if (event === "stroke/reverse") {
-
       input.querySelectorAll("[stroke]").forEach(node => {
         node.removeAttribute("stroke")
         node.classList.add("stroke-theme-reverse")
       })
     }
-
     if (event === "tag/tree") {
-
       return input.replaceAll("-", ".")
     }
-
     if (event === "text/boolean") {
-
       if (input === "true" || input === "false") {
         return true
       } else {
         return false
       }
     }
-
     if (event === "text/clipboard") {
       return navigator.clipboard.writeText(input)
     }
-
     if (event === "text/dark-light") {
-
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         input.style.color = this.colors.dark.text
       } else {
         input.style.color = this.colors.light.text
       }
     }
-
     if (event === "text/digest") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -7944,7 +7350,6 @@ export class Helper {
         }
       })
     }
-
     if (event === "text/js") {
       return new Promise((resolve, reject) => {
         try {
@@ -7955,9 +7360,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "text/marked") {
-
       const fragment = document.createDocumentFragment()
       input.text.split(new RegExp(`(${input.query})`, 'gi')).forEach(part => {
         const span = document.createElement('span')
@@ -7973,19 +7376,14 @@ export class Helper {
       }
       return fragment
     }
-
     if (event === "text/number") {
-
       return Number(input)
     }
-
     if (event === "text/doc") {
-
       const parser = new DOMParser()
       const doc = parser.parseFromString(input, "text/html")
       return doc
     }
-
     if (event === "text/document") {
       return new Promise((resolve, reject) => {
 
@@ -8000,9 +7398,7 @@ export class Helper {
 
       })
     }
-
     if (event === "text/first-child") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const parser = document.createElement("div")
@@ -8013,7 +7409,6 @@ export class Helper {
         }
       })
     }
-
     if (event === "text/fragment") {
       const fragment = document.createDocumentFragment()
       const parser = document.createElement("div")
@@ -8021,9 +7416,7 @@ export class Helper {
       fragment.appendChild(parser.firstChild)
       return fragment
     }
-
     if (event === "text/purified") {
-
       return new Promise(async(resolve, reject) => {
         try {
           await import("/js/purify.min.js")
@@ -8034,21 +7427,16 @@ export class Helper {
         }
       })
     }
-
     if (event === "text/sanitized") {
       const parser = document.createElement("div")
       parser.textContent = input
       return parser.innerHTML
     }
-
     if (event === "text/script") {
-
       const fragment = this.convert("text/fragment", input)
       return fragment.querySelector("script")
     }
-
     if (event === "text/prompt") {
-
       const promptRegex = /prompt\(([^)]+)\)/g
       let match
       const matches = []
@@ -8062,17 +7450,12 @@ export class Helper {
       })
       return input
     }
-
     if (event === "js/script") {
-
       const script = document.createElement("script")
       script.textContent = input
       return script
-
     }
-
     if (event === "uri/text") {
-
       input.replace(/%20/g, "-")
       input.replace(/u%CC%88/g, "ue")
       input.replace(/a%CC%88/g, "ae")
@@ -8091,9 +7474,7 @@ export class Helper {
 
       return input
     }
-
     if (event === "text/tag") {
-
       input = input.toLowerCase()
       input = input.replaceAll(" ", "-")
       input = input.replaceAll("ö", "oe")
@@ -8105,11 +7486,9 @@ export class Helper {
       if (input.endsWith("-")) input = input.slice(0, -1)
       return input
     }
-
     if (event === "text/uri") {
       return encodeURIComponent(input)
     }
-
     if (event === "text/sanitized-html") {
       // events
       input = input.replace(/on\w+="[^"]*"/gi, "")
@@ -8174,27 +7553,20 @@ export class Helper {
 
       return input
     }
-
     if (event === "text/length") {
       return input.length
     }
-
     if (event === "text/child-nodes") {
-
       const parser = new DOMParser()
       const doc = parser.parseFromString(input, "text/html")
       return Array.from(doc.body.childNodes)
     }
-
     if (event === "text/html") {
-
       const parser = new DOMParser()
       const doc = parser.parseFromString(input, "text/html")
       return doc.body.firstChild
     }
-
     if (event === "text/field") {
-
       if (input === "text") {
         return this.create("field/text")
       }
@@ -8238,11 +7610,8 @@ export class Helper {
       if (input === "select") {
         return this.create("field/select")
       }
-
     }
-
     if (event === "text/h2") {
-
       const h2 = document.createElement("h2")
       h2.textContent = input
       h2.style.fontFamily = "sans-serif"
@@ -8254,15 +7623,12 @@ export class Helper {
 
       return h2
     }
-
     if (event === "text/img") {
       const img = document.createElement("img")
       img.src = input
       return img
     }
-
     if (event === "text/sources") {
-
       return new Promise(async(resolve, reject) => {
         try {
           let apis
@@ -8296,33 +7662,25 @@ export class Helper {
           reject(error)
         }
       })
-
     }
-
     if (event === "text/span") {
       const span = document.createElement("span")
       span.textContent = input
 
       return span
     }
-
     if (event === "text/capital-first-letter") {
       return input.charAt(0).toUpperCase() + input.slice(1)
     }
-
     if (event === "text/type") {
-
       if (this.verifyIs("text/boolean", input)) return "boolean"
       if (this.verifyIs("text/number", input)) return "number"
       if (!this.verifyIs("text/empty", input)) return "text"
     }
-
     if (event === "tree/class") {
       return input.replace(/\./g, "-")
     }
-
     if (event === "tree/key") {
-
       const keys = input.split(".")
       if (keys.length > 0) {
         return keys[keys.length - 1]
@@ -8330,9 +7688,7 @@ export class Helper {
         return input
       }
     }
-
     if (event === "user-tree") {
-
       let {user, tree} = input
       const pathArray = tree.split('.')
       for (let i = 0; i < pathArray.length; i++) {
@@ -8345,9 +7701,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "parent/box") {
-
       input.style.padding = "13px"
       input.style.borderRadius = "13px"
       input.style.cursor = "pointer"
@@ -8355,103 +7709,77 @@ export class Helper {
       this.add("hover-outline", input)
       return input
     }
-
     if (event === "parent/space-between") {
-
       input.style.display = "flex"
       input.style.flexWrap = "wrap"
       input.style.justifyContent = "space-between"
 
       return input
     }
-
     if (event === "parent/flex-around") {
-
       this.reset("node", input)
       this.render("classes", "flex wrap around mlr34", input)
     }
-
     if (event === "parent/flex-shrink-height") {
-
       input.style.alignSelf = null
 
       return input
     }
-
     if (event === "parent/flex-shrink-width") {
-
       input.style.width = null
 
       return input
     }
-
     if (event === "parent/flex-grow-height") {
-
       input.style.alignSelf = "stretch"
 
       return input
     }
-
     if (event === "parent/flex-grow-width") {
-
       input.style.width = "100%"
 
       return input
     }
-
     if (event === "parent/flex-bottom") {
-
       input.style.display = "flex"
       input.style.alignItems = "flex-end"
 
       return input
     }
-
     if (event === "parent/flex-vertical") {
-
       input.style.display = "flex"
       input.style.alignItems = "center"
 
       return input
     }
-
     if (event === "parent/flex-top") {
-
       input.style.display = "flex"
       input.style.alignItems = "flex-start"
 
       return input
     }
-
     if (event === "parent/flex-right") {
-
       input.style.display = "flex"
       input.style.alignItems = "flex-end"
       input.style.flexWrap = "wrap"
 
       return input
     }
-
     if (event === "parent/flex-center") {
-
       input.style.display = "flex"
       input.style.alignItems = "center"
       input.style.flexWrap = "wrap"
 
       return input
     }
-
     if (event === "parent/flex-left") {
-
       input.style.display = "flex"
       input.style.alignItems = "flex-start"
       input.style.flexWrap = "wrap"
 
       return input
     }
-
     if (event === "parent/flex-column") {
-
       input.style.flexWrap = null
 
       input.style.display = "flex"
@@ -8459,67 +7787,49 @@ export class Helper {
 
       return input
     }
-
     if (event === "parent/flex-row") {
-
       this.reset("node", input)
       this.render("classes", "flex wrap mlr34", input)
     }
-
     if (event === "parent/dark") {
-
       input.style.color = this.colors.dark.text
       input.style.background = this.colors.dark.background
     }
-
     if (event === "button/left-right") {
-
       input.className = "br13 sans-serif pointer flex wrap align between mtb21 mlr34"
       input.left.className = "of-auto mtb21 mlr34 fs21"
       input.right.className = "of-auto mtb21 mlr34 fs13"
       this.add("class/dark-light", input)
     }
-
     if (event === "parent/light") {
-
       input.style.color = this.colors.light.text
       input.style.background = this.colors.light.background
     }
-
     if (event === "parent/loading") {
-
       input.textContent = ""
       input.removeAttribute("style")
       input.className = "flex column align center"
       this.add("loading", input)
       return input
     }
-
     if (event === "parent/scrollable") {
-
       input.textContent = ""
       input.removeAttribute("style")
       input.className = "ofy-auto overscroll-none pb144"
       return input
     }
-
     if (event === "parent/info") {
-
       input.textContent = ""
       input.removeAttribute("style")
       input.className = "flex align center z-1 sans-serif color-gray"
       return input
     }
-
     if (event === "parent/note") {
-
       this.reset("node", input)
       input.textContent = ""
       this.render("classes", "ptb144 flex align center color-theme sans-serif", input)
     }
-
     if (event === "script/disabled-aware") {
-
       if (this.verifyIs("text/empty", input.id)) {
         const confirm = window.confirm("Dein Skript hat keine Id. Möchtest du deinem Skript eine Id vergeben?")
         if (confirm) {
@@ -8556,9 +7866,7 @@ export class Helper {
 
       return input
     }
-
     if (event === "script/disabled") {
-
       this.convert("script/disabled-aware", input)
 
       const scripts = JSON.parse(window.localStorage.getItem("scripts")) || []
@@ -8569,9 +7877,7 @@ export class Helper {
       window.localStorage.setItem("scripts", JSON.stringify(scripts))
       window.alert("Skript wurde ausgeschaltet.")
     }
-
     if (event === "script/enabled") {
-
       this.convert("script/disabled-aware", input)
 
       const scripts = JSON.parse(window.localStorage.getItem("scripts")) || []
@@ -8583,11 +7889,8 @@ export class Helper {
           window.alert("Skript wurde eingeschaltet.")
         }
       }
-
     }
-
     if (event === "seconds/hh:mm:ss") {
-
       function formatTime(input) {
 
         const totalSeconds = Math.floor(input)
@@ -8606,21 +7909,16 @@ export class Helper {
       }
       return formatTime(input)
     }
-
     if (event === "seconds/millis") {
-
       return Number(input) * 1000
     }
-
     if (event === "selector/dark-light") {
       const node = document.querySelector(input)
       if (node) {
         this.convert("dark-light", node)
       }
     }
-
     if (event === "style/info") {
-
       input.removeAttribute("style")
       input.textContent = ""
       input.style.margin = "21px 34px"
@@ -8636,7 +7934,6 @@ export class Helper {
       }
       return input
     }
-
     if (event === "style/scrollable") {
       input.removeAttribute("style")
       input.style.overflow = "auto"
@@ -8644,7 +7941,6 @@ export class Helper {
       input.style.paddingBottom = "144px"
       return input
     }
-
     if (event === "element/button-right") {
       this.convert("element/reset", input)
       input.style.margin = "21px 34px"
@@ -8658,7 +7954,6 @@ export class Helper {
 
       return input
     }
-
     if (event === "element/checked") {
       this.convert("element/reset", input)
       input.textContent = "✓"
@@ -8668,7 +7963,6 @@ export class Helper {
       input.style.fontFamily = "sans-serif"
       return input
     }
-
     if (event === "element/scrollable") {
       this.convert("element/reset", input)
       input.style.overflowY = "auto"
@@ -8676,38 +7970,39 @@ export class Helper {
       input.style.paddingBottom = "144px"
       return input
     }
-
     if (event === "millis/since") {
-
       function formatTimeSince(milliseconds) {
-        const now = Date.now();
-        const elapsed = now - milliseconds;
-
-        const msInMinute = 60 * 1000;
-        const msInHour = 60 * msInMinute;
-        const msInDay = 24 * msInHour;
-        const msInMonth = 30 * msInDay;
-        const msInYear = 12 * msInMonth;
-
-        if (elapsed >= msInYear) {
-          const years = Math.floor(elapsed / msInYear);
-          return `${years} Jahr${years !== 1 ? 'en' : ''}`;
-        } else if (elapsed >= msInMonth) {
-          const months = Math.floor(elapsed / msInMonth);
-          return `${months} Monat${months !== 1 ? 'en' : ''}`;
-        } else if (elapsed >= msInDay) {
-          const days = Math.floor(elapsed / msInDay);
-          return `${days} Tag${days !== 1 ? 'en' : ''}`;
+        const now = Date.now()
+        const elapsed = now - milliseconds
+        const msInSecond = 1000
+        const msInMinute = 60 * msInSecond
+        const msInHour = 60 * msInMinute
+        const msInDay = 24 * msInHour
+        const msInMonth = 30 * msInDay
+        const msInYear = 12 * msInMonth
+        if (elapsed < msInMinute) {
+          const seconds = Math.floor(elapsed / msInSecond)
+          return `${seconds} Sekunde${seconds !== 1 ? 'n' : ''}`
+        } else if (elapsed < msInHour) {
+          const minutes = Math.floor(elapsed / msInMinute)
+          return `${minutes} Minute${minutes !== 1 ? 'n' : ''}`
+        } else if (elapsed < msInDay) {
+          const hours = Math.floor(elapsed / msInHour)
+          const minutes = Math.floor((elapsed % msInHour) / msInMinute)
+          return `${hours} Stunde${hours !== 1 ? 'n' : ''} ${minutes} Minute${minutes !== 1 ? 'n' : ''}`
+        } else if (elapsed < msInMonth) {
+          const days = Math.floor(elapsed / msInDay)
+          return `${days} Tag${days !== 1 ? 'en' : ''}`
+        } else if (elapsed < msInYear) {
+          const months = Math.floor(elapsed / msInMonth)
+          return `${months} Monat${months !== 1 ? 'en' : ''}`
         } else {
-          const hours = Math.floor(elapsed / msInHour);
-          const minutes = Math.floor((elapsed % msInHour) / msInMinute);
-          return `${hours} Stunde${hours !== 1 ? 'n' : ''} ${minutes} Minute${minutes !== 1 ? 'n' : ''}`;
+          const years = Math.floor(elapsed / msInYear)
+          return `${years} Jahr${years !== 1 ? 'en' : ''}`
         }
       }
-
       return formatTimeSince(input)
     }
-
     if (event === "millis/dd.mm.yyyy hh:mm") {
       const date = new Date(input)
 
@@ -8719,9 +8014,7 @@ export class Helper {
 
       return `${day}.${month}.${year} ${hours}:${minutes}`
     }
-
     if (event === "millis/yyyy-mm-ddThh:mm") {
-
       const date = new Date(input)
       const day = date.getDate().toString().padStart(2, "0")
       const month = (date.getMonth() + 1).toString().padStart(2, "0")
@@ -8730,9 +8023,7 @@ export class Helper {
       const minutes = date.getMinutes().toString().padStart(2, "0")
       return `${year}-${month}-${day}T${hours}:${minutes}`
     }
-
     if (event === "millis/yyyy-mm-ddThh:mm:ss") {
-
       const date = new Date(input)
       const day = date.getDate().toString().padStart(2, "0")
       const month = (date.getMonth() + 1).toString().padStart(2, "0")
@@ -8742,7 +8033,6 @@ export class Helper {
       const seconds = date.getSeconds().toString().padStart(2, "0")
       return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
     }
-
     if (event === "millis/dd.mm.yyyy") {
       const date = new Date(input)
       const day = date.getDate().toString().padStart(2, '0')
@@ -8750,12 +8040,10 @@ export class Helper {
       const year = date.getFullYear().toString()
       return `${day}.${month}.${year}`
     }
-
     if (event === "millis/yyyy") {
       const date = new Date(input)
       return date.getFullYear()
     }
-
     if (event === "millis/yyyy-mm-dd") {
       const date = new Date(input)
       const day = date.getDate().toString().padStart(2, '0')
@@ -8763,7 +8051,6 @@ export class Helper {
       const year = date.getFullYear().toString()
       return `${year}-${month}-${day}`
     }
-
     if (event === "element/center") {
       this.convert("element/reset", input)
       input.style.position = "absolute"
@@ -8783,26 +8070,19 @@ export class Helper {
 
       return input
     }
-
     if (event === "selector/class") {
-
       const classMatches = input.match(/\.([a-zA-Z0-9-_]+)/g)
       const className = classMatches ? classMatches.map(cls => cls.slice(1)).join(' ') : undefined
       return className
     }
-
     if (event === "selector/id") {
-
       const idMatch = input.match(/#([a-zA-Z0-9-_]+)/)
       return idMatch ? idMatch[1] : undefined
     }
-
     if (event === "selector/tag") {
-
       const tagMatch = input.match(/^[a-zA-Z0-9]+/)
       return tagMatch ? tagMatch[0] : undefined
     }
-
     if (event === "element/zero-z-index-child") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -8826,7 +8106,6 @@ export class Helper {
         }
       })
     }
-
     if (event === "element/min-z-index-child") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -8852,7 +8131,6 @@ export class Helper {
         }
       })
     }
-
     if (event === "element/max-z-index-child") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -8878,7 +8156,6 @@ export class Helper {
         }
       })
     }
-
     if (event === "element/selector") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -8902,9 +8179,7 @@ export class Helper {
         }
       })
     }
-
     if (event === "element/alias") {
-
       const output = document.createElement("div")
       output.style.fontFamily = "monospace"
       output.style.fontSize = "13px"
@@ -8942,16 +8217,13 @@ export class Helper {
 
       return output
     }
-
     if (event === "element/reset") {
       if (input) {
         input.removeAttribute("style")
         input.innerHTML = ""
       }
     }
-
     if (event === "element/textarea") {
-
       const create = document.createElement("textarea")
 
       if (input.hasAttribute("id")) {
@@ -8977,9 +8249,7 @@ export class Helper {
       input.before(create)
       input.remove()
     }
-
     if (event === "element/select") {
-
       const create = document.createElement("select")
 
       if (input.hasAttribute("id")) {
@@ -9001,9 +8271,7 @@ export class Helper {
       input.before(create)
       input.remove()
     }
-
     if (event === "svg/dark-light") {
-
       for (let i = 0; i < input.querySelectorAll("*").length; i++) {
         const node = input.querySelectorAll("*")[i]
         if (node.hasAttribute("fill")) {
@@ -9045,25 +8313,19 @@ export class Helper {
       }
       return input
     }
-
     if (event === "link") {
-
       this.convert("link/color", input)
       this.add("hover-outline", input)
       input.classList.add("td-u")
     }
-
     if (event === "link/color") {
-
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         input.classList.add("dark-link")
       } else {
         input.classList.add("light-link")
       }
     }
-
     if (event === "node/dark-light-toggle") {
-
       function getLuminance(rgb) {
         const [r, g, b] = rgb.map(value => {
           const channel = value / 255;
@@ -9104,15 +8366,11 @@ export class Helper {
         input.classList.remove("light")
         input.classList.add("dark")
       }
-
     }
-
     if (event === "node/index") {
       return Array.from(input.parentElement.children).indexOf(input)
     }
-
     if (event === "node/marked") {
-
       const fragment = document.createDocumentFragment()
       if (input.node) {
         input.node.textContent.split(new RegExp(`(${input.query})`, 'gi')).forEach(part => {
@@ -9128,9 +8386,7 @@ export class Helper {
       }
       return fragment
     }
-
     if (event === "node/max-z-index") {
-
       let maxZIndex = 0
       for (let i = 0; i < input.children.length; i++) {
         const child = input.children[i]
@@ -9143,11 +8399,8 @@ export class Helper {
         }
       }
       return maxZIndex
-
     }
-
     if (event === "node/min-z-index") {
-
       let minZIndex = 0
       for (let i = 0; i < input.children.length; i++) {
         const child = input.children[i]
@@ -9160,15 +8413,11 @@ export class Helper {
         }
       }
       return minZIndex
-
     }
-
     if (event === "node/selected") {
       input = document.querySelector("[selected-node='true']")
     }
-
     if (event === "node/selector") {
-
       if (!(input instanceof Element)) throw new Error("not an element")
       const tagName = input.tagName.toLowerCase()
       const id = input.getAttribute("id") ? `#${input.id}` : ''
@@ -9177,7 +8426,6 @@ export class Helper {
       : ''
       return `${tagName}${id}${classes}`
     }
-
     if (event === "node/sort-children-by-z-index") {
       Array.from(input.children)
       .sort((a, b) => {
@@ -9187,20 +8435,15 @@ export class Helper {
       })
       .forEach(child => input.appendChild(child))
     }
-
     if (event === "node/text-color") {
-
       return input.style.color
     }
-
     if (event === "number/k-M") {
       if (input < 1000) return input.toString()
       if (input >= 1000000) return (input / 1000000).toFixed(1) + 'M'
       return (input / 1000).toFixed(1) + 'T'
     }
-
     if (event === "type/extension") {
-
       const mimeMapping = {
         "audio/mpeg": "mp3",
         "audio/ogg": "ogg",
@@ -9219,19 +8462,15 @@ export class Helper {
 
       return mimeMapping[input]
     }
-
     if (event === "video/canvas") {
-
       const canvas = document.createElement("canvas")
       canvas.width = input.videoWidth
       canvas.height = input.videoHeight
       canvas.getContext('2d').drawImage(input, 0, 0, canvas.width, canvas.height)
       return canvas
     }
-
   }
   static async deadlines() {
-
     if (!this._deadlines) {
       const module = await import("/js/deadlines.js")
       this._deadlines = module.deadlines
@@ -9239,7 +8478,6 @@ export class Helper {
     return this._deadlines
   }
   static async digest(blob) {
-
     const arrayBuffer = await blob.arrayBuffer()
     const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer)
     const hashArray = Array.from(new Uint8Array(hashBuffer))
@@ -9247,7 +8485,6 @@ export class Helper {
     return hashHex
   }
   static async digestId(email) {
-
     const text = JSON.stringify({email, verified: true})
     const encoder = new TextEncoder()
     const arrayBuffer = encoder.encode(text)
@@ -9257,7 +8494,6 @@ export class Helper {
     return hashHex
   }
   static async downloadFile(content, contentType) {
-
     const a = document.createElement("a")
     const file = new Blob([content], { type: contentType })
     const hash = await this.digest(file)
@@ -9283,9 +8519,7 @@ export class Helper {
     }
   }
   static fn(event, input) {
-
     if (event === "addLargeStyle") {
-
       return (node) => {
         const query = "(min-width: 1025px)"
         const prompt = window.prompt("Gebe die CSS Eigenschaft, nur für Bildschirme größer als 1025px, ein: (z.B., color: red;)")
@@ -9303,9 +8537,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "addLocationAssign") {
-
       return (node) => {
         const prompt = window.prompt("Gebe die Quell-Url deiner Weiterleitung ein:")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -9316,9 +8548,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "addGridColumn") {
-
       return (node) => {
         node.style.gridTemplateColumns = `${node.style.gridTemplateColumns} 1fr`
         if (node.lastElementChild) {
@@ -9326,9 +8556,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "addGridRow") {
-
       return (node) => {
         node.style.gridTemplateRows = `${node.style.gridTemplateRows} 1fr`
         if (node.lastElementChild) {
@@ -9336,9 +8564,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "addLayerAbove") {
-
       return (node) => {
         node.style.position = "relative"
         const layer = document.createElement("div")
@@ -9358,9 +8584,7 @@ export class Helper {
         window.alert("Layer erfolgreich angehängt.")
       }
     }
-
     if (event === "addLayerBelow") {
-
       return (node) => {
         node.style.position = "relative"
         const layer = document.createElement("div")
@@ -9380,9 +8604,7 @@ export class Helper {
         window.alert("Layer erfolgreich angehängt.")
       }
     }
-
     if (event === "addLayerPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe die exakte Ebene für deinen Layer ein: (z.B., 3, -1)")
         if (this.verifyIs("text/int", prompt)) {
@@ -9404,9 +8626,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "addOpacityWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe die Sichtbarkeit in Prozent ein: (z.B., 50)")
         const opacity = parseInt(prompt)
@@ -9415,9 +8635,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "addMiddleStyle") {
-
       return (node) => {
         const query = "(min-width: 601px) and (max-width: 1024px)"
         const prompt = window.prompt("Gebe die CSS Eigenschaft, nur für Bildschirme zwischen 601px und 1024px, ein: (z.B., color: red;)")
@@ -9435,18 +8653,14 @@ export class Helper {
         }
       }
     }
-
     if (event === "addOuterHtmlToClipboard") {
-
       return (node) => {
         this.convert("text/clipboard", node.outerHTML).then(() => {
           window.alert("Element wurde erfolgreich in deine Zwischenablage gespeichert.")
         })
       }
     }
-
     if (event === "addStyleToClipboard") {
-
       return (node) => {
         if (node.hasAttribute("style")) {
           this.convert("text/clipboard", node.getAttribute("style")).then(() => {
@@ -9455,18 +8669,14 @@ export class Helper {
         }
       }
     }
-
     if (event === "addClipboardToStyle") {
-
       return (node) => {
         this.convert("clipboard/text").then(text => {
           node.setAttribute("style", text)
         })
       }
     }
-
     if (event === "addPrinterStyle") {
-
       return (node) => {
         const query = "(max-width: 600px)"
         const prompt = window.prompt("Gebe die CSS Eigenschaft, nur für Drucker, ein: (z.B., color: red;)")
@@ -9484,9 +8694,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "addSmallStyle") {
-
       return (node) => {
         const query = "(max-width: 600px)"
         const prompt = window.prompt("Gebe die CSS Eigenschaft, nur für Bildschirme kleiner als 600px, ein: (z.B., color: red;)")
@@ -9504,9 +8712,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "addWindowOpenBlank") {
-
       return (node) => {
         const prompt = window.prompt("Gebe die Quell-Url deines neuen Tabs ein:")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -9517,9 +8723,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "appendAllSvgIcons") {
-
       async function appendSvgIconsFragment(node, callback, start = 0, end = 8) {
         const fragment = document.createDocumentFragment()
         const res = await Helper.request("/get/svg/list-open/")
@@ -9567,9 +8771,7 @@ export class Helper {
 
       return {appendSvgIconsFragment}
     }
-
     if (event === "appendClipboardToNode") {
-
       return (node) => {
         this.convert("clipboard/text").then(text => {
           const html = this.convert("text/first-child", text)
@@ -9577,9 +8779,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "appendDiv") {
-
       return (node) => {
         const div = document.createElement("div")
         div.style.margin = "21px 34px"
@@ -9589,9 +8789,7 @@ export class Helper {
         node.appendChild(fragment)
       }
     }
-
     if (event === "appendImage") {
-
       return (node) => {
         const url = window.prompt("Gebe die Quelle des Bildes ein: (text/url)")
         if (this.verifyIs("text/url", url)) {
@@ -9610,9 +8808,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "appendOrderedListItem") {
-
       let inner
       return (node) => {
 
@@ -9631,11 +8827,8 @@ export class Helper {
         }
 
       }
-
     }
-
     if (event === "appendStyleWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Füge deinem Element einen individuellen CSS Befehl hinzu: (z.B., color: red;)")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -9648,9 +8841,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "appendUnorderedListItem") {
-
       let inner
       return (node) => {
         const ul = document.createElement("ul")
@@ -9667,9 +8858,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "openUrl") {
-
       return (node) => {
         const url = window.prompt("Gebe die URL ein:")
         if (this.verifyIs("text/url", url)) {
@@ -9679,9 +8868,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "creator-buttons") {
-
       const {type} = input
       const it = {}
       function toggleDisplayFlexNone(node) {
@@ -10194,9 +9381,7 @@ export class Helper {
 
       return it
     }
-
     if (event === "createAnchorWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe die Quell-Url deines Links ein:")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -10209,9 +9394,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "createPdfLinkWithPrompt") {
-
       return async (node) => {
         const prompt = window.prompt("Gebe die Quell-Url deiner PDF ein:")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -10231,18 +9414,14 @@ export class Helper {
         }
       }
     }
-
     if (event === "createActionButton") {
-
       return (node) => {
         const button = this.create("button/action", node)
         button.classList.add("button")
         button.textContent = "(z.B., Daten jetzt speichern)"
       }
     }
-
     if (event === "createArrowRightWithColorPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe die Farbe deines Pfeils ein:")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -10269,9 +9448,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "createBackgroundImageWithTitles") {
-
       return (node) => {
         const prompt = window.prompt("Gebe die URL deines Hintergrund Bildes ein:")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -10292,9 +9469,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "createImageTextAndActionBox") {
-
       return (node) => {
         const prompt = window.prompt("Gebe die URL deines Bildes ein:")
         const container = document.createElement("div")
@@ -10333,9 +9508,7 @@ export class Helper {
         node.appendChild(container)
       }
     }
-
     if (event === "createMyValueUnitsBox") {
-
       return (node) => {
         const box = this.create("div")
         this.style(box, {borderRadius: "5px", margin: "21px 13px", fontFamily: "sans-serif", boxShadow: "rgba(0, 0, 0, 0.13) 0px 1px 3px"})
@@ -10353,9 +9526,7 @@ export class Helper {
         window.alert("Vorlage wurde erfolgreich angehängt.")
       }
     }
-
     if (event === "createFlexRow") {
-
       return (node) => {
         node.style.display = "flex"
         node.style.flexDirection = null
@@ -10365,11 +9536,8 @@ export class Helper {
         div.textContent = "div"
         node.appendChild(div)
       }
-
     }
-
     if (event === "createFlexColumn") {
-
       return (node) => {
         node.style.display = "flex"
         node.style.flexDirection = "column"
@@ -10379,11 +9547,8 @@ export class Helper {
         div.textContent = "div"
         node.appendChild(div)
       }
-
     }
-
     if (event === "create/div/flex-matrix-prompt/node") {
-
       const prompt = window.prompt("Gebe deine Zeilenmatrix ein: (z.B, 1 2 2)")
       const regex = /^([1-9] )*[1-9]$/
       if (regex.test(prompt)) {
@@ -10417,11 +9582,8 @@ export class Helper {
           wrapContainer.remove()
         }
       }
-
     }
-
     if (event === "createFlexWidthWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe die Breite deiner Flex Elemente ein: (z.B., 20% 300px 20vw)")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -10442,11 +9604,8 @@ export class Helper {
           node.appendChild(flexContainer)
         }
       }
-
     }
-
     if (event === "createGridMatrixWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe die Matrix deiner Grid Elemente ein: (z.B., 2 3 3)")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -10471,11 +9630,8 @@ export class Helper {
           node.appendChild(gridContainer)
         }
       }
-
     }
-
     if (event === "createHr") {
-
       return (node) => {
         const div = document.createElement("div")
         div.classList.add("hr")
@@ -10483,19 +9639,13 @@ export class Helper {
         node.appendChild(div)
       }
     }
-
     if (event === "createImageText") {
-
       return (node) => this.create("div/image-text", node)
     }
-
     if (event === "createKeyValue") {
-
       return (node) => this.create("div/key-value", node)
     }
-
     if (event === "createSafeDivPackOuter") {
-
       return (node) => {
         const div = this.create("div")
         div.setAttribute("style", node.getAttribute("style"))
@@ -10504,14 +9654,10 @@ export class Helper {
         node.remove()
       }
     }
-
     if (event === "createDateInput") {
-
       return node => this.create("input/date", node)
     }
-
     if (event === "createDivPackOuter") {
-
       return async (node) => {
         const div = this.create("div")
         div.innerHTML = await this.convert("text/purified", node.outerHTML)
@@ -10519,14 +9665,10 @@ export class Helper {
         return div
       }
     }
-
     if (event === "createScrollableY") {
-
       return node => this.create("div/scrollable", node)
     }
-
     if (event === "createSpaceWithHeightPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe den Abstand deines Leerraums, in px, ein: (z.B., 350)")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -10538,9 +9680,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "createH1withPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe den HTML Inhalt deiner Überschrift ein:")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -10550,9 +9690,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "createH2withPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe den HTML Inhalt deiner Überschrift ein:")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -10562,9 +9700,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "createH3withPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe den HTML Inhalt deiner Überschrift ein:")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -10574,17 +9710,13 @@ export class Helper {
         }
       }
     }
-
     if (event === "createLeftImageHeader") {
-
       return (node) => {
         const header = this.create("header/left", node)
         header.left.style.width = "34px"
       }
     }
-
     if (event === "createNode") {
-
       return (tag, parent, text = "") => {
         const node = document.createElement(tag)
         node.textContent = text
@@ -10592,18 +9724,14 @@ export class Helper {
         return node
       }
     }
-
     if (event === "createTextNode") {
-
       return (parent, text = "") => {
         const node = document.createTextNode(text)
         parent.appendChild(node)
         return node
       }
     }
-
     if (event === "createImagePlaceholder") {
-
       return (node) => {
         const image = document.createElement("img")
         image.src = "/public/image.svg"
@@ -10611,34 +9739,22 @@ export class Helper {
         node.appendChild(image)
       }
     }
-
     if (event === "createCheckboxInput") {
-
       return node => this.create("input/checkbox", node)
     }
-
     if (event === "createPasswordInput") {
-
       return node => this.create("input/password", node)
     }
-
     if (event === "createSelectInput") {
-
       return node => this.create("input/select", node)
     }
-
     if (event === "createTelInput") {
-
       return node => this.create("input/tel", node)
     }
-
     if (event === "createTextInput") {
-
       return node => this.create("input/text", node)
     }
-
     if (event === "createPwithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe den HTML Inhalt deines Paragraphen ein:")
         const p = this.create("p", node)
@@ -10646,9 +9762,7 @@ export class Helper {
         return p
       }
     }
-
     if (event === "createSpanWithTextContent") {
-
       return (node) => {
         Array.from(node.childNodes).forEach(it => {
           if (it.nodeType === Node.TEXT_NODE) {
@@ -10659,9 +9773,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "createSpanWithSiPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe deine SI-Einheit ein:")
         const si = document.createElement("span")
@@ -10683,9 +9795,7 @@ export class Helper {
         node.appendChild(unit)
       }
     }
-
     if (event === "createTableWithMatrixPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Trenne Spalten mit Leerzeichen und bistimme die Breite deiner Tabelle von 1-9: (z.B., 4 1 1 4 (= 10))")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -10713,9 +9823,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "createVideoSeriesBox") {
-
       return node => {
         const box = this.create("div/box", node)
         box.className += " p5"
@@ -10728,9 +9836,7 @@ export class Helper {
         next.textContent = "Weiter zur Serie"
       }
     }
-
     if (event === "convertTextContentToDuckDuckGoLink") {
-
       return (node) => {
         const duckDuckGoUrl = "https://duckduckgo.com/?q="
         const textContent = node.textContent
@@ -10746,7 +9852,6 @@ export class Helper {
         node.appendChild(link)
       }
     }
-
     if (event === "convertTextContentToH1") {
       return (node) => {
         const h1 = document.createElement("h1")
@@ -10760,7 +9865,6 @@ export class Helper {
         return h1
       }
     }
-
     if (event === "convertTextContentToH2") {
       return (node) => {
         const h2 = document.createElement("h2")
@@ -10774,7 +9878,6 @@ export class Helper {
         return h2
       }
     }
-
     if (event === "convertTextContentToH3") {
       return (node) => {
         const h3 = document.createElement("h3")
@@ -10788,7 +9891,6 @@ export class Helper {
         return h3
       }
     }
-
     if (event === "convertToInlineCite") {
       return (node) => {
         node.classList.add("inline-cite")
@@ -10799,7 +9901,6 @@ export class Helper {
         window.alert("Inhalt erfolgreich markiert.")
       }
     }
-
     if (event === "convertToFullCite") {
       return (node) => {
         if (node.classList.contains("inline-cite")) node.classList.remove("inline-cite")
@@ -10812,9 +9913,7 @@ export class Helper {
         window.alert("Inhalt erfolgreich markiert.")
       }
     }
-
     if (event === "removeCiteMarks") {
-
       return (node) => {
         if (node.classList.contains("inline-cite")) node.classList.remove("inline-cite")
         if (node.classList.contains("full-cite")) node.classList.remove("full-cite")
@@ -10827,9 +9926,7 @@ export class Helper {
         window.alert("Markierung erfolgreich entfernt.")
       }
     }
-
     if (event === "debounce") {
-
       let lastExecutionTime = 0
       let isBlocked = false
       return async (fn, millis) => {
@@ -10851,9 +9948,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "feedback") {
-
       function updateCounter() {
         const counter = document.querySelector("div.counter")
         if (parseInt(counter.textContent) > 0) {
@@ -10977,9 +10072,7 @@ export class Helper {
 
       return {open, bodyButton, initScriptCounter}
     }
-
     if (event === "incrementStyle") {
-
       return ({key, node, delta}) => {
         if (node.style[key]) {
           const match = node.style[key].match(/(\d+(\.\d+)?)(\D.*)/)
@@ -10991,11 +10084,8 @@ export class Helper {
           }
         }
       }
-
     }
-
     if (event === "insertAfter") {
-
       return (selectedNode, cache) => {
         if (selectedNode) {
           if (cache.length > 0) {
@@ -11010,9 +10100,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "insertBefore") {
-
       return (selectedNode, cache) => {
         if (selectedNode) {
           if (cache.length > 0) {
@@ -11027,9 +10115,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "insertLeft") {
-
       return (selectedNode, cache) => {
         if (selectedNode) {
           if (cache.length > 0) {
@@ -11052,9 +10138,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "insertRight") {
-
       return (selectedNode, cache) => {
         if (selectedNode) {
           if (cache.length > 0) {
@@ -11069,9 +10153,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "decrementStyle") {
-
       return ({key, node, delta}) => {
         if (node.style[key]) {
           const match = node.style[key].match(/(\d+(\.\d+)?)(\D.*)/)
@@ -11083,11 +10165,8 @@ export class Helper {
           }
         }
       }
-
     }
-
     if (event === "openAudiosOverlay") {
-
       return (node) => {
         this.overlay("pop", async o1 => {
           o1.info.textContent = ".audios"
@@ -11145,9 +10224,106 @@ export class Helper {
         })
       }
     }
-
+    if (event === "openChatOverlay") {
+      return id => {
+        if (!id) return
+        this.overlay("pop", async o1 => {
+          o1.onlyClosedUser()
+          o1.addInfo(`.chat:${id}`)
+          const content = o1.content
+          const chat = this.create("input/text", content)
+          chat.input.placeholder = "Neue Nachricht"
+          chat.input.maxLength = "144"
+          this.on("enter", chat.input, registerMessage)
+          setTimeout(() => {
+            chat.input.focus()
+          }, 987)
+          const preview = this.div("monospace fs13 color-theme", chat)
+          preview.textContent = `0/${chat.input.maxLength}`
+          chat.input.addEventListener("input", ev => {
+            const actualLength = ev.target.value.length
+            preview.textContent = `${actualLength}/${chat.input.maxLength}`
+          })
+          async function registerMessage() {
+            const message = chat.input.value
+            if (Helper.verifyIs("text/empty", message) || message.length > 144) {
+              Helper.add("style/not-valid", chat.input)
+              return
+            }
+            chat.input.value = ""
+            preview.textContent = `0/${chat.input.maxLength}`
+            container.textContent = ""
+            const loader = addLoading(container)
+            const res = await post("/jwt/register/chat/message/", {id, message})
+            loader.remove()
+            if (res.status === 200) {
+              getMessages()
+              chat.input.focus()
+            } else {
+              o1.alert.nok()
+              o1.remove()
+            }
+          }
+          const container = Helper.div("flex column break-word mtb21 mlr34 sans-serif color-theme", content)
+          getMessages()
+          function getMessages() {
+            post("/jwt/get/chat/messages/", {id}).then(res => {
+              if (res.status === 200) {
+                const messages = JSON.parse(res.response)
+                for (let i = 0; i < messages.length; i++) {
+                  const message = messages[i]
+                  if (!message.text) continue
+                  const messageDiv = Helper.div("br8 max-w55p mt8", container)
+                  Helper.add("hover-outline", messageDiv)
+                  Helper.on("click", messageDiv, () => {
+                    chat.input.value = message.text
+                    const actualLength = chat.input.value.length
+                    preview.textContent = `${actualLength}/${chat.input.maxLength}`
+                    chat.scrollIntoView({behavior: "smooth"})
+                    Helper.add("style/valid", chat.input)
+                    chat.input.focus()
+                  })
+                  const textDiv = Helper.div("p8", messageDiv)
+                  textDiv.textContent = message.text
+                  const createdDiv = Helper.div("fs8 plr8", messageDiv)
+                  createdDiv.textContent = `Gesendet vor ${Helper.convert("millis/since", message.created)}`
+                  const userId = window.localStorage.getItem("localStorageId")
+                  if (message.from === userId) {
+                    messageDiv.classList.add("flex-end")
+                    messageDiv.classList.add("light")
+                  } else {
+                    messageDiv.classList.add("flex-start")
+                    messageDiv.classList.add("dark")
+                  }
+                }
+                content.appendChild(removeMessagesBtn)
+              } else {
+                container.textContent = ""
+                Helper.render("text/note", "Keine Nachrichten gefunden", container)
+                removeMessagesBtn.remove()
+              }
+            })
+          }
+          const removeMessagesBtn = Helper.render("text/link", "Alle meine Nachrichten entfernen")
+          removeMessagesBtn.className += " mtb21 mlr34" 
+          removeMessagesBtn.onclick = () => {
+            const confirm = window.confirm("Möchtest du alle deine Nachrichten wirklich entfernen?")
+            if (!confirm) return
+            Helper.overlay("lock", async lock => {
+              const res = await post("/jwt/remove/chat/messages/", {id})
+              if (res.status === 200) {
+                lock.alert.removed()
+                o1.remove()
+              } else {
+                lock.alert.nok()
+              }
+              lock.remove()
+            })
+          }
+        })
+      }
+    }
     if (event === "openFunnelOverlay") {
-
       function createDataButton() {
         const button = Helper.create("button/left-right")
         button.className = "data-button"
@@ -11155,7 +10331,6 @@ export class Helper {
         button.right.textContent = "Datenfelder definieren"
         return button
       }
-
       function createOptionField() {
         const text = Helper.create("input/text")
         text.className = "option-field"
@@ -11167,15 +10342,12 @@ export class Helper {
         text.input.addEventListener("input", ev => Helper.verify("input/value", text.input))
         return text
       }
-
       function onDataButtonClick(dataButton, idField, overlay, data) {
         openDataOverlay(idField.input.value, data)
         Helper.remove("style/circle", dataButton.left)
         Helper.convert("button/left-right", dataButton)
       }
-
       function openDataOverlay(id, data) {
-
         if (Helper.verifyIs("text/empty", id)) {
           window.alert("Es wurde keine Id eingegeben.")
           return
@@ -11316,9 +10488,7 @@ export class Helper {
           })
         })
       }
-
       function updateData(node, key = "", data = {}, type) {
-
         const keyCheck = node.querySelector(".key")
         if (keyCheck) keyCheck.remove()
         const dataCheck = node.querySelector(".data")
@@ -11337,9 +10507,7 @@ export class Helper {
         fragment.appendChild(dataSpan)
         node.appendChild(fragment)
       }
-
       return (node, type) => {
-
         this.overlay("pop", async o1 => {
           o1.info.textContent = "user.funnel"
           const searchField = this.create("input/text", o1.content)
@@ -11628,9 +10796,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "openImagesOverlay") {
-
       return (node) => {
         if (!node) node = document.body
         this.overlay("pop", async o1 => {
@@ -11699,9 +10865,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "openLayerOverlay") {
-
       return (layer, node) => {
         this.overlay("pop", async layerOverlay => {
           this.render("text/title", "Wähle einen Layer aus", layerOverlay)
@@ -11751,9 +10915,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "openMediaQueriesOverlay") {
-
       return () => {
         this.overlay("pop", queriesOverlay => {
           const content = this.create("div/scrollable", queriesOverlay)
@@ -11862,9 +11024,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "openNodeLayerOverlay") {
-
       return async ({node}) => {
         const result = await this.verifyIs("class/found", {node: node, class: "layer" })
         if (result === true) {
@@ -11933,9 +11093,7 @@ export class Helper {
 
       }
     }
-
     if (event === "openPdfOverlay") {
-
       return (node) => {
         this.overlay("pop", async o1 => {
           o1.info.textContent = ".pdf"
@@ -11999,9 +11157,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "open-profile") {
-
       const {it, node, overlay} = input
       if (it && it.id && node && overlay) {
         const split = window.location.pathname.split("/")
@@ -12014,9 +11170,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "openScriptsOverlay") {
-
       return (selectedNode, type) => {
         this.overlay("pop", async o1 => {
           o1.info.textContent = `.scripts`
@@ -12119,9 +11273,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "openSourcesOverlay") {
-
       return (selectedNode, type) => {
         this.overlay("pop", async o1 => {
           o1.info.textContent = "user.sources"
@@ -12448,9 +11600,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "openTemplatesOverlay") {
-
       return (node) => {
         this.overlay("pop", async o1 => {
           const searchField = this.create("input/text", o1.content)
@@ -12533,9 +11683,7 @@ export class Helper {
         })
       }
     }
-
     if (event === "openVideosOverlay") {
-
       return (node) => {
         this.overlay("pop", async o1 => {
           o1.info.textContent = ".videos"
@@ -12603,32 +11751,24 @@ export class Helper {
         })
       }
     }
-
     if (event === "pointer") {
-
       return (node) => {
         this.add("pointer", node)
       }
     }
-
     if (event === "replaceInnerHtmlWithPrompt") {
-
       return async (node) => {
         const prompt = window.prompt("Ersetze den Inhalt deines Elements mit folgendem HTML: (z.B., Hallo HTML)")
         node.innerHTML = await Helper.convert("text/purified", prompt)
       }
     }
-
     if (event === "replaceTextContentWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Ersetze den Inhalt deines Elements mit folgendem HTML: (z.B., Hallo HTML)")
         node.textContent = prompt
       }
     }
-
     if (event === "scaleWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe die Höhe deiner Skalierung ein: (z.B., 2)")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -12636,9 +11776,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "setAttributeWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Markiere dein Element mit einem Attribut: (z.B., id=neue-id)")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -12653,9 +11791,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "setChildrenStyleWithPrompt") {
-
       return (key, node, message) => {
         const prompt = window.prompt(message)
         for (var i = 0; i < node.children.length; i++) {
@@ -12663,11 +11799,8 @@ export class Helper {
           child.style[key] = prompt
         }
       }
-
     }
-
     if (event === "setClassWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Füge deinem Element einen Klassen Namen hinzu:")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -12676,9 +11809,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "setIdWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe deinem Element einen eindeutige Id: (z.B., mein-html)")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -12692,18 +11823,13 @@ export class Helper {
         }
       }
     }
-
     if (event === "setStyleWithPrompt") {
-
       return ({key, node, message}) => {
         const prompt = window.prompt(message)
         node.style[key] = prompt
       }
-
     }
-
     if (event === "styleBackgroundImage") {
-
       return (node) => {
         const url = window.prompt("Gebe die Quelle des Bildes ein: (text/url)")
         if (this.verifyIs("text/url", url)) {
@@ -12713,9 +11839,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "svg") {
-
       const it = {}
 
       it.icons = async (node, callback) => {
@@ -12742,9 +11866,7 @@ export class Helper {
 
       return it
     }
-
     if (event === "toggleAttribute") {
-
       let cache
       return (attribute, node) => {
         if (!node.hasAttribute(attribute)) {
@@ -12758,9 +11880,7 @@ export class Helper {
           node.removeAttribute(attribute)
         }
       }
-
     }
-
     if (event === "toggleInnerHtml") {
       let cache
       return async (node) => {
@@ -12775,11 +11895,8 @@ export class Helper {
           node.innerHTML = ""
         }
       }
-
     }
-
     if (event === "toggleTextContent") {
-
       let cache
       return (node) => {
         if (this.verifyIs("text/empty", node.textContent)) {
@@ -12793,11 +11910,8 @@ export class Helper {
           node.textContent = ""
         }
       }
-
     }
-
     if (event === "toggleNodeAndChildrenStyles") {
-
       let originalNodeStyle
       let originalChildrenStyles = []
       return ({nodeStyle, childrenStyle, node}) => {
@@ -12823,11 +11937,8 @@ export class Helper {
           }
         }
       }
-
     }
-
     if (event === "translateWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe den X und Y Wert ein und bewege dein Element in die gewünschte Richtung: (z.B., (21px, -34px))")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -12837,9 +11948,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "translateXWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe den X-Wert ein und bewege dein Element in die gewünschte Richtung: (z.B., 34px)")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -12849,9 +11958,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "translateYWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe den Y-Wert ein und bewege dein Element in die gewünschte Richtung: (z.B., -34px)")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -12861,9 +11968,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "fixedGridPrompt") {
-
       let originalGridFixedStyle
       let originalGridFixedChildrenStyle = []
       return ({node}) => {
@@ -12893,11 +11998,8 @@ export class Helper {
           }
         }
       }
-
     }
-
     if (event === "removeAllLayer") {
-
       return (node) => {
         node.querySelectorAll("*").forEach((item, i) => {
           if (item.classList.contains("layer")) {
@@ -12907,9 +12009,7 @@ export class Helper {
         window.alert("Alle Layer wurden erfolgreich entfernt.")
       }
     }
-
     if (event === "removeGridColumn") {
-
       return (node) => {
         const templateColumns = node.style.gridTemplateColumns.split(" ")
         templateColumns.pop()
@@ -12919,9 +12019,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "removeGridRow") {
-
       return (node) => {
         const templateRows = node.style.gridTemplateRows.split(" ")
         templateRows.pop()
@@ -12931,9 +12029,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "renderColors") {
-
       return (node, callback) => {
         for (const [key, value] of Object.entries(Helper.colors)) {
           if (typeof value === "string") {
@@ -12960,20 +12056,15 @@ export class Helper {
         }
       }
     }
-
     if (event === "rotateNode") {
-
       let rotationDegree = 0
       return ({degree, node}) => {
         rotationDegree += degree
         if (rotationDegree === 360) rotationDegree = 0
         node.style.transform = `rotate(${rotationDegree}deg)`
       }
-
     }
-
     if (event === "rotateNodeLeftWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe den exakten Winkel für deine Rotation, nach links, ein: (z.B., 45)")
         if (this.verifyIs("text/+int", prompt)) {
@@ -12988,9 +12079,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "rotateNodeRightWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe den exakten Winkel für deine Rotation, nach rechts, ein: (z.B., 45)")
         if (this.verifyIs("text/+int", prompt)) {
@@ -13005,9 +12094,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "toggleNode") {
-
       let originalRemoveNode
       let originalParentNode
       let originalIndex
@@ -13027,11 +12114,8 @@ export class Helper {
           node.remove()
         }
       }
-
     }
-
     if (event === "toggleStyle") {
-
       let cache
       return ({key, value, node}) => {
         if (node.style[key] === value) {
@@ -13045,11 +12129,8 @@ export class Helper {
           node.style[key] = value
         }
       }
-
     }
-
     if (event === "toggleStyles") {
-
       let cache
       return ({styles, node}) => {
         if (cache) {
@@ -13062,20 +12143,14 @@ export class Helper {
           }
         }
       }
-
     }
-
     if (event === "trimLines") {
-
       return (node) => {
         const textContent = node.textContent
         node.textContent = textContent.split('\n').map(line => line.trim()).join('\n')
       }
-
     }
-
     if (event === "spanColumnWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe die Anzahl an Spalten ein, die dein Grid Element einnehmen soll: (z.B., 5)")
         if (this.verifyIs("text/+int", prompt)) {
@@ -13086,9 +12161,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "spanRowWithPrompt") {
-
       return (node) => {
         const prompt = window.prompt("Gebe die Anzahl an Zeilen ein, die dein Grid Elemente einnehmen soll: (z.B., 3)")
         if (this.verifyIs("text/+int", prompt)) {
@@ -13100,9 +12173,7 @@ export class Helper {
         }
       }
     }
-
     if (event === "wrapAnchorWithPrompt") {
-
       return async (node) => {
         const prompt = window.prompt("Gebe die Quell-Url deines Links ein:")
         if (!this.verifyIs("text/empty", prompt)) {
@@ -13116,10 +12187,8 @@ export class Helper {
         }
       }
     }
-
   }
   static funnel(tree, input) {
-
     const key = this.convert("tree/key", tree)
     const it = document.createElement("div")
     it.id = key
@@ -13830,7 +12899,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
   }
   static goBack() {
 
@@ -13923,14 +12991,12 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     return this._purify
   }
   static on(event, input, callback) {
-
     if (event === "click") {
       input.addEventListener("click", ev => {
         ev.preventDefault()
         callback(ev)
       })
     }
-
     if (event === "enter") {
       input.addEventListener("keydown", ev => {
         if (ev.key === 'Enter') {
@@ -13939,9 +13005,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "hover") {
-
       const split = input.class.split(" ")
       input.node.addEventListener("mouseout", ev => {
         for (let i = 0; i < split.length; i++) {
@@ -13956,7 +13020,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "shift+enter") {
       input.addEventListener("keydown", ev => {
         if (ev.key === 'Enter') {
@@ -13969,7 +13032,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
   }
   static overlay(event, callback) {
 
@@ -15383,7 +14445,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     }
 
     if (event === "messages") {
-
       const user = callback
       this.overlay("pop", overlay => {
         overlay.onlyClosedUser()
@@ -16250,11 +15311,23 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   const paths = JSON.parse(res.response)
                   paths.forEach(path => {
                     const id = this.convert("path/id", path)
+                    if (Helper.verifyIs("text/empty", id)) return
                     const button = this.render("button/left-right", {left: `.${id}`, right: "Skript wählen"}, div)
                     button.onclick = ev => {
+                      if (path === "chat.js") {
+                        const chatId = window.prompt("Gebe die Chat Id ein:")
+                        if (Helper.verifyIs("text/empty", chatId)) return
+                        const script = document.createElement("script")
+                        script.id = id
+                        script.src = `/js/${id}.js`
+                        script.type = "module"
+                        script.setAttribute("chatId", chatId)
+                        document.body.appendChild(script)
+                        return
+                      }
+                      window.alert("Skript erfolgreich angehängt.")
                       const script = Helper.create("script/id", id)
                       Helper.add("script-onbody", script)
-                      window.alert("Skript erfolgreich angehängt.")
                     }
                   })
                 } catch (error) {
@@ -16455,11 +15528,14 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return button
       }
       overlay.appendImageSrcToBody = (src, o) => {
-        const button = this.render("button/left-right", {left: ".append", right: "Bild anhängen"}, o.content)
-        button.onclick = () => {
-          const div = this.div("", document.body)
-          this.render("img", {src, className: "image"}, div)
-          this.remove("overlays")
+        const isToolbox = window.location.pathname.split("/")[3]
+        if (isToolbox) {
+          const button = this.render("button/left-right", {left: ".append", right: "Bild anhängen"}, o.content)
+          button.onclick = () => {
+            const div = this.div("", document.body)
+            this.render("img", {src, className: "image"}, div)
+            this.remove("overlays")
+          }
         }
       }
       overlay.appendIt = (it, node, o, ok) => {
@@ -17335,9 +16411,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       funnel.file = this.create("input/file", funnel)
       funnel.file.input.setAttribute("accept", input)
       this.add("style/not-valid", funnel.file.input)
-      funnel.file.input.onclick = ev => {
-        window.alert("Achtung!!!\n\nSobald du eine Datei hochlädst, ist sie über einen öffentlichen CID Link zugänglich. Wer den CID deiner Datei kennt, kann die Datei abrufen. Bitte lade keine Dateien hoch, die nicht für die Öffentlichkeit gedacht sind.")
-      }
       funnel.file.input.oninput = async ev => {
 
         const securityOverlay = this.overlay("lock")
@@ -21384,9 +20457,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
   static verify(event, input, check) {
     // promises only
     // event = input/algo
-
     if (event === "any/key/exist") {
-
       if (!this.verifyIs("object", input)) return false
       if (input.hasOwnProperty(check)) return true
       for (const key in input) {
@@ -21397,11 +20468,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       }
       return false
-
     }
-
     if (event === "form") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const observer = new MutationObserver((mutationsList, observer) => {
@@ -21438,9 +20506,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "funnel") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const observer = new MutationObserver((mutationsList, observer) => {
@@ -21503,9 +20569,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "funnel/ids") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const nodes = input.querySelectorAll("input, textarea, select")
@@ -21518,7 +20582,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "field-funnel") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -21552,9 +20615,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "input/value") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const res = await this.verifyIs("input/valid", input)
@@ -21565,9 +20626,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "inputs") {
-
       return new Promise(async(resolve, reject) => {
         try {
           const results = await Promise.all(Array.from(input).map(node => this.verifyIs("input/valid", node)))
@@ -21583,9 +20642,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "path/exist") {
-
       const path = input
       const field = check
       return new Promise(async(resolve, reject) => {
@@ -21607,20 +20664,16 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
   }
   static verifyIs(event, input) {
     // return boolean only
-
     if (event === "array") {
       if (typeof input === "object") {
         if (Array.isArray(input)) return true
       }
       return false
     }
-
     if (event === "array/empty") {
       return !Array.isArray(input) || input.length === 0
     }
-
     if (event === "array/primitive") {
-
       return input.every(it => {
         for (const key in it) {
           if (it.hasOwnProperty(key)) {
@@ -21630,20 +20683,16 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "object") {
       if (typeof input === "object") return true
       return false
     }
-
     if (event === "object/empty") {
-
       return typeof input !== "object" ||
       input === undefined ||
       input === null ||
       Object.getOwnPropertyNames(input).length <= 0
     }
-
     if (event === "file/extension") {
       try {
 
@@ -21655,7 +20704,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return false
       }
     }
-
     if (event === "file/extensions") {
       return new Promise((resolve, reject) => {
         try {
@@ -21674,12 +20722,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "file/type") {
       if (input.file.type === input.type) return true
       return false
     }
-
     if (event === "file/types") {
       return new Promise((resolve, reject) => {
         try {
@@ -21695,9 +20741,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "file/image") {
-
       return new Promise(async(resolve, reject) => {
         try {
 
@@ -21724,12 +20768,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           resolve(false)
         }
       })
-
-
     }
-
     if (event === "file/pdf") {
-
       return new Promise(async(resolve, reject) => {
         try {
 
@@ -21756,12 +20796,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           resolve(false)
         }
       })
-
-
     }
-
     if (event === "file/html") {
-
       return new Promise(async(resolve, reject) => {
         try {
 
@@ -21788,12 +20824,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           resolve(false)
         }
       })
-
-
     }
-
     if (event === "file/svg+xml") {
-
       return new Promise(async(resolve, reject) => {
         try {
 
@@ -21820,10 +20852,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           resolve(false)
         }
       })
-
-
     }
-
     if (event === "file/mp3") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -21857,7 +20886,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "key/object-array") {
       for (const object of input.array) {
         if (object.hasOwnProperty(input.key)) {
@@ -21866,25 +20894,20 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       return false
     }
-
     if (event === "millis/future") {
-
       if (input > Date.now()) {
         return true
       } else {
         return false
       }
     }
-
     if (event === "millis/past") {
-
       if (input < Date.now()) {
         return true
       } else {
         return false
       }
     }
-
     if (event === "number/empty") {
       return input === undefined ||
       input === null ||
@@ -21892,12 +20915,9 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       typeof input !== "number" ||
       input === ""
     }
-
     if (event === "primitive") {
-
       return typeof input === "string" || typeof input === "number" || typeof input === "boolean"
     }
-
     if (event === "script-id/disabled") {
       if (!this.verifyIs("text/empty", input)) {
         const scripts = JSON.parse(window.localStorage.getItem("scripts")) || []
@@ -21912,16 +20932,12 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       return false
     }
-
     if (event === "tag/empty") {
       return this.verifyIs("text/empty", input) || !/^[a-z](?:-?[a-z]+)*$/.test(input)
     }
-
     if (event === "text/class") {
-
       return /^[A-Za-z0-9\-_:]+$/.test(input)
     }
-
     if (event === "text/json") {
       try {
         JSON.parse(input)
@@ -21931,9 +20947,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       return false
     }
-
     if (event === "text/operator") {
-
       if (input === "=") return true
       if (input === ">=") return true
       if (input === "<=") return true
@@ -21942,7 +20956,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (input === ">") return true
       return false
     }
-
     if (event === "text/url") {
       try {
         new URL(input)
@@ -21951,14 +20964,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return false
       }
     }
-
     if (event === "text/email") {
-
       return /^(.+)@(.+)$/.test(input)
     }
-
     if (event === "text/empty") {
-
       return typeof input !== "string" ||
         input === "undefined" ||
         input === undefined ||
@@ -21967,9 +20976,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         input === "" ||
         input.replace(/\s/g, "") === ""
     }
-
     if (event === "text/js") {
-
       try {
         if (this.verifyIs("text/empty", input) === true) throw new Error("text is empty")
         new Function(input)
@@ -21977,9 +20984,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       } catch (error) {
         return false
       }
-
     }
-
     if (event === "text/script") {
       try {
         const fragment = this.convert("text/fragment", input)
@@ -21988,24 +20993,19 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       } catch {}
       return false
     }
-
     if (event === "text/tag") {
       if (typeof input !== "string") return false
       if (/^[a-z](?:-?[a-z]+)*$/.test(input) === true) return true
       return false
     }
-
     if (event === "text/tree") {
-
       if (/^(?!.*[-.]{2,})(?!.*^-)(?!.*\.$)(?!.*\.\.$)[a-z]+([-.][a-z]+|\.\d+)*$/.test(input)) {
         return true
       } else {
         return false
       }
     }
-
     if (event === "text/trees") {
-
       if (!input.startsWith("[")) return false
       if (!input.endsWith("]")) return false
       try {
@@ -22017,13 +21017,11 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       } catch {}
       return false
     }
-
     if (event === "text/tel") {
       if (typeof input !== "string") return false
       if (/^\+[0-9]+$/.test(input) === true) return true
       return false
     }
-
     if (event === "field-funnel/valid") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -22049,10 +21047,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "text/number") {
-
-
       if (typeof input === "number") return isFinite(input)
       if (typeof input === "string" && input.trim() !== "") {
         const number = Number(input)
@@ -22060,42 +21055,31 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       return false
     }
-
     if (event === "text/int") {
-
       try {
         const number = Number(input)
         return Number.isInteger(number)
       } catch (error) {
         return false
       }
-
     }
-
     if (event === "text/+int") {
-
       try {
         const number = Number(input)
         return Number.isInteger(number) && number > 0
       } catch (error) {
         return false
       }
-
     }
-
     if (event === "text/isbn") {
       return /^\d{9}[\dXx]$/.test(input.replace(/-/g, '')) || /^\d{13}$/.test(input.replace(/-/g, ''))
     }
-
     if (event === "text/path") {
-
       if (input === "/") return true
       const regex = /^\/([a-z]+(?:-[a-z]+)*)(\/[a-z]+(?:-[a-z]+)*)*\/$/
       return regex.test(input)
     }
-
     if (event === "input/valid") {
-
       return new Promise((resolve) => {
         const isRequired = input.hasAttribute("required") || input.hasAttribute("aria-required")
 
@@ -22157,11 +21141,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
 
       })
-
     }
-
     if (event === "input/accepted") {
-
       const array = []
       const accept = input.getAttribute("accept")
 
@@ -22395,10 +21376,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (allTrue === true) return true
       return false
     }
-
     if (event === "input/required") {
-
-
       // input required
       const inputIsRequired = (
         input.hasAttribute("aria-required") ||
@@ -22428,13 +21406,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       return false
     }
-
     if (event === "id/unique") {
       return document.getElementById(input) === null
     }
-
     if (event === "it/primitive") {
-
       return input === null ||
         typeof input === "string" ||
         typeof input === "number" ||
@@ -22443,7 +21418,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         typeof input === "symbol" ||
         typeof input === "undefined"
     }
-
     if (event === "text/id") {
       if (this.verifyIs("text/tag", input)) {
         if (document.querySelectorAll(`#${input}`).length === 0) {
@@ -22453,9 +21427,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       }
     }
-
     if (event === "class/closest-node") {
-
       try {
 
         const result = input.node.closest(`.${input.class}`)
@@ -22470,7 +21442,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         return false
       }
     }
-
     if (event === "class/found") {
       return new Promise(async(resolve, reject) => {
         try {
@@ -22487,7 +21458,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "class/loaded") {
      return new Promise(async (resolve, reject) => {
         try {
@@ -22514,9 +21484,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
      })
     }
-
     if (event === "id/loaded") {
-
       return new Promise(async(resolve, reject) => {
         try {
 
@@ -22547,11 +21515,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           reject(error)
         }
       })
-
     }
-
     if (event === "element/loaded") {
-
       return new Promise(async(resolve, reject) => {
         try {
 
@@ -22582,9 +21547,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           reject(error)
         }
       })
-
     }
-
     if (event === "element/html") {
       const htmlString = input.outerHTML
       const parser = new DOMParser()
@@ -22604,13 +21567,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
       return true
     }
-
     if (event === "email/empty") {
       return this.verifyIs("text/empty", input) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)
     }
-
     if (event === "path/profil") {
-
       const split = window.location.pathname.split("/")
       const expert = split[1]
       const platform = split[2]
@@ -22620,9 +21580,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       const checkPath = !this.verifyIs("text/empty", path) && path === "profil"
       return heckExpert && checkPlatform && checkPath
     }
-
     if (event === "path/valid") {
-
       const split = window.location.pathname.split("/")
       const expert = split[1]
       const platform = split[2]
@@ -22634,13 +21592,18 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       const checkPath = !this.verifyIs("text/empty", path)
       return checkLength && checkLast && checkExpert && checkPlatform && checkPath
     }
-
     if (event === "text/hex") {
       if (typeof input !== "string") return false
       if (/^[0-9A-Fa-f]+$/.test(input) === true) return true
       return false
     }
   }
+}
+export const addLoading = node => {
+  const svgText = `<svg fill="#B03535" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 50a40 40 0 0 0 80 0 40 42 0 0 1-80 0"><animateTransform attributeName="transform" type="rotate" dur="1s" repeatCount="indefinite" keyTimes="0;1" values="0 50 51;360 50 51"/></path></svg>`
+  const div = Helper.div("", node)
+  div.innerHTML = svgText
+  return div
 }
 Helper.sleep = ms => {
   return new Promise(resolve => setTimeout(resolve, ms))

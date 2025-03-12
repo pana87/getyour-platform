@@ -117,7 +117,6 @@ app.onclick = () => {
         const tree = "getyour.expert.image"
         const button = Helper.render("button/left-right", {left: `.${tree}`, right: "Image ändern"}, content)
         button.onclick = () => {
-
           Helper.overlay("pop", async o2 => {
             const content = o2.content
             const funnel = Helper.funnel("image", content)
@@ -128,20 +127,21 @@ app.onclick = () => {
               }
             })
             funnel.submit.onclick = async () => {
-
               await Helper.verify("input/value", funnel.image.input)
               const image = funnel.image.input.value
               Helper.overlay("lock", async o3 => {
                 const res = await Helper.request("/location-expert/register/tree/map/", {tree, map: {image}})
                 if (res.status === 200) {
-                  window.alert("Daten erfolgreich gespeichert.")
+                  o3.alert.saved()
                   o2.remove()
                 } else {
-                  window.alert("Fehler.. Bitte wiederholen.")
+                  o3.alert.nok()
                 }
                 o3.remove()
               })
             }
+            const imagesBtn = Helper.render("button/left-right", {left: ".images", right: "Meine Bilder"}, content)
+            imagesBtn.onclick = Helper.fn("openImagesOverlay")
           })
         }
       }
@@ -1001,7 +1001,6 @@ async function renderLocationExpertPlatforms() {
   }
 }
 async function renderLocationExpertPlatformValues(platform, node) {
-
   node.textContent = ""
   const searchField = Helper.create("input/text", node)
   searchField.input.placeholder = "Suche nach Alias"
@@ -1021,19 +1020,13 @@ async function renderLocationExpertPlatformValues(platform, node) {
   return res
 }
 async function renderValueButtons(values, node) {
-
   node.textContent = ""
-  const pathProtectedIcon = await Helper.convert("path/icon", "/public/shield-locked.svg")
-  pathProtectedIcon.children[0].style.fill = Helper.colors.light.text
-  const pathOpenIcon = await Helper.convert("path/icon", "/public/eye-open.svg")
-  const pathClosedIcon = await Helper.convert("path/icon", "/public/eye-crossed.svg")
   for (let i = 0; i < values.length; i++) {
     const value = values[i]
     const div = Helper.div("p8 w377", node)
     div.header = Helper.div("flex br-tl-tr-bl21 btn-theme", div)
     Helper.add("hover-outline", div.header)
     div.header.onclick = async () => {
-
       Helper.overlay("pop", o1 => {
         o1.addInfo(value.path)
         const buttons = o1.content
@@ -1336,18 +1329,19 @@ async function renderValueButtons(values, node) {
     if (value.visibility === "closed") {
       if (value.roles.length === 0) {
         if (value.authorized.length === 0) {
-          Helper.append(pathClosedIcon.cloneNode(true), div.header.state)
+          div.header.state.textContent = "closed"
         }
       }
     }
     if (value.visibility === "open") {
       div.header.state.classList.add("bg-green")
-      Helper.append(pathOpenIcon.cloneNode(true), div.header.state)
+      div.header.state.textContent = "open"
     }
     if (value.visibility === "closed") {
       if (value.roles.length !== 0 || value.authorized.length !== 0) {
-        div.header.state.classList.add("bg-yellow")
-        Helper.append(pathProtectedIcon.cloneNode(true), div.header.state)
+        div.header.state.className += " bg-yellow"
+        div.header.state.style = "color: #000;"
+        div.header.state.textContent = "restricted"
       }
     }
     div.header.text = Helper.div("p21 fs21 of-auto color-theme", div.header)

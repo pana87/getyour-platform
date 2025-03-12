@@ -204,6 +204,8 @@
 
 .center {justify-content: center;}
 .circle {width: 100px; height: 100px; border-radius: 50%;}
+.circle-green {width: 21px; height: 21px; border-radius: 50%; background-color: green;}
+.circle-gray {width: 21px; height: 21px; border-radius: 50%; background-color: gray;}
 .color-dark {color: var(--color-dark);}
 .color-error {color: var(--color-error);}
 .color-gray {color: var(--color-gray);}
@@ -227,7 +229,9 @@
 .fixed {position: fixed;}
 .flex {display: flex;}
 .flex1 {flex: 1;}
+.flex-end {align-self: flex-end;}
 .flex-row {display: flex; flex-wrap: wrap; margin-left: 34px; margin-right: 34px;}
+.flex-start {align-self: flex-start;}
 .fs3 {font-size: 3px;}
 .fs5 {font-size: 5px;}
 .fs8 {font-size: 8px;}
@@ -761,7 +765,25 @@
   50% {transform: translateY(8px);}
   100% {transform: translateY(-21px);}
 }
-
+.blur5 {filter: blur(5px);}
+.blur {
+  animation: blur 3s infinite;
+  filter: blur(5px);
+}
+@keyframes blur {
+  0% {
+    transform: scale(1);
+    filter: blur(5px); 
+  }
+  50% {
+    transform: scale(1.1);
+    filter: blur(3px);
+  }
+  100% {
+    transform: scale(1);
+    filter: blur(5px);
+  }
+}
 @keyframes fade-up {
   0% {opacity: 0; transform: translateY(13px);}
   100% {opacity: 1; transform: translateY(0);}
