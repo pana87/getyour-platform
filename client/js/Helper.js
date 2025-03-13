@@ -5944,15 +5944,15 @@ export class Helper {
     }
     if (event === "box/dark-light") {
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        input.style.backgroundColor = this.colors.dark.background
-        input.style.border = this.colors.dark.border
-        input.style.boxShadow = this.colors.dark.boxShadow
-        input.style.color = this.colors.dark.text
+        input.classList.add("dark-bg")
+        input.classList.add("dark-border")
+        input.classList.add("dark-bs")
+        input.classList.add("light-text")
       } else {
-        input.style.backgroundColor = this.colors.light.background
-        input.style.border = this.colors.light.border
-        input.style.boxShadow = this.colors.light.boxShadow
-        input.style.color = this.colors.light.text
+        input.classList.add("light-bg")
+        input.classList.add("light-border")
+        input.classList.add("light-bs")
+        input.classList.add("dark-text")
       }
     }
     if (event === "button/dark-light") {
@@ -18501,14 +18501,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       return code
     }
     if (event === "text/link") {
-      const link = this.create("box")
+      const link = this.div("p13 br13 pointer sans-serif flex align center")
       link.textContent = input
-      link.style.fontFamily = "sans-serif"
-      link.style.padding = "13px 21px"
-      link.style.display = "flex"
-      link.style.justifyContent = "center"
-      link.style.alignItems = "center"
       this.add("hover-outline", link)
+      this.convert("box/dark-light", link)
       parent?.appendChild(link)
       return link
     }

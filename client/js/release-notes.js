@@ -6,7 +6,6 @@ Helper.render("text/h1", "Release Notes", content)
 Helper.render("text/h2", `Plattform Version: ${Helper.convert("millis/dd.mm.yyyy", Date.now())}`, content)
 Helper.render("text/h3", "Neue Funktionen:", content)
 function appendList(list, ul) {
-
   for (let i = 0; i < list.length; i++) {
     const item = list[i]
     const li = document.createElement('li')
@@ -15,6 +14,8 @@ function appendList(list, ul) {
   }
 }
 const functions = [
+  'Experten können jetzt Schreibrechte für Pfade anfordern',
+  'Für Experten sind ab jetzt alle Pfade sichtbar',
   'Experten können ab jetzt ihre Plattformen an andere Experten versenden',
   'Standard CSS Design Klassen sind ab jetzt global verfügbar.',
   'Bildschirmaufnahmen sind ab jetzt in der Toolbox verfügbar.',
