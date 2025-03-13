@@ -27,6 +27,29 @@ const {startWebSocket} = require("./websocket.js")
 let randomPin
 const loginQueue = []
 
+cron.schedule("0 20 * * *", async () => {
+  try {
+    const doc = await nano.db.use("getyour").get("user")
+    userLoop: for (const user of Object.values(doc.user)) {
+      if (!user.getyour?.expert?.platforms) continue
+      for (const platform of user.getyour.expert.platforms) {
+        if (!platform.values) continue
+        for (const value of platform.values) {
+          if (!value.writeAccessRequest) continue
+          if (value.writeAccessRequest.length > 0) {
+            await Helper.sendEmailFromDroid({
+              from: "<droid@get-your.de>",
+              to: user.email,
+              subject: "[getyour] Schreibrechte gefordert",
+              html: `Es wurden Schreibrechte, für deine ${platform.name} Plattform, angefordert. Gehe zu deinen Werteinheiten und treffe eine Entscheidung.`
+            })
+            continue userLoop
+          }
+        }
+      }
+    }
+  } catch (e) {}
+})
 //cron.schedule("* * * * *", async () => {
 //  console.log("I am running every minute.")
 //  const doc = await nano.db.use("getyour").get("user")
@@ -233,9 +256,7 @@ app.get("/:expert/",
   }
 )
 app.get("/:expert/:platform/:path/",
-
   async(req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const html = getOpenParamsHtml(doc, req)
@@ -251,11 +272,9 @@ app.get("/:expert/:platform/:path/",
   }
 )
 app.get("/:expert/:platform/:path/",
-
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       let html = getParamsWritableHtml(doc, req)
@@ -278,9 +297,7 @@ app.get("/:expert/:platform/:path/",
   }
 )
 app.get("/:expert/:platform/:path/:id/",
-
   async(req, res, next) => {
-
     try {
       if (req.params.path === "profil") {
         const doc = await nano.db.use("getyour").get("user")
@@ -332,15 +349,61 @@ app.post('/admin/exec/command/',
     }
   }
 )
-app.post("/location-expert/get/platform/roles/text-value/",
-
+function userToInfo(user) {
+  let info = ""
+  if (user.getyour?.expert?.alias) info += `Ein Plattformexperte mit dem Namen ${user.getyour.expert.alias}\n`
+  if (user.email) info += `ist unter dieser E-Mail erreichbar: ${user.email}\n`
+  return info
+}
+app.post("/location-expert/get/user/info/",
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
+    try {
+      const id = req.body.id
+      if (Helper.verifyIs("text/empty", id)) throw new Error("req.body.id is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[id]
+      const info = userToInfo(user)
+      return res.send(info)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-expert/get/expert/paths/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+    try {
+      const id = req.body.id
+      if (Helper.verifyIs("text/empty", id)) throw new Error("req.body.id is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const expert = doc.user[id]
+      if (!isExpert(expert)) throw new Error("req.body.id is not an expert")
+      const paths = expert.getyour.expert.platforms
+      .flatMap(platform => platform.values || [])
+      .flatMap(value => value.path || [])
+      if (!paths || paths.length <= 0) return res.sendStatus(404)
+      return res.send(paths)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-expert/get/platform/roles/text-value/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
     try {
       const user = req.jwt.user
       const roles = getUserRoles(user)
@@ -419,7 +482,6 @@ app.post("/jwt/get/retell/api-key/",
   }
 )
 app.post("/jwt/get/experts",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
@@ -444,7 +506,6 @@ app.post("/jwt/get/experts",
   }
 )
 app.post("/jwt/get/expert/name/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
@@ -462,11 +523,9 @@ app.post("/jwt/get/expert/name/",
   }
 )
 app.post("/get/expert/names/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const names = Object.values(doc.user)
@@ -3128,15 +3187,93 @@ app.post("/register/location/requested/",
     }
   }
 )
-app.post("/location-expert/register/match-maker/condition/",
-
+app.post("/location-expert/register/write-access-allowed/",
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
+    try {
+      const id = req.body.id
+      if (Helper.verifyIs("text/empty", id)) throw new Error("req.body.id is empty")
+      const path = req.body.path
+      if (Helper.verifyIs("text/empty", path)) throw new Error("req.body.path is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[id]
+      const value = findValueByPath(doc, path)
+      if (!value.writeAccessRequest) return res.sendStatus(404)
+      value.writeAccessRequest = value.writeAccessRequest.filter(it => it !== id)
+      if (!value.writability) value.writability = []
+      if (!value.writability.some(email => email === user.email)) {
+        value.writability.push(user.email)
+        await sendWriteAccessEmail("<droid@get-your.de>", user.email, value.path)
+      }
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-expert/register/write-access-denied/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+    try {
+      const id = req.body.id
+      if (Helper.verifyIs("text/empty", id)) throw new Error("req.body.id is empty")
+      const path = req.body.path
+      if (Helper.verifyIs("text/empty", path)) throw new Error("req.body.path is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[id]
+      const value = findValueByPath(doc, path)
+      if (!value.writeAccessRequest) return res.sendStatus(404)
+      value.writeAccessRequest = value.writeAccessRequest.filter(it => it !== id)
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-expert/register/write-access-request/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+    try {
+      if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
+      const paths = req.body.paths
+      if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const jwtUser = doc.user[req.jwt.id]
+      paths.forEach(path => {
+        const value = findValueByPath(doc, path)
+        if (!value) return
+        if (value.writability && value.writability.some(email => email === jwtUser.email)) return
+        if (!value.writeAccessRequest) value.writeAccessRequest = []
+        if (!value.writeAccessRequest.some(id => id === req.jwt.id)) value.writeAccessRequest.push(jwtUser.id)
+      })
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (error) {
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-expert/register/match-maker/condition/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       if (Helper.verifyIs("text/empty", req.body.left)) throw new Error("req.body.left is empty")
@@ -3678,6 +3815,14 @@ app.post("/register/platform/value-visibility-writable/",
     }
   }
 )
+async function sendWriteAccessEmail(from, to, path) {
+  await Helper.sendEmailFromDroid({
+    from,
+    to,
+    subject: "[getyour] Schreibrechte erhalten",
+    html: `Du kannst ab jetzt, die Werteinheit '${path}' bearbeiten.<br><br><a href="https://www.get-your.de${path}">Klicke hier, um die Werteinheit zu öffnen.</a>`
+  })
+}
 app.post("/location-expert/register/platform/value/writability/",
 
   Helper.verifyLocation,
@@ -3701,12 +3846,7 @@ app.post("/location-expert/register/platform/value/writability/",
         const to = doc.user[id]
         if (!to || !to.email) continue
         if (to.id === user.id) continue
-        await Helper.sendEmailFromDroid({
-          from: user.email,
-          to: to.email,
-          subject: "[getyour] Schreibrechte erhalten",
-          html: `Du kannst ab jetzt, die Werteinheit '${req.body.path}' bearbeiten.<br><br><a href="https://www.get-your.de${req.body.path}">Klicke hier, um die Werteinheit zu öffnen.</a>`
-        })
+        await sendWriteAccessEmail(user.email, to.email, req.body.path)
       }
       return res.sendStatus(200)
     } catch (error) {

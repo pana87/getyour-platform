@@ -1,4 +1,4 @@
-import {Helper, renderTag} from "/js/Helper.js"
+import {Helper, renderTag, addLoading} from "/js/Helper.js"
 import {button} from "/js/button.js"
 import {post} from "/js/request.js"
 
@@ -13,7 +13,7 @@ app.onclick = () => {
     o1.info.textContent = document.location.pathname
     const content = o1.content
 
-    const isExpert = await Helper.request("/verify/user/location-expert/")
+    const isExpert = await post("/verify/user/location-expert/")
     if (isExpert.status === 200) {
 
       Helper.convert("parent/scrollable", content)
@@ -27,7 +27,7 @@ app.onclick = () => {
           Helper.overlay("pop", async o2 => {
             const content = o2.content
             const funnel = Helper.funnel("alias", content)
-            Helper.request("/jwt/get/tree/", {tree}).then(res => {
+            post("/jwt/get/tree/", {tree}).then(res => {
               if (res.status === 200) {
                 funnel.alias.input.value = res.response
                 Helper.verify("input/value", funnel.alias.input)
@@ -38,7 +38,7 @@ app.onclick = () => {
               await Helper.verify("input/value", funnel.alias.input)
               const alias = funnel.alias.input.value
               Helper.overlay("lock", async o3 => {
-                const res = await Helper.request("/location-expert/register/tree/map/", {tree, map: {alias}})
+                const res = await post("/location-expert/register/tree/map/", {tree, map: {alias}})
                 if (res.status === 200) {
                   window.alert("Daten erfolgreich gespeichert.")
                   o2.remove()
@@ -59,7 +59,7 @@ app.onclick = () => {
           Helper.overlay("pop", async o2 => {
             const content = o2.content
             const funnel = Helper.funnel("description", content)
-            Helper.request("/jwt/get/tree/", {tree}).then(res => {
+            post("/jwt/get/tree/", {tree}).then(res => {
               if (res.status === 200) {
                 funnel.description.input.value = res.response
               }
@@ -70,7 +70,7 @@ app.onclick = () => {
               await Helper.verify("input/value", funnel.description.input)
               const description = funnel.description.input.value
               Helper.overlay("lock", async o3 => {
-                const res = await Helper.request("/location-expert/register/tree/map/", {tree, map: {description}})
+                const res = await post("/location-expert/register/tree/map/", {tree, map: {description}})
                 if (res.status === 200) {
                   window.alert("Daten erfolgreich gespeichert.")
                   o2.remove()
@@ -100,7 +100,7 @@ app.onclick = () => {
               await Helper.verify("input/value", funnel.name.input)
               const name = funnel.name.input.value
               Helper.overlay("lock", async o3 => {
-                const res = await Helper.request("/location-expert/register/name/", {name})
+                const res = await post("/location-expert/register/name/", {name})
                 if (res.status === 200) {
                   window.alert("Daten erfolgreich gespeichert.")
                   window.location.assign(`/${funnel.name.input.value}/`)
@@ -120,7 +120,7 @@ app.onclick = () => {
           Helper.overlay("pop", async o2 => {
             const content = o2.content
             const funnel = Helper.funnel("image", content)
-            Helper.request("/jwt/get/tree/", {tree}).then(res => {
+            post("/jwt/get/tree/", {tree}).then(res => {
               if (res.status === 200) {
                 funnel.image.input.value = res.response
                 Helper.verify("input/value", funnel.image.input)
@@ -130,7 +130,7 @@ app.onclick = () => {
               await Helper.verify("input/value", funnel.image.input)
               const image = funnel.image.input.value
               Helper.overlay("lock", async o3 => {
-                const res = await Helper.request("/location-expert/register/tree/map/", {tree, map: {image}})
+                const res = await post("/location-expert/register/tree/map/", {tree, map: {image}})
                 if (res.status === 200) {
                   o3.alert.saved()
                   o2.remove()
@@ -159,7 +159,7 @@ app.onclick = () => {
               const platform = funnel.platform.input.value
               await verifyPlatformExist(funnel.platform.input)
               Helper.overlay("lock", async o3 => {
-                const res = await Helper.request("/location-expert/register/platform/", {platform})
+                const res = await post("/location-expert/register/platform/", {platform})
                 if (res.status === 200) {
                   window.alert("Plattform erfolgreich gespeichert. +3 XP")
                   window.location.reload()
@@ -173,13 +173,86 @@ app.onclick = () => {
         }
       }
       Helper.create("button/start", content)
+      const writeAccessRequestBtn = Helper.render("button/left-right", {left: ".write-access-request", right: "Fordere Schreibrechte an"}, content)
+      writeAccessRequestBtn.onclick = () => {
+        Helper.overlay("pop", o2 => {
+          o2.onlyClosedUser()
+          o2.addInfo(".write-access-request")
+          const content = o2.content
+          Helper.render("text/h1", `Wähle einen Experten`, content)
+          const expertSelect = Helper.create("input/select", content)
+          Helper.add("style/valid", expertSelect.input)
+          expertSelect.input.oninput = ev => {
+            const id = ev.target.value
+            addPaths(id)
+          }
+          Helper.render("text/h1", `Wähle die Pfade`, content)
+          const pathsSelect = Helper.create("input/select", content)
+          Helper.add("style/not-valid", pathsSelect.input)
+          pathsSelect.input.multiple = true
+          pathsSelect.input.oninput = () => {
+            if (pathsSelect.selectedValues().length > 0) Helper.add("style/valid", pathsSelect.input)
+            else Helper.add("style/not-valid", pathsSelect.input)
+          }
+          function addPaths(id) {
+            post("/location-expert/get/expert/paths/", {id}).then(res => {
+              if (res.status === 200) {
+                const paths = JSON.parse(res.response)
+                pathsSelect.input.textContent = ""
+                pathsSelect.input.add(paths)
+              } else {
+                pathsSelect.input.textContent = ""
+                Helper.add("style/not-valid", pathsSelect.input)
+              }
+            })
+          }
+          post("/jwt/get/experts/").then(res => {
+            if (res.status === 200) {
+              const experts = JSON.parse(res.response)
+              experts.push({id: "a", alias: "panaq"})
+              expertSelect.input.textContent = ""
+              for (let i = 0; i < experts.length; i++) {
+                const expert = experts[i]
+                const option = document.createElement("option")
+                option.value = expert.id
+                option.text = expert.alias
+                Helper.append(option, expertSelect.input)
+              }
+              addPaths(experts[0].id)
+            }
+          })
+          const submit = Helper.create("button/action", content)
+          submit.textContent = "Schreibrechte jetzt anfordern"
+          submit.onclick = () => {
+            const id = expertSelect.selectedValues()[0]
+            if (Helper.verifyIs("text/empty", id)) {
+              Helper.add("style/not-valid", expertSelect.input)
+              return
+            }
+            const paths = pathsSelect.selectedValues()
+            if (paths.length <= 0) {
+              Helper.add("style/not-valid", pathsSelect.input)
+              return
+            }
+            Helper.overlay("lock", async lock => {
+              const res = await post("/location-expert/register/write-access-request/", {id, paths})
+              if (res.status === 200) {
+                lock.alert.saved()
+              } else {
+                lock.alert.nok()
+              }
+              lock.remove()
+            })
+          }
+        })
+      }
 
       const writableValues = Helper.render("button/left-right", {left: `.writable-values`, right: "Werteinheiten mit Schreibrechte"}, content)
       writableValues.onclick = async () => await openWritableValuesOverlay()
 
       return
     } else {
-      const isWritable = await Helper.request("/location-writable/get/platform/values/")
+      const isWritable = await post("/location-writable/get/platform/values/")
       if (isWritable.status === 200) {
         const values = JSON.parse(isWritable.response)
         renderWritableValues(values, content)
@@ -191,9 +264,9 @@ app.onclick = () => {
 }
 const title = Helper.render("text/h1", "Plattformen", document.body)
 const buttons = Helper.div("pb144", document.body)
-const res = await Helper.request("/verify/user/closed/")
+const res = await post("/verify/user/closed/")
 if (res.status === 200) {
-  const res = await Helper.request("/verify/user/location-expert/")
+  const res = await post("/verify/user/location-expert/")
   if (res.status === 200) {
     await renderLocationExpertPlatforms()
   } else {
@@ -244,7 +317,7 @@ function openWritableValuesOverlay() {
   Helper.overlay("pop", async o1 => {
     const content = o1.content
     o1.load()
-    const res = await Helper.request("/location-writable/get/platform/values/")
+    const res = await post("/location-writable/get/platform/values/")
     o1.loading.remove()
     if (res.status === 200) {
       const values = JSON.parse(res.response)
@@ -284,7 +357,7 @@ function renderHtmlValuesWritable(values, node) {
 async function renderPlatformValues(platform, node) {
   node.textContent = ""
   const loading = Helper.create("div/loading", node)
-  const res = await Helper.request("/get/platform/values/", {platform})
+  const res = await post("/get/platform/values/", {platform})
   loading.remove()
   if (res.status === 200) {
     const values = JSON.parse(res.response)
@@ -299,7 +372,7 @@ async function renderPlatformValues(platform, node) {
 async function renderPlatforms(node) {
   node.textContent = ""
   const loading = Helper.create("div/loading", node)
-  const res = await Helper.request("/get/platforms/")
+  const res = await post("/get/platforms/")
   loading.remove()
   if (res.status === 200) {
     const platforms = JSON.parse(res.response)
@@ -327,7 +400,7 @@ async function renderPlatforms(node) {
 async function renderLocationExpertMatchMakerConditions(created, node) {
 
   node.textContent = ""
-  const res = await Helper.request("/location-expert/get/match-maker/conditions/", {created})
+  const res = await post("/location-expert/get/match-maker/conditions/", {created})
   if (res.status === 200) {
     const conditions = JSON.parse(res.response)
     for (let i = 0; i < conditions.length; i++) {
@@ -354,7 +427,7 @@ async function renderLocationExpertMatchMakerConditions(created, node) {
             const operator = funnel.operator.input.value
             const right = funnel.right.input.value
             Helper.overlay("lock", async o2 => {
-              const res = await Helper.request("/location-expert/update/match-maker/condition/", {created: condition.created, left, operator, right})
+              const res = await post("/location-expert/update/match-maker/condition/", {created: condition.created, left, operator, right})
               if (res.status === 200) {
                 o2.alert.saved()
                 await renderLocationExpertMatchMakerConditions(created, node)
@@ -369,7 +442,7 @@ async function renderLocationExpertMatchMakerConditions(created, node) {
           remove.onclick = () => {
 
             Helper.overlay("lock", async o2 => {
-              const res = await Helper.request("/location-expert/remove/match-maker/condition/", {created: condition.created})
+              const res = await post("/location-expert/remove/match-maker/condition/", {created: condition.created})
               if (res.status === 200) {
                 o2.alert.removed()
                 await renderLocationExpertMatchMakerConditions(created, node)
@@ -392,7 +465,7 @@ async function renderLocationExpertPlatformMatchMaker(it, node) {
   node.textContent = ""
   const loading = Helper.create("div/loading", node)
   const platform = it.name
-  const res = await Helper.request("/location-expert/get/platform/match-maker/", {platform})
+  const res = await post("/location-expert/get/platform/match-maker/", {platform})
   loading.remove()
   if (res.status === 200) {
     const array = JSON.parse(res.response)
@@ -425,7 +498,7 @@ async function renderLocationExpertPlatformMatchMaker(it, node) {
                     const operator = funnel.operator.input.value
                     const right = funnel.right.input.value
                     Helper.overlay("lock", async o4 => {
-                      const res = await Helper.request("/location-expert/register/match-maker/condition/", {created, left, operator, right})
+                      const res = await post("/location-expert/register/match-maker/condition/", {created, left, operator, right})
                       if (res.status === 200) {
                         o4.alert.ok()
                         await renderLocationExpertMatchMakerConditions(matchMaker.created, conditionsContainer)
@@ -447,7 +520,7 @@ async function renderLocationExpertPlatformMatchMaker(it, node) {
           remove.onclick = () => {
 
             Helper.overlay("lock", async o2 => {
-              const res = await Helper.request("/location-expert/remove/match-maker/", {created: matchMaker.created})
+              const res = await post("/location-expert/remove/match-maker/", {created: matchMaker.created})
               if (res.status === 200) {
                 o2.alert.ok("Daten erfolgreich entfernt.")
                 matchMakerButton.remove()
@@ -469,7 +542,7 @@ async function renderLocationExpertPlatformRoles(platform, node) {
 
   node.textContent = ""
   const loading = Helper.create("div/loading", node)
-  const res = await Helper.request("/location-expert/get/platform/roles/", {platform})
+  const res = await post("/location-expert/get/platform/roles/", {platform})
   loading.remove()
   if (res.status === 200) {
     const roles = JSON.parse(res.response)
@@ -484,7 +557,7 @@ async function renderLocationExpertPlatformRoles(platform, node) {
           const funnel = Helper.funnel("role", content)
           funnel.name.input.value = role.name
           Helper.verify("input/value", funnel.name.input)
-          const res = await Helper.request("/location-expert/get/platform/value/paths/", {platform})
+          const res = await post("/location-expert/get/platform/value/paths/", {platform})
           if (res.status === 200) {
             const paths = JSON.parse(res.response)
             funnel.home.input.add(paths)
@@ -500,7 +573,7 @@ async function renderLocationExpertPlatformRoles(platform, node) {
             const name = funnel.name.input.value
             const home = funnel.home.input.value
             Helper.overlay("lock", async o2 => {
-              const res = await Helper.request("/location-expert/update/platform/role/", {created: role.created, platform, name, home})
+              const res = await post("/location-expert/update/platform/role/", {created: role.created, platform, name, home})
               if (res.status === 200) {
                 o2.alert.saved()
                 await renderLocationExpertPlatformRoles(platform, node)
@@ -515,7 +588,7 @@ async function renderLocationExpertPlatformRoles(platform, node) {
           remove.onclick = () => {
 
             Helper.overlay("lock", async o2 => {
-              const res = await Helper.request("/location-expert/remove/platform/role/", {platform, created: role.created})
+              const res = await post("/location-expert/remove/platform/role/", {platform, created: role.created})
               if (res.status === 200) {
                 o2.alert.removed()
                 await renderLocationExpertPlatformRoles(platform, node)
@@ -536,8 +609,8 @@ async function renderLocationExpertPlatformRoles(platform, node) {
 async function renderLocationExpertPlatforms() {
 
   buttons.textContent = ""
-  const loading = Helper.create("div/loading", buttons)
-  const res = await Helper.request("/location-expert/get/platforms/")
+  const loading = addLoading(buttons)
+  const res = await post("/location-expert/get/platforms/")
   loading.remove()
   if (res.status === 200) {
     const platforms = JSON.parse(res.response)
@@ -545,19 +618,16 @@ async function renderLocationExpertPlatforms() {
       const platform = platforms[i]
       const button = createPlatformImageButton(platform, buttons)
       button.onclick = () => {
-
         Helper.overlay("pop", async o1 => {
           o1.addInfo(platform.name)
           const buttons = o1.content
-
           const bulkValues = Helper.render("button/left-right", {left: ".bulk-values", right: "Massen Funktionen für ausgewählte Werteinheiten"}, buttons)
           bulkValues.onclick = () => {
-
             Helper.overlay("pop", async o2 => {
               o2.addInfo(platform.name)
               o2.load()
               const content = o2.content
-              const res = await Helper.request("/location-expert/get/platform/paths/", {platform: platform.name})
+              const res = await post("/location-expert/get/platform/paths/", {platform: platform.name})
               if (res.status === 200) {
                 const paths = JSON.parse(res.response)
                 Helper.convert("parent/scrollable", content)
@@ -590,7 +660,7 @@ async function renderLocationExpertPlatforms() {
                   await Helper.verify("input/value", select.input)
                   const paths = Array.from(select.input.selectedOptions).map(it => it.value)
                   Helper.overlay("lock", async o3 => {
-                    const res = await Helper.request(`/location-expert/update/paths/${id}/`, {paths})
+                    const res = await post(`/location-expert/update/paths/${id}/`, {paths})
                     if (res.status === 200) {
                       o3.alert.ok()
                     } else {
@@ -604,7 +674,7 @@ async function renderLocationExpertPlatforms() {
                   const button = Helper.render("text/link", `${Helper.convert("tag/capital-first-letter", id)} anhängen`, buttons)
                   button.onclick = async () => await updateScript(id)
                 }
-                Helper.request("/expert/get/js/paths/").then(res => {
+                post("/expert/get/js/paths/").then(res => {
                   try {
                     const paths = JSON.parse(res.response)
                     paths.forEach(path => {
@@ -621,7 +691,7 @@ async function renderLocationExpertPlatforms() {
                     await Helper.verify("input/value", select.input)
                     const paths = Array.from(select.input.selectedOptions).map(it => it.value)
                     Helper.overlay("lock", async o3 => {
-                      const res = await Helper.request(path, {paths})
+                      const res = await post(path, {paths})
                       if (res.status === 200) {
                         o3.alert.ok()
                       } else {
@@ -638,7 +708,7 @@ async function renderLocationExpertPlatforms() {
                     await Helper.verify("input/value", select.input)
                     const paths = Array.from(select.input.selectedOptions).map(it => it.value)
                     Helper.overlay("lock", async o3 => {
-                      const res = await Helper.request("/location-expert/remove/paths/scripts/", {paths})
+                      const res = await post("/location-expert/remove/paths/scripts/", {paths})
                       if (res.status === 200) {
                         o3.alert.ok()
                       } else {
@@ -662,10 +732,8 @@ async function renderLocationExpertPlatforms() {
               }
             })
           }
-
           const createValue = Helper.render("button/left-right", {left: ".create-value", right: "Neue Werteinheit erstellen"}, buttons)
           createValue.onclick = () => {
-
             Helper.overlay("pop", o2 => {
               o2.addInfo(platform.name)
               const content = o2.content
@@ -678,7 +746,7 @@ async function renderLocationExpertPlatforms() {
                 await Helper.verify("path/exist", fullPath, funnel.path)
                 const alias = funnel.alias.input.value
                 Helper.overlay("lock", async o3 => {
-                  const res = await Helper.request("/location-expert/register/platform/value/", {path, alias, platform: platform.name})
+                  const res = await post("/location-expert/register/platform/value/", {path, alias, platform: platform.name})
                   if (res.status === 200) {
                     window.alert("Werteinheit erfolgreich gespeichert. +1 XP")
                     o2.remove()
@@ -690,7 +758,6 @@ async function renderLocationExpertPlatforms() {
               }
             })
           }
-
           const htmlValues = Helper.render("button/left-right", {left: ".html-values", right: "Meine HTML Werteinheiten"}, buttons)
           htmlValues.onclick = () => {
             Helper.overlay("pop", async o2 => {
@@ -704,10 +771,8 @@ async function renderLocationExpertPlatforms() {
               }
             })
           }
-
           const image = Helper.render("button/left-right", {left: ".image", right: "Bild ändern"}, buttons)
           image.onclick = () => {
-
             Helper.overlay("pop", async o2 => {
               o2.addInfo(platform.name)
               const content = o2.content
@@ -721,7 +786,7 @@ async function renderLocationExpertPlatforms() {
                 await Helper.verify("funnel", funnel)
                 const image = funnel.image.input.value
                 Helper.overlay("lock", async o3 => {
-                  const res = await Helper.request("/location-expert/register/platform/image/", {platform: platform.name, image})
+                  const res = await post("/location-expert/register/platform/image/", {platform: platform.name, image})
                   if (res.status === 200) {
                     o3.alert.ok()
                     window.location.reload()
@@ -733,10 +798,8 @@ async function renderLocationExpertPlatforms() {
               }
             })
           }
-
           const matchMaker = Helper.render("button/left-right", {left: ".match-maker", right: "Match Maker definieren"}, buttons)
           matchMaker.onclick = () => {
-
             Helper.overlay("pop", async o2 => {
               o2.addInfo(platform.name)
               const content = o2.content
@@ -755,14 +818,14 @@ async function renderLocationExpertPlatforms() {
 
                     await Helper.verify("input/value", nameField.input)
                     const name = nameField.input.value
-                    const res = await Helper.request("/location-expert/verify/match-maker/name/", {name})
+                    const res = await post("/location-expert/verify/match-maker/name/", {name})
                     if (res.status === 200) {
                       window.alert("Name existiert bereits.")
                       Helper.add("style/not-valid", nameField.input)
                       throw new Error("name exist")
                     }
                     Helper.overlay("lock", async o4 => {
-                      const res = await Helper.request("/location-expert/register/platform/match-maker/", {platform: platform.name, name})
+                      const res = await post("/location-expert/register/platform/match-maker/", {platform: platform.name, name})
                       if (res.status === 200) {
                         o4.alert.ok()
                         await renderLocationExpertPlatformMatchMaker(platform, matchMakerContainer)
@@ -781,10 +844,8 @@ async function renderLocationExpertPlatforms() {
               await renderLocationExpertPlatformMatchMaker(platform, matchMakerContainer)
             })
           }
-
           const name = Helper.render("button/left-right", {left: ".name", right: "Namen ändern"}, buttons)
           name.onclick = () => {
-
             Helper.overlay("pop", async o2 => {
               o2.addInfo(platform.name)
               const content = o2.content
@@ -800,7 +861,7 @@ async function renderLocationExpertPlatforms() {
                 const platformName = platformNameField.input.value
                 await verifyPlatformExist(platformNameField.input)
                 Helper.overlay("lock", async o3 => {
-                  const res = await Helper.request("/location-expert/register/platform/name/", {old: platform.name, new: platformName})
+                  const res = await post("/location-expert/register/platform/name/", {old: platform.name, new: platformName})
                   if (res.status === 200) {
                     o3.alert.saved()
                     window.location.reload()
@@ -812,10 +873,8 @@ async function renderLocationExpertPlatforms() {
               }
             })
           }
-
           const roles = Helper.render("button/left-right", {left: ".roles", right: "Rollen definieren"}, buttons)
           roles.onclick = () => {
-
             Helper.overlay("pop", async o2 => {
               o2.addInfo(platform.name)
               const content = o2.content
@@ -826,7 +885,7 @@ async function renderLocationExpertPlatforms() {
                   o3.addInfo(platform.name)
                   const content = o3.content
                   const funnel = Helper.funnel("role", content)
-                  Helper.request("/location-expert/get/platform/value/paths/", {platform: platform.name}).then(res => {
+                  post("/location-expert/get/platform/value/paths/", {platform: platform.name}).then(res => {
                     if (res.status === 200) {
                       const paths = JSON.parse(res.response)
                       funnel.home.input.add(paths)
@@ -843,7 +902,7 @@ async function renderLocationExpertPlatforms() {
                     const home = funnel.home.input.value
                     await verifyPlatformRoleNameExist(platform.name, funnel.name.input)
                     Helper.overlay("lock", async o4 => {
-                      const res = await Helper.request("/location-expert/register/platform/role/", {platform: platform.name, name, home})
+                      const res = await post("/location-expert/register/platform/role/", {platform: platform.name, name, home})
                       if (res.status === 200) {
                         o4.alert.ok()
                         await renderLocationExpertPlatformRoles(platform.name, roleList)
@@ -891,17 +950,15 @@ async function renderLocationExpertPlatforms() {
               }
             })
           }
-
           const startPath = Helper.render("button/left-right", {left: ".start-path", right: "Definiere einen Startpunkt für deine Plattform"}, buttons)
           startPath.onclick = () => {
-
             Helper.overlay("pop", async o2 => {
               o2.addInfo(platform.name)
               const content = o2.content
               Helper.render("label", {for: "start", text: "Wähle einen Start Pfad für deine Plattform"}, content)
               const startField = Helper.create("input/select", content)
               startField.input.id = "start"
-              const res = await Helper.request("/location-expert/get/platform/value/paths/", {platform: platform.name})
+              const res = await post("/location-expert/get/platform/value/paths/", {platform: platform.name})
               if (res.status === 200) {
                 const paths = JSON.parse(res.response)
 
@@ -928,7 +985,7 @@ async function renderLocationExpertPlatforms() {
                   return
                 }
                 Helper.overlay("lock", async o3 => {
-                  const res = await Helper.request("/location-expert/register/platform/start/", {platform: platform.name, start})
+                  const res = await post("/location-expert/register/platform/start/", {platform: platform.name, start})
                   if (res.status === 200) {
                     o3.alert.saved()
                     window.location.reload()
@@ -941,14 +998,12 @@ async function renderLocationExpertPlatforms() {
 
             })
           }
-
           const remove = Helper.render("button/left-right", {left: ".remove", right: "Plattform entfernen"}, buttons)
           remove.onclick = () => {
-
             const confirm = window.confirm("Möchtest du deine Plattform wirklich entfernen? Alle enthaltenen Werteinheiten werden ebenfalls gelöscht.")
             if (confirm === true) {
               Helper.overlay("lock", async o2 => {
-                const res = await Helper.request("/location-expert/remove/platform/", {created: platform.created, platform: platform.name})
+                const res = await post("/location-expert/remove/platform/", {created: platform.created, platform: platform.name})
                 if (res.status === 200) {
                   o2.alert.removed()
                   window.location.reload()
@@ -959,10 +1014,8 @@ async function renderLocationExpertPlatforms() {
               })
             }
           }
-
           const visibility = Helper.render("button/left-right", {left: ".visibility", right: "Sichtbarkeit der Plattform"}, buttons)
           visibility.onclick = () => {
-
             Helper.overlay("pop", async o2 => {
               o2.addInfo(platform.name)
               const content = o2.content
@@ -980,7 +1033,7 @@ async function renderLocationExpertPlatforms() {
 
                 const visibility = visibilityField.input.value
                 Helper.overlay("lock", async o3 => {
-                  const res = await Helper.request("/location-expert/register/platform/visibility/", {platform: platform.name, visibility})
+                  const res = await post("/location-expert/register/platform/visibility/", {platform: platform.name, visibility})
                   if (res.status === 200) {
                     o3.alert.saved()
                     window.location.reload()
@@ -992,7 +1045,6 @@ async function renderLocationExpertPlatforms() {
               }
             })
           }
-
         })
       }
     }
@@ -1007,7 +1059,7 @@ async function renderLocationExpertPlatformValues(platform, node) {
   Helper.verify("input/value", searchField.input)
   const loading = Helper.create("div/loading", node)
   const rerender = Helper.div("mlr34 flex wrap align around", node)
-  const res = await Helper.request("/location-expert/get/platform/values/", {platform})
+  const res = await post("/location-expert/get/platform/values/", {platform})
   loading.remove()
   if (res.status === 200) {
     const values = JSON.parse(res.response)
@@ -1023,6 +1075,7 @@ async function renderValueButtons(values, node) {
   node.textContent = ""
   for (let i = 0; i < values.length; i++) {
     const value = values[i]
+    console.log(value)
     const div = Helper.div("p8 w377", node)
     div.header = Helper.div("flex br-tl-tr-bl21 btn-theme", div)
     Helper.add("hover-outline", div.header)
@@ -1048,7 +1101,7 @@ async function renderValueButtons(values, node) {
               await Helper.verify("funnel", funnel)
               const alias = funnel.alias.input.value
               Helper.overlay("lock", async o3 => {
-                const res = await Helper.request("/location-expert/register/platform/value/alias/", {alias, path: value.path})
+                const res = await post("/location-expert/register/platform/value/alias/", {alias, path: value.path})
                 if (res.status === 200) {
                   o3.alert.ok()
                   o2.remove()
@@ -1077,7 +1130,7 @@ async function renderValueButtons(values, node) {
               await Helper.verify("funnel", funnel)
               const image = funnel.image.input.value
               Helper.overlay("lock", async o3 => {
-                const res = await Helper.request("/location-expert/register/platform/value/image/", {path: value.path, image})
+                const res = await post("/location-expert/register/platform/value/image/", {path: value.path, image})
                 if (res.status === 200) {
                   o3.alert.ok()
                   o2.remove()
@@ -1116,7 +1169,7 @@ async function renderValueButtons(values, node) {
               const fullPath = `/${value.path.split("/")[1]}/${value.path.split("/")[2]}/${path}/`
               await Helper.verify("path/exist", fullPath, pathField)
               Helper.overlay("lock", async o3 => {
-                const res = await Helper.request("/location-expert/register/platform/value/path/", {old: value.path, new: path})
+                const res = await post("/location-expert/register/platform/value/path/", {old: value.path, new: path})
                 if (res.status === 200) {
                   o3.alert.ok()
                   o2.remove()
@@ -1137,7 +1190,7 @@ async function renderValueButtons(values, node) {
           const confirm = window.confirm("Möchtest du deine Werteinheit wirklich löschen? Alle enthaltenen Daten werden ebenfalls gelöscht.")
           if (confirm === true) {
             Helper.overlay("lock", async o2 => {
-              const res = await Helper.request("/location-expert/remove/platform/value/", {path: value.path})
+              const res = await post("/location-expert/remove/platform/value/", {path: value.path})
               if (res.status === 200) {
                 o2.alert.removed()
                 o1.previousSibling.remove()
@@ -1154,7 +1207,7 @@ async function renderValueButtons(values, node) {
         updateToolbox.onclick = () => {
 
           Helper.overlay("lock", async o2 => {
-            const res = await Helper.request("/location-expert/update/toolbox/path/", {path: value.path})
+            const res = await post("/location-expert/update/toolbox/path/", {path: value.path})
             if (res.status === 200) {
               window.alert("Toolbox erfolgreich aktualisiert.")
             } else {
@@ -1193,7 +1246,7 @@ async function renderValueButtons(values, node) {
                   const visibility = type
                   const path = value.path
                   Helper.overlay("lock", async o3 => {
-                    const res = await Helper.request("/location-expert/register/platform/value/visibility/", {path, visibility})
+                    const res = await post("/location-expert/register/platform/value/visibility/", {path, visibility})
                     if (res.status === 200) {
                       o3.alert.saved()
                       o2.remove()
@@ -1216,7 +1269,7 @@ async function renderValueButtons(values, node) {
                   window.alert("Fehler.. Bitte wiederholen.")
                   o2.remove()
                 }
-                Helper.request("/expert/get/platform/roles/").then(res => {
+                post("/expert/get/platform/roles/").then(res => {
                   if (res.status === 200) {
                     try {
                       const roles = JSON.parse(res.response)
@@ -1233,7 +1286,7 @@ async function renderValueButtons(values, node) {
                 if (Array.isArray(value.roles)) rolesSelect.input.select(value.roles)
                 addLabel("Kontakte, von dir, dürfen mit deiner Werteinheit interagieren")
                 const authorizedSelect = Helper.create("select/emails", funnelDiv)
-                Helper.request("/jwt/get/user/contacts/").then(res => {
+                post("/jwt/get/user/contacts/").then(res => {
                   if (res.status === 200) {
                     try {
                       const contacts = JSON.parse(res.response)
@@ -1257,7 +1310,7 @@ async function renderValueButtons(values, node) {
                   const roles = rolesSelect.selectedValues()
                   const authorized = authorizedSelect.selectedValues()
                   Helper.overlay("lock", async o3 => {
-                    const res = await Helper.request("/location-expert/register/platform/value/visibility/", {visibility, roles, authorized, path})
+                    const res = await post("/location-expert/register/platform/value/visibility/", {visibility, roles, authorized, path})
                     if (res.status === 200) {
                       o3.alert.saved()
                       o2.remove()
@@ -1287,7 +1340,7 @@ async function renderValueButtons(values, node) {
             emailsSelect.input.setAttribute("multiple", "true")
             Helper.verify("input/value", emailsSelect.input)
             emailsSelect.input.className += " vh34"
-            Helper.request("/jwt/get/user/contacts/").then(res => {
+            post("/jwt/get/user/contacts/").then(res => {
               if (res.status === 200) {
                 try {
                   const contacts = JSON.parse(res.response)
@@ -1308,7 +1361,7 @@ async function renderValueButtons(values, node) {
               const path = value.path
               const writability = emailsSelect.selectedValues()
               Helper.overlay("lock", async o3 => {
-                const res = await Helper.request("/location-expert/register/platform/value/writability/", {path, writability})
+                const res = await post("/location-expert/register/platform/value/writability/", {path, writability})
                 if (res.status === 200) {
                   o3.alert.saved()
                   o2.remove()
@@ -1335,6 +1388,7 @@ async function renderValueButtons(values, node) {
     }
     if (value.visibility === "open") {
       div.header.state.classList.add("bg-green")
+      div.header.state.style = "color: #fff;"
       div.header.state.textContent = "open"
     }
     if (value.visibility === "closed") {
@@ -1383,6 +1437,43 @@ async function renderValueButtons(values, node) {
       const writability = Helper.div("fs21 color-orange", div.body.content)
       writability.textContent = `Schreibrechte: ${value.writability.join(", ")}`
     }
+    if (value.writeAccessRequest && value.writeAccessRequest.length > 0) {
+      const fragment = document.createDocumentFragment()
+      value.writeAccessRequest.forEach(id => {
+        const shortId = id.substring(0, 5)
+        const decisionBox = Helper.div("box mt8", fragment)
+        Helper.add("hover-outline", decisionBox)
+        const decisionText = Helper.div("", decisionBox)
+        decisionText.textContent = `Der Nutzer mit der id '${shortId}..' hat Schreibrechte gefordert.`
+        const showIdBtn = Helper.div("box mt8 mb21", decisionBox)
+        Helper.add("hover-outline", showIdBtn)
+        showIdBtn.textContent = `Wer ist ${shortId}..?`
+        showIdBtn.onclick = () => {
+          Helper.overlay("lock", async lock => {
+            const res = await post("/location-expert/get/user/info/", {id})
+            if (res.status === 200) window.alert(res.response)
+            else lock.alert.nok()
+            lock.remove()
+          })
+        }
+        const decisionButtons = Helper.div("flex align between", decisionBox)
+        const allowBtn = Helper.div("btn-ok", decisionButtons)
+        allowBtn.textContent = "Genehmigen"
+        Helper.add("hover-outline", allowBtn)
+        allowBtn.onclick = () => {
+          decisionBox.remove()
+          post("/location-expert/register/write-access-allowed/", {path: value.path, id})
+        }
+        const denyBtn = Helper.div("btn-nok", decisionButtons)
+        Helper.add("hover-outline", denyBtn)
+        denyBtn.textContent = "Ablehnen"
+        denyBtn.onclick = () => {
+          decisionBox.remove()
+          post("/location-expert/register/write-access-denied/", {path: value.path, id})
+        }
+      })
+      div.body.content.appendChild(fragment)
+    }
   }
 }
 function renderWritableValues(values, content) {
@@ -1394,7 +1485,7 @@ function renderWritableValues(values, content) {
   updateToolbox.onclick = () => {
 
     Helper.overlay("lock", async o1 => {
-      const res = await Helper.request("/location-writable/update/toolbox/paths/", {paths})
+      const res = await post("/location-writable/update/toolbox/paths/", {paths})
       if (res.status === 200) {
         o1.alert.ok()
       } else {
@@ -1416,7 +1507,7 @@ function renderWritableValues(values, content) {
 }
 async function verifyPlatformExist(input) {
 
-  const res = await Helper.request("/location-expert/verify/platform/exist/", {platform: input.value})
+  const res = await post("/location-expert/verify/platform/exist/", {platform: input.value})
   if (res.status === 200) {
     window.alert("Plattform existiert bereits.")
     Helper.add("style/not-valid", input)
@@ -1425,7 +1516,7 @@ async function verifyPlatformExist(input) {
 }
 async function verifyPlatformRoleNameExist(platform, input) {
 
-  const res = await Helper.request("/location-expert/verify/platform/role/name/", {platform, name: input.value})
+  const res = await post("/location-expert/verify/platform/role/name/", {platform, name: input.value})
   if (res.status === 200) {
     window.alert("Diese Rolle existiert bereits.")
     Helper.add("style/not-valid", input)
