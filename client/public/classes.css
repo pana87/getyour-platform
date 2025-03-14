@@ -167,8 +167,8 @@
 .bs-theme {box-shadow: 0 1px 3px rgba(0, 0, 0, 0.13);}
 .btn-dark {box-shadow: 0 1px 3px rgba(255, 255, 255, 0.13); border: 0.3px solid #2E4369; background-color: #333;}
 .btn-light {box-shadow: 0 1px 3px rgba(0, 0, 0, 0.13); border: 0.3px solid #A0A0A0; background-color: #CDD9E5;}
-.btn-nok {border-radius: 5px; display: flex; justify-content: center; align-items: center; padding: 5px; background-color: red;}
-.btn-ok {border-radius: 5px; display: flex; justify-content: center; align-items: center; padding: 5px; background-color: green;}
+.btn-nok {border-radius: 5px; display: flex; justify-content: center; align-items: center; padding: 8px; background-color: red;}
+.btn-ok {border-radius: 5px; display: flex; justify-content: center; align-items: center; padding: 8px; background-color: green;}
 .btn-reverse {box-shadow: 0 1px 3px rgba(255, 255, 255, 0.13); border: 0.3px solid #2E4369; background-color: #333;}
 .btn-theme {box-shadow: 0 1px 3px rgba(0, 0, 0, 0.13); border: 0.3px solid #A0A0A0; background-color: #CDD9E5;}
 .btn-theme-reverse {box-shadow: 0 1px 3px rgba(255, 255, 255, 0.13); border: 0.3px solid #2E4369; background-color: #333;}
