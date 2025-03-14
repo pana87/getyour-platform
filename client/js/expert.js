@@ -1,6 +1,7 @@
 import {Helper, renderTag, addLoading} from "/js/Helper.js"
 import {button} from "/js/button.js"
 import {post} from "/js/request.js"
+import {div} from "/js/html-tags.js"
 
 button.append("go-back", document.body)
 const domain = window.location.pathname.split("/")[1]
@@ -1057,12 +1058,32 @@ async function renderLocationExpertPlatformValues(platform, node) {
   const searchField = Helper.create("input/text", node)
   searchField.input.placeholder = "Suche nach Alias"
   Helper.verify("input/value", searchField.input)
-  const loading = Helper.create("div/loading", node)
+  const actionNeededBtn = div("box mlr34 mb13 inline-block", node)
+  actionNeededBtn.textContent = "Aktion erfoderlich"
+  Helper.add("hover-outline", actionNeededBtn)
+  const loading = addLoading(node)
   const rerender = Helper.div("mlr34 flex wrap align around", node)
   const res = await post("/location-expert/get/platform/values/", {platform})
   loading.remove()
   if (res.status === 200) {
     const values = JSON.parse(res.response)
+    let selected = false
+    actionNeededBtn.onclick = () => {
+      if (!selected) {
+        const filtered = values.filter(it => it.writeAccessRequest.length > 0)
+        renderValueButtons(filtered, rerender)
+        selected = true
+        actionNeededBtn.classList.remove("box")
+        actionNeededBtn.classList.add("btn-ok")
+        actionNeededBtn.textContent = "Schreibrechte freigeben"
+      } else {
+        renderValueButtons(values, rerender)
+        selected = false
+        actionNeededBtn.classList.add("box")
+        actionNeededBtn.classList.remove("btn-ok")
+        actionNeededBtn.textContent = "Aktion erfoderlich"
+      }
+    }
     searchField.input.oninput = ev => {
       const highlighted = Helper.sort("query", {array: values, filter: "alias", query: ev.target.value})
       renderValueButtons(highlighted, rerender)
@@ -1075,7 +1096,6 @@ async function renderValueButtons(values, node) {
   node.textContent = ""
   for (let i = 0; i < values.length; i++) {
     const value = values[i]
-    console.log(value)
     const div = Helper.div("p8 w377", node)
     div.header = Helper.div("flex br-tl-tr-bl21 btn-theme", div)
     Helper.add("hover-outline", div.header)
