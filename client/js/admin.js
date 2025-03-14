@@ -1,4 +1,4 @@
-import {Helper} from "/js/Helper.js"
+import {Helper, addLoading} from "/js/Helper.js"
 import {button} from "/js/button.js"
 import {post} from "/js/request.js"
 
@@ -30,68 +30,41 @@ app.onclick = () => {
       logs.onclick = () => {
         Helper.overlay("pop", o4 => {
           const content = o4.content
-
-          const infos = Helper.render("button/left-right", {left: ".infos", right: "Manuell gesetzter Echtzeit Logger"}, content)
-          infos.onclick = () => {
-
+          const open = Helper.render("button/left-right", {left: ".open", right: "Logbuch öffnen"}, content)
+          open.onclick = () => {
             Helper.overlay("pop", async o5 => {
-              o5.load()
               const content = o5.content
-              const res = await Helper.request("/admin/get/logs/", {type: "info"})
+              const loader = addLoading(content)
+              const res = await Helper.request("/admin/get/logs/")
               content.textContent = ""
               if (res.status === 200) {
-                const infos = JSON.parse(res.response)
-                for (let i = 0; i < infos.length; i++) {
-                  const info = infos[i]
+                const logs = JSON.parse(res.response)
+                const fragment = document.createDocumentFragment()
+                for (let i = 0; i < logs.length; i++) {
+                  const log = logs[i]
                   const button = Helper.create("button/left-right", content)
-                  if (typeof info.it === "object") {
-                    info.it = JSON.stringify(info.it, null, 2)
-                  }
-                  Helper.render("text/div", info.it, button.left)
-                  Helper.render("text/div", `ist ein ${info.typeof}`, button.left)
-                  Helper.render("text/div", Helper.convert("millis/since", info.created), button.right)
-                }
-              } else {
-                Helper.render("text/note", "Keine Infos gefunden", content)
-              }
-            })
-          }
-
-          const errors = Helper.render("button/left-right", {left: ".errors", right: "Fehler Liste"}, content)
-          errors.onclick = () => {
-
-            Helper.overlay("pop", async o5 => {
-              o5.load()
-              const content = o5.content
-              const res = await Helper.request("/admin/get/logs/", {type: "error"})
-              content.textContent = ""
-              if (res.status === 200) {
-                const errors = JSON.parse(res.response)
-                for (let i = 0; i < errors.length; i++) {
-                  const error = errors[i]
-                  const button = Helper.create("button/left-right", content)
-                  button.addEventListener("click", () => {
-                    Helper.overlay("pop", o6 => {
-                      Helper.render("text/code", error.stack, o6.content)
+                  if (log.it?.name && log.it?.stack) {
+                    Helper.render("text/div", log.it.name, button.left)
+                    button.addEventListener("click", () => {
+                      Helper.overlay("pop", o6 => {
+                        const pre = document.createElement("pre")
+                        pre.className = "fs8 monospace color-theme mlr34 mtb21"
+                        pre.textContent = log.it.stack
+                        o6.content.appendChild(pre)
+                      })
                     })
-                  })
-                  Helper.render("text/div", "Fehler:", button.left)
-                  Helper.render("text/div", error.message, button.left)
-                  Helper.render("text/div", "Anfrage:", button.right)
-                  Helper.render("text/div", error.method, button.right)
-                  Helper.render("text/div", `an: ${error.endpoint}`, button.right)
-                  Helper.render("text/div", `von: ${error.location}`, button.right)
-                  Helper.render("text/div", `ursprung: ${error.referer}`, button.right)
+                  }
+                  Helper.render("text/div", log.method, button.right)
+                  Helper.render("text/div", `an: ${log.path}`, button.right)
+                  Helper.render("text/div", `von: ${log.url}`, button.right)
                 }
               } else {
                 Helper.render("text/note", "Keine Fehler gefunden", content)
               }
             })
           }
-
           const empty = Helper.render("button/left-right", {left: ".empty", right: "Logbuch leeren"}, content)
           empty.onclick = async () => {
-
             const confirm = window.confirm("Möchtest du wirklich die Logbücher leeren?")
             if (confirm === true) {
               Helper.overlay("lock", async lock => {
@@ -105,7 +78,6 @@ app.onclick = () => {
               })
             }
           }
-
         })
       }
       const registerDomain = Helper.render("button/left-right", {left: ".register-domain", right: "Neue Domain registrieren"}, buttons)

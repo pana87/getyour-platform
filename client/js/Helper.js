@@ -3505,37 +3505,24 @@ export class Helper {
             const res = await this.request("/get/location/lists/", {tags, ids})
             if (res.status === 200) {
               const data = JSON.parse(res.response)
-
               for (let i = 0; i < userList.children.length; i++) {
                 const child = userList.children[i]
-
-
                 Object.entries(data).forEach(([key, value]) => {
-
                   if (child.id === key) {
-
                     Object.entries(value).forEach(([key, value]) => {
-
                       child.querySelectorAll("[user-data]").forEach(element => {
                         if (element.getAttribute("user-data") === key) {
-
                           if (element.tagName === "IMG") {
                             element.src = value
                           } else {
                             element.textContent = value
                           }
-
                         }
                       })
-
                     })
-
                   }
-
                 })
-
               }
-
             }
 
             const userLists = document.querySelectorAll(`#match-maker-list-${input.name}`)

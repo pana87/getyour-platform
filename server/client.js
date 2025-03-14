@@ -149,55 +149,69 @@ app.use("/docs/", express.static(path.join(__dirname, "..", "docs")))
 app.use(express.static(path.join(__dirname, "..", "client")))
 
 app.get("/",
-
   async (req, res, next) => {
-
     try {
       return res.send(Helper.readFileSyncToString("../lib/values/home.html"))
-    } catch (error) {
-      await Helper.logError(error, req)
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
+async function verifyLocation(req, res, next) {
+  if (!req.body.location) throw new Error("req.body.location not found")
+  const location = new URL(req.body.location)
+  const isLocaltunnel = location.origin.endsWith(".loca.lt") && location.protocol === "https:"
+  if (allowedOrigins.includes(location.origin) || isLocaltunnel) {
+    req.location = {}
+    req.location.url = location
+    req.location.expert = location.pathname.split("/")[1]
+    req.location.platform = location.pathname.split("/")[2]
+    req.location.path = location.pathname.split("/")[3]
+    req.location.id = location.pathname.split("/")[4]
+    return next()
+  }
+  return res.sendStatus(404)
+}
 app.get("/admin/",
-
   addJwt,
   Helper.verifySession,
   adminOnly,
   async(req, res) => {
-
     try {
       return res.send(Helper.readFileSyncToString("../lib/values/admin.html"))
-    } catch (error) {
-      await Helper.logError(error, req)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
-    return res.sendStatus(404)
   }
 )
 app.get("/cid/:cid/", 
   verifyOrigin,
-  (req, res, next) => {
-    const cid = req.params.cid
-    const filePath = `./cid/${cid}`
-    fs.access(filePath, fs.constants.F_OK, async err => {
-      if (err) return res.sendStatus(404)
-      const fileBuffer = fs.readFileSync(filePath)
-      const {mime} = await fileType.fileTypeFromBuffer(fileBuffer)
-      res.set("Content-Type", mime)
-      fs.createReadStream(filePath).pipe(res)
-    })
+  async (req, res, next) => {
+    try {
+      const cid = req.params.cid
+      const filePath = `./cid/${cid}`
+      fs.access(filePath, fs.constants.F_OK, async err => {
+        if (err) return res.sendStatus(404)
+        const fileBuffer = fs.readFileSync(filePath)
+        const {mime} = await fileType.fileTypeFromBuffer(fileBuffer)
+        res.set("Content-Type", mime)
+        fs.createReadStream(filePath).pipe(res)
+      })
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
   }
 )
 app.get("/db/migration/",
-
   async (req, res) => {
-
     const db = nano.db.use("getyour")
     try {
       const doc = await db.get("user")
       if (doc.user) return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
       const doc = await db.get("users")
       const map = Helper.convert("array/map", doc.users)
       await db.insert({_id: "user", user: map})
@@ -206,35 +220,31 @@ app.get("/db/migration/",
   }
 )
 app.get("/get/cookies/",
-
   async (req, res) => {
-
     try {
       return res.send(req.cookies)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.get("/remove/cookies/",
-
   async (req, res) => {
-
     try {
       Object.keys(req.cookies).forEach((cookieName) => {
         res.cookie(cookieName, "", { expires: new Date(Date.now()) })
         res.clearCookie(cookieName)
       })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.get("/:expert/",
-
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.params.expert)) return res.sendStatus(404)
       if (req.params.expert === "validation-key.txt") return res.send("169e1e0ce581f384c67717306ed10bb3e9127d43f15b1037f44ac868b78560bcb920c1b27cd26f272da197bb0fcc15458020289f0f492ad7b622a2500f2bbfd8")
@@ -243,16 +253,16 @@ app.get("/:expert/",
       if (req.params.expert === "datenschutz") return res.send(Helper.readFileSyncToString(`../lib/values/datenschutz.html`))
       const doc = await nano.db.use("getyour").get("user")
       const locationExpert = Object.values(doc.user)
-        .find(user => user.getyour?.expert?.name === req.params.expert)
+      .find(user => user.getyour?.expert?.name === req.params.expert)
       if (locationExpert) {
         return res.send(Helper.readFileSyncToString("../lib/values/expert.html"))
       } else {
         return res.redirect("/")
       }
-    } catch (error) {
-      await Helper.logError(error, req)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
-    return res.sendStatus(404)
   }
 )
 app.get("/:expert/:platform/:path/",
@@ -265,8 +275,8 @@ app.get("/:expert/:platform/:path/",
       } else {
         return next()
       }
-    } catch (error) {
-      await Helper.logError(error, req)
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -290,8 +300,8 @@ app.get("/:expert/:platform/:path/",
         return res.send(html)
       }
       return res.redirect("/")
-    } catch (error) {
-      await Helper.logError(error, req)
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -307,18 +317,26 @@ app.get("/:expert/:platform/:path/:id/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
-      await Helper.logError(error, req)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
-    return res.sendStatus(404)
   }
 )
-async function log(it, type = "info") {
+async function log(it, req) {
   const log = {}
-  log.type = type
-  log.typeof = typeof it
-  log.created = Date.now()
   log.it = it
+  if (it instanceof Error) log.it = {message: it.message, name: it.name, stack: it.stack}
+  log.type = typeof it
+  log.created = Date.now()
+  log.isArray = Array.isArray(it)
+  if (req) {
+    log.method = req.method
+    log.url = `${req.protocol}://${req.get("host")}${req.originalUrl}`
+    log.host = req.headers.host
+    log.path = req.path
+    log.query = req.query
+  }
   const doc = await nano.db.use("getyour").get("logs")
   doc.logs.unshift(log)
   console.log(log)
@@ -330,7 +348,7 @@ app.post('/admin/exec/command/',
   addJwt,
   Helper.verifySession,
   adminOnly,
-  (req, res) => {
+  async (req, res) => {
     try {
       const command = req.body.command
       exec(command, (error, stdout, stderr) => {
@@ -345,6 +363,7 @@ app.post('/admin/exec/command/',
         res.send(stdout)
       })
     } catch (e) {
+      await log(e, req)
       res.sendStatus(404)
     }
   }
@@ -369,7 +388,8 @@ app.post("/location-expert/get/user/info/",
       const user = doc.user[id]
       const info = userToInfo(user)
       return res.send(info)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -392,7 +412,8 @@ app.post("/location-expert/get/expert/paths/",
       .flatMap(value => value.path || [])
       if (!paths || paths.length <= 0) return res.sendStatus(404)
       return res.send(paths)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -409,7 +430,8 @@ app.post("/location-expert/get/platform/roles/text-value/",
       const roles = getUserRoles(user)
       .map(it => ({text: it.name, value: it.created}))
       return res.send(roles)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -457,26 +479,25 @@ app.post("/jwt/retell/call/contact/",
         await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       }
       return res.send(result)
-    } catch (error) {
-      console.log(error)
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/get/retell/api-key/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const retellApiKey = req.jwt.user.retell?.apiKey
       if (!retellApiKey) return res.sendStatus(404)
       return res.send(retellApiKey)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -500,7 +521,8 @@ app.post("/jwt/get/experts",
       })
       if (!experts || experts.length <= 0) return res.sendStatus(404)
       return res.send(experts)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -512,12 +534,12 @@ app.post("/jwt/get/expert/name/",
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const name = req.jwt.user.getyour.expert.name
       if (!name) return res.sendStatus(404)
       return res.send(name)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -533,17 +555,16 @@ app.post("/get/expert/names/",
       .filter(it => it)
       if (!names || names.length <= 0) return res.sendStatus(404)
       return res.send(names)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/location/feedback/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const locationExpert = Object.values(doc.user).find(user => Helper.verifyIs("user/location-expert", {user, req}))
@@ -557,17 +578,16 @@ app.post("/get/location/feedback/",
       )
       if (!value && !value.feedback && value.feedback.length <= 0) return res.sendStatus(404)
       return res.send(value.feedback)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/location/feedback-length/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       if (!req.location) return res.sendStatus(404)
       const doc = await nano.db.use("getyour").get("user")
@@ -582,19 +602,18 @@ app.post("/get/location/feedback-length/",
       )
       if (!value && !value.feedback && value.feedback.length <= 0) return res.sendStatus(404)
       return res.send(`${value.feedback.length}`)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/groups/self/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const jwtUser = doc.user[req.jwt.id]
@@ -614,174 +633,174 @@ app.post("/get/groups/self/",
       }
       if (array.length > 0) return res.send(array)
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/expert/get/js/paths/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   expertOnly,
   async (req, res, next) => {
-
     try {
       const jsPath = path.join(__dirname, '../client/js/')
       const paths = await fs.promises.readdir(jsPath)
       return res.send(paths)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/location/lists/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        if (Helper.verifyIs("array/empty", req.body.ids)) throw new Error("req.body.ids is empty")
-        if (Helper.verifyIs("array/empty", req.body.tags)) throw new Error("req.body.tags is empty")
-        const doc = await nano.db.use("getyour").get("user")
-        const user = doc.user[req.jwt.id]
-        if (user.id === req.jwt.id) {
-          const clone = {}
-          for (let i = 0; i < req.body.ids.length; i++) {
-            const id = req.body.ids[i]
-            for (const key in doc.user) {
-              const user = doc.user[key]
-              if (user[req.location.platform] !== undefined) {
-                Object.entries(user[req.location.platform]).forEach(([key, value] )=> {
-                  if (Array.isArray(user[req.location.platform][key])) {
-                    for (let i = 0; i < user[req.location.platform][key].length; i++) {
-                      const item = user[req.location.platform][key][i]
-                      if (item.created === id) {
-                        clone[id] = Helper.convert("user-tags/value", {user, tags: req.body.tags})
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          if (Helper.verifyIs("array/empty", req.body.ids)) throw new Error("req.body.ids is empty")
+          if (Helper.verifyIs("array/empty", req.body.tags)) throw new Error("req.body.tags is empty")
+          const doc = await nano.db.use("getyour").get("user")
+          const user = doc.user[req.jwt.id]
+          if (user.id === req.jwt.id) {
+            const clone = {}
+            for (let i = 0; i < req.body.ids.length; i++) {
+              const id = req.body.ids[i]
+              for (const key in doc.user) {
+                const user = doc.user[key]
+                if (user[req.location.platform] !== undefined) {
+                  Object.entries(user[req.location.platform]).forEach(([key, value] )=> {
+                    if (Array.isArray(user[req.location.platform][key])) {
+                      for (let i = 0; i < user[req.location.platform][key].length; i++) {
+                        const item = user[req.location.platform][key][i]
+                        if (item.created === id) {
+                          clone[id] = Helper.convert("user-tags/value", {user, tags: req.body.tags})
+                        }
                       }
                     }
-                  }
-                })
+                  })
+                }
               }
             }
+            return res.send(clone)
           }
-          return res.send(clone)
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/get/location/tag-expert/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
-      if (Helper.verifyIs("text/empty", req.body.tag)) throw new Error("req.body.tag is empty")
-      if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
-      const location = req.body.path.split("/")[2]
-      const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      if (jwtUser.id === req.jwt.id) {
-        if (Helper.verifyIs("user/expert", jwtUser)) {
-          for (const key in doc.user) {
-            const user = doc.user[key]
-            if (user.email === req.body.email) {
-              if (user[location] !== undefined) {
-                let found
-                Object.entries(user[location]).forEach(([key, value]) => {
-                  if (key === req.body.tag) {
-                    found = { [key]: value }
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
+        if (Helper.verifyIs("text/empty", req.body.tag)) throw new Error("req.body.tag is empty")
+        if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
+        const location = req.body.path.split("/")[2]
+        const doc = await nano.db.use("getyour").get("user")
+        const jwtUser = doc.user[req.jwt.id]
+        if (jwtUser.id === req.jwt.id) {
+          if (Helper.verifyIs("user/expert", jwtUser)) {
+            for (const key in doc.user) {
+              const user = doc.user[key]
+              if (user.email === req.body.email) {
+                if (user[location] !== undefined) {
+                  let found
+                  Object.entries(user[location]).forEach(([key, value]) => {
+                    if (key === req.body.tag) {
+                      found = { [key]: value }
+                    }
+                  })
+                  if (found && found[req.body.tag].length > 0) {
+                    return res.send(found)
                   }
-                })
-                if (found && found[req.body.tag].length > 0) {
-                  return res.send(found)
                 }
               }
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/get/location/tag/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.tag)) throw new Error("req.body.tag is empty")
       const user = req.jwt.user
       if (!user[req.location.platform]) return res.sendStatus(404)
       if (!user[req.location.platform][req.body.tag]) return res.sendStatus(404)
       return res.send(user[req.location.platform][req.body.tag])
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/admin/get/logs/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("logs")
-      const filteredLogs = doc.logs.filter(it => it.type === req.body.type)
-      const offset = parseInt(req.body.offset) || 0
-      const limit = parseInt(req.body.limit) || 21
-      const slicedLogs = filteredLogs.slice(offset, offset + limit);
-      if (!slicedLogs || slicedLogs.length <= 0) return res.sendStatus(404)
-      return res.send(slicedLogs)
-    } catch (error) {
+      if (!doc.logs || doc.logs.length <= 0) throw new Error("logs are empty")
+      return res.send(doc.logs)
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/match-maker/condition-expert/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
-        const doc = await nano.db.use("getyour").get("user")
-        const user = doc.user[req.jwt.id]
-        if (user.id === req.jwt.id) {
-          if (Helper.verifyIs("user/location-expert", {user, req})) {
-            if (user.getyour.expert.platforms !== undefined) {
-              for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                const platform = user.getyour.expert.platforms[i]
-                if (platform["match-maker"] !== undefined) {
-                  for (let i = 0; i < platform["match-maker"].length; i++) {
-                    const matchMaker = platform["match-maker"][i]
-                    if (matchMaker.conditions !== undefined) {
-                      for (let i = 0; i < matchMaker.conditions.length; i++) {
-                        const condition = matchMaker.conditions[i]
-                        if (condition.created === req.body.id) {
-                          return res.send(condition)
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
+          const doc = await nano.db.use("getyour").get("user")
+          const user = doc.user[req.jwt.id]
+          if (user.id === req.jwt.id) {
+            if (Helper.verifyIs("user/location-expert", {user, req})) {
+              if (user.getyour.expert.platforms !== undefined) {
+                for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                  const platform = user.getyour.expert.platforms[i]
+                  if (platform["match-maker"] !== undefined) {
+                    for (let i = 0; i < platform["match-maker"].length; i++) {
+                      const matchMaker = platform["match-maker"][i]
+                      if (matchMaker.conditions !== undefined) {
+                        for (let i = 0; i < matchMaker.conditions.length; i++) {
+                          const condition = matchMaker.conditions[i]
+                          if (condition.created === req.body.id) {
+                            return res.send(condition)
+                          }
                         }
                       }
                     }
@@ -792,41 +811,44 @@ app.post("/get/match-maker/condition-expert/",
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/get/match-maker/conditions-writable/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
-        const array = []
-        const doc = await nano.db.use("getyour").get("user")
-        const jwtUser = doc.user[req.jwt.id]
-        if (jwtUser.id === req.jwt.id) {
-          const userIsWritable = await Helper.verifyIs("user/location-writable", {jwtUser, req})
-          if (userIsWritable) {
-            for (const key in doc.user) {
-              const user = doc.user[key]
-              if (user.getyour !== undefined) {
-                if (user.getyour.expert !== undefined) {
-                  if (user.getyour.expert.platforms !== undefined) {
-                    for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                      const platform = user.getyour.expert.platforms[i]
-                      if (platform["match-maker"] !== undefined) {
-                        for (let i = 0; i < platform["match-maker"].length; i++) {
-                          const matchMaker = platform["match-maker"][i]
-                          if (matchMaker.created === req.body.id) {
-                            if (matchMaker.conditions !== undefined) {
-                              for (let i = 0; i < matchMaker.conditions.length; i++) {
-                                const condition = matchMaker.conditions[i]
-                                array.push(condition)
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
+          const array = []
+          const doc = await nano.db.use("getyour").get("user")
+          const jwtUser = doc.user[req.jwt.id]
+          if (jwtUser.id === req.jwt.id) {
+            const userIsWritable = await Helper.verifyIs("user/location-writable", {jwtUser, req})
+            if (userIsWritable) {
+              for (const key in doc.user) {
+                const user = doc.user[key]
+                if (user.getyour !== undefined) {
+                  if (user.getyour.expert !== undefined) {
+                    if (user.getyour.expert.platforms !== undefined) {
+                      for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                        const platform = user.getyour.expert.platforms[i]
+                        if (platform["match-maker"] !== undefined) {
+                          for (let i = 0; i < platform["match-maker"].length; i++) {
+                            const matchMaker = platform["match-maker"][i]
+                            if (matchMaker.created === req.body.id) {
+                              if (matchMaker.conditions !== undefined) {
+                                for (let i = 0; i < matchMaker.conditions.length; i++) {
+                                  const condition = matchMaker.conditions[i]
+                                  array.push(condition)
+                                }
                               }
                             }
                           }
@@ -838,22 +860,23 @@ app.post("/get/match-maker/conditions-writable/",
               }
             }
           }
+          if (array.length <= 0) return res.sendStatus(404)
+          return res.send(array)
         }
-        if (array.length <= 0) return res.sendStatus(404)
-        return res.send(array)
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/get/match-maker/conditions/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -861,171 +884,178 @@ app.post("/location-expert/get/match-maker/conditions/",
       const matchMaker = user.getyour?.expert?.platforms?.flatMap(it => it["match-maker"]).find(it => it.created === req.body.created)
       if (!matchMaker || !matchMaker.conditions || matchMaker.conditions.length <= 0) return res.sendStatus(404)
       return res.send(matchMaker.conditions)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/get/platform/match-maker/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
       const platform = findPlatform(req.body.platform, req.jwt.user)
       const matchMakers = platform["match-maker"]
       if (!matchMakers || matchMakers.length <= 0) return res.sendStatus(404)
       return res.send(matchMakers)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/match-maker/keys/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("array/empty", req.body.conditions)) throw new Error("req.body.conditions is empty")
+        if (Helper.verifyIs("array/empty", req.body.mirror)) throw new Error("req.body.mirror is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
 
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("array/empty", req.body.conditions)) throw new Error("req.body.conditions is empty")
-      if (Helper.verifyIs("array/empty", req.body.mirror)) throw new Error("req.body.mirror is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-
-      for (let i = 0; i < req.body.conditions.length; i++) {
-        const condition = req.body.conditions[i]
-        if (user.id === req.jwt.id) {
-          if (Helper.verify("user/tree/exist", user, condition.left) === true) {
-            if (Helper.verify("user/condition", user, condition) === false) {
+        for (let i = 0; i < req.body.conditions.length; i++) {
+          const condition = req.body.conditions[i]
+          if (user.id === req.jwt.id) {
+            if (Helper.verify("user/tree/exist", user, condition.left) === true) {
+              if (Helper.verify("user/condition", user, condition) === false) {
+                return res.sendStatus(404)
+              }
+            } else {
               return res.sendStatus(404)
             }
-          } else {
-            return res.sendStatus(404)
           }
         }
-      }
-      if (user.id === req.jwt.id) {
-        const clone = {}
-        for (let i = 0; i < req.body.mirror.length; i++) {
-          const tree = req.body.mirror[i]
-          if (Helper.verify("user/tree/exist", user, tree) === true) {
-            const map = {}
-            map.tree = tree
-            map.user = user
-            clone[tree.replace(/\./g, "-")] = Helper.convert("user-tree/value", map)
+        if (user.id === req.jwt.id) {
+          const clone = {}
+          for (let i = 0; i < req.body.mirror.length; i++) {
+            const tree = req.body.mirror[i]
+            if (Helper.verify("user/tree/exist", user, tree) === true) {
+              const map = {}
+              map.tree = tree
+              map.user = user
+              clone[tree.replace(/\./g, "-")] = Helper.convert("user-tree/value", map)
+            }
           }
+          return res.send(clone)
         }
-        return res.send(clone)
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/get/match-maker/list/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("array/empty", req.body.conditions)) throw new Error("req.body.conditions is empty")
-      if (Helper.verifyIs("text/empty", req.body.tree)) throw new Error("req.body.tree is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      if (jwtUser.id === req.jwt.id) {
-        for (let i = 0; i < req.body.conditions.length; i++) {
-          const condition = req.body.conditions[i]
-          if (Helper.verify("user/condition", jwtUser, condition) === false) {
-            return res.sendStatus(404)
-          }
-        }
-      }
-      const array = []
-      const tags = req.body.tree.split(".")
-      for (const key in doc.user) {
-        const user = doc.user[key]
-        if (user[tags[0]] !== undefined) {
-          if (user[tags[0]][tags[1]] !== undefined) {
-            for (let i = 0; i < user[tags[0]][tags[1]].length; i++) {
-              const list = user[tags[0]][tags[1]][i]
-              const map = {}
-              map.id = list.created
-              map.tag = list.tag
-              map.reputation = user.reputation
-              map.funnel = list.funnel
-              array.push(map)
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("array/empty", req.body.conditions)) throw new Error("req.body.conditions is empty")
+        if (Helper.verifyIs("text/empty", req.body.tree)) throw new Error("req.body.tree is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const jwtUser = doc.user[req.jwt.id]
+        if (jwtUser.id === req.jwt.id) {
+          for (let i = 0; i < req.body.conditions.length; i++) {
+            const condition = req.body.conditions[i]
+            if (Helper.verify("user/condition", jwtUser, condition) === false) {
+              return res.sendStatus(404)
             }
           }
         }
+        const array = []
+        const tags = req.body.tree.split(".")
+        for (const key in doc.user) {
+          const user = doc.user[key]
+          if (user[tags[0]] !== undefined) {
+            if (user[tags[0]][tags[1]] !== undefined) {
+              for (let i = 0; i < user[tags[0]][tags[1]].length; i++) {
+                const list = user[tags[0]][tags[1]][i]
+                const map = {}
+                map.id = list.created
+                map.tag = list.tag
+                map.reputation = user.reputation
+                map.funnel = list.funnel
+                array.push(map)
+              }
+            }
+          }
+        }
+        if (array.length > 0) return res.send(array)
       }
-      if (array.length > 0) return res.send(array)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/get/match-maker/mirror/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("array/empty", req.body.conditions)) throw new Error("req.body.conditions is empty")
-      if (Helper.verifyIs("array/empty", req.body.mirror)) throw new Error("req.body.mirror is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      for (let i = 0; i < req.body.conditions.length; i++) {
-        const condition = req.body.conditions[i]
-        if (jwtUser.id === req.jwt.id) {
-          if (Helper.verify("user/tree/exist", jwtUser, condition.left) === true) {
-            if (Helper.verify("user/condition", jwtUser, condition) === false) {
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("array/empty", req.body.conditions)) throw new Error("req.body.conditions is empty")
+        if (Helper.verifyIs("array/empty", req.body.mirror)) throw new Error("req.body.mirror is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const jwtUser = doc.user[req.jwt.id]
+        for (let i = 0; i < req.body.conditions.length; i++) {
+          const condition = req.body.conditions[i]
+          if (jwtUser.id === req.jwt.id) {
+            if (Helper.verify("user/tree/exist", jwtUser, condition.left) === true) {
+              if (Helper.verify("user/condition", jwtUser, condition) === false) {
+                return res.sendStatus(404)
+              }
+            } else {
               return res.sendStatus(404)
             }
-          } else {
-            return res.sendStatus(404)
           }
         }
-      }
-      const array = []
-      userloop: for (const key in doc.user) {
-        const user = doc.user[key]
-        for (let i = 0; i < req.body.mirror.length; i++) {
-          const tree = req.body.mirror[i]
-          if (Helper.verify("user/tree/exist", user, tree) === false) continue userloop
-          const clone = {}
-          clone.reputation = user.reputation
-          clone.treeValues = []
-          const map = {}
-          map.tree = tree
-          map.user = user
-          const value = this.convert("user-tree/value", map)
-          const treeValuePair = {}
-          treeValuePair.tree = tree
-          treeValuePair.value = value
-          clone.treeValues.push(treeValuePair)
+        const array = []
+        userloop: for (const key in doc.user) {
+          const user = doc.user[key]
+          for (let i = 0; i < req.body.mirror.length; i++) {
+            const tree = req.body.mirror[i]
+            if (Helper.verify("user/tree/exist", user, tree) === false) continue userloop
+            const clone = {}
+            clone.reputation = user.reputation
+            clone.treeValues = []
+            const map = {}
+            map.tree = tree
+            map.user = user
+            const value = this.convert("user-tree/value", map)
+            const treeValuePair = {}
+            treeValuePair.tree = tree
+            treeValuePair.value = value
+            clone.treeValues.push(treeValuePair)
+          }
+          array.push(clone)
         }
-        array.push(clone)
+        return res.send(map)
       }
-      return res.send(map)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/get/platforms/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const platforms =  Object.values(doc.user)
@@ -1036,17 +1066,16 @@ app.post("/get/platforms/",
       .map(it => ({name: it.name}))
       if (!platforms || platforms.length <= 0) return res.sendStatus(404)
       return res.send(platforms)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/platform/values/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -1060,17 +1089,16 @@ app.post("/get/platform/values/",
       .map(it => ({alias: it.alias, image: it.image, path: it.path}))
       if (!values || values.length <= 0) throw new Error("values empty")
       return res.send(values)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/open/:list/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const openList = Object.values(doc.user)
@@ -1078,33 +1106,34 @@ app.post("/get/open/:list/",
       .filter(it => it.visibility === "open")
       if (!openList || openList.length <= 0) return res.sendStatus(404)
       return res.send(openList)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/platform/list-location-writable/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        const array = []
-        const doc = await nano.db.use("getyour").get("user")
-        const jwtUser = doc.user[req.jwt.id]
-        if (jwtUser.id === req.jwt.id) {
-          const userIsWritable = await Helper.verifyIs("user/location-writable", {user: jwtUser, req})
-          if (userIsWritable) {
-            for (const key in doc.user) {
-              const user = doc.user[key]
-              if (Helper.verifyIs("user/location-expert", {user, req})) {
-                if (user.getyour.expert.platforms !== undefined) {
-                  if (user.getyour.expert.platforms.length > 0) {
-                    return res.send(user.getyour.expert.platforms)
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          const array = []
+          const doc = await nano.db.use("getyour").get("user")
+          const jwtUser = doc.user[req.jwt.id]
+          if (jwtUser.id === req.jwt.id) {
+            const userIsWritable = await Helper.verifyIs("user/location-writable", {user: jwtUser, req})
+            if (userIsWritable) {
+              for (const key in doc.user) {
+                const user = doc.user[key]
+                if (Helper.verifyIs("user/location-expert", {user, req})) {
+                  if (user.getyour.expert.platforms !== undefined) {
+                    if (user.getyour.expert.platforms.length > 0) {
+                      return res.send(user.getyour.expert.platforms)
+                    }
                   }
                 }
               }
@@ -1112,15 +1141,16 @@ app.post("/get/platform/list-location-writable/",
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/get/platform/starts/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const starts = Object.values(doc.user)
@@ -1141,20 +1171,19 @@ app.post("/get/platform/starts/",
       .map(it => ({name: it.name, start: it.start}))
       if (!starts || starts.length <= 0) return res.sendStatus(404)
       return res.send(starts)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/get/platform/values/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is emtpy")
       const doc = await nano.db.use("getyour").get("user")
@@ -1175,42 +1204,43 @@ app.post("/location-expert/get/platform/values/",
       })
       if (!values || values.length <= 0) return res.sendStatus(404)
       return res.send(values)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/platform/values-writable/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.location !== undefined) {
-      if (req.jwt !== undefined) {
-        const array = []
-        const doc = await nano.db.use("getyour").get("user")
-        const jwtUser = doc.user[req.jwt.id]
-        if (jwtUser.id === req.jwt.id) {
-          for (const key in doc.user) {
-            const user = doc.user[key]
-            if (user.getyour !== undefined) {
-              if (user.getyour.expert !== undefined) {
-                if (user.getyour.expert.name === req.location.expert) {
-                  if (user.getyour.expert.platforms !== undefined) {
-                    for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                      const platform = user.getyour.expert.platforms[i]
-                      if (platform.name === req.location.platform) {
-                        if (platform.values !== undefined) {
-                          for (let i = 0; i < platform.values.length; i++) {
-                            const value = platform.values[i]
-                            if (value.writability !== undefined) {
-                              for (let i = 0; i < value.writability.length; i++) {
-                                const authorized = value.writability[i]
-                                if (authorized === user.email) {
-                                  array.push(value)
+    try {
+      if (req.location !== undefined) {
+        if (req.jwt !== undefined) {
+          const array = []
+          const doc = await nano.db.use("getyour").get("user")
+          const jwtUser = doc.user[req.jwt.id]
+          if (jwtUser.id === req.jwt.id) {
+            for (const key in doc.user) {
+              const user = doc.user[key]
+              if (user.getyour !== undefined) {
+                if (user.getyour.expert !== undefined) {
+                  if (user.getyour.expert.name === req.location.expert) {
+                    if (user.getyour.expert.platforms !== undefined) {
+                      for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                        const platform = user.getyour.expert.platforms[i]
+                        if (platform.name === req.location.platform) {
+                          if (platform.values !== undefined) {
+                            for (let i = 0; i < platform.values.length; i++) {
+                              const value = platform.values[i]
+                              if (value.writability !== undefined) {
+                                for (let i = 0; i < value.writability.length; i++) {
+                                  const authorized = value.writability[i]
+                                  if (authorized === user.email) {
+                                    array.push(value)
+                                  }
                                 }
                               }
                             }
@@ -1223,39 +1253,39 @@ app.post("/get/platform/values-writable/",
               }
             }
           }
+          if (array.length > 0) return res.send(array)
         }
-        if (array.length > 0) return res.send(array)
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/get/match-maker/location-writable/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       if (!isLocationWritable(doc, req)) return res.sendStatus(404)
       const platform = getLocationPlatform(doc, req)
       if (!platform || !platform["match-maker"] || platform["match-maker"].length <= 0) return res.sendStatus(404)
       return res.send(platform["match-maker"])
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/match-maker/location-expert/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
       const user = req.jwt.user
@@ -1263,20 +1293,19 @@ app.post("/get/match-maker/location-expert/",
       const matchMakers = user.getyour?.expert?.platforms?.flatMap(it => it["match-maker"])
       if (!matchMakers || matchMakers.length <= 0) return res.sendStatus(404)
       return res.send(matchMakers)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/expert/get/platform/paths/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   expertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is emtpy")
       const doc = await nano.db.use("getyour").get("user")
@@ -1285,62 +1314,62 @@ app.post("/expert/get/platform/paths/",
       .map(it => it.path)
       if (!paths || paths.length <= 0) return res.sendStatus(404)
       return res.send(paths)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/get/platform/paths/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is emtpy")
       const paths = findPlatform(req.body.platform, req.jwt.user).values
       .map(it => it.path)
       if (!paths || paths.length <= 0) return res.sendStatus(404)
       return res.send(paths)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/platform/role-apps/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
-        const doc = await nano.db.use("getyour").get("user")
-        const jwtUser = doc.user[req.jwt.id]
-        if (jwtUser.id === req.jwt.id) {
-          if (jwtUser.roles !== undefined) {
-            for (let i = 0; i < jwtUser.roles.length; i++) {
-              const role = jwtUser.roles[i]
-              if (role === req.body.id) {
-                for (const key in doc.user) {
-                  const user = doc.user[key]
-                  if (Helper.verifyIs("user/location-expert", {user, req})) {
-                    if (user.getyour.expert.platforms !== undefined) {
-                      for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                        const platform = user.getyour.expert.platforms[i]
-                        if (platform.name === req.location.platform) {
-                          if (platform.roles !== undefined) {
-                            for (let i = 0; i < platform.roles.length; i++) {
-                              const role = platform.roles[i]
-                              if (role.id === req.body.id) {
-                                if (role.apps !== undefined) {
-                                  return res.send(role.apps)
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
+          const doc = await nano.db.use("getyour").get("user")
+          const jwtUser = doc.user[req.jwt.id]
+          if (jwtUser.id === req.jwt.id) {
+            if (jwtUser.roles !== undefined) {
+              for (let i = 0; i < jwtUser.roles.length; i++) {
+                const role = jwtUser.roles[i]
+                if (role === req.body.id) {
+                  for (const key in doc.user) {
+                    const user = doc.user[key]
+                    if (Helper.verifyIs("user/location-expert", {user, req})) {
+                      if (user.getyour.expert.platforms !== undefined) {
+                        for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                          const platform = user.getyour.expert.platforms[i]
+                          if (platform.name === req.location.platform) {
+                            if (platform.roles !== undefined) {
+                              for (let i = 0; i < platform.roles.length; i++) {
+                                const role = platform.roles[i]
+                                if (role.id === req.body.id) {
+                                  if (role.apps !== undefined) {
+                                    return res.send(role.apps)
+                                  }
                                 }
                               }
                             }
@@ -1355,154 +1384,53 @@ app.post("/get/platform/role-apps/",
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/location-writable/get/platform/roles/text-value/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationWritableOnly,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const roles = getLocationRoles(doc, req)
       .map(it => ({text: it.name, value: it.created}))
       return res.send(roles)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/platform/role-home-self/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
-      if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user.getyour !== undefined) {
-          if (user.getyour.expert !== undefined) {
-            if (user.getyour.expert.platforms !== undefined) {
-              for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                const platform = user.getyour.expert.platforms[i]
-                if (platform.name === req.body.platform) {
-                  if (platform.roles !== undefined) {
-                    for (let i = 0; i < platform.roles.length; i++) {
-                      const role = platform.roles[i]
-                      if (role.created === req.body.id) return res.send(role.home)
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-)
-app.post("/location-expert/get/location-platform/roles/",
-
-  Helper.verifyLocation,
-  Helper.verifyReferer,
-  addJwt,
-  Helper.verifySession,
-  locationExpertOnly,
-  async (req, res, next) => {
-
     try {
-      const roles = req.jwt.user.getyour.expert.platforms.find(it => it.name === req.location.platform).roles
-      if (!roles || roles.length <= 0) return res.sendStatus(404)
-      return res.send(roles)
-    } catch (error) {
-      return res.sendStatus(404)
-    }
-  }
-)
-app.post("/location-expert/get/platform/roles/",
-
-  Helper.verifyLocation,
-  Helper.verifyReferer,
-  addJwt,
-  Helper.verifySession,
-  locationExpertOnly,
-  async (req, res, next) => {
-
-    try {
-      if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
-      const platform = findPlatform(req.body.platform, req.jwt.user)
-      if (!platform || !platform.roles || platform.roles.length <= 0) return res.sendStatus(404)
-      return res.send(platform.roles)
-    } catch (error) {
-      return res.sendStatus(404)
-    }
-  }
-)
-app.post("/get/platform/visibility-expert/",
-
-  Helper.verifyLocation,
-  Helper.verifyReferer,
-  addJwt,
-  Helper.verifySession,
-  async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
-        const doc = await nano.db.use("getyour").get("user")
-        const user = doc.user[req.jwt.id]
-        if (user.id === req.jwt.id) {
-          if (Helper.verifyIs("user/location-expert", {user, req})) {
-            if (user.getyour.expert.platforms !== undefined) {
-              for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                const platform = user.getyour.expert.platforms[i]
-                if (platform.name === req.body.platform) {
-                  return res.send(platform.visibility)
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-)
-app.post("/get/platform/role-expert/",
-
-  Helper.verifyLocation,
-  Helper.verifyReferer,
-  addJwt,
-  Helper.verifySession,
-  async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
+      if (req.jwt !== undefined) {
         if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
+        if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
         const doc = await nano.db.use("getyour").get("user")
         const user = doc.user[req.jwt.id]
         if (user.id === req.jwt.id) {
-          if (Helper.verifyIs("user/location-expert", {user, req})) {
-            if (user.getyour.expert.platforms !== undefined) {
-              for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                const platform = user.getyour.expert.platforms[i]
-                if (platform.name === req.body.platform) {
-                  if (platform.roles !== undefined) {
-                    for (let i = 0; i < platform.roles.length; i++) {
-                      const role = platform.roles[i]
-                      if (role.created === req.body.id) {
-                        return res.send(role)
+          if (user.getyour !== undefined) {
+            if (user.getyour.expert !== undefined) {
+              if (user.getyour.expert.platforms !== undefined) {
+                for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                  const platform = user.getyour.expert.platforms[i]
+                  if (platform.name === req.body.platform) {
+                    if (platform.roles !== undefined) {
+                      for (let i = 0; i < platform.roles.length; i++) {
+                        const role = platform.roles[i]
+                        if (role.created === req.body.id) return res.send(role.home)
                       }
                     }
                   }
@@ -1512,32 +1440,145 @@ app.post("/get/platform/role-expert/",
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
-app.post("/get/platform/image-location-expert/",
-
+app.post("/location-expert/get/location-platform/roles/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+    try {
+      const roles = req.jwt.user.getyour.expert.platforms.find(it => it.name === req.location.platform).roles
+      if (!roles || roles.length <= 0) return res.sendStatus(404)
+      return res.send(roles)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-expert/get/platform/roles/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+    try {
+      if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
+      const platform = findPlatform(req.body.platform, req.jwt.user)
+      if (!platform || !platform.roles || platform.roles.length <= 0) return res.sendStatus(404)
+      return res.send(platform.roles)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/get/platform/visibility-expert/",
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        const doc = await nano.db.use("getyour").get("user")
-        const user = doc.user[req.jwt.id]
-        if (user.id === req.jwt.id) {
-          if (Helper.verifyIs("user/location-expert", {user, req})) {
-            if (user.getyour.expert.platforms !== undefined) {
-              for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                const platform = user.getyour.expert.platforms[i]
-                return res.send(platform.image)
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
+          const doc = await nano.db.use("getyour").get("user")
+          const user = doc.user[req.jwt.id]
+          if (user.id === req.jwt.id) {
+            if (Helper.verifyIs("user/location-expert", {user, req})) {
+              if (user.getyour.expert.platforms !== undefined) {
+                for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                  const platform = user.getyour.expert.platforms[i]
+                  if (platform.name === req.body.platform) {
+                    return res.send(platform.visibility)
+                  }
+                }
               }
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/get/platform/role-expert/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  async (req, res, next) => {
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
+          if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
+          const doc = await nano.db.use("getyour").get("user")
+          const user = doc.user[req.jwt.id]
+          if (user.id === req.jwt.id) {
+            if (Helper.verifyIs("user/location-expert", {user, req})) {
+              if (user.getyour.expert.platforms !== undefined) {
+                for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                  const platform = user.getyour.expert.platforms[i]
+                  if (platform.name === req.body.platform) {
+                    if (platform.roles !== undefined) {
+                      for (let i = 0; i < platform.roles.length; i++) {
+                        const role = platform.roles[i]
+                        if (role.created === req.body.id) {
+                          return res.send(role)
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/get/platform/image-location-expert/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  async (req, res, next) => {
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          const doc = await nano.db.use("getyour").get("user")
+          const user = doc.user[req.jwt.id]
+          if (user.id === req.jwt.id) {
+            if (Helper.verifyIs("user/location-expert", {user, req})) {
+              if (user.getyour.expert.platforms !== undefined) {
+                for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                  const platform = user.getyour.expert.platforms[i]
+                  return res.send(platform.image)
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
@@ -1551,7 +1592,8 @@ app.post("/url-id/get/location/platform/",
       const user = doc.user[req.body.urlId]
       if (!user || !user[req.location.platform]) return res.sendStatus(404)
       return res.send(user[req.location.platform])
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -1572,21 +1614,19 @@ app.post("/url-id/register/location/platform/:key/",
       user[req.location.platform][key] = value
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
-      console.log(error)
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/get/platforms/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       const user = req.jwt.user
       const platforms = user.getyour?.expert?.platforms
@@ -1600,94 +1640,58 @@ app.post("/location-expert/get/platforms/",
       }))
       if (!platforms || platforms.length <= 0) return res.sendStatus(404)
       return res.send(platforms)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/get/platform/value/paths/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is emtpy")
       const paths = findPlatform(req.body.platform, req.jwt.user).values.flatMap(it => it.path || [])
       if (!paths || paths.length <= 0) return res.sendStatus(404)
       return res.send(paths)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/platform/value-visibility-location-expert/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is emtpy")
-        const doc = await nano.db.use("getyour").get("user")
-        const user = doc.user[req.jwt.id]
-        if (user.id === req.jwt.id) {
-          if (Helper.verifyIs("user/location-expert", {user, req})) {
-            if (user.getyour.expert.platforms !== undefined) {
-              for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                const platform = user.getyour.expert.platforms[i]
-                if (platform.values !== undefined) {
-                  for (let i = 0; i < platform.values.length; i++) {
-                    const value = platform.values[i]
-                    if (value.path === req.body.path) {
-                      const map = {}
-                      map.visibility = value.visibility
-                      map.roles = {}
-                      map.roles.available = platform.roles
-                      map.roles.selected = value.roles
-                      map.authorized = value.authorized
-                      return res.send(map)
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-)
-app.post("/get/platform/value-writability-location-expert/",
-
-  Helper.verifyLocation,
-  Helper.verifyReferer,
-  addJwt,
-  Helper.verifySession,
-  async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is emtpy")
-        const doc = await nano.db.use("getyour").get("user")
-        const user = doc.user[req.jwt.id]
-        if (user.id === req.jwt.id) {
-          if (Helper.verifyIs("user/location-expert", {user, req})) {
-            if (user.getyour.expert.platforms !== undefined) {
-              for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                const platform = user.getyour.expert.platforms[i]
-                if (platform.values !== undefined) {
-                  for (let i = 0; i < platform.values.length; i++) {
-                    const value = platform.values[i]
-                    if (value.path === req.body.path) {
-                      if (value.writability !== undefined) {
-                        return res.send(value.writability)
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is emtpy")
+          const doc = await nano.db.use("getyour").get("user")
+          const user = doc.user[req.jwt.id]
+          if (user.id === req.jwt.id) {
+            if (Helper.verifyIs("user/location-expert", {user, req})) {
+              if (user.getyour.expert.platforms !== undefined) {
+                for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                  const platform = user.getyour.expert.platforms[i]
+                  if (platform.values !== undefined) {
+                    for (let i = 0; i < platform.values.length; i++) {
+                      const value = platform.values[i]
+                      if (value.path === req.body.path) {
+                        const map = {}
+                        map.visibility = value.visibility
+                        map.roles = {}
+                        map.roles.available = platform.roles
+                        map.roles.selected = value.roles
+                        map.authorized = value.authorized
+                        return res.send(map)
                       }
                     }
                   }
@@ -1697,17 +1701,57 @@ app.post("/get/platform/value-writability-location-expert/",
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
-app.post("/location-writable/get/platform/values/",
-
+app.post("/get/platform/value-writability-location-expert/",
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is emtpy")
+          const doc = await nano.db.use("getyour").get("user")
+          const user = doc.user[req.jwt.id]
+          if (user.id === req.jwt.id) {
+            if (Helper.verifyIs("user/location-expert", {user, req})) {
+              if (user.getyour.expert.platforms !== undefined) {
+                for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                  const platform = user.getyour.expert.platforms[i]
+                  if (platform.values !== undefined) {
+                    for (let i = 0; i < platform.values.length; i++) {
+                      const value = platform.values[i]
+                      if (value.path === req.body.path) {
+                        if (value.writability !== undefined) {
+                          return res.send(value.writability)
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-writable/get/platform/values/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  async (req, res, next) => {
     try {
       const doc = await nano.db.use("getyour").get("user")
       const users = Object.values(doc.user)
@@ -1719,110 +1763,116 @@ app.post("/location-writable/get/platform/values/",
         .map(({alias, path}) => ({alias, path}))
       if (!writableValues || writableValues.length <= 0) return res.sendStatus(404)
       return res.send(writableValues)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/expert/get/platform/roles/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   expertOnly,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const roles = getAllExpertPlatformRoles(doc)
       if (!roles || roles.length <= 0) return res.sendStatus(404)
       return res.send(roles)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/scripts/closed/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user.scripts !== undefined) {
-          if (user.scripts.length > 0) return res.send(user.scripts)
+    try {
+      if (req.jwt !== undefined) {
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (user.scripts !== undefined) {
+            if (user.scripts.length > 0) return res.send(user.scripts)
+          }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/get/scripts/toolbox/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        const doc = await nano.db.use("getyour").get("user")
-        const user = doc.user[req.jwt.id]
-        if (user.id === req.jwt.id) {
-          if (Helper.verifyIs("user/location-expert", {user, req})) {
-            for (const key in doc.user) {
-              const user = doc.user[key]
-              if (user.scripts !== undefined) {
-                if (user.verified === true) {
-                  if (user.scripts.length > 0) return res.send(user.scripts)
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          const doc = await nano.db.use("getyour").get("user")
+          const user = doc.user[req.jwt.id]
+          if (user.id === req.jwt.id) {
+            if (Helper.verifyIs("user/location-expert", {user, req})) {
+              for (const key in doc.user) {
+                const user = doc.user[key]
+                if (user.scripts !== undefined) {
+                  if (user.verified === true) {
+                    if (user.scripts.length > 0) return res.send(user.scripts)
+                  }
                 }
               }
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/get/scripts/writable/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        const doc = await nano.db.use("getyour").get("user")
-        const jwtUser = doc.user[req.jwt.id]
-        if (jwtUser.id === req.jwt.id) {
-          for (const key in doc.user) {
-            const user = doc.user[key]
-            if (Helper.verifyIs("user/location-expert", {user, req})) {
-              if (user.getyour.expert.platforms !== undefined) {
-                for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                  const platform = user.getyour.expert.platforms[i]
-                  if (platform.name === req.location.platform) {
-                    if (platform.values !== undefined) {
-                      for (let i = 0; i < platform.values.length; i++) {
-                        const value = platform.values[i]
-                        if (value.path === `/${req.location.expert}/${req.location.platform}/${req.location.path}/`) {
-                          if (value.writability !== undefined) {
-                            for (let i = 0; i < value.writability.length; i++) {
-                              const authorized = value.writability[i]
-                              if (jwtUser.email === authorized) {
-                                for (const key in doc.user) {
-                                  const user = doc.user[key]
-                                  if (user.scripts !== undefined) {
-                                    if (user.verified === true) {
-                                      if (user.scripts.length > 0) return res.send(user.scripts)
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          const doc = await nano.db.use("getyour").get("user")
+          const jwtUser = doc.user[req.jwt.id]
+          if (jwtUser.id === req.jwt.id) {
+            for (const key in doc.user) {
+              const user = doc.user[key]
+              if (Helper.verifyIs("user/location-expert", {user, req})) {
+                if (user.getyour.expert.platforms !== undefined) {
+                  for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                    const platform = user.getyour.expert.platforms[i]
+                    if (platform.name === req.location.platform) {
+                      if (platform.values !== undefined) {
+                        for (let i = 0; i < platform.values.length; i++) {
+                          const value = platform.values[i]
+                          if (value.path === `/${req.location.expert}/${req.location.platform}/${req.location.path}/`) {
+                            if (value.writability !== undefined) {
+                              for (let i = 0; i < value.writability.length; i++) {
+                                const authorized = value.writability[i]
+                                if (jwtUser.email === authorized) {
+                                  for (const key in doc.user) {
+                                    const user = doc.user[key]
+                                    if (user.scripts !== undefined) {
+                                      if (user.verified === true) {
+                                        if (user.scripts.length > 0) return res.send(user.scripts)
+                                      }
                                     }
                                   }
                                 }
@@ -1839,6 +1889,9 @@ app.post("/get/scripts/writable/",
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
@@ -1859,40 +1912,44 @@ app.post("/jwt/get/parent/",
       const image = parent.getyour?.expert?.image || ""
       if (!id || !created) return res.sendStatus(404)
       return res.send({alias, created, id, image})
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/get/blocked/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      const array = []
-      const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      if (jwtUser.id === req.jwt.id) {
-        if (jwtUser.blocked !== undefined) {
-          for (let i = 0; i < jwtUser.blocked.length; i++) {
-            const blocked = jwtUser.blocked[i]
-            const blockedUser = doc.user[blocked.id]
-            if (blockedUser.id === blocked.id) {
-              const map = {}
-              map.alias = blockedUser.alias
-              map.created = blocked.created
-              map.id = blockedUser.id
-              map.image = blockedUser.image
-              array.push(map)
+    try {
+      if (req.jwt !== undefined) {
+        const array = []
+        const doc = await nano.db.use("getyour").get("user")
+        const jwtUser = doc.user[req.jwt.id]
+        if (jwtUser.id === req.jwt.id) {
+          if (jwtUser.blocked !== undefined) {
+            for (let i = 0; i < jwtUser.blocked.length; i++) {
+              const blocked = jwtUser.blocked[i]
+              const blockedUser = doc.user[blocked.id]
+              if (blockedUser.id === blocked.id) {
+                const map = {}
+                map.alias = blockedUser.alias
+                map.created = blocked.created
+                map.id = blockedUser.id
+                map.image = blockedUser.image
+                array.push(map)
+              }
             }
           }
         }
+        if (array.length > 0) return res.send(array)
       }
-      if (array.length > 0) return res.send(array)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
@@ -1908,7 +1965,7 @@ app.post("/jwt/get/chats/",
       const chats = findJwtChats(doc, req.jwt.id)
       return res.send(chats)
     } catch (e) {
-      console.log(e)
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -1951,18 +2008,17 @@ app.post("/jwt/get/chat/messages/",
       }
       return res.sendStatus(404)
     } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/get/conflicts-open/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const users = Object.values(doc.user)
@@ -1970,74 +2026,78 @@ app.post("/jwt/get/conflicts-open/",
       .flatMap(it => it.conflicts || [])
       .filter(it => it.visibility === "open")
       return res.send(conflicts)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/get/conflicts-closed/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       const conflicts = req.jwt.user.conflicts
       if (!conflicts || conflicts.length <= 0) return res.sendStatus(404)
       return res.send(conflicts)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/get/funnel/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user.funnel !== undefined) {
-          if (user.funnel.length > 0) return res.send(user.funnel)
+    try {
+      if (req.jwt !== undefined) {
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (user.funnel !== undefined) {
+            if (user.funnel.length > 0) return res.send(user.funnel)
+          }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/get/id-by-email/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
-    const doc = await nano.db.use("getyour").get("user")
-    for (const key in doc.user) {
-      const user = doc.user[key]
-      if (user.email === req.body.email) {
-        return res.send(user.id)
+    try {
+      if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      for (const key in doc.user) {
+        const user = doc.user[key]
+        if (user.email === req.body.email) {
+          return res.send(user.id)
+        }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/admin/get/user/json/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
-
     try {
       const email = req.body.email
       if (Helper.verifyIs("text/empty", email)) throw new Error("req.body.email is empty")
@@ -2045,57 +2105,59 @@ app.post("/admin/get/user/json/",
       const user = Object.values(doc.user).find(it => it.email === email)
       if (!user) return res.sendStatus(404)
       return res.send(user)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/get/key-admin/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (Helper.verifyIs("user/admin", {user})) {
-          const user = doc.user[req.body.id]
-          if (user.id === req.body.id) {
-            let result
-            if (req.body.key.includes(".")) {
-              result = Helper.convert("user-tree/value", {user, tree: req.body.key})
-            } else {
-              Object.entries(user).forEach(([key, value]) => {
-                if (key === req.body.key) {
-                  result = value
-                }
-              })
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (Helper.verifyIs("user/admin", {user})) {
+            const user = doc.user[req.body.id]
+            if (user.id === req.body.id) {
+              let result
+              if (req.body.key.includes(".")) {
+                result = Helper.convert("user-tree/value", {user, tree: req.body.key})
+              } else {
+                Object.entries(user).forEach(([key, value]) => {
+                  if (key === req.body.key) {
+                    result = value
+                  }
+                })
+              }
+              if (typeof result === "number") {
+                result = `${result}`
+              }
+              if (result === undefined) return res.sendStatus(404)
+              if (result !== undefined) return res.send(result)
             }
-            if (typeof result === "number") {
-              result = `${result}`
-            }
-            if (result === undefined) return res.sendStatus(404)
-            if (result !== undefined) return res.send(result)
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/admin/get/user/keys/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -2103,21 +2165,19 @@ app.post("/admin/get/user/keys/",
       if (!user || user.id !== req.body.id) return res.sendStatus(404)
       const properties = Object.getOwnPropertyNames(user)
       return res.send(properties)
-    } catch (error) {
-      console.log(error);
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/get/location/list/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
       if (Helper.verifyIs("text/empty", req.body.tag)) throw new Error("req.body.tag is empty")
@@ -2127,20 +2187,19 @@ app.post("/jwt/get/location/list/",
       if (!location) return res.sendStatus(404)
       if (!list || list.length <= 0) return res.sendStatus(404)
       return res.send(list)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/get/location/list/:index/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
       if (Helper.verifyIs("text/empty", req.body.tag)) throw new Error("req.body.tag is empty")
@@ -2151,20 +2210,19 @@ app.post("/jwt/get/location/list/:index/",
       if (!location) return res.sendStatus(404)
       if (!list || list.length <= 0 || !list[index]) return res.sendStatus(404)
       return res.send(list[index])
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/get/tree/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const tree = req.body.tree
       if (Helper.verifyIs("text/empty", tree)) throw new Error("req.body.tree is empty")
@@ -2172,20 +2230,19 @@ app.post("/jwt/get/tree/",
       let value = getTreeValue(user, tree)
       if (!value) value = user[tree]
       return res.send(value)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/get/trees/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("array/empty", req.body.trees)) throw new Error("req.body.trees is empty")
       const user = req.jwt.user
@@ -2197,58 +2254,55 @@ app.post("/jwt/get/trees/",
         }
       }
       return res.send(clone)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/get/reputation/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const user = req.jwt.user
       if (!user.reputation) return res.sendStatus(404)
       return res.send(`${user.reputation}`)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/get/user/:key/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const user = req.jwt.user
       const key = req.params.key
       if (!user[key]) return res.sendStatus(404)
       if (typeof user[key] === "number") return res.send(`${user[key]}`)
       return res.send(user[key])
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/admin/get/users/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const users = Object.values(doc.user)
@@ -2260,17 +2314,16 @@ app.post("/admin/get/users/",
       }))
       if (!users || users.length <= 0) return res.sendStatus(404)
       return res.send(users)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/users/getyour/expert/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const users = Object.values(doc.user)
@@ -2287,17 +2340,16 @@ app.post("/get/users/getyour/expert/",
       }))
       if (!users || users.length <= 0) return res.sendStatus(404)
       return res.send(users)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/users/numerologie/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const users = Object.values(doc.user)
@@ -2306,17 +2358,16 @@ app.post("/get/users/numerologie/",
       shuffle(users)
       if (!users || users.length <= 0) return res.sendStatus(404)
       return res.send(users)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/get/users/profile/open/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const users = Object.values(doc.user)
@@ -2348,20 +2399,19 @@ app.post("/get/users/profile/open/",
       })
       if (!mappedUsers || mappedUsers.length <= 0) return res.sendStatus(404)
       return res.send(mappedUsers)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/redirect/user/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const user = doc.user[req.jwt.id]
@@ -2376,130 +2426,134 @@ app.post("/redirect/user/",
         return res.send(role.home)
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/contacts/lead-location-expert/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
+    try {
+      if (req.location !== undefined) {
+        if (Helper.verifyIs("text/empty", req.body.preference)) throw new Error("req.body.preference is empty")
+        if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
+        if (Helper.verifyIs("text/empty", req.body.subject)) throw new Error("req.body.subject is empty")
+        if (req.body.subject.length > 144) throw new Error("req.body.subject too long")
+        const doc = await nano.db.use("getyour").get("user")
+        for (const key in doc.user) {
+          const user = doc.user[key]
+          if (Helper.verifyIs("user/location-expert", {user, req})) {
+            if (user.contacts === undefined) {
+              user.contacts = []
+              const contact = {}
+              contact.created = Date.now()
+              contact.email = req.body.email
+              if (contact.lead === undefined) contact.lead = {}
+              contact.lead.created = Date.now()
+              contact.status = "lead-new"
+              let text = ""
+              if (req.body.preference.toLowerCase() === "e-mail") {
+                text = `next:email(${req.body.subject})`
+              }
+              if (req.body.preference.toLowerCase() === "telefon") {
+                text = `next:tel(${req.body.subject})`
+              }
+              if (req.body.preference.toLowerCase() === "webcall") {
+                text = `next:webcall(${req.body.subject})`
+              }
+              if (text) contact.notes = contact.notes + text
 
-    if (req.location !== undefined) {
-      if (Helper.verifyIs("text/empty", req.body.preference)) throw new Error("req.body.preference is empty")
-      if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
-      if (Helper.verifyIs("text/empty", req.body.subject)) throw new Error("req.body.subject is empty")
-      if (req.body.subject.length > 144) throw new Error("req.body.subject too long")
-      const doc = await nano.db.use("getyour").get("user")
-      for (const key in doc.user) {
-        const user = doc.user[key]
-        if (Helper.verifyIs("user/location-expert", {user, req})) {
-          if (user.contacts === undefined) {
-            user.contacts = []
-            const contact = {}
-            contact.created = Date.now()
-            contact.email = req.body.email
-            if (contact.lead === undefined) contact.lead = {}
-            contact.lead.created = Date.now()
-            contact.status = "lead-new"
-            let text = ""
-            if (req.body.preference.toLowerCase() === "e-mail") {
-              text = `next:email(${req.body.subject})`
+              if (req.body.tel !== undefined) {
+                if (Helper.verifyIs("text/empty", req.body.tel)) throw new Error("req.body.tel is empty")
+                contact.phone = req.body.tel
+              }
+              contact.lead.preference = req.body.preference
+              user.contacts.unshift(contact)
+              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+              await Helper.sendEmailFromDroid({
+                from: "<droid@get-your.de>",
+                to: contact.email,
+                subject: "[getyour] Kontaktanfrage erfolgreich gesendet",
+                html: `
+                Du hast eine neue Kontaktanfrage gesendet.
+                Schon Bald wird sich Dein persönlicher Ansprechpartner, bei Dir, per ${contact.lead.preference}, melden.
+                `
+              })
+              await Helper.sendEmailFromDroid({
+                from: "<droid@get-your.de>",
+                to: user.email,
+                subject: "[getyour] Neue Kontaktanfrage erhalten",
+                html: `
+                Du hast eine neue Kontaktanfrage erhalten.
+                Der Lead mit der E-Mail ${contact.email} möchte, von dir, per ${contact.lead.preference} kontaktiert werden.
+                Der Lead hat folgenden Betreff angegeben:
+                ${req.body.subject}
+                Der Lead ist ab sofort in deiner Kontaktliste verfügbar. <a href="https://www.get-your.de/">Hier kannst du den Status deines neuen Leads prüfen.</a>
+                `
+              })
+              return res.sendStatus(200)
             }
-            if (req.body.preference.toLowerCase() === "telefon") {
-              text = `next:tel(${req.body.subject})`
-            }
-            if (req.body.preference.toLowerCase() === "webcall") {
-              text = `next:webcall(${req.body.subject})`
-            }
-            if (text) contact.notes = contact.notes + text
+            if (user.contacts !== undefined) {
+              for (let i = 0; i < user.contacts.length; i++) {
+                const contact = user.contacts[i]
+                if (contact.email === req.body.email) {
+                  if (contact.lead === undefined) contact.lead = {}
+                  contact.lead.created = Date.now()
+                  contact.status = "lead-update"
+                  let text = ""
+                  if (req.body.preference.toLowerCase() === "e-mail") {
+                    text = `next:email(${req.body.subject})`
+                  }
+                  if (req.body.preference.toLowerCase() === "telefon") {
+                    text = `next:tel(${req.body.subject})`
+                  }
+                  if (req.body.preference.toLowerCase() === "webcall") {
+                    text = `next:webcall(${req.body.subject})`
+                  }
+                  if (text) contact.notes = contact.notes + text
 
-            if (req.body.tel !== undefined) {
-              if (Helper.verifyIs("text/empty", req.body.tel)) throw new Error("req.body.tel is empty")
-              contact.phone = req.body.tel
-            }
-            contact.lead.preference = req.body.preference
-            user.contacts.unshift(contact)
-            await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-            await Helper.sendEmailFromDroid({
-              from: "<droid@get-your.de>",
-              to: contact.email,
-              subject: "[getyour] Kontaktanfrage erfolgreich gesendet",
-              html: `
-              Du hast eine neue Kontaktanfrage gesendet.
-              Schon Bald wird sich Dein persönlicher Ansprechpartner, bei Dir, per ${contact.lead.preference}, melden.
-              `
-            })
-            await Helper.sendEmailFromDroid({
-              from: "<droid@get-your.de>",
-              to: user.email,
-              subject: "[getyour] Neue Kontaktanfrage erhalten",
-              html: `
-              Du hast eine neue Kontaktanfrage erhalten.
-              Der Lead mit der E-Mail ${contact.email} möchte, von dir, per ${contact.lead.preference} kontaktiert werden.
-              Der Lead hat folgenden Betreff angegeben:
-              ${req.body.subject}
-              Der Lead ist ab sofort in deiner Kontaktliste verfügbar. <a href="https://www.get-your.de/">Hier kannst du den Status deines neuen Leads prüfen.</a>
-              `
-            })
-            return res.sendStatus(200)
-          }
-          if (user.contacts !== undefined) {
-            for (let i = 0; i < user.contacts.length; i++) {
-              const contact = user.contacts[i]
-              if (contact.email === req.body.email) {
-                if (contact.lead === undefined) contact.lead = {}
-                contact.lead.created = Date.now()
-                contact.status = "lead-update"
-                let text = ""
-                if (req.body.preference.toLowerCase() === "e-mail") {
-                  text = `next:email(${req.body.subject})`
+                  if (req.body.tel !== undefined) {
+                    if (Helper.verifyIs("text/empty", req.body.tel)) throw new Error("req.body.tel is empty")
+                    contact.phone = req.body.tel
+                  }
+                  contact.lead.preference = req.body.preference
+                  await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                  await Helper.sendEmailFromDroid({
+                    from: "<droid@get-your.de>",
+                    to: contact.email,
+                    subject: "[getyour] Kontaktanfrage erfolgreich gesendet",
+                    html: `
+                    Sie haben eine neue Kontaktanfrage gesendet.
+                    Schon Bald wird sich Ihr persönlicher Ansprechpartner, bei Ihnen, per ${contact.lead.preference}, melden.
+                    `
+                  })
+                  await Helper.sendEmailFromDroid({
+                    from: "<droid@get-your.de>",
+                    to: user.email,
+                    subject: "[getyour] Neue Kontaktanfrage erhalten",
+                    html: `
+                    Du hast eine neue Kontaktanfrage erhalten.
+                    Der Lead mit der E-Mail ${contact.email} möchte, von dir, per ${contact.lead.preference} kontaktiert werden.
+                    Der Lead hat folgenden Betreff angegeben:
+                    ${req.body.subject}
+                    Der Lead ist ab sofort in deiner Kontaktliste verfügbar. <a href="https://www.get-your.de/">Hier geht es direkt zur Startseite, wo du den Status deines neuen Leads prüfen kannst.</a>
+                    `
+                  })
+                  return res.sendStatus(200)
                 }
-                if (req.body.preference.toLowerCase() === "telefon") {
-                  text = `next:tel(${req.body.subject})`
-                }
-                if (req.body.preference.toLowerCase() === "webcall") {
-                  text = `next:webcall(${req.body.subject})`
-                }
-                if (text) contact.notes = contact.notes + text
-
-                if (req.body.tel !== undefined) {
-                  if (Helper.verifyIs("text/empty", req.body.tel)) throw new Error("req.body.tel is empty")
-                  contact.phone = req.body.tel
-                }
-                contact.lead.preference = req.body.preference
-                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-                await Helper.sendEmailFromDroid({
-                  from: "<droid@get-your.de>",
-                  to: contact.email,
-                  subject: "[getyour] Kontaktanfrage erfolgreich gesendet",
-                  html: `
-                  Sie haben eine neue Kontaktanfrage gesendet.
-                  Schon Bald wird sich Ihr persönlicher Ansprechpartner, bei Ihnen, per ${contact.lead.preference}, melden.
-                  `
-                })
-                await Helper.sendEmailFromDroid({
-                  from: "<droid@get-your.de>",
-                  to: user.email,
-                  subject: "[getyour] Neue Kontaktanfrage erhalten",
-                  html: `
-                  Du hast eine neue Kontaktanfrage erhalten.
-                  Der Lead mit der E-Mail ${contact.email} möchte, von dir, per ${contact.lead.preference} kontaktiert werden.
-                  Der Lead hat folgenden Betreff angegeben:
-                  ${req.body.subject}
-                  Der Lead ist ab sofort in deiner Kontaktliste verfügbar. <a href="https://www.get-your.de/">Hier geht es direkt zur Startseite, wo du den Status deines neuen Leads prüfen kannst.</a>
-                  `
-                })
-                return res.sendStatus(200)
               }
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
@@ -2519,20 +2573,19 @@ app.post("/jwt/register/retell/api-key/",
       user.retell.apiKey = req.body.apiKey
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/register/contacts/import/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("array/empty", req.body.contacts)) throw new Error("req.body.contacts is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -2560,20 +2613,19 @@ app.post("/jwt/register/contacts/import/",
       }
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/register/deadline/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const alias = req.body.alias
       const date = req.body.date
@@ -2596,20 +2648,19 @@ app.post("/jwt/register/deadline/",
       })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/update/deadline/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const alias = req.body.alias
       const created = req.body.created
@@ -2629,7 +2680,8 @@ app.post("/jwt/update/deadline/",
       if (reminder) deadline.reminder = reminder
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -2638,44 +2690,49 @@ app.post("/register/email/admin/",
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-    if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
-    if (Helper.verifyIs("email/admin", {email: req.body.email})) {
-      const doc = await nano.db.use("getyour").get("user")
-      for (const key in doc.user) {
-        const user = doc.user[key]
-        if (user.email === req.body.email) {
-          let foundRole = false
-          for (let i = 0; i < user.roles.length; i++) {
-            if (user.roles[i] === UserRole.ADMIN) {
-              foundRole = true
-              break
+    try {
+      if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
+      if (Helper.verifyIs("email/admin", {email: req.body.email})) {
+        const doc = await nano.db.use("getyour").get("user")
+        for (const key in doc.user) {
+          const user = doc.user[key]
+          if (user.email === req.body.email) {
+            let foundRole = false
+            for (let i = 0; i < user.roles.length; i++) {
+              if (user.roles[i] === UserRole.ADMIN) {
+                foundRole = true
+                break
+              }
+            }
+            if (foundRole === true) return res.sendStatus(200)
+            if (foundRole === false) {
+              user.admin = {}
+              user.admin.type = "role"
+              user.roles.push(UserRole.ADMIN)
+              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+              return res.sendStatus(200)
             }
           }
-          if (foundRole === true) return res.sendStatus(200)
-          if (foundRole === false) {
-            user.admin = {}
-            user.admin.type = "role"
-            user.roles.push(UserRole.ADMIN)
-            await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-            return res.sendStatus(200)
-          }
+        }
+        {
+          const user = {}
+          user.id = Helper.digestId(req.body.email)
+          user.email = req.body.email
+          user.verified = true
+          user.reputation = 0
+          user.created =  Date.now()
+          user.admin = {}
+          user.admin.type = "role"
+          user.roles =  []
+          user.roles.push(UserRole.ADMIN)
+          doc.user[user.id] = user
+          await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+          return res.sendStatus(200)
         }
       }
-      {
-        const user = {}
-        user.id = Helper.digestId(req.body.email)
-        user.email = req.body.email
-        user.verified = true
-        user.reputation = 0
-        user.created =  Date.now()
-        user.admin = {}
-        user.admin.type = "role"
-        user.roles =  []
-        user.roles.push(UserRole.ADMIN)
-        doc.user[user.id] = user
-        await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-        return res.sendStatus(200)
-      }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
@@ -2701,7 +2758,8 @@ app.post("/jwt/register/email/contacts/",
       })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -2773,7 +2831,8 @@ app.post("/admin/register/email/expert/",
       }
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -2842,7 +2901,8 @@ app.post("/register/email/location/",
       }
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -2912,20 +2972,19 @@ app.post("/register/email/numerology/",
       }
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/register/name/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       const id = req.jwt.id
       const name = req.body.name
@@ -2964,17 +3023,16 @@ app.post("/location-expert/register/name/",
       }
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/location/feedback/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       const text = req.body.text
       if (Helper.verifyIs("text/empty", text)) throw new Error("req.body.text is empty")
@@ -3001,21 +3059,18 @@ app.post("/register/location/feedback/",
       value.feedback.unshift(feedback)
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
-
-      console.log(error);
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/groups/emails-self/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       if (Helper.verifyIs("array/empty", req.body.emails)) throw new Error("req.body.emails is empty")
@@ -3038,19 +3093,18 @@ app.post("/register/groups/emails-self/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/groups/self/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       const emails = req.body.emails
       if (Helper.verifyIs("array/empty", emails)) throw new Error("req.body.emails is empty")
@@ -3070,50 +3124,52 @@ app.post("/register/groups/self/",
       user.groups.unshift(group)
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/groups/alias/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user.groups !== undefined) {
-          for (let i = 0; i < user.groups.length; i++) {
-            const group = user.groups[i]
-            if (group.created === req.body.id) {
-              if (Helper.verifyIs("text/empty", req.body.alias)) {
-                group.alias = undefined
-              } else {
-                group.alias = req.body.alias
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (user.groups !== undefined) {
+            for (let i = 0; i < user.groups.length; i++) {
+              const group = user.groups[i]
+              if (group.created === req.body.id) {
+                if (Helper.verifyIs("text/empty", req.body.alias)) {
+                  group.alias = undefined
+                } else {
+                  group.alias = req.body.alias
+                }
+                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                return res.sendStatus(200)
               }
-              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-              return res.sendStatus(200)
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/register/location/list/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.tag)) throw new Error("req.body.tag is empty")
       if (Helper.verifyIs("object/empty", req.body.item)) throw new Error("req.body.item is empty")
@@ -3133,19 +3189,18 @@ app.post("/register/location/list/",
       user[req.location.platform][req.body.tag].unshift(map)
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/location/map/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("object/empty", req.body.map)) throw new Error("req.body.map is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -3157,17 +3212,16 @@ app.post("/register/location/map/",
       }
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/location/requested/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       for (const user of Object.values(doc.user)) {
@@ -3182,7 +3236,8 @@ app.post("/register/location/requested/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -3211,7 +3266,8 @@ app.post("/location-expert/register/write-access-allowed/",
       }
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -3235,7 +3291,8 @@ app.post("/location-expert/register/write-access-denied/",
       value.writeAccessRequest = value.writeAccessRequest.filter(it => it !== id)
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -3262,7 +3319,8 @@ app.post("/location-expert/register/write-access-request/",
       })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -3292,20 +3350,19 @@ app.post("/location-expert/register/match-maker/condition/",
       })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/register/platform/match-maker/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
       if (Helper.verifyIs("text/empty", req.body.name)) throw new Error("req.body.name is empty")
@@ -3319,7 +3376,8 @@ app.post("/location-expert/register/platform/match-maker/",
       })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -3351,21 +3409,19 @@ app.post("/location-expert/register/platform/role/",
       })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
-      console.log(error)
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/register/platform/name/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.new)) throw new Error("req.body.new is empty")
       if (Helper.verifyIs("text/empty", req.body.old)) throw new Error("req.body.old is empty")
@@ -3388,20 +3444,19 @@ app.post("/location-expert/register/platform/name/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/register/platform/image/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -3411,52 +3466,54 @@ app.post("/location-expert/register/platform/image/",
       platform.image = req.body.image ?? "";
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/platform/image-location-expert/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
-        if (Helper.verifyIs("object/empty", req.body.image)) throw new Error("req.body.image is empty")
-        const doc = await nano.db.use("getyour").get("user")
-        const user = doc.user[req.jwt.id]
-        if (user.id === req.jwt.id) {
-          if (Helper.verifyIs("user/location-expert", {user, req})) {
-            if (user.getyour.expert.platforms !== undefined) {
-              for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                const platform = user.getyour.expert.platforms[i]
-                if (platform.name === req.body.platform) {
-                  platform.image = req.body.image
-                  await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-                  return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
+          if (Helper.verifyIs("object/empty", req.body.image)) throw new Error("req.body.image is empty")
+          const doc = await nano.db.use("getyour").get("user")
+          const user = doc.user[req.jwt.id]
+          if (user.id === req.jwt.id) {
+            if (Helper.verifyIs("user/location-expert", {user, req})) {
+              if (user.getyour.expert.platforms !== undefined) {
+                for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                  const platform = user.getyour.expert.platforms[i]
+                  if (platform.name === req.body.platform) {
+                    platform.image = req.body.image
+                    await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                    return res.sendStatus(200)
+                  }
                 }
               }
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/register/platform/start/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
       if (Helper.verifyIs("text/empty", req.body.start)) throw new Error("req.body.start is empty")
@@ -3466,20 +3523,19 @@ app.post("/location-expert/register/platform/start/",
       platform.start = req.body.start
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/register/platform/visibility/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
       if (Helper.verifyIs("text/empty", req.body.visibility)) throw new Error("req.body.visibility is empty")
@@ -3490,20 +3546,19 @@ app.post("/location-expert/register/platform/visibility/",
       platform.visibility = req.body.visibility
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/register/platform/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
       if (Helper.reservedKeys.has(req.body.platform)) return res.sendStatus(404)
@@ -3521,20 +3576,19 @@ app.post("/location-expert/register/platform/",
       user.xp += 3
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/register/platform/value/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       const id = req.jwt.id
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
@@ -3563,47 +3617,48 @@ app.post("/location-expert/register/platform/value/",
       user.xp++
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/platform/value-html-writable/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        if (Helper.verifyIs("text/empty", req.body.html)) throw new Error("req.body.html is empty")
-        const doc = await nano.db.use("getyour").get("user")
-        const jwtUser = doc.user[req.jwt.id]
-        if (jwtUser.id === req.jwt.id) {
-          for (const key in doc.user) {
-            const user = doc.user[key]
-            if (Helper.verifyIs("user/location-expert", {user, req})) {
-              if (user.getyour.expert.platforms !== undefined) {
-                for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                  const platform = user.getyour.expert.platforms[i]
-                  if (platform.name === req.location.platform) {
-                    if (platform.values !== undefined) {
-                      for (let i = 0; i < platform.values.length; i++) {
-                        const value = platform.values[i]
-                        if (value.path === `/${req.location.expert}/${req.location.platform}/${req.location.path}/`) {
-                          if (value.writability !== undefined) {
-                            for (let i = 0; i < value.writability.length; i++) {
-                              const authorized = value.writability[i]
-                              if (jwtUser.email === authorized) {
-                                value.html = req.body.html
-                                if (jwtUser.xp === undefined) jwtUser.xp = 0
-                                jwtUser.xp++
-                                if (value.saved === undefined) value.saved = 0
-                                value.saved++
-                                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-                                return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          if (Helper.verifyIs("text/empty", req.body.html)) throw new Error("req.body.html is empty")
+          const doc = await nano.db.use("getyour").get("user")
+          const jwtUser = doc.user[req.jwt.id]
+          if (jwtUser.id === req.jwt.id) {
+            for (const key in doc.user) {
+              const user = doc.user[key]
+              if (Helper.verifyIs("user/location-expert", {user, req})) {
+                if (user.getyour.expert.platforms !== undefined) {
+                  for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                    const platform = user.getyour.expert.platforms[i]
+                    if (platform.name === req.location.platform) {
+                      if (platform.values !== undefined) {
+                        for (let i = 0; i < platform.values.length; i++) {
+                          const value = platform.values[i]
+                          if (value.path === `/${req.location.expert}/${req.location.platform}/${req.location.path}/`) {
+                            if (value.writability !== undefined) {
+                              for (let i = 0; i < value.writability.length; i++) {
+                                const authorized = value.writability[i]
+                                if (jwtUser.email === authorized) {
+                                  value.html = req.body.html
+                                  if (jwtUser.xp === undefined) jwtUser.xp = 0
+                                  jwtUser.xp++
+                                  if (value.saved === undefined) value.saved = 0
+                                  value.saved++
+                                  await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                                  return res.sendStatus(200)
+                                }
                               }
                             }
                           }
@@ -3617,39 +3672,42 @@ app.post("/register/platform/value-html-writable/",
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/register/platform/value-html-location-expert/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        if (Helper.verifyIs("text/empty", req.body.html)) throw new Error("req.body.html is empty")
-        const doc = await nano.db.use("getyour").get("user")
-        const user = doc.user[req.jwt.id]
-        if (user.id === req.jwt.id) {
-          if (Helper.verifyIs("user/location-expert", {user, req})) {
-            if (user.getyour.expert.platforms !== undefined) {
-              for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                const platform = user.getyour.expert.platforms[i]
-                if (platform.name === req.location.platform) {
-                  if (platform.values !== undefined) {
-                    for (let i = 0; i < platform.values.length; i++) {
-                      const value = platform.values[i]
-                      if (value.path === `/${req.location.expert}/${req.location.platform}/${req.location.path}/`) {
-                        value.html = req.body.html
-                        if (user.xp === undefined) user.xp = 0
-                        user.xp++
-                        if (value.saved === undefined) value.saved = 0
-                        value.saved++
-                        await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-                        return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          if (Helper.verifyIs("text/empty", req.body.html)) throw new Error("req.body.html is empty")
+          const doc = await nano.db.use("getyour").get("user")
+          const user = doc.user[req.jwt.id]
+          if (user.id === req.jwt.id) {
+            if (Helper.verifyIs("user/location-expert", {user, req})) {
+              if (user.getyour.expert.platforms !== undefined) {
+                for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                  const platform = user.getyour.expert.platforms[i]
+                  if (platform.name === req.location.platform) {
+                    if (platform.values !== undefined) {
+                      for (let i = 0; i < platform.values.length; i++) {
+                        const value = platform.values[i]
+                        if (value.path === `/${req.location.expert}/${req.location.platform}/${req.location.path}/`) {
+                          value.html = req.body.html
+                          if (user.xp === undefined) user.xp = 0
+                          user.xp++
+                          if (value.saved === undefined) value.saved = 0
+                          value.saved++
+                          await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                          return res.sendStatus(200)
+                        }
                       }
                     }
                   }
@@ -3659,18 +3717,19 @@ app.post("/register/platform/value-html-location-expert/",
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/register/platform/value/path/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.old)) throw new Error("req.body.old is empty")
       if (Helper.verifyIs("text/empty", req.body.new)) throw new Error("req.body.new is empty")
@@ -3682,20 +3741,19 @@ app.post("/location-expert/register/platform/value/path/",
       value.path = `/${expert}/${platform}/${req.body.new}/`
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/register/platform/value/alias/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
       if (Helper.verifyIs("text/empty", req.body.alias)) throw new Error("req.body.alias is empty")
@@ -3705,20 +3763,19 @@ app.post("/location-expert/register/platform/value/alias/",
       value.alias = req.body.alias
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/register/platform/value/image/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -3727,20 +3784,19 @@ app.post("/location-expert/register/platform/value/image/",
       value.image = req.body.image
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/register/platform/value/visibility/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
       if (Helper.verifyIs("text/empty", req.body.visibility)) throw new Error("req.body.visibility is empty")
@@ -3760,45 +3816,45 @@ app.post("/location-expert/register/platform/value/visibility/",
         return res.sendStatus(200)
       }
       return res.sendStatus(404)
-    } catch (error) {
-      console.log(error);
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/platform/value-visibility-writable/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (req.location !== undefined) {
-        if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
-        if (Helper.verifyIs("text/empty", req.body.visibility)) throw new Error("req.body.visibility is empty")
-        const doc = await nano.db.use("getyour").get("user")
-        const jwtUser = doc.user[req.jwt.id]
-        if (jwtUser.id === req.jwt.id) {
-          for (const key in doc.user) {
-            const user = doc.user[key]
-            if (user.getyour !== undefined) {
-              if (user.getyour.expert !== undefined) {
-                if (user.getyour.expert.platforms !== undefined) {
-                  for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                    const platform = user.getyour.expert.platforms[i]
-                    if (platform.values !== undefined) {
-                      for (let i = 0; i < platform.values.length; i++) {
-                        const value = platform.values[i]
-                        if (value.path === req.body.path) {
-                          if (value.writability !== undefined) {
-                            for (let i = 0; i < value.writability.length; i++) {
-                              const authorized = value.writability[i]
-                              if (jwtUser.email === authorized) {
-                                value.visibility = req.body.visibility
-                                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-                                return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (req.location !== undefined) {
+          if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
+          if (Helper.verifyIs("text/empty", req.body.visibility)) throw new Error("req.body.visibility is empty")
+          const doc = await nano.db.use("getyour").get("user")
+          const jwtUser = doc.user[req.jwt.id]
+          if (jwtUser.id === req.jwt.id) {
+            for (const key in doc.user) {
+              const user = doc.user[key]
+              if (user.getyour !== undefined) {
+                if (user.getyour.expert !== undefined) {
+                  if (user.getyour.expert.platforms !== undefined) {
+                    for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
+                      const platform = user.getyour.expert.platforms[i]
+                      if (platform.values !== undefined) {
+                        for (let i = 0; i < platform.values.length; i++) {
+                          const value = platform.values[i]
+                          if (value.path === req.body.path) {
+                            if (value.writability !== undefined) {
+                              for (let i = 0; i < value.writability.length; i++) {
+                                const authorized = value.writability[i]
+                                if (jwtUser.email === authorized) {
+                                  value.visibility = req.body.visibility
+                                  await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                                  return res.sendStatus(200)
+                                }
                               }
                             }
                           }
@@ -3812,6 +3868,9 @@ app.post("/register/platform/value-visibility-writable/",
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
@@ -3824,15 +3883,12 @@ async function sendWriteAccessEmail(from, to, path) {
   })
 }
 app.post("/location-expert/register/platform/value/writability/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
-
     try {
       if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
       if (!Array.isArray(req.body.writability)) throw new Error("req.body.writability is empty")
@@ -3849,16 +3905,15 @@ app.post("/location-expert/register/platform/value/writability/",
         await sendWriteAccessEmail(user.email, to.email, req.body.path)
       }
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/session/",
-
   Helper.verifyLocation,
   async (req, res) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       for (var key in doc.user) {
@@ -3913,77 +3968,81 @@ app.post("/register/session/",
           return res.sendStatus(200)
         }
       }
-    } catch (error) {
-      await Helper.logError(error, req)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
-    return res.sendStatus(404)
   }
 )
 app.post("/register/templates/alias/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
-      if (Helper.verifyIs("text/empty", req.body.alias)) throw new Error("req.body.alias is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user.templates !== undefined) {
-          for (let i = 0; i < user.templates.length; i++) {
-            const template = user.templates[i]
-            if (template.created === req.body.created) {
-              template.alias = req.body.alias
-              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-              return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
+        if (Helper.verifyIs("text/empty", req.body.alias)) throw new Error("req.body.alias is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (user.templates !== undefined) {
+            for (let i = 0; i < user.templates.length; i++) {
+              const template = user.templates[i]
+              if (template.created === req.body.created) {
+                template.alias = req.body.alias
+                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                return res.sendStatus(200)
+              }
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/register/templates/visibility-self/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
-      if (Helper.verifyIs("text/empty", req.body.visibility)) throw new Error("req.body.visibility is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user.templates !== undefined) {
-          for (let i = 0; i < user.templates.length; i++) {
-            const template = user.templates[i]
-            if (template.created === req.body.id) {
-              template.visibility = req.body.visibility
-              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-              return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
+        if (Helper.verifyIs("text/empty", req.body.visibility)) throw new Error("req.body.visibility is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (user.templates !== undefined) {
+            for (let i = 0; i < user.templates.length; i++) {
+              const template = user.templates[i]
+              if (template.created === req.body.id) {
+                template.visibility = req.body.visibility
+                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                return res.sendStatus(200)
+              }
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/update/tree/map/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const tree = req.body.tree
       if (Helper.verifyIs("text/empty", tree)) throw new Error("req.body.tree is empty")
@@ -3993,93 +4052,97 @@ app.post("/jwt/update/tree/map/",
       if (!treeExist(user, tree)) return res.sendStatus(404)
       await registerTreeMapById(tree, map, user.id)
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/register/tree/map/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.tree)) throw new Error("req.body.tree is empty")
       if (Helper.verifyIs("object/empty", req.body.map)) throw new Error("req.body.map is empty")
       await registerTreeMapById(req.body.tree, req.body.map, req.jwt.id)
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/user/alias/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("text/empty", req.body.alias)) throw new Error("req.body.alias is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        user.alias = req.body.alias
-        await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-        return res.sendStatus(200)
-      }
-    }
-  }
-)
-app.post("/register/user/blocked/",
-
-  Helper.verifyLocation,
-  Helper.verifyReferer,
-  addJwt,
-  Helper.verifySession,
-  async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user.blocked === undefined) user.blocked = []
-
-        let exist = false
-        for (let i = 0; i < user.blocked.length; i++) {
-          const blocked = user.blocked[i]
-          if (blocked.id === req.body.id) {
-            exist = true
-          }
-        }
-
-        if (exist === false) {
-          const blocked = {}
-          blocked.created = Date.now()
-          blocked.id = req.body.id
-          user.blocked.push(blocked)
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("text/empty", req.body.alias)) throw new Error("req.body.alias is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          user.alias = req.body.alias
           await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
           return res.sendStatus(200)
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
-app.post("/register/user/conflict/",
-
+app.post("/register/user/blocked/",
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (user.blocked === undefined) user.blocked = []
 
+          let exist = false
+          for (let i = 0; i < user.blocked.length; i++) {
+            const blocked = user.blocked[i]
+            if (blocked.id === req.body.id) {
+              exist = true
+            }
+          }
+
+          if (exist === false) {
+            const blocked = {}
+            blocked.created = Date.now()
+            blocked.id = req.body.id
+            user.blocked.push(blocked)
+            await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+            return res.sendStatus(200)
+          }
+        }
+      }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/register/user/conflict/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  async (req, res, next) => {
     try {
       if (Helper.verifyIs("text/empty", req.body.actual)) throw new Error("req.body.actual is empty")
       if (Helper.verifyIs("text/empty", req.body.environment)) throw new Error("req.body.environment is empty")
@@ -4102,68 +4165,73 @@ app.post("/register/user/conflict/",
       user.conflicts.unshift(conflict)
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/user/image/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("text/empty", req.body.image)) throw new Error("req.body.image is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        user.image = req.body.image
-        await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-        return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("text/empty", req.body.image)) throw new Error("req.body.image is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          user.image = req.body.image
+          await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+          return res.sendStatus(200)
+        }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/register/user/key-visibility/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
-      if (Helper.verifyIs("text/empty", req.body.key)) throw new Error("req.body.key is empty")
-      if (Helper.verifyIs("text/empty", req.body.visibility)) throw new Error("req.body.visibility is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user[req.body.key] !== undefined) {
-          for (let i = 0; i < user[req.body.key].length; i++) {
-            const it = user[req.body.key][i]
-            if (it.created === req.body.id) {
-              it.visibility = req.body.visibility
-              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-              return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
+        if (Helper.verifyIs("text/empty", req.body.key)) throw new Error("req.body.key is empty")
+        if (Helper.verifyIs("text/empty", req.body.visibility)) throw new Error("req.body.visibility is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (user[req.body.key] !== undefined) {
+            for (let i = 0; i < user[req.body.key].length; i++) {
+              const it = user[req.body.key][i]
+              if (it.created === req.body.id) {
+                it.visibility = req.body.visibility
+                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                return res.sendStatus(200)
+              }
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/register/user/profile/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.visibility)) throw new Error("req.body.visibility is empty")
       const aboutYou = req.body.aboutYou
@@ -4180,17 +4248,16 @@ app.post("/register/user/profile/",
       user.profile.visibility = req.body.visibility
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/profile/message/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       if (Helper.verifyIs("text/empty", req.body.message)) throw new Error("req.body.message is empty")
@@ -4207,20 +4274,19 @@ app.post("/register/profile/message/",
         return res.sendStatus(200)
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/admin/register/user/verified/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
       if (Helper.booleanIsEmpty(req.body.verified)) throw new Error("req.body.verified is empty")
@@ -4231,51 +4297,53 @@ app.post("/admin/register/user/verified/",
       user.verified = req.body.verified
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/register/user/text-tree-self/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("text/empty", req.body.text)) throw new Error("req.body.text is empty")
-      if (Helper.verifyIs("text/empty", req.body.tree)) throw new Error("req.body.tree is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        const split = req.body.tree.split(".")
-        const lastKey = split.pop()
-        let current = user
-        for (let i = 0; i < split.length; i++) {
-          const key = split[i]
-          if (!current[key]) {
-            current[key] = {}
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("text/empty", req.body.text)) throw new Error("req.body.text is empty")
+        if (Helper.verifyIs("text/empty", req.body.tree)) throw new Error("req.body.tree is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          const split = req.body.tree.split(".")
+          const lastKey = split.pop()
+          let current = user
+          for (let i = 0; i < split.length; i++) {
+            const key = split[i]
+            if (!current[key]) {
+              current[key] = {}
+            }
+            current = current[key]
           }
-          current = current[key]
+          current[lastKey] = req.body.text
+          await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+          return res.sendStatus(200)
         }
-        current[lastKey] = req.body.text
-        await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-        return res.sendStatus(200)
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/admin/register/tree/value/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
-
     try {
       const tree = req.body.tree
       if (Helper.verifyIs("text/empty", tree)) throw new Error("req.body.tree is empty")
@@ -4300,20 +4368,19 @@ app.post("/admin/register/tree/value/",
       target[lastKey] = value
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/register/user/key/:key/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const key = req.params.key
       if (Helper.verifyIs("text/empty", key)) throw new Error("req.params.key is empty")
@@ -4325,19 +4392,18 @@ app.post("/jwt/register/user/key/:key/",
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
     } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/register/user/:list/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       if (!Helper.isReserved(req.params.list)) throw new Error(`${req.params.list} is not reserved`)
       if (Helper.verifyIs("object/empty", req.body[req.params.list])) throw new Error(`req.body.${req.params.list} is empty`)
@@ -4354,19 +4420,18 @@ app.post("/jwt/register/user/:list/",
         return res.sendStatus(200)
       }
     } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/admin/register/users/verified/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
-
     try {
       const ids = req.body.ids
       const verified = req.body.verified
@@ -4382,8 +4447,8 @@ app.post("/admin/register/users/verified/",
       }
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
-      console.log(error);
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -4406,7 +4471,8 @@ app.post("/jwt/remove/chat/messages/",
       user.chat[req.body.id].messages = []
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -4429,7 +4495,8 @@ app.post("/jwt/register/chat/message/",
       user.chat[req.body.id].messages.unshift({created: Date.now(), from: req.jwt.id, text: req.body.message})
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -4456,8 +4523,8 @@ app.post("/jwt/register/:list/:map/",
       user[req.params.list].unshift(sorted)
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
-      console.log(error);
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -4468,31 +4535,34 @@ app.post("/remove/deadline/closed/",
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user.deadlines !== undefined) {
-          for (let i = 0; i < user.deadlines.length; i++) {
-            const deadline = user.deadlines[i]
-            if (deadline.created === req.body.id) {
-              user.deadlines.splice(i, 1)
-              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-              return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (user.deadlines !== undefined) {
+            for (let i = 0; i < user.deadlines.length; i++) {
+              const deadline = user.deadlines[i]
+              if (deadline.created === req.body.id) {
+                user.deadlines.splice(i, 1)
+                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                return res.sendStatus(200)
+              }
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/remove/location/feedback/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       const created = req.body.created
       if (Helper.verifyIs("number/empty", created)) throw new Error("req.body.created is empty")
@@ -4514,19 +4584,18 @@ app.post("/remove/location/feedback/",
       value.feedback.splice(i, 1)
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/remove/groups/created/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -4543,40 +4612,41 @@ app.post("/remove/groups/created/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/remove/location/email-expert/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
-      if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
-      if (Helper.verifyIs("text/empty", req.body.tag)) throw new Error("req.body.tag is empty")
-      if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
-      const location = req.body.path.split("/")[2]
-      const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      if (jwtUser.id === req.jwt.id) {
-        if (Helper.verifyIs("user/expert", jwtUser)) {
-          for (const key in doc.user) {
-            const user = doc.user[key]
-            if (user.email === req.body.email) {
-              if (user[location] !== undefined) {
-                if (user[location][req.body.tag] !== undefined) {
-                  for (let i = 0; i < user[location][req.body.tag].length; i++) {
-                    const item = user[location][req.body.tag][i]
-                    if (item.created === req.body.id) {
-                      user[location][req.body.tag].splice(i, 1)
-                      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-                      return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
+        if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
+        if (Helper.verifyIs("text/empty", req.body.tag)) throw new Error("req.body.tag is empty")
+        if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
+        const location = req.body.path.split("/")[2]
+        const doc = await nano.db.use("getyour").get("user")
+        const jwtUser = doc.user[req.jwt.id]
+        if (jwtUser.id === req.jwt.id) {
+          if (Helper.verifyIs("user/expert", jwtUser)) {
+            for (const key in doc.user) {
+              const user = doc.user[key]
+              if (user.email === req.body.email) {
+                if (user[location] !== undefined) {
+                  if (user[location][req.body.tag] !== undefined) {
+                    for (let i = 0; i < user[location][req.body.tag].length; i++) {
+                      const item = user[location][req.body.tag][i]
+                      if (item.created === req.body.id) {
+                        user[location][req.body.tag].splice(i, 1)
+                        await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                        return res.sendStatus(200)
+                      }
                     }
                   }
                 }
@@ -4585,17 +4655,18 @@ app.post("/remove/location/email-expert/",
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/remove/location/tag/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.tag)) throw new Error("req.body.tag is empty")
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
@@ -4613,39 +4684,37 @@ app.post("/remove/location/tag/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/admin/remove/logs/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("logs")
       doc.logs = []
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, logs: doc.logs })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/remove/match-maker/condition/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -4666,20 +4735,19 @@ app.post("/location-expert/remove/match-maker/condition/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/remove/match-maker/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -4699,20 +4767,19 @@ app.post("/location-expert/remove/match-maker/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/remove/paths/scripts/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       const paths = req.body.paths
       if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
@@ -4728,7 +4795,8 @@ app.post("/location-expert/remove/paths/scripts/",
       })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -4740,7 +4808,6 @@ app.post("/location-expert/tag/paths/automated-true/",
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       const paths = req.body.paths
       if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
@@ -4756,7 +4823,8 @@ app.post("/location-expert/tag/paths/automated-true/",
       })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -4768,7 +4836,6 @@ app.post("/location-expert/tag/paths/automated-false/",
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       const paths = req.body.paths
       if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
@@ -4784,7 +4851,8 @@ app.post("/location-expert/tag/paths/automated-false/",
       })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -4796,7 +4864,6 @@ app.post("/location-expert/tag/paths/visibility-closed/",
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       const paths = req.body.paths
       if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
@@ -4812,7 +4879,8 @@ app.post("/location-expert/tag/paths/visibility-closed/",
       })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -4824,7 +4892,6 @@ app.post("/location-expert/tag/paths/visibility-open/",
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       const paths = req.body.paths
       if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
@@ -4840,7 +4907,8 @@ app.post("/location-expert/tag/paths/visibility-open/",
       })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -4852,7 +4920,6 @@ app.post("/location-expert/remove/platform/role/",
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
@@ -4874,20 +4941,19 @@ app.post("/location-expert/remove/platform/role/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/remove/platform/value/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -4910,20 +4976,19 @@ app.post("/location-expert/remove/platform/value/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/remove/platform/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       if (Helper.reservedKeys.has(req.body.platform)) return res.sendStatus(404)
@@ -4939,13 +5004,13 @@ app.post("/location-expert/remove/platform/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/send/platform/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
@@ -4984,21 +5049,19 @@ app.post("/location-expert/send/platform/",
       }
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
-      console.log(error)
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/admin/remove/user/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
       let id
@@ -5027,73 +5090,78 @@ app.post("/admin/remove/user/",
       }
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/remove/user/blocked/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user.blocked !== undefined) {
-          for (let i = 0; i < user.blocked.length; i++) {
-            const blocked = user.blocked[i]
-            if (blocked.id === req.body.id) {
-              user.blocked.splice(i, 1)
-              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-              return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (user.blocked !== undefined) {
+            for (let i = 0; i < user.blocked.length; i++) {
+              const blocked = user.blocked[i]
+              if (blocked.id === req.body.id) {
+                user.blocked.splice(i, 1)
+                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                return res.sendStatus(200)
+              }
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/remove/user/funnel/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user.funnel !== undefined) {
-          for (let i = 0; i < user.funnel.length; i++) {
-            const funnel = user.funnel[i]
-            if (funnel.created === req.body.created) {
-              user.funnel.splice(i, 1)
-              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-              return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (user.funnel !== undefined) {
+            for (let i = 0; i < user.funnel.length; i++) {
+              const funnel = user.funnel[i]
+              if (funnel.created === req.body.created) {
+                user.funnel.splice(i, 1)
+                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                return res.sendStatus(200)
+              }
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/remove/profile/message/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -5109,95 +5177,101 @@ app.post("/remove/profile/message/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/remove/user/tree-admin/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
-      if (!Helper.verifyIs("key/deletable", req.body.key)) throw new Error("key not deletable")
-      const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      if (jwtUser.id === req.jwt.id) {
-        if (Helper.verifyIs("user/admin", {user: jwtUser})) {
-          const user = doc.user[req.body.id]
-          if (user.id === req.body.id) {
-            if (req.body.tree.includes(".")) {
-              const keys = req.body.tree.split(".")
-              let value = user
-              let previousIsArray
-              let array
-              for (let i = 0; i < keys.length; i++) {
-                const key = keys[i]
-                if (value[key] !== undefined) {
-                  if (i === keys.length - 2) {
-                    if (Array.isArray(value[key])) {
-                      previousIsArray = true
-                      array = value[key]
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
+        if (!Helper.verifyIs("key/deletable", req.body.key)) throw new Error("key not deletable")
+        const doc = await nano.db.use("getyour").get("user")
+        const jwtUser = doc.user[req.jwt.id]
+        if (jwtUser.id === req.jwt.id) {
+          if (Helper.verifyIs("user/admin", {user: jwtUser})) {
+            const user = doc.user[req.body.id]
+            if (user.id === req.body.id) {
+              if (req.body.tree.includes(".")) {
+                const keys = req.body.tree.split(".")
+                let value = user
+                let previousIsArray
+                let array
+                for (let i = 0; i < keys.length; i++) {
+                  const key = keys[i]
+                  if (value[key] !== undefined) {
+                    if (i === keys.length - 2) {
+                      if (Array.isArray(value[key])) {
+                        previousIsArray = true
+                        array = value[key]
+                      }
                     }
-                  }
-                  if (i === keys.length - 1) {
-                    if (previousIsArray === true) {
-                      const index = array.indexOf(value[key])
-                      array.splice(index, 1)
+                    if (i === keys.length - 1) {
+                      if (previousIsArray === true) {
+                        const index = array.indexOf(value[key])
+                        array.splice(index, 1)
+                        break
+                      }
+                      value[key] = undefined
                       break
+                    } else {
+                      value = value[key]
                     }
-                    value[key] = undefined
-                    break
                   } else {
-                    value = value[key]
+                    return res.sendStatus(404)
                   }
-                } else {
-                  return res.sendStatus(404)
+                }
+              } else {
+                if (user[req.body.tree] !== undefined) {
+                  user[req.body.tree] = undefined
                 }
               }
-            } else {
-              if (user[req.body.tree] !== undefined) {
-                user[req.body.tree] = undefined
-              }
-            }
-            await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-            return res.sendStatus(200)
-          }
-        }
-      }
-    }
-
-  }
-)
-app.post("/remove/user/scripts/",
-
-  Helper.verifyLocation,
-  Helper.verifyReferer,
-  addJwt,
-  Helper.verifySession,
-  async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user.scripts !== undefined) {
-          for (let i = 0; i < user.scripts.length; i++) {
-            const script = user.scripts[i]
-            if (script.created === req.body.created) {
-              user.scripts.splice(i, 1)
               await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
               return res.sendStatus(200)
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/remove/user/scripts/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  async (req, res, next) => {
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (user.scripts !== undefined) {
+            for (let i = 0; i < user.scripts.length; i++) {
+              const script = user.scripts[i]
+              if (script.created === req.body.created) {
+                user.scripts.splice(i, 1)
+                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                return res.sendStatus(200)
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
@@ -5211,7 +5285,8 @@ app.post("/jwt/remove/user/",
     try {
       await removeUserById(req.jwt.id)
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -5222,23 +5297,27 @@ app.post("/remove/user/sources/",
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user.sources !== undefined) {
-          for (let i = 0; i < user.sources.length; i++) {
-            const source = user.sources[i]
-            if (source.created === req.body.created) {
-              user.sources.splice(i, 1)
-              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-              return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (user.sources !== undefined) {
+            for (let i = 0; i < user.sources.length; i++) {
+              const source = user.sources[i]
+              if (source.created === req.body.created) {
+                user.sources.splice(i, 1)
+                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                return res.sendStatus(200)
+              }
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
@@ -5248,41 +5327,41 @@ app.post("/remove/user/templates/",
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user.templates !== undefined) {
-          for (let i = 0; i < user.templates.length; i++) {
-            const template = user.templates[i]
-            if (template.created === req.body.created) {
-              user.templates.splice(i, 1)
-              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-              return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (user.templates !== undefined) {
+            for (let i = 0; i < user.templates.length; i++) {
+              const template = user.templates[i]
+              if (template.created === req.body.created) {
+                user.templates.splice(i, 1)
+                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                return res.sendStatus(200)
+              }
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 function removeImageCid(image, params) {
-  try {
-    if (params === "images") {
-      const match = image.url.match(/cid\/([^\/]+)/)
-      if (match && match[1]) {
-        const cid = match[1]
-        const cidDirectory = path.join(__dirname, "..", "cid")
-        const filePath = path.join(cidDirectory, cid)
-        fs.unlink(filePath, error => {
-          if (error) throw new Error(error)
-        })
-      }
+  if (params === "images") {
+    const match = image.url.match(/cid\/([^\/]+)/)
+    if (match && match[1]) {
+      const cid = match[1]
+      const cidDirectory = path.join(__dirname, "..", "cid")
+      const filePath = path.join(cidDirectory, cid)
+      fs.unlink(filePath, error => {
+        if (error) throw new Error(error)
+      })
     }
-  } catch (e) {
-    console.log(e)
   }
 }
 app.post("/jwt/remove/user/:list/item/",
@@ -5308,7 +5387,8 @@ app.post("/jwt/remove/user/:list/item/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -5359,7 +5439,8 @@ app.post("/jwt/send/email/retell-ics/",
       if (!isJwt(user, req)) return res.sendStatus(404)
       await sendIcsEmail(user.email, req.body.to, ics) 
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -5380,19 +5461,18 @@ app.post("/jwt/send/email/ics/",
       if (!isJwt(user, req)) return res.sendStatus(404)
       await sendIcsEmail(user.email, req.body.to, ics) 
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/send/email/lat-lon/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.to)) throw new Error("req.body.to is empty")
       if (Helper.verifyIs("number/empty", req.body.lat)) throw new Error("req.body.lat is empty")
@@ -5411,19 +5491,18 @@ app.post("/send/email/lat-lon/",
         `
       })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/send/email/test-html/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.subject)) throw new Error("req.body.subject is empty")
       if (Helper.verifyIs("text/empty", req.body.html)) throw new Error("req.body.html is empty")
@@ -5437,19 +5516,18 @@ app.post("/send/email/test-html/",
         html: req.body.html
       })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/send/email/send-html/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.subject)) throw new Error("req.body.subject is empty")
       if (Helper.verifyIs("text/empty", req.body.html)) throw new Error("req.body.html is empty")
@@ -5464,20 +5542,19 @@ app.post("/send/email/send-html/",
         html: req.body.html
       })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/admin/invite/expert/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
       const admin = doc.user[req.jwt.id]
@@ -5489,16 +5566,15 @@ app.post("/admin/invite/expert/",
       })
       return res.sendStatus(200)
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/send/email/with/pin/",
-
   Helper.verifyLocation,
   async (req, res) => {
-
     try {
       const email = req.body.email
       if (Helper.verifyIs("text/empty", email)) throw new Error("req.body.email is empty")
@@ -5515,24 +5591,22 @@ app.post("/send/email/with/pin/",
       })
       loginQueue.push(login)
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/send/map/to/email/ids/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res) => {
-
     try {
       const map = req.body.map
       const ids = req.body.ids.split(",")
       if (!Array.isArray(ids)) throw new Error("req.body.ids is empty")
       if (Helper.verifyIs("object/empty", map)) throw new Error("req.body.map is empty")
       const mapText = mapToText(map)
-
       function mapToText(map) {
         if (!map || typeof map !== 'object' || Object.keys(map).length === 0) {
           return 'Keine Daten verfügbar.';
@@ -5559,16 +5633,17 @@ app.post("/send/map/to/email/ids/",
           to: user.email,
           subject: "[getyour] Funnel",
           html: `
-<p>Jemand hat deinen Funnel, mit folgenden Daten, ausgefüllt:</p>
+            <p>Jemand hat deinen Funnel, mit folgenden Daten, ausgefüllt:</p>
 
-${mapText}
+            ${mapText}
 
-Location: ${locationToPath(req)}
+            Location: ${locationToPath(req)}
           `
         })
       }
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -5583,19 +5658,18 @@ app.post("/admin/update/children/",
     try {
       await updateChildren()
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/update/location/list/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       if (Helper.verifyIs("text/empty", req.body.tag)) throw new Error("req.body.tag is empty")
@@ -5617,45 +5691,46 @@ app.post("/update/location/list/",
         return res.sendStatus(200)
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/update/location/list-email-expert/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
-      if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
-      if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
-      if (Helper.verifyIs("text/empty", req.body.tag)) throw new Error("req.body.tag is empty")
-      if (Helper.verifyIs("object/empty", req.body.map)) throw new Error("req.body.map is empty")
-      const location = req.body.path.split("/")[2]
-      const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      if (jwtUser.id === req.jwt.id) {
-        if (Helper.verifyIs("user/expert", jwtUser)) {
-          for (const key in doc.user) {
-            const user = doc.user[key]
-            if (user.email === req.body.email) {
-              if (user[location] !== undefined) {
-                if (user[location][req.body.tag] !== undefined) {
-                  for (let i = 0; i < user[location][req.body.tag].length; i++) {
-                    const item = user[location][req.body.tag][i]
-                    if (item.created === req.body.id) {
-                      Object.keys(req.body.map).forEach(key => {
-                        if (key !== 'created') {
-                          item[key] = req.body.map[key]
-                        }
-                      })
-                      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-                      return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("number/empty", req.body.id)) throw new Error("req.body.id is empty")
+        if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
+        if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
+        if (Helper.verifyIs("text/empty", req.body.tag)) throw new Error("req.body.tag is empty")
+        if (Helper.verifyIs("object/empty", req.body.map)) throw new Error("req.body.map is empty")
+        const location = req.body.path.split("/")[2]
+        const doc = await nano.db.use("getyour").get("user")
+        const jwtUser = doc.user[req.jwt.id]
+        if (jwtUser.id === req.jwt.id) {
+          if (Helper.verifyIs("user/expert", jwtUser)) {
+            for (const key in doc.user) {
+              const user = doc.user[key]
+              if (user.email === req.body.email) {
+                if (user[location] !== undefined) {
+                  if (user[location][req.body.tag] !== undefined) {
+                    for (let i = 0; i < user[location][req.body.tag].length; i++) {
+                      const item = user[location][req.body.tag][i]
+                      if (item.created === req.body.id) {
+                        Object.keys(req.body.map).forEach(key => {
+                          if (key !== 'created') {
+                            item[key] = req.body.map[key]
+                          }
+                        })
+                        await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                        return res.sendStatus(200)
+                      }
                     }
                   }
                 }
@@ -5664,18 +5739,19 @@ app.post("/update/location/list-email-expert/",
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/update/match-maker/condition/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       if (Helper.verifyIs("text/empty", req.body.left)) throw new Error("req.body.left is empty")
@@ -5701,20 +5777,19 @@ app.post("/location-expert/update/match-maker/condition/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/update/paths/:id/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       const paths = req.body.paths
       if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
@@ -5731,20 +5806,19 @@ app.post("/location-expert/update/paths/:id/",
       })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/update/toolbox/path/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.path)) throw new Error("req.body.path is empty")
       const doc = await nano.db.use("getyour").get("user")
@@ -5766,20 +5840,19 @@ app.post("/location-expert/update/toolbox/path/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-writable/update/toolbox/paths/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationWritableOnly,
   async (req, res, next) => {
-
     try {
       const paths = req.body.paths
       if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
@@ -5792,20 +5865,19 @@ app.post("/location-writable/update/toolbox/paths/",
       })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/update/platform/role/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
@@ -5830,233 +5902,249 @@ app.post("/location-expert/update/platform/role/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/update/user/key-name-tree-admin/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
-      if (Helper.verifyIs("text/empty", req.body.name)) throw new Error("req.body.name is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      if (jwtUser.id === req.jwt.id) {
-        if (Helper.verifyIs("user/admin", {user: jwtUser})) {
-          const user = doc.user[req.body.id]
-          if (user.id === req.body.id) {
-            if (req.body.tree.includes(".")) {
-              const keys = req.body.tree.split(".")
-              let value = user
-              for (let i = 0; i < keys.length; i++) {
-                const key = keys[i]
-                if (value[key] !== undefined) {
-                  if (i === keys.length - 1) {
-                    value[req.body.name] = value[key]
-                    value[key] = undefined
-                    break
-                  } else {
-                    value = value[key]
-                  }
-                } else {
-                  return res.sendStatus(404)
-                }
-              }
-            } else {
-              if (user[req.body.tree] !== undefined) {
-                user[req.body.name] = user[req.body.tree]
-                user[req.body.tree] = undefined
-              }
-            }
-            await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-            return res.sendStatus(200)
-          }
-        }
-      }
-    }
-  }
-)
-app.post("/update/user/bool-tree-admin/",
-
-  Helper.verifyLocation,
-  Helper.verifyReferer,
-  addJwt,
-  Helper.verifySession,
-  async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
-      if (Helper.verifyIs("text/empty", req.body.tree)) throw new Error("req.body.tree is empty")
-      if (Helper.verifyIs("bool/empty", req.body.bool)) throw new Error("req.body.bool is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      if (jwtUser.id === req.jwt.id) {
-        if (Helper.verifyIs("user/admin", {user: jwtUser})) {
-          const user = doc.user[req.body.id]
-          if (user.id === req.body.id) {
-            if (req.body.tree.includes(".")) {
-              const keys = req.body.tree.split(".")
-              let value = user
-              for (let i = 0; i < keys.length; i++) {
-                const key = keys[i]
-                if (value[key] !== undefined) {
-                  if (i === keys.length - 1) {
-                    if (typeof value[key] === "boolean") {
-                      value[key] = req.body.bool
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
+        if (Helper.verifyIs("text/empty", req.body.name)) throw new Error("req.body.name is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const jwtUser = doc.user[req.jwt.id]
+        if (jwtUser.id === req.jwt.id) {
+          if (Helper.verifyIs("user/admin", {user: jwtUser})) {
+            const user = doc.user[req.body.id]
+            if (user.id === req.body.id) {
+              if (req.body.tree.includes(".")) {
+                const keys = req.body.tree.split(".")
+                let value = user
+                for (let i = 0; i < keys.length; i++) {
+                  const key = keys[i]
+                  if (value[key] !== undefined) {
+                    if (i === keys.length - 1) {
+                      value[req.body.name] = value[key]
+                      value[key] = undefined
+                      break
+                    } else {
+                      value = value[key]
                     }
-                    break
                   } else {
-                    value = value[key]
+                    return res.sendStatus(404)
                   }
-                } else {
-                  return res.sendStatus(404)
+                }
+              } else {
+                if (user[req.body.tree] !== undefined) {
+                  user[req.body.name] = user[req.body.tree]
+                  user[req.body.tree] = undefined
                 }
               }
-            } else {
-              if (user[req.body.tree] !== undefined) {
-                user[req.body.tree] = req.body.bool
-              }
-            }
-            await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-            return res.sendStatus(200)
-          }
-        }
-      }
-    }
-  }
-)
-app.post("/update/user/number-tree-admin/",
-
-  Helper.verifyLocation,
-  Helper.verifyReferer,
-  addJwt,
-  Helper.verifySession,
-  async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      req.body.number = Helper.convert("text/number", req.body.number)
-      if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
-      if (Helper.verifyIs("text/empty", req.body.tree)) throw new Error("req.body.tree is empty")
-      if (Helper.verifyIs("number/empty", req.body.number)) throw new Error("req.body.number is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      if (jwtUser.id === req.jwt.id) {
-        if (Helper.verifyIs("user/admin", {user: jwtUser})) {
-          const user = doc.user[req.body.id]
-          if (user.id === req.body.id) {
-            if (req.body.tree.includes(".")) {
-              const keys = req.body.tree.split(".")
-              let value = user
-              for (let i = 0; i < keys.length; i++) {
-                const key = keys[i]
-                if (value[key] !== undefined) {
-                  if (i === keys.length - 1) {
-                    if (typeof value[key] === "number") {
-                      value[key] = req.body.number
-                    }
-                    break
-                  } else {
-                    value = value[key]
-                  }
-                } else {
-                  return res.sendStatus(404)
-                }
-              }
-            } else {
-              if (user[req.body.tree] !== undefined) {
-                user[req.body.tree] = req.body.number
-              }
-            }
-            await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-            return res.sendStatus(200)
-          }
-        }
-      }
-    }
-  }
-)
-app.post("/update/user/text-tree-admin/",
-
-  Helper.verifyLocation,
-  Helper.verifyReferer,
-  addJwt,
-  Helper.verifySession,
-  async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
-      if (Helper.verifyIs("text/empty", req.body.tree)) throw new Error("req.body.tree is empty")
-      if (Helper.verifyIs("text/empty", req.body.text)) throw new Error("req.body.text is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      if (jwtUser.id === req.jwt.id) {
-        if (Helper.verifyIs("user/admin", {user: jwtUser})) {
-          const user = doc.user[req.body.id]
-          if (user.id === req.body.id) {
-            if (req.body.tree.includes(".")) {
-              const keys = req.body.tree.split(".")
-              let value = user
-              for (let i = 0; i < keys.length; i++) {
-                const key = keys[i]
-                if (value[key] !== undefined) {
-                  if (i === keys.length - 1) {
-                    if (typeof value[key] === "string") {
-                      value[key] = req.body.text
-                    }
-                    break
-                  } else {
-                    value = value[key]
-                  }
-                } else {
-                  return res.sendStatus(404)
-                }
-              }
-            } else {
-              if (user[req.body.tree] !== undefined) {
-                user[req.body.tree] = req.body.text
-              }
-            }
-            await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-            return res.sendStatus(200)
-          }
-        }
-      }
-    }
-  }
-)
-app.post("/update/user/:list/",
-
-  Helper.verifyLocation,
-  Helper.verifyReferer,
-  addJwt,
-  Helper.verifySession,
-  async (req, res, next) => {
-
-    if (!Helper.isReserved(req.params.list)) throw new Error(`${req.params.list} is not reserved`)
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
-      if (Helper.verifyIs("object/empty", req.body[req.params.list])) throw new Error("req.body.source is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      if (user.id === req.jwt.id) {
-        if (user[req.params.list] !== undefined) {
-          for (let i = 0; i < user[req.params.list].length; i++) {
-            const it = user[req.params.list][i]
-            if (it.created === req.body.created) {
-              user[req.params.list][i] = { ...it, ...req.body[req.params.list] }
               await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
               return res.sendStatus(200)
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/update/user/bool-tree-admin/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  async (req, res, next) => {
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
+        if (Helper.verifyIs("text/empty", req.body.tree)) throw new Error("req.body.tree is empty")
+        if (Helper.verifyIs("bool/empty", req.body.bool)) throw new Error("req.body.bool is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const jwtUser = doc.user[req.jwt.id]
+        if (jwtUser.id === req.jwt.id) {
+          if (Helper.verifyIs("user/admin", {user: jwtUser})) {
+            const user = doc.user[req.body.id]
+            if (user.id === req.body.id) {
+              if (req.body.tree.includes(".")) {
+                const keys = req.body.tree.split(".")
+                let value = user
+                for (let i = 0; i < keys.length; i++) {
+                  const key = keys[i]
+                  if (value[key] !== undefined) {
+                    if (i === keys.length - 1) {
+                      if (typeof value[key] === "boolean") {
+                        value[key] = req.body.bool
+                      }
+                      break
+                    } else {
+                      value = value[key]
+                    }
+                  } else {
+                    return res.sendStatus(404)
+                  }
+                }
+              } else {
+                if (user[req.body.tree] !== undefined) {
+                  user[req.body.tree] = req.body.bool
+                }
+              }
+              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+              return res.sendStatus(200)
+            }
+          }
+        }
+      }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/update/user/number-tree-admin/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  async (req, res, next) => {
+    try {
+      if (req.jwt !== undefined) {
+        req.body.number = Helper.convert("text/number", req.body.number)
+        if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
+        if (Helper.verifyIs("text/empty", req.body.tree)) throw new Error("req.body.tree is empty")
+        if (Helper.verifyIs("number/empty", req.body.number)) throw new Error("req.body.number is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const jwtUser = doc.user[req.jwt.id]
+        if (jwtUser.id === req.jwt.id) {
+          if (Helper.verifyIs("user/admin", {user: jwtUser})) {
+            const user = doc.user[req.body.id]
+            if (user.id === req.body.id) {
+              if (req.body.tree.includes(".")) {
+                const keys = req.body.tree.split(".")
+                let value = user
+                for (let i = 0; i < keys.length; i++) {
+                  const key = keys[i]
+                  if (value[key] !== undefined) {
+                    if (i === keys.length - 1) {
+                      if (typeof value[key] === "number") {
+                        value[key] = req.body.number
+                      }
+                      break
+                    } else {
+                      value = value[key]
+                    }
+                  } else {
+                    return res.sendStatus(404)
+                  }
+                }
+              } else {
+                if (user[req.body.tree] !== undefined) {
+                  user[req.body.tree] = req.body.number
+                }
+              }
+              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+              return res.sendStatus(200)
+            }
+          }
+        }
+      }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/update/user/text-tree-admin/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  async (req, res, next) => {
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
+        if (Helper.verifyIs("text/empty", req.body.tree)) throw new Error("req.body.tree is empty")
+        if (Helper.verifyIs("text/empty", req.body.text)) throw new Error("req.body.text is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const jwtUser = doc.user[req.jwt.id]
+        if (jwtUser.id === req.jwt.id) {
+          if (Helper.verifyIs("user/admin", {user: jwtUser})) {
+            const user = doc.user[req.body.id]
+            if (user.id === req.body.id) {
+              if (req.body.tree.includes(".")) {
+                const keys = req.body.tree.split(".")
+                let value = user
+                for (let i = 0; i < keys.length; i++) {
+                  const key = keys[i]
+                  if (value[key] !== undefined) {
+                    if (i === keys.length - 1) {
+                      if (typeof value[key] === "string") {
+                        value[key] = req.body.text
+                      }
+                      break
+                    } else {
+                      value = value[key]
+                    }
+                  } else {
+                    return res.sendStatus(404)
+                  }
+                }
+              } else {
+                if (user[req.body.tree] !== undefined) {
+                  user[req.body.tree] = req.body.text
+                }
+              }
+              await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+              return res.sendStatus(200)
+            }
+          }
+        }
+      }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/update/user/:list/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  async (req, res, next) => {
+    try {
+      if (!Helper.isReserved(req.params.list)) throw new Error(`${req.params.list} is not reserved`)
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
+        if (Helper.verifyIs("object/empty", req.body[req.params.list])) throw new Error("req.body.source is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        if (user.id === req.jwt.id) {
+          if (user[req.params.list] !== undefined) {
+            for (let i = 0; i < user[req.params.list].length; i++) {
+              const it = user[req.params.list][i]
+              if (it.created === req.body.created) {
+                user[req.params.list][i] = { ...it, ...req.body[req.params.list] }
+                await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+                return res.sendStatus(200)
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
@@ -6074,7 +6162,6 @@ function prepareFormData(req, res, next) {
   return next()
 }
 app.post("/upload/file/",
-
   upload.array("file"),
   prepareFormData,
   Helper.verifyLocation,
@@ -6092,19 +6179,18 @@ app.post("/upload/file/",
       const cidLink = `https://${req.get("host")}/cid/${cid}`
       return res.send(cidLink)
     } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/update/:list/:map/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       if (!Helper.isReserved(req.params.list)) throw new Error(`${req.params.list} is not reserved`)
       const doc = await nano.db.use("getyour").get("user")
@@ -6124,7 +6210,8 @@ app.post("/jwt/update/:list/:map/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -6234,38 +6321,35 @@ app.post("/jwt/verify/chat/message/",
       if (!jwtLatestMessage) return res.sendStatus(200)
       if (userLatestMessage.created > jwtLatestMessage.created) return res.sendStatus(200)
       return res.sendStatus(404)
-    } catch (error) {
-      console.log(error)
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/verify/email/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       if (req.jwt.user.email !== req.body.email) return res.sendStatus(404)
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/verify/retell/api-key/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const doc = await nano.db.use("getyour").get("user")
       const jwtUser = doc.user[req.jwt.id]
@@ -6274,59 +6358,37 @@ app.post("/jwt/verify/retell/api-key/",
         return res.sendStatus(200)
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/admin/verify/expert/name/exist/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   adminOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.name)) throw new Error("req.body.name is empty")
       const doc = await nano.db.use("getyour").get("user")
       const exist = Object.values(doc.user).some(it => it.getyour?.expert?.name === req.body.name)
       if (!exist) return res.sendStatus(404)
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
-    }
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("text/empty", req.body.name)) throw new Error("req.body.name is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      if (jwtUser.id === req.jwt.id) {
-        if (Helper.verifyIs("user/admin", {user: jwtUser})) {
-          for (const key in doc.user) {
-            const user = doc.user[key]
-            if (user.getyour !== undefined) {
-              if (user.getyour.expert !== undefined) {
-                if (user.getyour.expert.name === req.body.name) {
-                  return res.sendStatus(200)
-                }
-              }
-            }
-          }
-        }
-      }
     }
   }
 )
 app.post("/verify/group/creator/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("number/empty", req.body.created)) throw new Error("req.body.created is empty")
       const groups = req.jwt.user.groups || []
@@ -6335,48 +6397,50 @@ app.post("/verify/group/creator/",
         if (group.created === req.body.created) return res.sendStatus(200)
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/verify/match-maker/conditions/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("array/empty", req.body.conditions)) throw new Error("req.body.conditions is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      for (let i = 0; i < req.body.conditions.length; i++) {
-        const condition = req.body.conditions[i]
-        if (user.id === req.jwt.id) {
-          if (Helper.verify("user/tree/exist", user, condition.left) === true) {
-            if (Helper.verify("user/condition", user, condition) === false) {
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("array/empty", req.body.conditions)) throw new Error("req.body.conditions is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        for (let i = 0; i < req.body.conditions.length; i++) {
+          const condition = req.body.conditions[i]
+          if (user.id === req.jwt.id) {
+            if (Helper.verify("user/tree/exist", user, condition.left) === true) {
+              if (Helper.verify("user/condition", user, condition) === false) {
+                return res.sendStatus(404)
+              }
+            } else {
               return res.sendStatus(404)
             }
-          } else {
-            return res.sendStatus(404)
           }
         }
+        return res.sendStatus(200)
       }
-      return res.sendStatus(200)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/verify/match-maker/name/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.name)) throw new Error("req.body.name is empty")
       if (Helper.verifyIs("key/reserved", req.body.name)) return res.sendStatus(200)
@@ -6393,16 +6457,15 @@ app.post("/location-expert/verify/match-maker/name/",
         }
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/verify/pin/",
-
   Helper.verifyLocation,
   async (req, res) => {
-
     try {
       expireLoginAttempts()
       const {userPin} = req.body
@@ -6417,10 +6480,10 @@ app.post("/verify/pin/",
           return res.sendStatus(200)
         }
       }
-    } catch (error) {
-      await Helper.logError(error, req)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
-    return res.sendStatus(404)
   }
 )
 app.post("/location-expert/verify/platform/role/name/",
@@ -6444,37 +6507,35 @@ app.post("/location-expert/verify/platform/role/name/",
         if (role.name === req.body.name) return res.sendStatus(200)
       }
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/location-expert/verify/platform/exist/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   locationExpertOnly,
   async (req, res, next) => {
-
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
       if (Helper.reservedKeys.has(req.body.platform)) return res.sendStatus(200)
       const exist = req.jwt.user.getyour.expert.platforms.some(it => it.name === req.body.platform)
       if (exist) return res.sendStatus(200)
       return res.sendStatus(404)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/verify/path/exist/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   async (req, res, next) => {
-
     try {
       const path = req.body.path
       if (Helper.verifyIs("text/empty", path)) throw new Error("req.body.path is empty")
@@ -6482,27 +6543,27 @@ app.post("/verify/path/exist/",
       const exist = pathExist(doc, path)
       if (!exist) return res.sendStatus(404)
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 app.post("/jwt/verify/tree/exist/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   closedOnly,
   async (req, res, next) => {
-
     try {
       const tree = req.body.tree
       if (Helper.verifyIs("text/empty", tree)) throw new Error("req.body.tree is empty")
       const user = req.jwt.user
       if (!treeExist(user, tree)) return res.sendStatus(404)
       return res.sendStatus(200)
-    } catch (error) {
+    } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
@@ -6516,7 +6577,6 @@ app.post("/verify/user/closed/",
   sendStatus(200)
 )
 app.post("/verify/user/admin/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
@@ -6525,26 +6585,28 @@ app.post("/verify/user/admin/",
   sendStatus(200)
 )
 app.post("/verify/user/jwt-in-emails/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      if (Helper.verifyIs("array/empty", req.body.emails)) throw new Error("req.body.emails is empty")
-      const doc = await nano.db.use("getyour").get("user")
-      const user = doc.user[req.jwt.id]
-      for (let i = 0; i < req.body.emails.length; i++) {
-        const email = req.body.emails[i]
-        if (user.email === email) return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        if (Helper.verifyIs("array/empty", req.body.emails)) throw new Error("req.body.emails is empty")
+        const doc = await nano.db.use("getyour").get("user")
+        const user = doc.user[req.jwt.id]
+        for (let i = 0; i < req.body.emails.length; i++) {
+          const email = req.body.emails[i]
+          if (user.email === email) return res.sendStatus(200)
+        }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/verify/user/location-writable/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
@@ -6553,7 +6615,6 @@ app.post("/verify/user/location-writable/",
   sendStatus(200)
 )
 app.post("/verify/user/location-expert/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
@@ -6567,33 +6628,36 @@ app.post("/verify/user/messages/",
   addJwt,
   Helper.verifySession,
   async (req, res, next) => {
-
-    if (req.jwt !== undefined) {
-      const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      if (jwtUser.id === req.jwt.id) {
-        for (const key in doc.user) {
-          const user = doc.user[key]
-          if (user.messages !== undefined) {
-            for (let i = 0; i < user.messages.length; i++) {
-              const message = user.messages[i]
-              if (message.to === jwtUser.created) {
-                const oneDayInMillis = 24 * 60 * 60 * 1000
-                const now = Date.now()
-                const timeDifference = now - message.created
-                if (timeDifference <= oneDayInMillis) {
-                  return res.sendStatus(200)
+    try {
+      if (req.jwt !== undefined) {
+        const doc = await nano.db.use("getyour").get("user")
+        const jwtUser = doc.user[req.jwt.id]
+        if (jwtUser.id === req.jwt.id) {
+          for (const key in doc.user) {
+            const user = doc.user[key]
+            if (user.messages !== undefined) {
+              for (let i = 0; i < user.messages.length; i++) {
+                const message = user.messages[i]
+                if (message.to === jwtUser.created) {
+                  const oneDayInMillis = 24 * 60 * 60 * 1000
+                  const now = Date.now()
+                  const timeDifference = now - message.created
+                  if (timeDifference <= oneDayInMillis) {
+                    return res.sendStatus(200)
+                  }
                 }
               }
             }
           }
         }
       }
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
     }
   }
 )
 app.post("/verify/user/expert/",
-
   Helper.verifyLocation,
   Helper.verifyReferer,
   addJwt,
@@ -6614,12 +6678,12 @@ app.post("/verify/user/url-id/",
       if (urlId !== req.jwt.id) return res.sendStatus(404)
       return res.sendStatus(200)
     } catch (e) {
+      await log(e, req)
       return res.sendStatus(404)
     }
   }
 )
 
-startWebSocket(server)
 const port = 9999
 server.listen(port, () => console.log(`[getyour] is running on port :${port}`))
 
@@ -6661,7 +6725,7 @@ async function addJwt(req, res, next) {
     }
     if (req.method === "GET") return res.send(redirectToLoginHtml)
     if (req.method === "POST") return res.sendStatus(404)
-  } catch (error) {
+  } catch (e) {
     if (req.method === "GET") return res.send(redirectToLoginHtml)
     if (req.method === "POST") return res.sendStatus(404)
   }
@@ -6682,7 +6746,7 @@ function addLocation(req, res, next) {
       }
     }
     return res.sendStatus(404)
-  } catch (error) {
+  } catch (e) {
     return res.sendStatus(404)
   }
 }
