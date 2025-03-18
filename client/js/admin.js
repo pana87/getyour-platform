@@ -1,6 +1,7 @@
 import {Helper, addLoading} from "/js/Helper.js"
 import {button} from "/js/button.js"
 import {post} from "/js/request.js"
+import {br} from "/js/html-tags.js"
 
 if (!isValidURL()) throw new Error("unknown location")
 Helper.render("text/h1", "Admin", document.body)
@@ -57,6 +58,8 @@ app.onclick = () => {
                   Helper.render("text/div", log.method, button.right)
                   Helper.render("text/div", `an: ${log.path}`, button.right)
                   Helper.render("text/div", `von: ${log.url}`, button.right)
+                  br("", button.right)
+                  Helper.render("text/div", `entstanden vor: ${Helper.convert("millis/since", log.created)}`, button.right)
                 }
               } else {
                 Helper.render("text/note", "Keine Fehler gefunden", content)

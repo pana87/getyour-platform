@@ -337,10 +337,18 @@ async function log(it, req) {
     log.path = req.path
     log.query = req.query
   }
+  console.log(log)
   const doc = await nano.db.use("getyour").get("logs")
   doc.logs.unshift(log)
-  console.log(log)
-  await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, logs: doc.logs })
+  try {
+    await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, logs: doc.logs })
+  } catch (e) {
+    if (e.message === "Document update conflict") {
+      console.log("conflict detacted")
+      const latestDoc = await nano.db.get(doc._id)
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: latestDoc._rev, logs: doc.logs })
+    }
+  }
 }
 app.post('/admin/exec/command/', 
   Helper.verifyLocation,
@@ -2921,8 +2929,7 @@ app.post("/register/email/numerology/",
         const user = doc.user[key]
         if (user.email === req.body.email) {
           let foundRole = false
-          const roles = new Set(user.roles)
-          if (roles.includes(req.body.created)) {
+          if (user.roles && user.roles.includes(req.body.created)) {
             foundRole = true
             break
           }

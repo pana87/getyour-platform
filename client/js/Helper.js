@@ -8895,7 +8895,6 @@ export class Helper {
       it.quickContentOptions.style.display = "none"
 
       it.openFunnelOverlayButton = this.render("text/link", "Meine Funnel", it.quickContentOptions)
-      it.openFunnelOverlay = this.fn("openFunnelOverlay")
 
       it.sourcesButton = this.render("text/link", "Meine Quellen", it.quickContentOptions)
       it.openSourcesOverlay = this.fn("openSourcesOverlay")
@@ -10494,186 +10493,89 @@ export class Helper {
         fragment.appendChild(dataSpan)
         node.appendChild(fragment)
       }
-      return (node, type) => {
+      return node => {
         this.overlay("pop", async o1 => {
           o1.info.textContent = "user.funnel"
           const searchField = this.create("input/text", o1.content)
           searchField.input.placeholder = "Suche nach Id"
-          if (node) {
-            o1.content.appendChild(o1.addButton)
-            o1.addButton.onclick = async () => {
-
-              let blueprint = {}
-              this.overlay("pop", o2 => {
-                o2.info.textContent = `.register.funnel`
-                const content = o2.content
-                const idField = this.create("input/id", content)
-                idField.input.addEventListener("input", ev => {
-                  updateData(submit, ev.target.value, blueprint, typeField.input.value)
-                })
-                const typeField = this.create("input/select", content)
-                this.add("style/not-valid", typeField.input)
-                typeField.input.add(["-- Datentyp auswählen", "json: {key: value, .. }", "json-list: [{key: value}, .. ]"])
-                let dataButton = o2.querySelector(".data-button")
-                typeField.input.addEventListener("input", async ev => {
-                  const value = ev.target.value
-                  if (value.startsWith("--")) {
-                    Helper.add("style/not-valid", typeField.input)
-                    dataButton.remove()
-                    dataButton = undefined
-                    return
-                  }
-                  if (Helper.verifyIs("text/empty", idField.input.value)) {
-                    window.alert("Es wurde keine Id eingegeben.")
-                    typeField.input.value = "-- Datentyp auswählen"
-                    Helper.add("style/not-valid", idField.input)
-                    idField.input.focus()
-                    Helper.add("style/not-valid", typeField.input)
-                    return
-                  }
-                  if (!dataButton) {
-                    dataButton = createDataButton()
-                    dataButton.addEventListener("click", ev => {
-                      onDataButtonClick(dataButton, idField, o2, data => {
-                        blueprint = data
-                        updateData(submit, idField.input.value, data, typeField.input.value)
-                      })
-                    })
-                    typeField.insertAdjacentElement('afterend', dataButton)
-                  }
-
-                  updateData(submit, idField.input.value, blueprint, typeField.input.value)
-                })
-                this.render("text/hr", "Meine Datenstruktur", content)
-                const submit = this.create("box", content)
-                this.style(submit, {fontSize: "21px", margin: "21px 34px", display: "block", fontFamily: "monospace", textAlign: "center", padding: "55px"})
-                const text = this.render("text/hover-bottom-right", "Funnel jetzt speichern", submit)
-                updateData(submit, idField.input.value, blueprint, typeField.input.value)
-                submit.onclick = async () => {
-                  const type = typeField.input.value.split(":")[0]
-                  if (type.startsWith("--")) {
-                    window.alert("Es wurde kein Datentyp ausgewählt.")
-                    this.add("style/not-valid", typeField.input)
-                    return
-                  }
-                  await this.verify("input/value", idField.input)
-                  const id = idField.input.value
-                  if (this.verifyIs("object/empty", blueprint)) {
-                    window.alert("Es wurden keine Datenfelder gefunden.")
-                    this.add("style/red", dataButton)
-                    this.add("style/circle", dataButton.left)
-                    return
-                  }
-                  const res = await o1.registerIt({id, type, blueprint})
-                  if (res.status === 200) {
-                    o2.remove()
-                  } else {
-                    this.add("style/not-valid", idField.input)
-                  }
-                }
-              })
-            }
+          const addBtn = o1.appendAddButton()
+          addBtn.onclick = async () => {
+            this.overlay("pop", o2 => {
+              const content = o2.content
+              const funnelId = this.create("input/id", content)
+              const submit = button.render("action", {textContent: "Funnel jetzt speichern"}, content)
+              submit.onclick = async () => {
+                await this.verify("input/value", funnelId.input)
+                const id = funnelId.input.value
+                const res = await o1.registerIt({id})
+                if (res.status === 200) o2.remove()
+                else this.add("style/not-valid", funnelId.input)
+              }
+            })
           }
           o1.createItButton = async it => {
-
             const button = Helper.create("button/left-right")
-            if (it.id && it.type) {
+            if (it.id) {
               if (it.query) {
                 const id = await Helper.convert("text/purified", it.query)
-                const type = await Helper.convert("text/purified", it.type)
-                button.left.innerHTML = `#${id}:${type}`
+                button.left.innerHTML = id
               } else {
-                button.left.textContent = `#${it.id}:${it.type}`
+                button.left.textContent = it.id
               }
-            }
-            if (it.blueprint) {
-              const blueprint = document.createElement("pre")
-              blueprint.style.fontSize = "21px"
-              blueprint.style.whiteSpace = "pre-wrap"
-              blueprint.style.wordWrap = "break-word"
-              blueprint.textContent = JSON.stringify(it.blueprint, null, 2)
-              button.right.style.margin = "8px"
-              button.right.appendChild(blueprint)
             }
             if (it.visibility) {
               Helper.render("text/hover-bottom-right", it.visibility, button)
             }
             return button
           }
-          function openButtons(it, o) {
+          function appendBlueprint(it, o) {
             if (node) {
-              const button = Helper.create("button/left-right", o.content)
-              button.left.textContent = ".append"
-              button.right.textContent = "Funnel anhängen"
-              button.onclick = async () => {
-
-                Helper.overlay("pop", o2 => {
-                  {
-                    const button = Helper.create("button/left-right", o2.content)
-                    button.left.textContent = ".form"
-                    button.right.textContent = "Als HTML Form anhängen"
-                    button.addEventListener("click", async ev => {
-                      const fragment = document.createDocumentFragment()
-                      const form = Helper.convert("map/form", it.blueprint)
-                      fragment.appendChild(form)
-                      node.appendChild(fragment)
-                      o1.remove()
-                      o2.remove()
-                      o.remove()
-                    })
-                  }
-                })
-              }
-            }
-            {
-              const button = Helper.create("button/left-right", o.content)
-              button.left.textContent = ".copy"
-              button.right.textContent = "Speicher deinen Funnel in deiner Zwischenablage"
+              const button = Helper.render("button/left-right", {left: ".append", right: "Funnel anhängen"}, o.content)
               button.onclick = () => {
-                navigator.clipboard.writeText(JSON.stringify(it.blueprint)).then(() => window.alert("Dein Funnel wurde erfolgreich in deiner Zwischablage gespeichert."))
-              }
-            }
-            {
-              const button = Helper.create("button/left-right", o.content)
-              button.left.textContent = ".email"
-              button.right.textContent = "Versende deinen Funnel per E-Mail"
-              button.onclick = async () => {
-                const mailtoLink = `mailto:?body=${encodeURIComponent(JSON.stringify(it.blueprint))}`
-                const a = document.createElement("a")
-                a.href = mailtoLink
-                a.click()
+                const form = Helper.convert("map/form", it.blueprint)
+                node.appendChild(form)
+                o1.remove()
+                o.remove()
               }
             }
           }
+          function copyBlueprint(it, o) {
+            const button = Helper.render("button/left-right", {left: ".copy", right: "Speicher dein Blueprint in die Zwischenablage"}, o.content)
+            button.onclick = () => {
+              navigator.clipboard.writeText(JSON.stringify(it.blueprint)).then(() => window.alert("Dein Funnel wurde erfolgreich in deiner Zwischablage gespeichert."))
+            }
+          }
+          function emailBlueprint(it, o) {
+            const button = Helper.render("button/left-right", {left: ".email", right: "Versende deinen Blueprint per E-Mail"}, o.content)
+            button.onclick = async () => {
+              const mailtoLink = `mailto:?body=${encodeURIComponent(JSON.stringify(it.blueprint))}`
+              const a = document.createElement("a")
+              a.href = mailtoLink
+              a.click()
+            }
+          }
           o1.closedOptions = it => {
-
             Helper.overlay("pop", async o2 => {
               const content = o2.content
               if (it.id) o2.info.textContent = `#${it.id}.options`
-              openButtons(it, o2)
-
-              if (type === "expert") {
-                const button = Helper.create("button/left-right", content)
-                button.left.textContent = ".field-funnel-sign-support"
-                button.right.textContent = "Unterstütze deine Nutzer bei der Eingabe mit Symbole und Farben"
-                button.onclick = () => {
-                  const script = Helper.create("script/id", "field-funnel-sign-support")
-                  Helper.add("script-onbody", script)
-                  window.alert("Skript wurde erfolgreich angehängt.")
-                }
+              appendBlueprint(it, o2)
+              copyBlueprint(it, o2)
+              emailBlueprint(it, o2)
+              const signSupport = Helper.render("button/left-right", {left: ".sign-support", right: "Unterstütze deine Nutzer bei der Eingabe mit Symbole und Farben"}, content)
+              signSupport.onclick = () => {
+                const script = Helper.create("script/id", "field-funnel-sign-support")
+                Helper.add("script-onbody", script)
+                window.alert("Skript wurde erfolgreich angehängt.")
               }
-              if (type === "expert") {
-                const button = Helper.create("button/left-right", content)
-                button.left.textContent = ".next"
-                button.right.textContent = "Nach Abschluss, zur Werteinheit"
-                button.addEventListener("click", () => {
-                  Helper.overlay("pop", o3 => {
-                    const content = o3.content
-                    Helper.render("next/path", node, content)
-                  })
+              const blueprintBtn = this.render("button/left-right", {left: ".blueprint", right: "Erstelle deinen eigenen Funnel"}, content)
+              const next = Helper.render("button/left-right", {left: ".next", right: "Nach Abschluss, zur Werteinheit"}, content)
+              next.onclick = () => {
+                Helper.overlay("pop", o3 => {
+                  const content = o3.content
+                  Helper.render("next/path", node, content)
                 })
               }
-              if (type === "expert") {
+              {
                 const button = Helper.create("button/left-right", content)
                 button.left.textContent = ".on-info-click"
                 button.right.textContent = "Dieses Skript sucht und öffnet deine Tags im Field Funnel"
@@ -10683,7 +10585,7 @@ export class Helper {
                   window.alert("Skript wurde erfolgreich angehängt.")
                 }
               }
-              if (type === "expert") {
+              {
                 const button = Helper.create("button/left-right", content)
                 button.left.textContent = ".prefill-field-funnel"
                 button.right.textContent = "Fülle die Datenfelder mit den eigenen Nutzerdaten"
@@ -10693,10 +10595,8 @@ export class Helper {
                   window.alert("Skript wurde erfolgreich angehängt.")
                 }
               }
-              if (["closed", "expert"].includes(type)) {
-                await o1.removeIt(it, o2)
-              }
-              if (type === "expert") {
+              await o1.removeIt(it, o2)
+              {
                 const button = Helper.create("button/left-right", content)
                 button.left.textContent = ".reset"
                 button.right.textContent = "Klick Funnel zurücksetzen"
@@ -10712,7 +10612,7 @@ export class Helper {
                   window.alert("Funnel erfolgreich zurückgesetzt.")
                 })
               }
-              if (type === "expert") {
+              {
                 const submitFieldFunnel = Helper.create("button/left-right", content)
                 submitFieldFunnel.left.textContent = ".submit-field-funnel"
                 submitFieldFunnel.right.textContent = "Field Funnel Submit Skript anhängen"
@@ -10760,17 +10660,15 @@ export class Helper {
                   })
                 }
               }
-              if (["closed", "expert"].includes(type)) {
-
-                o1.visibility(it, o2)
-              }
+              o1.visibility(it, o2)
             })
           }
           o1.openOptions = it => {
-
             Helper.overlay("pop", o1 => {
               if (it.id) o1.info.textContent = `#${it.id}.options`
-              openButtons(it, o1)
+              appendBlueprint(it, o1)
+              copyBlueprint(it, o1)
+              emailBlueprint(it, o1)
             })
           }
           o1.renderTabs()
@@ -10779,7 +10677,6 @@ export class Helper {
           o1.input = searchField.input
           const content = this.create("div/loading", o1.content)
           o1.rerender = content
-
         })
       }
     }
@@ -13021,7 +12918,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     }
   }
   static overlay(event, callback) {
-
     if (event === "children") {
       if (!callback) callback = {}
       this.overlay("pop", overlay => {
@@ -13371,7 +13267,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                         buttons.openVideosOverlayButton.onclick = () => buttons.openVideosOverlay(selectedNode, callback.type)
                         buttons.openAudiosOverlayButton.onclick = () => buttons.openAudiosOverlay(selectedNode, callback.type)
                         buttons.openPdfOverlayButton.onclick = () => buttons.openPdfOverlay(selectedNode, callback.type)
-                        buttons.openFunnelOverlayButton.onclick = () => buttons.openFunnelOverlay(selectedNode, callback.type)
+                        buttons.openFunnelOverlayButton.onclick = () => this.fn("openFunnelOverlay")(selectedNode)
                         buttons.styleBackgroundImageButton.onclick = () => buttons.styleBackgroundImage(selectedNode)
                         buttons.appendImageButton.onclick = () => buttons.appendImage(selectedNode)
                         buttons.trimLinesButton.onclick = () => buttons.trimLines(selectedNode)
@@ -14318,9 +14214,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "conflicts") {
-
       if (!callback) throw new Error("no trigger found")
       return this.overlay("pop", o1 => {
         const content = o1.content
@@ -14405,9 +14299,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "html-creator") {
-
       const overlay = document.createElement("div")
       overlay.className = "overlay fade-up"
       overlay.classList.add("overlay")
@@ -14430,7 +14322,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       document.body.append(overlay)
       return overlay
     }
-
     if (event === "messages") {
       const user = callback
       this.overlay("pop", overlay => {
@@ -14564,9 +14455,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
     if (event === "tools") {
-
       if (!callback) callback = {}
       return this.overlay("pop", async o1 => {
         o1.registerHtmlButton(callback.type)
@@ -14739,52 +14628,69 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             })
           })
         }
-
-          const imageButton = this.render("button/left-right", {left: ".image", right: "Für die Bildbearbeitung"}, buttons)
-          imageButton.onclick = () => {
+        if (callback.type === "expert") {
+          const feedBtn = this.render("button/left-right", {left: ".feed", right: "Entwickle eine Datenliste für deine Nutzer"}, buttons)
+          feedBtn.onclick = () => {
             this.overlay("pop", o2 => {
               const content = o2.content
-              o2.addInfo(".image")
-              if (callback.type === "expert") {
-                const myImages = this.render("button/left-right", {left: ".images", right: "Meine Bilder"}, content)
-                myImages.onclick = () => this.fn("openImagesOverlay")(document.body)
-              }
-              this.render("text/hr", "Bildbearbeitung", content)
-              const image = this.create("input/file", content)
-              image.input.setAttribute("accept", "image/*")
-              image.input.oninput = () => this.verify("input/value", image.input)
-              const imageToDataUrl = this.render("text/link", "DataURL", content)
-              imageToDataUrl.onclick = async () => {
-                const imageFile = image.input.files[0]
-                if (!imageFile) {
-                  this.add("style/not-valid", image.input)
-                  return
-                }
-                const reader = new FileReader()
-                reader.onload = ev => {
-                  const dataUrl = ev.target.result
-                  img.src = dataUrl
-                  output.textContent = dataUrl
-                  output.onclick = () => {
-                    navigator?.clipboard?.writeText(dataUrl).then(() => {
-                      window.alert("Data URL wurde erfolgreich in die Zwischenablage gespeichert.")  
-                    })
-                    .catch(e => {
-                      window.alert("Fehler.. Bitte wiederholen.")
-                      console.error(e)
-                    })
-                  }
-                    
-                }
-                reader.readAsDataURL(imageFile)
-              }
-              const imagePreview = this.div("btn-theme color-theme m21 p8 break-word", content)
-              const img = document.createElement("img")
-              imagePreview.appendChild(img)
-              const output = this.div("btn-theme color-theme m21 p8 break-word", content)
-              this.add("hover-outline", output)
+              o2.addInfo(".feed")
+              const title = this.create("input/text", content)
+              title.input.placeholder = "Titel"
+              const description = this.create("input/textarea", content)
+              description.input.placeholder = "Beschreibung"
+              const funnel = this.create("input/select", content)
             })
           }
+        }
+        if (callback.type === "expert") {
+          const funnelBtn = this.render("button/left-right", {left: ".funnel", right: "Meine Funnel"}, buttons)
+          funnelBtn.onclick = () => this.fn("openFunnelOverlay")(document.body)
+        }
+        const imageButton = this.render("button/left-right", {left: ".image", right: "Für die Bildbearbeitung"}, buttons)
+        imageButton.onclick = () => {
+          this.overlay("pop", o2 => {
+            const content = o2.content
+            o2.addInfo(".image")
+            if (callback.type === "expert") {
+              const myImages = this.render("button/left-right", {left: ".images", right: "Meine Bilder"}, content)
+              myImages.onclick = () => this.fn("openImagesOverlay")(document.body)
+            }
+            this.render("text/hr", "Bildbearbeitung", content)
+            const image = this.create("input/file", content)
+            image.input.setAttribute("accept", "image/*")
+            image.input.oninput = () => this.verify("input/value", image.input)
+            const imageToDataUrl = this.render("text/link", "DataURL", content)
+            imageToDataUrl.onclick = async () => {
+              const imageFile = image.input.files[0]
+              if (!imageFile) {
+                this.add("style/not-valid", image.input)
+                return
+              }
+              const reader = new FileReader()
+              reader.onload = ev => {
+                const dataUrl = ev.target.result
+                img.src = dataUrl
+                output.textContent = dataUrl
+                output.onclick = () => {
+                  navigator?.clipboard?.writeText(dataUrl).then(() => {
+                    window.alert("Data URL wurde erfolgreich in die Zwischenablage gespeichert.")  
+                  })
+                  .catch(e => {
+                    window.alert("Fehler.. Bitte wiederholen.")
+                    console.error(e)
+                  })
+                }
+                  
+              }
+              reader.readAsDataURL(imageFile)
+            }
+            const imagePreview = this.div("btn-theme color-theme m21 p8 break-word", content)
+            const img = document.createElement("img")
+            imagePreview.appendChild(img)
+            const output = this.div("btn-theme color-theme m21 p8 break-word", content)
+            this.add("hover-outline", output)
+          })
+        }
         {
           const button = this.create("button/left-right", buttons)
           button.left.textContent = ".open"
@@ -15365,9 +15271,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
       })
     }
-
     if (event === "pop") {
-
       const overlay = this.create("div/overlay")
       overlay.addButton = button.div("add")
       overlay.addInfo = text => {
@@ -15421,6 +15325,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       overlay.appendAddButton = () => {
         this.add("hover-outline", overlay.addButton)
         this.append(overlay.addButton, overlay)
+        return overlay.addButton
       }
       overlay.appendHtml = (it, node, o) => {
         const fragment = document.createDocumentFragment()
@@ -16166,9 +16071,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       return overlay
     }
-
     if (event === "lock") {
-
       return this.overlay("pop", async o1 => {
         o1.load()
         o1.removeOverlayButton.remove()
@@ -16176,9 +16079,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         if (callback) await callback(o1)
       })
     }
-
     if (event === "select-template") {
-
       this.overlay("pop", async overlay => {
         async function renderTemplates(templates, node) {
           Helper.convert("parent/scrollable", node)
@@ -16221,7 +16122,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         }
       })
     }
-
   }
   static render(event, input, parent) {
     if (event === "a") {
