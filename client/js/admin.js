@@ -8,7 +8,6 @@ Helper.render("text/h1", "Admin", document.body)
 button.append("go-back", document.body)
 const app = button.append("up", document.body)
 app.onclick = () => {
-
   Helper.overlay("pop", async o1 => {
     const buttons = o1.content
     const res = await Helper.request("/verify/user/admin/")
@@ -156,7 +155,6 @@ app.onclick = () => {
       }
       const users = Helper.render("button/left-right", {left: ".users", right: "Nutzer Liste"}, buttons)
       users.onclick = () => {
-
         Helper.overlay("pop", async o2 => {
           const res = await Helper.request("/admin/get/users/")
           if (res.status === 200) {
@@ -164,27 +162,11 @@ app.onclick = () => {
             users.sort((a, b) => b.counter - a.counter)
             o2.addInfo(users.length)
             const buttons = o2.content
-            const icon = await Helper.render("icon/node/path", "/public/bucket.svg")
-            icon.style.width = "34px"
             for (let i = 0; i < users.length; i++) {
               const user = users[i]
               const button = Helper.create("button/left-right", buttons)
-              button.right.appendChild(icon.cloneNode(true))
               Helper.add("hover-outline", button)
-              Helper.add("hover-outline", button.right)
-              button.right.onclick = async (ev) => {
-
-                ev.stopPropagation()
-                const confirm = window.confirm("Möchten Sie wirklich diesen Nutzer löschen?")
-                if (confirm === true) {
-                  const res = await Helper.request("/admin/remove/user/", {id: user.id})
-                  if (res.status === 200) {
-                    window.alert("Nutzer wurde erfolgreich entfernt.")
-                    button.remove()
-                  }
-                  if (res.status !== 200) window.alert("Fehler.. Bitte wiederholen.")
-                }
-              }
+              button.right.remove()
               button.left.style.margin = "0"
               const message = document.createElement("div")
               message.style.margin = "21px 34px"
@@ -215,9 +197,7 @@ app.onclick = () => {
                 value.textContent = user.counter
                 message.appendChild(value)
               }
-
               button.onclick = ev => {
-
                 ev.stopPropagation()
                 Helper.overlay("pop", o3 => {
                   o3.addInfo(user.email)
@@ -346,7 +326,6 @@ app.onclick = () => {
       }
       const usersBulk = Helper.render("button/left-right", {left: ".users-bulk", right: "Aktionen für eine Liste von Nutzern auf einmal"}, buttons)
       usersBulk.onclick = () => {
-
         Helper.overlay("pop", async o4 => {
           o4.info.textContent = ".users-bulk"
           const funnel = o4.content
@@ -393,7 +372,6 @@ app.onclick = () => {
   })
 }
 function isValidURL() {
-
   const {host, pathname, protocol} = window.location
   const isLocalhost = host === "localhost:9999"
   const isGetYour = host === "get-your.de" || host === "www.get-your.de"
@@ -401,7 +379,6 @@ function isValidURL() {
   return (isLocalhost || isGetYour) && isHTTPS && pathname === "/admin/"
 }
 async function verifyExpertNameExist(input) {
-
   const name = input.value
   const res = await Helper.request("/admin/verify/expert/name/exist/", {name})
   if (res.status === 200) {
