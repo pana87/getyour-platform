@@ -1,26 +1,18 @@
 import {Helper} from "/js/Helper.js"
 
-
 const it = {}
-
 it.div = (id, node) => {
-
   const div = document.createElement("div")
   div.id = id
-
   div.submit = Helper.create("button/action")
   div.submit.classList.add("submit")
   div.submit.textContent = "Daten jetzt speichern"
-
   if (id === "alias") {
-
     div.alias = Helper.create("input/alias", div)
     div.alias.input.id = "alias"
     Helper.append(div.submit, div)
   }
-
   if (id === "condition") {
-
     div.left = Helper.create("input/id", div)
     div.left.input.id = "left"
     div.operator = Helper.create("input/operator", div)
@@ -35,19 +27,16 @@ it.div = (id, node) => {
     div.right.input.oninput = () => Helper.verify("input/value", div.right.input)
     Helper.append(div.submit, div)
   }
-
   if (id === "conflict") {
-
     div.environment = Helper.create("input/textarea", div)
     div.environment.input.id = "environment"
     div.environment.input.setAttribute("required", "true")
     div.environment.input.setAttribute("accept", "text/length")
     div.environment.input.maxLength = "987"
     div.environment.input.placeholder = `Environments: Beschreibe deine Umgebung ?
-
-- URL Link
-- Browser
-- App
+      - URL Link
+      - Browser
+      - App
     `
     div.environment.input.style.height = "144px"
     div.environment.input.style.fontSize = "13px"
@@ -85,45 +74,35 @@ it.div = (id, node) => {
   }
 
   if (id === "description") {
-
     div.description = Helper.create("input/description", div)
     div.description.input.id = "description"
     Helper.append(div.submit, div)
   }
 
   if (id === "email") {
-
     div.email = Helper.create("input/email", div)
     div.email.input.id = "email"
     Helper.append(div.submit, div)
   }
-
   if (id === "feedback") {
-
     div.feedback = Helper.create("input/feedback", div)
     div.feedback.input.id = "feedback"
     div.importance = Helper.create("input/importance", div)
     div.importance.input.id = "importance"
     Helper.append(div.submit, div)
   }
-
   if (id === "name") {
-
     div.name = Helper.create("input/tag", div)
     div.name.input.id = "name"
     Helper.append(div.submit, div)
   }
-
   if (id === "platform") {
-
     div.platform = Helper.create("input/tag", div)
     div.platform.input.id = "platform"
     div.platform.input.placeholder = "Plattform (text/tag)"
     Helper.append(div.submit, div)
   }
-
   if (id === "getyour.web-entwickler") {
-
     div.alias = Helper.create("input/alias", div)
     div.type = Helper.create("input/text", div)
     div.type.input.id = "type"
@@ -132,16 +111,12 @@ it.div = (id, node) => {
     div.image = Helper.create("input/image", div)
     Helper.append(div.submit, div)
   }
-
   if (id === "image") {
-
     div.image = Helper.create("input/image", div)
     div.image.input.id = "image"
     Helper.append(div.submit, div)
   }
-
   if (id === "login") {
-
     div.email = Helper.create("input/email", div)
     div.email.input.id = "email"
     div.dsgvo = Helper.create("input/checkbox", div)
@@ -163,28 +138,22 @@ it.div = (id, node) => {
     const div2 = Helper.render("text/div", "Die Plattform von getyour soll ein sicheres und vertrauenswürdiges Umfeld bieten, damit Du dich auf Deine Daten verlassen kannst.", div.info)
     div2.classList.add("mt13")
   }
-
   if (id === "notes") {
-
     div.notes = Helper.create("input/textarea", div)
     div.notes.input.id = "notes"
     div.notes.input.className += " vh55"
     div.notes.input.placeholder = `next:email(Meine Notizen)
-next:tel(Meine Notizen)
-next:webcall(Meine Notizen)
+      next:tel(Meine Notizen)
+      next:webcall(Meine Notizen)
     `
     Helper.append(div.submit, div)
   }
-
   if (id === "phone") {
-
     div.phone = Helper.create("input/phone", div)
     div.phone.input.id = "phone"
     Helper.append(div.submit, div)
   }
-
   if (id === "platform.value") {
-
     div.alias = Helper.create("input/alias", div)
     div.alias.input.id = "alias"
     div.alias.input.setAttribute("required", "true")
@@ -192,20 +161,17 @@ next:webcall(Meine Notizen)
     div.path.input.placeholder = "Pfad (text/tag)"
     Helper.append(div.submit, div)
   }
-
   if (id === "profile") {
-
     div.aboutYou = Helper.create("input/textarea", div)
     div.aboutYou.input.id = "aboutYou"
     div.aboutYou.input.placeholder = `Erzähl etwas über dich ?
+      - was du gerade machst (beruflich oder privat)
+      - etwas was dem anderen hilft
+      - von jetzt sprechen
+      - praktische Beispiele (beruflich oder privat)
+      - Schlüsselwörter benutzen (IT, Beratung)
 
-- was du gerade machst (beruflich oder privat)
-- etwas was dem anderen hilft
-- von jetzt sprechen
-- praktische Beispiele (beruflich oder privat)
-- Schlüsselwörter benutzen (IT, Beratung)
-
-z.b., ich bin ... (deine Person), das heißt ... (Vorteil), das bedeutet für dich ... (Nutzen für den anderen).
+      z.b., ich bin ... (deine Person), das heißt ... (Vorteil), das bedeutet für dich ... (Nutzen für den anderen).
     `
     div.aboutYou.input.style.height = "144px"
     Helper.add("style/valid", div.aboutYou.input)
@@ -215,16 +181,15 @@ z.b., ich bin ... (deine Person), das heißt ... (Vorteil), das bedeutet für di
     div.whyThis = Helper.create("input/textarea", div)
     div.whyThis.input.id = "whyThis"
     div.whyThis.input.placeholder = `Was kannst du besonders gut ?
+      - Nicht in Bullet Points schreiben
+      - Vollständige Sätze formulieren
 
-- Nicht in Bullet Points schreiben
-- Vollständige Sätze formulieren
+      z.b., mit der STAR Methode:
 
-z.b., mit der STAR Methode:
-
-1. Situation
-2. Task
-3. Action
-4. Result
+      1. Situation
+      2. Task
+      3. Action
+      4. Result
     `
     div.whyThis.input.style.height = "144px"
     Helper.add("style/valid", div.whyThis.input)
@@ -234,8 +199,7 @@ z.b., mit der STAR Methode:
     div.motivation = Helper.create("input/textarea", div)
     div.motivation.input.id = "motivation"
     div.motivation.input.placeholder = `Wie motivierst du dich ?
-
-z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, ..
+      z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, ..
     `
     div.motivation.input.style.height = "144px"
     Helper.add("style/valid", div.motivation.input)
@@ -255,11 +219,9 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     Helper.request("/jwt/get/id/", {id: "profile"}).then(async res => {
       if (res.status === 200) {
         const profile = JSON.parse(res.response)
-
         const messagesDiv = document.createElement("div")
         Helper.style(messagesDiv, {display: "flex", flexWrap: "wrap", justifyContent: "space-around"})
         div.prepend(messagesDiv)
-
         if (profile.messages !== undefined) {
           for (let i = 0; i < profile.messages.length; i++) {
             const message = profile.messages[i]
@@ -267,12 +229,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             Helper.style(box, {fontFamily: "sans-serif", fontSize: "21px"})
             box.innerHTML = await Helper.convert("text/purified", message.html)
             box.onclick = () => {
-
               Helper.overlay("pop", o1 => {
                 const content = Helper.create("div/scrollable", o1)
                 const remove = Helper.render("button/left-right", {left: ".remove", right: "Nachricht entfernen"}, content)
                 remove.onclick = () => {
-
                   const confirm = window.confirm("Möchtest du diese Nachricht wirklich entfernen?")
                   if (confirm === true) {
                     Helper.overlay("lock", async o2 => {
@@ -301,9 +261,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
     })
   }
-
   if (id === "role") {
-
     div.name = Helper.create("input/tag", div)
     div.name.input.id = "name"
     div.name.input.placeholder = "Rolle (text/tag)"
@@ -312,9 +270,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     div.home.input.id = "home"
     Helper.append(div.submit, div)
   }
-
   if (id === "status") {
-
     div.status = Helper.create("input/text", div)
     div.status.input.id = "status"
     div.status.input.placeholder = "Status"
@@ -323,9 +279,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     div.status.input.setAttribute("accept", "text/length")
     Helper.append(div.submit, div)
   }
-
   if (id === "website") {
-
     div.website = Helper.create("input/url", div)
     div.website.input.id = "website"
     div.website.input.placeholder = "Webseite (text/url)"
@@ -333,10 +287,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     div.website.input.setAttribute("accept", "text/length")
     Helper.append(div.submit, div)
   }
-
   Helper.verify("funnel", div)
   if (node) Helper.append(div, node)
   return div
 }
-
 export const funnel = it

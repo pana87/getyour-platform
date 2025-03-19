@@ -148,14 +148,13 @@ app.onclick = () => {
       }
       {
         const tree = "getyour.expert.platforms"
-        const button = Helper.render("button/left-right", {left: `.${tree}`, right: "Neue Plattform"}, content)
-        button.onclick = () => {
-
+        const nameSubmit = Helper.render("button/left-right", {left: `.${tree}`, right: "Neue Plattform"}, content)
+        nameSubmit.onclick = () => {
           Helper.overlay("pop", async o2 => {
             const content = o2.content
+            Helper.render("text/hr", "Neue Plattform", content)
             const funnel = Helper.funnel("platform", content)
             funnel.submit.onclick = async () => {
-
               await Helper.verify("input/value", funnel.platform.input)
               const platform = funnel.platform.input.value
               await verifyPlatformExist(funnel.platform.input)
@@ -169,6 +168,42 @@ app.onclick = () => {
                 }
                 o3.remove()
               })
+            }
+            Helper.render("text/hr", "Plattform JSON Objekt importieren", content)
+            const json = Helper.create("input/textarea", content)
+            json.input.placeholder = "Plattform: {\n  image, (optional)\n  match-maker, (optional)\n  name, (notwendig)\n  roles, (optional)\n  start, (optional)\n  values, (optional)\n  visibility, (optional)\n}"
+            json.input.className += " h89 fs8"
+            Helper.add("style/not-valid", json.input)
+            const jsonSubmit = button.render("action", {textContent: "Daten jetzt speichern"}, content)
+            jsonSubmit.onclick = async () => {
+              try {
+                const jsonInput = JSON.parse(json.input.value)
+                const allowedKeys = ["created", "image", "match-maker", "name", "roles", "start", "values", "visibility"]
+                const platform = Object.keys(jsonInput)
+                .filter(key => allowedKeys.includes(key))
+                .reduce((obj, key) => {
+                  obj[key] = jsonInput[key]
+                  return obj
+                }, {})
+                if (!platform.created) platform.created = Date.now()
+                if (!platform.name) throw new Error("platform.name required")
+                console.log(platform)
+                const res = await post("/location-expert/verify/platform/exist/", {platform: platform.name})
+                if (res.status === 200) throw new Error("platform exist")
+                Helper.overlay("lock", async o3 => {
+                  const res = await post("/location-expert/register/json-platform/", {platform})
+                  if (res.status === 200) {
+                    window.alert("Plattform erfolgreich gespeichert. +3 XP")
+                    window.location.reload()
+                  } else {
+                    o3.alert.nok()
+                  }
+                  o3.remove()
+                })
+              } catch (e) {
+                console.error(e)
+                Helper.add("style/not-valid", json.input)
+              }
             }
           })
         }
@@ -1070,7 +1105,7 @@ async function renderLocationExpertPlatformValues(platform, node) {
     let selected = false
     actionNeededBtn.onclick = () => {
       if (!selected) {
-        const filtered = values.filter(it => it.writeAccessRequest.length > 0)
+        const filtered = values.filter(it => it.writeAccessRequest && it.writeAccessRequest.length > 0)
         renderValueButtons(filtered, rerender)
         selected = true
         actionNeededBtn.classList.remove("box")
@@ -1497,7 +1532,6 @@ async function renderValueButtons(values, node) {
   }
 }
 function renderWritableValues(values, content) {
-
   const paths = values.flatMap(it => it.path || [])
   Helper.render("text/hr", "Für jede Werteinheit", content)
   const bulkOptions = Helper.create("div/flex-around", content)
@@ -1526,7 +1560,6 @@ function renderWritableValues(values, content) {
   renderHtmlValuesWritable(values, buttons)
 }
 async function verifyPlatformExist(input) {
-
   const res = await post("/location-expert/verify/platform/exist/", {platform: input.value})
   if (res.status === 200) {
     window.alert("Plattform existiert bereits.")
@@ -1535,7 +1568,6 @@ async function verifyPlatformExist(input) {
   }
 }
 async function verifyPlatformRoleNameExist(platform, input) {
-
   const res = await post("/location-expert/verify/platform/role/name/", {platform, name: input.value})
   if (res.status === 200) {
     window.alert("Diese Rolle existiert bereits.")

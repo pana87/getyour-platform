@@ -340,15 +340,7 @@ async function log(it, req) {
   console.log(log)
   const doc = await nano.db.use("getyour").get("logs")
   doc.logs.unshift(log)
-  try {
-    await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, logs: doc.logs })
-  } catch (e) {
-    if (e.message === "Document update conflict") {
-      console.log("conflict detacted")
-      const latestDoc = await nano.db.get(doc._id)
-      await nano.db.use("getyour").insert({ _id: doc._id, _rev: latestDoc._rev, logs: doc.logs })
-    }
-  }
+  await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, logs: doc.logs })
 }
 app.post('/admin/exec/command/', 
   Helper.verifyLocation,
@@ -3559,6 +3551,43 @@ app.post("/location-expert/register/platform/visibility/",
     }
   }
 )
+app.post("/location-expert/register/json-platform/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+    try {
+      const platform = req.body.platform
+      if (Helper.verifyIs("object/empty", platform)) throw new Error("req.body.platform is empty")
+      if (Helper.reservedKeys.has(platform.name)) return res.sendStatus(404)
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      const platforms = user.getyour?.expert?.platforms || []
+      const exist = platforms.some(it => it.name === platform.name)
+      if (exist) return res.sendStatus(404)
+      const it = {}
+      it.name = platform.name
+      it.created = Date.now()
+      if (platform.created) it.created = platform.created
+      it.visibility = "closed"
+      if (platform.roles) it.roles = platform.roles
+      if (platform.values) it.values = platform.values
+      if (platform.start) it.start = platform.start
+      if (platform.visibility) it.visibility = platform.visibility
+      if (platform["match-maker"]) it["match-maker"] = platform["match-maker"]
+      platforms.push(it)
+      if (!user.xp) user.xp = 0
+      user.xp += 3
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
 app.post("/location-expert/register/platform/",
   Helper.verifyLocation,
   Helper.verifyReferer,
@@ -5053,47 +5082,6 @@ app.post("/location-expert/send/platform/",
         const platformName = paths[2]
         const path = paths[3]
         receiverPlatform.start = `/${domain}/${platformName}/${path}/`
-      }
-      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-      return res.sendStatus(200)
-    } catch (e) {
-      await log(e, req)
-      return res.sendStatus(404)
-    }
-  }
-)
-app.post("/admin/remove/user/",
-  Helper.verifyLocation,
-  Helper.verifyReferer,
-  addJwt,
-  Helper.verifySession,
-  adminOnly,
-  async (req, res, next) => {
-    try {
-      if (Helper.verifyIs("text/empty", req.body.id)) throw new Error("req.body.id is empty")
-      let id
-      const doc = await nano.db.use("getyour").get("user")
-      const jwtUser = doc.user[req.jwt.id]
-      if (jwtUser.id === req.jwt.id) {
-        if (Helper.verifyIs("user/admin", {user: jwtUser})) {
-          const user = doc.user[req.body.id]
-          if (user.id === req.body.id) {
-            if (Helper.verifyIs("user/admin", {user})) return res.sendStatus(404)
-            id = user.id
-            delete doc.user[user.id]
-          }
-        }
-      }
-      if (!Helper.verifyIs("text/empty", id)) {
-        for (const key in doc.user) {
-          const user = doc.user[key]
-          if (user.children !== undefined) {
-            for (let i = 0; i < user.children.length; i++) {
-              const child = user.children[i]
-              if (child === id) user.children.splice(i, 1)
-            }
-          }
-        }
       }
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)

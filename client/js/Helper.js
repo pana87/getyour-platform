@@ -1154,18 +1154,6 @@ export class Helper {
         lastTapTime = currentTime
       })
     }
-    if (event === "field-funnel-sign-support") {
-      document.querySelectorAll(".field-funnel").forEach(funnel => {
-        this.verifyIs("field-funnel/valid", funnel)
-      })
-
-      document.querySelectorAll(".field-funnel").forEach(funnel => {
-        funnel.querySelectorAll(".field").forEach(field => {
-          const input = field.querySelector(".field-input")
-          input.addEventListener("input", () => this.verify("input/value", input))
-        })
-      })
-    }
     if (event === "funnel/hover") {
       input.querySelectorAll("*").forEach(node => {
         const shouldHover = (
@@ -10529,7 +10517,7 @@ export class Helper {
             return button
           }
           function appendBlueprint(it, o) {
-            if (node) {
+            if (node && it.blueprint) {
               const button = Helper.render("button/left-right", {left: ".append", right: "Funnel anhängen"}, o.content)
               button.onclick = () => {
                 const form = Helper.convert("map/form", it.blueprint)
@@ -10540,18 +10528,22 @@ export class Helper {
             }
           }
           function copyBlueprint(it, o) {
-            const button = Helper.render("button/left-right", {left: ".copy", right: "Speicher dein Blueprint in die Zwischenablage"}, o.content)
-            button.onclick = () => {
-              navigator.clipboard.writeText(JSON.stringify(it.blueprint)).then(() => window.alert("Dein Funnel wurde erfolgreich in deiner Zwischablage gespeichert."))
+            if (it.blueprint) {
+              const button = Helper.render("button/left-right", {left: ".copy", right: "Kopiere dein Blueprint in die Zwischenablage"}, o.content) 
+              button.onclick = () => {
+                navigator.clipboard.writeText(JSON.stringify(it.blueprint)).then(() => window.alert("Dein Funnel wurde erfolgreich in deiner Zwischablage gespeichert."))
+              }
             }
           }
           function emailBlueprint(it, o) {
-            const button = Helper.render("button/left-right", {left: ".email", right: "Versende deinen Blueprint per E-Mail"}, o.content)
-            button.onclick = async () => {
-              const mailtoLink = `mailto:?body=${encodeURIComponent(JSON.stringify(it.blueprint))}`
-              const a = document.createElement("a")
-              a.href = mailtoLink
-              a.click()
+            if (it.blueprint) {
+              const button = Helper.render("button/left-right", {left: ".email", right: "Versende deinen Blueprint per E-Mail"}, o.content)
+              button.onclick = async () => {
+                const mailtoLink = `mailto:?body=${encodeURIComponent(JSON.stringify(it.blueprint))}`
+                const a = document.createElement("a")
+                a.href = mailtoLink
+                a.click()
+              }
             }
           }
           o1.closedOptions = it => {
@@ -10561,15 +10553,9 @@ export class Helper {
               appendBlueprint(it, o2)
               copyBlueprint(it, o2)
               emailBlueprint(it, o2)
-              const signSupport = Helper.render("button/left-right", {left: ".sign-support", right: "Unterstütze deine Nutzer bei der Eingabe mit Symbole und Farben"}, content)
-              signSupport.onclick = () => {
-                const script = Helper.create("script/id", "field-funnel-sign-support")
-                Helper.add("script-onbody", script)
-                window.alert("Skript wurde erfolgreich angehängt.")
-              }
               const blueprintBtn = this.render("button/left-right", {left: ".blueprint", right: "Erstelle deinen eigenen Funnel"}, content)
-              const next = Helper.render("button/left-right", {left: ".next", right: "Nach Abschluss, zur Werteinheit"}, content)
-              next.onclick = () => {
+              const nextBtn = Helper.render("button/left-right", {left: ".next", right: "Nach Abschluss, zur Werteinheit"}, content)
+              nextBtn.onclick = () => {
                 Helper.overlay("pop", o3 => {
                   const content = o3.content
                   Helper.render("next/path", node, content)
