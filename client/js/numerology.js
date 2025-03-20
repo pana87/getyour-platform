@@ -51,7 +51,6 @@ const vowels = [
   ...russianVowels
 ]
 function calculateAge(date) {
-
   const currentDate = new Date()
   let age = currentDate.getFullYear() - date.getFullYear()
   const currentMonth = currentDate.getMonth()
@@ -74,27 +73,27 @@ function sumOf(number) {
     .reduce((acc, digit) => acc + digit, 0)
 }
 function renderDiv(node) {
-
   return Helper.div("mtb21 mlr34", node)
 }
-function renderTitleSpan(text, node) {
-
+function appendBox(node) {
   const span = document.createElement("span")
   span.className = "fs21 mtb0 mlr5"
-  span.textContent = text
   Helper.append(span, node)
   return span
 }
+function renderTitleSpan(text, node) {
+  const span = appendBox(node)
+  span.textContent = text
+  return span
+}
 function renderHighlightedSpan(text, node) {
-
   const span = Helper.create("box")
-  span.className = "fs34 mtb0 mlr8"
+  span.className += " fs34"
   span.textContent = text
   Helper.append(span, node)
   return span
 }
 function renderTitle(title, node) {
-
   const titleNode = Helper.create("box", node)
   titleNode.textContent = `${title}:`
   const tag = title.toLowerCase().replaceAll(" ", "-").replaceAll("ü", "ue").replaceAll("ö", "oe").replaceAll("ä", "ae").replaceAll("1.", "ersten").replaceAll("2.", "zweiten").replaceAll("3.", "dritten").replaceAll("4.", "vierten")
@@ -102,12 +101,10 @@ function renderTitle(title, node) {
   return titleNode
 }
 function dateToIsoSplit(date) {
-
   const isoDate = date.toISOString()
   return isoDate.split("T")[0]
 }
 function renderLifePathCalculation(date) {
-
   date = dateToIsoSplit(date)
   const digits = [...date.toString()].map(digit => parseInt(digit))
   let text
@@ -123,7 +120,6 @@ function renderLifePathCalculation(date) {
   return text
 }
 function dateToMaster(date) {
-
   date = dateToIsoSplit(date)
   const digits = [...date.toString()].map(digit => parseInt(digit, 10)).filter(Number.isFinite)
   let sum = digits.reduce((acc, digit) => acc + digit, 0)
@@ -140,13 +136,11 @@ function dateToMaster(date) {
   return ![11, 22, 33].includes(sum) ? prevSum : sum
 }
 function renderEqualsSign(node) {
-
   const equalsSign = renderTitleSpan("=", node)
   equalsSign.style.margin = "0 5px"
   return equalsSign
 }
 numerology.dateToLifePath = date => {
-
   date = dateToIsoSplit(date)
   const digits = [...date.toString()].map(digit => parseInt(digit))
   let sum = 0
@@ -161,23 +155,19 @@ numerology.dateToLifePath = date => {
   return sum
 }
 function openLifePath(lifePath) {
-
   const url = `/${expert}/numerologie/geburtsenergie-${numbersAsText[lifePath - 1]}/`
   window.open(url, "_blank")
 }
 function getDigits(number) {
-
   const numberString = Math.abs(number).toString()
   return Array.from(numberString, Number)
 }
 function sumDigits(number) {
-
   const digits = getDigits(number)
   const sum = digits.reduce((accumulator, currentValue) => accumulator + currentValue, 0)
   return sum
 }
 function reduceToSingleDigit(number) {
-
   let result = number
   while (result >= 10) {
     result = sumDigits(result)
@@ -185,15 +175,14 @@ function reduceToSingleDigit(number) {
   return result
 }
 function createPrevailingEnergies(data, node) {
-
   const fragment = document.createDocumentFragment()
   const keys = Object.keys(data)
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i]
     if (key === "0") continue
     if (data[key] >= 2) {
-      const div = Helper.create("box")
-      div.className = "inline-block"
+      const div = Helper.div("box inline-block")
+      Helper.add("hover-outline", div)
       div.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/vorherrschende-energie-${numbersAsText[key - 1]}/`, "_blank")
       fragment.appendChild(div)
       const span1 = document.createElement("span")
@@ -210,7 +199,6 @@ function createPrevailingEnergies(data, node) {
   return node
 }
 function countOccurrences(array) {
-
   const occurrences = {}
   array.forEach(number => {
     occurrences[number] = (occurrences[number] || 0) + 1
@@ -218,14 +206,12 @@ function countOccurrences(array) {
   return occurrences
 }
 function splitYear(year) {
-
   const yearString = year.toString()
   const firstPart = yearString.substring(0, 2)
   const secondPart = yearString.substring(2)
   return [firstPart, secondPart]
 }
 function fillDateNumbers(date) {
-
   const isoDateSplit = dateToIsoSplit(date)
   const dateNumbers = isoDateSplit.match(/\d/g).map(Number)
   const lifePathNumber = numerology.dateToLifePath(date)
@@ -249,12 +235,11 @@ function fillDateNumbers(date) {
   return dateNumbers
 }
 function createRecedingEnergy(array, node) {
-
   const fragment = document.createDocumentFragment()
   for (let i = 0; i < array.length; i++) {
     const number = array[i]
-    const div = Helper.create("box")
-    div.className = "fs34"
+    const div = Helper.div("box fs34 inline-block")
+    Helper.add("hover-outline", div)
     div.textContent = number
     div.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/zuruecktretende-energie-${numbersAsText[number - 1]}/`, "_blank")
     fragment.appendChild(div)
@@ -263,12 +248,10 @@ function createRecedingEnergy(array, node) {
   return node
 }
 function openTones(tone, occurency) {
-
   const url = `/${expert}/numerologie/tonarten-${occurencies[occurency - 1]}-${numbersAsText[tone - 1]}/`
   window.open(url, "_blank")
 }
 function createTones(array, node) {
-
   const data = countOccurrences(array)
   const fragment = document.createDocumentFragment()
   const keys = Object.keys(data)
@@ -276,8 +259,8 @@ function createTones(array, node) {
     const key = keys[i]
     if (key === "0") continue
     if (data[key] >= 1) {
-      const div = Helper.create("box")
-      div.className = "inline-block"
+      const div = Helper.div("box inline-block")
+      Helper.add("hover-outline", div)
       div.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/tonarten-${occurencies[data[key] - 1]}-${numbersAsText[key - 1]}/`, "_blank")
       fragment.appendChild(div)
       const span1 = document.createElement("span")
@@ -294,13 +277,12 @@ function createTones(array, node) {
   return node
 }
 function renderBirthNameEnergy(array, node) {
-
   const fragment = document.createDocumentFragment()
   for (let i = 0; i < array.length; i++) {
     const number = array[i]
-    const div = Helper.create("box")
-    div.textContent = `${number}${i === array.length - 1 ? "" : ","}`
-    div.className = "fs34"
+    const div = Helper.div("box inline-block fs34")
+    Helper.add("hover-outline", div)
+    div.textContent = number
     div.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/geburtsname-${numbersAsText[number - 1]}/`, "_blank")
     fragment.appendChild(div)
   }
@@ -308,7 +290,6 @@ function renderBirthNameEnergy(array, node) {
   return node
 }
 function reduceStringToSingleDigit(str) {
-
   let sum = 0
   for (let i = 0; i < str.length; i++) {
     const char = str[i].toLowerCase()
@@ -323,7 +304,6 @@ function reduceStringToSingleDigit(str) {
   return sum
 }
 function reduceVowelsToSingleDigit(str) {
-
   let sum = 0
   for (let i = 0; i < str.length; i++) {
     if (vowels.includes(str[i].toLowerCase())) {
@@ -337,7 +317,6 @@ function reduceVowelsToSingleDigit(str) {
   return sum
 }
 function reduceConsonantsToSingleDigit(str) {
-
   let sum = 0
   for (let i = 0; i < str.length; i++) {
     if (consonants.includes(str[i].toLowerCase())) {
@@ -351,7 +330,6 @@ function reduceConsonantsToSingleDigit(str) {
   return sum
 }
 function findDoubleLetters(str) {
-
   const result = []
   for (let i = 1; i < str.length; i++) {
     const currentChar = str[i].toLowerCase()
@@ -363,12 +341,10 @@ function findDoubleLetters(str) {
   return result
 }
 function openDoubleLetters(energy) {
-
   const url = `/${expert}/numerologie/doppelte-buchstaben-${numbersAsText[energy - 1]}/`
   window.open(url, "_blank")
 }
 function renderDoubleLettersValue(number, array) {
-
   const div = Helper.create("box")
   div.className = "double-letters-value inline-block mtb0 mlr5 fs34"
   div.textContent = `${number}`
@@ -376,7 +352,6 @@ function renderDoubleLettersValue(number, array) {
   return div
 }
 function countFourAndFive(str) {
-
   let count = 0
   for (let i = 0; i < str.length; i++) {
     const char = str[i].toLowerCase()
@@ -388,7 +363,6 @@ function countFourAndFive(str) {
   return count
 }
 function countTwoThreeAndSix(str) {
-
   let count = 0
   for (let i = 0; i < str.length; i++) {
     const char = str[i].toLowerCase()
@@ -400,7 +374,6 @@ function countTwoThreeAndSix(str) {
   return count
 }
 function countOneAndEight(str) {
-
   let count = 0
   for (let i = 0; i < str.length; i++) {
     const char = str[i].toLowerCase()
@@ -412,7 +385,6 @@ function countOneAndEight(str) {
   return count
 }
 function countSevenAndNine(str) {
-
   let count = 0
   for (let i = 0; i < str.length; i++) {
     const char = str[i].toLowerCase()
@@ -470,14 +442,12 @@ numerology.rightYearEnergy = date => {
   return digitalRoot(numerology.rightYear(date))
 }
 numerology.renderAge = (date, node) => {
-
   const age = calculateAge(date)
   const ageDiv = renderDiv(node)
   renderTitleSpan("Alter:", ageDiv)
   renderHighlightedSpan(age, ageDiv)
 }
 numerology.renderLifePath = (date, node) => {
-
   const lifePathDiv = renderDiv(node)
   renderTitle("Geburtsenergie", lifePathDiv)
   const lifePathCalc = renderTitleSpan(renderLifePathCalculation(date), lifePathDiv)
@@ -490,7 +460,6 @@ numerology.renderLifePath = (date, node) => {
   lifePathResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/geburtsenergie-${numbersAsText[lifePathResult.textContent - 1]}/`, "_blank")
 }
 numerology.renderMaster = (date, node) => {
-
   const master = dateToMaster(date)
   if (master === 11 || master === 22 || master === 33) {
     const masterDiv = renderDiv(node)
@@ -510,7 +479,6 @@ numerology.renderMaster = (date, node) => {
   }
 }
 numerology.renderBirthDayEnergy = (date, node) => {
-
   const day = date.getDate()
   const birthdayEnergyNumber = reduceToSingleDigit(day)
   const birthdayEnergyDiv = renderDiv(node)
@@ -519,14 +487,12 @@ numerology.renderBirthDayEnergy = (date, node) => {
   birthdayEnergyResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/geburtstagsenergie-${numbersAsText[birthdayEnergyNumber - 1]}/`, "_blank")
 }
 numerology.renderPrevailingEnergies = (date, node) => {
-
   const pervailingEnergyDiv = renderDiv(node)
   renderTitle("Vorherrschende Energien", pervailingEnergyDiv)
   const dateNumbers = fillDateNumbers(date)
   createPrevailingEnergies(countOccurrences(dateNumbers), pervailingEnergyDiv)
 }
 numerology.renderRecedingEnergies = (date, node) => {
-
   const missingNumbers = []
   const dateNumbers = fillDateNumbers(date)
   for (let i = 1; i <= 9; i++) {
@@ -541,14 +507,12 @@ numerology.renderRecedingEnergies = (date, node) => {
   }
 }
 numerology.renderTones = (date, node) => {
-
   const tonesDiv = renderDiv(node)
   renderTitle("Tonarten", tonesDiv)
   const dateNumbers = fillDateNumbers(date)
   createTones(dateNumbers, tonesDiv)
 }
 numerology.renderFirstCycle = (date, node) => {
-
   const firstCycleDiv = renderDiv(node)
   renderTitle("Dauer des 1. Zyklus", firstCycleDiv)
   const lifePathNumber = numerology.dateToLifePath(date)
@@ -557,7 +521,6 @@ numerology.renderFirstCycle = (date, node) => {
   firstCycleResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/erster-zyklus/`, "_blank")
 }
 numerology.renderFirstKeyTone = (date, node) => {
-
   const day = date.getDate()
   const sumDay = reduceToSingleDigit(day)
   const month = date.getMonth() + 1
@@ -570,7 +533,6 @@ numerology.renderFirstKeyTone = (date, node) => {
   firstKeyToneResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/grundton-${numbersAsText[firstKeyTone - 1]}/`, '_blank')
 }
 numerology.renderSecondCycle = (date, node) => {
-
   const lifePathNumber = numerology.dateToLifePath(date)
   const firstCycle = 36 - lifePathNumber
   const secondCycle = firstCycle + 1 + 9
@@ -580,7 +542,6 @@ numerology.renderSecondCycle = (date, node) => {
   secondCycleResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/zweiter-zyklus/`, "_blank")
 }
 numerology.renderSecondKeyTone = (date, node) => {
-
   const day = date.getDate()
   const sumDay = reduceToSingleDigit(day)
   const year = date.getFullYear()
@@ -595,7 +556,6 @@ numerology.renderSecondKeyTone = (date, node) => {
   secondKeyToneResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/grundton-${numbersAsText[secondKeyTone - 1]}/`, '_blank')
 }
 numerology.renderThirdCycle = (date, node) => {
-
   const lifePathNumber = numerology.dateToLifePath(date)
   const firstCycle = 36 - lifePathNumber
   const secondCycle = firstCycle + 1 + 9
@@ -606,7 +566,6 @@ numerology.renderThirdCycle = (date, node) => {
   thirdCycleResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/dritter-zyklus/`, "_blank")
 }
 numerology.renderThirdKeyTone = (date, node) => {
-
   const day = date.getDate()
   const sumDay = reduceToSingleDigit(day)
   const month = date.getMonth() + 1
@@ -626,7 +585,6 @@ numerology.renderThirdKeyTone = (date, node) => {
   thirdKeyToneResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/grundton-${numbersAsText[thirdKeyTone - 1]}/`, '_blank')
 }
 numerology.renderFourthCycle = (date, node) => {
-
   const lifePathNumber = numerology.dateToLifePath(date)
   const firstCycle = 36 - lifePathNumber
   const secondCycle = firstCycle + 1 + 9
@@ -638,7 +596,6 @@ numerology.renderFourthCycle = (date, node) => {
   fourthCycleResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/vierter-zyklus/`, "_blank")
 }
 numerology.renderFourthKeyTone = (date, node) => {
-
   const month = date.getMonth() + 1
   const sumMonth = reduceToSingleDigit(month)
   const year = date.getFullYear()
@@ -653,7 +610,6 @@ numerology.renderFourthKeyTone = (date, node) => {
   fourthKeyToneResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/grundton-${numbersAsText[fourthKeyTone - 1]}/`, '_blank')
 }
 function getBirthNameNumbers(string) {
-
   const splitAlias = string.split(" ")
   const birthNameSums = []
   for (let i = 0; i < splitAlias.length; i++) {
@@ -668,7 +624,6 @@ function getBirthNameNumbers(string) {
   return birthNameSums.map(it => reduceToSingleDigit(it))
 }
 numerology.renderBirthNameEnergies = (string, node) => {
-
   const birthNameNumbers = getBirthNameNumbers(string)
   const birthNameDiv = renderDiv(node)
   birthNameDiv.classList.add("birth-name")
@@ -676,7 +631,6 @@ numerology.renderBirthNameEnergies = (string, node) => {
   renderBirthNameEnergy(birthNameNumbers, birthNameDiv)
 }
 numerology.renderDeterminationEnergy = (string, node) => {
-
   let determinationNumber = reduceStringToSingleDigit(string)
   if (determinationNumber === 0) determinationNumber = 9
   const determinationDiv = renderDiv(node)
@@ -686,7 +640,6 @@ numerology.renderDeterminationEnergy = (string, node) => {
   determinationResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/bestimmung-${numbersAsText[determinationNumber - 1]}/`, "_blank")
 }
 numerology.renderHeartsDesire = (string, node) => {
-
   let heartsDesire = reduceVowelsToSingleDigit(string)
   if (heartsDesire === 0) heartsDesire = 9
   const heartsDesireDiv = renderDiv(node)
@@ -696,7 +649,6 @@ numerology.renderHeartsDesire = (string, node) => {
   heartsDesireResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/herzenswunsch-${numbersAsText[heartsDesire - 1]}/`, "_blank")
 }
 numerology.renderPersona = (string, node) => {
-
   let persona = reduceConsonantsToSingleDigit(string)
   if (persona === 0) persona = 9
   const personaDiv = renderDiv(node)
@@ -706,7 +658,6 @@ numerology.renderPersona = (string, node) => {
   personaResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/persona-${numbersAsText[persona - 1]}/`, "_blank")
 }
 numerology.renderDoubleLetterEnergies = (string, node) => {
-
   const doubleLetters = findDoubleLetters(string)
   const doubleLettersDiv = renderDiv(node)
   doubleLettersDiv.classList.add("double-letters")
@@ -725,7 +676,6 @@ numerology.renderDoubleLetterEnergies = (string, node) => {
   }
 }
 numerology.renderPhysicalLevel = (string, node) => {
-
   let physicalLevel = countFourAndFive(string)
   if (physicalLevel === 0) physicalLevel = 9
   const physicalLevelDiv = renderDiv(node)
@@ -735,7 +685,6 @@ numerology.renderPhysicalLevel = (string, node) => {
   physicalLevelResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/koerperliche-ebene-${numbersAsText[physicalLevel - 1]}/`, "_blank")
 }
 numerology.renderEmotionalLevel = (string, node) => {
-
   let emotionalLevel = countTwoThreeAndSix(string)
   if (emotionalLevel === 0) emotionalLevel = 9
   const emotionalLevelDiv = renderDiv(node)
@@ -745,7 +694,6 @@ numerology.renderEmotionalLevel = (string, node) => {
   emotionalLevelResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/emotionale-ebene-${numbersAsText[emotionalLevel - 1]}/`, "_blank")
 }
 numerology.renderMentalLevel = (string, node) => {
-
   let mentalLevel = countOneAndEight(string)
   if (mentalLevel === 0) mentalLevel = 9
   const mentalLevelDiv = renderDiv(node)
@@ -755,7 +703,6 @@ numerology.renderMentalLevel = (string, node) => {
   mentalLevelResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/mental-ebene-${numbersAsText[mentalLevel - 1]}/`, "_blank")
 }
 numerology.renderIntuitiveLevel = (string, node) => {
-
   let intuitiveLevel = countSevenAndNine(string)
   if (intuitiveLevel === 0) intuitiveLevel = 9
   const intuitiveLevelDiv = renderDiv(node)
@@ -764,24 +711,20 @@ numerology.renderIntuitiveLevel = (string, node) => {
   intuitiveLevelResult.classList.add("intuitive-level")
   intuitiveLevelResult.onclick = () => window.open(`https://www.get-your.de/${expert}/numerologie/intuitive-ebene-${numbersAsText[intuitiveLevel - 1]}/`, "_blank")
 }
-
 async function registerUser(email, created, name, date) {
-
   await Helper.callback("email/pin-verified", email, async () => {
     const res1 = await Helper.request("/register/email/numerology/", {created, email, name, date})
     const res2 = await Helper.request("/register/session/")
     if (res2.status === 200) {
-      window.open(`/${expert}/numerologie/startseite/`)
+      window.open(`/${expert}/numerologie/profil/`)
     } else {
       window.alert("Fehler.. Bitte wiederholen.")
       window.location.reload()
     }
   })
 }
-
 const res = await Helper.request("/verify/user/closed/")
 const userIsClosed = res.status === 200
-
 const birthdateInput = document.querySelector("input[type='date']")
 if (birthdateInput) {
   Helper.add("hover-outline", birthdateInput)
@@ -794,9 +737,7 @@ if (birthdateInput) {
     }
   }
 }
-
 function addLoginButton(node) {
-
   const div = Helper.div("flex align column")
   const or = Helper.div("mtb21 mlr0", div)
   or.textContent = "oder"
@@ -812,15 +753,12 @@ function addLoginButton(node) {
   return login
 }
 function openLoginPage() {
-
   window.open(`/${expert}/numerologie/login/`, "_blank")
 }
-
 const numerologyLogin = document.querySelector(".numerology-login")
 if (numerologyLogin) {
   login.onclick = openLoginPage
 }
-
 if (!userIsClosed) {
   const withLogin = document.querySelector(".with-login")
   if (withLogin && !numerologyLogin) {
@@ -925,7 +863,6 @@ function updateNameContent(name, node) {
   numerology.renderNameContent(name, node)
   return node
 }
-
 const numerologyOverlay = document.querySelector(".numerology-overlay")
 if (numerologyOverlay) {
   Helper.add("hover-outline", numerologyOverlay)
@@ -1005,7 +942,6 @@ if (numerologyOverlay) {
     })
   }
 }
-
 (async() => {
   const split = window.location.pathname.split("/")
   const platform = split[2]
@@ -1114,7 +1050,6 @@ if (numerologyOverlay) {
     })
   }
 })();
-
 (() => {
   const tree = "numerologie"
   const algo = "shuffle"
@@ -1173,7 +1108,6 @@ if (numerologyOverlay) {
     }
   })
 })();
-
 (() => {
   const script = document.querySelector("script#numerology")
   if (!script) return

@@ -1169,7 +1169,7 @@ export class Helper {
       })
     }
     if (event === "register-html") {
-      this.overlay("lock", async securityOverlay => {
+      this.overlay("lock", async lock => {
         // prepare html state
         this.remove("element/selector", {element: document, selector: "[data-id]"})
         this.remove("element/selector", {element: document, selector: "#toolbox"})
@@ -1182,17 +1182,15 @@ export class Helper {
         if (res.status === 200) {
           window.alert(successMessage)
           window.location.reload()
-        }
-        if (res.status !== 200) {
+        } else {
           const res = await this.request("/register/platform/value-html-writable/", {html})
           if (res.status === 200) {
             window.alert(successMessage)
             window.location.reload()
-          }
-          if (res.status !== 200) {
+          } else {
             window.alert("Fehler.. Bitte wiederholen.")
             await this.add("toolbox/onbody")
-            securityOverlay.remove()
+            lock.remove()
           }
         }
       })
@@ -7677,10 +7675,8 @@ export class Helper {
       }
     }
     if (event === "parent/box") {
-      input.style.padding = "13px"
-      input.style.borderRadius = "13px"
-      input.style.cursor = "pointer"
-      this.convert("box/dark-light", input)
+      input.removeAttribute("style")
+      input.className = "br13 p13 pointer box"
       this.add("hover-outline", input)
       return input
     }
@@ -7944,6 +7940,11 @@ export class Helper {
       input.style.overscrollBehavior = "none"
       input.style.paddingBottom = "144px"
       return input
+    }
+    if (event === "millis/iso") {
+      const millis = parseInt(input, 10)
+      const date = new Date(millis)
+      return date.toISOString()
     }
     if (event === "millis/since") {
       function formatTimeSince(milliseconds) {
@@ -13784,58 +13785,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     this.remove("overlays")
                   }
                 }
-                if (["BODY", "DIV"].includes(child.tagName)) {
-                  if (callback.type === "expert") {
-                    const button = this.render("button/left-right", {left: ".role-login", right: "Rollen Zugang anhängen"}, buttons)
-                    button.onclick = () => {
-
-                      this.overlay("pop", async o2 => {
-                        o2.addInfo(`<${this.convert("node/selector", child)}`)
-                        const content = o2.content
-                        this.render("text/h1", "Rolle wählen", content)
-                        const loading = this.create("div/loading", content)
-                        const rolesDiv = this.div("", content)
-                        function updateRoles(roles, node) {
-
-                          loading.remove()
-                          Helper.reset("node", node)
-                          for (let i = 0; i < roles.length; i++) {
-                            const role = roles[i]
-                            const button = Helper.create("button/left-right", node)
-                            button.left.textContent = role.text
-                            button.right.textContent = `vor ${Helper.convert("millis/since", role.value)}`
-                            Helper.add("hover-outline", button)
-                            button.onclick = () => {
-
-                              const script = document.createElement("script")
-                              script.id = "role-login"
-                              script.type = "module"
-                              script.src = "/js/role-login.js"
-                              script.setAttribute("role-created", role.value)
-                              script.setAttribute("role-name", role.text)
-                              Helper.add("script-onbody", script)
-                              window.alert("Zugang wurde erfolgreich angehängt.")
-                              Helper.remove("overlays")
-                            }
-                          }
-                        }
-                        const res = await this.request("/location-expert/get/platform/roles/text-value/")
-                        if (res.status === 200) {
-                          const roles = JSON.parse(res.response)
-                          updateRoles(roles, rolesDiv)
-                        } else {
-                          const res = await this.request("/location-writable/get/platform/roles/text-value/")
-                          if (res.status === 200) {
-                            const roles = JSON.parse(res.response)
-                            updateRoles(roles, rolesDiv)
-                          } else {
-                            this.render("text/note", "Keine Rollen gefunden.", rolesDiv)
-                          }
-                        }
-                      })
-                    }
-                  }
-                }
                 if (!["BODY", "HEAD"].includes(child.tagName)) {
                   {
                     const button = this.create("button/left-right", buttons)
@@ -14504,6 +14453,14 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   this.verify("input/value", inputField.input)
                 }
               }
+              convertInput("millis/iso")
+              function convertInput(ev) {
+                const inputField = createInputField(`Konvertiere (${ev})`)
+                inputField.input.oninput = () => {
+                  inputField.input.value = Helper.convert(ev, inputField.input.value)
+                  Helper.verify("input/value", inputField.input)
+                }
+              }
               {
                 const inputField = createInputField("Konvertiere (millis/since)")
                 inputField.input.oninput = () => {
@@ -14813,7 +14770,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           }
           const button = this.render("button/left-right", {left: ".record", right: "Beginne eine Aufnahme"}, buttons)
           button.onclick = ev => {
-
             this.overlay("pop", o => {
               const content = o.content
               const screenWithMic = this.render("button/left-right", {left: ".screen-with-mic", right: "Bildschirmaufnahme mit Ton"}, content)
@@ -15160,6 +15116,52 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   window.alert("Fehler.. Bitte wiederholen.")
                   console.error(error)
                   controls.remove()
+                }
+              }
+            })
+          }
+        }
+        if (callback.type === "expert") {
+          const button = this.render("button/left-right", {left: ".role-login", right: "Rollen Zugang anhängen"}, buttons)
+          button.onclick = () => {
+            this.overlay("pop", async o2 => {
+              const content = o2.content
+              this.render("text/h1", "Rolle wählen", content)
+              const loading = addLoading(content)
+              const rolesDiv = this.div("", content)
+              function updateRoles(roles, node) {
+                loading.remove()
+                Helper.reset("node", node)
+                for (let i = 0; i < roles.length; i++) {
+                  const role = roles[i]
+                  const button = Helper.create("button/left-right", node)
+                  button.left.textContent = role.text
+                  button.right.textContent = `erstellt vor ${Helper.convert("millis/since", role.value)}`
+                  Helper.add("hover-outline", button)
+                  button.onclick = () => {
+                    const script = document.createElement("script")
+                    script.id = "role-login"
+                    script.type = "module"
+                    script.src = "/js/role-login.js"
+                    script.setAttribute("role-created", role.value)
+                    script.setAttribute("role-name", role.text)
+                    Helper.add("script-onbody", script)
+                    window.alert("Zugang wurde erfolgreich angehängt.")
+                    Helper.remove("overlays")
+                  }
+                }
+              }
+              const res = await this.request("/location-expert/get/platform/roles/text-value/")
+              if (res.status === 200) {
+                const roles = JSON.parse(res.response)
+                updateRoles(roles, rolesDiv)
+              } else {
+                const res = await this.request("/location-writable/get/platform/roles/text-value/")
+                if (res.status === 200) {
+                  const roles = JSON.parse(res.response)
+                  updateRoles(roles, rolesDiv)
+                } else {
+                  this.render("text/note", "Keine Rollen gefunden.", rolesDiv)
                 }
               }
             })

@@ -16,6 +16,7 @@ const https = require('https')
 const jwt = require('jsonwebtoken')
 const multer = require('multer')
 const nano = require("nano")(process.env.COUCHDB_LOCATION)
+const db = nano.db.use("getyour")
 const path = require("path")
 const storage = multer.memoryStorage()
 const redirectToLoginHtml = Helper.readFileSyncToString("../lib/values/redirect-to-login.html")
@@ -26,6 +27,40 @@ const {UserRole} = require('../lib/UserRole.js')
 const {startWebSocket} = require("./websocket.js")
 let randomPin
 const loginQueue = []
+
+async function userBackup(id) {
+  const doc = await db.get("user")
+  const backupId = id
+  let backupDoc
+  try {
+    backupDoc = await db.get(backupId)
+  } catch (e) {
+    backupDoc = { _id: backupId }
+  }
+  backupDoc.user = doc.user
+  await db.insert(backupDoc)
+}
+cron.schedule("0 * * * *", async () => {
+  try {
+    await userBackup("user_backup_hourly")
+  } catch (e) {
+    await log(e)
+  }
+})
+cron.schedule("0 0 * * *", async () => {
+  try {
+    await userBackup("user_backup_daily")
+  } catch (e) {
+    await log(e)
+  }
+})
+cron.schedule("0 0 * * 0", async () => {
+  try {
+    await userBackup("user_backup_weekly")
+  } catch (e) {
+    await log(e)
+  }
+})
 
 cron.schedule("0 20 * * *", async () => {
   try {
@@ -48,7 +83,9 @@ cron.schedule("0 20 * * *", async () => {
         }
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    await log(e)
+  }
 })
 //cron.schedule("* * * * *", async () => {
 //  console.log("I am running every minute.")
@@ -121,9 +158,7 @@ process.on('unhandledRejection', async (reason, promise) => {
   await Helper.logError(reason)
 })
 
-
 app.use(helmet({
-
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
@@ -138,7 +173,6 @@ app.use(express.json({limit: "50mb"}))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
 app.use(removeCookies)
 app.use((req, res, next) => {
-
   res.setHeader('X-Frame-Options', 'DENY')
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.setHeader('Pragma', 'no-cache')
@@ -3567,16 +3601,27 @@ app.post("/location-expert/register/json-platform/",
       const platforms = user.getyour?.expert?.platforms || []
       const exist = platforms.some(it => it.name === platform.name)
       if (exist) return res.sendStatus(404)
+      const expert = req.location.expert
       const it = {}
       it.name = platform.name
       it.created = Date.now()
       if (platform.created) it.created = platform.created
       it.visibility = "closed"
-      if (platform.roles) it.roles = platform.roles
-      if (platform.values) it.values = platform.values
-      if (platform.start) it.start = platform.start
       if (platform.visibility) it.visibility = platform.visibility
+      if (platform.start) it.start = updatePathWithExpert(platform.start, expert)
       if (platform["match-maker"]) it["match-maker"] = platform["match-maker"]
+      if (platform.values) {
+        platform.values.forEach(value => {
+          value.path = updatePathWithExpert(value.path, expert)
+        })
+        it.values = platform.values
+      }
+      if (platform.roles) {
+        platform.roles.forEach(role => {
+          role.home = updatePathWithExpert(role.home, expert)
+        })
+        it.roles = platform.roles
+      }
       platforms.push(it)
       if (!user.xp) user.xp = 0
       user.xp += 3
@@ -3666,45 +3711,21 @@ app.post("/register/platform/value-html-writable/",
   Helper.verifySession,
   async (req, res, next) => {
     try {
-      if (req.jwt !== undefined) {
-        if (req.location !== undefined) {
-          if (Helper.verifyIs("text/empty", req.body.html)) throw new Error("req.body.html is empty")
-          const doc = await nano.db.use("getyour").get("user")
-          const jwtUser = doc.user[req.jwt.id]
-          if (jwtUser.id === req.jwt.id) {
-            for (const key in doc.user) {
-              const user = doc.user[key]
-              if (Helper.verifyIs("user/location-expert", {user, req})) {
-                if (user.getyour.expert.platforms !== undefined) {
-                  for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                    const platform = user.getyour.expert.platforms[i]
-                    if (platform.name === req.location.platform) {
-                      if (platform.values !== undefined) {
-                        for (let i = 0; i < platform.values.length; i++) {
-                          const value = platform.values[i]
-                          if (value.path === `/${req.location.expert}/${req.location.platform}/${req.location.path}/`) {
-                            if (value.writability !== undefined) {
-                              for (let i = 0; i < value.writability.length; i++) {
-                                const authorized = value.writability[i]
-                                if (jwtUser.email === authorized) {
-                                  value.html = req.body.html
-                                  if (jwtUser.xp === undefined) jwtUser.xp = 0
-                                  jwtUser.xp++
-                                  if (value.saved === undefined) value.saved = 0
-                                  value.saved++
-                                  await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-                                  return res.sendStatus(200)
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
+      if (Helper.verifyIs("text/empty", req.body.html)) throw new Error("req.body.html is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const jwtUser = doc.user[req.jwt.id]
+      const value = findValueByPath(doc, `/${req.location.expert}/${req.location.platform}/${req.location.path}/`)
+      if (value.writability !== undefined) {
+        for (let i = 0; i < value.writability.length; i++) {
+          const authorized = value.writability[i]
+          if (jwtUser.email === authorized) {
+            value.html = req.body.html
+            if (jwtUser.xp === undefined) jwtUser.xp = 0
+            jwtUser.xp++
+            if (value.saved === undefined) value.saved = 0
+            value.saved++
+            await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+            return res.sendStatus(200)
           }
         }
       }
@@ -3719,40 +3740,21 @@ app.post("/register/platform/value-html-location-expert/",
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
+  locationExpertOnly,
   async (req, res, next) => {
     try {
-      if (req.jwt !== undefined) {
-        if (req.location !== undefined) {
-          if (Helper.verifyIs("text/empty", req.body.html)) throw new Error("req.body.html is empty")
-          const doc = await nano.db.use("getyour").get("user")
-          const user = doc.user[req.jwt.id]
-          if (user.id === req.jwt.id) {
-            if (Helper.verifyIs("user/location-expert", {user, req})) {
-              if (user.getyour.expert.platforms !== undefined) {
-                for (let i = 0; i < user.getyour.expert.platforms.length; i++) {
-                  const platform = user.getyour.expert.platforms[i]
-                  if (platform.name === req.location.platform) {
-                    if (platform.values !== undefined) {
-                      for (let i = 0; i < platform.values.length; i++) {
-                        const value = platform.values[i]
-                        if (value.path === `/${req.location.expert}/${req.location.platform}/${req.location.path}/`) {
-                          value.html = req.body.html
-                          if (user.xp === undefined) user.xp = 0
-                          user.xp++
-                          if (value.saved === undefined) value.saved = 0
-                          value.saved++
-                          await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
-                          return res.sendStatus(200)
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+      if (Helper.verifyIs("text/empty", req.body.html)) throw new Error("req.body.html is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      const value = findValueByPath(doc, `/${req.location.expert}/${req.location.platform}/${req.location.path}/`)
+      if (!value) throw new Error("value not found")
+      value.html = req.body.html
+      if (user.xp === undefined) user.xp = 0
+      user.xp++
+      if (value.saved === undefined) value.saved = 0
+      value.saved++
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
     } catch (e) {
       await log(e, req)
       return res.sendStatus(404)
@@ -4809,6 +4811,32 @@ app.post("/location-expert/remove/match-maker/",
     }
   }
 )
+app.post("/location-expert/remove/paths/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+    try {
+      const paths = req.body.paths
+      if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      paths.forEach(path => {
+        const platformName = path.split("/")[2]
+        const platform = user.getyour?.expert?.platforms?.find(it => it.name === platformName)
+        if (!platform || !platform.values) return
+        platform.values = platform.values.filter(it => it.path !== path)
+      })
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
 app.post("/location-expert/remove/paths/scripts/",
   Helper.verifyLocation,
   Helper.verifyReferer,
@@ -4884,6 +4912,58 @@ app.post("/location-expert/tag/paths/automated-false/",
             value.automated = false
           }
         })
+      })
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-expert/tag/paths/empty-writability/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+    try {
+      const paths = req.body.paths
+      if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      if (!user) return res.sendStatus(404)
+      paths.forEach(path => {
+        const value = findUserValueByPath(user, path)
+        if (!value) return
+        value.writability = []
+      })
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-expert/tag/paths/reset-requested/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+    try {
+      const paths = req.body.paths
+      if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const user = doc.user[req.jwt.id]
+      if (!user) return res.sendStatus(404)
+      paths.forEach(path => {
+        const value = findUserValueByPath(user, path)
+        if (!value) return
+        value.requested = 0
       })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
@@ -5083,6 +5163,44 @@ app.post("/location-expert/send/platform/",
         const path = paths[3]
         receiverPlatform.start = `/${domain}/${platformName}/${path}/`
       }
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-expert/send/value/paths/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+    try {
+      const id = req.body.id
+      if (Helper.verifyIs("text/empty", id)) throw new Error("req.body.id is empty")
+      const paths = req.body.paths
+      if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
+      const platform = req.body.platform
+      if (Helper.verifyIs("text/empty", platform)) throw new Error("req.body.platform is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      const jwtUser = doc.user[req.jwt.id]
+      paths.forEach(path => {
+        const value = findUserValueByPath(jwtUser, path)
+        const clone = structuredClone(value)
+        if (!clone) return
+        const split = clone.path.split("/")
+        const receiver = doc.user[id]
+        if (!isExpert(receiver)) return
+        const receiverPlatform = receiver.getyour?.expert?.platforms?.find(it => it.name === platform)
+        if (!receiverPlatform || !receiverPlatform.values) return
+        const valueExist = receiverPlatform.values.find(it => it.path === clone.path)
+        if (valueExist) return
+        clone.path = `/${receiver.getyour.expert.name}/${split[2]}/${split[3]}/`
+        receiverPlatform.values.unshift(clone)
+      })
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
       return res.sendStatus(200)
     } catch (e) {
@@ -6806,6 +6924,11 @@ function findValueByLocation(doc, req) {
 function findValueByParams(doc, req) {
   return findValueByPath(doc, paramsToPath(req))
 }
+function findUserValueByPath(user, path) {
+  return user.getyour?.expert?.platforms
+  ?.flatMap(it => it.values || [])
+  .find(it => it.path === path)
+}
 function findValueByPath(doc, path) {
   if (!doc || !doc.user) return
   return Object.values(doc.user)
@@ -7138,6 +7261,10 @@ function updateContact(alt, neu){
   if (neu.notes) alt.notes = neu.notes
   if (neu.phone) alt.phone = neu.phone
   if (neu.website) alt.website = neu.website
+}
+function updatePathWithExpert(path, expert) {
+  const split = path.split("/")
+  return `/${expert}/${split[2]}/${split[3]}/`
 }
 function verifyOrigin(req, res, next) {
   const origin = `https://${req.headers.host}`
