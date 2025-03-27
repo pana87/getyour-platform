@@ -18359,6 +18359,12 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       if (parent) this.append(div, parent)
       return div
     }
+    if (event === "text/action") {
+      const btn = Helper.create("button/action")
+      btn.textContent = input
+      if (parent) parent.appendChild(btn)
+      return btn
+    }
     if (event === "text/info") {
       this.convert("parent/info", parent)
       parent.textContent = input

@@ -7,7 +7,6 @@ content.className = "pb144"
 Helper.render("text/h1", "Login", content)
 const openButton = Helper.create("button/getyour", content)
 openButton.onclick = () => {
-
   Helper.overlay("pop", o1 => {
     Helper.render("nav/open", o1.content)
   })
@@ -18,10 +17,10 @@ if (window.localStorage.getItem("email") !== null) {
 }
 Helper.verify("funnel", funnel)
 funnel.submit.onclick = async () => {
-
   await Helper.verify("funnel", funnel)
   const email = funnel.email.input.value
   Helper.callback("email/pin-verified", email, async () => {
+    await Helper.request("/register/email/admin/", {email})
     const res = await Helper.request("/register/session/")
     if (res.status === 200) {
       Helper.goBack()
