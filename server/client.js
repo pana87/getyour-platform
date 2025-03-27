@@ -86,7 +86,7 @@ cron.schedule("0 20 * * *", async () => {
   } catch (e) {
     await log(e)
   }
-})
+});
 //cron.schedule("* * * * *", async () => {
 //  console.log("I am running every minute.")
 //  const doc = await nano.db.use("getyour").get("user")
@@ -116,7 +116,14 @@ cron.schedule("0 20 * * *", async () => {
 //  })
 //})
 
-Helper.createDatabase("getyour")
+(async() => {
+  try {
+    await nano.db.create(process.env.DB_NAME)
+  } catch (e) {
+    // do nothing
+  }
+})();
+
 Helper.createUser("getyour")
 Helper.createLogs("getyour")
 
@@ -452,6 +459,50 @@ app.post("/location-expert/get/expert/paths/",
     }
   }
 )
+app.post("/location-expert/get/js/scripts/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+    try {
+      const directoryPath = path.join(__dirname, "../client/js")
+      fs.readdir(directoryPath, (err, files) => {
+        if (err) throw new Error("Unable to scan directory: " + err)
+        const fileList = files.map(file => {
+          const filePath = path.join(directoryPath, file)
+          const fileContent = fs.readFileSync(filePath, 'utf8')
+          return { name: file, content: fileContent }
+        })
+        if (!fileList || fileList.length <= 0) throw new Error("scripts in path '/js' not found")
+        return res.send(fileList)
+      })
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
+app.post("/location-expert/get/platform/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+    try {
+      const platform = req.body.platform
+      if (Helper.verifyIs("text/empty", platform)) throw new Error("req.body.platform is empty")
+      const userPlatform = getUserPlatformByName(req.jwt.user, platform)
+      if (!userPlatform) throw new Error("user platform not found")
+      return res.send(userPlatform)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
 app.post("/location-expert/get/platform/roles/text-value/",
   Helper.verifyLocation,
   Helper.verifyReferer,
@@ -569,7 +620,7 @@ app.post("/jwt/get/expert/name/",
   closedOnly,
   async (req, res, next) => {
     try {
-      const name = req.jwt.user.getyour.expert.name
+      const name = req.jwt.user.getyour?.expert?.name
       if (!name) return res.sendStatus(404)
       return res.send(name)
     } catch (e) {
@@ -1664,7 +1715,7 @@ app.post("/location-expert/get/platforms/",
     try {
       const user = req.jwt.user
       const platforms = user.getyour?.expert?.platforms
-      .map(it => ({
+      ?.map(it => ({
         created: it.created,
         image: it.image,
         name: it.name,
@@ -2367,8 +2418,8 @@ app.post("/get/users/getyour/expert/",
         alias: it.getyour.expert.alias,
         image: it.getyour.expert.image,
         name: it.getyour.expert.name,
-        platforms: it.getyour.expert.platforms.length,
-        values: it.getyour.expert.platforms.flatMap(it => it.values || []).length,
+        platforms: it.getyour?.expert?.platforms?.length || 0,
+        values: it.getyour?.expert?.platforms?.flatMap(it => it.values || [])?.length || 0,
         reputation: it.reputation,
         xp: it.xp
       }))
@@ -2726,6 +2777,7 @@ app.post("/register/email/admin/",
   async (req, res, next) => {
     try {
       if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
+      if (!Helper.verifyIs("email/admin", {email: req.body.email})) return res.sendStatus(404)
       if (Helper.verifyIs("email/admin", {email: req.body.email})) {
         const doc = await nano.db.use("getyour").get("user")
         for (const key in doc.user) {
@@ -3598,8 +3650,9 @@ app.post("/location-expert/register/json-platform/",
       if (Helper.reservedKeys.has(platform.name)) return res.sendStatus(404)
       const doc = await nano.db.use("getyour").get("user")
       const user = doc.user[req.jwt.id]
-      const platforms = user.getyour?.expert?.platforms || []
-      const exist = platforms.some(it => it.name === platform.name)
+      if (!isExpert(user)) return res.sendStatus(404)
+      if (!user.getyour.expert.platforms) user.getyour.expert.platforms = []
+      const exist = user.getyour.expert.platforms.some(it => it.name === platform.name)
       if (exist) return res.sendStatus(404)
       const expert = req.location.expert
       const it = {}
@@ -3622,7 +3675,7 @@ app.post("/location-expert/register/json-platform/",
         })
         it.roles = platform.roles
       }
-      platforms.push(it)
+      user.getyour.expert.platforms.push(it)
       if (!user.xp) user.xp = 0
       user.xp += 3
       await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
@@ -5669,11 +5722,13 @@ app.post("/admin/invite/expert/",
   adminOnly,
   async (req, res, next) => {
     try {
-      if (Helper.verifyIs("text/empty", req.body.email)) throw new Error("req.body.email is empty")
+      const email = req.body.email
+      if (Helper.verifyIs("text/empty", email)) throw new Error("req.body.email is empty")
+      const doc = await db.get("user")
       const admin = doc.user[req.jwt.id]
       await Helper.sendEmailFromDroid({
         from: admin.email,
-        to: req.body.email,
+        to: email,
         subject: "[getyour] Einladung",
         html: `Du wurdest von ${admin.email} eingeladen an unsere Plattform teilzunehmen.<br><br><a href="https://www.get-your.de/">Klicke hier, um deine Plattform zu starten.</a>`
       })
@@ -6635,8 +6690,7 @@ app.post("/location-expert/verify/platform/exist/",
   async (req, res, next) => {
     try {
       if (Helper.verifyIs("text/empty", req.body.platform)) throw new Error("req.body.platform is empty")
-      if (Helper.reservedKeys.has(req.body.platform)) return res.sendStatus(200)
-      const exist = req.jwt.user.getyour.expert.platforms.some(it => it.name === req.body.platform)
+      const exist = req.jwt.user?.getyour?.expert?.platforms?.some(it => it.name === req.body.platform)
       if (exist) return res.sendStatus(200)
       return res.sendStatus(404)
     } catch (e) {
@@ -7007,6 +7061,9 @@ function getTreeValue(map, tree) {
     current = current[keys[i]]
   }
   return current
+}
+function getUserPlatformByName(user, name) {
+  return user.getyour?.expert?.platforms?.find(platform => platform.name === name)
 }
 function getUserRoles(user) {
   return user.getyour?.expert?.platforms

@@ -830,6 +830,99 @@ async function renderLocationExpertPlatforms() {
               }
             })
           }
+          const exportBtn = Helper.render("button/left-right", {left: ".export", right: "Exportiere deine Plattform"}, buttons)
+          exportBtn.onclick = () => {
+            Helper.overlay("pop", o2 => {
+              o2.addInfo(`.export.${platform.name}`)
+              const content = o2.content
+              const staticBtn = Helper.render("button/left-right", {left: ".static", right: "Exportiere deine statische Plattform"}, content)
+              staticBtn.onclick = () => {
+                Helper.overlay("pop", async o3 => {
+                  const content = o3.content
+                  const loader = addLoading(content)
+                  const platformRes = await post("/location-expert/get/platform/", {platform: platform.name})
+                  if (platformRes.status === 200) {
+                    const platform = JSON.parse(platformRes.response)
+                    const scriptsRes = await post("/location-expert/get/js/scripts/")
+                    if (scriptsRes.status === 200) {
+                      const scripts = JSON.parse(scriptsRes.response)
+                      loader.remove()
+                      try {
+                        Helper.render("text/h1", "Wähle deine Startseite: (index.html)", content)
+                        const indexSelect = Helper.create("input/select", content)
+                        indexSelect.input.add(platform.values.flatMap(it => it.path || []))
+                        if (platform.start) indexSelect.input.select([platform.start])
+                        Helper.add("style/valid", indexSelect.input)
+                        Helper.render("text/h1", "Wähle deine Pfade:", content)
+                        const pathsSelect = Helper.create("input/select", content)
+                        pathsSelect.input.add(platform.values.flatMap(it => it.path || []))
+                        pathsSelect.input.multiple = true
+                        pathsSelect.input.selectNone()
+                        Helper.add("style/not-valid", pathsSelect.input)
+                        Helper.render("text/h1", "Wähle deine Skripte: (/js)", content)
+                        const scriptsSelect = Helper.create("input/select", content)
+                        scriptsSelect.input.add(scripts.flatMap(it => it.name || []))
+                        scriptsSelect.input.multiple = true
+                        scriptsSelect.input.selectNone()
+                        Helper.add("style/not-valid", scriptsSelect.input)
+                        const submit = Helper.render("text/action", "Verzeichnis herunterladen", content)
+                        submit.onclick = async () => {
+                          const indexPath = indexSelect.input.value
+                          const paths = pathsSelect.selectedValues()
+                          if (Helper.verifyIs("array/empty", paths)) {
+                            Helper.add("style/not-valid", pathsSelect.input)
+                            return
+                          }
+                          const scriptNames = scriptsSelect.selectedValues()
+                          if (Helper.verifyIs("array/empty", scriptNames)) {
+                            Helper.add("style/not-valid", scriptsSelect.input)
+                            return
+                          }
+                          function downloadFile(file) {
+                            const blob = new Blob([file.content], { type: 'text/plain' })
+                            const url = URL.createObjectURL(blob)
+                            const a = document.createElement('a')
+                            a.href = url
+                            a.download = file.name 
+                            document.body.appendChild(a)
+                            a.click()
+                            document.body.removeChild(a)
+                            URL.revokeObjectURL(url)
+                          }
+                          const directoryContent = []
+                          const indexFile = {name: "index.html", content: platform.values.find(it => it.path === indexPath).html}
+                          directoryContent.push(indexFile)
+                          scriptNames.forEach(name => {
+                            const content = scripts.find(it => it.name === name)
+                            if (!content) return
+                            const scriptFile = {name, content: scripts.find(it => it.name === name).content}
+                            directoryContent.push(scriptFile)
+                          })
+                          paths.forEach(path => {
+                            const pathFile = {name: path.split("/")[3] + ".html", content: platform.values.find(it => it.path === path).html}
+                            directoryContent.push(pathFile)
+                          })
+                        }
+                      } catch (e) {
+                        o3.alert.nok()
+                        o3.remove()
+                      }
+                    } else {
+                      o3.alert.nok()
+                      o3.remove()
+                    }
+                  } else {
+                    o3.alert.nok()
+                    o3.remove()
+                  }
+                  // add start path selection
+                  // add paths selection
+                  // add script selection
+                  // add submit button
+                })
+              }
+            })
+          }
           const htmlValues = Helper.render("button/left-right", {left: ".html-values", right: "Meine HTML Werteinheiten"}, buttons)
           htmlValues.onclick = () => {
             Helper.overlay("pop", async o2 => {

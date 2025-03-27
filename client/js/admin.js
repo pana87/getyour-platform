@@ -375,8 +375,7 @@ function isValidURL() {
   const {host, pathname, protocol} = window.location
   const isLocalhost = host === "localhost:9999"
   const isGetYour = host === "get-your.de" || host === "www.get-your.de"
-  const isHTTPS = protocol === "https:"
-  return (isLocalhost || isGetYour) && isHTTPS && pathname === "/admin/"
+  return (isLocalhost || isGetYour) && pathname === "/admin/"
 }
 async function verifyExpertNameExist(input) {
   const name = input.value
