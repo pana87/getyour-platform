@@ -597,11 +597,12 @@ app.post("/jwt/get/experts",
     try {
       const doc = await nano.db.use("getyour").get("user")
       const experts = Object.values(doc.user)
-      .filter(it => !Helper.verifyIs("text/empty", it.getyour?.expert?.alias) && it.id !== req.jwt.id)
+      .filter(it => it.id !== req.jwt.id)
       .map(it => {
         return {
           id: it.id, 
-          alias: it.getyour.expert.alias
+          alias: it.getyour.expert.alias,
+          email: it.email
         }
       })
       if (!experts || experts.length <= 0) return res.sendStatus(404)
@@ -7020,6 +7021,7 @@ function getOpenParamsHtml(doc, req) {
 function getParamsExpertHtml(doc, req) {
   if (!isParamsExpert(req.jwt.user, req)) return
   const value = findValueByParams(doc, req)
+  if (!value) return
   return value.html
 }
 function getParamsWritableHtml(doc, req) {

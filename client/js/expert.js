@@ -810,6 +810,9 @@ async function renderLocationExpertPlatforms() {
               o2.addInfo(platform.name)
               const content = o2.content
               const funnel = Helper.funnel("platform.value", content)
+              funnel.alias.input.addEventListener("input", () => {
+                funnel.alias.input.value = funnel.alias.input.value.replaceAll("-", " ")
+              })
               funnel.submit.onclick = async () => {
 
                 await Helper.verify("funnel", funnel)
@@ -832,21 +835,23 @@ async function renderLocationExpertPlatforms() {
           }
           const exportBtn = Helper.render("button/left-right", {left: ".export", right: "Exportiere deine Plattform"}, buttons)
           exportBtn.onclick = () => {
-            Helper.overlay("pop", o2 => {
+            Helper.overlay("pop", async o2 => {
               o2.addInfo(`.export.${platform.name}`)
               const content = o2.content
-              const staticBtn = Helper.render("button/left-right", {left: ".static", right: "Exportiere deine statische Plattform"}, content)
-              staticBtn.onclick = () => {
-                Helper.overlay("pop", async o3 => {
-                  const content = o3.content
-                  const loader = addLoading(content)
-                  const platformRes = await post("/location-expert/get/platform/", {platform: platform.name})
-                  if (platformRes.status === 200) {
-                    const platform = JSON.parse(platformRes.response)
+              const loader = addLoading(content)
+              const platformRes = await post("/location-expert/get/platform/", {platform: platform.name})
+              loader.remove()
+              if (platformRes.status === 200) {
+                const platform = JSON.parse(platformRes.response)
+                const staticBtn = Helper.render("button/left-right", {left: ".static", right: "Exportiere deine statische Plattform"}, content)
+                staticBtn.onclick = () => {
+                  Helper.overlay("pop", async o3 => {
+                    const content = o3.content
+                    const loader = addLoading(content)
                     const scriptsRes = await post("/location-expert/get/js/scripts/")
+                    loader.remove()
                     if (scriptsRes.status === 200) {
                       const scripts = JSON.parse(scriptsRes.response)
-                      loader.remove()
                       try {
                         Helper.render("text/h1", "Wähle deine Startseite: (index.html)", content)
                         const indexSelect = Helper.create("input/select", content)
@@ -911,15 +916,15 @@ async function renderLocationExpertPlatforms() {
                       o3.alert.nok()
                       o3.remove()
                     }
-                  } else {
-                    o3.alert.nok()
-                    o3.remove()
-                  }
-                  // add start path selection
-                  // add paths selection
-                  // add script selection
-                  // add submit button
-                })
+                  })
+                }
+                const copyBtn = Helper.render("button/left-right", {left: ".copy", right: "Kopiere deine Plattform in die Zwischenablage"}, content)
+                copyBtn.onclick = () => {
+                  navigator.clipboard.writeText(JSON.stringify(platform, null, 2)).then(o2.alert.saved).catch(o2.alert.nok)
+                }
+              } else {
+                o2.alert.nok()
+                o2.remove()
               }
             })
           }

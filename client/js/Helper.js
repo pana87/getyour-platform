@@ -4605,7 +4605,8 @@ export class Helper {
             const expert = experts[i]
             const option = document.createElement("option")
             option.value = expert.id
-            option.text = expert.alias
+            option.text = expert.email
+            if (expert.alias) option.text = expert.alias
             this.append(option, field.input)
           }
         }
@@ -14584,6 +14585,22 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
               const funnel = this.create("input/select", content)
             })
           }
+        }
+        const forEachBtn = this.render("button/left-right", {left: ".forEach", right: "Anwendungen für jedes HTML Element"}, buttons)
+        forEachBtn.onclick = () => {
+          this.overlay("pop", o2 => {
+            const content = o2.content
+            const removeStyle = this.render("button/left-right", {left: ".remove-style", right: "Style Attribut entfernen"}, content)
+            removeStyle.onclick = () => {
+              document.querySelectorAll("*").forEach(node => node.removeAttribute("style"))
+              this.remove("overlays")
+            }
+            const removeClass = this.render("button/left-right", {left: ".remove-class", right: "Class Attribut entfernen"}, content)
+            removeClass.onclick = () => {
+              document.querySelectorAll("*").forEach(node => node.removeAttribute("class"))
+              this.remove("overlays")
+            }
+          })
         }
         if (callback.type === "expert") {
           const funnelBtn = this.render("button/left-right", {left: ".funnel", right: "Meine Funnel"}, buttons)
