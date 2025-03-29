@@ -1,4 +1,6 @@
 .absolute {position: absolute;}
+.action {background: #e8a435; color: #333; display: flex; justify-content: center; align-items: center; padding: 13px 0; border-radius: 13px; cursor: pointer; margin: 21px 34px;}
+.action:hover {outline: 2px solid #999; border: 1px solid black;}
 .align {align-items: center;}
 .align-start {align-self: start;}
 .align-end {align-self: end;}
@@ -24,6 +26,7 @@
 .block {display: block;}
 .border-dark {border: 0.3px solid #2E4369;}
 .border-light {border: 0.3px solid #A0A0A0;}
+.border-purple {border: 0.3px solid #df73ff;}
 .border-theme {border: 0.3px solid #A0A0A0;}
 .bottom {bottom: 0;}
 .bottom1 {bottom: 1px;}
@@ -186,6 +189,7 @@
 .color-theme {color: #333;}
 .color-value {color: #ce9178;}
 .color-orange {color: #E8A435;}
+.color-purple {color: #df73ff;}
 .column {flex-direction: column;}
 
 .dark {background-color: #333; color: #CDD9E5;}
@@ -197,8 +201,10 @@
 .dark-text {color: #333;}
 .dark-border {border: 0.3px solid #2E4369;}
 .dark-bs {box-shadow: 0 1px 3px rgba(255, 255, 255, 0.13);}
-
 .fade-up {animation: fade-up 0.233s ease-in-out forwards;}
+.field {position: relative; margin: 21px 34px; background: #222; border-radius: 13px; padding: 8px;}
+.field-dark {position: relative; margin: 21px 34px; background: #222; border-radius: 13px; padding: 8px; border: 0.3px solid #ddd; color: #ddd;}
+.field input {width: 89%; margin: 8px 0;}
 .fill-error {fill: #B03535;}
 .fixed {position: fixed;}
 .flex {display: flex;}
@@ -344,6 +350,22 @@
 .max-vh34 {max-height: 34vh;}
 .max-vh55 {max-height: 55vh;}
 .max-vh89 {max-height: 89vh;}
+.max-w0 {max-width: 0;}
+.max-w1 {max-width: 1px;}
+.max-w2 {max-width: 2px;}
+.max-w3 {max-width: 3px;}
+.max-w5 {max-width: 5px;}
+.max-w8 {max-width: 8px;}
+.max-w13 {max-width: 13px;}
+.max-w21 {max-width: 21px;}
+.max-w34 {max-width: 34px;}
+.max-w55 {max-width: 55px;}
+.max-w89 {max-width: 89px;}
+.max-w144 {max-width: 144px;}
+.max-w233 {max-width: 233px;}
+.max-w377 {max-width: 377px;}
+.max-w610 {max-width: 610px;}
+.max-w987 {max-width: 987px;}
 .max-w3p {max-width: 3%;}
 .max-w5p {max-width: 5%;}
 .max-w8p {max-width: 8%;}
