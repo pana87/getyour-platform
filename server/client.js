@@ -597,7 +597,7 @@ app.post("/jwt/get/experts",
     try {
       const doc = await nano.db.use("getyour").get("user")
       const experts = Object.values(doc.user)
-      .filter(it => it.id !== req.jwt.id)
+      .filter(it => isExpert(it) && it.id !== req.jwt.id)
       .map(it => {
         return {
           id: it.id, 
