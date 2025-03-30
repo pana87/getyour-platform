@@ -4919,6 +4919,41 @@ app.post("/location-expert/remove/paths/scripts/",
     }
   }
 )
+app.post("/location-expert/tag/paths/meta-tags/",
+  Helper.verifyLocation,
+  Helper.verifyReferer,
+  addJwt,
+  Helper.verifySession,
+  locationExpertOnly,
+  async (req, res, next) => {
+    try {
+      const paths = req.body.paths
+      if (Helper.verifyIs("array/empty", paths)) throw new Error("req.body.paths is empty")
+      const doc = await nano.db.use("getyour").get("user")
+      paths.forEach(path => {
+        const value = findValueByPath(doc, path)
+        if (!value) return
+        const meta1 = `<meta http-equiv="X-UA-Compatible" content="IE=edge">`
+        const regex1 = new RegExp(meta1)
+        const meta2 = `<meta name="viewport" content="width=device-width, initial-scale=1.0">`
+        const regex2 = new RegExp(meta2)
+        const meta3 = `<meta charset="utf-8">`
+        const regex3 = new RegExp(meta3)
+        if (regex1.test(value.html)) value.html = value.html.replace(regex1, meta1)
+        else value.html = value.html.replace("<head>", `<head>${meta1}`)
+        if (regex2.test(value.html)) value.html = value.html.replace(regex2, meta2)
+        else value.html = value.html.replace("<head>", `<head>${meta2}`)
+        if (regex3.test(value.html)) value.html = value.html.replace(regex3, meta3)
+        else value.html = value.html.replace("<head>", `<head>${meta3}`)
+      })
+      await nano.db.use("getyour").insert({ _id: doc._id, _rev: doc._rev, user: doc.user })
+      return res.sendStatus(200)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
 app.post("/location-expert/tag/paths/automated-true/",
   Helper.verifyLocation,
   Helper.verifyReferer,
