@@ -735,6 +735,8 @@ async function renderLocationExpertPlatforms() {
                   }
                   Helper.render("text/hr", "Weitere Funktionen", content)
                   const more = Helper.create("div/flex-around", content)
+                  const addMetaTags = Helper.render("text/link", "Meta Tags hinzufügen", more)
+                  addMetaTags.onclick = async () => await requestPaths("/location-expert/tag/paths/meta-tags/")
                   const removeScripts = Helper.render("text/link", "Alle Skripte entfernen", more)
                   removeScripts.onclick = async () => {
                     await Helper.verify("input/value", select.input)
