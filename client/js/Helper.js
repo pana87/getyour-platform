@@ -1,5 +1,6 @@
-import {button} from "/js/button.js"
+import {button, action} from "/js/button.js"
 import {postFormData, post, text} from "/js/request.js"
+import {label} from "/js/html-tags.js"
 
 export class Helper {
   static add(event, input) {
@@ -796,20 +797,6 @@ export class Helper {
       input.setAttribute("onmouseover", "this.style.cursor = 'pointer'; this.style.outline = '3px solid #999'")
       input.setAttribute("onmouseout", "this.style.cursor = null; this.style.outline = null")
     }
-    if (event === "toolbox/buttons") {
-      let back = document.querySelector("div.go-back")
-      if (!back) back = button.div("go-back")
-      button.addEvent("go-back", back)
-      const toolbox = button.div("toolbox")
-      back.setAttribute("data-id", "toolbox")
-      toolbox.setAttribute("data-id", "toolbox")
-      document.body.insertBefore(back, document.querySelector("#toolbox"))
-      document.body.insertBefore(toolbox, document.querySelector("#toolbox"))
-      this.add("hover-outline", toolbox)
-      toolbox.addEventListener("click", () => {
-        this.overlay("tools", {type: "expert"})
-      })
-    }
     if (event === "toolbox-getter") {
       const script = this.create("script/id", "toolbox-getter")
       this.add("script-onbody", script)
@@ -818,9 +805,21 @@ export class Helper {
       return new Promise(async(resolve, reject) => {
         try {
           function addToolbox(){
-
             if (Helper.verifyIs("path/valid")) {
-              Helper.add("toolbox/buttons")
+              function createToolboxButtons() {
+                let back = document.querySelector("div.go-back")
+                if (!back) back = button.div("go-back")
+                button.addEvent("go-back", back)
+                const toolbox = button.div("toolbox")
+                back.setAttribute("data-id", "toolbox")
+                toolbox.setAttribute("data-id", "toolbox")
+                document.body.insertBefore(back, document.querySelector("#toolbox"))
+                document.body.insertBefore(toolbox, document.querySelector("#toolbox"))
+                toolbox.addEventListener("click", () => {
+                  Helper.overlay("tools", {type: "expert"})
+                })
+              }
+              createToolboxButtons()
               Helper.add("observer/id-mutation")
               const save = (ev) => {
                 if ((ev.ctrlKey || ev.metaKey) && ev.key === 's') {
@@ -1082,54 +1081,6 @@ export class Helper {
 
         } catch (error) {
           reject(error)
-        }
-      })
-    }
-    if (event === "prefill-field-funnel") {
-      return new Promise(async(resolve, reject) => {
-        try {
-          for (let i = 0; i < document.querySelectorAll(".field-funnel").length; i++) {
-            const funnel = document.querySelectorAll(".field-funnel")[i]
-            const res = await this.request("/jwt/get/location/list/0/", {platform: window.location.pathname.split("/")[2], tag: funnel.id})
-            if (res.status === 200) {
-              const map = JSON.parse(res.response)
-              this.render("map/field-funnel", map, funnel)
-            }
-          }
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-    if (event === "submit-field-funnel") {
-      document.querySelectorAll(".field-funnel").forEach(funnel => {
-        this.add("outline-hover/field-funnel", funnel)
-        const submitButton = funnel.querySelector(".submit-field-funnel-button")
-        if (submitButton !== null) {
-          if (submitButton.onclick === null) {
-            submitButton.onclick = async () => {
-              if (this.verifyIs("tag/empty", funnel.id)) {
-                window.alert("Funnel ist nicht gültig: id ist kein tag")
-                throw new Error("funnel tag is empty")
-              }
-              const map = await this.convert("field-funnel/map", funnel)
-              if (map !== undefined) {
-                this.overlay("lock", async securityOverlay => {
-                  const res = await this.request("/register/location/list/", {tag: funnel.id, map})
-                  if (res.status === 200) {
-                    window.alert("Daten wurden erfolgreich gespeichert.")
-                    if (funnel.hasAttribute("next-path")) {
-                      window.location.assign(funnel.getAttribute("next-path"))
-                    }
-                    securityOverlay.remove()
-                  } else {
-                    window.alert("Fehler.. Bitte wiederholen.")
-                    securityOverlay.remove()
-                  }
-                })
-              }
-            }
-          }
         }
       })
     }
@@ -1623,7 +1574,7 @@ export class Helper {
       if (input.type === "checkbox") {
         input.style.outline = `2px solid ${color}`
       }
-      const signs = input.parentNode.querySelectorAll("div[class='sign']")
+      const signs = input.parentElement.querySelectorAll("div[class='sign']")
       signs.forEach(sign => sign.remove())
       if (signs.length === 0) {
         input.sign = document.createElement("div")
@@ -1635,7 +1586,7 @@ export class Helper {
         input.sign.style.color = color
         input.sign.style.fontSize = "34px"
         input.sign.style.fontFamily = "sans-serif"
-        input.parentNode.append(input.sign)
+        input.parentElement.appendChild(input.sign)
         return input
       }
       if (signs.length > 0) {
@@ -1648,7 +1599,7 @@ export class Helper {
         input.sign.style.color = color
         input.sign.style.fontSize = "34px"
         input.sign.style.fontFamily = "sans-serif"
-        input.parentNode.append(input.sign)
+        input.parentElement.appendChild(input.sign)
         return input
       }
       return input
@@ -1663,7 +1614,7 @@ export class Helper {
         input.style.outline = "2px solid #00c853"
       }
       input.style.borderRadius = "3px"
-      const signs = input.parentNode.querySelectorAll("div[class='sign']")
+      const signs = input.parentElement.querySelectorAll("div[class='sign']")
       if (signs.length === 0) {
         input.sign = document.createElement("div")
         input.sign.classList.add("sign")
@@ -1674,7 +1625,7 @@ export class Helper {
         input.sign.style.color = "#00c853"
         input.sign.style.fontSize = "34px"
         input.sign.style.fontFamily = "sans-serif"
-        input.parentNode.append(input.sign)
+        input.parentElement.appendChild(input.sign)
         return input
       }
       if (signs.length > 0) {
@@ -1688,7 +1639,7 @@ export class Helper {
         input.sign.style.color = "#00c853"
         input.sign.style.fontSize = "34px"
         input.sign.style.fontFamily = "sans-serif"
-        input.parentNode.append(input.sign)
+        input.parentElement.appendChild(input.sign)
         return input
       }
       return input
@@ -2045,7 +1996,7 @@ export class Helper {
       this.create("header/left-right", input)
       this.create("header/nav", input)
 
-      this.render("text/title", "Essentielles zum Anlagenaufbau", input)
+      this.render("text/h1", "Essentielles zum Anlagenaufbau", input)
 
       const info = this.create("info/success", input)
       info.textContent = "Bitte befolgen Sie diese Schritte, um den einwandfreien Aufbau ihres Energiesystems vorzubereiten."
@@ -2154,6 +2105,20 @@ export class Helper {
         div.options = it
         div.input.textValue(it)
       }
+      div.addOption = (text, value) => {
+        const option = document.createElement("option")
+        option.value = value
+        option.text = text
+        this.append(option, div.input)
+      }
+      div.append = options => {
+        for (let i = 0; i < options.length; i++) {
+          const option = document.createElement("option")
+          option.value = options[i]
+          option.text = options[i]
+          this.append(option, div.input)
+        }
+      }
       div.input.add = options => {
         div.input.textContent = ""
         for (let i = 0; i < options.length; i++) {
@@ -2235,9 +2200,7 @@ export class Helper {
       div.input = document.createElement("textarea")
       div.input.className = "w89p dark-light"
       this.append(div.input, div)
-      div.input.oninput = ev => this.verify("input/value", div.input)
       this.add("hover-outline", div.input)
-      this.verify("input/value", div.input)
       input?.appendChild(div)
       return div
     }
@@ -2248,14 +2211,6 @@ export class Helper {
       div.appendChild(div.input)
       div.input.type = "checkbox"
       div.input.style.transform = "scale(2)"
-      this.add("style/not-valid", div.input)
-      div.input.oninput = ev => {
-        if (ev.target.checked === true) {
-          this.add("style/valid", div.input)
-        } else {
-          this.add("style/not-valid", div.input)
-        }
-      }
       if (input) this.append(div, input)
       return div
     }
@@ -2303,12 +2258,10 @@ export class Helper {
       div.input.classList.add("email")
       div.input.type = "email"
       div.input.placeholder = "E-Mail Adresse"
-      div.input.addEventListener("input", ev => this.verify("input/value", div.input))
       div.input.setAttribute("required", "true")
       div.input.setAttribute("accept", "text/email")
       this.style(div.input, {width: "89%", fontSize: "21px"})
       this.add("hover-outline", div.input)
-      this.verify("input/value", div.input)
       this.convert("dark-light", div.input)
       input?.appendChild(div)
       return div
@@ -2397,7 +2350,6 @@ export class Helper {
       div.input.type = "range"
       this.style(div.input, {width: "89%", fontSize: "21px"})
       this.add("hover-outline", div.input)
-      this.verify("input/value", div.input)
       this.convert("dark-light", div.input)
       input?.appendChild(div)
       return div
@@ -2415,7 +2367,6 @@ export class Helper {
       this.add("hover-outline", div.input)
       this.convert("dark-light", div.input)
       this.style(div.input, {width: "89%", fontSize: "21px"})
-      this.verify("input/value", div.input)
       if (input) this.append(div, input)
       return div
     }
@@ -2424,7 +2375,6 @@ export class Helper {
       tag.input.maxLength = "21"
       tag.input.setAttribute("accept", "text/tag, text/length")
       tag.input.setAttribute("required", "true")
-      this.verify("input/value", tag.input)
       if (input) this.append(tag, input)
       return tag
     }
@@ -2438,7 +2388,6 @@ export class Helper {
       this.add("hover-outline", div.input)
       this.convert("dark-light", div.input)
       this.style(div.input, {width: "89%", fontSize: "21px"})
-      this.verify("input/value", div.input)
       if (input) this.append(div, input)
       return div
     }
@@ -2451,7 +2400,6 @@ export class Helper {
       div.input.type = "text"
       div.input.oninput = ev => this.verify("input/value", div.input)
       this.add("hover-outline", div.input)
-      this.verify("input/value", div.input)
       if (input) this.append(div, input)
       return div
     }
@@ -6080,10 +6028,7 @@ export class Helper {
       return rgba
     }
     if (event === "markdown/html") {
-      // Convert '#' at the beginning of a line to <h1> tag
       input = input.replace(/^# (.+)$/gm, '<h1>$1</h1>')
-
-      // Convert '##' at the beginning of a line to <h2> tag
       input = input.replace(/^## (.+)$/gm, '<h2>$1</h2>')
       input = input.replace(/^### (.+)$/gm, '<h3>$1</h3>')
 
@@ -6675,7 +6620,6 @@ export class Helper {
       labelContainer.style.cursor = "pointer"
       labelContainer.childNodes.forEach(child => child.style.cursor = "pointer")
       labelContainer.onclick = () => {
-
         this.overlay("pop", async overlay => {
           const content = this.create("div/scrollable", overlay)
           content.innerHTML = await Helper.convert("text/purified", input.getAttribute("on-info-click"))
@@ -10556,98 +10500,7 @@ export class Helper {
               copyBlueprint(it, o2)
               emailBlueprint(it, o2)
               const blueprintBtn = this.render("button/left-right", {left: ".blueprint", right: "Erstelle deinen eigenen Funnel"}, content)
-              const nextBtn = Helper.render("button/left-right", {left: ".next", right: "Nach Abschluss, zur Werteinheit"}, content)
-              nextBtn.onclick = () => {
-                Helper.overlay("pop", o3 => {
-                  const content = o3.content
-                  Helper.render("next/path", node, content)
-                })
-              }
-              {
-                const button = Helper.create("button/left-right", content)
-                button.left.textContent = ".on-info-click"
-                button.right.textContent = "Dieses Skript sucht und öffnet deine Tags im Field Funnel"
-                button.onclick = () => {
-                  const script = Helper.create("script/id", "on-info-click")
-                  Helper.add("script-onbody", script)
-                  window.alert("Skript wurde erfolgreich angehängt.")
-                }
-              }
-              {
-                const button = Helper.create("button/left-right", content)
-                button.left.textContent = ".prefill-field-funnel"
-                button.right.textContent = "Fülle die Datenfelder mit den eigenen Nutzerdaten"
-                button.onclick = () => {
-                  const script = Helper.create("script/id", "prefill-field-funnel")
-                  Helper.add("script-onbody", script)
-                  window.alert("Skript wurde erfolgreich angehängt.")
-                }
-              }
               await o1.removeIt(it, o2)
-              {
-                const button = Helper.create("button/left-right", content)
-                button.left.textContent = ".reset"
-                button.right.textContent = "Klick Funnel zurücksetzen"
-                button.addEventListener("click", () => {
-
-                  for (let i = 0; i < node.children.length; i++) {
-                    const element = node.children[i]
-                    element.style.display = "none"
-                    if (element.classList.contains("start-click-funnel-button")) {
-                      element.style.display = "flex"
-                    }
-                  }
-                  window.alert("Funnel erfolgreich zurückgesetzt.")
-                })
-              }
-              {
-                const submitFieldFunnel = Helper.create("button/left-right", content)
-                submitFieldFunnel.left.textContent = ".submit-field-funnel"
-                submitFieldFunnel.right.textContent = "Field Funnel Submit Skript anhängen"
-                submitFieldFunnel.onclick = () => {
-
-                  const script = Helper.create("script/id", "submit-field-funnel")
-                  Helper.add("script-onbody", script)
-                  window.alert("Skript wurde erfolgreich angehängt.")
-                }
-
-                const submitToIds = Helper.create("button/left-right", content)
-                submitToIds.left.textContent = ".submit-to-ids"
-                submitToIds.right.textContent = "Funnel an Ids senden"
-                submitToIds.onclick = () => {
-
-                  Helper.overlay("pop", o3 => {
-                    const content = o3.content
-                    const selectorField = Helper.create("input/text", content)
-                    selectorField.input.placeholder = "Selector zu deinem Funnel"
-                    selectorField.input.setAttribute("required", "true")
-                    Helper.verify("input/value", selectorField.input)
-                    const contactsSelect = Helper.create("input/contacts", content)
-                    Helper.add("style/not-valid", contactsSelect.input)
-                    const submit = button.append("action", content)
-                    submit.textContent = "Skript jetzt anhängen"
-                    submit.onclick = async () => {
-
-                      await Helper.verify("input/value", selectorField.input)
-                      const selector = selectorField.input.value
-                      const ids = contactsSelect.selectedIds()
-                      if (ids.length <= 0) {
-                        Helper.add("style/not-valid", contactsSelect.input)
-                        return
-                      }
-                      const script = document.createElement("script")
-                      script.id = "submit-to-ids"
-                      script.src = `/js/${script.id}.js`
-                      script.type = "module"
-                      script.setAttribute("funnel", selector)
-                      script.setAttribute("ids", ids.join(","))
-                      Helper.add("script-onbody", script)
-                      window.alert("Skript wurde erfolgreich angehängt.")
-                      Helper.remove("overlays")
-                    }
-                  })
-                }
-              }
               o1.visibility(it, o2)
             })
           }
@@ -10740,7 +10593,7 @@ export class Helper {
     if (event === "openLayerOverlay") {
       return (layer, node) => {
         this.overlay("pop", async layerOverlay => {
-          this.render("text/title", "Wähle einen Layer aus", layerOverlay)
+          this.render("text/h1", "Wähle einen Layer aus", layerOverlay)
           const buttons = this.create("div/scrollable", layerOverlay)
           const fatherButton = this.create("button/left-right", buttons)
           fatherButton.classList.add("father-button")
@@ -10902,7 +10755,7 @@ export class Helper {
         if (result === true) {
 
           this.overlay("pop", async layerOverlay => {
-            this.render("text/title", "Wähle einen Layer aus", layerOverlay)
+            this.render("text/h1", "Wähle einen Layer aus", layerOverlay)
 
             const layers = this.create("div/scrollable", layerOverlay)
 
@@ -12097,10 +11950,9 @@ export class Helper {
       it.environment.input.setAttribute("accept", "text/length")
       it.environment.input.maxLength = "987"
       it.environment.input.placeholder = `Environments: Beschreibe deine Umgebung ?
-
-- URL Link
-- Browser
-- App
+        - URL Link
+        - Browser
+        - App
       `
       it.environment.input.style.height = "144px"
       it.environment.input.style.fontSize = "13px"
@@ -12218,8 +12070,8 @@ export class Helper {
       it.notes.input.id = "notes"
       it.notes.input.className = "vh55 fs13"
       it.notes.input.placeholder = `next:email(Meine Notizen)
-next:tel(Meine Notizen)
-next:webcall(Meine Notizen)
+        next:tel(Meine Notizen)
+        next:webcall(Meine Notizen)
       `
       this.append(it.submit, it)
     }
@@ -12238,14 +12090,13 @@ next:webcall(Meine Notizen)
 
       it.aboutYou = this.create("input/textarea", it)
       it.aboutYou.input.placeholder = `Erzähl etwas über dich ?
+        - was du gerade machst (beruflich oder privat)
+        - etwas was dem anderen hilft
+        - von jetzt sprechen
+        - praktische Beispiele (beruflich oder privat)
+        - Schlüsselwörter benutzen (IT, Beratung)
 
-- was du gerade machst (beruflich oder privat)
-- etwas was dem anderen hilft
-- von jetzt sprechen
-- praktische Beispiele (beruflich oder privat)
-- Schlüsselwörter benutzen (IT, Beratung)
-
-z.b., ich bin ... (deine Person), das heißt ... (Vorteil), das bedeutet für dich ... (Nutzen für den anderen).
+        z.b., ich bin ... (deine Person), das heißt ... (Vorteil), das bedeutet für dich ... (Nutzen für den anderen).
       `
       it.aboutYou.input.style.height = "144px"
       this.add("style/valid", it.aboutYou.input)
@@ -12254,16 +12105,15 @@ z.b., ich bin ... (deine Person), das heißt ... (Vorteil), das bedeutet für di
       it.aboutYou.input.maxLength = "987"
       it.whyThis = this.create("input/textarea", it)
       it.whyThis.input.placeholder = `Was kannst du besonders gut ?
+        - Nicht in Bullet Points schreiben
+        - Vollständige Sätze formulieren
 
-- Nicht in Bullet Points schreiben
-- Vollständige Sätze formulieren
+        z.b., mit der STAR Methode:
 
-z.b., mit der STAR Methode:
-
-1. Situation
-2. Task
-3. Action
-4. Result
+        1. Situation
+        2. Task
+        3. Action
+        4. Result
       `
       it.whyThis.input.style.height = "144px"
       this.add("style/valid", it.whyThis.input)
@@ -12272,8 +12122,7 @@ z.b., mit der STAR Methode:
       it.whyThis.input.maxLength = "987"
       it.motivation = this.create("input/textarea", it)
       it.motivation.input.placeholder = `Wie motivierst du dich ?
-
-z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, ..
+        z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, ..
       `
       it.motivation.input.style.height = "144px"
       this.add("style/valid", it.motivation.input)
@@ -12942,6 +12791,56 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
               o1.registerHtmlButton(callback.type)
               o1.addInfo(`<${this.convert("node/selector", child)}`)
               const buttons = o1.content
+              if (["BODY", "DIV", "P"].includes(child.tagName)) {
+                const aBtn = this.render("button/left-right", {left: ".a", right: "Anker anhängen"}, buttons)
+                aBtn.onclick = () => {
+                  this.overlay("pop", o2 => {
+                    const content = o2.content
+                    const href = this.create("input/text", content)
+                    href.input.placeholder = "href"
+                    href.input.setAttribute("required", "true")
+                    const textContent = this.create("input/text", content)
+                    textContent.input.placeholder = "textContent"
+                    const target = this.create("input/select", content)
+                    target.addOption("-- target")
+                    const options = ["_blank", "_self", "_parent", "_top"]
+                    target.append(options)
+                    const tooltip = this.create("input/text", content)
+                    tooltip.input.placeholder = "tooltip"
+                    const download = this.create("input/text", content)
+                    download.input.placeholder = "download"
+                    this.verify("inputs", content)
+                    const submit = action("Anker jetzt anhängen", content)
+                    submit.onclick = async () => {
+                      await this.verify("funnel", content)
+                      const a = document.createElement("a")
+                      a.className = "break-word sans-serif"
+                      const hrefValue = href.input.value
+                      a.href = hrefValue
+                      const targetValue = target.input.value
+                      if (!this.verifyIs("text/empty", targetValue)) {
+                        a.target = targetValue
+                      }
+                      const tooltipValue = tooltip.input.value
+                      if (!this.verifyIs("text/empty", tooltipValue)) {
+                        a.title = tooltipValue
+                      }
+                      const downloadValue = download.input.value
+                      if (!this.verifyIs("text/empty", downloadValue)) {
+                        a.download = downloadValue
+                      }
+                      const textValue = textContent.input.value
+                      if (!this.verifyIs("text/empty", textValue)) {
+                        a.textContent = textValue
+                      } else {
+                        a.textContent = hrefValue
+                      }
+                      child.appendChild(a)
+                      this.remove("overlays")
+                    }
+                  })
+                }
+              }
               const appendChildBtn = this.render("button/left-right", {left: ".appendChild", right: "HTML Element anhängen"}, buttons)
               appendChildBtn.onclick = () => {
                 const prompt = window.prompt("Gebe ein HTML Element Tag ein:")
@@ -13727,9 +13626,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                   button.left.textContent = ".md"
                   button.right.textContent = "Markdown konvertieren und anhängen"
                   button.onclick = async () => {
-
                     this.overlay("pop", o2 => {
-                      o2.addInfo(".md-to-div")
+                      o2.addInfo(this.convert("element/alias", child))
                       const funnel = o2.content
                       const field = this.create("input/textarea", funnel)
                       field.input.placeholder = "Markdown zu HTML konvertieren (md/html)\n\n# Hello, Markdown! .. "
@@ -13741,7 +13639,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                       const submit = this.create("button/action", funnel)
                       submit.textContent = "Markdown jetzt anhängen"
                       submit.onclick = async () => {
-
                         await this.verify("input/value", field.input)
                         const markdown = field.input.value
                         const html = this.convert("markdown/html", markdown)
@@ -14572,20 +14469,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             })
           })
         }
-        if (callback.type === "expert") {
-          const feedBtn = this.render("button/left-right", {left: ".feed", right: "Entwickle eine Datenliste für deine Nutzer"}, buttons)
-          feedBtn.onclick = () => {
-            this.overlay("pop", o2 => {
-              const content = o2.content
-              o2.addInfo(".feed")
-              const title = this.create("input/text", content)
-              title.input.placeholder = "Titel"
-              const description = this.create("input/textarea", content)
-              description.input.placeholder = "Beschreibung"
-              const funnel = this.create("input/select", content)
-            })
-          }
-        }
         const forEachBtn = this.render("button/left-right", {left: ".forEach", right: "Anwendungen für jedes HTML Element"}, buttons)
         forEachBtn.onclick = () => {
           this.overlay("pop", o2 => {
@@ -14693,6 +14576,10 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                 {name: "minepi.com", url: "https://minepi.com/pnts"},
               ]
               createIntegration(".currency", currencyIntegrations)
+              const infoIntegrations = [
+                {name: "html-tags", url: "https://developer.mozilla.org/en-US/docs/Web/HTML/Element"},
+              ]
+              createIntegration(".info", infoIntegrations)
               const mailIntegrations = [
                 {name: "yopmail.com", url: "https://www.yopmail.com/"},
               ]
@@ -15221,6 +15108,105 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                         script.type = "module"
                         script.setAttribute("chatId", chatId)
                         document.body.appendChild(script)
+                        return
+                      }
+                      if (path === "feed.js") {
+                        this.overlay("pop", o2 => {
+                          const content = o2.content
+                          o2.addInfo(".feed")
+                          const feedScript = document.getElementById("feed")
+                          let feedFunnel
+                          let feedAlgo
+                          if (feedScript) {
+                            feedFunnel = feedScript.getAttribute("funnel")
+                            feedAlgo = feedScript.getAttribute("algo")
+                          }
+                          const title = this.create("input/text", content)
+                          title.input.placeholder = "Titel"
+                          title.input.maxLength = "55"
+                          title.input.setAttribute("required", "true")
+                          const h1 = document.querySelector("h1")
+                          if (h1) title.input.value = h1.textContent
+                          const description = this.create("input/textarea", content)
+                          description.input.placeholder = "Beschreibung"
+                          description.input.maxLength = "144"
+                          description.input.setAttribute("required", "true")
+                          const h2 = document.querySelector("h2")
+                          if (h2) description.input.value = h2.textContent
+                          const funnelSelect = this.create("input/select", content)
+                          funnelSelect.input.setAttribute("required", "true")
+                          funnelSelect.addOption("Wähle einen Funnel")
+                          post("/jwt/get/funnel/").then(res => {
+                            if (res.status === 200) {
+                              const funnel = JSON.parse(res.response)
+                              funnel.forEach(it => funnelSelect.addOption(it.id, it.created))
+                              if (feedFunnel) {
+                                funnelSelect.selectByValue([feedFunnel])
+                                this.verify("input/value", funnelSelect.input)
+                              }
+                            }
+                          })
+                          const algoSelect = this.create("input/select", content)
+                          algoSelect.input.setAttribute("required", "true")
+                          algoSelect.addOption("Wähle einen Algorithmus")
+                          algoSelect.addOption("shuffle", "shuffle")
+                          if (feedAlgo) {
+                            algoSelect.selectByText([feedAlgo])
+                          }
+                          this.verify("inputs", content)
+                          const submit = action("Feed jetzt erstellen", content)
+                          submit.onclick = async () => {
+                            await this.verify("funnel", content)
+                            const feedTitle = title.input.value
+                            const feedDescription = description.input.value
+                            const feedFunnel = funnelSelect.input.value
+                            const feedAlgo = algoSelect.input.value
+                            if (!h1) this.render("text/h1", feedTitle, document.body)
+                            this.render("text/title", feedTitle, document.head)
+                            if (!h2) this.render("text/h2", feedDescription, document.body)
+                            const script = document.createElement("script")
+                            script.id = "feed"
+                            script.src = `/js/${script.id}.js`
+                            script.type = "module"
+                            script.setAttribute("funnel", feedFunnel)
+                            script.setAttribute("algo", feedAlgo)
+                            Helper.add("script-onbody", script)
+                            this.remove("overlays")
+                          }
+                        })
+                        return
+                      }
+                      if (path === "submit-to-ids.js") {
+                        Helper.overlay("pop", o3 => {
+                          const content = o3.content
+                          const selectorField = Helper.create("input/text", content)
+                          selectorField.input.placeholder = "Selector zu deinem Funnel"
+                          selectorField.input.setAttribute("required", "true")
+                          Helper.verify("input/value", selectorField.input)
+                          const contactsSelect = Helper.create("input/contacts", content)
+                          Helper.add("style/not-valid", contactsSelect.input)
+                          const submit = Helper.div("action", content)
+                          submit.textContent = "Skript jetzt anhängen"
+                          submit.onclick = async () => {
+
+                            await Helper.verify("input/value", selectorField.input)
+                            const selector = selectorField.input.value
+                            const ids = contactsSelect.selectedIds()
+                            if (ids.length <= 0) {
+                              Helper.add("style/not-valid", contactsSelect.input)
+                              return
+                            }
+                            const script = document.createElement("script")
+                            script.id = "submit-to-ids"
+                            script.src = `/js/${script.id}.js`
+                            script.type = "module"
+                            script.setAttribute("funnel", selector)
+                            script.setAttribute("ids", ids.join(","))
+                            Helper.add("script-onbody", script)
+                            window.alert("Skript wurde erfolgreich angehängt.")
+                            Helper.remove("overlays")
+                          }
+                        })
                         return
                       }
                       window.alert("Skript erfolgreich angehängt.")
@@ -16419,7 +16405,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
                     button.left.textContent = ".update"
                     button.onclick = () => {
                       this.overlay("pop", async overlay => {
-                        this.render("text/title", `${this.convert("text/capital-first-letter", input.tag)}-${i + 1}`, overlay)
+                        this.render("text/h1", `${this.convert("text/capital-first-letter", input.tag)}-${i + 1}`, overlay)
                         const fieldFunnel = await this.convert("path/field-funnel", input.path)
                         overlay.append(fieldFunnel)
                         fieldFunnel.querySelectorAll(".field").forEach(field => {
@@ -16829,7 +16815,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         const right = this.create("div", itemDiv)
         right.style.display = "flex"
         right.style.justifyContent = "flex-end"
-        const title = this.render("text/title", `${Number(item.price).toFixed(2).replace(".", ",")} €`, right)
+        const title = this.render("text/h1", `${Number(item.price).toFixed(2).replace(".", ",")} €`, right)
         title.style.margin = "21px 0"
 
       }
@@ -17716,7 +17702,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
 
                       this.removeOverlayButton(overlay)
 
-                      this.render("text/title", "Detailansicht", overlay)
+                      this.render("text/h1", "Detailansicht", overlay)
 
                       const content = this.create("div/scrollable", overlay)
                       content.style.display = "grid"
@@ -18539,19 +18525,12 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       return span
     }
     if (event === "text/title") {
-      const title = document.createElement("div")
-      title.textContent = input
-      title.style.margin = "21px 34px"
-      title.style.fontSize = "21px"
-      title.style.fontFamily = "sans-serif"
-
-      title.style.color = this.colors.light.text
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        title.style.color = this.colors.dark.text
+      let title = document.querySelector("title")
+      if (!title) {
+        title = document.createElement("title")
+        if (parent) parent.appendChild(title)
       }
-
-      if (parent !== undefined) parent.append(title)
-
+      title.textContent = input
       return title
     }
     if (event === "text/top-right") {
@@ -19424,7 +19403,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         parent.style.cursor = "pointer"
         parent.onclick = () => {
           this.overlay("pop", overlay => {
-            this.render("text/title", "Detailansicht", overlay)
+            this.render("text/h1", "Detailansicht", overlay)
 
             const content = this.create("div/scrollable", overlay)
             content.style.display = "grid"
@@ -20245,33 +20224,11 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     return this._toolboxGetter
   }
   static update(event, parent, input) {
-    // event = tag/on/algorithm
-
     // no parent needed to get data
     if (arguments.length === 2) {
       input = parent
     }
-
-
-    if (event === "toolbox-getter") {
-
-      return new Promise(async resolve => {
-
-        document.querySelectorAll("#toolbox-getter").forEach(getter => getter.remove())
-        document.querySelectorAll("#toolbox").forEach(toolbox => toolbox.remove())
-        document.querySelectorAll("[data-id='toolbox']").forEach(toolbox => toolbox.remove())
-
-        if (document.getElementById("#toolbox-getter") === null) {
-          await this.add("script/toolbox-getter")
-          return resolve()
-        }
-
-      })
-
-    }
-
     if (event === "input/type") {
-
       const create = document.createElement("input")
 
       if (parent.hasAttribute("id")) {
@@ -20299,9 +20256,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       parent.before(create)
       parent.remove()
     }
-
     if (event === "field-input/type") {
-
       if (parent.tagName !== "TEXTAREA") {
 
         if (input === "textarea") {
@@ -20317,9 +20272,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
 
       this.update("input/type", parent, input)
-
     }
-
   }
   static skipSiblings(index, sibling) {
 
@@ -20403,31 +20356,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     if (event === "funnel") {
       return new Promise(async(resolve, reject) => {
         try {
-          const observer = new MutationObserver((mutationsList, observer) => {
-
-            for (const mutation of mutationsList) {
-              if (mutation.type === 'attributes') {
-                const lockedAttributes = [
-                  "accept",
-                  "id",
-                  "maxlength",
-                  "required",
-                  "min",
-                  "max",
-                  "pattern",
-                  "step",
-                  "type",
-                  "value",
-                  "disabled",
-                  "readonly",
-                  "minlength",
-                ]
-                if (lockedAttributes.includes(mutation.attributeName)) {
-                  window.location.reload()
-                }
-              }
-            }
-          })
           const allNodes = new Set()
           if (typeof input === "object") {
             for (const key in input) {
@@ -20442,21 +20370,13 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
             const nodes = input.querySelectorAll("input, textarea, select")
             nodes.forEach(node => allNodes.add(node))
           }
-          allNodes.forEach(node => {
-            observer.observe(node, { attributes: true, childList: true, subtree: true })
-          })
-          allNodes.forEach(node => {
-            node.oninput = () => this.verifyIs("input/valid", node)
-          })
-
           for (const node of allNodes) {
-            const isValid = await this.verifyIs("input/valid", node)
+            const isValid = await this.verify("input/value", node)
             if (!isValid) {
               node.scrollIntoView({ behavior: "smooth", block: "start" })
               throw new Error("funnel invalid")
             }
           }
-          observer.disconnect()
           resolve()
         } catch (error) {
           reject(error)
@@ -20510,11 +20430,11 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       })
     }
     if (event === "input/value") {
-      return new Promise(async(resolve, reject) => {
+      return new Promise((resolve, reject) => {
         try {
-          const res = await this.verifyIs("input/valid", input)
-          if (res === true) resolve()
-          if (res === false) throw new Error("input invalid")
+          const isValid = this.verifyIs("input/valid", input)
+          if (isValid) resolve(isValid)
+          else throw new Error("input invalid")
         } catch (error) {
           reject(error)
         }
@@ -20523,16 +20443,42 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
     if (event === "inputs") {
       return new Promise(async(resolve, reject) => {
         try {
-          const results = await Promise.all(Array.from(input).map(node => this.verifyIs("input/valid", node)))
-          const allValid = results.every(isValid => isValid)
-          if (!allValid) {
-            const first = input[results.findIndex(isValid => !isValid)]
-            first.scrollIntoView({ behavior: "smooth", block: "start" })
-            throw new Error("funnel invalid")
-          }
+          const observer = new MutationObserver((mutationsList, observer) => {
+            for (const mutation of mutationsList) {
+              if (mutation.type === 'attributes') {
+                const lockedAttributes = [
+                  "accept",
+                  "id",
+                  "maxlength",
+                  "required",
+                  "min",
+                  "max",
+                  "pattern",
+                  "step",
+                  "type",
+                  "value",
+                  "disabled",
+                  "readonly",
+                  "minlength",
+                ]
+                if (lockedAttributes.includes(mutation.attributeName)) {
+                  window.location.reload()
+                }
+              }
+              return
+            }
+            return
+          })
+          const nodes = input.querySelectorAll("input, textarea, select")
+          nodes.forEach(node => {
+            observer.observe(node, { attributes: true, childList: true, subtree: true })
+            this.verify("input/value", node)
+            node.addEventListener("input", () => this.verify("input/value", node))
+          })
+          observer.disconnect()
           resolve()
-        } catch (error) {
-          reject(error)
+        } catch (e) {
+          reject(e)
         }
       })
     }
@@ -20788,6 +20734,13 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       }
       return false
     }
+    if (event === "maxlength") {
+      if (input.hasAttribute("maxlength")) {
+        const maxLength = parseInt(input.getAttribute("maxlength"), 10)
+        if (input.value.length <= maxLength) return true
+      }
+      return false
+    }
     if (event === "millis/future") {
       if (input > Date.now()) {
         return true
@@ -20974,74 +20927,83 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
       return regex.test(input)
     }
     if (event === "input/valid") {
-      return new Promise((resolve) => {
-        const isRequired = input.hasAttribute("required") || input.hasAttribute("aria-required")
-
-        // required, no accept
-        if (isRequired && !input.hasAttribute("accept")) {
-          if (this.verifyIs("input/required", input)) {
-            this.add("style/valid", input)
-            return resolve(true)
-          } else {
-            this.add("style/not-valid", input)
-            if (input.parentElement) input.parentElement.scrollIntoView({behavior: "smooth"})
-            return resolve(false)
+      const isRequired = this.verifyIs("input/required", input)
+      const hasMaxLength = input.hasAttribute("maxlength")
+      const hasAccept = input.hasAttribute("accept")
+      const isCheckbox = input.getAttribute("type") === "checkbox"
+      const isSelect = input.tagName === "SELECT"
+      function notValid(input) {
+        Helper.add("style/not-valid", input)
+        if (input.parentElement) input.parentElement.scrollIntoView({behavior: "smooth"})
+        return false
+      }
+      function isValid(input) {
+        Helper.add("style/valid", input)
+        return true
+      }
+      function validateRequired(input) {
+        if (isRequired && input.getAttribute("type") === "checkbox") {
+          if (input.getAttribute("checked") === "true") return true
+          if (input.checked === true) return true
+          return false
+        }
+        if (isRequired) {
+          if (typeof input.value === "string") {
+            if (!Helper.verifyIs("text/empty", input.value)) return true
+          }
+          if (typeof input.value === "number") {
+            if (!Helper.verifyIs("number/empty", input.value)) return true
           }
         }
-
-        // accept, no required
-        if (input.hasAttribute("accept") && !isRequired) {
-
-          if (input.value === "") {
-
-            this.add("style/valid", input)
-            return resolve(true)
-
-          } else {
-
-            if (this.verifyIs("input/accepted", input)) {
-
-              this.add("style/valid", input)
-              return resolve(true)
-
-            } else {
-              this.add("style/not-valid", input)
-              if (input.parentElement) input.parentElement.scrollIntoView({behavior: "smooth"})
-              return resolve(false)
-            }
-
-          }
-
+        return false
+      }
+      function validateAccepted(input) {
+        if (hasAccept) {
+          if (Helper.verifyIs("input/accepted", input)) return true
         }
-
-        // no accept, no required
-        if (!input.hasAttribute("accept") && !isRequired) {
-          this.add("style/valid", input)
-          return resolve(true)
+        return false
+      }
+      function validateChecked(input) {
+        if (input.type === "checkbox") {
+          if (Helper.verifyIs("input/checked", input.value)) return true
         }
-
-        // accept and required
-        if (isRequired && input.hasAttribute("accept")) {
-          if (this.verifyIs("input/required", input)) {
-            if (this.verifyIs("input/accepted", input)) {
-              this.add("style/valid", input)
-              return resolve(true)
-            }
-          }
-          this.add("style/not-valid", input)
-          if (input.parentElement) input.parentElement.scrollIntoView({behavior: "smooth"})
-          return resolve(false)
+        return false
+      }
+      function validate(input) {
+        if (isRequired && isCheckbox) {
+          if (input.getAttribute("checked") === "true") return isValid(input)
+          if (input.checked === true) return isValid(input)
+          return notValid(input)
         }
-
-
-      })
+        if (isRequired && hasAccept) {
+          if (validateRequired(input) && validateAccepted(input)) return isValid(input)
+          return notValid(input)
+        }
+        if (isRequired) {
+          if (validateRequired(input)) return isValid(input)
+          return notValid(input)
+        }
+        if (hasAccept) {
+          if (validateAccepted(input)) return isValid(input)
+          return notValid(input)
+        }
+        if (isSelect) {
+          if (!Helper.verifyIs("text/empty", input.value)) return isValid(input)
+          if (!isRequired) return isValid(input)
+          return notValid(input)
+        }
+        if (!isRequired && !hasAccept && !hasMaxLength) return isValid(input)
+        if (hasMaxLength) {
+          if (Helper.verifyIs("maxlength", input)) return isValid(input)
+        }
+        return notValid(input)
+      }
+      return validate(input)
     }
     if (event === "input/accepted") {
       const array = []
       const accept = input.getAttribute("accept")
-
       if (accept && accept.includes("application/pdf")) {
-
         return new Promise(async(resolve, reject) => {
           try {
             const promises = []
@@ -21064,25 +21026,20 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           }
         })
       }
-
       if (accept && accept.includes("text/js")) {
-
         try {
           array.push(this.verifyIs("text/js", input.value))
         } catch (error) {
           array.push(false)
         }
       }
-
       if (accept && accept.includes("text/length")) {
-
         if (input.value.length <= input.maxLength) {
           array.push(true)
         } else {
           array.push(false)
         }
       }
-
       if (accept && accept.includes("text/trees")) {
         if (this.verifyIs("text/trees", input.value)) {
           array.push(true)
@@ -21090,9 +21047,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           array.push(false)
         }
       }
-
       if (accept && accept.includes("text/tree")) {
-
         input.value = input.value.replace(/ /g, ".")
         if (this.verifyIs("text/tree", input.value) === true) {
           array.push(true)
@@ -21100,39 +21055,30 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           array.push(false)
         }
       }
-
       if (accept && accept.includes("text/operator")) {
-
         array.push(this.verifyIs("text/operator", input.value))
       }
-
       if (accept && accept.includes("text/email")) {
-
         if (/^(.+)@(.+)$/.test(input.value) === true) {
           array.push(true)
         } else {
           array.push(false)
         }
       }
-
       if (accept && accept.includes("text/url")) {
-
         if (this.verifyIs("text/url", input.value)) {
           array.push(true)
         } else {
           array.push(false)
         }
       }
-
       if (accept && accept.includes("text/number")) {
-
         if (this.verifyIs("text/number", input.value)) {
           array.push(true)
         } else {
           array.push(false)
         }
       }
-
       if (input.requiredIndex !== undefined) {
         let selected = []
         for (let i = 0; i < input.options.length; i++) {
@@ -21147,7 +21093,6 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           }
         }
       }
-
       if (accept && accept.includes("text/tel")) {
         if (this.verifyIs("text/tel", input.value)) {
           array.push(true)
@@ -21155,9 +21100,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           array.push(false)
         }
       }
-
       if (accept && accept.includes("text/id")) {
-
         input.value = input.value.replace(/ /g, "-")
         if (/^[a-z](?:-?[a-z]+)*$/.test(input.value) === true) {
           if (document.querySelectorAll(`#${input.value}`).length === 0) {
@@ -21167,9 +21110,7 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           }
         }
       }
-
       if (accept && accept.includes("text/path")) {
-
         if (this.verifyIs("text/path", input.value)) {
           this.add("style/valid", input)
           array.push(true)
@@ -21178,18 +21119,14 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           array.push(false)
         }
       }
-
       if (accept && accept.includes("text/hex")) {
-
         if (/^[0-9A-Fa-f]+$/.test(input.value) === true) {
           array.push(true)
         } else {
           array.push(false)
         }
       }
-
       if (accept && accept.includes("text/tag")) {
-
         input.value = input.value.replace(/ /g, "-")
         input.value = input.value.replace(/ö/g, "oe")
         input.value = input.value.replace(/ä/g, "ae")
@@ -21200,18 +21137,14 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           array.push(false)
         }
       }
-
       if (accept && accept.includes("text/https")) {
-
         if (input.value.startsWith("https://")) {
           array.push(true)
         } else {
           array.push(false)
         }
       }
-
       if (accept && accept.includes("email/array")) {
-
         if (!input.value.startsWith("[")) array.push(false)
         if (!input.value.endsWith("]")) array.push(false)
         try {
@@ -21224,12 +21157,8 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         } catch (error) {
           array.push(false)
         }
-
-
       }
-
       if (accept && accept.includes("string/array")) {
-
         if (!input.value.startsWith("[")) array.push(false)
         if (!input.value.endsWith("]")) array.push(false)
         try {
@@ -21242,19 +21171,14 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
         } catch (error) {
           array.push(false)
         }
-
-
       }
-
       if (accept && accept.includes("text/script")) {
-
         if (this.verifyIs("text/script", input.value)) {
           array.push(true)
         } else {
           array.push(false)
         }
       }
-
       if (accept && accept.includes("text/field-funnel")) {
         const funnel = this.convert("text/first-child", input.value)
         if (funnel.tagName === "DIV") {
@@ -21265,29 +21189,20 @@ z.b., ich möchte das Web, für ... (Adressat), scheller und einfacher machen, .
           }
         }
       }
-
       const allTrue = array.every(it => it === true)
       if (allTrue === true) return true
       return false
     }
+    if (event === "input/checked") {
+      return false
+    }
     if (event === "input/required") {
-      // input required
-      const inputIsRequired = (
+      if (
         input.hasAttribute("aria-required") ||
         input.hasAttribute("required") ||
         input.getAttribute("required") === "true" ||
         input.required === true
-      )
-      if (inputIsRequired) {
-        if (input.getAttribute("type") === "checkbox") {
-          if (input.getAttribute("checked") === "true") return true
-          if (input.checked === true) return true
-          return false
-        }
-        if (input.value.trim() !== "") return true
-        return false
-      }
-      // select required
+      ) return true
       if (input.requiredIndex !== undefined) {
         for (let i = 0; i < input.options.length; i++) {
           const option = input.options[i]

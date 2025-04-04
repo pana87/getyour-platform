@@ -287,8 +287,9 @@ it.div = (id, node) => {
     div.website.input.setAttribute("accept", "text/length")
     Helper.append(div.submit, div)
   }
-  Helper.verify("funnel", div)
+  Helper.verify("inputs", div)
   if (node) Helper.append(div, node)
   return div
 }
 export const funnel = it
+export const login = node => funnel.div("login", node)
