@@ -415,6 +415,29 @@ function userToInfo(user) {
   if (user.email) info += `ist unter dieser E-Mail erreichbar: ${user.email}\n`
   return info
 }
+app.post("/get/feed/", 
+  async (req, res) => {
+    try {
+      const funnel = parseInt(req.body.funnel)
+      if (Helper.verifyIs("number/empty", funnel)) throw new Error("req.body.funnel is empty")
+      const algo = req.body.algo
+      if (Helper.verifyIs("text/empty", algo)) throw new Error("req.body.algo is empty")
+      const doc = await db.get("user")
+      const funnelId = Object.values(doc.user)
+        .flatMap(it => it.funnel || [])
+        .find(it => it.created === funnel).id
+      const feed = Object.values(doc.user)
+        .flatMap(it => it.feed || [])
+        .filter(it => it.id === funnelId)
+        // .filter(it => it.verified)
+      if (!feed || feed.length <= 0) throw new Error("feed is empty")
+      return res.send(feed)
+    } catch (e) {
+      await log(e, req)
+      return res.sendStatus(404)
+    }
+  }
+)
 app.post("/location-expert/get/user/info/",
   Helper.verifyLocation,
   Helper.verifyReferer,
@@ -2139,17 +2162,12 @@ app.post("/jwt/get/funnel/",
   Helper.verifyReferer,
   addJwt,
   Helper.verifySession,
+  closedOnly,
   async (req, res, next) => {
     try {
-      if (req.jwt !== undefined) {
-        const doc = await nano.db.use("getyour").get("user")
-        const user = doc.user[req.jwt.id]
-        if (user.id === req.jwt.id) {
-          if (user.funnel !== undefined) {
-            if (user.funnel.length > 0) return res.send(user.funnel)
-          }
-        }
-      }
+      const funnel = req.jwt.user.funnel
+      if (!funnel || funnel.length <= 0) return res.sendStatus(404)
+      return res.send(funnel)
     } catch (e) {
       await log(e, req)
       return res.sendStatus(404)
@@ -2677,6 +2695,7 @@ app.post("/jwt/register/contacts/import/",
       const doc = await nano.db.use("getyour").get("user")
       const user = doc.user[req.jwt.id]
       if (!isJwt(user, req)) return res.sendStatus(404)
+      if (!user.contacts) user.contacts = []
       for (let j = 0; j < req.body.contacts.length; j++) {
         const newContact = req.body.contacts[j]
         let contactExists = false
@@ -7276,6 +7295,9 @@ async function removeUserById(id) {
 function replaceScript(input, id) {
   const regex = new RegExp(`<script id="${id}" type="module"[\\s\\S]*?<\\/script>`, 's')
   const newScript = `<script id="${id}" type="module" src="/js/${id}.js"></script>`
+  if (!input.includes('<body>') || !input.includes('</body>')) {
+    return input.replace('</html>', `<body>${newScript}</body></html>`);
+  }
   if (regex.test(input)) {
     return input.replace(regex, newScript)
   } else {

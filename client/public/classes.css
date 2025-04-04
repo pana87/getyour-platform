@@ -1,6 +1,8 @@
 .absolute {position: absolute;}
-.action {background: #e8a435; color: #333; display: flex; justify-content: center; align-items: center; padding: 13px 0; border-radius: 13px; cursor: pointer; margin: 21px 34px;}
+.action {background: #e8a435; color: #333; display: flex; justify-content: center; align-items: center; padding: 13px 0; border-radius: 13px; cursor: pointer; margin: 21px 34px; font-family: sans-serif;}
 .action:hover {outline: 2px solid #999; border: 1px solid black;}
+.add {display: flex; justify-content: center; align-items: center; font-size: 34px; position: fixed; bottom: 0; right: 0; width: 34px; height: 34px; border-radius: 55px; margin: 34px; padding: 21px; cursor: pointer;}
+.add:hover {outline: 2px solid #999; border: 1px solid black;}
 .align {align-items: center;}
 .align-start {align-self: start;}
 .align-end {align-self: end;}
@@ -25,6 +27,7 @@
 .bg-theme {background-color: #CDD9E5;}
 .block {display: block;}
 .border-dark {border: 0.3px solid #2E4369;}
+.border-green {border: 2px solid #00c853;}
 .border-light {border: 0.3px solid #A0A0A0;}
 .border-purple {border: 0.3px solid #df73ff;}
 .border-theme {border: 0.3px solid #A0A0A0;}
@@ -255,6 +258,7 @@
 .h100p {height: 100%;}
 .hidden {visibility: hidden;}
 .highlight {background-color: yellow; font-weight: bold; color: #333;}
+.hover:hover {outline: 2px solid #999; border: 1px solid black; cursor: pointer;}
 
 .image {width: 100%;}
 .inline {display: inline;}
@@ -330,6 +334,7 @@
 .m377 {margin: 377px;}
 .m610 {margin: 610px;}
 .m987 {margin: 987px;}
+.markdown {font-family: sans-serif; padding-bottom: 144px;}
 .max-h1 {max-height: 1px;}
 .max-h2 {max-height: 2px;}
 .max-h3 {max-height: 3px;}
@@ -507,6 +512,7 @@
 .op0 {opacity: 0;}
 .op1 {opacity: 1;}
 .outline {outline: 3px solid #999;}
+.overlay {display: flex; flex-direction: column; height: 100%; width: 100%; z-index: 2147483647; overscroll-behavior: "none"; position: fixed; top: 0; left: 0;}
 .overscroll-none {overscroll-behavior: none;}
 
 .p0 {padding: 0;}
@@ -660,6 +666,7 @@
 .ripple-out {position: relative; display: inline-block; padding: 10px; border: 2px solid currentColor; border-radius: 8px; animation: ripple-out 3s ease-in-out infinite;}
 
 .sans-serif {font-family: sans-serif;}
+.scrollable {overflow-y: auto; overscroll-behavior: none; padding-bottom: 144px;}
 .shrink {flex-shrink: 0;}
 .start {justify-content: flex-start;}
 .stroke-theme {stroke: #333;}
@@ -755,6 +762,7 @@
 .z1 {z-index: 1;}
 .z2 {z-index: 2;}
 .z3 {z-index: 3;}
+.zmax {z-index: 2147483647;}
 
 @keyframes bounce {
   0% {transform: translateY(-21px);}

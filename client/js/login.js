@@ -1,5 +1,6 @@
 import {Helper} from "/js/Helper.js"
 import {button} from "/js/button.js"
+import {login} from "/js/funnel.js"
 
 button.append("go-back", document.body)
 const content = document.body
@@ -11,11 +12,11 @@ openButton.onclick = () => {
     Helper.render("nav/open", o1.content)
   })
 }
-const funnel = Helper.funnel("login", content)
+const funnel = login(content)
 if (window.localStorage.getItem("email") !== null) {
   funnel.email.input.value = window.localStorage.getItem("email")
 }
-Helper.verify("funnel", funnel)
+Helper.verify("inputs", funnel)
 funnel.submit.onclick = async () => {
   await Helper.verify("funnel", funnel)
   const email = funnel.email.input.value

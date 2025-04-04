@@ -2,7 +2,6 @@ import {Helper} from "/js/Helper.js"
 
 const it = {}
 it.addToolboxOnBody = async () => {
-
   if (document.body) {
     await Helper.add("script/toolbox-getter")
     await Helper.add("toolbox/onbody")

@@ -154,8 +154,7 @@ it.div = name => {
   }
   if (name === "go-back") {
     const button = it.div("back")
-    button.classList.add("go-back")
-    button.classList.add("no-save")
+    button.className += " go-back no-save hover zmax"
     return button
   }
   if (name === "home") {
@@ -175,7 +174,7 @@ it.div = name => {
   }
   if (name === "toolbox") {
     const button = it.div("bottom-right")
-    button.className += " flex align center fs13 btn-theme color-theme monospace no-save"
+    button.className += " zmax hover flex align center fs13 btn-theme color-theme monospace no-save"
     button.textContent = "toolbox"
     return button
   }
@@ -192,5 +191,26 @@ it.render = (name, input, parent) => {
   Helper.add("hover-outline", btn)
   if (parent) Helper.append(btn, parent)
   return btn
+}
+export const action = (text, node) => {
+  const div = document.createElement("div")
+  div.className = "action"
+  div.textContent = text
+  if (node) node.appendChild(div)
+  return div
+}
+export const add = (text, node) => {
+  const div = document.createElement("div")
+  div.className = "add color-theme bg-theme no-save"
+  div.textContent = text
+  if (node) node.appendChild(div)
+  return div
+}
+export const left = (text, node) => {
+  const div = document.createElement("div")
+  div.className = "fixed bottom left w34 h34 br55 m34 p21 flex align center fs21 dark-light-reverse hover"
+  div.textContent = text
+  if (node) node.appendChild(div)
+  return div
 }
 export const button = it

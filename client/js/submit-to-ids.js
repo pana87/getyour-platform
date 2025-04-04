@@ -14,7 +14,6 @@ const formNodes = funnel.querySelectorAll("input, textarea, select")
 Helper.add("attributes-observer", formNodes)
 const submit = funnel.querySelector(".submit-to-ids")
 submit.onclick = async () => {
-
   await Helper.verify("inputs", formNodes)
   const map = Helper.convert("nodelist/map", formNodes)
   Helper.overlay("lock", async lock => {

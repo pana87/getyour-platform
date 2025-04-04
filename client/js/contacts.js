@@ -5,7 +5,6 @@ import {post} from "/js/request.js"
 
 const it = {}
 it.openOverlay = () => {
-
   Helper.overlay("pop", async o1 => {
     o1.onlyClosedUser()
     o1.addInfo(".contacts")
@@ -21,30 +20,14 @@ it.openOverlay = () => {
       Helper.overlay("pop", o2 => {
         const funnel = o2.content
         const field = Helper.create("input/textarea", funnel)
-        Helper.style(field.input, {fontFamily: "monospace", height: "55vh", fontSize: "8px"})
+        field.input.className += " monospace vh55 fs13"
         field.input.setAttribute("required", "true")
-        Helper.verify("input/value", field.input)
-        field.input.placeholder = `[
-{
-email: "neuer@kontakt.de", // id
-alias: "Kontakt Name",  // optional
-birthday: "1999-03-21", // optional
-status: "kontakt status", // optional
-notes: "Kontakt Notizen", // optional
-phone: "+123456789", // optional
-website: "https://www.kontakt-webseite.de/" // optional
-},
-
-.
-.
-
-]
-        `
+        field.input.placeholder = `[{\n  email: "string", // id\n  alias: "string",  // optional\n  birthday: "1999-03-21", // optional\n  status: "string", // optional\n  notes: "string", // optional\n  phone: "+123456789", // optional\n  website: "string" // optional\n}]`
+        Helper.verify("inputs", funnel)
         const submit = Helper.create("button/action", funnel)
         submit.textContent = "Kontakte jetzt importieren"
         submit.onclick = async () => {
-
-          await Helper.verify("input/value", field.input)
+          await Helper.verify("funnel", funnel)
           try {
             const contacts = JSON.parse(field.input.value)
             if (Helper.verifyIs("array/empty", contacts)) throw new Error("contacts is empty")
@@ -70,8 +53,6 @@ website: "https://www.kontakt-webseite.de/" // optional
             window.alert("Deine Kontaktliste ist in einem ungültigen Format.")
             Helper.add("style/not-valid", field.input)
           }
-
-
         }
       })
     }

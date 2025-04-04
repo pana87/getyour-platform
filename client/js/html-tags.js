@@ -19,6 +19,24 @@ export const img = (className, node) => {
   if (node) node.appendChild(img)
   return img
 }
+export const label = (text, node) => {
+  const label = document.createElement("label")
+  label.textContent = text
+  label.className = "relative color-theme fs21 sans-serif block"
+  label.appendChild(node.input)
+  node.appendChild(label)
+  return label
+}
+export const link = (rel, href) => {
+  const link = document.createElement("link")
+  link.id = href
+  link.rel = rel
+  link.href = href
+  if (!document.getElementById(link.id)) {
+    document.head.appendChild(link)
+  }
+  return link
+}
 export const span = (className, node) => {
   const span = document.createElement("span")
   span.className = className
