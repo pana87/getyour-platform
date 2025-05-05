@@ -1,12 +1,7 @@
 cid/
-audios/
 *.bak
 .DS_Store
 .env
-images/
 logs
 node_modules/
 .notes
-security/
-videos/
-static/

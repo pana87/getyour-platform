@@ -1,0 +1,4 @@
+html, body {background: #ddd; color: #333;}
+@media (prefers-color-scheme: dark) {
+  html, body {background: #333; color: #ddd;}
+}
